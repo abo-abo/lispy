@@ -504,23 +504,15 @@ With ARG not nil, cut instead of copying."
 (defun lispy-kill-at-point ()
   "Kill the quoted string or the list that includes the point."
   (interactive)
-  (let (p)
-    (cond
-      ((region-active-p)
-       (kill-new (buffer-substring-no-properties
-                  (region-beginning)
-                  (region-end)))
-       (newline-and-indent)
-       (insert (current-kill 0)))
-
-      ;; called twice in a row
-      ((eq last-command this-command)
-       (newline-and-indent)
-       (insert (current-kill 0)))
-
-      ;; inside a list
-      (t (let ((bounds (lispy--bounds-list)))
-           (kill-region (car bounds) (cdr bounds)))))))
+  (if (region-active-p)
+      (progn
+        (kill-new (buffer-substring-no-properties
+                   (region-beginning)
+                   (region-end)))
+        (newline-and-indent)
+        (insert (current-kill 0)))
+    (let ((bounds (lispy--bounds-list)))
+      (kill-region (car bounds) (cdr bounds)))))
 
 ;; ——— Globals: pairs ——————————————————————————————————————————————————————————
 (defun lispy-pair (left right space-unless)
