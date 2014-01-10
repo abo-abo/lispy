@@ -1239,8 +1239,8 @@ list."
   ;; ——— globals: navigation ——————————————————
   (define-key map (kbd "]")   'lispy-forward)
   (define-key map (kbd "[")   'lispy-backward)
-  (define-key map (kbd "χ")   'lispy-out-forward)
-  (define-key map (kbd "C-χ") 'lispy-out-forward-newline)
+  (define-key map (kbd ")")   'lispy-out-forward)
+  (define-key map (kbd "C-9") 'lispy-out-forward-newline)
   ;; ——— locals: navigation ———————————————————
   (lispy-define-key map "n" 'lispy-forward)
   (lispy-define-key map "h" 'lispy-backward)
@@ -1261,7 +1261,7 @@ list."
   (define-key map (kbd "DEL") 'lispy-delete-backward)
   (define-key map (kbd "M-m") 'lispy-mark-symbol)
   (define-key map (kbd "M-o") 'lispy-string-oneline)
-  (define-key map (kbd "κ")   'lispy-pop-copy)
+  (define-key map (kbd "C-c p") 'lispy-pop-copy)
   (define-key map (kbd "C-,") 'lispy-kill-at-point)
   (define-key map (kbd "C-M-,") 'lispy-mark)
   ;; ——— globals: pairs ———————————————————————
@@ -1269,12 +1269,8 @@ list."
   (define-key map (kbd "{")   'lispy-braces)
   (define-key map (kbd "}")   'lispy-brackets)
   (define-key map (kbd "\"")  'lispy-quotes)
-  (define-key map (kbd "φ")   'lispy-parens)
-  (define-key map (kbd "σ")   'lispy-braces)
-  (define-key map (kbd "ρ")   'lispy-brackets)
-  (define-key map (kbd "θ")   'lispy-quotes)
   ;; ——— globals: insertion ———————————————————
-  (define-key map (kbd "C-φ") 'lispy-parens-down)
+  (define-key map (kbd "C-8") 'lispy-parens-down)
   (define-key map (kbd "SPC") 'lispy-space)
   (define-key map (kbd ":")   'lispy-colon)
   (define-key map (kbd "^")   'lispy-hat)
