@@ -1,0 +1,760 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<title><a href="https://github.com/abo-abo/lispy">lispy.el</a> documentation</title>
+<!-- 2014-02-19 Wed 21:46 -->
+<meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta  name="generator" content="Org-mode" />
+<meta  name="author" content="Oleh" />
+<link rel="stylesheet" type="text/css" href="style.css"/>
+<script type="text/javascript">
+/*
+@licstart  The following is the entire license notice for the
+JavaScript code in this tag.
+
+Copyright (C) 2012-2013 Free Software Foundation, Inc.
+
+The JavaScript code in this tag is free software: you can
+redistribute it and/or modify it under the terms of the GNU
+General Public License (GNU GPL) as published by the Free Software
+Foundation, either version 3 of the License, or (at your option)
+any later version.  The code is distributed WITHOUT ANY WARRANTY;
+without even the implied warranty of MERCHANTABILITY or FITNESS
+FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+
+As additional permission under GNU GPL version 3 section 7, you
+may distribute non-source (e.g., minimized or compacted) forms of
+that code without the copy of the GNU GPL normally required by
+section 4, provided you include this license notice and a URL
+through which recipients can access the Corresponding Source.
+
+
+@licend  The above is the entire license notice
+for the JavaScript code in this tag.
+*/
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+</head>
+<body>
+<div id="content">
+<h1 class="title"><a href="https://github.com/abo-abo/lispy">lispy.el</a> documentation</h1>
+
+<div id="outline-container-sec-1" class="outline-2">
+<h2 id="sec-1">Global bindings</h2>
+<div class="outline-text-2" id="text-1">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="left" />
+
+<col  class="left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="left">key</th>
+<th scope="col" class="left">function name</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="left">]</td>
+<td class="left"><a href="#sec-3-1">lispy-forward</a></td>
+</tr>
+
+<tr>
+<td class="left">[</td>
+<td class="left"><a href="#sec-3-2">lispy-backward</a></td>
+</tr>
+
+<tr>
+<td class="left">C-1</td>
+<td class="left"><a href="#sec-3-6">lispy-describe-inline</a></td>
+</tr>
+
+<tr>
+<td class="left">C-2</td>
+<td class="left"><a href="#sec-3-7">lispy-arglist-inline</a></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="outline-container-sec-2" class="outline-2">
+<h2 id="sec-2">Local bindings</h2>
+<div class="outline-text-2" id="text-2">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="left" />
+
+<col  class="left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="left">key</th>
+<th scope="col" class="left">function name</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="left">q</td>
+<td class="left"><a href="#sec-3-3">lispy-ace-paren</a></td>
+</tr>
+
+<tr>
+<td class="left">h</td>
+<td class="left"><a href="#sec-3-4">lispy-ace-symbol</a></td>
+</tr>
+
+<tr>
+<td class="left">F</td>
+<td class="left"><a href="#sec-3-5">lispy-follow</a></td>
+</tr>
+
+<tr>
+<td class="left">e</td>
+<td class="left"><a href="#sec-3-8">lispy-eval</a></td>
+</tr>
+
+<tr>
+<td class="left">E</td>
+<td class="left"><a href="#sec-3-9">lispy-eval-and-insert</a></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="outline-container-sec-3" class="outline-2">
+<h2 id="sec-3">Function reference</h2>
+<div class="outline-text-2" id="text-3">
+</div><div id="outline-container-sec-3-1" class="outline-3">
+<h3 id="sec-3-1"><a id="ID-d1065cb0-4b22-4d0c-9aad-a96eee0f4b54"></a><code>lispy-forward</code></h3>
+<div class="outline-text-3" id="text-3-1">
+<p>
+Works as replacement for the standard <code>forward-list</code>.
+</p>
+
+<p>
+Takes a numeric prefix <code>arg</code> and moves forward list <code>arg</code> times or
+until error.
+</p>
+
+<p>
+Unlike <code>forward-list</code>, no error will be reported if it's not possible
+to move <code>arg</code> times.
+It that case, move as many times as possible.
+</p>
+
+<p>
+Return <code>t</code> if could move at least once, otherwise
+call <code>lispy-out-forward</code> and return <code>nil</code>.
+</p>
+
+<p>
+Unlike <code>forward-list</code>, parens in strings and comments are ignored.
+</p>
+<hr  />
+</div>
+</div>
+<div id="outline-container-sec-3-2" class="outline-3">
+<h3 id="sec-3-2"><a id="ID-a0171dbc-b2d6-4196-ad1e-f8a7c860dd9b"></a><code>lispy-backward</code></h3>
+<div class="outline-text-3" id="text-3-2">
+<p>
+Works as replacement for the standard <code>bacward-list</code>.
+</p>
+
+<p>
+Takes a numeric prefix <code>arg</code> and moves backward list <code>arg</code> times or
+until error.
+</p>
+
+<p>
+Unlike <code>backward-list</code>, no error will be reported if it's not possible
+to move <code>arg</code> times.
+It that case, move as many times as possible.
+</p>
+
+<p>
+Return <code>t</code> if could move at least once, otherwise
+call <code>lispy-out-backward</code> and return <code>nil</code>.
+</p>
+
+<p>
+Unlike <code>backward-list</code>, parens in strings and comments are ignored.
+</p>
+<hr  />
+</div>
+</div>
+<div id="outline-container-sec-3-3" class="outline-3">
+<h3 id="sec-3-3"><a id="ID-94b1a983-c847-4cb0-9c46-019f058c05a9"></a><code>lispy-ace-paren</code></h3>
+<div class="outline-text-3" id="text-3-3">
+<p>
+Starting with this:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="font-weight: bold;">lispy-define-key</span> (keymap key def <span style="color: #000000; font-style: italic; text-decoration: underline;">&amp;optional</span> from-start)
+  <span style="color: #2A00FF;">"Forward to (`</span><span style="color: #110099;">define-key</span><span style="color: #2A00FF;">' KEYMAP KEY (`</span><span style="color: #110099;">lispy-defun</span><span style="color: #2A00FF;">' DEF FROM-START))."</span>
+  (<span style="color: #7F0055; font-weight: bold;">let</span> ((func (<span style="color: #7F0055; font-weight: bold;">defalias</span> (<span style="font-weight: bold;">intern</span> (concat <span style="color: #2A00FF;">"special-"</span> (symbol-name def)))
+                  (lispy--insert-or-call def from-start))))
+    <cursor>(</cursor><span style="color: #7F0055; font-weight: bold;">unless</span> (member func ac-trigger-commands)
+      (push func ac-trigger-commands))
+    (<span style="color: #7F0055; font-weight: bold;">unless</span> (member func company-begin-commands)
+      (push func company-begin-commands))
+    (eldoc-add-command func)
+    (define-key keymap (kbd key) func)))
+</pre>
+</div>
+<p>
+by pressing <kbd>q</kbd> you get this:
+</p>
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<!-- Created by htmlize-1.47 in css mode. -->
+<html>
+  <head>
+    <title>temp</title>
+    <style type="text/css">
+    <!--
+      body {
+        color: #000000;
+        background-color: #ffffff;
+      }
+      .ace-jump-face-background {
+        /* ace-jump-face-background */
+        color: #666666;
+      }
+      .ace-jump-face-foreground {
+        /* ace-jump-face-foreground */
+        color: #ff0000;
+      }
+      .constant {
+        /* font-lock-constant-face */
+        color: #110099;
+      }
+      .doc {
+        /* font-lock-doc-face */
+        color: #2A00FF;
+      }
+      .function-name {
+        /* font-lock-function-name-face */
+        font-weight: bold;
+      }
+      .keyword {
+        /* font-lock-keyword-face */
+        color: #7F0055;
+        font-weight: bold;
+      }
+      .string {
+        /* font-lock-string-face */
+        color: #2A00FF;
+      }
+      .type {
+        /* font-lock-type-face */
+        color: #000000;
+        font-style: italic;
+        text-decoration: underline;
+      }
+
+      a {
+        color: inherit;
+        background-color: inherit;
+        font: inherit;
+        text-decoration: inherit;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+    -->
+    </style>
+  </head>
+  <body>
+    <pre>
+<span class="ace-jump-face-background"><span class="ace-jump-face-foreground">a</span></span><span class="keyword"><span class="ace-jump-face-background">defun</span></span><span class="ace-jump-face-background"> </span><span class="function-name"><span class="ace-jump-face-background">lispy-define-key</span></span><span class="ace-jump-face-background"> </span><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">b</span></span><span class="ace-jump-face-background">keymap key def </span><span class="type"><span class="ace-jump-face-background">&amp;optional</span></span><span class="ace-jump-face-background"> from-start)
+  </span><span class="doc"><span class="ace-jump-face-background">"Forward to </span></span><span class="doc"><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">c</span></span></span><span class="doc"><span class="ace-jump-face-background">`</span></span><span class="doc"><span class="constant"><span class="ace-jump-face-background">define-key</span></span></span><span class="doc"><span class="ace-jump-face-background">' KEYMAP KEY </span></span><span class="doc"><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">d</span></span></span><span class="doc"><span class="ace-jump-face-background">`</span></span><span class="doc"><span class="constant"><span class="ace-jump-face-background">lispy-defun</span></span></span><span class="doc"><span class="ace-jump-face-background">' DEF FROM-START))."</span></span><span class="ace-jump-face-background">
+  </span><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">e</span></span><span class="keyword"><span class="ace-jump-face-background">let</span></span><span class="ace-jump-face-background"> </span><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">fg</span></span><span class="ace-jump-face-background">func </span><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">h</span></span><span class="keyword"><span class="ace-jump-face-background">defalias</span></span><span class="ace-jump-face-background"> </span><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">i</span></span><span class="function-name"><span class="ace-jump-face-background">intern</span></span><span class="ace-jump-face-background"> </span><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">j</span></span><span class="ace-jump-face-background">concat </span><span class="string"><span class="ace-jump-face-background">"special-"</span></span><span class="ace-jump-face-background"> </span><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">k</span></span><span class="ace-jump-face-background">symbol-name def)))
+                  </span><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">l</span></span><span class="ace-jump-face-background">lispy--insert-or-call def from-start))))
+    </span><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">m</span></span><span class="keyword"><span class="ace-jump-face-background">unless</span></span><span class="ace-jump-face-background"> </span><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">n</span></span><span class="ace-jump-face-background">member func ac-trigger-commands)
+      </span><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">o</span></span><span class="ace-jump-face-background">push func ac-trigger-commands))
+    </span><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">p</span></span><span class="keyword"><span class="ace-jump-face-background">unless</span></span><span class="ace-jump-face-background"> </span><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">q</span></span><span class="ace-jump-face-background">member func company-begin-commands)
+      </span><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">r</span></span><span class="ace-jump-face-background">push func company-begin-commands))
+    </span><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">s</span></span><span class="ace-jump-face-background">eldoc-add-command func)
+    </span><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">t</span></span><span class="ace-jump-face-background">define-key keymap </span><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">u</span></span><span class="ace-jump-face-background">kbd key) func)))</span></pre>
+  </body>
+</html>
+
+<p>
+Now you can change the point position by pressing a letter or
+cancel with <kbd>C-g</kbd>.
+</p>
+<hr  />
+</div>
+</div>
+<div id="outline-container-sec-3-4" class="outline-3">
+<h3 id="sec-3-4"><a id="ID-0c51e02a-e411-4d68-97da-083db9584dc6"></a><code>lispy-ace-symbol</code></h3>
+<div class="outline-text-3" id="text-3-4">
+<p>
+Starting with this:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="font-weight: bold;">lispy-define-key</span> (keymap key def <span style="color: #000000; font-style: italic; text-decoration: underline;">&amp;optional</span> from-start)
+  <span style="color: #2A00FF;">"Forward to (`</span><span style="color: #110099;">define-key</span><span style="color: #2A00FF;">' KEYMAP KEY (`</span><span style="color: #110099;">lispy-defun</span><span style="color: #2A00FF;">' DEF FROM-START))."</span>
+  (<span style="color: #7F0055; font-weight: bold;">let</span> ((func (<span style="color: #7F0055; font-weight: bold;">defalias</span> (<span style="font-weight: bold;">intern</span> (concat <span style="color: #2A00FF;">"special-"</span> (symbol-name def)))
+                  (lispy--insert-or-call def from-start))))
+    (<span style="color: #7F0055; font-weight: bold;">unless</span> (member func ac-trigger-commands)
+      (push func ac-trigger-commands))
+    (<span style="color: #7F0055; font-weight: bold;">unless</span> (member func company-begin-commands)
+      (push func company-begin-commands))
+    (eldoc-add-command func)
+    (define-key keymap (kbd key) func)))
+</pre>
+</div>
+<p>
+by pressing <kbd>h</kbd> you get this:
+</p>
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<!-- Created by htmlize-1.47 in css mode. -->
+<html>
+  <head>
+    <title>*Org Src oblog-min.org[ emacs-lisp ]*</title>
+    <style type="text/css">
+    <!--
+      body {
+        color: #000000;
+        background-color: #ffffff;
+      }
+      .ace-jump-face-background {
+        /* ace-jump-face-background */
+        color: #666666;
+      }
+      .ace-jump-face-foreground {
+        /* ace-jump-face-foreground */
+        color: #ff0000;
+      }
+      .constant {
+        /* font-lock-constant-face */
+        color: #110099;
+      }
+      .doc {
+        /* font-lock-doc-face */
+        color: #2A00FF;
+      }
+      .function-name {
+        /* font-lock-function-name-face */
+        font-weight: bold;
+      }
+      .keyword {
+        /* font-lock-keyword-face */
+        color: #7F0055;
+        font-weight: bold;
+      }
+      .string {
+        /* font-lock-string-face */
+        color: #2A00FF;
+      }
+      .type {
+        /* font-lock-type-face */
+        color: #000000;
+        font-style: italic;
+        text-decoration: underline;
+      }
+
+      a {
+        color: inherit;
+        background-color: inherit;
+        font: inherit;
+        text-decoration: inherit;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+    -->
+    </style>
+  </head>
+  <body>
+    <pre>
+<span class="ace-jump-face-background">(</span><span class="keyword"><span class="ace-jump-face-background">defun</span></span><span class="ace-jump-face-background"> </span><span class="function-name"><span class="ace-jump-face-background">lispy-define-key</span></span><span class="ace-jump-face-background"> (keymap key def </span><span class="type"><span class="ace-jump-face-background">&amp;optional</span></span><span class="ace-jump-face-background"> from-start)
+  </span><span class="doc"><span class="ace-jump-face-background">"Forward to (`</span></span><span class="doc"><span class="constant"><span class="ace-jump-face-background">define-key</span></span></span><span class="doc"><span class="ace-jump-face-background">' KEYMAP KEY (`</span></span><span class="doc"><span class="constant"><span class="ace-jump-face-background">lispy-defun</span></span></span><span class="doc"><span class="ace-jump-face-background">' DEF FROM-START))."</span></span><span class="ace-jump-face-background">
+  (</span><span class="keyword"><span class="ace-jump-face-background">let</span></span><span class="ace-jump-face-background"> ((func (</span><span class="keyword"><span class="ace-jump-face-background">defalias</span></span><span class="ace-jump-face-background"> (</span><span class="function-name"><span class="ace-jump-face-background">intern</span></span><span class="ace-jump-face-background"> (concat </span><span class="string"><span class="ace-jump-face-background">"special-"</span></span><span class="ace-jump-face-background"> (symbol-name def)))
+                  (lispy--insert-or-call def from-start))))
+    </span><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">a</span></span><span class="keyword"><span class="ace-jump-face-background">unless</span></span><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">b</span></span><span class="ace-jump-face-background">(member</span><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">c</span></span><span class="ace-jump-face-background">func</span><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">d</span></span><span class="ace-jump-face-background">ac-trigger-commands)
+     </span><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">e</span></span><span class="ace-jump-face-background">(push</span><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">f</span></span><span class="ace-jump-face-background">func</span><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">g</span></span><span class="ace-jump-face-background">ac-trigger-commands))
+    (</span><span class="keyword"><span class="ace-jump-face-background">unless</span></span><span class="ace-jump-face-background"> (member func company-begin-commands)
+      (push func company-begin-commands))
+    (eldoc-add-command func)
+    (define-key keymap (kbd key) func)))</span></pre>
+  </body>
+</html>
+
+<p>
+Now you can mark a symbol by pressing a letter, or cancel with <kbd>C-g</kbd>.
+</p>
+
+<p>
+Here's the end result of <kbd>hd</kbd>:
+</p>
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<!-- Created by htmlize-1.47 in css mode. -->
+<html>
+  <head>
+    <title>*Org Src oblog-min.org[ emacs-lisp ]*</title>
+    <style type="text/css">
+    <!--
+      body {
+        color: #000000;
+        background-color: #ffffff;
+      }
+      .constant {
+        /* font-lock-constant-face */
+        color: #110099;
+      }
+      .doc {
+        /* font-lock-doc-face */
+        color: #2A00FF;
+      }
+      .function-name {
+        /* font-lock-function-name-face */
+        font-weight: bold;
+      }
+      .keyword {
+        /* font-lock-keyword-face */
+        color: #7F0055;
+        font-weight: bold;
+      }
+      .region {
+        /* region */
+        color: #ffffff;
+        background-color: #f9b593;
+      }
+      .string {
+        /* font-lock-string-face */
+        color: #2A00FF;
+      }
+      .type {
+        /* font-lock-type-face */
+        color: #000000;
+        font-style: italic;
+        text-decoration: underline;
+      }
+
+      a {
+        color: inherit;
+        background-color: inherit;
+        font: inherit;
+        text-decoration: inherit;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+    -->
+    </style>
+  </head>
+  <body>
+    <pre>
+(<span class="keyword">defun</span> <span class="function-name">lispy-define-key</span> (keymap key def <span class="type">&amp;optional</span> from-start)
+  <span class="doc">"Forward to (`</span><span class="doc"><span class="constant">define-key</span></span><span class="doc">' KEYMAP KEY (`</span><span class="doc"><span class="constant">lispy-defun</span></span><span class="doc">' DEF FROM-START))."</span>
+  (<span class="keyword">let</span> ((func (<span class="keyword">defalias</span> (<span class="function-name">intern</span> (concat <span class="string">"special-"</span> (symbol-name def)))
+                  (lispy--insert-or-call def from-start))))
+    (<span class="keyword">unless</span> (member func <span class="region">ac-trigger-commands</span>)
+      (push func ac-trigger-commands))
+    (<span class="keyword">unless</span> (member func company-begin-commands)
+      (push func company-begin-commands))
+    (eldoc-add-command func)
+    (define-key keymap (kbd key) func)))</pre>
+  </body>
+</html>
+
+<p>
+Now you can follow up with
+</p>
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="left" />
+
+<col  class="left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="left">key</th>
+<th scope="col" class="left">function name</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="left">F</td>
+<td class="left"><a href="#sec-3-5">lispy-follow</a></td>
+</tr>
+
+<tr>
+<td class="left">C-1</td>
+<td class="left"><a href="#sec-3-6">lispy-describe-inline</a></td>
+</tr>
+
+<tr>
+<td class="left">e</td>
+<td class="left"><a href="#sec-3-8">lispy-eval</a></td>
+</tr>
+</tbody>
+</table>
+<hr  />
+</div>
+</div>
+<div id="outline-container-sec-3-5" class="outline-3">
+<h3 id="sec-3-5"><a id="ID-d3799a39-d3e0-4aa5-bff1-bae4c0baa5cf"></a><code>lispy-follow</code></h3>
+<div class="outline-text-3" id="text-3-5">
+<p>
+When region is active, use <kbd>F</kbd> to jump to the definition of marked symbol.
+Otherwise jump to definition of the first symbol in current sexp.
+</p>
+
+<p>
+It sets the mark before jumping, so you can use <kbd>C-u C-SPC</kbd> to jump
+back within current file or <kbd>C-x C-SPC</kbd> to jump back to previous file.
+</p>
+
+<p>
+Elisp, Clojure and Common Lisp are supported.
+</p>
+<hr  />
+</div>
+</div>
+<div id="outline-container-sec-3-6" class="outline-3">
+<h3 id="sec-3-6"><a id="ID-54752047-032c-4f0d-97ac-ed9baefa3649"></a><code>lispy-describe-inline</code></h3>
+<div class="outline-text-3" id="text-3-6">
+<p>
+Use <kbd>C-1</kbd> to show the documentation for current function or currently
+marked symbol (see <a href="#sec-3-4">lispy-ace-symbol</a>).
+</p>
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<!-- Created by htmlize-1.47 in css mode. -->
+<html>
+  <head>
+    <title>temp</title>
+    <style type="text/css">
+    <!--
+      body {
+        color: #000000;
+        background-color: #ffffff;
+      }
+      .constant {
+        /* font-lock-constant-face */
+        color: #110099;
+      }
+      .doc {
+        /* font-lock-doc-face */
+        color: #2A00FF;
+      }
+      .function-name {
+        /* font-lock-function-name-face */
+        font-weight: bold;
+      }
+      .keyword {
+        /* font-lock-keyword-face */
+        color: #7F0055;
+        font-weight: bold;
+      }
+      .lispy-face-hint {
+        /* lispy-face-hint */
+        color: #000000;
+        background-color: #fff3bc;
+      }
+      .string {
+        /* font-lock-string-face */
+        color: #2A00FF;
+      }
+      .type {
+        /* font-lock-type-face */
+        color: #000000;
+        font-style: italic;
+        text-decoration: underline;
+      }
+
+      a {
+        color: inherit;
+        background-color: inherit;
+        font: inherit;
+        text-decoration: inherit;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+    -->
+    </style>
+  </head>
+  <body>
+    <pre>
+(<span class="keyword">defun</span> <span class="function-name">lispy-define-key</span> (keymap key def <span class="type">&amp;optional</span> from-start)
+  <span class="doc">"Forward to (`</span><span class="doc"><span class="constant">define-key</span></span><span class="doc">' KEYMAP KEY (`</span><span class="doc"><span class="constant">lispy-defun</span></span><span class="doc">' DEF FROM-START))."</span>
+  (<span class="keyword">let</span> ((func (<span class="keyword">defalias</span> (<span class="function-name">intern</span> (concat <span class="string">"special-"</span> (symbol-name def)))
+                  (lispy--insert-or-call def from-start))))
+            <span class="lispy-face-hint">Return non-nil if ELT is an element of LIST.  Comparison done with `equal'.</span>
+            <span class="lispy-face-hint">The value is actually the tail of LIST whose car is ELT.</span>
+
+            <span class="lispy-face-hint">(fn ELT LIST)</span>
+    (<span class="keyword">unless</span> (member func ac-trigger-commands)
+      (push func ac-trigger-commands))
+    (<span class="keyword">unless</span> (member func company-begin-commands)
+      (push func company-begin-commands))
+    (eldoc-add-command func)
+    (define-key keymap (kbd key) func)))</pre>
+  </body>
+</html>
+<hr  />
+</div>
+</div>
+<div id="outline-container-sec-3-7" class="outline-3">
+<h3 id="sec-3-7"><a id="ID-54becf27-661c-4c5d-92d8-baa22a50291d"></a><code>lispy-arglist-inline</code></h3>
+<div class="outline-text-3" id="text-3-7">
+<p>
+Use <kbd>C-2</kbd> to show the argument list for current function.
+</p>
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<!-- Created by htmlize-1.47 in css mode. -->
+<html>
+  <head>
+    <title>*Org Src oblog-min.org[ emacs-lisp ]*</title>
+    <style type="text/css">
+    <!--
+      body {
+        color: #000000;
+        background-color: #ffffff;
+      }
+      .constant {
+        /* font-lock-constant-face */
+        color: #110099;
+      }
+      .doc {
+        /* font-lock-doc-face */
+        color: #2A00FF;
+      }
+      .function-name {
+        /* font-lock-function-name-face */
+        font-weight: bold;
+      }
+      .keyword {
+        /* font-lock-keyword-face */
+        color: #7F0055;
+        font-weight: bold;
+      }
+      .lispy-face-hint {
+        /* lispy-face-hint */
+        color: #000000;
+        background-color: #fff3bc;
+      }
+      .lispy-face-req-nosel {
+        /* lispy-face-req-nosel */
+        color: #000000;
+        background-color: #fff3bc;
+      }
+      .string {
+        /* font-lock-string-face */
+        color: #2A00FF;
+      }
+      .type {
+        /* font-lock-type-face */
+        color: #000000;
+        font-style: italic;
+        text-decoration: underline;
+      }
+
+      a {
+        color: inherit;
+        background-color: inherit;
+        font: inherit;
+        text-decoration: inherit;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+    -->
+    </style>
+  </head>
+  <body>
+    <pre>
+(<span class="keyword">defun</span> <span class="function-name">lispy-define-key</span> (keymap key def <span class="type">&amp;optional</span> from-start)
+  <span class="doc">"Forward to (`</span><span class="doc"><span class="constant">define-key</span></span><span class="doc">' KEYMAP KEY (`</span><span class="doc"><span class="constant">lispy-defun</span></span><span class="doc">' DEF FROM-START))."</span>
+  (<span class="keyword">let</span> ((func (<span class="keyword">defalias</span> (<span class="function-name">intern</span> (concat <span class="string">"special-"</span> (symbol-name def)))
+                  (lispy--insert-or-call def from-start))))
+            (<span class="lispy-face-hint">member</span> <span class="lispy-face-req-nosel">elt</span> <span class="lispy-face-req-nosel">list</span>)
+    (<span class="keyword">unless</span> (member func ac-trigger-commands)
+      (push func ac-trigger-commands))
+    (<span class="keyword">unless</span> (member func company-begin-commands)
+      (push func company-begin-commands))
+    (eldoc-add-command func)
+    (define-key keymap (kbd key) func)))</pre>
+  </body>
+</html>
+<hr  />
+</div>
+</div>
+<div id="outline-container-sec-3-8" class="outline-3">
+<h3 id="sec-3-8"><a id="ID-117f2392-b4ff-4391-834a-7044cc850778"></a><code>lispy-eval</code></h3>
+<div class="outline-text-3" id="text-3-8">
+<p>
+Use <kbd>e</kbd> to eval current region or sexp.
+The result will be displayed in the minibuffer.
+</p>
+
+<p>
+Elisp, Clojure, Scheme and Common Lisp are supported.
+</p>
+<hr  />
+</div>
+</div>
+<div id="outline-container-sec-3-9" class="outline-3">
+<h3 id="sec-3-9"><a id="ID-d38ff2d2-e49f-438e-b2dc-70308586cd8a"></a><code>lispy-eval-and-insert</code></h3>
+<div class="outline-text-3" id="text-3-9">
+<p>
+Use <kbd>E</kbd> to eval current region or sexp.
+The result will be inserted in the current buffer
+after the evaluated expression.
+</p>
+
+<ul class="org-ul">
+<li>Starting with <code>|(</code> the point will not be moved,
+allowing to press <kbd>E</kbd> again.
+</li>
+<li>Starting with <code>)|</code> the point will end up after the
+inserted expression.
+</li>
+<li>Starting with an active region, the region will be
+deactivated and result will be inserted at point.
+</li>
+</ul>
+<hr  />
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>

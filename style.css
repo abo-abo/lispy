@@ -1,0 +1,58 @@
+body {
+    color: #333;
+    background-color: #ecffdc;
+    margin-left: auto;
+    margin-right: auto;
+    font-family: 'Ubuntu Mono', sans-serif;
+}
+
+body a {
+    color: blue;
+}
+
+h2 {
+    font-weight: normal;
+    text-indent: 0;
+    border-radius: 15px;
+    background-color: #d6d8ec;
+    text-align: center;
+    padding: 3px 3px 3px 3px;
+}
+
+kbd {
+    padding:0.1em 0.6em;
+    border:1px solid #ccc;
+    font-size:13px;
+    font-family:sans-serif;
+    background-color:#d6d8ec;
+    color:#333;
+    -moz-box-shadow:0 1px 0px rgba(0, 0, 0, 0.2),0 0 0 2px #ffffff inset;
+    -webkit-box-shadow:0 1px 0px rgba(0, 0, 0, 0.2),0 0 0 2px #ffffff inset;
+    box-shadow:0 1px 0px rgba(0, 0, 0, 0.2),0 0 0 2px #ffffff inset;
+    -moz-border-radius:3px;
+    -webkit-border-radius:3px;
+    border-radius:3px;
+    display:inline-block;
+    margin:0 0.1em;
+    text-shadow:0 1px 0 #fff;
+    line-height:1.4;
+    white-space:nowrap;
+}
+
+code {
+    border: 1px solid Silver;
+    background-color: #ffffdc;
+}
+
+pre {
+    border: 1px solid Silver;
+    background-color: #eeeeee;
+    padding: 3px;
+    margin-left: 1em;
+}
+
+cursor {
+    color: #fff;
+    background-color: #000;
+    overflow: hidden;
+}
