@@ -49,9 +49,9 @@
 ;;
 ;; When special, the digit keys call `digit-argument' which is very
 ;; convenient since most Lispy commands accept a numeric argument.
-;; For instance, "3c" equivalent to "ccc" (clone sexp 3 times), and
-;; "4j" equivalent to "jjjj" (move point 4 sexps down).  Some useful
-;; applications are "9l" and "9a" - they exit list forwards and
+;; For instance, "3c" is equivalent to "ccc" (clone sexp 3 times), and
+;; "4j" is equivalent to "jjjj" (move point 4 sexps down).  Some
+;; useful applications are "9l" and "9a" - they exit list forwards and
 ;; backwards respectively at most 9 times which makes them effectively
 ;; equivalent to `end-of-defun' and `beginning-of-defun'.
 ;;
