@@ -108,3 +108,12 @@ continuously by holding the key.  Some useful holdable keys are
 "jkopf<>cws;".
 Not so useful, but fun is "/": start it from "|(" position and hold
 until all your Lisp code is turned into Python :).
+
+## Navigating within a top-level list with `ace-jump`
+
+If you have `ace-jump-mode` installed, you can use "q" to jump
+around a top-level list (usually a `defun`).
+You can usually get away with typing just one lower case char to navigate
+and the position remains special.
+And since the ordering always starts from `a`, "qa" is another synonym
+for `beginning-of-defun`.
