@@ -904,7 +904,13 @@ Comments will be moved ahead of sexp."
                (lispy-out-backward 1)))
             ((looking-back ")")
              (comment-dwim nil)
-             (insert " "))))))
+             (insert " "))
+            ((setq bnd (save-excursion
+                         (and (lispy-out-forward 1)
+                              (point))))
+             (comment-region (point) (1- bnd))
+             (lispy-out-backward 1))
+            (t (self-insert-command 1))))))
 
 (defvar lispy-meol-point 1
   "Point where `lispy-move-end-of-line' should go when already at eol.")
