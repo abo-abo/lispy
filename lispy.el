@@ -566,7 +566,7 @@ When this function is called:
   "`lispy-pair' with [].")
 
 (defalias 'lispy-braces
-    (lispy-pair "{" "}" "\\s-\\|\\s(\\|[#^']")
+    (lispy-pair "{" "}" "\\s-\\|\\s(\\|[{#^']")
   "`lispy-pair' with {}.")
 
 (defun lispy-quotes (arg)
