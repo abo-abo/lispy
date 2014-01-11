@@ -599,11 +599,7 @@ When the region is active, wrap it in quotes instead."
           (insert "\n()")
           (indent-for-tab-command)
           (backward-char)))
-    (error (cond
-             ((eq major-mode 'org-mode)
-              (org-meta-return))
-             (t
-              (indent-new-comment-line))))))
+    (error (indent-new-comment-line))))
 
 ;; ——— Globals: insertion ——————————————————————————————————————————————————————
 (defun lispy-space ()
@@ -1307,7 +1303,6 @@ list."
   (mapc (lambda (x) (lispy-define-key map (format "%d" x) 'digit-argument))
         (number-sequence 0 9)))
 
-(declare-function org-meta-return "ext:org")
 (declare-function moo-jump-local "ext:function-args")
 (declare-function helm-semantic "ext:helm-semantic")
 (declare-function ace-jump-char-mode "ext:ace-jump-mode")
