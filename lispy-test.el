@@ -328,10 +328,10 @@
 
 (ert-deftest lispy-kill ()
   (should (string= (lispy-with "\n\n|(defun foo ()\n    )" (lispy-kill))
-                   "|\n\n"))
+                   "|\n\n "))
   ;; while ahead of defun, and there's a comment before, move there
   (should (string= (lispy-with "\n;comment\n|(defun foo ()\n    )" (lispy-kill))
-                   "|\n;comment\n"))
+                   "|\n;comment\n "))
   (should (string= (lispy-with "(|(a) (b) (c))" "\C-k")
                    "(|)"))
   (should (string= (lispy-with "((a) |(b) (c))" "\C-k")
@@ -359,7 +359,9 @@
   (should (string= (lispy-with "(|(a) \"foo\")" "\C-d")
                    "|(\"foo\")"))
   (should (string= (lispy-with "(|(a)\"foo\")" "\C-d")
-                   "|(\"foo\")")))
+                   "|(\"foo\")"))
+  (should (string= (lispy-with "(|(a) b (c))" "\C-d")
+                   "(b |(c))")))
 
 (ert-deftest lispy-delete-backward ()
   (should (string= (lispy-with "((a) (b) (c)|)" "\C-?")

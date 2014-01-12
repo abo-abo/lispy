@@ -1191,9 +1191,16 @@ Unless inside string or comment, or `looking-back' at CONTEXT."
   "Delete one sexp."
   (unless (looking-at "(")
     (error "Bad position"))
-  (let ((pt (point)))
-    (lispy-counterclockwise)
-    (delete-region pt (point))))
+  (let ((bnd (lispy--bounds-list)))
+    (delete-region (car bnd) (cdr bnd))
+    (if (looking-at "[\n ]+")
+        (delete-region (match-beginning 0)
+                       (match-end 0))
+      (just-one-space)
+      (when (looking-back "( ")
+        (backward-delete-char 1)))
+    (lispy-forward 1)
+    (backward-list)))
 
 (defun lispy--insert-or-call (def &optional from-start)
   "Return a lambda to call DEF if position is special.
