@@ -1006,6 +1006,11 @@ Quote newlines if ARG isn't 1."
     (ace-jump-char-mode ?\()
     (widen)))
 
+(defun lispy-ert ()
+  "Call (`ert' t)"
+  (interactive)
+  (ert t))
+
 ;; ——— Predicates ——————————————————————————————————————————————————————————————
 (defun lispy--in-string-p ()
   "Test if point is inside a string."
@@ -1312,6 +1317,7 @@ list."
   (lispy-define-key map "g" 'lispy-goto)
   (lispy-define-key map "Q" 'lispy-ace-char)
   (lispy-define-key map "q" 'lispy-ace-paren)
+  (lispy-define-key map "T" 'lispy-ert)
   ;; ——— locals: digit argument ———————————————
   (mapc (lambda (x) (lispy-define-key map (format "%d" x) 'digit-argument))
         (number-sequence 0 9)))
