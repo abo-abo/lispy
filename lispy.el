@@ -442,7 +442,8 @@ Otherwise (`backward-delete-char-untabify' ARG)."
   "Mark the quoted string or the list that includes the point.
 Extend region when it's aleardy active."
   (interactive)
-  (let ((bounds (lispy--bounds-list)))
+  (let ((bounds (or (lispy--bounds-string)
+                    (lispy--bounds-list))))
     (when bounds
       (set-mark (car bounds))
       (goto-char (cdr bounds)))))
@@ -505,7 +506,8 @@ With ARG not nil, cut instead of copying."
                    (region-end)))
         (newline-and-indent)
         (insert (current-kill 0)))
-    (let ((bounds (lispy--bounds-list)))
+    (let ((bounds (or (lispy--bounds-string)
+                      (lispy--bounds-list))))
       (kill-region (car bounds) (cdr bounds)))))
 
 ;; ——— Globals: pairs ——————————————————————————————————————————————————————————
@@ -1051,17 +1053,16 @@ Otherwise return cons of current string, symbol or list bounds."
 (defun lispy--bounds-list ()
   "Return the bounds of smallest list that includes the point.
 First, try to return `lispy--bounds-string'."
-  (or (lispy--bounds-string)
-      (save-excursion
-        (when (memq (char-after) '(?\( ?\[ ?\{))
-          (forward-char))
-        (ignore-errors
-          (let (beg end)
-            (up-list)
-            (setq end (point))
-            (backward-list)
-            (setq beg (point))
-            (cons beg end))))))
+  (save-excursion
+    (when (memq (char-after) '(?\( ?\[ ?\{))
+      (forward-char))
+    (ignore-errors
+      (let (beg end)
+        (up-list)
+        (setq end (point))
+        (backward-list)
+        (setq beg (point))
+        (cons beg end)))))
 
 (defun lispy--bounds-string ()
   "Return bounds of current string."
