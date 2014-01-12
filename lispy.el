@@ -123,6 +123,7 @@
 (require 'edebug)
 (require 'outline)
 (require 'semantic)
+(declare-function ace-jump-char-mode "ext:ace-jump-mode")
 
 ;; ——— Customization ———————————————————————————————————————————————————————————
 (defgroup lispy nil
@@ -1383,8 +1384,6 @@ list."
   ;; ——— locals: digit argument ———————————————
   (mapc (lambda (x) (lispy-define-key map (format "%d" x) 'digit-argument))
         (number-sequence 0 9)))
-
-(declare-function ace-jump-char-mode "ext:ace-jump-mode")
 
 (provide 'lispy)
 
