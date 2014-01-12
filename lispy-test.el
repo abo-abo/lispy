@@ -445,7 +445,8 @@
   (should (string= (lispy-with "(if (and (pred1) (pred2))\n    (thing1)\n  (thing2)|)" "r")
                    "(thing2)|"))
   (should (string= (lispy-with "(a (f~oob|ar) c)" "r") "(a oob c)|"))
-  (should (string= (lispy-with "(a (f|oob~ar) c)" "r") "(a oob c)|")))
+  (should (string= (lispy-with "(a (f|oob~ar) c)" "r") "(a oob c)|"))
+  (should (string= (lispy-with "(\n     |(foo))" "r") "|(foo)")))
 
 (ert-deftest lispy-raise-some ()
   (should (string= (lispy-with "(if (and |(pred1) (pred2))\n    (thing1)\n  (thing2))" "R")

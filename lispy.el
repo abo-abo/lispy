@@ -699,6 +699,7 @@ Special case is (|( -> ( |(."
          (at-end (and regionp
                       (= (point) (region-end))))
          bnd1 bnd2)
+    (lispy--reindent 1)
     (setq bnd1 (lispy--bounds-dwim))
     (lispy-out-forward 1)
     (setq bnd2 (lispy--bounds-dwim))
