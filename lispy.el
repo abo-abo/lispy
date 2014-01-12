@@ -717,7 +717,8 @@ Special case is (|( -> ( |(."
       (indent-sexp))))
 
 (defun lispy-raise-some ()
-  "Use current sexps as replacement for their parent."
+  "Use current sexps as replacement for their parent.
+The outcome when ahead of sexps is different from when behind."
   (interactive)
   (let ((pt (point)))
     (cond ((region-active-p))
