@@ -4,7 +4,8 @@
 
 ;; Author: Oleh Krehel <ohwoeowho@gmail.com>
 ;; URL: https://github.com/abo-abo/lispy
-;; Version: 0.1
+;; Version: 0.2
+;; Package-Requires: ((helm "1.5.3") (ace-jump-mode "2.0"))
 ;; Keywords: lisp
 
 ;; This file is not part of GNU Emacs
@@ -121,6 +122,7 @@
 (require 'help-fns)
 (require 'edebug)
 (require 'outline)
+(require 'semantic)
 
 ;; ——— Customization ———————————————————————————————————————————————————————————
 (defgroup lispy nil
@@ -739,6 +741,7 @@ The outcome when ahead of sexps is different from when behind."
           (t (error "Unexpected")))
     (lispy-raise)))
 
+;; TODO add numeric arg: 1 is equivalent to prev behavior 2 will raise containing list twice.
 (defun lispy-convolute ()
   "Convolute sexp."
   (interactive)
@@ -979,11 +982,10 @@ Quote newlines if ARG isn't 1."
 (defun lispy-goto ()
   "Jump to symbol entry point."
   (interactive)
-  (cond ((featurep 'function-args)
-         (moo-jump-local))
-        ((featurep 'helm-semantic)
-         (helm-semantic))
-        (t (error "No known jumping features provided"))))
+  (semantic-mode 1)
+  (lispy--select-candidate
+   (mapcar #'lispy--tag-name (semantic-fetch-tags))
+   #'lispy--action-jump))
 
 (defun lispy-ace-char ()
   "Call `ace-jump-char-mode' on current defun."
@@ -1005,6 +1007,7 @@ Quote newlines if ARG isn't 1."
                  (< (cdr bnd) (window-end)))
       (recenter-top-bottom))
     (narrow-to-region (car bnd) (cdr bnd))
+    ;; (let ((ace-jump-search-filter (lambda() (not (lispy--in-string-or-comment-p))))))
     (ace-jump-char-mode ?\()
     (widen)))
 
@@ -1209,6 +1212,63 @@ Unless inside string or comment, or `looking-back' at CONTEXT."
     (lispy-forward 1)
     (backward-list)))
 
+(defun lispy--select-candidate (candidates action)
+  (require 'helm)
+  (require 'helm-help)
+  (helm :sources
+        `((name . "Candidates")
+          (candidates . ,(mapcar
+                          (lambda(x)
+                            (if (listp x)
+                                (if (stringp (cdr x))
+                                    (cons (cdr x) (car x))
+                                  (cons (car x) x))
+                              x)) candidates))
+          (action . ,action))))
+
+(defun lispy--action-jump (tag)
+  (when (semantic-tag-p tag)
+    (push-mark)
+    (semantic-go-to-tag tag)
+    (switch-to-buffer (current-buffer))))
+
+(defun lispy--tag-name (x)
+  (or
+   (catch 'break
+     (unless (memq major-mode '(emacs-lisp-mode lisp-interaction-mode))
+       (throw 'break nil))
+     (cons
+      (cond ((eq (cadr x) 'include)
+             (format "require %s" (car x)))
+
+            ((eq (cadr x) 'function)
+             (propertize (car x) 'face 'font-lock-function-name-face))
+
+            ((or (string-match
+                  (concat
+                   "\\b"
+                   (regexp-opt
+                    '("setq" "setq-default" "add-to-list"
+                      "add-hook" "load" "define-key"))) (car x)))
+             (let ((ov (nth 4 x))
+                   str)
+               (unless (overlayp ov)
+                 (throw 'break nil))
+               (format
+                "%s %s"
+                (car x)
+                (and (string-match
+                      "([a-z-+/*.:A-Z0-9]+\\(?: \\|\t\\|\n\\)+\\([\"'`a-z-+/*.:A-Z0-9]+\\)\\(?: \\|\t\\|\n\\|)\\)"
+                      (setq str
+                            (with-current-buffer (overlay-buffer ov)
+                              (buffer-substring
+                               (overlay-start ov)
+                               (overlay-end ov)))))
+                     (match-string 1 str)))))
+            (t (throw 'break nil)))
+      (cdr x)))
+   x))
+
 (defun lispy--insert-or-call (def &optional from-start)
   "Return a lambda to call DEF if position is special.
 Otherwise call `self-insert-command'.
@@ -1324,8 +1384,6 @@ list."
   (mapc (lambda (x) (lispy-define-key map (format "%d" x) 'digit-argument))
         (number-sequence 0 9)))
 
-(declare-function moo-jump-local "ext:function-args")
-(declare-function helm-semantic "ext:helm-semantic")
 (declare-function ace-jump-char-mode "ext:ace-jump-mode")
 
 (provide 'lispy)
