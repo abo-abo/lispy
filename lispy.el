@@ -977,10 +977,10 @@ Quote newlines if ARG isn't 1."
 (defun lispy-goto ()
   "Jump to symbol entry point."
   (interactive)
-  (cond ((and (featurep 'function-args)
-              (moo-jump-local)))
-        ((and (featurep 'helm-semantic)
-              (helm-semantic)))
+  (cond ((featurep 'function-args)
+         (moo-jump-local))
+        ((featurep 'helm-semantic)
+         (helm-semantic))
         (t (error "No known jumping features provided"))))
 
 (defun lispy-ace-char ()
