@@ -59,7 +59,9 @@
 ;; To move the point into a special position, use:
 ;; "]" - calls `lispy-forward'
 ;; "[" - calls `lispy-backward'
-;; ")" - calls `lispy-out-forward' (exit current list forwards)
+;; "C-3" - calls `lispy-out-forward' (exit current list forwards)
+;; ")" - calls `lispy-out-forward-nostring' (exit current list
+;;       forwards, but self-insert in strings and comments)
 ;;
 ;; These are the few Lispy commands that don't care whether the point
 ;; is special or not.  Other such bindings are `DEL', `C-d', `C-k'.
@@ -244,6 +246,14 @@ Return nil on failure, t otherwise."
           (forward-list))
         (throw 'break nil)))
     t))
+
+(defun lispy-out-forward-nostring (arg)
+  "Call `lispy-out-forward' unless in string or comment.
+Self-insert otherwise."
+  (interactive "p")
+  (if (lispy--in-string-or-comment-p)
+      (self-insert-command arg)
+    (lispy-out-forward arg)))
 
 (defun lispy-out-backward (arg)
   "Move outside list forwards ARG times.
@@ -1314,9 +1324,10 @@ list."
 
 (let ((map lispy-mode-map))
   ;; ——— globals: navigation ——————————————————
-  (define-key map (kbd "]")   'lispy-forward)
-  (define-key map (kbd "[")   'lispy-backward)
-  (define-key map (kbd ")")   'lispy-out-forward)
+  (define-key map (kbd "]") 'lispy-forward)
+  (define-key map (kbd "[") 'lispy-backward)
+  (define-key map (kbd ")") 'lispy-out-forward-nostring)
+  (define-key map (kbd "C-3") 'lispy-out-forward)
   (define-key map (kbd "C-9") 'lispy-out-forward-newline)
   ;; ——— locals: navigation ———————————————————
   (lispy-define-key map "n" 'lispy-forward)
