@@ -361,7 +361,13 @@
   (should (string= (lispy-with "(|(a)\"foo\")" "\C-d")
                    "|(\"foo\")"))
   (should (string= (lispy-with "(|(a) b (c))" "\C-d")
-                   "(b |(c))")))
+                   "(b |(c))"))
+  (should (string= (lispy-with "((a) |\"foo\" (c))" "\C-d")
+                   "((a) |(c))"))
+  (should (string= (lispy-with "((a) (|) (c))" "\C-d")
+                   "((a)| (c))"))
+  (should (string= (lispy-with "(a (|) c)" "\C-d")
+                   "(a c)|")))
 
 (ert-deftest lispy-delete-backward ()
   (should (string= (lispy-with "((a) (b) (c)|)" "\C-?")
@@ -369,7 +375,9 @@
   (should (string= (lispy-with "((a) (b) (c)|)" "2\C-?")
                    "((a)|)"))
   (should (string= (lispy-with "((a) (b) (c)|)" "3\C-?")
-                   "()|")))
+                   "()|"))
+  (should (string= (lispy-with "(a (b)| c)" "\C-?")
+                   "(a c)|")))
 
 (ert-deftest lispy-slurp ()
   (should (string= (lispy-with "()|(a) (b) (c)" ">")
@@ -574,6 +582,12 @@
                    "(frob grovel \"|\" full lexical)"))
   (should (string= (lispy-with "(foo \"bar |baz\" quux)" "\"")
                    "(foo \"bar \\\"|\\\"baz\" quux)")))
+
+(ert-deftest lispy--remove-gaps ()
+  (should (string= (lispy-with "((a) |(c))" (lispy--remove-gaps))
+                   "((a) |(c))")))
+
+
 
 (provide 'lispy-test)
 
