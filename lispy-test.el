@@ -569,6 +569,12 @@
   (should (string= (lispy-with "(+ 2 2)|" "E")
                    "(+ 2 2)4|")))
 
+(ert-deftest lispy-quotes ()
+  (should (string= (lispy-with "(frob grovel |full lexical)" "\"")
+                   "(frob grovel \"|\" full lexical)"))
+  (should (string= (lispy-with "(foo \"bar |baz\" quux)" "\"")
+                   "(foo \"bar \\\"|\\\"baz\" quux)")))
+
 (provide 'lispy-test)
 
 ;;; Local Variables:

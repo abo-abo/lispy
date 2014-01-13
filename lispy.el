@@ -597,6 +597,10 @@ When the region is active, wrap it in quotes instead."
         (t
          (lispy--space-unless "\\s-\\|\\s(\\|[#]")
          (insert "\"\"")
+         (unless (or (lispy--in-string-p)
+                     (looking-at "\n\\|)\\|}\\|\\]"))
+           (just-one-space)
+           (backward-char 1))
          (backward-char))))
 
 (defun lispy-parens-down ()
