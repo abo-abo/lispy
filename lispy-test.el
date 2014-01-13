@@ -367,7 +367,9 @@
   (should (string= (lispy-with "((a) (|) (c))" "\C-d")
                    "((a)| (c))"))
   (should (string= (lispy-with "(a (|) c)" "\C-d")
-                   "(a c)|")))
+                   "(a c)|"))
+  (should (string= (lispy-with "(foo \"bar|\")" "\C-d")
+                   "(foo |\"bar\")")))
 
 (ert-deftest lispy-delete-backward ()
   (should (string= (lispy-with "((a) (b) (c)|)" "\C-?")

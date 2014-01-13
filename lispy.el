@@ -427,24 +427,33 @@ Return nil if can't move."
 (defun lispy-delete (arg)
   "Delete ARG sexps."
   (interactive "p")
-  (cond
-    ((and (looking-at "(") (not (lispy--in-string-or-comment-p)))
-     (dotimes-protect arg (lispy--delete))
-     (unless (looking-at "(")
-       (when (looking-at " +")
-         (delete-region (match-beginning 0)
-                        (match-end 0)))
-       (lispy-out-forward 1)
-       (backward-list)))
-    ((looking-at "\"")
-     (kill-sexp)
-     (lispy--remove-gaps)
-     (when (lispy-forward 1)
-       (backward-list)))
-    ((looking-at ")")
-     (forward-char 1)
-     (lispy-delete-backward 1))
-    (t (delete-char arg))))
+  (cond ((lispy--in-string-or-comment-p)
+         (if (save-excursion
+               (forward-char 1)
+               (lispy--in-string-p))
+             (delete-char arg)
+           (lispy--exit-string)))
+
+        ((looking-at "(")
+         (dotimes-protect arg (lispy--delete))
+         (unless (looking-at "(")
+           (when (looking-at " +")
+             (delete-region (match-beginning 0)
+                            (match-end 0)))
+           (lispy-out-forward 1)
+           (backward-list)))
+
+        ((looking-at "\"")
+         (kill-sexp)
+         (lispy--remove-gaps)
+         (when (lispy-forward 1)
+           (backward-list)))
+
+        ((looking-at ")")
+         (forward-char 1)
+         (lispy-delete-backward 1))
+
+        (t (delete-char arg))))
 
 (defun lispy-delete-backward (arg)
   "From \")|\", delete ARG sexps backwards.
