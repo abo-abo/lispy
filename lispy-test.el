@@ -377,7 +377,9 @@
   (should (string= (lispy-with "((a) (b) (c)|)" "3\C-?")
                    "()|"))
   (should (string= (lispy-with "(a (b)| c)" "\C-?")
-                   "(a c)|")))
+                   "(a c)|"))
+  (should (string= (lispy-with "(a (|) c)" "\C-?")
+                   "|(a c)")))
 
 (ert-deftest lispy-slurp ()
   (should (string= (lispy-with "()|(a) (b) (c)" ">")
