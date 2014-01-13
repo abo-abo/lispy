@@ -248,7 +248,7 @@ Return nil on failure, t otherwise."
     t))
 
 (defun lispy-out-forward-nostring (arg)
-  "Call `lispy-out-forward' unless in string or comment.
+  "Call `lispy-out-forward' with ARG unless in string or comment.
 Self-insert otherwise."
   (interactive "p")
   (if (lispy--in-string-or-comment-p)
@@ -1037,7 +1037,7 @@ Quote newlines if ARG isn't 1."
     (widen)))
 
 (defun lispy-ert ()
-  "Call (`ert' t)"
+  "Call (`ert' t)."
   (interactive)
   (ert t))
 
@@ -1239,6 +1239,8 @@ Unless inside string or comment, or `looking-back' at CONTEXT."
     (backward-list)))
 
 (defun lispy--select-candidate (candidates action)
+  "Select from CANDIDATES list with `helm'.
+ACTION is called for the selected candidate."
   (require 'helm)
   (require 'helm-help)
   (helm :sources
@@ -1253,12 +1255,15 @@ Unless inside string or comment, or `looking-back' at CONTEXT."
           (action . ,action))))
 
 (defun lispy--action-jump (tag)
+  "Jump to TAG."
   (when (semantic-tag-p tag)
     (push-mark)
     (semantic-go-to-tag tag)
     (switch-to-buffer (current-buffer))))
 
 (defun lispy--tag-name (x)
+  "Given a semantic tag X, amend it with additional info.
+For example, a `setq' statement is amended with variable name that it uses."
   (or
    (catch 'break
      (unless (memq major-mode '(emacs-lisp-mode lisp-interaction-mode))
