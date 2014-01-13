@@ -922,7 +922,8 @@ Comments will be moved ahead of sexp."
                 (setq no-comment (concat no-comment "\n" s))))
         (when comments
           (insert (mapconcat #'identity comments "\n") "\n"))
-        (insert (substring (replace-regexp-in-string "\n *" " " no-comment) 1))))
+        (insert (substring
+                 (replace-regexp-in-string "\n *" " " no-comment) 1))))
     ;; work around `( and '(
     (lispy-forward 1)
     (lispy-backward 1)))
@@ -1299,38 +1300,34 @@ For example, a `setq' statement is amended with variable name that it uses."
      (unless (memq major-mode '(emacs-lisp-mode lisp-interaction-mode))
        (throw 'break nil))
      (cons
-      (cond ((eq (cadr x) 'include)
-             (format "require %s" (car x)))
-
-            ((eq (cadr x) 'package)
-             (format "provide %s" (car x)))
-
-            ((eq (cadr x) 'function)
-             (propertize (car x) 'face 'font-lock-function-name-face))
-
-            ((or (string-match
-                  (concat
-                   "\\b"
-                   (regexp-opt
-                    '("setq" "setq-default" "add-to-list"
-                      "add-hook" "load" "define-key"
-                      "ert-deftest"))) (car x)))
-             (let ((ov (nth 4 x))
-                   str)
-               (unless (overlayp ov)
-                 (throw 'break nil))
-               (format
-                "%s %s"
-                (car x)
-                (and (string-match
-                      "([a-z-+/*.:A-Z0-9]+\\(?: \\|\t\\|\n\\)+\\([\"'`a-z-+/*.:A-Z0-9]+\\)\\(?: \\|\t\\|\n\\|)\\)"
-                      (setq str
-                            (with-current-buffer (overlay-buffer ov)
-                              (buffer-substring
-                               (overlay-start ov)
-                               (overlay-end ov)))))
-                     (match-string 1 str)))))
-            (t (throw 'break nil)))
+      (cond
+        ((eq (cadr x) 'include)
+         (format "require %s" (car x)))
+        ((eq (cadr x) 'package)
+         (format "provide %s" (car x)))
+        ((eq (cadr x) 'function)
+         (propertize (car x) 'face 'font-lock-function-name-face))
+        ((or (string-match
+              (concat
+               "\\b"
+               (regexp-opt
+                '("setq" "setq-default" "add-to-list"
+                  "add-hook" "load" "define-key"
+                  "ert-deftest"))) (car x)))
+         (let ((ov (nth 4 x))
+               str)
+           (unless (overlayp ov)
+             (throw 'break nil))
+           (format
+            "%s %s"
+            (car x)
+            (with-current-buffer (overlay-buffer ov)
+              (goto-char (overlay-start ov))
+              (if (looking-at
+                   "( *[^ \n]+\\(?: \\|\n\\)+\\([^ \n]+\\)\\(?: \\|\n\\|)\\)")
+                  (match-string 1 str)
+                "")))))
+        (t (throw 'break nil)))
       (cdr x)))
    x))
 
