@@ -459,7 +459,15 @@ Return nil if can't move."
   "From \")|\", delete ARG sexps backwards.
 Otherwise (`backward-delete-char-untabify' ARG)."
   (interactive "p")
-  (cond ((and (looking-back ")") (not (lispy--in-string-or-comment-p)))
+  (cond ((lispy--in-string-or-comment-p)
+         (if (save-excursion
+               (backward-char 1)
+               (lispy--in-string-p))
+             (backward-delete-char-untabify arg)
+           (lispy--exit-string)
+           (forward-sexp)))
+
+        ((looking-back ")")
          (let ((pt (point)))
            (lispy-backward arg)
            (delete-region pt (point))
@@ -468,9 +476,19 @@ Otherwise (`backward-delete-char-untabify' ARG)."
            (unless (looking-back ")")
              (lispy-backward 1)
              (forward-list))))
+
         ((looking-back "(")
          (backward-char 1)
          (lispy-delete 1))
+
+        ((looking-back "\"")
+         (backward-sexp 1)
+         (kill-sexp)
+         (just-one-space)
+         (lispy--remove-gaps)
+         (when (lispy-forward 1)
+           (backward-list)))
+
         (t (backward-delete-char-untabify arg))))
 
 (defun lispy-mark ()
