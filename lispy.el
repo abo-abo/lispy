@@ -698,15 +698,13 @@ Special case is (|( -> ( |(."
   "Grow current sexp by ARG sexps."
   (interactive "p")
   (cond ((or (looking-at "()")
-             (and (not (looking-back "()")) (looking-at "(")))
+             (and (looking-at "(") (not (looking-back "()"))))
          (dotimes-protect arg
-           (lispy--slurp-backward))
-         (lispy--reindent))
-
+           (lispy--slurp-backward)))
         ((looking-back ")")
          (dotimes-protect arg
-           (lispy--slurp-forward))
-         (lispy--reindent))))
+           (lispy--slurp-forward))))
+  (lispy--reindent))
 
 (defun lispy-barf (arg)
   "Shrink current sexp by ARG sexps."
