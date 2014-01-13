@@ -387,7 +387,10 @@ Return nil if can't move."
 (defun lispy-kill ()
   "Kill keeping parens consistent."
   (interactive)
-  (cond ((lispy--in-string-p)
+  (cond ((or (lispy--in-comment-p) (looking-at ";"))
+         (kill-line))
+
+        ((lispy--in-string-p)
          (let ((end (cdr (lispy--bounds-string))))
            (if (> end (line-end-position))
                (kill-line)
