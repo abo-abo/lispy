@@ -102,6 +102,10 @@ Among other cool commands are:
     | K   | `outline-previous-visible-heading` |
     | g   | `lispy-goto`                       |
     | q   | `lispy-ace-paren`                  |
+    | Q   | `lispy-ace-char`                   |
+    | S   | `lispy-stringify`                  |
+    | D   | `lispy-describe`                   |
+    | F   | `lispy-follow`                     |
     |-----+------------------------------------|
 
 Most special commands will leave the point special after they're
