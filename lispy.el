@@ -1071,13 +1071,19 @@ Quote newlines if ARG isn't 1."
   (ert t))
 
 (defun lispy-follow ()
-  "Follow to definition of current function."
+  "Follow to `lispy--current-function'."
   (interactive)
-  (when (looking-at "(\\([^ \n)]+\\)[ )\n]")
-    (let ((symbol (intern-soft (match-string 1))))
-      (cond ((fboundp symbol)
-             (push-mark)
-             (find-function symbol))))))
+  (let ((symbol (lispy--current-function)))
+    (cond ((fboundp symbol)
+           (push-mark)
+           (find-function symbol)))))
+
+(defun lispy-describe ()
+  "Display documentation for `lispy--current-function'."
+  (interactive)
+  (let ((symbol (lispy--current-function)))
+    (cond ((fboundp symbol)
+           (describe-function symbol)))))
 
 ;; ——— Predicates ——————————————————————————————————————————————————————————————
 (defun lispy--in-string-p ()
@@ -1154,6 +1160,14 @@ First, try to return `lispy--bounds-string'."
 `lispy--bounds-dwim' is used if BOUNDS is nil."
   (destructuring-bind (beg . end) (or bounds (lispy--bounds-dwim))
     (buffer-substring-no-properties beg end)))
+
+(defun lispy--current-function ()
+  "Return current function as symbol."
+  (save-excursion
+    (when (looking-back ")")
+      (backward-list))
+    (when (looking-at "(\\([^ \n)]+\\)[ )\n]")
+      (intern-soft (match-string 1)))))
 
 ;; ——— Utilities ———————————————————————————————————————————————————————————————
 (defun lispy--exit-string ()
@@ -1482,6 +1496,7 @@ list."
   (lispy-define-key map "T" 'lispy-ert)
   (lispy-define-key map "N" 'lispy-normalize)
   (lispy-define-key map "F" 'lispy-follow)
+  (lispy-define-key map "D" 'lispy-describe)
   ;; ——— locals: digit argument ———————————————
   (mapc (lambda (x) (lispy-define-key map (format "%d" x) 'digit-argument))
         (number-sequence 0 9)))
