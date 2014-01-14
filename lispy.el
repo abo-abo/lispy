@@ -726,30 +726,31 @@ Special case is (|( -> ( |(."
          (dotimes-protect arg
            (lispy--barf-forward)))))
 
-(defun lispy-splice ()
+(defun lispy-splice (arg)
   "Splice sexp into containing list."
-  (interactive)
-  (let ((bnd (lispy--bounds-dwim)))
-    (cond ((looking-at "(")
-           (save-excursion
-             (goto-char (cdr bnd))
-             (lispy--remove-gaps)
-             (backward-delete-char 1))
-           (delete-char 1)
-           (if (lispy-forward 1)
+  (interactive "p")
+  (dotimes-protect arg
+    (let ((bnd (lispy--bounds-dwim)))
+      (cond ((looking-at "(")
+             (save-excursion
+               (goto-char (cdr bnd))
+               (lispy--remove-gaps)
+               (backward-delete-char 1))
+             (delete-char 1)
+             (if (lispy-forward 1)
+                 (lispy-backward 1)
                (lispy-backward 1)
-             (lispy-backward 1)
-             (lispy-flow 1)))
+               (lispy-flow 1)))
 
-          ((looking-back ")")
-           (lispy--remove-gaps)
-           (backward-delete-char 1)
-           (goto-char (car bnd))
-           (delete-char 1)
-           (if (lispy-backward 1)
+            ((looking-back ")")
+             (lispy--remove-gaps)
+             (backward-delete-char 1)
+             (goto-char (car bnd))
+             (delete-char 1)
+             (if (lispy-backward 1)
+                 (lispy-forward 1)
                (lispy-forward 1)
-             (lispy-forward 1)
-             (lispy-flow 1))))))
+               (lispy-flow 1)))))))
 
 (defun lispy-raise ()
   "Use current sexp or region as replacement for its parent."
