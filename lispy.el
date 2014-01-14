@@ -1070,6 +1070,15 @@ Quote newlines if ARG isn't 1."
   (interactive)
   (ert t))
 
+(defun lispy-follow ()
+  "Follow to definition of current function."
+  (interactive)
+  (when (looking-at "(\\([^ \n)]+\\)[ )\n]")
+    (let ((symbol (intern-soft (match-string 1))))
+      (cond ((fboundp symbol)
+             (push-mark)
+             (find-function symbol))))))
+
 ;; ——— Predicates ——————————————————————————————————————————————————————————————
 (defun lispy--in-string-p ()
   "Test if point is inside a string."
@@ -1402,19 +1411,19 @@ list."
   (define-key map (kbd "C-,") 'lispy-kill-at-point)
   (define-key map (kbd "C-M-,") 'lispy-mark)
   ;; ——— globals: pairs ———————————————————————
-  (define-key map (kbd "(")   'lispy-parens)
-  (define-key map (kbd "{")   'lispy-braces)
-  (define-key map (kbd "}")   'lispy-brackets)
-  (define-key map (kbd "\"")  'lispy-quotes)
+  (define-key map (kbd "(") 'lispy-parens)
+  (define-key map (kbd "{") 'lispy-braces)
+  (define-key map (kbd "}") 'lispy-brackets)
+  (define-key map (kbd "\"") 'lispy-quotes)
   ;; ——— globals: insertion ———————————————————
   (define-key map (kbd "C-8") 'lispy-parens-down)
   (define-key map (kbd "SPC") 'lispy-space)
-  (define-key map (kbd ":")   'lispy-colon)
-  (define-key map (kbd "^")   'lispy-hat)
+  (define-key map (kbd ":") 'lispy-colon)
+  (define-key map (kbd "^") 'lispy-hat)
   (define-key map (kbd "C-j") 'lispy-newline-and-indent)
   (define-key map (kbd "M-j") 'lispy-split)
   (define-key map (kbd "RET") 'newline-and-indent)
-  (define-key map (kbd ";")   'lispy-comment)
+  (define-key map (kbd ";") 'lispy-comment)
   (define-key map (kbd "C-e") 'lispy-move-end-of-line)
   ;; ——— locals: Paredit transformations ——————
   (lispy-define-key map ">" 'lispy-slurp)
@@ -1441,6 +1450,7 @@ list."
   (lispy-define-key map "Q" 'lispy-ace-char)
   (lispy-define-key map "q" 'lispy-ace-paren)
   (lispy-define-key map "T" 'lispy-ert)
+  (lispy-define-key map "F" 'lispy-follow)
   ;; ——— locals: digit argument ———————————————
   (mapc (lambda (x) (lispy-define-key map (format "%d" x) 'digit-argument))
         (number-sequence 0 9)))
