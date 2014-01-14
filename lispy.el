@@ -1370,6 +1370,36 @@ list."
            (t
             (self-insert-command 1)))))
 
+(defun lispy-normalize ()
+  "Normalize current sexp."
+  (interactive)
+  (save-excursion
+    (forward-char 1)
+    (lispy--normalize 1)))
+
+(defun lispy--normalize (arg)
+  "Go up ARG times and normalize."
+  (lispy-out-backward arg)
+  (let ((bnd (lispy--bounds-list)))
+    (lispy--do-replace "[^ ]\\( \\{2,\\}\\)[^ ]" " " (car bnd) (cdr bnd))
+    (lispy--do-replace "[^\\\\]\\(([\n ]+\\)" "(" (car bnd) (cdr bnd))
+    (lispy--do-replace "\\([\n ]+)\\)" ")" (car bnd) (cdr bnd))
+    (lispy--do-replace "\\([ ]+\\)\n" "" (car bnd) (cdr bnd))))
+
+(defun lispy--do-replace (from to beg end)
+  "Replace first match group of FROM to TO in region from BEG to END."
+  (goto-char beg)
+  (let (mb me)
+    (while (prog1 (re-search-forward from end t)
+             (setq mb (match-beginning 1))
+             (setq me (match-end 1)))
+      (goto-char mb)
+      (if (or (lispy--in-string-or-comment-p)
+              (looking-back "^"))
+          (goto-char me)
+        (delete-region mb me)
+        (insert to)))))
+
 (defvar ac-trigger-commands '(self-insert-command))
 
 (defun lispy-define-key (keymap key def &optional from-start)
@@ -1450,6 +1480,7 @@ list."
   (lispy-define-key map "Q" 'lispy-ace-char)
   (lispy-define-key map "q" 'lispy-ace-paren)
   (lispy-define-key map "T" 'lispy-ert)
+  (lispy-define-key map "N" 'lispy-normalize)
   (lispy-define-key map "F" 'lispy-follow)
   ;; ——— locals: digit argument ———————————————
   (mapc (lambda (x) (lispy-define-key map (format "%d" x) 'digit-argument))
