@@ -1090,6 +1090,14 @@ Quote newlines if ARG isn't 1."
     (cond ((fboundp symbol)
            (describe-function symbol)))))
 
+(defun lispy-arglist ()
+  "Display arglist for `lispy--current-function'."
+  (interactive)
+  (let ((sym (lispy--current-function)))
+    (cond ((fboundp sym)
+           (let ((args (car (help-split-fundoc (documentation sym t) sym))))
+             (message "%s" args))))))
+
 ;; ——— Predicates ——————————————————————————————————————————————————————————————
 (defun lispy--in-string-p ()
   "Test if point is inside a string."
@@ -1502,6 +1510,7 @@ list."
   (lispy-define-key map "N" 'lispy-normalize)
   (lispy-define-key map "F" 'lispy-follow)
   (lispy-define-key map "D" 'lispy-describe)
+  (lispy-define-key map "A" 'lispy-arglist)
   ;; ——— locals: digit argument ———————————————
   (mapc (lambda (x) (lispy-define-key map (format "%d" x) 'digit-argument))
         (number-sequence 0 9)))
