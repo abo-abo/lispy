@@ -430,7 +430,7 @@ Return nil if can't move."
   (cond ((lispy--in-string-or-comment-p)
          (if (save-excursion
                (forward-char 1)
-               (lispy--in-string-p))
+               (lispy--in-string-or-comment-p))
              (delete-char arg)
            (lispy--exit-string)))
 
@@ -462,7 +462,7 @@ Otherwise (`backward-delete-char-untabify' ARG)."
   (cond ((lispy--in-string-or-comment-p)
          (if (save-excursion
                (backward-char 1)
-               (lispy--in-string-p))
+               (lispy--in-string-or-comment-p))
              (backward-delete-char-untabify arg)
            (lispy--exit-string)
            (forward-sexp)))
