@@ -1029,7 +1029,10 @@ Quote newlines if ARG isn't 1."
 (defun lispy-eval ()
   "Eval last sexp."
   (interactive)
-  (call-interactively 'eval-last-sexp))
+  (save-excursion
+    (unless (looking-back ")")
+      (lispy-forward 1))
+    (call-interactively 'eval-last-sexp)))
 
 (defun lispy-eval-and-insert ()
   "Eval last sexp and insert the result."
