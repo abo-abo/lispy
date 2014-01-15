@@ -255,7 +255,8 @@ Return nil on failure, t otherwise."
   "Call `lispy-out-forward' with ARG unless in string or comment.
 Self-insert otherwise."
   (interactive "p")
-  (if (lispy--in-string-or-comment-p)
+  (if (or (lispy--in-string-or-comment-p)
+          (looking-back "?\\\\"))
       (self-insert-command arg)
     (lispy-out-forward arg)))
 
