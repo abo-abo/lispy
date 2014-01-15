@@ -1404,7 +1404,12 @@ list."
   "Normalize current sexp."
   (interactive)
   (save-excursion
-    (forward-char 1)
+    (cond ((looking-at "(")
+           (forward-char 1))
+          ((looking-back ")")
+           (backward-list)
+           (forward-char 1))
+          (t (error "Unexpected")))
     (lispy--normalize 1)))
 
 (defun lispy--normalize (arg)
@@ -1414,20 +1419,24 @@ list."
     (lispy--do-replace "[^ ]\\( \\{2,\\}\\)[^ ]" " " (car bnd) (cdr bnd))
     (lispy--do-replace "[^\\\\]\\(([\n ]+\\)" "(" (car bnd) (cdr bnd))
     (lispy--do-replace "\\([\n ]+)\\)" ")" (car bnd) (cdr bnd))
-    (lispy--do-replace "\\([ ]+\\)\n" "" (car bnd) (cdr bnd))))
+    (lispy--do-replace "\\([ ]+\\)\n" "" (car bnd) (cdr bnd))
+    (lispy--do-replace ")\\([^ \n)]\\)" " \\1" (car bnd) (cdr bnd))))
 
 (defun lispy--do-replace (from to beg end)
   "Replace first match group of FROM to TO in region from BEG to END."
   (goto-char beg)
-  (let (mb me)
+  (let (mb me ms)
     (while (prog1 (re-search-forward from end t)
              (setq mb (match-beginning 1))
-             (setq me (match-end 1)))
+             (setq me (match-end 1))
+             (setq ms (match-string 1)))
       (goto-char mb)
       (if (or (lispy--in-string-or-comment-p)
               (looking-back "^"))
           (goto-char me)
         (delete-region mb me)
+        (when (cl-search "\\1" to)
+          (setq to (replace-regexp-in-string "\\\\1" ms to)))
         (insert to)))))
 
 (defvar ac-trigger-commands '(self-insert-command))

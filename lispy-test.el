@@ -591,11 +591,15 @@
   (should (string= (lispy-with "(foo \"bar |baz\" quux)" "\"")
                    "(foo \"bar \\\"|\\\"baz\" quux)")))
 
+(ert-deftest lispy-normalize ()
+  (should (string= (lispy-with "|(foo (bar)baz)" "N")
+                   "|(foo (bar) baz)"))
+  (should (string= (lispy-with "(foo (bar)baz)|" "N")
+                   "(foo (bar) baz)|")))
+
 (ert-deftest lispy--remove-gaps ()
   (should (string= (lispy-with "((a) |(c))" (lispy--remove-gaps))
                    "((a) |(c))")))
-
-
 
 (provide 'lispy-test)
 
