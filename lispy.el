@@ -591,6 +591,8 @@ When this function is called:
                    (looking-back "}")
                    (prog1 nil
                      (backward-delete-char 1))))))
+       ((looking-back "?\\\\")
+        (insert ,left))
        ((= arg 1)
         (indent-for-tab-command)
         (lispy--space-unless ,space-unless)
