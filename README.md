@@ -131,3 +131,10 @@ for `beginning-of-defun`.
 you're writing *over here*!. No problem, `C-2` fixes that:
 
 ![screenshot](https://raw.github.com/abo-abo/lispy/master/doc/arglist-1.png)
+
+## Inline function docs
+`<f1> f` is fine, but the extra buffer, and having to navigate to a symbol
+is tiresome. `C-1` toggles on/off the inline doc for current function.
+No extra buffer necessary:
+
+![screenshot](https://raw.github.com/abo-abo/lispy/master/doc/doc-1.png)
