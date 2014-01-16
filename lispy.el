@@ -4,7 +4,7 @@
 
 ;; Author: Oleh Krehel <ohwoeowho@gmail.com>
 ;; URL: https://github.com/abo-abo/lispy
-;; Version: 0.2
+;; Version: 0.3
 ;; Package-Requires: ((helm "1.5.3") (ace-jump-mode "2.0"))
 ;; Keywords: lisp
 
@@ -129,6 +129,7 @@
 (require 'edebug)
 (require 'outline)
 (require 'semantic)
+(require 'lispy-inline)
 (declare-function ace-jump-char-mode "ext:ace-jump-mode")
 
 ;; ——— Customization ———————————————————————————————————————————————————————————
@@ -1511,6 +1512,9 @@ list."
   (lispy-define-key map "O" 'lispy-oneline t)
   (lispy-define-key map "M" 'lispy-multiline t)
   (lispy-define-key map "S" 'lispy-stringify)
+  ;; ——— globals: miscellanea —————————————————
+  (define-key map (kbd "C-1") 'lispy-describe-inline)
+  (define-key map (kbd "C-2") 'lispy-arglist-inline)
   ;; ——— locals: miscellanea ——————————————————
   (lispy-define-key map "i" 'indent-sexp t)
   (lispy-define-key map "c" 'lispy-clone)
