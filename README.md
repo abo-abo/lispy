@@ -106,6 +106,8 @@ Among other cool commands are:
     | S   | `lispy-stringify`                  |
     | D   | `lispy-describe`                   |
     | F   | `lispy-follow`                     |
+    | C-1 | `lispy-describe-inline`            |
+    | C-2 | `lispy-arglist-inline`             |
     |-----+------------------------------------|
 
 Most special commands will leave the point special after they're
@@ -123,3 +125,9 @@ You can usually get away with typing just one lower case char to navigate
 and the position remains special.
 And since the ordering always starts from `a`, "qa" is another synonym
 for `beginning-of-defun`.
+
+## Inline function arguments
+`eldoc-mode` is cool, but it shows you arguments *over there* and
+you're writing *over here*!. No problem, `C-2` fixes that:
+
+![screenshot](https://raw.github.com/abo-abo/lispy/master/doc/arglist-1.png)
