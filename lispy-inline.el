@@ -95,7 +95,9 @@
   "Show STR hint."
   (setq str (lispy--pad-string
              (propertize str 'face 'lispy-face-hint)
-             (- (point) (line-beginning-position))))
+             (string-width (buffer-substring
+                            (line-beginning-position)
+                            (point)))))
   (save-excursion
     (goto-char lispy-hint-pos)
     (forward-line -1)
