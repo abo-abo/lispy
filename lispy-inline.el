@@ -29,10 +29,45 @@
 
 ;;; Code:
 
+(defgroup lispy-faces nil
+  "Font-lock faces for `lispy'."
+  :group 'lispy
+  :prefix "lispy-face-")
+
 (defface lispy-face-hint
   '((t (:background "#fff3bc" :foreground "black")))
   "Basic hint face."
-  :group 'lispy)
+  :group 'lispy-faces)
+
+(defface lispy-face-req-nosel
+    '((t (:inherit lispy-face-hint)))
+  "Face for required unselected args."
+  :group 'lispy-faces)
+
+(defface lispy-face-req-sel
+    '((t (:inherit lispy-face-req-nosel :bold t)))
+  "Face for required selected args."
+  :group 'lispy-faces)
+
+(defface lispy-face-opt-nosel
+    '((t (:inherit lispy-face-hint :foreground "#666666" :slant italic)))
+  "Face for optional unselected args."
+  :group 'lispy-faces)
+
+(defface lispy-face-opt-sel
+    '((t (:inherit lispy-face-opt-nosel :bold t)))
+  "Face for optional selected args."
+  :group 'lispy-faces)
+
+(defface lispy-face-rst-nosel
+    '((t (:inherit lispy-face-hint)))
+  "Face for rest unselected args."
+  :group 'lispy-faces)
+
+(defface lispy-face-rst-sel
+    '((t (:inherit lispy-face-rst-nosel :bold t)))
+  "Face for rest selected args."
+  :group 'lispy-faces)
 
 (defvar lispy-overlay nil
   "Hint overlay instance.")
@@ -42,9 +77,9 @@
 
 ;; ——— Commands ————————————————————————————————————————————————————————————————
 (defun lispy-arglist-inline ()
-  "Display arglist for `lispy--current-function'."
+  "Display arglist for `lispy--current-function' inline."
   (interactive)
-  (let ((deleted))
+  (let (deleted)
     (when (overlayp lispy-overlay)
       (delete-overlay lispy-overlay)
       (setq lispy-overlay nil)
@@ -53,13 +88,15 @@
       (unless (looking-at "(")
         (lispy-out-backward 1))
       (when (or (not deleted) (not (= lispy-hint-pos (point))))
-        (let ((sym (lispy--current-function)))
-          (cond ((fboundp sym)
-                 (setq lispy-hint-pos (point))
-                 (lispy--show (lispy--arglist sym)))))))))
+        (if (memq major-mode '(emacs-lisp-mode lisp-interaction-mode))
+            (let ((sym (lispy--current-function)))
+              (cond ((fboundp sym)
+                     (setq lispy-hint-pos (point))
+                     (lispy--show (lispy--pretty-args sym)))))
+          (error "Only elisp is supported currently."))))))
 
 (defun lispy-describe-inline ()
-  "Display `documentation' inline."
+  "Display documentation for `lispy--current-function' inline."
   (interactive)
   (let ((deleted))
     (when (overlayp lispy-overlay)
@@ -70,10 +107,13 @@
       (unless (looking-at "(")
         (lispy-out-backward 1))
       (when (or (not deleted) (not (= lispy-hint-pos (point))))
-        (let ((sym (lispy--current-function)))
-          (cond ((fboundp sym)
-                 (setq lispy-hint-pos (point))
-                 (lispy--show (documentation sym)))))))))
+        (if (memq major-mode '(emacs-lisp-mode lisp-interaction-mode))
+            (let ((sym (lispy--current-function)))
+              (cond ((fboundp sym)
+                     (setq lispy-hint-pos (point))
+                     (lispy--show (propertize (documentation sym)
+                                              'face 'lispy-face-hint)))))
+          (error "Only elisp is supported currently."))))))
 
 ;; ——— Utilities ———————————————————————————————————————————————————————————————
 (defun lispy--arglist (symbol)
@@ -94,7 +134,7 @@
 (defun lispy--show (str)
   "Show STR hint."
   (setq str (lispy--pad-string
-             (propertize str 'face 'lispy-face-hint)
+             str
              (string-width (buffer-substring
                             (line-beginning-position)
                             (point)))))
@@ -112,6 +152,28 @@
       (overlay-put lispy-overlay 'priority 9999))
     (overlay-put lispy-overlay 'display str)
     (overlay-put lispy-overlay 'after-string "")))
+
+(defun lispy--pretty-args (symbol)
+  "Return a vector of fontified strings for function SYMBOL."
+  (let* ((args (cdr (split-string (lispy--arglist symbol) "[( )]" t)))
+         (p-opt (position "&optional" args :test 'equal))
+         (p-rst (position "&rest" args :test 'equal))
+         (a-req (subseq args 0 (or p-opt p-rst (length args))))
+         (a-opt (and p-opt (subseq args (1+ p-opt) (or p-rst (length args)))))
+         (a-rst (and p-rst (last args))))
+    (format
+     "(%s)"
+     (mapconcat
+      #'identity
+      (append
+       (list (propertize (symbol-name symbol) 'face 'lispy-face-hint))
+       (mapcar (lambda(x) (propertize (downcase x)
+                                 'face 'lispy-face-req-nosel)) a-req)
+       (mapcar (lambda(x) (propertize (downcase x)
+                                 'face 'lispy-face-opt-nosel)) a-opt)
+       (mapcar (lambda(x) (propertize (concat (downcase x) "...")
+                                 'face 'lispy-face-rst-nosel)) a-rst))
+      " "))))
 
 (provide 'lispy-inline)
 
