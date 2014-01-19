@@ -107,13 +107,16 @@
       (unless (looking-at "(")
         (lispy-out-backward 1))
       (when (or (not deleted) (not (= lispy-hint-pos (point))))
-        (if (memq major-mode '(emacs-lisp-mode lisp-interaction-mode))
-            (let ((sym (lispy--current-function)))
-              (cond ((fboundp sym)
-                     (setq lispy-hint-pos (point))
-                     (lispy--show (propertize (documentation sym)
-                                              'face 'lispy-face-hint)))))
-          (error "Only elisp is supported currently."))))))
+        (cond ((memq major-mode '(emacs-lisp-mode lisp-interaction-mode))
+               (let ((sym (lispy--current-function)))
+                 (cond ((fboundp sym)
+                        (setq lispy-hint-pos (point))
+                        (lispy--show (propertize (documentation sym)
+                                                 'face 'lispy-face-hint))))))
+              ((eq major-mode 'clojure-mode)
+               (nrepl-doc-handler (lispy--current-function)))
+              (t
+               (error "Only elisp is supported currently.")))))))
 
 ;; ——— Utilities ———————————————————————————————————————————————————————————————
 (defun lispy--arglist (symbol)
