@@ -484,8 +484,8 @@ Otherwise (`backward-delete-char-untabify' ARG)."
              (forward-list))))
 
         ((looking-back "(")
-         (backward-char 1)
-         (lispy-delete 1))
+         (lispy-out-forward 1)
+         (lispy-delete-backward 1))
 
         ((looking-back "\"")
          (backward-sexp 1)
