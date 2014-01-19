@@ -408,6 +408,9 @@ Return nil if can't move."
             (match-beginning 0)
             (match-end 0))
            (indent-for-tab-command)))
+        ((and (looking-at ")") (looking-back "("))
+         (delete-char 1)
+         (backward-delete-char 1))
         (t (let* ((beg (point))
                   (str (buffer-substring-no-properties
                         beg

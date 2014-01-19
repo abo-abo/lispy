@@ -341,7 +341,9 @@
   (should (string= (lispy-with "((a)|\n (b) (c))" "\C-k")
                    "((a)| (b) (c))"))
   (should (string= (lispy-with "((a)|\n (b) (c))" "\C-k\C-k")
-                   "((a)|)")))
+                   "((a)|)"))
+  (should (string= (lispy-with "(a b c)\n(|)" "\C-k")
+                   "(a b c)\n|")))
 
 (ert-deftest lispy-yank ()
   (should (string= (lispy-with "\"|\"" (kill-new "foo") (lispy-yank))
