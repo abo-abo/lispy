@@ -786,7 +786,9 @@ Special case is (|( -> ( |(."
           (unless at-end
             (goto-char (car bnd2)))
           (lispy--reindent 1)
-          (or (looking-at lispy-left) (looking-back lispy-right) (lispy-out-forward 1)))
+          (or (looking-at lispy-left)
+              (looking-back lispy-right)
+              (lispy-out-forward 1)))
       (indent-sexp))))
 
 (defun lispy-raise-some ()
@@ -1038,6 +1040,27 @@ Quote newlines if ARG isn't 1."
     (lispy-forward 1)
     (lispy-backward 1)))
 
+(defun lispy-teleport (arg)
+  "Move ARG sexps ahead of result of `lispy-ace-paren'."
+  (interactive "p")
+  (let ((beg (point))
+        end endp)
+    (cond ((looking-at lispy-left)
+           (unless (dotimes-protect arg
+                     (forward-list 1))
+             (error "Unexpected")))
+          ((looking-back lispy-right)
+           (setq endp t)
+           (unless (dotimes-protect arg
+                     (backward-list arg))
+             (error "Unexpected")))
+          (t (error "Unexpected")))
+    (setq end (point))
+    (goto-char beg)
+    (lispy-ace-paren
+     `(lambda()
+        (lispy--teleport ,beg ,end ,endp)))))
+
 ;; ——— Locals:  miscellanea ————————————————————————————————————————————————————
 (defun lispy-eval ()
   "Eval last sexp."
@@ -1072,9 +1095,11 @@ Quote newlines if ARG isn't 1."
     (call-interactively 'ace-jump-char-mode)
     (widen)))
 
-(defun lispy-ace-paren ()
-  "Use `ace-jump-char-mode' to jump to ( within current defun."
+(defun lispy-ace-paren (&optional func)
+  "Use `ace-jump-char-mode' to jump to ( within current defun.
+When FUNC is not nil, call it after a successful move."
   (interactive)
+  (require 'ace-jump-mode)
   (let ((bnd (save-excursion
                (lispy-out-backward 50)
                (lispy--bounds-dwim))))
@@ -1083,6 +1108,12 @@ Quote newlines if ARG isn't 1."
       (recenter-top-bottom))
     (narrow-to-region (car bnd) (cdr bnd))
     ;; (let ((ace-jump-search-filter (lambda() (not (lispy--in-string-or-comment-p))))))
+    (when func
+      (setq ace-jump-mode-end-hook
+            `(list (lambda()
+                     (setq ace-jump-mode-end-hook
+                           ,ace-jump-mode-end-hook)
+                     (,func)))))
     (ace-jump-char-mode ?\()
     (widen)))
 
@@ -1113,6 +1144,18 @@ Quote newlines if ARG isn't 1."
     (cond ((fboundp sym)
            (let ((args (car (help-split-fundoc (documentation sym t) sym))))
              (message "%s" args))))))
+
+(defun lispy-normalize ()
+  "Normalize current sexp."
+  (interactive)
+  (save-excursion
+    (cond ((looking-at lispy-left)
+           (forward-char 1))
+          ((looking-back lispy-right)
+           (backward-list)
+           (forward-char 1))
+          (t (error "Unexpected")))
+    (lispy--normalize 1)))
 
 ;; ——— Predicates ——————————————————————————————————————————————————————————————
 (defun lispy--in-string-p ()
@@ -1417,18 +1460,6 @@ list."
            (t
             (self-insert-command 1)))))
 
-(defun lispy-normalize ()
-  "Normalize current sexp."
-  (interactive)
-  (save-excursion
-    (cond ((looking-at lispy-left)
-           (forward-char 1))
-          ((looking-back lispy-right)
-           (backward-list)
-           (forward-char 1))
-          (t (error "Unexpected")))
-    (lispy--normalize 1)))
-
 (defun lispy--normalize (arg)
   "Go up ARG times and normalize."
   (lispy-out-backward arg)
@@ -1455,6 +1486,31 @@ list."
         (when (cl-search "\\1" to)
           (setq to (replace-regexp-in-string "\\\\1" ms to)))
         (insert to)))))
+
+(defun lispy--teleport (beg end endp)
+  "Move text from between BEG END to point.
+Leave point at the beginning or end of text depending on ENDP."
+  (let ((str (buffer-substring-no-properties beg end))
+        (beg1 (point))
+        end1
+        (size (buffer-size)))
+    (goto-char beg)
+    (delete-region beg end)
+    (delete-blank-lines)
+    (when (> beg1 beg)
+      (decf beg1 (- size (buffer-size))))
+    (goto-char beg1)
+    (insert str "\n")
+    (setq end1 (point))
+    (save-excursion
+      (beginning-of-defun)
+      (indent-sexp)
+      (indent-region (point) end1))
+    (if endp
+        (progn
+          (lispy-backward 1)
+          (lispy-forward 1))
+      (goto-char beg1))))
 
 (defvar ac-trigger-commands '(self-insert-command))
 
@@ -1543,6 +1599,7 @@ list."
   (lispy-define-key map "F" 'lispy-follow)
   (lispy-define-key map "D" 'lispy-describe)
   (lispy-define-key map "A" 'lispy-arglist)
+  (lispy-define-key map "t" 'lispy-teleport)
   ;; ——— locals: digit argument ———————————————
   (mapc (lambda (x) (lispy-define-key map (format "%d" x) 'digit-argument))
         (number-sequence 0 9)))
