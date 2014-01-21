@@ -703,7 +703,7 @@ Special case is (|( -> ( |(."
   "Insert newline."
   (interactive)
   (if (eq major-mode 'lisp-interaction-mode)
-      (ignore-errors
+      (progn
         (setq this-command 'eval-last-sexp)
         (eval-print-last-sexp))
     (newline-and-indent)
