@@ -740,7 +740,7 @@ Special case is (|( -> ( |(."
            (lispy--barf-forward)))))
 
 (defun lispy-splice (arg)
-  "Splice sexp into containing list."
+  "Splice ARG sexps into containing list."
   (interactive "p")
   (dotimes-protect arg
     (let ((bnd (lispy--bounds-dwim)))

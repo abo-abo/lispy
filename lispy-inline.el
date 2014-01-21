@@ -111,8 +111,9 @@
                (let ((sym (lispy--current-function)))
                  (cond ((fboundp sym)
                         (setq lispy-hint-pos (point))
-                        (lispy--show (propertize (documentation sym)
-                                                 'face 'lispy-face-hint))))))
+                        (or (lispy--show (propertize (documentation sym)
+                                                 'face 'lispy-face-hint))
+                            (describe-function sym))))))
               ((eq major-mode 'clojure-mode)
                (nrepl-doc-handler (lispy--current-function)))
               (t
@@ -127,34 +128,40 @@
       (prin1-to-string
        (cons symbol (help-function-arglist symbol))))))
 
-(defun lispy--pad-string (str width)
-  "Pad each line of STR with WIDTH spaces."
+(defun lispy--join-pad (strs width)
+  "Join STRS padding each line with WIDTH spaces."
   (let ((padding (make-string width ?\ )))
     (mapconcat (lambda(x) (concat padding x))
-               (split-string str "\n")
+               strs
                "\n")))
 
 (defun lispy--show (str)
-  "Show STR hint."
-  (setq str (lispy--pad-string
-             str
-             (string-width (buffer-substring
-                            (line-beginning-position)
-                            (point)))))
-  (save-excursion
-    (goto-char lispy-hint-pos)
-    (forward-line -1)
-    (end-of-line)
-    (setq str (concat "\n" str (make-string 1 (char-after))))
-    (font-lock-unfontify-region (point) (+ (point) 1))
-    (if lispy-overlay
-        (progn
-          (move-overlay lispy-overlay (point) (+ (point) 1))
-          (overlay-put lispy-overlay 'invisible nil))
-      (setq lispy-overlay (make-overlay (point) (+ (point) 1)))
-      (overlay-put lispy-overlay 'priority 9999))
-    (overlay-put lispy-overlay 'display str)
-    (overlay-put lispy-overlay 'after-string "")))
+  "Show STR hint.
+Return t if window is large enough to display STR whole.
+Otherwise don't do anything and return nil."
+  (let ((strs (split-string str "\n")))
+    (if (> (length strs) (window-height))
+        nil
+      (setq str (lispy--join-pad
+                 strs
+                 (string-width (buffer-substring
+                                (line-beginning-position)
+                                (point)))))
+      (save-excursion
+        (goto-char lispy-hint-pos)
+        (forward-line -1)
+        (end-of-line)
+        (setq str (concat "\n" str (make-string 1 (char-after))))
+        (font-lock-unfontify-region (point) (+ (point) 1))
+        (if lispy-overlay
+            (progn
+              (move-overlay lispy-overlay (point) (+ (point) 1))
+              (overlay-put lispy-overlay 'invisible nil))
+          (setq lispy-overlay (make-overlay (point) (+ (point) 1)))
+          (overlay-put lispy-overlay 'priority 9999))
+        (overlay-put lispy-overlay 'display str)
+        (overlay-put lispy-overlay 'after-string ""))
+      t)))
 
 (defun lispy--pretty-args (symbol)
   "Return a vector of fontified strings for function SYMBOL."
