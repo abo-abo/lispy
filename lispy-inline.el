@@ -69,6 +69,12 @@
   "Face for rest selected args."
   :group 'lispy-faces)
 
+(defcustom lispy-window-height-ratio 0.75
+  "`lispy--show' will fail with string taller than window height times this.
+The caller of `lispy--show' might use a substitute e.g. `describe-function'."
+  :type 'float
+  :group 'lispy)
+
 (defvar lispy-overlay nil
   "Hint overlay instance.")
 
@@ -93,7 +99,7 @@
               (cond ((fboundp sym)
                      (setq lispy-hint-pos (point))
                      (lispy--show (lispy--pretty-args sym)))))
-          (error "Only elisp is supported currently."))))))
+          (error "Only elisp is supported currently"))))))
 
 (defun lispy-describe-inline ()
   "Display documentation for `lispy--current-function' inline."
@@ -124,7 +130,7 @@
               ((eq major-mode 'clojure-mode)
                (nrepl-doc-handler (lispy--current-function)))
               (t
-               (error "Only elisp is supported currently.")))))))
+               (error "Only elisp is supported currently")))))))
 
 ;; ——— Utilities ———————————————————————————————————————————————————————————————
 (defun lispy--arglist (symbol)
@@ -147,7 +153,7 @@
 Return t if window is large enough to display STR whole.
 Otherwise don't do anything and return nil."
   (let ((strs (split-string str "\n")))
-    (if (> (length strs) (window-height))
+    (if (> (length strs) (* lispy-window-height-ratio (window-height)))
         nil
       (setq str (lispy--join-pad
                  strs
