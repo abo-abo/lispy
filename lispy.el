@@ -1114,7 +1114,7 @@ When FUNC is not nil, call it after a successful move."
                      (setq ace-jump-mode-end-hook
                            ,ace-jump-mode-end-hook)
                      (,func)))))
-    (ace-jump-char-mode ?\()
+    (ace-jump-do "[([{]")
     (widen)))
 
 (defun lispy-ert ()
