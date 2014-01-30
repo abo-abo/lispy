@@ -144,6 +144,13 @@
 (defvar lispy-right "[])}]"
   "Closing delimiter.")
 
+(defvar lispy-eval-functions-alist
+  '((emacs-lisp-mode . eval-last-sexp)
+    (lisp-interaction-mode . eval-last-sexp)
+    (clojure-mode . cider-eval-last-expression)
+    (clojure-mode . nrepl-eval-last-expression))
+  "Alist of eval functions by major for `lispy-eval'.")
+
 (defvar lispy-no-space nil
   "If t, don't insert a space before parens/brackets/braces/colons.")
 (make-variable-buffer-local 'lispy-no-space)
@@ -1068,7 +1075,8 @@ Quote newlines if ARG isn't 1."
   (save-excursion
     (unless (looking-back lispy-right)
       (lispy-forward 1))
-    (call-interactively 'eval-last-sexp)))
+    (call-interactively
+     (cdr (assoc major-mode lispy-eval-functions-alist)))))
 
 (defun lispy-eval-and-insert ()
   "Eval last sexp and insert the result."
