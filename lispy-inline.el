@@ -152,13 +152,16 @@ Return t if at least one was deleted."
                strs
                "\n")))
 
-(defun lispy--show (str)
-  "Show STR hint.
-Return t if window is large enough to display STR whole.
-Otherwise don't do anything and return nil."
+(defun lispy--show-fits-p (str)
+  "Return nil if window isn't large enough to display STR whole."
   (let ((strs (split-string str "\n")))
-    (if (> (length strs) (* lispy-window-height-ratio (window-height)))
-        nil
+    (when (< (length strs) (* lispy-window-height-ratio (window-height)))
+      strs)))
+
+(defun lispy--show (str)
+  "Show STR hint when `lispy--show-fits-p' is t."
+  (let ((strs (lispy--show-fits-p str)))
+    (when strs
       (setq str (lispy--join-pad
                  strs
                  (string-width (buffer-substring
