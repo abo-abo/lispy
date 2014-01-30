@@ -100,10 +100,10 @@ The caller of `lispy--show' might use a substitute e.g. `describe-function'."
                      (lispy--show (lispy--pretty-args sym)))))
           (error "Only elisp is supported currently"))))))
 
-(defun lispy-describe-inline ()
-  "Display documentation for `lispy--current-function' inline."
-  (interactive)
-  (let ((deleted))
+(defun lispy--delete-help-windows ()
+  "Delete help windows.
+Return t if at least one was deleted."
+  (let (deleted)
     (mapc (lambda (window)
             (when (eq (with-current-buffer (window-buffer window)
                         major-mode)
@@ -111,6 +111,12 @@ The caller of `lispy--show' might use a substitute e.g. `describe-function'."
               (delete-window window)
               (setq deleted t)))
           (window-list))
+    deleted))
+
+(defun lispy-describe-inline ()
+  "Display documentation for `lispy--current-function' inline."
+  (interactive)
+  (let ((deleted (lispy--delete-help-windows)))
     (when (overlayp lispy-overlay)
       (delete-overlay lispy-overlay)
       (setq lispy-overlay nil)
