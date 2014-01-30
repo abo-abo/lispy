@@ -195,10 +195,10 @@ Return t if at least one was deleted."
 (defun lispy--pretty-args (symbol)
   "Return a vector of fontified strings for function SYMBOL."
   (let* ((args (cdr (split-string (lispy--arglist symbol) "[( )]" t)))
-         (p-opt (position "&optional" args :test 'equal))
-         (p-rst (position "&rest" args :test 'equal))
-         (a-req (subseq args 0 (or p-opt p-rst (length args))))
-         (a-opt (and p-opt (subseq args (1+ p-opt) (or p-rst (length args)))))
+         (p-opt (cl-position "&optional" args :test 'equal))
+         (p-rst (cl-position "&rest" args :test 'equal))
+         (a-req (cl-subseq args 0 (or p-opt p-rst (length args))))
+         (a-opt (and p-opt (cl-subseq args (1+ p-opt) (or p-rst (length args)))))
          (a-rst (and p-rst (last args))))
     (format
      "(%s)"
