@@ -4,8 +4,8 @@
 
 ;; Author: Oleh Krehel <ohwoeowho@gmail.com>
 ;; URL: https://github.com/abo-abo/lispy
-;; Version: 0.4
-;; Package-Requires: ((helm "1.5.3") (ace-jump-mode "2.0"))
+;; Version: 0.5
+;; Package-Requires: ((helm "1.5.3") (ace-jump-mode "2.0") (s "1.4.0"))
 ;; Keywords: lisp
 
 ;; This file is not part of GNU Emacs
@@ -121,6 +121,9 @@
 ;; "jkopf<>cws;".
 ;; Not so useful, but fun is "/": start it from "|(" position and hold
 ;; until all your Lisp code is turned into Python :).
+;;
+;; Some Clojure support depends on packages `cider' or `nrepl' and
+;; `ac-nrepl'. You can get them from MELPA.
 ;;
 ;;; Code:
 (eval-when-compile

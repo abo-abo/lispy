@@ -4,7 +4,7 @@
 
 ;; Author: Oleh Krehel <ohwoeowho@gmail.com>
 ;; URL: https://github.com/abo-abo/lispy
-;; Version: 0.3
+;; Version: 0.5
 ;; Keywords: lisp
 
 ;; This file is not part of GNU Emacs
@@ -124,17 +124,26 @@ Return t if at least one was deleted."
     (save-excursion
       (lispy--back-to-paren)
       (when (or (not deleted) (not (= lispy-hint-pos (point))))
-        (cond ((memq major-mode '(emacs-lisp-mode lisp-interaction-mode))
-               (let ((sym (lispy--current-function)))
-                 (cond ((fboundp sym)
-                        (setq lispy-hint-pos (point))
-                        (or (lispy--show (propertize (documentation sym)
-                                                     'face 'lispy-face-hint))
-                            (describe-function sym))))))
-              ((eq major-mode 'clojure-mode)
-               (nrepl-doc-handler (lispy--current-function)))
-              (t
-               (error "Only elisp is supported currently")))))))
+        (setq lispy-hint-pos (point))
+        (let* ((sym (lispy--current-function))
+               (doc
+                (cond
+                  ((memq major-mode '(emacs-lisp-mode lisp-interaction-mode))
+                   (let (dc)
+                     (if (fboundp sym)
+                         (if (lispy--show-fits-p (setq dc (documentation sym)))
+                             dc
+                           (describe-function sym)
+                           nil)
+                       "unbound")))
+                  ((eq major-mode 'clojure-mode)
+                   (require 'ac-nrepl)
+                   (s-trim
+                    (ac-nrepl-symbol-info sym)))
+                  (t
+                   (error "%s isn't supported currently" major-mode)))))
+          (when doc
+            (lispy--show (propertize doc 'face 'lispy-face-hint))))))))
 
 ;; ——— Utilities ———————————————————————————————————————————————————————————————
 (defun lispy--arglist (symbol)
