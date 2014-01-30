@@ -1137,9 +1137,13 @@ When FUNC is not nil, call it after a successful move."
   "Follow to `lispy--current-function'."
   (interactive)
   (let ((symbol (lispy--current-function)))
-    (cond ((fboundp symbol)
+    (cond ((and (memq major-mode '(emacs-lisp-mode lisp-interaction-mode))
+                (fboundp symbol))
            (push-mark)
-           (find-function symbol)))))
+           (find-function symbol))
+          ((eq major-mode 'clojure-mode)
+           (cider-jump-to-def (lispy--current-function))
+           (lispy--back-to-paren)))))
 
 (defun lispy-describe ()
   "Display documentation for `lispy--current-function'."
