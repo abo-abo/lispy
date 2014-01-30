@@ -1241,11 +1241,15 @@ First, try to return `lispy--bounds-string'."
   (destructuring-bind (beg . end) (or bounds (lispy--bounds-dwim))
     (buffer-substring-no-properties beg end)))
 
+(defun lispy--back-to-paren ()
+  "Move to ( going out backwards."
+  (while (and (not (looking-at "("))
+              (lispy-out-backward 1))))
+
 (defun lispy--current-function ()
   "Return current function as symbol."
   (save-excursion
-    (when (looking-back lispy-right)
-      (backward-list))
+    (lispy--back-to-paren)
     (when (looking-at "(\\([^ \n)]+\\)[ )\n]")
       (intern-soft (match-string 1)))))
 

@@ -91,8 +91,7 @@ The caller of `lispy--show' might use a substitute e.g. `describe-function'."
       (setq lispy-overlay nil)
       (setq deleted t))
     (save-excursion
-      (unless (looking-at "(")
-        (lispy-out-backward 1))
+      (lispy--back-to-paren)
       (when (or (not deleted) (not (= lispy-hint-pos (point))))
         (if (memq major-mode '(emacs-lisp-mode lisp-interaction-mode))
             (let ((sym (lispy--current-function)))
@@ -117,8 +116,7 @@ The caller of `lispy--show' might use a substitute e.g. `describe-function'."
       (setq lispy-overlay nil)
       (setq deleted t))
     (save-excursion
-      (unless (looking-at "(")
-        (lispy-out-backward 1))
+      (lispy--back-to-paren)
       (when (or (not deleted) (not (= lispy-hint-pos (point))))
         (cond ((memq major-mode '(emacs-lisp-mode lisp-interaction-mode))
                (let ((sym (lispy--current-function)))
