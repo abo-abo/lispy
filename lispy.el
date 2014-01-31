@@ -1155,13 +1155,20 @@ When FUNC is not nil, call it after a successful move."
 (defun lispy-follow ()
   "Follow to `lispy--current-function'."
   (interactive)
-  (let ((symbol (lispy--current-function)))
+  (let ((symbol (lispy--current-function))
+        rsymbol)
     (cond ((and (memq major-mode '(emacs-lisp-mode lisp-interaction-mode))
                 (fboundp (setq symbol (intern-soft symbol))))
            (push-mark)
            (find-function symbol))
           ((eq major-mode 'clojure-mode)
-           (cider-jump-to-def (lispy--current-function))
+           (setq rsymbol (lispy--clojure-resolve symbol))
+           (cond ((stringp rsymbol)
+                  (cider-jump-to-def rsymbol))
+                 ((eq rsymbol 'special)
+                  (error "Can't jump to '%s because it's special" symbol))
+                 (t
+                  (error "Could't resolve '%s" symbol)))
            (lispy--back-to-paren)))))
 
 (defun lispy-describe ()
