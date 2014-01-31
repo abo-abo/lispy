@@ -133,32 +133,25 @@ If it doesn't work, try to resolve in all available namespaces."
 
 (defun lispy--clojure-args (symbol)
   "Return a vector of fontified strings for function SYMBOL."
-  (let ((args
-         (read
-          (ac-nrepl-quick-eval
-           (format
-            "(defmacro arguments [sym]
-              (if (special-symbol? sym)
-                  `(let [s# (re-find #\"\\(.*\\)\" (with-out-str (doc ~sym)))]
-                     (list (format \"[%%s]\" (subs s# 1 (dec (count s#))))))
-                (if (keyword? sym)
-                    `(list \"[map]\")
-                  (let [rsym
-                        (or (resolve sym)
-                          (ns-resolve '%s sym))]
-                    (if rsym
-                        (if (map? (var-get rsym))
-                            `(list \"[key]\")
-                          (if (vector? (var-get rsym))
-                              `(list \"[idx]\")
-                            `(map str (:arglists (meta ~rsym)))))
-                      \"unbound\")))))
-             (arguments %s)"
-            (clojure-find-ns)
-            symbol)))))
-    (if (equal args "unbound")
-        (propertize "unbound" 'face 'lispy-face-hint)
-      (format
+  (let* ((sym (lispy--clojure-resolve symbol))
+         (args (cond
+                 ((eq sym 'special)
+                  (read (ac-nrepl-quick-eval
+                         (format
+                          "(let [s (re-find #\"\\(.*\\)\" (with-out-str (doc %s)))]
+                     (list (format \"[%%s]\" (subs s 1 (dec (count s))))))"
+                          symbol))))
+                 ((eq sym 'keyword)
+                  (list "[map]"))
+                 ((eq sym 'undefined)
+                  (error "Undefined"))
+                 ((null sym)
+                  (list "is undefined"))
+                 (t
+                  (read (ac-nrepl-quick-eval
+                         (format "(map str (:arglists (meta #'%s)))"
+                                 sym)))))))
+    (format
        "(%s %s)"
        (propertize symbol 'face 'lispy-face-hint)
        (mapconcat
@@ -166,7 +159,7 @@ If it doesn't work, try to resolve in all available namespaces."
         (mapcar (lambda(x) (propertize (downcase x)
                                   'face 'lispy-face-req-nosel)) args)
         (concat "\n"
-                (make-string (+ 2 (length symbol)) ? )))))))
+                (make-string (+ 2 (length symbol)) ? ))))))
 
 (defun lispy--delete-help-windows ()
   "Delete help windows.
