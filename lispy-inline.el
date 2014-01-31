@@ -30,6 +30,7 @@
 ;;; Code:
 
 (require 's)
+(declare-function ac-nrepl-symbol-info "ext:ac-nrepl")
 
 (defgroup lispy-faces nil
   "Font-lock faces for `lispy'."

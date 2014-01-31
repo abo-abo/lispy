@@ -132,8 +132,8 @@
 (require 'edebug)
 (require 'outline)
 (require 'semantic)
+(require 'ace-jump-mode)
 (require 'lispy-inline)
-(declare-function ac-nrepl-symbol-info "ext:ac-nrepl")
 
 ;; ——— Customization ———————————————————————————————————————————————————————————
 (defgroup lispy nil
