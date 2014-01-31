@@ -96,12 +96,53 @@ The caller of `lispy--show' might use a substitute e.g. `describe-function'."
     (save-excursion
       (lispy--back-to-paren)
       (when (or (not deleted) (not (= lispy-hint-pos (point))))
-        (if (memq major-mode '(emacs-lisp-mode lisp-interaction-mode))
-            (let ((sym (intern-soft (lispy--current-function))))
-              (cond ((fboundp sym)
-                     (setq lispy-hint-pos (point))
-                     (lispy--show (lispy--pretty-args sym)))))
-          (error "Only elisp is supported currently"))))))
+        (cond ((memq major-mode '(emacs-lisp-mode lisp-interaction-mode))
+               (let ((sym (intern-soft (lispy--current-function))))
+                 (cond ((fboundp sym)
+                        (setq lispy-hint-pos (point))
+                        (lispy--show (lispy--pretty-args sym))))))
+              ((eq major-mode 'clojure-mode)
+               (setq lispy-hint-pos (point))
+               (lispy--show (lispy--clojure-args (lispy--current-function))))
+
+              (t (error "Only elisp is supported currently")))))))
+
+(defun lispy--clojure-args (symbol)
+  "Return a vector of fontified strings for function SYMBOL."
+  (let ((args
+         (read
+          (ac-nrepl-quick-eval
+           (format
+            "(defmacro arguments [sym]
+              (if (special-symbol? sym)
+                  `(let [s# (re-find #\"\\(.*\\)\" (with-out-str (doc ~sym)))]
+                     (list (format \"[%%s]\" (subs s# 1 (dec (count s#))))))
+                (if (keyword? sym)
+                    `(list \"[map]\")
+                  (let [rsym
+                        (or (resolve sym)
+                          (ns-resolve '%s sym))]
+                    (if rsym
+                        (if (map? (var-get rsym))
+                            `(list \"[key]\")
+                          (if (vector? (var-get rsym))
+                              `(list \"[idx]\")
+                            `(map str (:arglists (meta ~rsym)))))
+                      \"unbound\")))))
+             (arguments %s)"
+            (clojure-find-ns)
+            symbol)))))
+    (if (equal args "unbound")
+        (propertize "unbound" 'face 'lispy-face-hint)
+      (format
+       "(%s %s)"
+       (propertize symbol 'face 'lispy-face-hint)
+       (mapconcat
+        #'identity
+        (mapcar (lambda(x) (propertize (downcase x)
+                                  'face 'lispy-face-req-nosel)) args)
+        (concat "\n"
+                (make-string (+ 2 (length symbol)) ? )))))))
 
 (defun lispy--delete-help-windows ()
   "Delete help windows.
