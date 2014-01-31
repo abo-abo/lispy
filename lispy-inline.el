@@ -182,9 +182,11 @@ Return t if at least one was deleted."
                                 (point)))))
       (save-excursion
         (goto-char lispy-hint-pos)
-        (forward-line -1)
-        (end-of-line)
-        (setq str (concat "\n" str (make-string 1 (char-after))))
+        (if (= -1 (forward-line -1))
+            (setq str (concat str "\n"))
+          (end-of-line)
+          (setq str (concat "\n" str)))
+        (setq str (concat str (make-string 1 (char-after))))
         (font-lock-unfontify-region (point) (+ (point) 1))
         (if lispy-overlay
             (progn
