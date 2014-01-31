@@ -595,7 +595,9 @@
   (should (string= (lispy-with "(frob grovel |full lexical)" "\"")
                    "(frob grovel \"|\" full lexical)"))
   (should (string= (lispy-with "(foo \"bar |baz\" quux)" "\"")
-                   "(foo \"bar \\\"|\\\"baz\" quux)")))
+                   "(foo \"bar \\\"|\\\"baz\" quux)"))
+  (should (string= (lispy-with "\"(fo|o)\"" (lispy-quotes 1))
+                   "(foo)|")))
 
 (ert-deftest lispy-normalize ()
   (should (string= (lispy-with "|(foo (bar)baz)" "N")

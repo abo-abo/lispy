@@ -79,6 +79,7 @@ Some examples are:
     | d   | `lispy-different`        | d          | reverses itself   |
     | M-j | `lispy-split`            | +          | `lispy-join`      |
     | O   | `lispy-oneline`          | M          | `lispy-multiline` |
+    | S   | `lispy-stringify`        | C-u "      | `lispy-quotes`    |
     |-----+--------------------------+------------+-------------------|
 
 Among other cool commands are:
@@ -103,9 +104,9 @@ Among other cool commands are:
     | g   | `lispy-goto`                       |
     | q   | `lispy-ace-paren`                  |
     | Q   | `lispy-ace-char`                   |
-    | S   | `lispy-stringify`                  |
     | D   | `lispy-describe`                   |
     | F   | `lispy-follow`                     |
+    | N   | `lispy-normalize`                  |
     | C-1 | `lispy-describe-inline`            |
     | C-2 | `lispy-arglist-inline`             |
     |-----+------------------------------------|

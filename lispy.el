@@ -87,6 +87,7 @@
 ;; | d   | `lispy-different'        | d          | reverses itself   |
 ;; | M-j | `lispy-split'            | +          | `lispy-join'      |
 ;; | O   | `lispy-oneline'          | M          | `lispy-multiline' |
+;; | S   | `lispy-stringify'        | C-u "      | `lispy-quotes'    |
 ;; |-----+--------------------------+------------+-------------------|
 ;;
 ;; Among other cool commands are:
@@ -110,9 +111,11 @@
 ;; | g   | `lispy-goto'                       |
 ;; | q   | `lispy-ace-paren'                  |
 ;; | Q   | `lispy-ace-char'                   |
-;; | S   | `lispy-stringify'                  |
 ;; | D   | `lispy-describe'                   |
 ;; | F   | `lispy-follow'                     |
+;; | N   | `lispy-normalize'                  |
+;; | C-1 | `lispy-describe-inline'            |
+;; | C-2 | `lispy-arglist-inline'             |
 ;; |-----+------------------------------------|
 ;;
 ;; Most special commands will leave the point special after they're
@@ -649,16 +652,21 @@ When this function is called:
 (defun lispy-quotes (arg)
   "Insert a pair of quotes around the point.
 
-Quotes are quoted when inside a string, unless ARG isn't nil.
-When the region is active, wrap it in quotes instead."
+When the region is active, wrap it in quotes instead.
+When inside string, if ARG is nil quotes are quoted,
+otherwise the whole string is unquoted."
   (interactive "P")
   (cond ((region-active-p)
          (lispy--surround-region "\"" "\""))
 
-        ((and (lispy--in-string-p) (not arg))
-         (insert "\\\"\\\"")
-         (backward-char 2))
-
+        ((lispy--in-string-p)
+         (if arg
+             (let* ((bnd (lispy--bounds-string))
+                    (str (lispy--string-dwim bnd)))
+               (delete-region (car bnd) (cdr bnd))
+               (insert (read str)))
+           (insert "\\\"\\\"")
+           (backward-char 2)))
         (t
          (lispy--space-unless "\\s-\\|\\s(\\|[#]")
          (insert "\"\"")
