@@ -589,7 +589,7 @@
 
 (ert-deftest lispy-eval-and-insert ()
   (should (string= (lispy-with "(+ 2 2)|" "E")
-                   "(+ 2 2)|4")))
+                   "(+ 2 2)4|")))
 
 (ert-deftest lispy-quotes ()
   (should (string= (lispy-with "(frob grovel |full lexical)" "\"")

@@ -1092,15 +1092,20 @@ Quote newlines if ARG isn't 1."
 (defun lispy-eval-and-insert ()
   "Eval last sexp and insert the result."
   (interactive)
-  (save-excursion
-    (unless (looking-back lispy-right)
-      (lispy-forward 1))
-    (let ((str (lispy-eval)))
-      (when (memq major-mode '(emacs-lisp-mode lisp-interaction-mode))
-        (setq str (prin1-to-string str)))
-      (when (> (current-column) 40)
-        (newline-and-indent))
-      (insert str))))
+  (cl-labels
+      ((doit ()
+             (unless (looking-back lispy-right)
+               (lispy-forward 1))
+             (let ((str (lispy-eval)))
+               (when (memq major-mode '(emacs-lisp-mode lisp-interaction-mode))
+                 (setq str (prin1-to-string str)))
+               (when (> (current-column) 40)
+                 (newline-and-indent))
+               (insert str))))
+    (if (looking-at lispy-left)
+        (save-excursion
+          (doit))
+      (doit))))
 
 (defun lispy-goto ()
   "Jump to symbol entry point."
