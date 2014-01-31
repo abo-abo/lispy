@@ -142,7 +142,8 @@ Return t if at least one was deleted."
                   ((eq major-mode 'clojure-mode)
                    (require 'ac-nrepl)
                    (s-trim
-                    (ac-nrepl-symbol-info sym)))
+                    (replace-regexp-in-string "^\\(?:-+\n\\|\n*.*$.*@.*\n*\\)" ""
+                                              (ac-nrepl-symbol-info sym))))
                   (t
                    (error "%s isn't supported currently" major-mode)))))
           (when doc
