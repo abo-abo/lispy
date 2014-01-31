@@ -1157,7 +1157,7 @@ When FUNC is not nil, call it after a successful move."
   (interactive)
   (let ((symbol (lispy--current-function)))
     (cond ((and (memq major-mode '(emacs-lisp-mode lisp-interaction-mode))
-                (fboundp symbol))
+                (fboundp (setq symbol (intern-soft symbol))))
            (push-mark)
            (find-function symbol))
           ((eq major-mode 'clojure-mode)
@@ -1167,14 +1167,14 @@ When FUNC is not nil, call it after a successful move."
 (defun lispy-describe ()
   "Display documentation for `lispy--current-function'."
   (interactive)
-  (let ((symbol (lispy--current-function)))
+  (let ((symbol (intern-soft (lispy--current-function))))
     (cond ((fboundp symbol)
            (describe-function symbol)))))
 
 (defun lispy-arglist ()
   "Display arglist for `lispy--current-function'."
   (interactive)
-  (let ((sym (lispy--current-function)))
+  (let ((sym (intern-soft (lispy--current-function))))
     (cond ((fboundp sym)
            (let ((args (car (help-split-fundoc (documentation sym t) sym))))
              (message "%s" args))))))
@@ -1277,7 +1277,7 @@ First, try to return `lispy--bounds-string'."
   (save-excursion
     (lispy--back-to-paren)
     (when (looking-at "(\\([^ \n)]+\\)[ )\n]")
-      (intern-soft (match-string 1)))))
+      (match-string 1))))
 
 ;; ——— Utilities ———————————————————————————————————————————————————————————————
 (defun lispy--exit-string ()

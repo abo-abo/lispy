@@ -97,7 +97,7 @@ The caller of `lispy--show' might use a substitute e.g. `describe-function'."
       (lispy--back-to-paren)
       (when (or (not deleted) (not (= lispy-hint-pos (point))))
         (if (memq major-mode '(emacs-lisp-mode lisp-interaction-mode))
-            (let ((sym (lispy--current-function)))
+            (let ((sym (intern-soft (lispy--current-function))))
               (cond ((fboundp sym)
                      (setq lispy-hint-pos (point))
                      (lispy--show (lispy--pretty-args sym)))))
@@ -133,7 +133,7 @@ Return t if at least one was deleted."
                 (cond
                   ((memq major-mode '(emacs-lisp-mode lisp-interaction-mode))
                    (let (dc)
-                     (if (fboundp sym)
+                     (if (fboundp (setq sym (intern-soft sym)))
                          (if (lispy--show-fits-p (setq dc (documentation sym)))
                              dc
                            (describe-function sym)
