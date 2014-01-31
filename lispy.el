@@ -1167,6 +1167,8 @@ When FUNC is not nil, call it after a successful move."
                   (cider-jump-to-def rsymbol))
                  ((eq rsymbol 'special)
                   (error "Can't jump to '%s because it's special" symbol))
+                 ((eq rsymbol 'keyword)
+                  (error "Can't jump to keywords"))
                  (t
                   (error "Could't resolve '%s" symbol)))
            (lispy--back-to-paren)))))

@@ -109,21 +109,27 @@ The caller of `lispy--show' might use a substitute e.g. `describe-function'."
 
 (defun lispy--clojure-resolve (symbol)
   "Return resolved SYMBOL.
-Special symbols resolve to themselves.
-Try to resolve in current namespace first.
+Return 'special or 'keyword appropriately.
+Otherwise try to resolve in current namespace first.
 If it doesn't work, try to resolve in all available namespaces."
   (let ((str (ac-nrepl-quick-eval
-              (format "(if (special-symbol? '%s)
-                         'special
-                         (or (resolve '%s)
-                             (first (keep #(ns-resolve %% '%s) (all-ns)))))"
-                      symbol
-                      symbol
-                      symbol))))
-    (if (string= str "special")
-        'special
-      (unless (string= str "nil")
-        (substring str 2)))))
+              (format
+               "(if (symbol? '%s)
+                   (if (special-symbol? '%s)
+                       'special
+                     (or (resolve '%s)
+                         (first (keep #(ns-resolve %% '%s) (all-ns)))))
+                 (if (keyword? '%s)
+                     'keyword
+                   'unknown))"
+               symbol
+               symbol
+               symbol
+               symbol
+               symbol))))
+    (if (string-match "^#'\\(.*\\)$" str)
+        (match-string 1 str)
+      (intern str))))
 
 (defun lispy--clojure-args (symbol)
   "Return a vector of fontified strings for function SYMBOL."
