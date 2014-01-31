@@ -29,6 +29,8 @@
 
 ;;; Code:
 
+(require 's)
+
 (defgroup lispy-faces nil
   "Font-lock faces for `lispy'."
   :group 'lispy

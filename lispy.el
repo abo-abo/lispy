@@ -133,7 +133,7 @@
 (require 'outline)
 (require 'semantic)
 (require 'lispy-inline)
-(declare-function ace-jump-char-mode "ext:ace-jump-mode")
+(declare-function ac-nrepl-symbol-info "ext:ac-nrepl")
 
 ;; ——— Customization ———————————————————————————————————————————————————————————
 (defgroup lispy nil
