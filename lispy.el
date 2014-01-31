@@ -134,6 +134,7 @@
 (require 'semantic)
 (require 'ace-jump-mode)
 (require 'lispy-inline)
+(declare-function ac-nrepl-quick-eval "ext:ac-nrepl")
 
 ;; ——— Customization ———————————————————————————————————————————————————————————
 (defgroup lispy nil
@@ -150,8 +151,8 @@
 (defvar lispy-eval-functions-alist
   '((emacs-lisp-mode . eval-last-sexp)
     (lisp-interaction-mode . eval-last-sexp)
-    (clojure-mode . cider-eval-last-expression)
-    (clojure-mode . nrepl-eval-last-expression))
+    (clojure-mode . lispy-eval-clojure)
+    (clojure-mode . cider-eval-last-expression))
   "Alist of eval functions by major for `lispy-eval'.")
 
 (defvar lispy-no-space nil
@@ -1081,12 +1082,25 @@ Quote newlines if ARG isn't 1."
     (call-interactively
      (cdr (assoc major-mode lispy-eval-functions-alist)))))
 
+(defun lispy-eval-clojure ()
+  "Eval last Clojure sexp."
+  (interactive)
+  (unless (looking-back lispy-right)
+    (lispy-forward 1))
+  (message (ac-nrepl-quick-eval (lispy--string-dwim))))
+
 (defun lispy-eval-and-insert ()
   "Eval last sexp and insert the result."
   (interactive)
-  (when (> (current-column) 40)
-    (newline-and-indent))
-  (insert (prin1-to-string (call-interactively 'eval-last-sexp))))
+  (save-excursion
+    (unless (looking-back lispy-right)
+      (lispy-forward 1))
+    (let ((str (lispy-eval)))
+      (when (memq major-mode '(emacs-lisp-mode lisp-interaction-mode))
+        (setq str (prin1-to-string str)))
+      (when (> (current-column) 40)
+        (newline-and-indent))
+      (insert str))))
 
 (defun lispy-goto ()
   "Jump to symbol entry point."
