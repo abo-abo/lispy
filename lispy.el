@@ -138,7 +138,6 @@
 (require 'ace-jump-mode)
 (require 'newcomment)
 (require 'lispy-inline)
-(declare-function ac-nrepl-quick-eval "ext:ac-nrepl")
 
 ;; ——— Customization ———————————————————————————————————————————————————————————
 (defgroup lispy nil
@@ -1105,7 +1104,7 @@ Quote newlines if ARG isn't 1."
   (interactive)
   (unless (looking-back lispy-right)
     (lispy-forward 1))
-  (message (ac-nrepl-quick-eval (lispy--string-dwim))))
+  (message (lispy--eval-clojure (lispy--string-dwim))))
 
 (defun lispy-eval-and-insert ()
   "Eval last sexp and insert the result."

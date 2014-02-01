@@ -30,8 +30,6 @@
 ;;; Code:
 
 (require 's)
-(declare-function ac-nrepl-symbol-info "ext:ac-nrepl")
-(declare-function ac-nrepl-quick-eval "ext:ac-nrepl")
 
 (defgroup lispy-faces nil
   "Font-lock faces for `lispy'."
@@ -113,7 +111,7 @@ The caller of `lispy--show' might use a substitute e.g. `describe-function'."
 Return 'special or 'keyword appropriately.
 Otherwise try to resolve in current namespace first.
 If it doesn't work, try to resolve in all available namespaces."
-  (let ((str (ac-nrepl-quick-eval
+  (let ((str (lispy--eval-clojure
               (format
                "(if (symbol? '%s)
                    (if (special-symbol? '%s)
@@ -139,7 +137,7 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
          (args (cond
                  ((eq sym 'special)
                   (read
-                   (ac-nrepl-quick-eval
+                   (lispy--eval-clojure
                     (format
                      "(->> (with-out-str (doc %s))
                        (re-find #\"\\(.*\\)\")
@@ -156,7 +154,7 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
                  ((null sym)
                   (list "is undefined"))
                  (t
-                  (read (ac-nrepl-quick-eval
+                  (read (lispy--eval-clojure
                          (format
                           "(let [args (map str (:arglists (meta #'%s)))]
                             (if (empty? args)
@@ -221,7 +219,7 @@ Return t if at least one was deleted."
                     (replace-regexp-in-string
                      "^\\(?:-+\n\\|\n*.*$.*@.*\n*\\)" ""
                      (read
-                      (ac-nrepl-quick-eval
+                      (lispy--eval-clojure
                        (format "(with-out-str (doc %s))"
                                (let ((rsymbol (lispy--clojure-resolve sym)))
                                  (cond ((stringp rsymbol)
@@ -231,7 +229,8 @@ Return t if at least one was deleted."
                                        ((eq rsymbol 'keyword)
                                         (error "No docs for keywords"))
                                        (t
-                                        (error "Could't resolve '%s" sym))))))))))
+                                        (error
+                                         "Could't resolve '%s" sym))))))))))
 
                   (t
                    (error "%s isn't supported currently" major-mode)))))
@@ -293,7 +292,8 @@ Return t if at least one was deleted."
          (p-opt (cl-position "&optional" args :test 'equal))
          (p-rst (cl-position "&rest" args :test 'equal))
          (a-req (cl-subseq args 0 (or p-opt p-rst (length args))))
-         (a-opt (and p-opt (cl-subseq args (1+ p-opt) (or p-rst (length args)))))
+         (a-opt (and p-opt
+                     (cl-subseq args (1+ p-opt) (or p-rst (length args)))))
          (a-rst (and p-rst (last args))))
     (format
      "(%s)"
@@ -308,6 +308,12 @@ Return t if at least one was deleted."
        (mapcar (lambda(x) (propertize (concat (downcase x) "...")
                                  'face 'lispy-face-rst-nosel)) a-rst))
       " "))))
+
+(declare-function ac-nrepl-quick-eval "ext:ac-nrepl")
+
+(defun lispy--eval-clojure (str)
+  "Eval STR as Clojure code."
+  (ac-nrepl-quick-eval str))
 
 (provide 'lispy-inline)
 
