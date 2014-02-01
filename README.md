@@ -35,7 +35,7 @@ represents the point):
 ## Digit keys
 
 When special, the digit keys call `digit-argument` which is very
-convenient since most Lispy commands accept a numeric argument.
+useful since most Lispy commands accept a numeric argument.
 For instance, "3c" is equivalent to "ccc" (clone sexp 3 times), and
 "4j" is equivalent to "jjjj" (move point 4 sexps down).  Some useful
 applications are "9l" and "9a" - they exit list forwards and
@@ -87,30 +87,41 @@ Some examples are:
 
 Among other cool commands are:
 
+    |-------+------------------------------------|
+    | key   | command                            |
+    |-------+------------------------------------|
+    | f     | `lispy-flow`                       |
+    | u     | `undo`                             |
+    | m     | `lispy-mark`                       |
+    | l     | `lispy-out-forward`                |
+    | a     | `lispy-out-backward`               |
+    | /     | `lispy-splice`                     |
+    | i     | `indent-sexp`                      |
+    | r     | `lispy-raise`                      |
+    | R     | `lispy-raise-some`                 |
+    | J     | `outline-next-visible-heading`     |
+    | K     | `outline-previous-visible-heading` |
+    | q     | `lispy-ace-paren`                  |
+    | Q     | `lispy-ace-char`                   |
+    | N     | `lispy-normalize`                  |
+    | M-m   | `lispy-mark-symbol`                |
+    | M-o   | `lispy-string-one-line`            |
+    | C-,   | `lispy-kill-at-point`              |
+    | C-M-, | `lispy-kill-at-point`              |
+    | C-e   | `lispy-move-end-of-line`           |
+    | t     | `lispy-teleport`                   |
+    |-------+------------------------------------|
+
+Also, IDE-like commands ([details here](#ide-like-features)):
+
     |-----+------------------------------------|
-    | key | command                            |
-    |-----+------------------------------------|
-    | f   | `lispy-flow`                       |
-    | u   | `undo`                             |
-    | e   | `lispy-eval`                       |
-    | m   | `lispy-mark`                       |
-    | l   | `lispy-out-forward`                |
-    | a   | `lispy-out-backward`               |
-    | E   | `lispy-eval-and-insert`            |
-    | /   | `lispy-splice`                     |
-    | i   | `indent-sexp`                      |
-    | r   | `lispy-raise`                      |
-    | R   | `lispy-raise-some`                 |
-    | J   | `outline-next-visible-heading`     |
-    | K   | `outline-previous-visible-heading` |
-    | g   | `lispy-goto`                       |
-    | q   | `lispy-ace-paren`                  |
-    | Q   | `lispy-ace-char`                   |
-    | D   | `lispy-describe`                   |
-    | F   | `lispy-follow`                     |
-    | N   | `lispy-normalize`                  |
     | C-1 | `lispy-describe-inline`            |
     | C-2 | `lispy-arglist-inline`             |
+    | e   | `lispy-eval`                       |
+    | E   | `lispy-eval-and-insert`            |
+    | D   | `lispy-describe`                   |
+    | g   | `lispy-goto`                       |
+    | F   | `lispy-follow`                     |
     |-----+------------------------------------|
 
 Most special commands will leave the point special after they're
