@@ -31,6 +31,7 @@
 
 (require 's)
 (declare-function ac-nrepl-symbol-info "ext:ac-nrepl")
+(declare-function ac-nrepl-quick-eval "ext:ac-nrepl")
 
 (defgroup lispy-faces nil
   "Font-lock faces for `lispy'."
@@ -149,8 +150,18 @@ If it doesn't work, try to resolve in all available namespaces."
                   (list "is undefined"))
                  (t
                   (read (ac-nrepl-quick-eval
-                         (format "(map str (:arglists (meta #'%s)))"
-                                 sym)))))))
+                         (format
+                          "(let [args (map str (:arglists (meta #'%s)))]
+                            (if (empty? args)
+                                (eval '(list
+                                        (condp #(%%1 %%2) %s
+                                         map? \"[key]\"
+                                         set? \"[key]\"
+                                         vector? \"[idx]\"
+                                         \"is uncallable\")))
+                              args))"
+                          sym
+                          sym)))))))
     (format
        "(%s %s)"
        (propertize symbol 'face 'lispy-face-hint)
