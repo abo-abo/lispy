@@ -46,7 +46,7 @@ equivalent to `end-of-defun` and `beginning-of-defun`.
 
 To move the point into a special position, use:
 
-    "]" - calls `lispy-forward'
+    "]" - calls `lispy-forward`
     "[" - calls `lispy-backward`
     "C-3" - calls `lispy-out-forward` (exit current list forwards)
     ")" - calls `lispy-out-forward-nostring` (exit current list
@@ -115,7 +115,7 @@ Among other cool commands are:
 
 Most special commands will leave the point special after they're
 done.  This allows to chain them as well as apply them
-continuously by holding the key.  Some useful holdable keys are
+continuously by holding the key.  Some useful hold-able keys are
 "jkopf<>cws;".
 Not so useful, but fun is "/": start it from "|(" position and hold
 until all your Lisp code is turned into Python :).
@@ -141,6 +141,10 @@ No extra buffer necessary:
 
 ![screenshot](https://raw.github.com/abo-abo/lispy/master/doc/doc-1.png)
 
+Here's how it looks for Clojure:
+
+![screenshot](https://raw.github.com/abo-abo/lispy/master/doc/doc-2.png)
+
 ### `lispy-arglist-inline`
 Bound to `C-2`. Show arguments for current function inline.
 
@@ -154,18 +158,25 @@ a different face:
 
 ![screenshot](https://raw.github.com/abo-abo/lispy/master/doc/arglist-2.png)
 
+Here's how it looks for Clojure:
+
+![screenshot](https://raw.github.com/abo-abo/lispy/master/doc/arglist-3.png)
+
 ### `lispy-eval`
 Bound to `e` while in special. Eval current expression.
 
-This is just a convenience binding. Works from beginning of list
+This is just a convenience binding. Works from the beginning of list
 as well.
 ### `lispy-eval-and-insert`
 Bound to `E` while in special. Eval and insert current expression.
 
-This is just a convenience binding. Works from beginning of list
+This is just a convenience binding. Works from the beginning of list
 as well.
+
 ### `lispy-follow`
 Bound to `F` while in special. Follow to definition of current function.
+While in Clojure, if can't resolve the symbol in current namespace,
+searches for it in all loaded namespaces.
 
 ### `lispy-goto`
 Bound to `g` while in special. Use `helm` to select a top-level symbol
