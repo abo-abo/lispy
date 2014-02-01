@@ -136,6 +136,7 @@
 (require 'outline)
 (require 'semantic)
 (require 'ace-jump-mode)
+(require 'newcomment)
 (require 'lispy-inline)
 (declare-function ac-nrepl-quick-eval "ext:ac-nrepl")
 
@@ -1217,9 +1218,12 @@ When FUNC is not nil, call it after a successful move."
 
 (defun lispy--in-comment-p ()
   "Test if point is inside a comment."
-  (let ((beg (nth 8 (syntax-ppss))))
-    (and beg
-         (comment-only-p beg (point)))))
+  (save-excursion
+    (unless (eolp)
+      (forward-char 1))
+    (let ((beg (nth 8 (syntax-ppss))))
+      (and beg
+           (comment-only-p beg (point))))))
 
 (defun lispy--in-string-or-comment-p ()
   "Test if point is inside a string or a comment."
