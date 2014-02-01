@@ -534,7 +534,12 @@ Extend region when it's aleardy active."
 (defun lispy-mark-symbol ()
   "Mark current symbol."
   (interactive)
-  (cond ((or (looking-at "[ ]*[()]")
+  (cond ((lispy--in-comment-p)
+         (destructuring-bind (beg . end) (lispy--bounds-comment)
+           (goto-char beg)
+           (set-mark-command nil)
+           (goto-char end)))
+        ((or (looking-at "[ ]*[()]")
              (and (region-active-p)
                   (looking-at "[ \n]*[()]")))
          (skip-chars-forward "() \n")
