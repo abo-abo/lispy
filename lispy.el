@@ -126,7 +126,7 @@
 ;; until all your Lisp code is turned into Python :).
 ;;
 ;; Some Clojure support depends on packages `cider' or `nrepl' and
-;; `ac-nrepl'. You can get them from MELPA.
+;; `ac-nrepl'.  You can get them from MELPA.
 ;;
 ;;; Code:
 (eval-when-compile
@@ -589,7 +589,8 @@ With ARG not nil, cut instead of copying."
                    (region-end)))
         (newline-and-indent)
         (insert (current-kill 0)))
-    (let ((bounds (or (lispy--bounds-string)
+    (let ((bounds (or (lispy--bounds-comment)
+                      (lispy--bounds-string)
                       (lispy--bounds-list))))
       (kill-region (car bounds) (cdr bounds)))))
 
@@ -1281,6 +1282,43 @@ First, try to return `lispy--bounds-string'."
                   (goto-char beg)
                   (forward-sexp)
                   (point))))))
+
+(defun lispy--bounds-comment ()
+  "Return bounds of current comment."
+  (save-excursion
+    (when (lispy--beginning-of-comment)
+      (let ((oln (line-number-at-pos))
+            nln)
+        (while (and (lispy--in-comment-p)
+                    (forward-comment -1)
+                    (= 1 (- oln (setq nln (line-number-at-pos)))))
+          (setq oln nln))
+        (goto-line oln))
+      (let ((beg (lispy--beginning-of-comment))
+            (oln (line-number-at-pos))
+            nln)
+        (while (and (lispy--in-comment-p)
+                    (forward-comment 1)
+                    (lispy--beginning-of-comment)
+                    (= -1 (- oln (setq nln (line-number-at-pos)))))
+          (setq oln nln))
+        (goto-line oln)
+        (end-of-line)
+        (cons beg (point))))))
+
+(defun lispy--beginning-of-comment ()
+  "Go to beginning of comment on current line."
+  (end-of-line)
+  (let ((cs (comment-search-backward (line-beginning-position) t)))
+      (when cs
+        (goto-char cs))))
+
+(defun lispy--comment-search-forward (dir)
+  "Search for a first comment in direction DIR.
+Move to the end of line."
+  (while (not (lispy--in-comment-p))
+    (forward-line dir)
+    (end-of-line)))
 
 (defun lispy--string-dwim (&optional bounds)
   "Return the string that corresponds to BOUNDS.
