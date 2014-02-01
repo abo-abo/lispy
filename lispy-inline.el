@@ -218,8 +218,21 @@ Return t if at least one was deleted."
                   ((eq major-mode 'clojure-mode)
                    (require 'ac-nrepl)
                    (s-trim
-                    (replace-regexp-in-string "^\\(?:-+\n\\|\n*.*$.*@.*\n*\\)" ""
-                                              (ac-nrepl-symbol-info sym))))
+                    (replace-regexp-in-string
+                     "^\\(?:-+\n\\|\n*.*$.*@.*\n*\\)" ""
+                     (read
+                      (ac-nrepl-quick-eval
+                       (format "(with-out-str (doc %s))"
+                               (let ((rsymbol (lispy--clojure-resolve sym)))
+                                 (cond ((stringp rsymbol)
+                                        rsymbol)
+                                       ((eq rsymbol 'special)
+                                        sym)
+                                       ((eq rsymbol 'keyword)
+                                        (error "No docs for keywords"))
+                                       (t
+                                        (error "Could't resolve '%s" sym))))))))))
+
                   (t
                    (error "%s isn't supported currently" major-mode)))))
           (when doc
