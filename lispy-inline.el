@@ -133,15 +133,22 @@ If it doesn't work, try to resolve in all available namespaces."
       (intern str))))
 
 (defun lispy--clojure-args (symbol)
-  "Return a vector of fontified strings for function SYMBOL."
+  "Return a pretty string with arguments for SYMBOL.
+Besides functions, handles specials, keywords, maps, vectors and sets."
   (let* ((sym (lispy--clojure-resolve symbol))
          (args (cond
                  ((eq sym 'special)
-                  (read (ac-nrepl-quick-eval
-                         (format
-                          "(let [s (re-find #\"\\(.*\\)\" (with-out-str (doc %s)))]
-                     (list (format \"[%%s]\" (subs s 1 (dec (count s))))))"
-                          symbol))))
+                  (read
+                   (ac-nrepl-quick-eval
+                    (format
+                     "(->> (with-out-str (doc %s))
+                       (re-find #\"\\(.*\\)\")
+                       read-string rest
+                       (map str)
+                       (clojure.string/join \" \")
+                       (format \"[%%s]\")
+                       list)"
+                     symbol))))
                  ((eq sym 'keyword)
                   (list "[map]"))
                  ((eq sym 'undefined)
@@ -163,14 +170,14 @@ If it doesn't work, try to resolve in all available namespaces."
                           sym
                           sym)))))))
     (format
-       "(%s %s)"
-       (propertize symbol 'face 'lispy-face-hint)
-       (mapconcat
-        #'identity
-        (mapcar (lambda(x) (propertize (downcase x)
-                                  'face 'lispy-face-req-nosel)) args)
-        (concat "\n"
-                (make-string (+ 2 (length symbol)) ? ))))))
+     "(%s %s)"
+     (propertize symbol 'face 'lispy-face-hint)
+     (mapconcat
+      #'identity
+      (mapcar (lambda(x) (propertize (downcase x)
+                                'face 'lispy-face-req-nosel)) args)
+      (concat "\n"
+              (make-string (+ 2 (length symbol)) ? ))))))
 
 (defun lispy--delete-help-windows ()
   "Delete help windows.
