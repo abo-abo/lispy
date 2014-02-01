@@ -80,6 +80,7 @@ Some examples are:
     | M-j | `lispy-split`            | +          | `lispy-join`      |
     | O   | `lispy-oneline`          | M          | `lispy-multiline` |
     | S   | `lispy-stringify`        | C-u "      | `lispy-quotes`    |
+    | ;   | `lispy-comment`          | C-u ;      | `lispy-comment`   |
     |-----+--------------------------+------------+-------------------|
 
 Among other cool commands are:
@@ -91,7 +92,6 @@ Among other cool commands are:
     | u   | `undo`                             |
     | e   | `lispy-eval`                       |
     | m   | `lispy-mark`                       |
-    | ;   | `lispy-comment`                    |
     | l   | `lispy-out-forward`                |
     | a   | `lispy-out-backward`               |
     | E   | `lispy-eval-and-insert`            |

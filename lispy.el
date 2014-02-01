@@ -88,6 +88,7 @@
 ;; | M-j | `lispy-split'            | +          | `lispy-join'      |
 ;; | O   | `lispy-oneline'          | M          | `lispy-multiline' |
 ;; | S   | `lispy-stringify'        | C-u "      | `lispy-quotes'    |
+;; | ;   | `lispy-comment'          | C-u ;      | `lispy-comment'   |
 ;; |-----+--------------------------+------------+-------------------|
 ;;
 ;; Among other cool commands are:
@@ -98,7 +99,6 @@
 ;; | u   | `undo'                             |
 ;; | e   | `lispy-eval'                       |
 ;; | m   | `lispy-mark'                       |
-;; | ;   | `lispy-comment'                    |
 ;; | l   | `lispy-out-forward'                |
 ;; | a   | `lispy-out-backward'               |
 ;; | E   | `lispy-eval-and-insert'            |
@@ -989,29 +989,32 @@ Comments will be moved ahead of sexp."
   "Comment ARG sexps."
   (interactive "p")
   (setq arg (or arg 1))
-  (dotimes-protect arg
-    (let (bnd)
-      (cond ((lispy--in-string-or-comment-p)
-             (self-insert-command 1))
-            ((region-active-p)
-             (comment-dwim nil)
-             (when (lispy--in-string-or-comment-p)
-               (lispy-out-backward 1)))
-            ((looking-at lispy-left)
-             (setq bnd (lispy--bounds-dwim))
-             (lispy-counterclockwise)
-             (comment-region (car bnd) (cdr bnd))
-             (when (lispy--in-string-or-comment-p)
-               (lispy-out-backward 1)))
-            ((looking-back lispy-right)
-             (comment-dwim nil)
-             (insert " "))
-            ((setq bnd (save-excursion
-                         (and (lispy-out-forward 1)
-                              (point))))
-             (comment-region (point) (1- bnd))
-             (lispy-out-backward 1))
-            (t (self-insert-command 1))))))
+  (if (and (> arg 1) (lispy--in-comment-p))
+      (let ((bnd (lispy--bounds-comment)))
+        (uncomment-region (car bnd) (cdr bnd)))
+    (dotimes-protect arg
+      (let (bnd)
+        (cond ((region-active-p)
+               (comment-dwim nil)
+               (when (lispy--in-string-or-comment-p)
+                 (lispy-out-backward 1)))
+              ((lispy--in-string-or-comment-p)
+               (self-insert-command 1))
+              ((looking-at lispy-left)
+               (setq bnd (lispy--bounds-dwim))
+               (lispy-counterclockwise)
+               (comment-region (car bnd) (cdr bnd))
+               (when (lispy--in-string-or-comment-p)
+                 (lispy-out-backward 1)))
+              ((looking-back lispy-right)
+               (comment-dwim nil)
+               (insert " "))
+              ((setq bnd (save-excursion
+                           (and (lispy-out-forward 1)
+                                (point))))
+               (comment-region (point) (1- bnd))
+               (lispy-out-backward 1))
+              (t (self-insert-command 1)))))))
 
 (defvar lispy-meol-point 1
   "Point where `lispy-move-end-of-line' should go when already at eol.")
