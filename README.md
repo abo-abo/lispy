@@ -4,6 +4,8 @@ This package implements various commands for navigating and editing
 Lisp code. It's influenced by Paredit and re-implements most of its features
 in order to provide faster and more intuitive key bindings.
 
+It also provides some [IDE-like features](#ide-like-features) for Elisp and Clojure.
+
 ## Special positions and key bindings
 
 Due to the structure of Lisp syntax it's very rare for the
@@ -127,7 +129,21 @@ and the position remains special.
 And since the ordering always starts from `a`, "qa" is another synonym
 for `beginning-of-defun`.
 
-## Inline function arguments
+## IDE-like features
+These features are specific to the Lisp dialect used.
+Currently Elisp and Clojure (via `cider`) are supported.
+### `lispy-describe-inline`
+Bound to `C-1`. Show doc for current function inline.
+
+`<f1> f` is fine, but the extra buffer, and having to navigate to a symbol
+is tiresome. `C-1` toggles on/off the inline doc for current function.
+No extra buffer necessary:
+
+![screenshot](https://raw.github.com/abo-abo/lispy/master/doc/doc-1.png)
+
+### `lispy-arglist-inline`
+Bound to `C-2`. Show arguments for current function inline.
+
 `eldoc-mode` is cool, but it shows you arguments *over there* and
 you're writing *over here*!. No problem, `C-2` fixes that:
 
@@ -138,9 +154,23 @@ a different face:
 
 ![screenshot](https://raw.github.com/abo-abo/lispy/master/doc/arglist-2.png)
 
-## Inline function docs
-`<f1> f` is fine, but the extra buffer, and having to navigate to a symbol
-is tiresome. `C-1` toggles on/off the inline doc for current function.
-No extra buffer necessary:
+### `lispy-eval`
+Bound to `e` while in special. Eval current expression.
 
-![screenshot](https://raw.github.com/abo-abo/lispy/master/doc/doc-1.png)
+This is just a convenience binding. Works from beginning of list
+as well.
+### `lispy-eval-and-insert`
+Bound to `E` while in special. Eval and insert current expression.
+
+This is just a convenience binding. Works from beginning of list
+as well.
+### `lispy-follow`
+Bound to `F` while in special. Follow to definition of current function.
+
+### `lispy-goto`
+Bound to `g` while in special. Use `helm` to select a top-level symbol
+to jump to in current file.
+
+Works out of the box for Elisp.
+[clojure-semantic](https://github.com/kototama/clojure-semantic)
+is required for Clojure.
