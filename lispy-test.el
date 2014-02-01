@@ -558,7 +558,11 @@
   (should (string= (lispy-with "(defun foo ()\n  (let (a b c)\n    (cond ((s1)\n           |(s2)\n           (s3)))))" ";;;;;")
                    "|(defun foo ()\n  ;; (let (a b c)\n  ;;   ;; (cond ;; ((s1)\n  ;;   ;;       ;;  ;; (s2)\n  ;;   ;;       ;;  ;; (s3)\n  ;;   ;;       ;;  )\n  ;;   ;;   )\n  ;;   )\n  )"))
   (should (string= (lispy-with "(defun foo ()\n  (let (a b c)\n    (cond ((s1)\n           |(s2)\n           (s3)))))" ";;;;;;")
-                   ";; (defun foo ()\n;;   ;; (let (a b c)\n;;   ;;   ;; (cond ;; ((s1)\n;;   ;;   ;;       ;;  ;; (s2)\n;;   ;;   ;;       ;;  ;; (s3)\n;;   ;;   ;;       ;;  )\n;;   ;;   ;;   )\n;;   ;;   )\n;;   )|")))
+                   ";; (defun foo ()\n;;   ;; (let (a b c)\n;;   ;;   ;; (cond ;; ((s1)\n;;   ;;   ;;       ;;  ;; (s2)\n;;   ;;   ;;       ;;  ;; (s3)\n;;   ;;   ;;       ;;  )\n;;   ;;   ;;   )\n;;   ;;   )\n;;   )|"))
+  (should (string= (lispy-with ";; line| 1\n;; line 2\n (a b c)\n ;; line 3" (lispy-comment 2))
+                   "line| 1\nline 2\n (a b c)\n ;; line 3"))
+  (should (string= (lispy-with ";; line 1\n;; line 2|\n (a b c)\n ;; line 3" (lispy-comment 2))
+                   "line 1\nline 2|\n (a b c)\n ;; line 3")))
 
 (ert-deftest lispy-move-end-of-line ()
   (should (string= (lispy-with "(foo (bar #\\x \"|baz \\\\ quux\") zot)" "\C-e")
