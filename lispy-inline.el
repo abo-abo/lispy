@@ -190,6 +190,23 @@ Return t if at least one was deleted."
           (window-list))
     deleted))
 
+(defun lispy--describe-clojure-java (sym)
+  "Return description for Clojure Java symol SYM."
+  (read
+   (lispy--eval-clojure
+    (format
+     "(let [[_ cname mname] (re-find #\"(.*)/(.*)\" \"%s\")
+          methods (and cname
+                    (try (load-string (format \"(.getMethods %%s)\" cname))
+                         (catch Exception e)))
+          methods (filter #(= (.getName %%) mname) methods)]
+      (if (= 0 (count methods))
+          nil
+        (clojure.string/join
+         \"\\n\" (map (fn [m] (.toString m))
+                   methods))))"
+     sym))))
+
 (defun lispy-describe-inline ()
   "Display documentation for `lispy--current-function' inline."
   (interactive)
@@ -215,22 +232,25 @@ Return t if at least one was deleted."
                            nil)
                        "unbound")))
                   ((eq major-mode 'clojure-mode)
-                   (s-trim
-                    (replace-regexp-in-string
-                     "^\\(?:-+\n\\|\n*.*$.*@.*\n*\\)" ""
-                     (read
-                      (lispy--eval-clojure
-                       (format "(with-out-str (doc %s))"
-                               (let ((rsymbol (lispy--clojure-resolve sym)))
-                                 (cond ((stringp rsymbol)
-                                        rsymbol)
-                                       ((eq rsymbol 'special)
-                                        sym)
-                                       ((eq rsymbol 'keyword)
-                                        (error "No docs for keywords"))
-                                       (t
-                                        (error
-                                         "Could't resolve '%s" sym))))))))))
+                   (let ((rsymbol (lispy--clojure-resolve sym)))
+                     (s-trim
+                      (replace-regexp-in-string
+                       "^\\(?:-+\n\\|\n*.*$.*@.*\n*\\)" ""
+                       (cond ((stringp rsymbol)
+                              (read
+                               (lispy--eval-clojure
+                                (format "(with-out-str (doc %s))" rsymbol)))
+                              rsymbol)
+                             ((eq rsymbol 'special)
+                              (read
+                               (lispy--eval-clojure
+                                (format "(with-out-str (doc %s))" sym))))
+                             ((eq rsymbol 'keyword)
+                              (error "No docs for keywords"))
+                             (t
+                              (or (lispy--describe-clojure-java sym)
+                                  (error
+                                   "Could't resolve '%s" sym))))))))
 
                   (t
                    (error "%s isn't supported currently" major-mode)))))
