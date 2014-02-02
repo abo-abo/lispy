@@ -310,12 +310,6 @@ Return t if at least one was deleted."
                                  'face 'lispy-face-rst-nosel)) a-rst))
       " "))))
 
-(declare-function ac-nrepl-quick-eval "ext:ac-nrepl")
-
-(defun lispy--eval-clojure (str)
-  "Eval STR as Clojure code."
-  (ac-nrepl-quick-eval str))
-
 (provide 'lispy-inline)
 
 ;;; Local Variables:

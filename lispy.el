@@ -151,13 +151,6 @@
 (defvar lispy-right "[])}]"
   "Closing delimiter.")
 
-(defvar lispy-eval-functions-alist
-  '((emacs-lisp-mode . eval-last-sexp)
-    (lisp-interaction-mode . eval-last-sexp)
-    (clojure-mode . lispy-eval-clojure)
-    (clojure-mode . cider-eval-last-expression))
-  "Alist of eval functions by major for `lispy-eval'.")
-
 (defvar lispy-no-space nil
   "If t, don't insert a space before parens/brackets/braces/colons.")
 (make-variable-buffer-local 'lispy-no-space)
@@ -1096,15 +1089,7 @@ Quote newlines if ARG isn't 1."
   (save-excursion
     (unless (looking-back lispy-right)
       (lispy-forward 1))
-    (call-interactively
-     (cdr (assoc major-mode lispy-eval-functions-alist)))))
-
-(defun lispy-eval-clojure ()
-  "Eval last Clojure sexp."
-  (interactive)
-  (unless (looking-back lispy-right)
-    (lispy-forward 1))
-  (message (lispy--eval-clojure (lispy--string-dwim))))
+    (message (lispy--eval (lispy--string-dwim)))))
 
 (defun lispy-eval-and-insert ()
   "Eval last sexp and insert the result."
@@ -1113,9 +1098,7 @@ Quote newlines if ARG isn't 1."
       ((doit ()
              (unless (looking-back lispy-right)
                (lispy-forward 1))
-             (let ((str (lispy-eval)))
-               (when (memq major-mode '(emacs-lisp-mode lisp-interaction-mode))
-                 (setq str (prin1-to-string str)))
+             (let ((str (lispy--eval (lispy--string-dwim))))
                (when (> (current-column) 40)
                  (newline-and-indent))
                (insert str))))
@@ -1346,6 +1329,28 @@ Move to the end of line."
       (match-string 1))))
 
 ;; ——— Utilities ———————————————————————————————————————————————————————————————
+(declare-function ac-nrepl-quick-eval "ext:ac-nrepl")
+
+(defun lispy--eval-elisp (str)
+  "Eval STR as Elisp code."
+  (prin1-to-string
+   (eval (read str))))
+
+(defun lispy--eval-clojure (str)
+  "Eval STR as Clojure code."
+  (ac-nrepl-quick-eval str))
+
+(defun lispy--eval (str)
+  "Eval STR according to current `major-mode'."
+  (funcall
+   (cond
+     ((memq major-mode '(emacs-lisp-mode lisp-interaction-mode))
+      'lispy--eval-elisp)
+     ((eq major-mode 'clojure-mode)
+      'lispy--eval-clojure)
+     (t (error "%s isn't supported currently." major-mode)))
+   str))
+
 (defun lispy--exit-string ()
   "When in string, go to its beginning."
   (let ((s (syntax-ppss)))
