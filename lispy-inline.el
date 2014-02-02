@@ -208,7 +208,8 @@ Return t if at least one was deleted."
                   ((memq major-mode '(emacs-lisp-mode lisp-interaction-mode))
                    (let (dc)
                      (if (fboundp (setq sym (intern-soft sym)))
-                         (if (lispy--show-fits-p (setq dc (documentation sym)))
+                         (if (lispy--show-fits-p
+                              (setq dc (or (documentation sym) "undocumented")))
                              dc
                            (describe-function sym)
                            nil)
