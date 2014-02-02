@@ -125,8 +125,8 @@
 ;; Not so useful, but fun is "/": start it from "|(" position and hold
 ;; until all your Lisp code is turned into Python :).
 ;;
-;; Some Clojure support depends on packages `cider' or `nrepl' and
-;; `ac-nrepl'.  You can get them from MELPA.
+;; Some Clojure support depends on packages `cider' or `nrepl'.
+;; You can get them from MELPA.
 ;;
 ;;; Code:
 (eval-when-compile
@@ -1338,17 +1338,19 @@ Move to the end of line."
       (match-string 1))))
 
 ;; ——— Utilities ———————————————————————————————————————————————————————————————
-(declare-function ac-nrepl-quick-eval "ext:ac-nrepl")
-
 (defun lispy--eval-elisp (str)
   "Eval STR as Elisp code."
   (prin1-to-string
    (eval (read str))))
 
+(declare-function nrepl-send-string-sync "ext:cider")
+(declare-function cider-jump-to-def "ext:cider")
+
 (defun lispy--eval-clojure (str)
   "Eval STR as Clojure code."
-  (require 'ac-nrepl)
-  (ac-nrepl-quick-eval str))
+  (plist-get
+   (nrepl-send-string-sync str)
+   :value))
 
 (defun lispy--eval (str)
   "Eval STR according to current `major-mode'."
