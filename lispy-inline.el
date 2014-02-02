@@ -215,7 +215,6 @@ Return t if at least one was deleted."
                            nil)
                        "unbound")))
                   ((eq major-mode 'clojure-mode)
-                   (require 'ac-nrepl)
                    (s-trim
                     (replace-regexp-in-string
                      "^\\(?:-+\n\\|\n*.*$.*@.*\n*\\)" ""

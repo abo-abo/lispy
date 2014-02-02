@@ -1340,6 +1340,7 @@ Move to the end of line."
 
 (defun lispy--eval-clojure (str)
   "Eval STR as Clojure code."
+  (require 'ac-nrepl)
   (ac-nrepl-quick-eval str))
 
 (defun lispy--eval (str)
