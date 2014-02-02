@@ -1154,14 +1154,15 @@ When FUNC is not nil, call it after a successful move."
                  (< (cdr bnd) (window-end)))
       (recenter-top-bottom))
     (narrow-to-region (car bnd) (cdr bnd))
-    ;; (let ((ace-jump-search-filter (lambda() (not (lispy--in-string-or-comment-p))))))
-    (when func
-      (setq ace-jump-mode-end-hook
-            `(list (lambda()
-                     (setq ace-jump-mode-end-hook
-                           ,ace-jump-mode-end-hook)
-                     (,func)))))
-    (ace-jump-do lispy-left)
+    (let ((ace-jump-search-filter
+           (lambda() (not (lispy--in-string-or-comment-p)))))
+      (when func
+        (setq ace-jump-mode-end-hook
+              `(list (lambda()
+                       (setq ace-jump-mode-end-hook
+                             ,ace-jump-mode-end-hook)
+                       (,func)))))
+      (ace-jump-do lispy-left))
     (widen)))
 
 (defun lispy-ert ()
