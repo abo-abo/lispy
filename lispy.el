@@ -666,6 +666,10 @@ otherwise the whole string is unquoted."
                (insert (read str)))
            (insert "\\\"\\\"")
            (backward-char 2)))
+
+        (arg
+         (lispy-stringify))
+
         (t
          (lispy--space-unless "\\s-\\|\\s(\\|[#]")
          (insert "\"\"")
