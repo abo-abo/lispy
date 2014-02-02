@@ -59,15 +59,23 @@
 (defun lispy-unalias (seq)
   "Emulate pressing keys decoded from SEQ."
   (let ((keys (lispy-decode-keysequence seq))
-        key)
+        key
+        cmd)
     (while (setq key (pop keys))
       (if (numberp key)
           (let ((current-prefix-arg (list key)))
             (when keys
-              (call-interactively
-               (cdr (assoc 'lispy-mode (minor-mode-key-binding (pop keys)))))))
-        (call-interactively
-         (cdr (assoc 'lispy-mode (minor-mode-key-binding key))))))))
+              (setq cmd (cdr (assoc
+                              'lispy-mode
+                              (minor-mode-key-binding
+                               (setq key (pop keys))))))
+              (if cmd
+                  (call-interactively cmd)
+                (insert key))))
+        (setq cmd (cdr (assoc 'lispy-mode (minor-mode-key-binding key))))
+        (if cmd
+            (call-interactively cmd)
+          (insert key))))))
 
 ;; ——— Tests ———————————————————————————————————————————————————————————————————
 (ert-deftest lispy-forward ()
@@ -590,7 +598,7 @@
                    "|(foo \"(bar #\\\\x \\\"baz \\\\\\\\ quux\\\")\" zot)")))
 
 (ert-deftest lispy-eval ()
-  (should (= (lispy-with-value "(+ 2 2)|" (lispy-eval)) 4)))
+  (should (string= (lispy-with-value "(+ 2 2)|" (lispy-eval)) "4")))
 
 (ert-deftest lispy-eval-and-insert ()
   (should (string= (lispy-with "(+ 2 2)|" "E")
