@@ -117,7 +117,9 @@ If it doesn't work, try to resolve in all available namespaces."
                    (if (special-symbol? '%s)
                        'special
                      (or (resolve '%s)
-                         (first (keep #(ns-resolve %% '%s) (all-ns)))))
+                         (first (keep #(ns-resolve %% '%s) (all-ns)))
+                         (if-let [val (try (load-string \"%s\") (catch Exception e))]
+                                 (list 'variable (str val)))))
                  (if (keyword? '%s)
                      'keyword
                    'unknown))"
@@ -125,10 +127,11 @@ If it doesn't work, try to resolve in all available namespaces."
                symbol
                symbol
                symbol
+               symbol
                symbol))))
     (if (string-match "^#'\\(.*\\)$" str)
         (match-string 1 str)
-      (intern str))))
+      (read str))))
 
 (defun lispy--clojure-args (symbol)
   "Return a pretty string with arguments for SYMBOL.
@@ -151,6 +154,8 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
                   (list "[map]"))
                  ((eq sym 'undefined)
                   (error "Undefined"))
+                 ((and (listp sym) (eq (car sym) 'variable))
+                  (list "variable"))
                  ((null sym)
                   (read
                    (lispy--eval-clojure
@@ -265,6 +270,9 @@ Return t if at least one was deleted."
                                 (format "(with-out-str (doc %s))" sym))))
                              ((eq rsymbol 'keyword)
                               (error "No docs for keywords"))
+                             ((and (listp rsymbol)
+                                   (eq (car rsymbol) 'variable))
+                              (cadr rsymbol))
                              (t
                               (or (lispy--describe-clojure-java sym)
                                   (error

@@ -1174,6 +1174,9 @@ When FUNC is not nil, call it after a successful move."
                   (error "Can't jump to '%s because it's special" symbol))
                  ((eq rsymbol 'keyword)
                   (error "Can't jump to keywords"))
+                 ((and (listp rsymbol)
+                       (eq (car rsymbol) 'variable))
+                  (error "Can't jump to Java variables"))
                  (t
                   (error "Could't resolve '%s" symbol)))
            (lispy--back-to-paren)))))
