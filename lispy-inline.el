@@ -104,7 +104,7 @@ The caller of `lispy--show' might use a substitute e.g. `describe-function'."
                (setq lispy-hint-pos (point))
                (lispy--show (lispy--clojure-args (lispy--current-function))))
 
-              (t (error "Only elisp is supported currently")))))))
+              (t (error "%s isn't supported currently" major-mode)))))))
 
 (defun lispy--clojure-resolve (symbol)
   "Return resolved SYMBOL.
@@ -190,15 +190,17 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
                               args))"
                           sym
                           sym)))))))
-    (format
-     "(%s %s)"
-     (propertize symbol 'face 'lispy-face-hint)
-     (mapconcat
-      #'identity
-      (mapcar (lambda(x) (propertize (downcase x)
-                                'face 'lispy-face-req-nosel)) args)
-      (concat "\n"
-              (make-string (+ 2 (length symbol)) ? ))))))
+    (if (listp args)
+        (format
+         "(%s %s)"
+         (propertize symbol 'face 'lispy-face-hint)
+         (mapconcat
+          #'identity
+          (mapcar (lambda(x) (propertize (downcase x)
+                                    'face 'lispy-face-req-nosel)) args)
+          (concat "\n"
+                  (make-string (+ 2 (length symbol)) ? ))))
+      (propertize args 'face 'lispy-face-hint))))
 
 (defun lispy--delete-help-windows ()
   "Delete help windows.
@@ -262,24 +264,22 @@ Return t if at least one was deleted."
                        (cond ((stringp rsymbol)
                               (read
                                (lispy--eval-clojure
-                                (format "(with-out-str (doc %s))" rsymbol)))
-                              rsymbol)
+                                (format "(with-out-str (doc %s))" rsymbol))))
                              ((eq rsymbol 'special)
                               (read
                                (lispy--eval-clojure
                                 (format "(with-out-str (doc %s))" sym))))
                              ((eq rsymbol 'keyword)
-                              (error "No docs for keywords"))
+                              "No docs for keywords")
                              ((and (listp rsymbol)
                                    (eq (car rsymbol) 'variable))
                               (cadr rsymbol))
                              (t
                               (or (lispy--describe-clojure-java sym)
-                                  (error
-                                   "Could't resolve '%s" sym))))))))
+                                  (format "Could't resolve '%s" sym))))))))
 
                   (t
-                   (error "%s isn't supported currently" major-mode)))))
+                   (format "%s isn't supported currently" major-mode)))))
           (when doc
             (lispy--show (propertize doc 'face 'lispy-face-hint))))))))
 
