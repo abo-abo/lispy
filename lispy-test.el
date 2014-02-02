@@ -59,23 +59,26 @@
 (defun lispy-unalias (seq)
   "Emulate pressing keys decoded from SEQ."
   (let ((keys (lispy-decode-keysequence seq))
-        key
-        cmd)
+        key)
     (while (setq key (pop keys))
       (if (numberp key)
           (let ((current-prefix-arg (list key)))
             (when keys
-              (setq cmd (cdr (assoc
-                              'lispy-mode
-                              (minor-mode-key-binding
-                               (setq key (pop keys))))))
-              (if cmd
-                  (call-interactively cmd)
-                (insert key))))
-        (setq cmd (cdr (assoc 'lispy-mode (minor-mode-key-binding key))))
-        (if cmd
-            (call-interactively cmd)
-          (insert key))))))
+              (lispy--unalias-key (pop keys))))
+        (lispy--unalias-key key)))))
+
+(defun lispy--unalias-key (key)
+  "Call command that corresponds to KEY.
+Insert KEY if there's no command."
+  (let ((cmd (cdr (assoc 'lispy-mode (minor-mode-key-binding key)))))
+    (if (or (and cmd (or (looking-at lispy-left)
+                         (looking-back lispy-right)))
+            (progn
+              (setq cmd (key-binding key))
+              (not (cond ((eq cmd 'self-insert-command))
+                         ((string-match "^special" (symbol-name cmd)))))))
+        (call-interactively cmd)
+      (insert key))))
 
 ;; ——— Tests ———————————————————————————————————————————————————————————————————
 (ert-deftest lispy-forward ()
@@ -475,8 +478,8 @@
                    "|(thing2)"))
   (should (string= (lispy-with "(if (and (pred1) (pred2))\n    (thing1)\n  (thing2)|)" "r")
                    "(thing2)|"))
-  (should (string= (lispy-with "(a (f~oob|ar) c)" "r") "(a oob c)|"))
-  (should (string= (lispy-with "(a (f|oob~ar) c)" "r") "(a oob c)|"))
+  (should (string= (lispy-with "(a (f~oob|ar) c)" (lispy-raise)) "(a oob c)|"))
+  (should (string= (lispy-with "(a (f|oob~ar) c)" (lispy-raise)) "(a oob c)|"))
   (should (string= (lispy-with "(\n     |(foo))" "r") "|(foo)")))
 
 (ert-deftest lispy-raise-some ()
@@ -621,6 +624,10 @@
 (ert-deftest lispy--remove-gaps ()
   (should (string= (lispy-with "((a) |(c))" (lispy--remove-gaps))
                    "((a) |(c))")))
+
+(ert-deftest clojure-thread-macro ()
+  (should (string= (lispy-with "|(map sqr (filter odd? [1 2 3 4 5]))" "2(->>]<]<]wwlM")
+                   "(->> [1 2 3 4 5]\n  (map sqr)\n  (filter odd?))|")))
 
 (provide 'lispy-test)
 
