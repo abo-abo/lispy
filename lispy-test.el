@@ -38,7 +38,8 @@
          (modify-syntax-entry i "." table))
     (loop for i from ? to ? do
          (modify-syntax-entry i "w" table))
-    (modify-syntax-entry ? "w" table)
+    (loop for i in '(? ?\( ?\) ?\[ ?\] ?{ ?} ?\" ?\')
+         do (modify-syntax-entry i "w" table))
     (mapcan (lambda(x)
               (let ((y (ignore-errors (read x))))
                 (if (numberp y)
