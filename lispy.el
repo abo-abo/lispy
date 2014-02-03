@@ -1220,7 +1220,7 @@ When FUNC is not nil, call it after a successful move."
            (lambda() (not (lispy--in-string-or-comment-p)))))
       (when func
         (setq ace-jump-mode-end-hook
-              `(list (lambda()
+              (list `(lambda()
                        (setq ace-jump-mode-end-hook
                              ,ace-jump-mode-end-hook)
                        (,func)))))
