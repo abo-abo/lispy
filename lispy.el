@@ -528,6 +528,20 @@ Extend region when it's aleardy active."
       (set-mark (car bounds))
       (goto-char (cdr bounds)))))
 
+(defun lispy-mark-list ()
+  "Mark list from special position."
+  (interactive)
+  (cond ((region-active-p)
+         (deactivate-mark))
+        ((looking-at lispy-left)
+         (forward-list)
+         (set-mark (point))
+         (backward-list))
+        ((looking-back lispy-right)
+         (backward-list)
+         (set-mark (point))
+         (forward-list))))
+
 (defun lispy-mark-symbol ()
   "Mark current symbol."
   (interactive)
@@ -1740,7 +1754,7 @@ Leave point at the beginning or end of text depending on ENDP."
   (lispy-define-key map "c" 'lispy-clone)
   (lispy-define-key map "e" 'lispy-eval)
   (lispy-define-key map "E" 'lispy-eval-and-insert)
-  (lispy-define-key map "m" 'lispy-mark)
+  (lispy-define-key map "m" 'lispy-mark-list)
   (lispy-define-key map "u" 'undo)
   (lispy-define-key map "g" 'lispy-goto)
   (lispy-define-key map "Q" 'lispy-ace-char)
