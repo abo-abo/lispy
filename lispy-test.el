@@ -522,7 +522,9 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "((a) (b) (c)|)" "ww")
                    "((c)| (a) (b))"))
   (should (string= (lispy-with "((a) (b) (c)|)" "www")
-                   "((c)| (a) (b))")))
+                   "((c)| (a) (b))"))
+  (should (string= (lispy-with "((a) (b)| (c))" "m]w")
+                   "((b) (c)| (a))")))
 
 (ert-deftest lispy-move-down ()
   (should (string= (lispy-with "(|(a) (b) (c))" "s")
@@ -536,7 +538,9 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "((a)| (b) (c))" "ss")
                    "((b) (c) (a)|)"))
   (should (string= (lispy-with "((a)| (b) (c))" "sss")
-                   "((b) (c) (a)|)")))
+                   "((b) (c) (a)|)"))
+  (should (string= (lispy-with "((a)| (b) (c))" "m]s")
+                   "((c) (a) (b)|)")))
 
 (ert-deftest lispy-clone ()
   (should (string= (lispy-with "(foo)|" "c")
