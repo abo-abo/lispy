@@ -534,13 +534,11 @@ Extend region when it's aleardy active."
   (cond ((region-active-p)
          (deactivate-mark))
         ((looking-at lispy-left)
-         (forward-list)
          (set-mark (point))
-         (backward-list))
+         (forward-list))
         ((looking-back lispy-right)
-         (backward-list)
          (set-mark (point))
-         (forward-list))))
+         (backward-list))))
 
 (defun lispy-mark-symbol ()
   "Mark current symbol."
