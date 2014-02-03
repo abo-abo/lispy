@@ -197,3 +197,10 @@ to jump to in current file.
 Works out of the box for Elisp.
 [clojure-semantic](https://github.com/kototama/clojure-semantic)
 is required for Clojure.
+
+# Screencasts
+
+![screenshot](https://raw.github.com/abo-abo/lispy/master/doc/screencast-1.gif)
+
+
+
