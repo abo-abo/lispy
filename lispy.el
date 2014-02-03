@@ -494,7 +494,7 @@ Otherwise (`backward-delete-char-untabify' ARG)."
            (lispy--exit-string)
            (forward-sexp)))
 
-        ((looking-back lispy-right)
+        ((and (looking-back lispy-right) (not (looking-back "\\\\.")))
          (let ((pt (point)))
            (lispy-backward arg)
            (delete-region pt (point))
@@ -504,7 +504,7 @@ Otherwise (`backward-delete-char-untabify' ARG)."
              (lispy-backward 1)
              (forward-list))))
 
-        ((looking-back lispy-left)
+        ((and (looking-back lispy-left) (not (looking-back "\\\\.")))
          (lispy-out-forward 1)
          (lispy-delete-backward 1))
 
