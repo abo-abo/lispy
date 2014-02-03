@@ -741,10 +741,15 @@ Special case is (|( -> ( |(."
   (interactive)
   (if (and (featurep 'edebug) edebug-active)
       (edebug-step-mode)
-    (insert " ")
-    (when (and (looking-at lispy-left)
-               (looking-back "( "))
-      (backward-char))))
+    (if (region-active-p)
+        (progn
+          (goto-char (region-end))
+          (deactivate-mark)
+          (insert " "))
+      (insert " ")
+      (when (and (looking-at lispy-left)
+                 (looking-back "( "))
+        (backward-char)))))
 
 (defun lispy-colon ()
   "Insert :."
