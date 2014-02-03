@@ -1364,7 +1364,7 @@ Otherwise return cons of current string, symbol or list bounds."
   (cond ((region-active-p)
          (cons (region-beginning)
                (region-end)))
-        ((looking-at (format "%s\\|\"" lispy-left))
+        ((looking-at (format "[`'#]*%s\\|\"" lispy-left))
          (bounds-of-thing-at-point 'sexp))
         ((looking-back lispy-right)
          (backward-list)
