@@ -358,7 +358,15 @@ Return nil if can't move."
 (defun lispy-down (arg)
   "Move down ARG times inside current list."
   (interactive "p")
-  (cond ((looking-at lispy-left)
+  (cond ((region-active-p)
+         (ignore-errors
+           (if (= (point) (region-beginning))
+               (progn
+                 (forward-sexp 1)
+                 (skip-chars-forward " \n"))
+             (forward-sexp 1))))
+
+        ((looking-at lispy-left)
          (lispy-forward arg)
          (let ((pt (point)))
            (if (lispy-forward 1)
@@ -378,7 +386,15 @@ Return nil if can't move."
 (defun lispy-up (arg)
   "Move up ARG times inside current list."
   (interactive "p")
-  (cond ((looking-at lispy-left)
+  (cond ((region-active-p)
+         (ignore-errors
+           (if (= (point) (region-beginning))
+               (backward-sexp 1)
+             (progn
+               (backward-sexp 1)
+               (skip-chars-backward " \n")))))
+
+        ((looking-at lispy-left)
          (let ((pt (point)))
            (unless (lispy-backward arg)
              (goto-char pt)
@@ -390,6 +406,7 @@ Return nil if can't move."
            (if (lispy-backward 1)
                (lispy-forward 1)
              (goto-char pt))))
+
         (t
          (lispy-backward 1)
          (lispy-forward 1))))
