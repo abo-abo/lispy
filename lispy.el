@@ -397,7 +397,9 @@ Return nil if can't move."
 (defun lispy-different ()
   "Switch to the different side of current sexp."
   (interactive)
-  (cond ((looking-at lispy-left)
+  (cond ((region-active-p)
+         (exchange-point-and-mark))
+        ((looking-at lispy-left)
          (forward-list))
         ((looking-back lispy-right)
          (backward-list))
