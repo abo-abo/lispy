@@ -1256,9 +1256,11 @@ When FUNC is not nil, call it after a successful move."
   "Use `ace-jump-char-mode' to jump to a symbol within a sexp.
 Sexp is obtained by exiting list ARG times."
   (interactive "p")
-  (when (region-active-p)
-    (lispy-out-forward arg)
-    (deactivate-mark))
+  (if (region-active-p)
+      (progn
+        (deactivate-mark)
+        (lispy-out-forward arg))
+    (lispy-out-forward (1- arg)))
   (let ((bnd (lispy--bounds-dwim)))
     (unless (and (> (car bnd) (window-start))
                  (< (cdr bnd) (window-end)))
