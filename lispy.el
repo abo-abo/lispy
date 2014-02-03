@@ -1763,8 +1763,6 @@ Leave point at the beginning or end of text depending on ENDP."
   (define-key map (kbd "C-3") 'lispy-out-forward)
   (define-key map (kbd "C-9") 'lispy-out-forward-newline)
   ;; ——— locals: navigation ———————————————————
-  (lispy-define-key map "n" 'lispy-forward)
-  (lispy-define-key map "h" 'lispy-backward)
   (lispy-define-key map "l" 'lispy-out-forward)
   (lispy-define-key map "a" 'lispy-out-backward)
   (lispy-define-key map "f" 'lispy-flow)
