@@ -4,7 +4,7 @@
 
 ;; Author: Oleh Krehel <ohwoeowho@gmail.com>
 ;; URL: https://github.com/abo-abo/lispy
-;; Version: 0.5
+;; Version: 0.6
 ;; Package-Requires: ((helm "1.5.3") (ace-jump-mode "2.0") (s "1.4.0"))
 ;; Keywords: lisp
 
@@ -98,7 +98,7 @@
 ;; | f   | `lispy-flow'                       |
 ;; | u   | `undo'                             |
 ;; | e   | `lispy-eval'                       |
-;; | m   | `lispy-mark'                       |
+;; | m   | `lispy-mark-list'                  |
 ;; | l   | `lispy-out-forward'                |
 ;; | a   | `lispy-out-backward'               |
 ;; | E   | `lispy-eval-and-insert'            |
@@ -110,6 +110,7 @@
 ;; | K   | `outline-previous-visible-heading' |
 ;; | g   | `lispy-goto'                       |
 ;; | q   | `lispy-ace-paren'                  |
+;; | h   | `lispy-ace-symbol'                 |
 ;; | Q   | `lispy-ace-char'                   |
 ;; | D   | `lispy-describe'                   |
 ;; | F   | `lispy-follow'                     |
@@ -1228,7 +1229,8 @@ When FUNC is not nil, call it after a successful move."
     (widen)))
 
 (defun lispy-ace-symbol (arg)
-  "Use `ace-jump-char-mode' to jump to a symbol within current sexp."
+  "Use `ace-jump-char-mode' to jump to a symbol within a sexp.
+Sexp is obtained by exiting list ARG times."
   (interactive "p")
   (when (region-active-p)
     (lispy-out-forward arg)
@@ -1458,7 +1460,7 @@ Move to the end of line."
       'lispy--eval-elisp)
      ((eq major-mode 'clojure-mode)
       'lispy--eval-clojure)
-     (t (error "%s isn't supported currently." major-mode)))
+     (t (error "%s isn't supported currently" major-mode)))
    str))
 
 (defun lispy--exit-string ()

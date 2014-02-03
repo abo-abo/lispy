@@ -92,7 +92,7 @@ Among other cool commands are:
     |-------+------------------------------------|
     | f     | `lispy-flow`                       |
     | u     | `undo`                             |
-    | m     | `lispy-mark`                       |
+    | m     | `lispy-mark-list`                  |
     | l     | `lispy-out-forward`                |
     | a     | `lispy-out-backward`               |
     | /     | `lispy-splice`                     |
@@ -102,6 +102,7 @@ Among other cool commands are:
     | J     | `outline-next-visible-heading`     |
     | K     | `outline-previous-visible-heading` |
     | q     | `lispy-ace-paren`                  |
+    | h     | `lispy-ace-symbol`                 |
     | Q     | `lispy-ace-char`                   |
     | N     | `lispy-normalize`                  |
     | M-m   | `lispy-mark-symbol`                |
