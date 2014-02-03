@@ -449,7 +449,12 @@ Return nil if can't move."
 (defun lispy-delete (arg)
   "Delete ARG sexps."
   (interactive "p")
-  (cond ((lispy--in-string-or-comment-p)
+  (cond ((region-active-p)
+         (delete-region
+          (region-beginning)
+          (region-end)))
+
+        ((lispy--in-string-or-comment-p)
          (if (save-excursion
                (forward-char 1)
                (lispy--in-string-or-comment-p))
