@@ -1126,7 +1126,8 @@ Quote newlines if ARG isn't 1."
                (lispy-out-backward 50)
                (lispy--bounds-dwim))))
     (narrow-to-region (car bnd) (cdr bnd))
-    (call-interactively 'ace-jump-char-mode)
+    (let ((ace-jump-mode-scope 'window))
+      (call-interactively 'ace-jump-char-mode))
     (widen)))
 
 (defun lispy-ace-paren (&optional func)
