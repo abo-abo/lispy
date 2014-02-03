@@ -1159,6 +1159,29 @@ When FUNC is not nil, call it after a successful move."
         (ace-jump-do lispy-left)))
     (widen)))
 
+(defun lispy-ace-symbol (arg)
+  "Use `ace-jump-char-mode' to jump to a symbol within current sexp."
+  (interactive "p")
+  (when (region-active-p)
+    (lispy-out-forward arg)
+    (deactivate-mark))
+  (let ((bnd (lispy--bounds-dwim)))
+    (unless (and (> (car bnd) (window-start))
+                 (< (cdr bnd) (window-end)))
+      (recenter-top-bottom))
+    (narrow-to-region (car bnd) (cdr bnd))
+    (let ((ace-jump-search-filter
+           (lambda() (not (lispy--in-string-or-comment-p)))))
+      (setq ace-jump-mode-end-hook
+            `(list (lambda()
+                     (setq ace-jump-mode-end-hook
+                           ,ace-jump-mode-end-hook)
+                     (forward-char 1)
+                     (lispy-mark-symbol))))
+      (let ((ace-jump-mode-scope 'window))
+        (ace-jump-do "[( ]\\(?:\\sw\\|\\s_\\)")))
+    (widen)))
+
 (defun lispy-ert ()
   "Call (`ert' t)."
   (interactive)
@@ -1728,6 +1751,7 @@ Leave point at the beginning or end of text depending on ENDP."
   (lispy-define-key map "D" 'lispy-describe)
   (lispy-define-key map "A" 'lispy-arglist)
   (lispy-define-key map "t" 'lispy-teleport)
+  (lispy-define-key map "h" 'lispy-ace-symbol)
   ;; ——— locals: digit argument ———————————————
   (mapc (lambda (x) (lispy-define-key map (format "%d" x) 'digit-argument))
         (number-sequence 0 9)))
