@@ -954,7 +954,13 @@ The outcome when ahead of sexps is different from when behind."
   "Clone sexp ARG times."
   (interactive "p")
   (let ((str (lispy--string-dwim)))
-    (cond ((looking-at lispy-left)
+    (cond ((region-active-p)
+           (kill-new (buffer-substring-no-properties
+                      (region-beginning)
+                      (region-end)))
+           (newline-and-indent)
+           (insert (current-kill 0)))
+          ((looking-at lispy-left)
            (save-excursion
              (dotimes-protect arg
                (insert str)
