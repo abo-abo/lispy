@@ -387,7 +387,9 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "(a (|) c)" "\C-d")
                    "(a c)|"))
   (should (string= (lispy-with "(foo \"bar|\")" "\C-d")
-                   "(foo |\"bar\")")))
+                   "(foo |\"bar\")"))
+  (should (string= (lispy-with "\"foo|\\\"\\\"\"" "\C-d")
+                   "\"foo|\\\"\"")))
 
 (ert-deftest lispy-delete-backward ()
   (should (string= (lispy-with "((a) (b) (c)|)" "\C-?")
