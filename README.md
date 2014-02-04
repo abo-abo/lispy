@@ -200,9 +200,15 @@ is required for Clojure.
 
 # Screencasts
 
-![screenshot](https://raw.github.com/abo-abo/lispy/master/doc/screencast-1.gif)
+## screencast 1
 
-![screencast-2.ogv](https://raw.github.com/abo-abo/lispy/master/doc/screencast-2.ogv)
+This one isn't the best quality, so it's not [inline](https://raw.github.com/abo-abo/lispy/master/doc/screencast-1.gif).
+
+## screencast 2
+
+This one is also available as [video](https://raw.github.com/abo-abo/lispy/master/doc/screencast-2.ogv).
+
+![screencast-2.ogv](https://raw.github.com/abo-abo/lispy/master/doc/screencast-2.gif)
 
 
 
