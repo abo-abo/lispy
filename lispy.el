@@ -1245,8 +1245,7 @@ When FUNC is not nil, call it after a successful move."
       (when func
         (setq ace-jump-mode-end-hook
               (list `(lambda()
-                       (setq ace-jump-mode-end-hook
-                             ,ace-jump-mode-end-hook)
+                       (setq ace-jump-mode-end-hook)
                        (,func)))))
       (let ((ace-jump-mode-scope 'window))
         (ace-jump-do lispy-left)))
@@ -1269,11 +1268,10 @@ Sexp is obtained by exiting list ARG times."
     (let ((ace-jump-search-filter
            (lambda() (not (lispy--in-string-or-comment-p)))))
       (setq ace-jump-mode-end-hook
-            `(list (lambda()
-                     (setq ace-jump-mode-end-hook
-                           ,ace-jump-mode-end-hook)
-                     (forward-char 1)
-                     (lispy-mark-symbol))))
+            (list (lambda()
+                    (forward-char 1)
+                    (lispy-mark-symbol)
+                    (setq ace-jump-mode-end-hook))))
       (let ((ace-jump-mode-scope 'window))
         (ace-jump-do "[( ]\\(?:\\sw\\|\\s_\\)")))
     (widen)))
