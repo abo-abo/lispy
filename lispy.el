@@ -643,14 +643,9 @@ When this function is called:
      (cond
        ((region-active-p)
         (lispy--surround-region ,left ,right))
-       ((and (lispy--in-string-or-comment-p)
-             (progn
-               (self-insert-command 1)
-               (or (looking-back ,(regexp-quote left))
-                   (looking-back ,(regexp-quote right))
-                   (looking-back "}")
-                   (prog1 nil
-                     (backward-delete-char 1))))))
+       ((lispy--in-string-or-comment-p)
+        (insert ,left ,right)
+        (backward-char 1))
        ((looking-back "?\\\\")
         (insert ,left))
        ((= arg 1)
