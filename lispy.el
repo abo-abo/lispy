@@ -1101,8 +1101,13 @@ Comments will be moved ahead of sexp."
               ((setq bnd (save-excursion
                            (and (lispy-out-forward 1)
                                 (point))))
-               (comment-region (point) (1- bnd))
-               (lispy-out-backward 1))
+               (let ((pt (point)))
+                 (if (re-search-forward "\n" bnd t)
+                     (progn (comment-region pt (point))
+                            (lispy-forward 1)
+                            (lispy-backward 1))
+                   (comment-region (point) (1- bnd))
+                   (lispy-out-backward 1))))
               (t (self-insert-command 1)))))))
 
 (defvar lispy-meol-point 1
