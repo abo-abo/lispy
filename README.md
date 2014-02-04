@@ -206,9 +206,10 @@ This one isn't the best quality, so it's not [inline](https://raw.github.com/abo
 
 ## screencast 2
 
-This one is also available as [video](https://raw.github.com/abo-abo/lispy/master/doc/screencast-2.ogv).
+This one is also available [on vimeo](https://vimeo.com/85831418)
+and for [download](https://raw.github.com/abo-abo/lispy/master/doc/screencast-2.ogv).
 
-![screencast-2.ogv](https://raw.github.com/abo-abo/lispy/master/doc/screencast-2.gif)
+![screencast-2.gif](https://raw.github.com/abo-abo/lispy/master/doc/screencast-2.gif)
 
 
 
