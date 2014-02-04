@@ -1269,14 +1269,15 @@ Sexp is obtained by exiting list ARG times."
       (recenter-top-bottom))
     (narrow-to-region (car bnd) (cdr bnd))
     (let ((ace-jump-search-filter
-           (lambda() (not (lispy--in-string-or-comment-p)))))
+           (lambda() (or (not (lispy--in-string-or-comment-p))
+                    (looking-back ".\"")))))
       (setq ace-jump-mode-end-hook
             (list (lambda()
                     (forward-char 1)
                     (lispy-mark-symbol)
                     (setq ace-jump-mode-end-hook))))
       (let ((ace-jump-mode-scope 'window))
-        (ace-jump-do "[( ]\\(?:\\sw\\|\\s_\\)")))
+        (ace-jump-do "[( ]\\(?:\\sw\\|\\s_\\|\"\\)")))
     (widen)))
 
 (defun lispy-ert ()
