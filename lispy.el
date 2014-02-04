@@ -475,11 +475,14 @@ Return nil if can't move."
           (region-end)))
 
         ((lispy--in-string-or-comment-p)
-         (if (save-excursion
-               (forward-char 1)
-               (lispy--in-string-or-comment-p))
-             (delete-char arg)
-           (lispy--exit-string)))
+         (cond
+           ((looking-at "\\\\\"")
+            (delete-char 2))
+           ((save-excursion
+              (forward-char 1)
+              (lispy--in-string-or-comment-p))
+            (delete-char arg))
+           (t (lispy--exit-string))))
 
         ((looking-at lispy-left)
          (dotimes-protect arg (lispy--delete))
