@@ -202,5 +202,7 @@ is required for Clojure.
 
 ![screenshot](https://raw.github.com/abo-abo/lispy/master/doc/screencast-1.gif)
 
+![screencast-2.ogv](https://raw.github.com/abo-abo/lispy/master/doc/screencast-2.ogv)
+
 
 
