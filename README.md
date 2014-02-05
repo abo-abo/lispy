@@ -211,5 +211,11 @@ and for [download](https://raw.github.com/abo-abo/lispy/master/doc/screencast-2.
 
 ![screencast-2.gif](https://raw.github.com/abo-abo/lispy/master/doc/screencast-2.gif)
 
+## screencast 3
+
+This demonstrates mostly `lispy-comment` (";") and `special-undo` ("u").
+
+![screencast-3.gif](https://raw.github.com/abo-abo/lispy/master/doc/screencast-3.gif)
+
 
 
