@@ -1636,6 +1636,8 @@ ACTION is called for the selected candidate."
   (when (semantic-tag-p tag)
     (push-mark)
     (semantic-go-to-tag tag)
+    (when (eq major-mode 'clojure-mode)
+      (lispy-backward 1))
     (switch-to-buffer (current-buffer))))
 
 (defun lispy--tag-name (x)
