@@ -217,5 +217,20 @@ This demonstrates mostly `lispy-comment` (";") and `special-undo` ("u").
 
 ![screencast-3.gif](https://raw.github.com/abo-abo/lispy/master/doc/screencast-3.gif)
 
+## screencast 4
+Synopsis: find a function and make it echo its doc-string.
 
+1. Use `lispy-goto` "g" to find the function.
+2. Use `lispy-ace-symbol` "h" to mark its doc-string.
+3. Use `lispy-clone` "c" to clone region. Note that the region doesn't disappear.
+4. Use `lispy-parens` "(" to wrap region.
+5. Insert "message " and use `lispy-forward` "]" to exit the list and move into special.
+6. Use `lispy-mark-list` "m" to mark current list so that we can move it later.
+7. Use `lispy-move-down` "s" to move marked sexp all the way down.
+8. Use `lispy-forward` "]" twice to exit defun.
+9. Use `lispy-eval` "e" to eval our changes.
+10. Use `lispy-undo` "u" to see that the change is now in effect.
 
+This demonstrates , , and `lispy-move-down` ("s").
+
+![screencast-4.gif](https://raw.github.com/abo-abo/lispy/master/doc/screencast-4.gif)
