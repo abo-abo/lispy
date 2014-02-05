@@ -405,7 +405,9 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "(foo \"|bar\")" "\C-?")
                    "(foo \"bar\"|)"))
   (should (string= (lispy-with "(a \"\"| c)" "\C-?")
-                   "(a c)|")))
+                   "(a c)|"))
+  (should (string= (lispy-with ";|" "\C-?")
+                   "|")))
 
 (ert-deftest lispy-slurp ()
   (should (string= (lispy-with "()|(a) (b) (c)" ">")

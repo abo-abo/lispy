@@ -509,7 +509,7 @@ Return nil if can't move."
   "From \")|\", delete ARG sexps backwards.
 Otherwise (`backward-delete-char-untabify' ARG)."
   (interactive "p")
-  (cond ((lispy--in-string-or-comment-p)
+  (cond ((lispy--in-string-p)
          (if (save-excursion
                (backward-char 1)
                (lispy--in-string-or-comment-p))
