@@ -664,7 +664,9 @@ When this function is called:
           (backward-char))
         (backward-char))
        (t
-        (insert ,left " ")
+        (insert ,left )
+        (unless (looking-at " ")
+          (insert " "))
         (forward-sexp)
         (insert ,right)
         (backward-sexp)
@@ -951,6 +953,9 @@ The outcome when ahead of sexps is different from when behind."
            (if (re-search-backward "[^ \n`'#(]" (car bnd0) t)
                (progn
                  (deactivate-mark)
+                 (when (eq (char-after) ?\")
+                   (forward-char)
+                   (backward-sexp))
                  (when (eq (char-after) ?\))
                    (forward-char))
                  (setq bnd2 (lispy--bounds-dwim))
