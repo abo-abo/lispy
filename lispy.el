@@ -994,7 +994,7 @@ The outcome when ahead of sexps is different from when behind."
            (if (re-search-forward "[^ \n]" (1- (cdr bnd0)) t)
                (progn
                  (deactivate-mark)
-                 (when (eq (char-before) ?\()
+                 (when (memq (char-before) '(?\( ?\"))
                    (backward-char))
                  (setq bnd2 (lispy--bounds-dwim))
                  (lispy--swap-regions bnd1 bnd2)
