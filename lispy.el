@@ -1341,6 +1341,13 @@ Sexp is obtained by exiting list ARG times."
           (t (error "Unexpected")))
     (lispy--normalize 1)))
 
+(defun lispy-undo ()
+  "Deactivate region and `undo'."
+  (interactive)
+  (when (region-active-p)
+    (deactivate-mark t))
+  (undo))
+
 ;; ——— Predicates ——————————————————————————————————————————————————————————————
 (defun lispy--in-string-p ()
   "Test if point is inside a string."
@@ -1858,7 +1865,7 @@ Leave point at the beginning or end of text depending on ENDP."
   (lispy-define-key map "e" 'lispy-eval)
   (lispy-define-key map "E" 'lispy-eval-and-insert)
   (lispy-define-key map "m" 'lispy-mark-list)
-  (lispy-define-key map "u" 'undo)
+  (lispy-define-key map "u" 'lispy-undo)
   (lispy-define-key map "g" 'lispy-goto)
   (lispy-define-key map "Q" 'lispy-ace-char)
   (lispy-define-key map "q" 'lispy-ace-paren)
