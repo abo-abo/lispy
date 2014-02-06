@@ -956,7 +956,7 @@ The outcome when ahead of sexps is different from when behind."
                  (when (eq (char-after) ?\")
                    (forward-char)
                    (backward-sexp))
-                 (when (eq (char-after) ?\))
+                 (when (memq (char-after) '(?\) ?\] ?}))
                    (forward-char))
                  (setq bnd2 (lispy--bounds-dwim))
                  (lispy--swap-regions bnd1 bnd2)
@@ -999,7 +999,7 @@ The outcome when ahead of sexps is different from when behind."
            (if (re-search-forward "[^ \n]" (1- (cdr bnd0)) t)
                (progn
                  (deactivate-mark)
-                 (when (memq (char-before) '(?\( ?\"))
+                 (when (memq (char-before) '(?\( ?\" ?\[ ?{))
                    (backward-char))
                  (setq bnd2 (lispy--bounds-dwim))
                  (lispy--swap-regions bnd1 bnd2)
