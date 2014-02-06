@@ -1390,6 +1390,16 @@ Sexp is obtained by exiting list ARG times."
     (deactivate-mark t))
   (undo))
 
+(defun lispy-view ()
+  "Call `recenter'."
+  (interactive)
+  (let ((window-line (count-lines (window-start) (point))))
+    (if (or (= window-line 0)
+            (and (not (bolp)) (= window-line 1)))
+        (recenter (or (get 'lispy-recenter :line) 0))
+      (put 'lispy-recenter :line window-line)
+      (recenter 0))))
+
 ;; ——— Predicates ——————————————————————————————————————————————————————————————
 (defun lispy--in-string-p ()
   "Test if point is inside a string."
@@ -1949,6 +1959,7 @@ Leave point at the beginning or end of text depending on ENDP."
   (lispy-define-key map "A" 'lispy-arglist)
   (lispy-define-key map "t" 'lispy-teleport)
   (lispy-define-key map "h" 'lispy-ace-symbol)
+  (lispy-define-key map "v" 'lispy-view t)
   ;; ——— locals: digit argument ———————————————
   (mapc (lambda (x) (lispy-define-key map (format "%d" x) 'digit-argument))
         (number-sequence 0 9)))
