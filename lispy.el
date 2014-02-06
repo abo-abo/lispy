@@ -1725,6 +1725,8 @@ For example, a `setq' statement is amended with variable name that it uses."
          (format "require %s" (car x)))
         ((eq (cadr x) 'package)
          (format "provide %s" (car x)))
+        ((eq (cadr x) 'customgroup)
+         (format "group %s" (car x)))
         ((eq (cadr x) 'function)
          (propertize (car x) 'face 'font-lock-function-name-face))
         ((or (string-match
@@ -1733,7 +1735,7 @@ For example, a `setq' statement is amended with variable name that it uses."
                (regexp-opt
                 '("setq" "setq-default" "add-to-list"
                   "add-hook" "load" "define-key"
-                  "ert-deftest"))) (car x)))
+                  "ert-deftest" "declare-function"))) (car x)))
          (let ((ov (nth 4 x))
                str)
            (unless (overlayp ov)
