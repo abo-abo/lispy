@@ -235,17 +235,19 @@ Return t if at least one was deleted."
 (defun lispy-describe-inline ()
   "Display documentation for `lispy--current-function' inline."
   (interactive)
-  (let ((deleted (lispy--delete-help-windows)))
+  (let ((deleted (lispy--delete-help-windows))
+        (sym (lispy--current-function)))
     (when (overlayp lispy-overlay)
       (delete-overlay lispy-overlay)
       (setq lispy-overlay nil)
       (setq deleted t))
     (save-excursion
-      (lispy--back-to-paren)
+      (if (region-active-p)
+          (goto-char (region-beginning))
+        (lispy--back-to-paren))
       (when (or (not deleted) (not (= lispy-hint-pos (point))))
         (setq lispy-hint-pos (point))
-        (let* ((sym (lispy--current-function))
-               (doc
+        (let* ((doc
                 (cond
                   ((memq major-mode '(emacs-lisp-mode lisp-interaction-mode))
                    (let (dc)
