@@ -898,15 +898,14 @@ The outcome when ahead of sexps is different from when behind."
   (interactive)
   (if (save-excursion
         (lispy--out-forward 2))
-      (let (beg1 end1 beg2 end2)
+      (let ((beg (point))
+            end)
         (lispy-save-excursion
-         (setq beg1 (point))
+         (lispy--out-forward 1)
+         (setq end (backward-list))
          (lispy--out-forward 1)
          (backward-list)
-         (setq end1 (point))
-         (lispy--out-forward 1)
-         (backward-list)
-         (lispy--swap-regions (cons beg1 end1)
+         (lispy--swap-regions (cons beg end)
                               (cons (point) (point)))
          (lispy--out-forward 1)
          (lispy--reindent)))
@@ -1497,7 +1496,7 @@ Move to the end of line."
 ;; ——— Utilities ———————————————————————————————————————————————————————————————
 (defun lispy--out-forward (arg)
   "Move outside list forwards ARG times.
-Return nil on failure, t otherwise."
+Return nil on failure, (point) otherwise."
   (lispy--exit-string)
   (catch 'break
     (dotimes (i arg)
@@ -1508,7 +1507,7 @@ Return nil on failure, t otherwise."
         (when (looking-at lispy-left)
           (forward-list))
         (throw 'break nil)))
-    t))
+    (point)))
 
 (defun lispy--eval-elisp (str)
   "Eval STR as Elisp code."
@@ -1824,7 +1823,8 @@ Leave point at the beginning or end of text depending on ENDP."
 (defvar ac-trigger-commands '(self-insert-command))
 
 (defun lispy-define-key (keymap key def &optional from-start no-ac)
-  "Forward to (`define-key' KEYMAP KEY (`lispy-defun' DEF FROM-START))."
+  "Forward to (`define-key' KEYMAP KEY (`lispy-defun' DEF FROM-START)).
+When NO-AC is t, don't trigger `auto-complete' after command."
   (let ((func (defalias (intern (concat "special-" (symbol-name def)))
                   (lispy--insert-or-call def from-start))))
     (unless (or no-ac (member func ac-trigger-commands))
