@@ -406,7 +406,7 @@ Return nil if can't move."
   "Move down ARG times inside current list."
   (interactive "p")
   (cond ((region-active-p)
-         (ignore-errors
+         (dotimes-protect arg
            (if (= (point) (region-beginning))
                (progn
                  (forward-sexp 1)
@@ -434,7 +434,7 @@ Return nil if can't move."
   "Move up ARG times inside current list."
   (interactive "p")
   (cond ((region-active-p)
-         (ignore-errors
+         (dotimes-protect arg
            (if (= (point) (region-beginning))
                (backward-sexp 1)
              (progn
