@@ -296,10 +296,7 @@ Self-insert otherwise."
   "Move outside list forwards ARG times.
 Return nil on failure, t otherwise."
   (interactive "p")
-  (lispy--out-forward arg)
-  (if (looking-back lispy-right)
-      (lispy-backward 1)
-    (error "Unexpected")))
+  (lispy--out-backward arg))
 
 (defun lispy-out-forward-newline (arg)
   "Call `lispy--out-forward', then ARG times `newline-and-indent'."
@@ -1112,7 +1109,7 @@ Comments will be moved ahead of sexp."
         (cond ((region-active-p)
                (comment-dwim nil)
                (when (lispy--in-string-or-comment-p)
-                 (lispy-out-backward 1)))
+                 (lispy--out-backward 1)))
               ((lispy--in-string-or-comment-p)
                (self-insert-command 1))
               ((looking-at lispy-left)
@@ -1120,7 +1117,7 @@ Comments will be moved ahead of sexp."
                (lispy-counterclockwise)
                (comment-region (car bnd) (cdr bnd))
                (when (lispy--in-string-or-comment-p)
-                 (lispy-out-backward 1)))
+                 (lispy--out-backward 1)))
               ((looking-back lispy-right)
                (comment-dwim nil)
                (insert " "))
@@ -1133,7 +1130,7 @@ Comments will be moved ahead of sexp."
                             (lispy-forward 1)
                             (lispy-backward 1))
                    (comment-region (point) (1- bnd))
-                   (lispy-out-backward 1))))
+                   (lispy--out-backward 1))))
               (t (self-insert-command 1)))))))
 
 (defvar lispy-meol-point 1
@@ -1247,7 +1244,7 @@ Quote newlines if ARG isn't 1."
   "Call `ace-jump-char-mode' on current defun."
   (interactive)
   (let ((bnd (save-excursion
-               (lispy-out-backward 50)
+               (lispy--out-backward 50)
                (lispy--bounds-dwim))))
     (narrow-to-region (car bnd) (cdr bnd))
     (let ((ace-jump-mode-scope 'window))
@@ -1260,7 +1257,7 @@ When FUNC is not nil, call it after a successful move."
   (interactive)
   (require 'ace-jump-mode)
   (let ((bnd (save-excursion
-               (lispy-out-backward 50)
+               (lispy--out-backward 50)
                (lispy--bounds-dwim))))
     (unless (and (> (car bnd) (window-start))
                  (< (cdr bnd) (window-end)))
@@ -1487,7 +1484,7 @@ Move to the end of line."
 (defun lispy--back-to-paren ()
   "Move to ( going out backwards."
   (while (and (not (looking-at "("))
-              (lispy-out-backward 1))))
+              (lispy--out-backward 1))))
 
 (defun lispy--current-function ()
   "Return current function as symbol."
@@ -1511,6 +1508,14 @@ Return nil on failure, (point) otherwise."
           (forward-list))
         (throw 'break nil)))
     (point)))
+
+(defun lispy--out-backward (arg)
+  "Move outside list forwards ARG times.
+Return nil on failure, t otherwise."
+  (lispy--out-forward arg)
+  (if (looking-back lispy-right)
+      (lispy-backward 1)
+    (error "Unexpected")))
 
 (defun lispy--eval-elisp (str)
   "Eval STR as Elisp code."
@@ -1759,7 +1764,7 @@ list."
 
 (defun lispy--normalize (arg)
   "Go up ARG times and normalize."
-  (lispy-out-backward arg)
+  (lispy--out-backward arg)
   (let ((bnd (lispy--bounds-list)))
     (lispy--do-replace "[^ ]\\( \\{2,\\}\\)[^ ]" " " (car bnd) (cdr bnd))
     (lispy--do-replace "[^\\\\]\\(([\n ]+\\)" "(" (car bnd) (cdr bnd))
