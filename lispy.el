@@ -1219,11 +1219,15 @@ Quote newlines if ARG isn't 1."
     (lispy-backward 1)))
 
 (defun lispy-teleport (arg)
-  "Move ARG sexps ahead of result of `lispy-ace-paren'."
+  "Move ARG sexps inside of result of `lispy-ace-paren'."
   (interactive "p")
   (let ((beg (point))
-        end endp)
-    (cond ((looking-at lispy-left)
+        end endp regionp)
+    (cond ((region-active-p)
+           (setq endp (= (point) (region-end)))
+           (setq regionp t)
+           (lispy-different))
+          ((looking-at lispy-left)
            (unless (dotimes-protect arg
                      (forward-list 1))
              (error "Unexpected")))
@@ -1237,7 +1241,8 @@ Quote newlines if ARG isn't 1."
     (goto-char beg)
     (lispy-ace-paren
      `(lambda()
-        (lispy--teleport ,beg ,end ,endp)))))
+        (lispy--teleport ,beg ,end ,endp ,regionp))
+     t)))
 
 ;; ——— Locals:  miscellanea ————————————————————————————————————————————————————
 (defun lispy-eval ()
@@ -1283,7 +1288,7 @@ Quote newlines if ARG isn't 1."
       (call-interactively 'ace-jump-char-mode))
     (widen)))
 
-(defun lispy-ace-paren (&optional func)
+(defun lispy-ace-paren (&optional func no-narrow)
   "Use `ace-jump-char-mode' to jump to ( within current defun.
 When FUNC is not nil, call it after a successful move."
   (interactive)
@@ -1294,7 +1299,8 @@ When FUNC is not nil, call it after a successful move."
     (unless (and (> (car bnd) (window-start))
                  (< (cdr bnd) (window-end)))
       (recenter-top-bottom))
-    (narrow-to-region (car bnd) (cdr bnd))
+    (unless no-narrow
+      (narrow-to-region (car bnd) (cdr bnd)))
     (let ((ace-jump-search-filter
            (lambda() (not (lispy--in-string-or-comment-p)))))
       (when func
@@ -1843,30 +1849,41 @@ list."
           (setq to (replace-regexp-in-string "\\\\1" ms to)))
         (insert to)))))
 
-(defun lispy--teleport (beg end endp)
+(defun lispy--teleport (beg end endp regionp)
   "Move text from between BEG END to point.
-Leave point at the beginning or end of text depending on ENDP."
+Leave point at the beginning or end of text depending on ENDP.
+Make text marked if REGIONP is t."
   (let ((str (buffer-substring-no-properties beg end))
-        (beg1 (point))
+        (beg1 (1+ (point)))
         end1
         (size (buffer-size)))
-    (goto-char beg)
-    (delete-region beg end)
-    (delete-blank-lines)
-    (when (> beg1 beg)
-      (decf beg1 (- size (buffer-size))))
-    (goto-char beg1)
-    (insert str "\n")
-    (setq end1 (point))
-    (save-excursion
-      (beginning-of-defun)
-      (indent-sexp)
-      (indent-region (point) end1))
-    (if endp
+    (if (and (>= (point) beg)
+             (<= (point) end))
         (progn
-          (lispy-backward 1)
-          (lispy-forward 1))
-      (goto-char beg1))))
+          (message "Can't teleport expression inside itself")
+          (goto-char beg))
+      (goto-char beg)
+      (delete-region beg end)
+      (delete-blank-lines)
+      (when (> beg1 beg)
+        (decf beg1 (- size (buffer-size))))
+      (goto-char beg1)
+      (insert str)
+      (unless (looking-at "[\n)]")
+        (insert "\n")
+        (backward-char))
+      (lispy-save-excursion
+        (goto-char (1- beg1))
+        (indent-sexp))
+      (if regionp
+          (progn
+            (setq deactivate-mark nil)
+            (set-mark-command nil)
+            (goto-char beg1)
+            (when endp
+              (exchange-point-and-mark)))
+        (unless endp
+          (goto-char beg1))))))
 
 (defun lispy--swap-regions (bnd1 bnd2)
   "Swap buffer regions BND1 and BND2."
