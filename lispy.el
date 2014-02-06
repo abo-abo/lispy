@@ -295,7 +295,29 @@ Self-insert otherwise."
   "Move outside list forwards ARG times.
 Return nil on failure, t otherwise."
   (interactive "p")
-  (lispy--out-backward arg))
+  (if (region-active-p)
+      (when (save-excursion (ignore-errors (up-list) t))
+        (let* ((at-start (= (point) (region-beginning)))
+               (bnd1 (lispy--bounds-dwim))
+               (str1 (lispy--string-dwim bnd1))
+               pt)
+          (delete-region (car bnd1) (cdr bnd1))
+          (when (and (looking-at "\n")
+                     (looking-back "^ *"))
+            (delete-blank-lines))
+          (up-list)
+          (backward-list)
+          (lispy--remove-gaps)
+          (setq pt (point))
+          (insert str1)
+          (newline-and-indent)
+          (skip-chars-backward " \n")
+          (indent-region pt (point))
+          (setq deactivate-mark)
+          (set-mark pt)
+          (when at-start
+            (exchange-point-and-mark))))
+    (lispy--out-backward arg)))
 
 (defun lispy-out-forward-newline (arg)
   "Call `lispy--out-forward', then ARG times `newline-and-indent'."
