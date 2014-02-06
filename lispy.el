@@ -117,6 +117,7 @@
 ;; | N   | `lispy-normalize'                  |
 ;; | C-1 | `lispy-describe-inline'            |
 ;; | C-2 | `lispy-arglist-inline'             |
+;; | v   | `lispy-view'                       |
 ;; |-----+------------------------------------|
 ;;
 ;; Most special commands will leave the point special after they're
@@ -1408,7 +1409,8 @@ Sexp is obtained by exiting list ARG times."
   (undo))
 
 (defun lispy-view ()
-  "Call `recenter'."
+  "Recenter current sexp to first screen line.
+If already there, return it to previous position."
   (interactive)
   (let ((window-line (count-lines (window-start) (point))))
     (if (or (= window-line 0)

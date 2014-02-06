@@ -111,6 +111,7 @@ Among other cool commands are:
     | C-M-, | `lispy-kill-at-point`              |
     | C-e   | `lispy-move-end-of-line`           |
     | t     | `lispy-teleport`                   |
+    | v     | `lispy-view`                       |
     |-------+------------------------------------|
 
 Also, IDE-like commands ([details here](#ide-like-features)):
