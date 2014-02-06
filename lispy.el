@@ -1282,7 +1282,7 @@ Sexp is obtained by exiting list ARG times."
                     (lispy-mark-symbol)
                     (setq ace-jump-mode-end-hook))))
       (let ((ace-jump-mode-scope 'window))
-        (ace-jump-do "[( ]\\(?:\\sw\\|\\s_\\|\"\\)")))
+        (ace-jump-do "[([{ ]\\(?:\\sw\\|\\s_\\|\\s(\\|[\"'`]\\)")))
     (widen)))
 
 (defun lispy-ert ()
