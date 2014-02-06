@@ -1332,9 +1332,15 @@ Sexp is obtained by exiting list ARG times."
   (let ((symbol (lispy--current-function))
         rsymbol)
     (cond ((and (memq major-mode '(emacs-lisp-mode lisp-interaction-mode))
-                (fboundp (setq symbol (intern-soft symbol))))
-           (push-mark)
-           (find-function symbol))
+                (setq symbol (intern-soft symbol)))
+           (cond ((fboundp symbol)
+                  (push-mark)
+                  (deactivate-mark)
+                  (find-function symbol))
+                 ((boundp symbol)
+                  (push-mark)
+                  (deactivate-mark)
+                  (find-variable symbol))))
           ((eq major-mode 'clojure-mode)
            (setq rsymbol (lispy--clojure-resolve symbol))
            (cond ((stringp rsymbol)
@@ -1508,11 +1514,16 @@ Move to the end of line."
               (lispy--out-backward 1))))
 
 (defun lispy--current-function ()
-  "Return current function as symbol."
-  (save-excursion
-    (lispy--back-to-paren)
-    (when (looking-at "(\\([^ \n)]+\\)[ )\n]")
-      (match-string 1))))
+  "Return current function as string."
+  (if (region-active-p)
+      (let ((str (lispy--string-dwim)))
+        (if (string-match "^[#'`]*\\(.*\\)$" str)
+            (match-string 1 str)
+          nil))
+    (save-excursion
+      (lispy--back-to-paren)
+      (when (looking-at "(\\([^ \n)]+\\)[ )\n]")
+        (match-string 1)))))
 
 ;; ——— Utilities ———————————————————————————————————————————————————————————————
 (defun lispy--out-forward (arg)
