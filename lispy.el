@@ -1318,7 +1318,7 @@ Sexp is obtained by exiting list ARG times."
                     (lispy-mark-symbol)
                     (setq ace-jump-mode-end-hook))))
       (let ((ace-jump-mode-scope 'window))
-        (ace-jump-do "[([{ ]\\(?:\\sw\\|\\s_\\|\\s(\\|[\"'`]\\)")))
+        (ace-jump-do "[([{ ]\\(?:\\sw\\|\\s_\\|\\s(\\|[\"'`#]\\)")))
     (widen)))
 
 (defun lispy-ert ()
@@ -1419,7 +1419,7 @@ Otherwise return cons of current string, symbol or list bounds."
          (prog1 (bounds-of-thing-at-point 'sexp)
            (forward-list)))
         ((or (looking-at (format "[`'#]*%s\\|\"" lispy-left))
-             (looking-at "[`']"))
+             (looking-at "[`'#]"))
           (bounds-of-thing-at-point 'sexp))
         ((looking-back "\"")
          (backward-sexp)
