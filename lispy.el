@@ -224,7 +224,7 @@ otherwise call `lispy-out-forward' and return nil."
                    (forward-list)
                    (= pt (point)))))
         (prog1 nil
-          (lispy-out-forward 1))
+          (lispy--out-forward 1))
       t)))
 
 (defun lispy-backward (arg)
@@ -246,7 +246,7 @@ If couldn't move backward at least once, move up backward and return nil."
                    (backward-list)
                    (= pt (point)))))
         (prog1 nil
-          (lispy-out-forward 1)
+          (lispy--out-forward 1)
           (backward-list))
       t)))
 
@@ -254,40 +254,54 @@ If couldn't move backward at least once, move up backward and return nil."
   "Move outside list forwards ARG times.
 Return nil on failure, t otherwise."
   (interactive "p")
-  (lispy--exit-string)
-  (catch 'break
-    (dotimes (i arg)
-      (if (ignore-errors (up-list) t)
-          (progn
-            (lispy--remove-gaps)
-            (indent-for-tab-command))
-        (when (looking-at lispy-left)
-          (forward-list))
-        (throw 'break nil)))
-    t))
+  (if (region-active-p)
+      (let* ((at-start (= (point) (region-beginning)))
+             (bnd1 (lispy--bounds-dwim))
+             (str1 (lispy--string-dwim bnd1))
+             pt)
+        (delete-region (car bnd1) (cdr bnd1))
+        (when (and (looking-at "\n")
+                   (looking-back "^ *"))
+          (delete-blank-lines))
+        (ignore-errors (up-list) t)
+        (lispy--remove-gaps)
+        (if (looking-at " *;")
+            (progn
+              (forward-line 1)
+              (newline)
+              (indent-for-tab-command)
+              (forward-line -1))
+          (newline-and-indent))
+        (setq pt (point))
+        (insert str1)
+        (setq deactivate-mark)
+        (set-mark pt)
+        (when at-start
+          (exchange-point-and-mark)))
+    (lispy--out-forward arg)))
 
 (defun lispy-out-forward-nostring (arg)
-  "Call `lispy-out-forward' with ARG unless in string or comment.
+  "Call `lispy--out-forward' with ARG unless in string or comment.
 Self-insert otherwise."
   (interactive "p")
   (if (or (lispy--in-string-or-comment-p)
           (looking-back "?\\\\"))
       (self-insert-command arg)
-    (lispy-out-forward arg)))
+    (lispy--out-forward arg)))
 
 (defun lispy-out-backward (arg)
   "Move outside list forwards ARG times.
 Return nil on failure, t otherwise."
   (interactive "p")
-  (lispy-out-forward arg)
+  (lispy--out-forward arg)
   (if (looking-back lispy-right)
       (lispy-backward 1)
     (error "Unexpected")))
 
 (defun lispy-out-forward-newline (arg)
-  "Call `lispy-out-forward', then ARG times `newline-and-indent'."
+  "Call `lispy--out-forward', then ARG times `newline-and-indent'."
   (interactive "p")
-  (lispy-out-forward 1)
+  (lispy--out-forward 1)
   (dotimes-protect arg
     (newline-and-indent)))
 
@@ -451,7 +465,7 @@ Return nil if can't move."
              (if (= (cl-count ?\( str)
                     (cl-count ?\) str))
                  (kill-line)
-               (if (lispy-out-forward 1)
+               (if (lispy--out-forward 1)
                    (progn
                      (backward-char 1)
                      (kill-region beg (point)))
@@ -490,7 +504,7 @@ Return nil if can't move."
            (when (looking-at " +")
              (delete-region (match-beginning 0)
                             (match-end 0)))
-           (lispy-out-forward 1)
+           (lispy--out-forward 1)
            (backward-list)))
 
         ((looking-at "\"")
@@ -528,7 +542,7 @@ Otherwise (`backward-delete-char-untabify' ARG)."
              (forward-list))))
 
         ((and (looking-back lispy-left) (not (looking-back "\\\\.")))
-         (lispy-out-forward 1)
+         (lispy--out-forward 1)
          (lispy-delete-backward 1))
 
         ((looking-back "\"")
@@ -602,7 +616,7 @@ Extend region when it's aleardy active."
   "Pop to mark and copy current list there.
 With ARG not nil, cut instead of copying."
   (interactive "P")
-  (lispy-out-forward 1)
+  (lispy--out-forward 1)
   (let* ((beg (point))
          (end (progn
                 (lispy-backward 1)
@@ -721,7 +735,7 @@ otherwise the whole string is unquoted."
   (interactive)
   (condition-case nil
       (progn
-        (lispy-out-forward 1)
+        (lispy--out-forward 1)
         (if (looking-at "\n *\\()\\)")
             (progn
               (goto-char (match-beginning 1))
@@ -796,7 +810,7 @@ Special case is (|( -> ( |(."
          (dotimes-protect arg
            (lispy--barf-backward))
          (save-excursion
-           (lispy-out-forward 1)
+           (lispy--out-forward 1)
            (lispy--reindent)))
 
         ((looking-at lispy-left)
@@ -838,7 +852,7 @@ Special case is (|( -> ( |(."
          bnd1 bnd2)
     (lispy--reindent 1)
     (setq bnd1 (lispy--bounds-dwim))
-    (lispy-out-forward 1)
+    (lispy--out-forward 1)
     (setq bnd2 (lispy--bounds-dwim))
     (unless regionp
       (goto-char (car bnd2)))
@@ -852,7 +866,7 @@ Special case is (|( -> ( |(."
           (lispy--reindent 1)
           (or (looking-at lispy-left)
               (looking-back lispy-right)
-              (lispy-out-forward 1)))
+              (lispy--out-forward 1)))
       (indent-sexp))))
 
 (defun lispy-raise-some ()
@@ -863,13 +877,13 @@ The outcome when ahead of sexps is different from when behind."
     (cond ((region-active-p))
 
           ((looking-at lispy-left)
-           (lispy-out-forward 1)
+           (lispy--out-forward 1)
            (backward-char 1)
            (set-mark (point))
            (goto-char pt))
 
           ((looking-back lispy-right)
-           (lispy-out-forward 1)
+           (lispy--out-forward 1)
            (backward-list)
            (forward-char 1)
            (set-mark (point))
@@ -883,16 +897,16 @@ The outcome when ahead of sexps is different from when behind."
   "Convolute sexp."
   (interactive)
   (if (save-excursion
-        (lispy-out-forward 2))
+        (lispy--out-forward 2))
       (lispy-save-excursion
        (set-mark (point))
-       (lispy-out-forward 1)
+       (lispy--out-forward 1)
        (backward-list)
        (call-interactively 'kill-region)
-       (lispy-out-forward 1)
+       (lispy--out-forward 1)
        (backward-list)
        (yank)
-       (lispy-out-forward 1)
+       (lispy--out-forward 1)
        (lispy--reindent))
     (error "Not enough depth to convolute")))
 
@@ -906,7 +920,7 @@ The outcome when ahead of sexps is different from when behind."
              (delete-char 1)
              (goto-char pt)
              (backward-delete-char 1)
-             (lispy-out-forward 1)
+             (lispy--out-forward 1)
              (lispy--reindent 1)))
           ((looking-at lispy-left)
            (when (lispy-backward 1)
@@ -914,7 +928,7 @@ The outcome when ahead of sexps is different from when behind."
              (backward-delete-char 1)
              (goto-char (1- pt))
              (delete-char 1)
-             (lispy-out-forward 1)
+             (lispy--out-forward 1)
              (backward-list)
              (indent-sexp))))))
 
@@ -1107,7 +1121,7 @@ Comments will be moved ahead of sexp."
                (comment-dwim nil)
                (insert " "))
               ((setq bnd (save-excursion
-                           (and (lispy-out-forward 1)
+                           (and (lispy--out-forward 1)
                                 (point))))
                (let ((pt (point)))
                  (if (re-search-forward "\n" bnd t)
@@ -1266,8 +1280,8 @@ Sexp is obtained by exiting list ARG times."
   (if (region-active-p)
       (progn
         (deactivate-mark)
-        (lispy-out-forward arg))
-    (lispy-out-forward (1- arg)))
+        (lispy--out-forward arg))
+    (lispy--out-forward (1- arg)))
   (let ((bnd (lispy--bounds-dwim)))
     (unless (and (> (car bnd) (window-start))
                  (< (cdr bnd) (window-end)))
@@ -1479,6 +1493,21 @@ Move to the end of line."
       (match-string 1))))
 
 ;; ——— Utilities ———————————————————————————————————————————————————————————————
+(defun lispy--out-forward (arg)
+  "Move outside list forwards ARG times.
+Return nil on failure, t otherwise."
+  (lispy--exit-string)
+  (catch 'break
+    (dotimes (i arg)
+      (if (ignore-errors (up-list) t)
+          (progn
+            (lispy--remove-gaps)
+            (indent-for-tab-command))
+        (when (looking-at lispy-left)
+          (forward-list))
+        (throw 'break nil)))
+    t))
+
 (defun lispy--eval-elisp (str)
   "Eval STR as Elisp code."
   (prin1-to-string
@@ -1595,7 +1624,7 @@ Unless inside string or comment, or `looking-back' at CONTEXT."
   "Reindent current sexp.  Up-list ARG times before that."
   (cond (arg
          (lispy-save-excursion
-          (lispy-out-forward arg)
+          (lispy--out-forward arg)
           (backward-list)
           (indent-sexp)))
 
@@ -1609,7 +1638,7 @@ Unless inside string or comment, or `looking-back' at CONTEXT."
 
         (t
          (save-excursion
-           (lispy-out-forward 1)
+           (lispy--out-forward 1)
            (backward-list)
            (indent-sexp)))))
 
