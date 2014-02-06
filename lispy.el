@@ -1082,7 +1082,7 @@ Comments will be moved ahead of sexp."
                  (replace-regexp-in-string "\n *" " " no-comment) 1))))
     ;; work around `( and '(
     (lispy-forward 1)
-    (lispy-backward 1)))
+    (lispy--normalize 0)))
 
 (defun lispy-multiline ()
   "Spread current sexp over multiple lines."
