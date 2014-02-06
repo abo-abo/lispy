@@ -1822,12 +1822,11 @@ Leave point at the beginning or end of text depending on ENDP."
 
 (defvar ac-trigger-commands '(self-insert-command))
 
-(defun lispy-define-key (keymap key def &optional from-start no-ac)
-  "Forward to (`define-key' KEYMAP KEY (`lispy-defun' DEF FROM-START)).
-When NO-AC is t, don't trigger `auto-complete' after command."
+(defun lispy-define-key (keymap key def &optional from-start)
+  "Forward to (`define-key' KEYMAP KEY (`lispy-defun' DEF FROM-START))."
   (let ((func (defalias (intern (concat "special-" (symbol-name def)))
                   (lispy--insert-or-call def from-start))))
-    (unless (or no-ac (member func ac-trigger-commands))
+    (unless (member func ac-trigger-commands)
       (push func ac-trigger-commands))
     (define-key keymap (kbd key) func)))
 
@@ -1839,7 +1838,7 @@ When NO-AC is t, don't trigger `auto-complete' after command."
   (define-key map (kbd "C-3") 'lispy-out-forward)
   (define-key map (kbd "C-9") 'lispy-out-forward-newline)
   ;; ——— locals: navigation ———————————————————
-  (lispy-define-key map "l" 'lispy-out-forward nil t)
+  (lispy-define-key map "l" 'lispy-out-forward)
   (lispy-define-key map "a" 'lispy-out-backward)
   (lispy-define-key map "f" 'lispy-flow)
   (lispy-define-key map "j" 'lispy-down)
@@ -1897,7 +1896,7 @@ When NO-AC is t, don't trigger `auto-complete' after command."
   (lispy-define-key map "e" 'lispy-eval)
   (lispy-define-key map "E" 'lispy-eval-and-insert)
   (lispy-define-key map "m" 'lispy-mark-list)
-  (lispy-define-key map "u" 'lispy-undo nil t)
+  (lispy-define-key map "u" 'lispy-undo)
   (lispy-define-key map "g" 'lispy-goto)
   (lispy-define-key map "Q" 'lispy-ace-char)
   (lispy-define-key map "q" 'lispy-ace-paren)
