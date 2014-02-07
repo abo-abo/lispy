@@ -1291,7 +1291,8 @@ Quote newlines if ARG isn't 1."
 
 (defun lispy-ace-paren (&optional func no-narrow)
   "Use `ace-jump-char-mode' to jump to ( within current defun.
-When FUNC is not nil, call it after a successful move."
+When FUNC is not nil, call it after a successful move.
+When NO-NARROW is not nil, don't narrow."
   (interactive)
   (require 'ace-jump-mode)
   (let ((bnd (save-excursion
