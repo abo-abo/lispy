@@ -1751,6 +1751,54 @@ ACTION is called for the selected candidate."
       (lispy-backward 1))
     (switch-to-buffer (current-buffer))))
 
+(defvar lispy-tag-arity-alist
+  '(("setq" . 2)
+    ("setq-default" . 2)
+    ("add-to-list" . 2)
+    ("add-hook" . 2)
+    ("load" . 1)
+    ("load-file" . 1)
+    ("define-key" . 2)
+    ("ert-deftest" . 1)
+    ("declare-function" . 1)
+    ("defalias" . 2)
+    ("make-variable-buffer-local" . 1))
+  "Alist of tag arities for `lispy--tag-name-overlay'.")
+
+(defvar lispy-tag-regexp
+  (concat
+   "\\_<"
+   (regexp-opt
+    (mapcar #'car lispy-tag-arity-alist))
+   "\\_>")
+  "Regexp for tags that we'd like to know more about.")
+
+(defun lispy--tag-name-overlay (overlay)
+  "Return tag info for OVERLAY."
+  (unless (overlayp overlay)
+    (throw 'break nil))
+  (format
+   "%s %s"
+   (car x)
+   (with-current-buffer (overlay-buffer overlay)
+     (save-excursion
+       (goto-char (overlay-start overlay))
+       (unless (re-search-forward lispy-tag-regexp nil t)
+         (throw 'break nil))
+       (let ((tag-head (match-string 0))
+             beg arity)
+         (skip-chars-forward " \n")
+         (if (setq arity (cdr (assoc tag-head lispy-tag-arity-alist)))
+             (progn
+               (setq beg (point))
+               (forward-sexp arity)
+               (let ((str (replace-regexp-in-string
+                           "\n" " " (buffer-substring beg (point)))))
+                 (if (> (length str) 60)
+                     (concat (substring str 0 57) "...")
+                   str)))
+           (lispy--string-dwim)))))))
+
 (defun lispy--tag-name (x)
   "Given a semantic tag X, amend it with additional info.
 For example, a `setq' statement is amended with variable name that it uses."
@@ -1761,33 +1809,21 @@ For example, a `setq' statement is amended with variable name that it uses."
      (cons
       (cond
         ((eq (cadr x) 'include)
-         (format "require %s" (car x)))
+         (concat (propertize "require" 'face 'font-lock-keyword-face)
+                 " " (car x)))
         ((eq (cadr x) 'package)
-         (format "provide %s" (car x)))
+         (concat (propertize "provide" 'face 'font-lock-keyword-face)
+                 " " (car x)))
         ((eq (cadr x) 'customgroup)
-         (format "group %s" (car x)))
+         (concat (propertize "defgroup" 'face 'font-lock-keyword-face)
+                 " " (car x)))
         ((eq (cadr x) 'function)
          (propertize (car x) 'face 'font-lock-function-name-face))
-        ((or (string-match
-              (concat
-               "\\b"
-               (regexp-opt
-                '("setq" "setq-default" "add-to-list"
-                  "add-hook" "load" "define-key"
-                  "ert-deftest" "declare-function"))) (car x)))
-         (let ((ov (nth 4 x))
-               str)
-           (unless (overlayp ov)
-             (throw 'break nil))
-           (format
-            "%s %s"
-            (car x)
-            (with-current-buffer (overlay-buffer ov)
-              (goto-char (overlay-start ov))
-              (if (looking-at
-                   "( *[^ \n]+\\(?: \\|\n\\)+\\([^ \n]+\\)\\(?: \\|\n\\|)\\)")
-                  (match-string 1 str)
-                "")))))
+        ((eq (cadr x) 'variable)
+         (concat (propertize "defvar" 'face 'font-lock-keyword-face)
+                 " " (car x)))
+        ((string-match lispy-tag-regexp (car x))
+         (lispy--tag-name-overlay (nth 4 x)))
         (t (throw 'break nil)))
       (cdr x)))
    x))
