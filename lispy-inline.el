@@ -251,13 +251,24 @@ Return t if at least one was deleted."
                 (cond
                   ((memq major-mode '(emacs-lisp-mode lisp-interaction-mode))
                    (let (dc)
-                     (if (fboundp (setq sym (intern-soft sym)))
-                         (if (lispy--show-fits-p
-                              (setq dc (or (documentation sym) "undocumented")))
-                             dc
-                           (describe-function sym)
-                           nil)
-                       "unbound")))
+                     (setq sym (intern-soft sym))
+                     (cond ((fboundp sym)
+                            (if (lispy--show-fits-p
+                                 (setq dc (or (documentation sym)
+                                              "undocumented")))
+                                dc
+                              (describe-function sym)
+                              nil))
+                           ((boundp sym)
+                            (if (lispy--show-fits-p
+                                 (setq dc (or (documentation-property
+                                               sym 'variable-documentation)
+                                              "undocumented")))
+                                dc
+                              (describe-variable sym)
+                              nil)
+                            )
+                           (t "unbound"))))
                   ((eq major-mode 'clojure-mode)
                    (let ((rsymbol (lispy--clojure-resolve sym)))
                      (s-trim
