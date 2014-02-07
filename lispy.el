@@ -1297,9 +1297,7 @@ When FUNC is not nil, call it after a successful move."
   (let ((bnd (save-excursion
                (lispy--out-backward 50)
                (lispy--bounds-dwim))))
-    (unless (and (> (car bnd) (window-start))
-                 (< (cdr bnd) (window-end)))
-      (recenter-top-bottom))
+    (lispy--recenter-bounds bnd)
     (unless no-narrow
       (narrow-to-region (car bnd) (cdr bnd)))
     (let ((ace-jump-search-filter
@@ -1323,9 +1321,7 @@ Sexp is obtained by exiting list ARG times."
         (lispy--out-forward arg))
     (lispy--out-forward (1- arg)))
   (let ((bnd (lispy--bounds-dwim)))
-    (unless (and (> (car bnd) (window-start))
-                 (< (cdr bnd) (window-end)))
-      (recenter-top-bottom))
+    (lispy--recenter-bounds bnd)
     (narrow-to-region (car bnd) (cdr bnd))
     (let ((ace-jump-search-filter
            (lambda() (or (not (lispy--in-string-or-comment-p))
@@ -1750,6 +1746,20 @@ ACTION is called for the selected candidate."
     (when (eq major-mode 'clojure-mode)
       (lispy-backward 1))
     (switch-to-buffer (current-buffer))))
+
+(defun lispy--recenter-bounds (bnd)
+  "Make sure BND is visible in window.
+BND is a cons of start and end points."
+  (cond ((> (count-lines (car bnd) (cdr bnd))
+            (window-height)))
+        ((< (car bnd) (window-start))
+         (save-excursion
+           (goto-char (car bnd))
+           (recenter 0)))
+        ((> (cdr bnd) (window-end))
+         (save-excursion
+           (goto-char (cdr bnd))
+           (recenter -1)))))
 
 (defvar lispy-tag-arity-alist
   '(("setq" . 2)
