@@ -12,7 +12,7 @@ Due to the structure of Lisp syntax it's very rare for the
 programmer to want to insert characters right before "(" or right
 after ")". Thus unprefixed printable characters can be used to call
 commands when the point is at one of these locations, which are
-further referred to as special.
+further referred to as special. See also [Regions are special too](#regions-are-special-too).
 
 Conveniently, when located at special position it's very clear to
 which sexp the list-manipulating command will be applied to, what
@@ -141,6 +141,46 @@ You can usually get away with typing just one lower case char to navigate
 and the position remains special.
 And since the ordering always starts from `a`, "qa" is another synonym
 for `beginning-of-defun`.
+
+## Regions are special too
+Sometimes the expression that you want to operate on isn't bounded by parens.
+In that case you can mark it with a region and operate on that.
+
+### Ways to activate region
+While in special:
+- Mark a sexp with `lispy-mark-list` "m".
+- Mark a symbol within sexp with `lispy-ace-symbol` "h".
+
+While not in special:
+- `set-mark-command` "C-SPC".
+- Mark a symbol at point with `lispy-mark-symbol` "M-m".
+
+### Ways to extend region
+To extend the region, use a combination of
+- `lispy-down` "j"  
+  Move one sexp forward. Use prefix argument to move several sexps forward.
+- `lispy-up` "k"  
+  Move one sexp backward. Use prefix argument to move several sexps backward.
+- `lispy-different` "d"  
+  Move to the different side of the region.
+
+### Commands that operate on region
+- `lispy-clone` "c"  
+  Clone region and keep it active.
+- `lispy-move-down` "s"  
+  Move region one sexp down.
+- `lispy-move-up` "w".  
+  Move region one sexp up.
+- `lispy-undo` "u"  
+  Deactivate region and undo.
+- `lispy-mark-list` "m"  
+  Deactivate region.
+- `lispy-out-forward` "l"  
+  Move region out of current sexp forwards.
+- `lispy-out-backward` "a"  
+  Move region out of current sexp backwards.
+- `lispy-teleport` "t"  
+  Move region inside the sexp you select with `lispy-ace-paren`.
 
 ## IDE-like features
 These features are specific to the Lisp dialect used.
