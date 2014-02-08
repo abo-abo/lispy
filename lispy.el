@@ -1951,6 +1951,10 @@ Make text marked if REGIONP is t."
 
 (defvar ac-trigger-commands '(self-insert-command))
 
+(defadvice ac-handle-post-command (around ac-post-command-advice activate)
+  (unless (region-active-p)
+    ad-do-it))
+
 (defun lispy-define-key (keymap key def &optional from-start)
   "Forward to (`define-key' KEYMAP KEY (`lispy-defun' DEF FROM-START))."
   (let ((func (defalias (intern (concat "special-" (symbol-name def)))
