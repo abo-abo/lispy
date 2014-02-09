@@ -14,6 +14,9 @@
      (delete-char 1)
      ,@(mapcar (lambda(x) (if (stringp x) `(lispy-unalias ,x) x)) body)
      (insert "|")
+     (when (region-active-p)
+       (exchange-point-and-mark)
+       (insert "~"))
      (buffer-substring-no-properties
       (point-min)
       (point-max))))
@@ -98,8 +101,16 @@ Insert KEY if there's no command."
                    "((a) (b) (c)|)"))
   (should (string= (lispy-with "(|(a) (b) (c))" "40]")
                    "((a) (b) (c)|)"))
-  (should (string= (lispy-with "(|(a) (b) (c))" (set-mark (point)) "]" (call-interactively 'kill-region)) "(| (b) (c))"))
-  (should (string= (lispy-with "(|(a) (b) (c))" (set-mark (point)) "2]" (call-interactively 'kill-region)) "(| (c))"))
+  (should (string= (lispy-with "(|(a) (b) (c))"
+                               (set-mark (point))
+                               "]"
+                               (call-interactively 'kill-region))
+                   "(~| (b) (c))"))
+  (should (string= (lispy-with "(|(a) (b) (c))"
+                               (set-mark (point))
+                               "2]"
+                               (call-interactively 'kill-region))
+                   "(~| (c))"))
   (should (lispy-with-value "(|(a) (b) (c))" (set-mark (point)) "]]]" (region-active-p)))
   (should (not (lispy-with-value "(a) (b) (c)| " (lispy-forward 1))))
   (should (not (lispy-with-value "(a) (b) (c)|" (lispy-forward 1))))
@@ -528,11 +539,11 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "((a) (b) (c)|)" "www")
                    "((c)| (a) (b))"))
   (should (string= (lispy-with "((a) |(b) (c))" "mjw")
-                   "((b) (c)| (a))"))
+                   "(~(b) (c)| (a))"))
   (should (string= (lispy-with "(foo b|ar)"
                                (lispy-mark-symbol)
                                (lispy-move-up))
-                   "(bar| foo)")))
+                   "(~bar| foo)")))
 
 (ert-deftest lispy-move-down ()
   (should (string= (lispy-with "(|(a) (b) (c))" "s")
@@ -548,11 +559,11 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "((a)| (b) (c))" "sss")
                    "((b) (c) (a)|)"))
   (should (string= (lispy-with "(|(a) (b) (c))" "m]s")
-                   "((c) (a) (b)|)"))
+                   "((c) ~(a) (b)|)"))
   (should (string= (lispy-with "(f|oo bar)"
                                (lispy-mark-symbol)
                                (lispy-move-down))
-                   "(bar foo|)")))
+                   "(bar ~foo|)")))
 
 (ert-deftest lispy-clone ()
   (should (string= (lispy-with "(foo)|" "c")
@@ -649,13 +660,13 @@ Insert KEY if there's no command."
 
 (ert-deftest lispy-mark ()
   (should (string= (lispy-with "|;; abc\n;; def\n;; ghi" (lispy-mark))
-                   ";; abc\n;; def\n;; ghi|"))
+                   "~;; abc\n;; def\n;; ghi|"))
   (should (string= (lispy-with ";; a|bc\n;; def\n;; ghi" (lispy-mark))
-                   ";; abc\n;; def\n;; ghi|"))
+                   "~;; abc\n;; def\n;; ghi|"))
   (should (string= (lispy-with ";; abc\n|;; def\n;; ghi" (lispy-mark))
-                   ";; abc\n;; def\n;; ghi|"))
+                   "~;; abc\n;; def\n;; ghi|"))
   (should (string= (lispy-with ";; abc\n;; def\n;; ghi|" (lispy-mark))
-                   ";; abc\n;; def\n;; ghi|")))
+                   "~;; abc\n;; def\n;; ghi|")))
 
 (provide 'lispy-test)
 
