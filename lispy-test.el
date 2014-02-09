@@ -647,6 +647,16 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "|(map sqr (filter odd? [1 2 3 4 5]))" "2(->>]<]<]wwlM")
                    "(->> [1 2 3 4 5]\n  (map sqr)\n  (filter odd?))|")))
 
+(ert-deftest lispy-mark ()
+  (should (string= (lispy-with "|;; abc\n;; def\n;; ghi" (lispy-mark))
+                   ";; abc\n;; def\n;; ghi|"))
+  (should (string= (lispy-with ";; a|bc\n;; def\n;; ghi" (lispy-mark))
+                   ";; abc\n;; def\n;; ghi|"))
+  (should (string= (lispy-with ";; abc\n|;; def\n;; ghi" (lispy-mark))
+                   ";; abc\n;; def\n;; ghi|"))
+  (should (string= (lispy-with ";; abc\n;; def\n;; ghi|" (lispy-mark))
+                   ";; abc\n;; def\n;; ghi|")))
+
 (provide 'lispy-test)
 
 ;;; Local Variables:
