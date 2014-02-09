@@ -821,7 +821,13 @@ Special case is (|( -> ( |(."
 (defun lispy-slurp (arg)
   "Grow current sexp by ARG sexps."
   (interactive "p")
-  (cond ((or (looking-at "()")
+  (cond ((region-active-p)
+         (let ((bnd (lispy--bounds-dwim))
+               (endp (= (point) (region-end))))
+           (when (lispy-forward 1)
+             (lispy-backward 1)
+             (lispy--teleport (car bnd) (cdr bnd) endp t))))
+        ((or (looking-at "()")
              (and (looking-at lispy-left) (not (looking-back "()"))))
          (dotimes-protect arg
            (lispy--slurp-backward)))
