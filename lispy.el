@@ -616,10 +616,7 @@ Extend region when it's aleardy active."
   "Mark current symbol."
   (interactive)
   (cond ((lispy--in-comment-p)
-         (destructuring-bind (beg . end) (lispy--bounds-comment)
-           (goto-char beg)
-           (set-mark-command nil)
-           (goto-char end)))
+         (lispy--mark (lispy--bounds-comment)))
         ((or (looking-at "[ ]*[()]")
              (and (region-active-p)
                   (looking-at "[ \n]*[()]")))
@@ -642,10 +639,7 @@ Extend region when it's aleardy active."
          (ignore-errors
            (forward-sexp)))
         (t
-         (destructuring-bind (beg . end) (lispy--bounds-dwim)
-           (goto-char beg)
-           (set-mark-command nil)
-           (goto-char end)))))
+         (lispy--mark (lispy--bounds-dwim)))))
 
 (defun lispy-pop-copy (arg)
   "Pop to mark and copy current list there.
@@ -1630,6 +1624,13 @@ Return nil on failure, t otherwise."
     (insert alpha)
     (indent-region beg (+ 2 end))))
 
+(defun lispy--mark (bnd)
+  "Mark BND.  BND is a cons of beginning and end positions."
+  (destructuring-bind (beg . end) bnd
+    (goto-char beg)
+    (set-mark-command nil)
+    (goto-char end)))
+
 (defun lispy--space-unless (context)
   "Insert one space.
 Unless inside string or comment, or `looking-back' at CONTEXT."
@@ -2024,24 +2025,26 @@ Make text marked if REGIONP is t."
   ;; ——— globals: miscellanea —————————————————
   (define-key map (kbd "C-1") 'lispy-describe-inline)
   (define-key map (kbd "C-2") 'lispy-arglist-inline)
-  ;; ——— locals: miscellanea ——————————————————
-  (lispy-define-key map "i" 'indent-sexp t)
-  (lispy-define-key map "c" 'lispy-clone)
+  ;; ——— locals: marking ——————————————————————
+  (lispy-define-key map "h" 'lispy-ace-symbol)
+  (lispy-define-key map "m" 'lispy-mark-list)
+  ;; ——— locals: dialect-specific —————————————
   (lispy-define-key map "e" 'lispy-eval)
   (lispy-define-key map "E" 'lispy-eval-and-insert)
-  (lispy-define-key map "m" 'lispy-mark-list)
-  (lispy-define-key map "u" 'lispy-undo)
   (lispy-define-key map "g" 'lispy-goto)
-  (lispy-define-key map "Q" 'lispy-ace-char)
-  (lispy-define-key map "q" 'lispy-ace-paren)
-  (lispy-define-key map "T" 'lispy-ert)
-  (lispy-define-key map "N" 'lispy-normalize)
   (lispy-define-key map "F" 'lispy-follow)
   (lispy-define-key map "D" 'lispy-describe)
   (lispy-define-key map "A" 'lispy-arglist)
-  (lispy-define-key map "t" 'lispy-teleport)
-  (lispy-define-key map "h" 'lispy-ace-symbol)
+  ;; ——— locals: miscellanea ——————————————————
+  (lispy-define-key map "i" 'indent-sexp t)
+  (lispy-define-key map "N" 'lispy-normalize)
+  (lispy-define-key map "c" 'lispy-clone)
+  (lispy-define-key map "u" 'lispy-undo)
+  (lispy-define-key map "q" 'lispy-ace-paren)
+  (lispy-define-key map "Q" 'lispy-ace-char)
   (lispy-define-key map "v" 'lispy-view t)
+  (lispy-define-key map "T" 'lispy-ert)
+  (lispy-define-key map "t" 'lispy-teleport)
   ;; ——— locals: digit argument ———————————————
   (mapc (lambda (x) (lispy-define-key map (format "%d" x) 'digit-argument))
         (number-sequence 0 9)))
