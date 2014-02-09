@@ -1040,9 +1040,9 @@ The outcome when ahead of sexps is different from when behind."
                (at-start (= (point) (region-beginning)))
                (bnd0 (save-excursion
                        (deactivate-mark)
-                       (ignore-errors
-                         (up-list))
-                       (lispy--bounds-dwim)))
+                       (if (ignore-errors (up-list) t)
+                           (lispy--bounds-dwim)
+                         (cons (point-min) (point-max)))))
                (bnd1 (lispy--bounds-dwim))
                bnd2)
            (goto-char (cdr bnd1))
