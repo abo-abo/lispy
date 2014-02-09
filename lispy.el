@@ -593,7 +593,8 @@ Otherwise (`backward-delete-char-untabify' ARG)."
   "Mark the quoted string or the list that includes the point.
 Extend region when it's aleardy active."
   (interactive)
-  (let ((bounds (or (lispy--bounds-string)
+  (let ((bounds (or (lispy--bounds-comment)
+                    (lispy--bounds-string)
                     (lispy--bounds-list))))
     (when bounds
       (set-mark (car bounds))
