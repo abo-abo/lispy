@@ -988,9 +988,9 @@ The outcome when ahead of sexps is different from when behind."
                (at-start (= (point) (region-beginning)))
                (bnd0 (save-excursion
                        (deactivate-mark)
-                       (ignore-errors
-                         (up-list))
-                       (lispy--bounds-dwim)))
+                       (if (ignore-errors (up-list) t)
+                           (lispy--bounds-dwim)
+                         (cons (point-min) (point-max)))))
                (bnd1 (lispy--bounds-dwim))
                bnd2)
            (goto-char (car bnd1))
@@ -998,7 +998,8 @@ The outcome when ahead of sexps is different from when behind."
                     (if (lispy--in-comment-p)
                         (progn
                           (goto-char (car (lispy--bounds-comment)))
-                          (re-search-backward "[^ \n`'#(]" (car bnd0) t))
+                          (backward-sexp)
+                          (not (= (point) (point-min))))
                       t))
                (progn
                  (deactivate-mark)
