@@ -1045,7 +1045,12 @@ The outcome when ahead of sexps is different from when behind."
                (bnd1 (lispy--bounds-dwim))
                bnd2)
            (goto-char (cdr bnd1))
-           (if (re-search-forward "[^ \n]" (1- (cdr bnd0)) t)
+           (if (and (re-search-forward "[^ \n]" (1- (cdr bnd0)) t)
+                    (if (lispy--in-comment-p)
+                        (progn
+                          (goto-char (cdr (lispy--bounds-comment)))
+                          (re-search-forward "[^ \n]" (1- (cdr bnd0)) t))
+                      t))
                (progn
                  (deactivate-mark)
                  (when (memq (char-before) '(?\( ?\" ?\[ ?{))
@@ -1959,6 +1964,7 @@ Make text marked if REGIONP is t."
 (defvar ac-trigger-commands '(self-insert-command))
 
 (defadvice ac-handle-post-command (around ac-post-command-advice activate)
+  "Don't `auto-complete' when region is active."
   (unless (region-active-p)
     ad-do-it))
 
