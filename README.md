@@ -154,6 +154,7 @@ While in special:
 While not in special:
 - `set-mark-command` "C-SPC".
 - Mark a symbol at point with `lispy-mark-symbol` "M-m".
+- Mark containing expression (list or string or comment) with `lispy-mark` "C-M-,".
 
 ### Ways to extend region
 To extend the region, use a combination of
