@@ -1303,51 +1303,30 @@ Quote newlines if ARG isn't 1."
     (widen)))
 
 (defun lispy-ace-paren (&optional func no-narrow)
-  "Use `ace-jump-char-mode' to jump to ( within current defun.
+  "Use `lispy--ace-do' to jump to `lispy-left' within current defun.
 When FUNC is not nil, call it after a successful move.
 When NO-NARROW is not nil, don't narrow."
   (interactive)
-  (require 'ace-jump-mode)
-  (let ((bnd (save-excursion
-               (lispy--out-backward 50)
-               (lispy--bounds-dwim))))
-    (lispy--recenter-bounds bnd)
-    (unless no-narrow
-      (narrow-to-region (car bnd) (cdr bnd)))
-    (let ((ace-jump-search-filter
-           (lambda() (not (lispy--in-string-or-comment-p)))))
-      (when func
-        (setq ace-jump-mode-end-hook
-              (list `(lambda()
-                       (setq ace-jump-mode-end-hook)
-                       (,func)))))
-      (let ((ace-jump-mode-scope 'window))
-        (ace-jump-do lispy-left)))
-    (widen)))
+  (lispy--ace-do
+   lispy-left
+   (save-excursion (lispy--out-backward 50) (lispy--bounds-dwim))
+   (lambda() (not (lispy--in-string-or-comment-p)))
+   func
+   no-narrow))
 
 (defun lispy-ace-symbol (arg)
-  "Use `ace-jump-char-mode' to jump to a symbol within a sexp.
+  "Use `lispy--ace-do' to mark to a symbol within a sexp.
 Sexp is obtained by exiting list ARG times."
   (interactive "p")
-  (if (region-active-p)
-      (progn
-        (deactivate-mark)
-        (lispy--out-forward arg))
-    (lispy--out-forward (1- arg)))
-  (let ((bnd (lispy--bounds-dwim)))
-    (lispy--recenter-bounds bnd)
-    (narrow-to-region (car bnd) (cdr bnd))
-    (let ((ace-jump-search-filter
-           (lambda() (or (not (lispy--in-string-or-comment-p))
-                    (looking-back ".\"")))))
-      (setq ace-jump-mode-end-hook
-            (list (lambda()
-                    (forward-char 1)
-                    (lispy-mark-symbol)
-                    (setq ace-jump-mode-end-hook))))
-      (let ((ace-jump-mode-scope 'window))
-        (ace-jump-do "[([{ ]\\(?:\\sw\\|\\s_\\|\\s(\\|[\"'`#]\\)")))
-    (widen)))
+  (lispy--out-forward
+   (if (region-active-p)
+       (progn (deactivate-mark) arg)
+     (1- arg)))
+  (lispy--ace-do
+   "[([{ ]\\(?:\\sw\\|\\s_\\|\\s(\\|[\"'`#]\\)"
+   (lispy--bounds-dwim)
+   (lambda() (or (not (lispy--in-string-or-comment-p)) (looking-back ".\"")))
+   (lambda() (forward-char 1) (lispy-mark-symbol))))
 
 (defun lispy-ert ()
   "Call (`ert' t)."
@@ -1781,6 +1760,23 @@ BND is a cons of start and end points."
          (save-excursion
            (goto-char (cdr bnd))
            (recenter -1)))))
+
+(defun lispy--ace-do (x bnd &optional filter func no-narrow)
+  "Use `ace-jump-do' to X within BND when FILTER holds.
+When FUNC is not nil, call it after a successful move."
+  (require 'ace-jump-mode)
+  (lispy--recenter-bounds bnd)
+  (unless no-narrow
+    (narrow-to-region (car bnd) (cdr bnd)))
+  (when func
+    (setq ace-jump-mode-end-hook
+          (list `(lambda()
+                   (setq ace-jump-mode-end-hook)
+                   (,func)))))
+  (let ((ace-jump-mode-scope 'window)
+        (ace-jump-search-filter filter))
+    (ace-jump-do x))
+  (widen))
 
 (defvar lispy-tag-arity-alist
   '(("setq" . 2)
