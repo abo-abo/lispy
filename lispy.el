@@ -1804,7 +1804,7 @@ BND is a cons of start and end points."
    "\\_>")
   "Regexp for tags that we'd like to know more about.")
 
-(defun lispy--tag-name-overlay (X)
+(defun lispy--tag-name-overlay (x)
   "Return tag info for X based on its overlay."
   (let ((overlay (nth 4 x)))
     (unless (overlayp overlay)
