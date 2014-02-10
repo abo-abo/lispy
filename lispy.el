@@ -1594,6 +1594,21 @@ Return nil on failure, t otherwise."
    (nrepl-send-string-sync str)
    :value))
 
+(defun lispy--eval-scheme (str)
+  "Eval STR as Scheme code."
+  (require 'geiser-eval)
+  (unless (geiser-repl--connection*)
+    (save-window-excursion
+      (if geiser-impl--implementation
+          (run-geiser geiser-impl--implementation)
+        (call-interactively 'run-geiser))))
+  (let* ((code `(:eval (:scm ,str)))
+         (ret (geiser-eval--send/wait code))
+         (err (geiser-eval--retort-error ret)))
+    (if err
+        (format "Error: %s" (s-trim (cdr (assoc 'output ret))))
+      (format "%s" (cadr (assoc 'result ret))))))
+
 (defun lispy--eval (str)
   "Eval STR according to current `major-mode'."
   (funcall
@@ -1602,6 +1617,8 @@ Return nil on failure, t otherwise."
       'lispy--eval-elisp)
      ((eq major-mode 'clojure-mode)
       'lispy--eval-clojure)
+     ((eq major-mode 'scheme-mode)
+      'lispy--eval-scheme)
      (t (error "%s isn't supported currently" major-mode)))
    str))
 
