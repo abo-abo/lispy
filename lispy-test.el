@@ -652,7 +652,9 @@ Insert KEY if there's no command."
 
 (ert-deftest lispy--normalize ()
   (should (string= (lispy-with "|(bar\n  foo )" (lispy--normalize 0))
-                   "|(bar\n  foo)")))
+                   "|(bar\n  foo)"))
+  (should (string= (lispy-with "|(foo \")\")" (lispy--normalize 0))
+                   "|(foo \")\")")))
 
 (ert-deftest lispy--remove-gaps ()
   (should (string= (lispy-with "((a) |(c))" (lispy--remove-gaps))
