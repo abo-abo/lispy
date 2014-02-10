@@ -1263,7 +1263,7 @@ Quote newlines if ARG isn't 1."
   "Eval last sexp."
   (interactive)
   (save-excursion
-    (unless (looking-back lispy-right)
+    (unless (or (looking-back lispy-right) (region-active-p))
       (lispy-forward 1))
     (message (lispy--eval (lispy--string-dwim)))))
 
