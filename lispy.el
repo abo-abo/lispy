@@ -1328,6 +1328,20 @@ Sexp is obtained by exiting list ARG times."
    (lambda() (or (not (lispy--in-string-or-comment-p)) (looking-back ".\"")))
    (lambda() (forward-char 1) (lispy-mark-symbol))))
 
+(defun lispy-ace-symbol-replace (arg)
+  "Use `ace-jump-char-mode' to jump to a symbol within a sexp and delete it.
+Sexp is obtained by exiting list ARG times."
+  (interactive "p")
+  (lispy--out-forward
+   (if (region-active-p)
+       (progn (deactivate-mark) arg)
+     (1- arg)))
+  (lispy--ace-do
+   "[([{ ]\\(?:\\sw\\|\\s_\\|\\s(\\|[\"'`#]\\)"
+   (lispy--bounds-dwim)
+   (lambda() (or (not (lispy--in-string-or-comment-p)) (looking-back ".\"")))
+   (lambda() (forward-char 1) (lispy-mark-symbol) (lispy-delete 1))))
+
 (defun lispy-ert ()
   "Call (`ert' t)."
   (interactive)
@@ -2044,6 +2058,7 @@ Make text marked if REGIONP is t."
   (define-key map (kbd "C-2") 'lispy-arglist-inline)
   ;; ——— locals: marking ——————————————————————
   (lispy-define-key map "h" 'lispy-ace-symbol)
+  (lispy-define-key map "H" 'lispy-ace-symbol-replace)
   (lispy-define-key map "m" 'lispy-mark-list)
   ;; ——— locals: dialect-specific —————————————
   (lispy-define-key map "e" 'lispy-eval)
