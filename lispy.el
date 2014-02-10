@@ -1272,7 +1272,7 @@ Quote newlines if ARG isn't 1."
   (interactive)
   (cl-labels
       ((doit ()
-             (unless (looking-back lispy-right)
+             (unless (or (looking-back lispy-right) (region-active-p))
                (lispy-forward 1))
              (let ((str (lispy--eval (lispy--string-dwim))))
                (when (> (current-column) 40)
