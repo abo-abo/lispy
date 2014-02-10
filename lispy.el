@@ -1906,13 +1906,14 @@ list."
   "Go up ARG times and normalize."
   (lispy--out-backward arg)
   (let ((bnd (lispy--bounds-list)))
-    (narrow-to-region (car bnd) (cdr bnd))
-    (lispy--do-replace "[^ ]\\( \\{2,\\}\\)[^ ]" " ")
-    (lispy--do-replace "[^\\\\]\\(([\n ]+\\)" "(")
-    (lispy--do-replace "\\([\n ]+)\\)" ")")
-    (lispy--do-replace "\\([ ]+\\)\n" "")
-    (lispy--do-replace ")\\([^ \n)]\\)" " \\1")
-    (widen)))
+    (save-excursion
+      (narrow-to-region (car bnd) (cdr bnd))
+      (lispy--do-replace "[^ ]\\( \\{2,\\}\\)[^ ]" " ")
+      (lispy--do-replace "[^\\\\]\\(([\n ]+\\)" "(")
+      (lispy--do-replace "\\([\n ]+)\\)" ")")
+      (lispy--do-replace "\\([ ]+\\)\n" "")
+      (lispy--do-replace ")\\([^ \n)]\\)" " \\1")
+      (widen))))
 
 (defun lispy--do-replace (from to)
   "Replace first match group of FROM to TO."
