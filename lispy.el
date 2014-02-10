@@ -1804,31 +1804,32 @@ BND is a cons of start and end points."
    "\\_>")
   "Regexp for tags that we'd like to know more about.")
 
-(defun lispy--tag-name-overlay (overlay)
-  "Return tag info for OVERLAY."
-  (unless (overlayp overlay)
-    (throw 'break nil))
-  (format
-   "%s %s"
-   (car x)
-   (with-current-buffer (overlay-buffer overlay)
-     (save-excursion
-       (goto-char (overlay-start overlay))
-       (unless (re-search-forward lispy-tag-regexp nil t)
-         (throw 'break nil))
-       (let ((tag-head (match-string 0))
-             beg arity)
-         (skip-chars-forward " \n")
-         (if (setq arity (cdr (assoc tag-head lispy-tag-arity-alist)))
-             (progn
-               (setq beg (point))
-               (forward-sexp arity)
-               (let ((str (replace-regexp-in-string
-                           "\n" " " (buffer-substring beg (point)))))
-                 (if (> (length str) 60)
-                     (concat (substring str 0 57) "...")
-                   str)))
-           (lispy--string-dwim)))))))
+(defun lispy--tag-name-overlay (X)
+  "Return tag info for X based on its overlay."
+  (let ((overlay (nth 4 x)))
+    (unless (overlayp overlay)
+      (throw 'break nil))
+    (format
+     "%s %s"
+     (car x)
+     (with-current-buffer (overlay-buffer overlay)
+       (save-excursion
+         (goto-char (overlay-start overlay))
+         (unless (re-search-forward lispy-tag-regexp nil t)
+           (throw 'break nil))
+         (let ((tag-head (match-string 0))
+               beg arity)
+           (skip-chars-forward " \n")
+           (if (setq arity (cdr (assoc tag-head lispy-tag-arity-alist)))
+               (progn
+                 (setq beg (point))
+                 (forward-sexp arity)
+                 (let ((str (replace-regexp-in-string
+                             "\n" " " (buffer-substring beg (point)))))
+                   (if (> (length str) 60)
+                       (concat (substring str 0 57) "...")
+                     str)))
+             (lispy--string-dwim))))))))
 
 (defun lispy--tag-name (x)
   "Given a semantic tag X, amend it with additional info.
@@ -1854,7 +1855,7 @@ For example, a `setq' statement is amended with variable name that it uses."
          (concat (propertize "defvar" 'face 'font-lock-keyword-face)
                  " " (car x)))
         ((string-match lispy-tag-regexp (car x))
-         (lispy--tag-name-overlay (nth 4 x)))
+         (lispy--tag-name-overlay x))
         (t (throw 'break nil)))
       (cdr x)))
    x))
