@@ -1287,6 +1287,7 @@ Quote newlines if ARG isn't 1."
 (defun lispy-goto ()
   "Jump to symbol entry point."
   (interactive)
+  (require 'semantic/bovine/el)
   (semantic-mode 1)
   (lispy--select-candidate
    (mapcar #'lispy--tag-name (semantic-fetch-tags))
