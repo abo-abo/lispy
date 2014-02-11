@@ -1258,7 +1258,7 @@ Quote newlines if ARG isn't 1."
         (lispy--teleport ,beg ,end ,endp ,regionp))
      t)))
 
-;; ——— Locals:  miscellanea ————————————————————————————————————————————————————
+;; ——— Locals:  dialect-related ————————————————————————————————————————————————
 (defun lispy-eval ()
   "Eval last sexp."
   (interactive)
@@ -1291,6 +1291,52 @@ Quote newlines if ARG isn't 1."
    (mapcar #'lispy--tag-name (semantic-fetch-tags))
    #'lispy--action-jump))
 
+(defun lispy-follow ()
+  "Follow to `lispy--current-function'."
+  (interactive)
+  (let ((symbol (lispy--current-function))
+        rsymbol)
+    (cond ((and (memq major-mode '(emacs-lisp-mode lisp-interaction-mode))
+                (setq symbol (intern-soft symbol)))
+           (cond ((fboundp symbol)
+                  (push-mark)
+                  (deactivate-mark)
+                  (find-function symbol))
+                 ((boundp symbol)
+                  (push-mark)
+                  (deactivate-mark)
+                  (find-variable symbol))))
+          ((eq major-mode 'clojure-mode)
+           (setq rsymbol (lispy--clojure-resolve symbol))
+           (cond ((stringp rsymbol)
+                  (cider-jump-to-def rsymbol))
+                 ((eq rsymbol 'special)
+                  (error "Can't jump to '%s because it's special" symbol))
+                 ((eq rsymbol 'keyword)
+                  (error "Can't jump to keywords"))
+                 ((and (listp rsymbol)
+                       (eq (car rsymbol) 'variable))
+                  (error "Can't jump to Java variables"))
+                 (t
+                  (error "Could't resolve '%s" symbol)))
+           (lispy--back-to-paren)))))
+
+(defun lispy-describe ()
+  "Display documentation for `lispy--current-function'."
+  (interactive)
+  (let ((symbol (intern-soft (lispy--current-function))))
+    (cond ((fboundp symbol)
+           (describe-function symbol)))))
+
+(defun lispy-arglist ()
+  "Display arglist for `lispy--current-function'."
+  (interactive)
+  (let ((sym (intern-soft (lispy--current-function))))
+    (cond ((fboundp sym)
+           (let ((args (car (help-split-fundoc (documentation sym t) sym))))
+             (message "%s" args))))))
+
+;; ——— Locals:  ace-jump-mode  —————————————————————————————————————————————————
 (defun lispy-ace-char ()
   "Call `ace-jump-char-mode' on current defun."
   (interactive)
@@ -1342,55 +1388,11 @@ Sexp is obtained by exiting list ARG times."
    (lambda() (or (not (lispy--in-string-or-comment-p)) (looking-back ".\"")))
    (lambda() (forward-char 1) (lispy-mark-symbol) (lispy-delete 1))))
 
+;; ——— Locals:  miscellanea ————————————————————————————————————————————————————
 (defun lispy-ert ()
   "Call (`ert' t)."
   (interactive)
   (ert t))
-
-(defun lispy-follow ()
-  "Follow to `lispy--current-function'."
-  (interactive)
-  (let ((symbol (lispy--current-function))
-        rsymbol)
-    (cond ((and (memq major-mode '(emacs-lisp-mode lisp-interaction-mode))
-                (setq symbol (intern-soft symbol)))
-           (cond ((fboundp symbol)
-                  (push-mark)
-                  (deactivate-mark)
-                  (find-function symbol))
-                 ((boundp symbol)
-                  (push-mark)
-                  (deactivate-mark)
-                  (find-variable symbol))))
-          ((eq major-mode 'clojure-mode)
-           (setq rsymbol (lispy--clojure-resolve symbol))
-           (cond ((stringp rsymbol)
-                  (cider-jump-to-def rsymbol))
-                 ((eq rsymbol 'special)
-                  (error "Can't jump to '%s because it's special" symbol))
-                 ((eq rsymbol 'keyword)
-                  (error "Can't jump to keywords"))
-                 ((and (listp rsymbol)
-                       (eq (car rsymbol) 'variable))
-                  (error "Can't jump to Java variables"))
-                 (t
-                  (error "Could't resolve '%s" symbol)))
-           (lispy--back-to-paren)))))
-
-(defun lispy-describe ()
-  "Display documentation for `lispy--current-function'."
-  (interactive)
-  (let ((symbol (intern-soft (lispy--current-function))))
-    (cond ((fboundp symbol)
-           (describe-function symbol)))))
-
-(defun lispy-arglist ()
-  "Display arglist for `lispy--current-function'."
-  (interactive)
-  (let ((sym (intern-soft (lispy--current-function))))
-    (cond ((fboundp sym)
-           (let ((args (car (help-split-fundoc (documentation sym t) sym))))
-             (message "%s" args))))))
 
 (defun lispy-normalize ()
   "Normalize current sexp."
@@ -1540,11 +1542,6 @@ Move to the end of line."
   (destructuring-bind (beg . end) (or bounds (lispy--bounds-dwim))
     (buffer-substring-no-properties beg end)))
 
-(defun lispy--back-to-paren ()
-  "Move to ( going out backwards."
-  (while (and (not (looking-at "("))
-              (lispy--out-backward 1))))
-
 (defun lispy--current-function ()
   "Return current function as string."
   (if (region-active-p)
@@ -1557,7 +1554,7 @@ Move to the end of line."
       (when (looking-at "(\\([^ \n)]+\\)[ )\n]")
         (match-string 1)))))
 
-;; ——— Utilities ———————————————————————————————————————————————————————————————
+;; ——— Utilities: movement —————————————————————————————————————————————————————
 (defun lispy--out-forward (arg)
   "Move outside list forwards ARG times.
 Return nil on failure, (point) otherwise."
@@ -1580,11 +1577,35 @@ Return nil on failure, t otherwise."
   (when (looking-back lispy-right)
     (lispy-backward 1)))
 
+(defun lispy--back-to-paren ()
+  "Move to ( going out backwards."
+  (while (and (not (looking-at "("))
+              (lispy--out-backward 1))))
+
+(defun lispy--exit-string ()
+  "When in string, go to its beginning."
+  (let ((s (syntax-ppss)))
+    (when (nth 3 s)
+      (goto-char (nth 8 s)))))
+
+;; ——— Utilities: evaluation ———————————————————————————————————————————————————
+(defun lispy--eval (str)
+  "Eval STR according to current `major-mode'."
+  (funcall
+   (cond
+     ((memq major-mode '(emacs-lisp-mode lisp-interaction-mode))
+      'lispy--eval-elisp)
+     ((eq major-mode 'clojure-mode)
+      'lispy--eval-clojure)
+     ((eq major-mode 'scheme-mode)
+      'lispy--eval-scheme)
+     (t (error "%s isn't supported currently" major-mode)))
+   str))
+
 (defun lispy--eval-elisp (str)
   "Eval STR as Elisp code."
   (prin1-to-string
    (eval (read str))))
-
 (declare-function nrepl-send-string-sync "ext:cider")
 (declare-function cider-jump-to-def "ext:cider")
 
@@ -1609,62 +1630,86 @@ Return nil on failure, t otherwise."
         (format "Error: %s" (s-trim (cdr (assoc 'output ret))))
       (format "%s" (cadr (assoc 'result ret))))))
 
-(defun lispy--eval (str)
-  "Eval STR according to current `major-mode'."
-  (funcall
-   (cond
-     ((memq major-mode '(emacs-lisp-mode lisp-interaction-mode))
-      'lispy--eval-elisp)
-     ((eq major-mode 'clojure-mode)
-      'lispy--eval-clojure)
-     ((eq major-mode 'scheme-mode)
-      'lispy--eval-scheme)
-     (t (error "%s isn't supported currently" major-mode)))
-   str))
+;; ——— Utilities: tags —————————————————————————————————————————————————————————
+(defvar lispy-tag-arity-alist
+  '(("setq" . 2)
+    ("setq-default" . 2)
+    ("add-to-list" . 2)
+    ("add-hook" . 2)
+    ("load" . 1)
+    ("load-file" . 1)
+    ("define-key" . 2)
+    ("ert-deftest" . 1)
+    ("declare-function" . 1)
+    ("defalias" . 2)
+    ("make-variable-buffer-local" . 1))
+  "Alist of tag arities for `lispy--tag-name-overlay'.")
 
-(defun lispy--exit-string ()
-  "When in string, go to its beginning."
-  (let ((s (syntax-ppss)))
-    (when (nth 3 s)
-      (goto-char (nth 8 s)))))
+(defvar lispy-tag-regexp
+  (concat
+   "\\_<"
+   (regexp-opt
+    (mapcar #'car lispy-tag-arity-alist))
+   "\\_>")
+  "Regexp for tags that we'd like to know more about.")
 
-(defun lispy--remove-gaps ()
-  "Remove dangling `\\s)'."
-  (when (or (looking-back "[^ \t\n]\\([ \t\n]+\\)\\s)")
-            (and (looking-back "\\s)\\([ \t\n]+\\)")
-                 (not (looking-at lispy-left)))
-            (looking-at "\\([\t\n ]*\\))"))
-    (unless (save-excursion
-              (save-match-data
-                (goto-char (match-beginning 1))
-                (lispy--in-string-or-comment-p)))
-      (delete-region (match-beginning 1)
-                     (match-end 1)))))
+(defun lispy--tag-name (x)
+  "Given a semantic tag X, amend it with additional info.
+For example, a `setq' statement is amended with variable name that it uses."
+  (or
+   (catch 'break
+     (unless (memq major-mode '(emacs-lisp-mode lisp-interaction-mode))
+       (throw 'break nil))
+     (cons
+      (cond
+        ((eq (cadr x) 'include)
+         (concat (propertize "require" 'face 'font-lock-keyword-face)
+                 " " (car x)))
+        ((eq (cadr x) 'package)
+         (concat (propertize "provide" 'face 'font-lock-keyword-face)
+                 " " (car x)))
+        ((eq (cadr x) 'customgroup)
+         (concat (propertize "defgroup" 'face 'font-lock-keyword-face)
+                 " " (car x)))
+        ((eq (cadr x) 'function)
+         (propertize (car x) 'face 'font-lock-function-name-face))
+        ((eq (cadr x) 'variable)
+         (concat (propertize "defvar" 'face 'font-lock-keyword-face)
+                 " " (car x)))
+        ((string-match lispy-tag-regexp (car x))
+         (lispy--tag-name-overlay x))
+        (t (throw 'break nil)))
+      (cdr x)))
+   x))
 
-(defun lispy--surround-region (alpha omega)
-  "Surround active region with ALPHA and OMEGA and re-indent."
-  (let ((beg (region-beginning))
-        (end (region-end)))
-    (goto-char end)
-    (insert omega)
-    (goto-char beg)
-    (insert alpha)
-    (indent-region beg (+ 2 end))))
+(defun lispy--tag-name-overlay (x)
+  "Return tag info for X based on its overlay."
+  (let ((overlay (nth 4 x)))
+    (unless (overlayp overlay)
+      (throw 'break nil))
+    (format
+     "%s %s"
+     (car x)
+     (with-current-buffer (overlay-buffer overlay)
+       (save-excursion
+         (goto-char (overlay-start overlay))
+         (unless (re-search-forward lispy-tag-regexp nil t)
+           (throw 'break nil))
+         (let ((tag-head (match-string 0))
+               beg arity)
+           (skip-chars-forward " \n")
+           (if (setq arity (cdr (assoc tag-head lispy-tag-arity-alist)))
+               (progn
+                 (setq beg (point))
+                 (forward-sexp arity)
+                 (let ((str (replace-regexp-in-string
+                             "\n" " " (buffer-substring beg (point)))))
+                   (if (> (length str) 60)
+                       (concat (substring str 0 57) "...")
+                     str)))
+             (lispy--string-dwim))))))))
 
-(defun lispy--mark (bnd)
-  "Mark BND.  BND is a cons of beginning and end positions."
-  (destructuring-bind (beg . end) bnd
-    (goto-char beg)
-    (set-mark-command nil)
-    (goto-char end)))
-
-(defun lispy--space-unless (context)
-  "Insert one space.
-Unless inside string or comment, or `looking-back' at CONTEXT."
-  (unless (or lispy-no-space (lispy--in-string-or-comment-p)
-              (looking-back context))
-    (insert " ")))
-
+;; ——— Utilities: slurping and barfing —————————————————————————————————————————
 (defun lispy--slurp-forward ()
   "Grow current sexp forward by one sexp."
   (unless (looking-back "[()])")
@@ -1715,6 +1760,44 @@ Unless inside string or comment, or `looking-back' at CONTEXT."
       (delete-region (1- pt) pt)
       (insert char)
       (indent-region (point) pt))))
+
+;; ——— Utilities: rest —————————————————————————————————————————————————————————
+(defun lispy--remove-gaps ()
+  "Remove dangling `\\s)'."
+  (when (or (looking-back "[^ \t\n]\\([ \t\n]+\\)\\s)")
+            (and (looking-back "\\s)\\([ \t\n]+\\)")
+                 (not (looking-at lispy-left)))
+            (looking-at "\\([\t\n ]*\\))"))
+    (unless (save-excursion
+              (save-match-data
+                (goto-char (match-beginning 1))
+                (lispy--in-string-or-comment-p)))
+      (delete-region (match-beginning 1)
+                     (match-end 1)))))
+
+(defun lispy--surround-region (alpha omega)
+  "Surround active region with ALPHA and OMEGA and re-indent."
+  (let ((beg (region-beginning))
+        (end (region-end)))
+    (goto-char end)
+    (insert omega)
+    (goto-char beg)
+    (insert alpha)
+    (indent-region beg (+ 2 end))))
+
+(defun lispy--mark (bnd)
+  "Mark BND.  BND is a cons of beginning and end positions."
+  (destructuring-bind (beg . end) bnd
+    (goto-char beg)
+    (set-mark-command nil)
+    (goto-char end)))
+
+(defun lispy--space-unless (context)
+  "Insert one space.
+Unless inside string or comment, or `looking-back' at CONTEXT."
+  (unless (or lispy-no-space (lispy--in-string-or-comment-p)
+              (looking-back context))
+    (insert " ")))
 
 (defun lispy--reindent (&optional arg)
   "Reindent current sexp.  Up-list ARG times before that."
@@ -1809,116 +1892,6 @@ When FUNC is not nil, call it after a successful move."
     (ace-jump-do x))
   (widen))
 
-(defvar lispy-tag-arity-alist
-  '(("setq" . 2)
-    ("setq-default" . 2)
-    ("add-to-list" . 2)
-    ("add-hook" . 2)
-    ("load" . 1)
-    ("load-file" . 1)
-    ("define-key" . 2)
-    ("ert-deftest" . 1)
-    ("declare-function" . 1)
-    ("defalias" . 2)
-    ("make-variable-buffer-local" . 1))
-  "Alist of tag arities for `lispy--tag-name-overlay'.")
-
-(defvar lispy-tag-regexp
-  (concat
-   "\\_<"
-   (regexp-opt
-    (mapcar #'car lispy-tag-arity-alist))
-   "\\_>")
-  "Regexp for tags that we'd like to know more about.")
-
-(defun lispy--tag-name-overlay (x)
-  "Return tag info for X based on its overlay."
-  (let ((overlay (nth 4 x)))
-    (unless (overlayp overlay)
-      (throw 'break nil))
-    (format
-     "%s %s"
-     (car x)
-     (with-current-buffer (overlay-buffer overlay)
-       (save-excursion
-         (goto-char (overlay-start overlay))
-         (unless (re-search-forward lispy-tag-regexp nil t)
-           (throw 'break nil))
-         (let ((tag-head (match-string 0))
-               beg arity)
-           (skip-chars-forward " \n")
-           (if (setq arity (cdr (assoc tag-head lispy-tag-arity-alist)))
-               (progn
-                 (setq beg (point))
-                 (forward-sexp arity)
-                 (let ((str (replace-regexp-in-string
-                             "\n" " " (buffer-substring beg (point)))))
-                   (if (> (length str) 60)
-                       (concat (substring str 0 57) "...")
-                     str)))
-             (lispy--string-dwim))))))))
-
-(defun lispy--tag-name (x)
-  "Given a semantic tag X, amend it with additional info.
-For example, a `setq' statement is amended with variable name that it uses."
-  (or
-   (catch 'break
-     (unless (memq major-mode '(emacs-lisp-mode lisp-interaction-mode))
-       (throw 'break nil))
-     (cons
-      (cond
-        ((eq (cadr x) 'include)
-         (concat (propertize "require" 'face 'font-lock-keyword-face)
-                 " " (car x)))
-        ((eq (cadr x) 'package)
-         (concat (propertize "provide" 'face 'font-lock-keyword-face)
-                 " " (car x)))
-        ((eq (cadr x) 'customgroup)
-         (concat (propertize "defgroup" 'face 'font-lock-keyword-face)
-                 " " (car x)))
-        ((eq (cadr x) 'function)
-         (propertize (car x) 'face 'font-lock-function-name-face))
-        ((eq (cadr x) 'variable)
-         (concat (propertize "defvar" 'face 'font-lock-keyword-face)
-                 " " (car x)))
-        ((string-match lispy-tag-regexp (car x))
-         (lispy--tag-name-overlay x))
-        (t (throw 'break nil)))
-      (cdr x)))
-   x))
-
-(defun lispy--insert-or-call (def &optional from-start)
-  "Return a lambda to call DEF if position is special.
-Otherwise call `self-insert-command'.
-When FROM-START is t, call DEF as if it was invoked from beginning of
-list."
-  `(lambda ,(help-function-arglist def)
-     ,(format "Call `%s' when special, self-insert otherwise.\n\n%s"
-              (symbol-name def) (documentation def))
-     ,(interactive-form def)
-     (cond ((region-active-p)
-            (call-interactively ',def))
-
-           ((lispy--in-string-or-comment-p)
-            (self-insert-command 1))
-
-           ((looking-at lispy-left)
-            (call-interactively ',def))
-
-           ((looking-back lispy-right)
-            ,@(and from-start '((backward-list)))
-            (unwind-protect
-                 (call-interactively ',def)
-              ,@(and from-start '((forward-list)))))
-
-           ((or (and (looking-back "^ *") (looking-at ";"))
-                (and (= (point) (point-max))
-                     (memq ',def `(outline-previous-visible-heading))))
-            (call-interactively ',def))
-
-           (t
-            (self-insert-command 1)))))
-
 (defun lispy--normalize (arg)
   "Go up ARG times and normalize."
   (lispy--out-backward arg)
@@ -1998,6 +1971,38 @@ Make text marked if REGIONP is t."
     (delete-region (car bnd1) (cdr bnd1))
     (insert str2)
     (goto-char (car bnd1))))
+
+(defun lispy--insert-or-call (def &optional from-start)
+  "Return a lambda to call DEF if position is special.
+Otherwise call `self-insert-command'.
+When FROM-START is t, call DEF as if it was invoked from beginning of
+list."
+  `(lambda ,(help-function-arglist def)
+     ,(format "Call `%s' when special, self-insert otherwise.\n\n%s"
+              (symbol-name def) (documentation def))
+     ,(interactive-form def)
+     (cond ((region-active-p)
+            (call-interactively ',def))
+
+           ((lispy--in-string-or-comment-p)
+            (self-insert-command 1))
+
+           ((looking-at lispy-left)
+            (call-interactively ',def))
+
+           ((looking-back lispy-right)
+            ,@(and from-start '((backward-list)))
+            (unwind-protect
+                 (call-interactively ',def)
+              ,@(and from-start '((forward-list)))))
+
+           ((or (and (looking-back "^ *") (looking-at ";"))
+                (and (= (point) (point-max))
+                     (memq ',def `(outline-previous-visible-heading))))
+            (call-interactively ',def))
+
+           (t
+            (self-insert-command 1)))))
 
 (defvar ac-trigger-commands '(self-insert-command))
 
