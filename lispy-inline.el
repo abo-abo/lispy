@@ -290,7 +290,11 @@ Return t if at least one was deleted."
                              (t
                               (or (lispy--describe-clojure-java sym)
                                   (format "Could't resolve '%s" sym))))))))
-
+                  ((eq major-mode 'lisp-mode)
+                   (read
+                    (lispy--eval-lisp
+                     (substring-no-properties
+                      (format "(let ((x '%s)) (if (boundp x) (documentation x 'variable) (documentation x 'function)))" sym)))))
                   (t
                    (format "%s isn't supported currently" major-mode)))))
           (when doc

@@ -1629,6 +1629,8 @@ Return nil on failure, t otherwise."
       'lispy--eval-clojure)
      ((eq major-mode 'scheme-mode)
       'lispy--eval-scheme)
+     ((eq major-mode 'lisp-mode)
+      'lispy--eval-lisp)
      (t (error "%s isn't supported currently" major-mode)))
    str))
 
@@ -1659,6 +1661,13 @@ Return nil on failure, t otherwise."
     (if err
         (format "Error: %s" (s-trim (cdr (assoc 'output ret))))
       (format "%s" (cadr (assoc 'result ret))))))
+
+(defun lispy--eval-lisp (str)
+  "Eval STR as Common Lisp code."
+  (require 'slime)
+  (unless (slime-current-connection)
+    (slime))
+  (cadr (slime-eval `(swank:eval-and-grab-output ,str))))
 
 ;; ——— Utilities: tags —————————————————————————————————————————————————————————
 (defvar lispy-tag-arity-alist
