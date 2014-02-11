@@ -1585,6 +1585,9 @@ Move to the end of line."
         (match-string 1)))))
 
 ;; ——— Utilities: movement —————————————————————————————————————————————————————
+(defvar lispy-ignore-whitespace nil
+  "When set to t, `lispy-out-forward' will not clean up whitespace.")
+
 (defun lispy--out-forward (arg)
   "Move outside list forwards ARG times.
 Return nil on failure, (point) otherwise."
@@ -1593,7 +1596,8 @@ Return nil on failure, (point) otherwise."
     (dotimes (i arg)
       (if (ignore-errors (up-list) t)
           (progn
-            (lispy--remove-gaps)
+            (unless lispy-ignore-whitespace
+              (lispy--remove-gaps))
             (indent-for-tab-command))
         (when (looking-at lispy-left)
           (forward-list))
@@ -1609,8 +1613,9 @@ Return nil on failure, t otherwise."
 
 (defun lispy--back-to-paren ()
   "Move to ( going out backwards."
-  (while (and (not (looking-at "("))
-              (lispy--out-backward 1))))
+  (let ((lispy-ignore-whitespace t))
+    (while (and (not (looking-at "("))
+                (lispy--out-backward 1)))))
 
 (defun lispy--exit-string ()
   "When in string, go to its beginning."
