@@ -4,8 +4,8 @@
 
 ;; Author: Oleh Krehel <ohwoeowho@gmail.com>
 ;; URL: https://github.com/abo-abo/lispy
-;; Version: 0.6
-;; Package-Requires: ((helm "1.5.3") (ace-jump-mode "2.0") (s "1.4.0"))
+;; Version: 0.7
+;; Package-Requires: ((helm "1.5.3") (ace-jump-mode "2.0") (s "1.4.0") (noflet "0.0.10"))
 ;; Keywords: lisp
 
 ;; This file is not part of GNU Emacs
@@ -1402,6 +1402,20 @@ Sexp is obtained by exiting list ARG times."
                (outline-next-visible-heading 1)
              (signal (car e) (cdr e))))))
     (indent-sexp)))
+
+(defun lispy-shifttab (arg)
+  "Hide/show outline summary."
+  (interactive "p")
+  (require 'noflet)
+  (outline-minor-mode 1)
+  (noflet ((org-unlogged-message (&rest x)))
+    (if (get 'lispy-shifttab 'state)
+        (progn
+          (org-cycle '(64))
+          (put 'lispy-shifttab 'state nil))
+      (org-overview)
+      (put 'lispy-shifttab 'state 1))))
+
 ;; ——— Locals:  miscellanea ————————————————————————————————————————————————————
 (defun lispy-ert ()
   "Call (`ert' t)."
@@ -2106,6 +2120,7 @@ list."
   (lispy-define-key map "A" 'lispy-arglist)
   ;; ——— locals: miscellanea ——————————————————
   (lispy-define-key map "i" 'lispy-tab t)
+  (lispy-define-key map "I" 'lispy-shifttab)
   (lispy-define-key map "N" 'lispy-normalize)
   (lispy-define-key map "c" 'lispy-clone)
   (lispy-define-key map "u" 'lispy-undo)
