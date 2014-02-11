@@ -1388,6 +1388,20 @@ Sexp is obtained by exiting list ARG times."
    (lambda() (or (not (lispy--in-string-or-comment-p)) (looking-back ".\"")))
    (lambda() (forward-char 1) (lispy-mark-symbol) (lispy-delete 1))))
 
+;; ——— Locals:  outline ————————————————————————————————————————————————————————
+(defun lispy-tab (arg)
+  "Indent code and hide/show outlines."
+  (interactive "p")
+  (if (looking-at ";")
+      (progn
+        (outline-minor-mode 1)
+        (condition-case e
+            (outline-toggle-children)
+          (error
+           (if (string= (error-message-string e) "before first heading")
+               (outline-next-visible-heading 1)
+             (signal (car e) (cdr e))))))
+    (indent-sexp)))
 ;; ——— Locals:  miscellanea ————————————————————————————————————————————————————
 (defun lispy-ert ()
   "Call (`ert' t)."
@@ -2091,7 +2105,7 @@ list."
   (lispy-define-key map "D" 'lispy-describe)
   (lispy-define-key map "A" 'lispy-arglist)
   ;; ——— locals: miscellanea ——————————————————
-  (lispy-define-key map "i" 'indent-sexp t)
+  (lispy-define-key map "i" 'lispy-tab t)
   (lispy-define-key map "N" 'lispy-normalize)
   (lispy-define-key map "c" 'lispy-clone)
   (lispy-define-key map "u" 'lispy-undo)
