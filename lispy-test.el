@@ -400,7 +400,11 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "(foo \"bar|\")" "\C-d")
                    "(foo |\"bar\")"))
   (should (string= (lispy-with "\"foo|\\\"\\\"\"" "\C-d")
-                   "\"foo|\\\"\"")))
+                   "\"foo|\\\"\""))
+  (should (string= (lispy-with "\"|\\\\(foo\\\\)\"" "\C-d")
+                   "\"|foo\""))
+  (should (string= (lispy-with "\"\\\\(foo|\\\\)\"" "\C-d")
+                   "\"foo|\"")))
 
 (ert-deftest lispy-delete-backward ()
   (should (string= (lispy-with "((a) (b) (c)|)" "\C-?")
@@ -424,7 +428,9 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "\"\\\\(foo\\\\)|\"" "\C-?")
                    "\"foo|\""))
   (should (string= (lispy-with "\"\\\\(|foo\"" "\C-?")
-                   "\"\\\\|foo\"")))
+                   "\"\\\\|foo\""))
+  (should (string= (lispy-with "(foo)\n;; ()|" "\C-?")
+                   "(foo)\n;; (|")))
 
 (ert-deftest lispy-pair ()
   (should (string= (lispy-with "\"\\\\|\"" "(")
