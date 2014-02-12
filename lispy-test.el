@@ -418,7 +418,9 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "(a \"\"| c)" "\C-?")
                    "(a c)|"))
   (should (string= (lispy-with ";|" "\C-?")
-                   "|")))
+                   "|"))
+  (should (string= (lispy-with "\"\\\\(|foo\\\\)\"" "\C-?")
+                   "\"foo|\"")))
 
 (ert-deftest lispy-slurp ()
   (should (string= (lispy-with "()|(a) (b) (c)" ">")

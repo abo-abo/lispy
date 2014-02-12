@@ -562,13 +562,21 @@ Return nil if can't move."
 Otherwise (`backward-delete-char-untabify' ARG)."
   (interactive "p")
   (cond ((lispy--in-string-p)
-         (if (save-excursion
-               (backward-char 1)
-               (lispy--in-string-or-comment-p))
-             (backward-delete-char-untabify arg)
-           (lispy--exit-string)
-           (forward-sexp)))
-
+         (cond ((save-excursion
+                 (backward-char 1)
+                 (not (lispy--in-string-p)))
+                (lispy--exit-string)
+                (forward-sexp))
+               ((looking-back "\\\\\\\\(")
+                (let ((b1 (match-beginning 0))
+                      (e1 (match-end 0)))
+                  (when (re-search-forward
+                         "\\\\\\\\)"
+                         (cdr (lispy--bounds-string)) t)
+                    (delete-region (match-beginning 0)
+                                   (match-end 0))
+                    (delete-region b1 e1))))
+               (t (backward-delete-char-untabify arg))))
         ((and (looking-back lispy-right) (not (looking-back "\\\\.")))
          (let ((pt (point)))
            (lispy-backward arg)
