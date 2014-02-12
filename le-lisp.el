@@ -31,6 +31,27 @@
   (let (deactivate-mark)
     (cadr (slime-eval `(swank:eval-and-grab-output ,str)))))
 
+(defun lispy--lisp-args (symbol)
+  "Return a pretty string with arguments for SYMBOL."
+  (let ((args
+         (list
+          (mapconcat
+           #'symbol-name
+           (read (lispy--eval-lisp
+                  (format "(swank-backend:arglist #'%s)" symbol)))
+           " "))))
+    (if (listp args)
+        (format
+         "(%s %s)"
+         (propertize symbol 'face 'lispy-face-hint)
+         (mapconcat
+          #'identity
+          (mapcar (lambda(x) (propertize (downcase x)
+                                    'face 'lispy-face-req-nosel)) args)
+          (concat "\n"
+                  (make-string (+ 2 (length symbol)) ? ))))
+      (propertize args 'face 'lispy-face-hint))))
+
 (provide 'le-lisp)
 
 ;;; le-lisp.el ends here
