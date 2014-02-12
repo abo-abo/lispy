@@ -1637,7 +1637,7 @@ Move to the end of line."
     (save-excursion
       (lispy--back-to-paren)
       (when (looking-at "(\\([^ \n)]+\\)[ )\n]")
-        (match-string 1)))))
+        (match-string-no-properties 1)))))
 
 ;; ——— Utilities: movement —————————————————————————————————————————————————————
 (defvar lispy-ignore-whitespace nil
