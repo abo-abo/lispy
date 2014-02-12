@@ -561,46 +561,69 @@ Return nil if can't move."
   "From \")|\", delete ARG sexps backwards.
 Otherwise (`backward-delete-char-untabify' ARG)."
   (interactive "p")
-  (cond ((lispy--in-string-p)
-         (cond ((save-excursion
-                 (backward-char 1)
-                 (not (lispy--in-string-p)))
-                (lispy--exit-string)
-                (forward-sexp))
-               ((and (looking-back "\\\\\\\\(")
-                     (let ((b1 (match-beginning 0))
-                           (e1 (match-end 0)))
-                       (when (re-search-forward
-                              "\\\\\\\\)"
-                              (cdr (lispy--bounds-string)) t)
-                         (delete-region (match-beginning 0)
-                                        (match-end 0))
-                         (delete-region b1 e1)
-                         t))))
-               (t (backward-delete-char-untabify arg))))
-        ((and (looking-back lispy-right) (not (looking-back "\\\\.")))
-         (let ((pt (point)))
-           (lispy-backward arg)
-           (delete-region pt (point))
+  (let (pos)
+    (cond ((lispy--in-string-p)
+           (cond ((save-excursion
+                    (backward-char 1)
+                    (not (lispy--in-string-p)))
+                  (lispy--exit-string)
+                  (forward-sexp))
+                 ((and
+                   (looking-back "\\\\\\\\(")
+                   (setq pos
+                         (save-excursion
+                           (let ((b1 (match-beginning 0))
+                                 (e1 (match-end 0))
+                                 b2 e2)
+                             (when (re-search-forward
+                                    "\\\\\\\\)"
+                                    (cdr (lispy--bounds-string)) t)
+                               (setq b2 (match-beginning 0)
+                                     e2 (match-end 0))
+                               (delete-region b2 e2)
+                               (delete-region b1 e1)
+                               b1)))))
+                  (goto-char pos))
+                 ((and
+                   (looking-back "\\\\\\\\)")
+                   (setq pos
+                         (save-excursion
+                           (let ((b1 (match-beginning 0))
+                                 (e1 (match-end 0))
+                                 b2 e2)
+                             (when (re-search-backward
+                                    "\\\\\\\\("
+                                    (car (lispy--bounds-string)) t)
+                               (setq b2 (match-beginning 0))
+                               (setq e2 (match-end 0))
+                               (delete-region b1 e1)
+                               (delete-region b2 e2)
+                               (+ b2 (- e1 b1)))))))
+                  (goto-char pos))
+                 (t (backward-delete-char-untabify arg))))
+          ((and (looking-back lispy-right) (not (looking-back "\\\\.")))
+           (let ((pt (point)))
+             (lispy-backward arg)
+             (delete-region pt (point))
+             (just-one-space)
+             (lispy--remove-gaps)
+             (unless (looking-back lispy-right)
+               (lispy-backward 1)
+               (forward-list))))
+
+          ((and (looking-back lispy-left) (not (looking-back "\\\\.")))
+           (lispy--out-forward 1)
+           (lispy-delete-backward 1))
+
+          ((looking-back "\"")
+           (backward-sexp 1)
+           (kill-sexp)
            (just-one-space)
            (lispy--remove-gaps)
-           (unless (looking-back lispy-right)
-             (lispy-backward 1)
-             (forward-list))))
+           (when (lispy-forward 1)
+             (backward-list)))
 
-        ((and (looking-back lispy-left) (not (looking-back "\\\\.")))
-         (lispy--out-forward 1)
-         (lispy-delete-backward 1))
-
-        ((looking-back "\"")
-         (backward-sexp 1)
-         (kill-sexp)
-         (just-one-space)
-         (lispy--remove-gaps)
-         (when (lispy-forward 1)
-           (backward-list)))
-
-        (t (backward-delete-char-untabify arg))))
+          (t (backward-delete-char-untabify arg)))))
 
 (defun lispy-mark ()
   "Mark the quoted string or the list that includes the point.
