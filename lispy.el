@@ -526,15 +526,19 @@ Return nil if can't move."
           (region-beginning)
           (region-end)))
 
-        ((lispy--in-string-or-comment-p)
+        ((lispy--in-string-p)
          (cond
            ((looking-at "\\\\\"")
             (delete-char 2))
+           ((lispy--delete-pair-in-sting "\\\\\\\\(" "\\\\\\\\)"))
            ((save-excursion
               (forward-char 1)
               (lispy--in-string-or-comment-p))
             (delete-char arg))
            (t (lispy--exit-string))))
+
+        ((lispy--in-comment-p)
+         (delete-char arg))
 
         ((looking-at lispy-left)
          (dotimes-protect arg (lispy--delete))
@@ -568,39 +572,18 @@ Otherwise (`backward-delete-char-untabify' ARG)."
                     (not (lispy--in-string-p)))
                   (lispy--exit-string)
                   (forward-sexp))
-                 ((and
-                   (looking-back "\\\\\\\\(")
-                   (setq pos
-                         (save-excursion
-                           (let ((b1 (match-beginning 0))
-                                 (e1 (match-end 0))
-                                 b2 e2)
-                             (when (re-search-forward
-                                    "\\\\\\\\)"
-                                    (cdr (lispy--bounds-string)) t)
-                               (setq b2 (match-beginning 0)
-                                     e2 (match-end 0))
-                               (delete-region b2 e2)
-                               (delete-region b1 e1)
-                               b1)))))
-                  (goto-char pos))
-                 ((and
-                   (looking-back "\\\\\\\\)")
-                   (setq pos
-                         (save-excursion
-                           (let ((b1 (match-beginning 0))
-                                 (e1 (match-end 0))
-                                 b2 e2)
-                             (when (re-search-backward
-                                    "\\\\\\\\("
-                                    (car (lispy--bounds-string)) t)
-                               (setq b2 (match-beginning 0))
-                               (setq e2 (match-end 0))
-                               (delete-region b1 e1)
-                               (delete-region b2 e2)
-                               (+ b2 (- e1 b1)))))))
-                  (goto-char pos))
+                 ((or (looking-back "\\\\\\\\(")
+                      (looking-back "\\\\\\\\)"))
+                  (let ((pt (point)))
+                    (goto-char (match-beginning 0))
+                    (unless (lispy--delete-pair-in-sting "\\\\\\\\(" "\\\\\\\\)")
+                      (goto-char pt)
+                      (backward-delete-char-untabify arg))))
                  (t (backward-delete-char-untabify arg))))
+
+          ((lispy--in-comment-p)
+           (backward-delete-char-untabify arg))
+
           ((and (looking-back lispy-right) (not (looking-back "\\\\.")))
            (let ((pt (point)))
              (lispy-backward arg)
@@ -2036,6 +2019,36 @@ Make text marked if REGIONP is t."
     (delete-region (car bnd1) (cdr bnd1))
     (insert str2)
     (goto-char (car bnd1))))
+
+(defun lispy--delete-pair-in-sting (left right)
+  "Delete a pair of LEFT and RIGHT in string."
+  (let ((bnd (lispy--bounds-string)))
+    (when bnd
+      (let ((pos (cond
+                   ((looking-at left)
+                    (save-excursion
+                      (let ((b1 (match-beginning 0))
+                            (e1 (match-end 0))
+                            b2 e2)
+                        (when (re-search-forward right (cdr bnd) t)
+                          (setq b2 (match-beginning 0)
+                                e2 (match-end 0))
+                          (delete-region b2 e2)
+                          (delete-region b1 e1)
+                          b1))))
+                   ((looking-at right)
+                    (save-excursion
+                      (let ((b1 (match-beginning 0))
+                            (e1 (match-end 0))
+                            b2 e2)
+                        (when (re-search-backward left (car bnd) t)
+                          (setq b2 (match-beginning 0)
+                                e2 (match-end 0))
+                          (delete-region b1 e1)
+                          (delete-region b2 e2)
+                          (+ b2 (- e1 b1)))))))))
+        (when pos
+          (goto-char pos))))))
 
 (defun lispy--insert-or-call (def &optional from-start)
   "Return a lambda to call DEF if position is special.
