@@ -4,7 +4,8 @@ This package implements various commands for navigating and editing
 Lisp code. It's influenced by Paredit and re-implements most of its features
 in order to provide faster and more intuitive key bindings.
 
-It also provides some [IDE-like features](#ide-like-features) for Elisp and Clojure.
+It also provides some [IDE-like features](#ide-like-features) for Elisp, Clojure, Scheme and
+Common Lisp.
 
 ## Special positions and key bindings
 
@@ -182,10 +183,16 @@ To extend the region, use a combination of
   Move region out of current sexp backwards.
 - `lispy-teleport` "t"  
   Move region inside the sexp you select with `lispy-ace-paren`.
+- `lispy-slurp` ">"  
+  Move region inside next sexp ("a" will reverse this).
+- `lispy-barf` "<"  
+  Move region inside previous sexp ("l" will reverse this).
 
 ## IDE-like features
 These features are specific to the Lisp dialect used.
 Currently Elisp and Clojure (via `cider`) are supported.
+There's also basic evaluation support for Scheme (via `geiser`)
+and Common lisp (via `slime`).
 ### `lispy-describe-inline`
 Bound to `C-1`. Show doc for current function inline.
 
