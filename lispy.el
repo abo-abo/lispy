@@ -1420,9 +1420,9 @@ Sexp is obtained by exiting list ARG times."
    (lambda() (forward-char 1) (lispy-mark-symbol) (lispy-delete 1))))
 
 ;; ——— Locals:  outline ————————————————————————————————————————————————————————
-(defun lispy-tab (arg)
+(defun lispy-tab ()
   "Indent code and hide/show outlines."
-  (interactive "p")
+  (interactive)
   (if (looking-at ";")
       (progn
         (outline-minor-mode 1)
@@ -1434,9 +1434,9 @@ Sexp is obtained by exiting list ARG times."
              (signal (car e) (cdr e))))))
     (indent-sexp)))
 
-(defun lispy-shifttab (arg)
+(defun lispy-shifttab ()
   "Hide/show outline summary."
-  (interactive "p")
+  (interactive)
   (require 'noflet)
   (outline-minor-mode 1)
   (noflet ((org-unlogged-message (&rest x)))
@@ -1924,8 +1924,9 @@ BND is a cons of start and end points."
            (recenter -1)))))
 
 (defun lispy--ace-do (x bnd &optional filter func no-narrow)
-  "Use `ace-jump-do' to X within BND when FILTER holds.
-When FUNC is not nil, call it after a successful move."
+  "Use `ace-jump-do' to X within BND when FILTER return t.
+When FUNC is not nil, call it after a successful move.
+When NO-NARROW is not nil, don't narrow to BND."
   (require 'ace-jump-mode)
   (lispy--recenter-bounds bnd)
   (unless no-narrow
