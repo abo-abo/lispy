@@ -422,6 +422,14 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "\"\\\\(|foo\\\\)\"" "\C-?")
                    "\"foo|\"")))
 
+(ert-deftest lispy-pair ()
+  (should (string= (lispy-with "\"\\\\|\"" "(")
+                   "\"\\\\(|\\\\)\""))
+  (should (string= (lispy-with "\"\\\\|\"" "{")
+                   "\"\\\\{|\\\\}\""))
+  (should (string= (lispy-with "\"\\\\|\"" "}")
+                   "\"\\\\[|\\\\]\"")))
+
 (ert-deftest lispy-slurp ()
   (should (string= (lispy-with "()|(a) (b) (c)" ">")
                    "((a))| (b) (c)"))
