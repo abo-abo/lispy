@@ -693,7 +693,14 @@ When this function is called:
      (cond
        ((region-active-p)
         (lispy--surround-region ,left ,right))
-       ((lispy--in-string-or-comment-p)
+       ((lispy--in-string-p)
+        (if (looking-back "\\\\\\\\")
+            (progn
+              (insert ,left "\\\\" ,right)
+              (backward-char 3))
+          (insert ,left ,right)
+          (backward-char 1)))
+       ((lispy--in-comment-p)
         (insert ,left ,right)
         (backward-char 1))
        ((looking-back "?\\\\")
