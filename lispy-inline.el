@@ -83,6 +83,13 @@ The caller of `lispy--show' might use a substitute e.g. `describe-function'."
 (defvar lispy-hint-pos nil
   "Point position where the hint should be (re-) displayed.")
 
+(declare-function lispy--eval-clojure "ext:lispy")
+(declare-function lispy--clojure-args "ext:lispy")
+(declare-function lispy--clojure-resolve "ext:lispy")
+(declare-function lispy--describe-clojure-java "ext:lispy")
+(declare-function lispy--eval-scheme "ext:lispy")
+(declare-function lispy--eval-lisp "ext:lispy")
+
 ;; ——— Commands ————————————————————————————————————————————————————————————————
 (defun lispy-arglist-inline ()
   "Display arglist for `lispy--current-function' inline."
@@ -101,106 +108,11 @@ The caller of `lispy--show' might use a substitute e.g. `describe-function'."
                         (setq lispy-hint-pos (point))
                         (lispy--show (lispy--pretty-args sym))))))
               ((eq major-mode 'clojure-mode)
+               (require 'le-clojure)
                (setq lispy-hint-pos (point))
                (lispy--show (lispy--clojure-args (lispy--current-function))))
 
               (t (error "%s isn't supported currently" major-mode)))))))
-
-(defun lispy--clojure-resolve (symbol)
-  "Return resolved SYMBOL.
-Return 'special or 'keyword appropriately.
-Otherwise try to resolve in current namespace first.
-If it doesn't work, try to resolve in all available namespaces."
-  (let ((str (lispy--eval-clojure
-              (format
-               "(if (symbol? '%s)
-                   (if (special-symbol? '%s)
-                       'special
-                     (or (resolve '%s)
-                         (first (keep #(ns-resolve %% '%s) (all-ns)))
-                         (if-let [val (try (load-string \"%s\") (catch Exception e))]
-                                 (list 'variable (str val)))))
-                 (if (keyword? '%s)
-                     'keyword
-                   'unknown))"
-               symbol
-               symbol
-               symbol
-               symbol
-               symbol
-               symbol))))
-    (if (string-match "^#'\\(.*\\)$" str)
-        (match-string 1 str)
-      (read str))))
-
-(defun lispy--clojure-args (symbol)
-  "Return a pretty string with arguments for SYMBOL.
-Besides functions, handles specials, keywords, maps, vectors and sets."
-  (let* ((sym (lispy--clojure-resolve symbol))
-         (args (cond
-                 ((eq sym 'special)
-                  (read
-                   (lispy--eval-clojure
-                    (format
-                     "(->> (with-out-str (clojure.repl/doc %s))
-                       (re-find #\"\\(.*\\)\")
-                       read-string rest
-                       (map str)
-                       (clojure.string/join \" \")
-                       (format \"[%%s]\")
-                       list)"
-                     symbol))))
-                 ((eq sym 'keyword)
-                  (list "[map]"))
-                 ((eq sym 'undefined)
-                  (error "Undefined"))
-                 ((and (listp sym) (eq (car sym) 'variable))
-                  (list "variable"))
-                 ((null sym)
-                  (read
-                   (lispy--eval-clojure
-                    (format
-                     "(let [[_ cname mname] (re-find #\"(.*)/(.*)\" \"%s\")
-                           methods (and cname
-                                     (try (load-string (format \"(.getMethods %%s)\" cname))
-                                          (catch Exception e)))
-                           methods (filter #(= (.getName %%) mname) methods)]
-                       (if (= 0 (count methods))
-                           \"method not found\"
-                         (map (fn [m]
-                                  (->> m
-                                    .getParameterTypes
-                                    (map #(.toString %%))
-                                    (clojure.string/join \" \")))
-                              (filter #(java.lang.reflect.Modifier/isStatic
-                                        (.getModifiers %%))
-                                      methods))))"
-                     symbol))))
-                 (t
-                  (read (lispy--eval-clojure
-                         (format
-                          "(let [args (map str (:arglists (meta #'%s)))]
-                            (if (empty? args)
-                                (eval '(list
-                                        (condp #(%%1 %%2) %s
-                                         map? \"[key]\"
-                                         set? \"[key]\"
-                                         vector? \"[idx]\"
-                                         \"is uncallable\")))
-                              args))"
-                          sym
-                          sym)))))))
-    (if (listp args)
-        (format
-         "(%s %s)"
-         (propertize symbol 'face 'lispy-face-hint)
-         (mapconcat
-          #'identity
-          (mapcar (lambda(x) (propertize (downcase x)
-                                    'face 'lispy-face-req-nosel)) args)
-          (concat "\n"
-                  (make-string (+ 2 (length symbol)) ? ))))
-      (propertize args 'face 'lispy-face-hint))))
 
 (defun lispy--delete-help-windows ()
   "Delete help windows.
@@ -214,23 +126,6 @@ Return t if at least one was deleted."
               (setq deleted t)))
           (window-list))
     deleted))
-
-(defun lispy--describe-clojure-java (sym)
-  "Return description for Clojure Java symol SYM."
-  (read
-   (lispy--eval-clojure
-    (format
-     "(let [[_ cname mname] (re-find #\"(.*)/(.*)\" \"%s\")
-          methods (and cname
-                    (try (load-string (format \"(.getMethods %%s)\" cname))
-                         (catch Exception e)))
-          methods (filter #(= (.getName %%) mname) methods)]
-      (if (= 0 (count methods))
-          nil
-        (clojure.string/join
-         \"\\n\" (map (fn [m] (.toString m))
-                   methods))))"
-     sym))))
 
 (defun lispy-describe-inline ()
   "Display documentation for `lispy--current-function' inline."
@@ -270,6 +165,7 @@ Return t if at least one was deleted."
                             )
                            (t "unbound"))))
                   ((eq major-mode 'clojure-mode)
+                   (require 'le-clojure)
                    (let ((rsymbol (lispy--clojure-resolve sym)))
                      (s-trim
                       (replace-regexp-in-string
@@ -291,6 +187,7 @@ Return t if at least one was deleted."
                               (or (lispy--describe-clojure-java sym)
                                   (format "Could't resolve '%s" sym))))))))
                   ((eq major-mode 'lisp-mode)
+                   (require 'le-lisp)
                    (read
                     (lispy--eval-lisp
                      (substring-no-properties

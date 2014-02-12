@@ -128,11 +128,15 @@
 ;; until all your Lisp code is turned into Python :).
 ;;
 ;; Some Clojure support depends on packages `cider' or `nrepl'.
+;; Some Scheme support depends on `geiser'.
+;; Some Common Lisp support depends on `slime'.
 ;; You can get them from MELPA.
 ;;
 ;;; Code:
 (eval-when-compile
-  (require 'cl))
+  (require 'cl)
+  (require 'noflet)
+  (require 'org))
 (require 'help-fns)
 (require 'edebug)
 (require 'outline)
@@ -1293,6 +1297,9 @@ Quote newlines if ARG isn't 1."
    (mapcar #'lispy--tag-name (semantic-fetch-tags))
    #'lispy--action-jump))
 
+(declare-function cider-jump-to-def "ext:cider")
+(declare-function lispy--clojure-resolve "ext:lispy")
+
 (defun lispy-follow ()
   "Follow to `lispy--current-function'."
   (interactive)
@@ -1631,10 +1638,13 @@ Return nil on failure, t otherwise."
      ((memq major-mode '(emacs-lisp-mode lisp-interaction-mode))
       'lispy--eval-elisp)
      ((eq major-mode 'clojure-mode)
+      (require 'le-clojure)
       'lispy--eval-clojure)
      ((eq major-mode 'scheme-mode)
+      (require 'le-scheme)
       'lispy--eval-scheme)
      ((eq major-mode 'lisp-mode)
+      (require 'le-lisp)
       'lispy--eval-lisp)
      (t (error "%s isn't supported currently" major-mode)))
    str))
@@ -1643,37 +1653,6 @@ Return nil on failure, t otherwise."
   "Eval STR as Elisp code."
   (prin1-to-string
    (eval (read str))))
-(declare-function nrepl-send-string-sync "ext:cider")
-(declare-function cider-jump-to-def "ext:cider")
-
-(defun lispy--eval-clojure (str)
-  "Eval STR as Clojure code."
-  (plist-get
-   (nrepl-send-string-sync str)
-   :value))
-
-(defun lispy--eval-scheme (str)
-  "Eval STR as Scheme code."
-  (require 'geiser-eval)
-  (unless (geiser-repl--connection*)
-    (save-window-excursion
-      (if geiser-impl--implementation
-          (run-geiser geiser-impl--implementation)
-        (call-interactively 'run-geiser))))
-  (let* ((code `(:eval (:scm ,str)))
-         (ret (geiser-eval--send/wait code))
-         (err (geiser-eval--retort-error ret)))
-    (if err
-        (format "Error: %s" (s-trim (cdr (assoc 'output ret))))
-      (format "%s" (cadr (assoc 'result ret))))))
-
-(defun lispy--eval-lisp (str)
-  "Eval STR as Common Lisp code."
-  (require 'slime)
-  (unless (slime-current-connection)
-    (slime))
-  (let (deactivate-mark)
-    (cadr (slime-eval `(swank:eval-and-grab-output ,str)))))
 
 ;; ——— Utilities: tags —————————————————————————————————————————————————————————
 (defvar lispy-tag-arity-alist
@@ -1880,6 +1859,8 @@ Unless inside string or comment, or `looking-back' at CONTEXT."
         (backward-delete-char 1)))
     (lispy-forward 1)
     (backward-list)))
+
+(declare-function helm "ext:helm")
 
 (defun lispy--select-candidate (candidates action)
   "Select from CANDIDATES list with `helm'.
