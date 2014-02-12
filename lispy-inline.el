@@ -112,6 +112,11 @@ The caller of `lispy--show' might use a substitute e.g. `describe-function'."
                (setq lispy-hint-pos (point))
                (lispy--show (lispy--clojure-args (lispy--current-function))))
 
+              ((eq major-mode 'lisp-mode)
+               (require 'le-lisp)
+               (setq lispy-hint-pos (point))
+               (lispy--show (lispy--lisp-args (lispy--current-function))))
+
               (t (error "%s isn't supported currently" major-mode)))))))
 
 (defun lispy--delete-help-windows ()
