@@ -1672,7 +1672,8 @@ Return nil on failure, t otherwise."
   (require 'slime)
   (unless (slime-current-connection)
     (slime))
-  (cadr (slime-eval `(swank:eval-and-grab-output ,str))))
+  (let (deactivate-mark)
+    (cadr (slime-eval `(swank:eval-and-grab-output ,str)))))
 
 ;; ——— Utilities: tags —————————————————————————————————————————————————————————
 (defvar lispy-tag-arity-alist
