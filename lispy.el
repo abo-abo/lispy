@@ -850,10 +850,15 @@ Special case is (|( -> ( |(."
   (interactive "p")
   (cond ((region-active-p)
          (let ((bnd (lispy--bounds-dwim))
-               (endp (= (point) (region-end))))
-           (when (lispy-forward 1)
-             (lispy-backward 1)
-             (lispy--teleport (car bnd) (cdr bnd) endp t))))
+               (endp (= (point) (region-end)))
+               deactivate-mark)
+           (let ((pt (save-excursion
+                       (when (lispy-forward 1)
+                         (lispy-backward 1)
+                         (point)))))
+             (when pt
+               (goto-char pt)
+               (lispy--teleport (car bnd) (cdr bnd) endp t)))))
         ((or (looking-at "()")
              (and (looking-at lispy-left) (not (looking-back "()"))))
          (dotimes-protect arg
