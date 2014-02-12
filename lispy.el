@@ -871,7 +871,28 @@ Special case is (|( -> ( |(."
 (defun lispy-barf (arg)
   "Shrink current sexp by ARG sexps."
   (interactive "p")
-  (cond ((looking-at "()"))
+  (cond ((region-active-p)
+         (let ((bnd (lispy--bounds-dwim))
+               (endp (= (point) (region-end)))
+               (bsize (buffer-size))
+               deactivate-mark)
+           (let ((pt (save-excursion
+                       (goto-char (car bnd))
+                       (when (lispy-backward 1)
+                         (lispy-forward 1)
+                         (backward-char 1)
+                         (setq deactivate-mark nil)
+                         (newline-and-indent)
+                         (point)))))
+             (when pt
+               (goto-char pt)
+               (decf bsize (buffer-size))
+               (backward-char 1)
+               (lispy--teleport (- (car bnd) bsize)
+                                (- (cdr bnd) bsize)
+                                endp t)))))
+
+        ((looking-at "()"))
 
         ((looking-back lispy-right)
          (dotimes-protect arg
