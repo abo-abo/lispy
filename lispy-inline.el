@@ -142,7 +142,7 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
                   (read
                    (lispy--eval-clojure
                     (format
-                     "(->> (with-out-str (doc %s))
+                     "(->> (with-out-str (clojure.repl/doc %s))
                        (re-find #\"\\(.*\\)\")
                        read-string rest
                        (map str)
@@ -277,11 +277,11 @@ Return t if at least one was deleted."
                        (cond ((stringp rsymbol)
                               (read
                                (lispy--eval-clojure
-                                (format "(with-out-str (doc %s))" rsymbol))))
+                                (format "(with-out-str (clojure.repl/doc %s))" rsymbol))))
                              ((eq rsymbol 'special)
                               (read
                                (lispy--eval-clojure
-                                (format "(with-out-str (doc %s))" sym))))
+                                (format "(with-out-str (clojure.repl/doc %s))" sym))))
                              ((eq rsymbol 'keyword)
                               "No docs for keywords")
                              ((and (listp rsymbol)
