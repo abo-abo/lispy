@@ -43,13 +43,13 @@
          (modify-syntax-entry i "w" table))
     (loop for i in '(? ?\( ?\) ?\[ ?\] ?{ ?} ?\" ?\')
          do (modify-syntax-entry i "w" table))
-    (mapcan (lambda(x)
-              (let ((y (ignore-errors (read x))))
-                (if (numberp y)
-                    (list y)
-                  (mapcar #'string x))))
-            (with-syntax-table table
-              (split-string str "\\b" t)))))
+    (cl-mapcan (lambda(x)
+                 (let ((y (ignore-errors (read x))))
+                   (if (numberp y)
+                       (list y)
+                     (mapcar #'string x))))
+               (with-syntax-table table
+                 (split-string str "\\b" t)))))
 
 (ert-deftest lispy-decode-keysequence ()
   (should (equal (lispy-decode-keysequence "23ab50c")
