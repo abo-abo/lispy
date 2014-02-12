@@ -420,7 +420,9 @@ Insert KEY if there's no command."
   (should (string= (lispy-with ";|" "\C-?")
                    "|"))
   (should (string= (lispy-with "\"\\\\(|foo\\\\)\"" "\C-?")
-                   "\"foo|\"")))
+                   "\"foo|\""))
+  (should (string= (lispy-with "\"\\\\(|foo\"" "\C-?")
+                   "\"\\\\|foo\"")))
 
 (ert-deftest lispy-pair ()
   (should (string= (lispy-with "\"\\\\|\"" "(")
