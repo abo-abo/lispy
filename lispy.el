@@ -1364,6 +1364,7 @@ Quote newlines if ARG isn't 1."
                   (deactivate-mark)
                   (find-variable symbol))))
           ((eq major-mode 'clojure-mode)
+           (require 'le-clojure)
            (setq rsymbol (lispy--clojure-resolve symbol))
            (cond ((stringp rsymbol)
                   (cider-jump-to-def rsymbol))
