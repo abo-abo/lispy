@@ -610,14 +610,14 @@ Insert KEY if there's no command."
                    "(defun foo ()\n  (let (a b c)\n    (cond ((s1)\n           ;; (s2)\n           |(s3)))))"))
   (should (string= (lispy-with "(defun foo ()\n  (let (a b c)\n    (cond ((s1)\n           |(s2)\n           (s3)))))" ";;")
                    "(defun foo ()\n  (let (a b c)\n    (cond |((s1)\n           ;; (s2)\n           ;; (s3)\n           ))))"))
-  (should (string= (lispy-with "(defun foo ()\n  (let (a b c)\n    (cond ((s1)\n           |(s2)\n           (s3)))))" ";;;")
-                   "(defun foo ()\n  (let (a b c)\n    |(cond ;; ((s1)\n          ;;  ;; (s2)\n          ;;  ;; (s3)\n          ;;  )\n      )))"))
-  (should (string= (lispy-with "(defun foo ()\n  (let (a b c)\n    (cond ((s1)\n           |(s2)\n           (s3)))))" ";;;;")
-                   "(defun foo ()\n  |(let (a b c)\n    ;; (cond ;; ((s1)\n    ;;       ;;  ;; (s2)\n    ;;       ;;  ;; (s3)\n    ;;       ;;  )\n    ;;   )\n    ))"))
-  (should (string= (lispy-with "(defun foo ()\n  (let (a b c)\n    (cond ((s1)\n           |(s2)\n           (s3)))))" ";;;;;")
-                   "|(defun foo ()\n  ;; (let (a b c)\n  ;;   ;; (cond ;; ((s1)\n  ;;   ;;       ;;  ;; (s2)\n  ;;   ;;       ;;  ;; (s3)\n  ;;   ;;       ;;  )\n  ;;   ;;   )\n  ;;   )\n  )"))
-  (should (string= (lispy-with "(defun foo ()\n  (let (a b c)\n    (cond ((s1)\n           |(s2)\n           (s3)))))" ";;;;;;")
-                   ";; (defun foo ()\n;;   ;; (let (a b c)\n;;   ;;   ;; (cond ;; ((s1)\n;;   ;;   ;;       ;;  ;; (s2)\n;;   ;;   ;;       ;;  ;; (s3)\n;;   ;;   ;;       ;;  )\n;;   ;;   ;;   )\n;;   ;;   )\n;;   )|"))
+  (should (string-match "(defun foo ()\n  (let (a b c)\n    |(cond ;; ((s1)\n          ;;  ;; (s2)\n          ;;  ;; (s3)\n          ;;  )\n     *)))"
+                        (lispy-with "(defun foo ()\n  (let (a b c)\n    (cond ((s1)\n           |(s2)\n           (s3)))))" ";;;")))
+  (should (string-match "(defun foo ()\n  |(let (a b c)\n    ;; (cond ;; ((s1)\n    ;;       ;;  ;; (s2)\n    ;;       ;;  ;; (s3)\n    ;;       ;;  )\n    ;;   *)\n   *))"
+                        (lispy-with "(defun foo ()\n  (let (a b c)\n    (cond ((s1)\n           |(s2)\n           (s3)))))" ";;;;")))
+  (should (string-match "|(defun foo ()\n  ;; (let (a b c)\n  ;;   ;; (cond ;; ((s1)\n  ;;   ;;       ;;  ;; (s2)\n  ;;   ;;       ;;  ;; (s3)\n  ;;   ;;       ;;  )\n  ;;   ;;  *)\n  ;;   )\n  )"
+                        (lispy-with "(defun foo ()\n  (let (a b c)\n    (cond ((s1)\n           |(s2)\n           (s3)))))" ";;;;;")))
+  (should (string-match ";; (defun foo ()\n;;   ;; (let (a b c)\n;;   ;;   ;; (cond ;; ((s1)\n;;   ;;   ;;       ;;  ;; (s2)\n;;   ;;   ;;       ;;  ;; (s3)\n;;   ;;   ;;       ;;  )\n;;   ;;   ;;  *)\n;;   ;;   )\n;;   )|"
+                        (lispy-with "(defun foo ()\n  (let (a b c)\n    (cond ((s1)\n           |(s2)\n           (s3)))))" ";;;;;;")))
   (should (string= (lispy-with ";; line| 1\n;; line 2\n (a b c)\n ;; line 3" (lispy-comment 2))
                    "line| 1\nline 2\n (a b c)\n ;; line 3"))
   (should (string= (lispy-with ";; line 1\n;; line 2|\n (a b c)\n ;; line 3" (lispy-comment 2))
@@ -681,6 +681,8 @@ Insert KEY if there's no command."
                    "((a) |(c))")))
 
 (ert-deftest clojure-thread-macro ()
+  ;; changes indentation
+  (require 'cider)
   (should (string= (lispy-with "|(map sqr (filter odd? [1 2 3 4 5]))" "2(->>]<]<]wwlM")
                    "(->> [1 2 3 4 5]\n  (map sqr)\n  (filter odd?))|")))
 
