@@ -87,9 +87,10 @@ The caller of `lispy--show' might use a substitute e.g. `describe-function'."
 (declare-function lispy--eval-scheme "ext:lispy")
 (declare-function lispy--eval-lisp "ext:lispy")
 (declare-function lispy--clojure-args "ext:lispy")
+(declare-function lispy--lisp-args "ext:lispy")
 (declare-function lispy--clojure-resolve "ext:lispy")
 (declare-function lispy--describe-clojure-java "ext:lispy")
-(declare-function lispy--lisp-args "ext:lispy")
+(declare-function lispy--lisp-describe "ext:lispy")
 
 ;; ——— Commands ————————————————————————————————————————————————————————————————
 (defun lispy-arglist-inline ()
@@ -194,10 +195,7 @@ Return t if at least one was deleted."
                                   (format "Could't resolve '%s" sym))))))))
                   ((eq major-mode 'lisp-mode)
                    (require 'le-lisp)
-                   (read
-                    (lispy--eval-lisp
-                     (substring-no-properties
-                      (format "(let ((x '%s)) (if (boundp x) (documentation x 'variable) (documentation x 'function)))" sym)))))
+                   (lispy--lisp-describe sym))
                   (t
                    (format "%s isn't supported currently" major-mode)))))
           (when doc
