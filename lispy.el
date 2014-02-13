@@ -986,9 +986,13 @@ The outcome when ahead of sexps is different from when behind."
   (interactive)
   (if (save-excursion
         (lispy--out-forward 2))
-      (let ((beg (point))
-            end)
+      (let ((endp (and (region-active-p)
+                       (= (point) (region-end))))
+            beg end
+            deactivate-mark)
+        (when endp (exchange-point-and-mark))
         (lispy-save-excursion
+         (setq beg (point))
          (lispy--out-forward 1)
          (setq end (backward-list))
          (lispy--out-forward 1)
@@ -996,7 +1000,8 @@ The outcome when ahead of sexps is different from when behind."
          (lispy--swap-regions (cons beg end)
                               (cons (point) (point)))
          (lispy--out-forward 1)
-         (lispy--reindent)))
+         (lispy--reindent))
+        (when endp (exchange-point-and-mark)))
     (error "Not enough depth to convolute")))
 
 (defun lispy-join ()
