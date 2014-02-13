@@ -187,6 +187,8 @@ To extend the region, use a combination of
   Move region inside next sexp ("a" will reverse this).
 - `lispy-barf` "<"  
   Move region inside previous sexp ("l" will reverse this).
+- `lispy-convolute` "C"__
+  Exchange the order of application of two sexps that contain point.
 
 ## IDE-like features
 These features are specific to the Lisp dialect used.
