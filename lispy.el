@@ -1915,6 +1915,8 @@ Unless inside string or comment, or `looking-back' at CONTEXT."
 ACTION is called for the selected candidate."
   (require 'helm)
   (require 'helm-help)
+  ;; allows restriction with space
+  (require 'helm-mode)
   (helm :sources
         `((name . "Candidates")
           (candidates . ,(mapcar
