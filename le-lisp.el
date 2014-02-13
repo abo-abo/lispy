@@ -52,6 +52,20 @@
                   (make-string (+ 2 (length symbol)) ? ))))
       (propertize args 'face 'lispy-face-hint))))
 
+(defun lispy--lisp-describe (symbol)
+  "Return documentation for SYMBOL."
+  (read
+   (lispy--eval-lisp
+    (substring-no-properties
+     (format
+      "(let ((x '%s))
+        (or (if (boundp x)
+                (documentation x 'variable)
+              (documentation x 'function))
+            \"undocumented\"))"
+      symbol)))))
+
+
 (provide 'le-lisp)
 
 ;;; le-lisp.el ends here
