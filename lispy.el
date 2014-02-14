@@ -566,7 +566,11 @@ Return nil if can't move."
 Otherwise (`backward-delete-char-untabify' ARG)."
   (interactive "p")
   (let (pos)
-    (cond ((lispy--in-string-p)
+    (cond ((region-active-p)
+           (delete-region (region-beginning)
+                          (region-end)))
+
+          ((lispy--in-string-p)
            (cond ((save-excursion
                     (backward-char 1)
                     (not (lispy--in-string-p)))
