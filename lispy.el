@@ -1725,21 +1725,23 @@ Return nil on failure, t otherwise."
 (defun lispy-build-semanticdb ()
   "Build and save semanticdb for current directory."
   (interactive)
-  (let* ((ext (file-name-extension (buffer-file-name)))
-         (files
-          (cl-remove-if
-           (lambda(x) (string-match "\\(?:^\\.?#\\|~$\\)" x))
-           (file-expand-wildcards (format "*.%s" ext)))))
-    (mapc
-     (lambda(f)
-       (let ((buffer (find-file-noselect f))
-             tags)
-         (set-buffer buffer)
-         (setq tags (ignore-errors (semantic-fetch-tags)))
-         (semanticdb-save-current-db)
-         ;; (kill-buffer buffer)
-         ))
-     files)))
+  (mapc
+   (lambda(f)
+     (let ((buffer (find-file-noselect f))
+           tags)
+       (set-buffer buffer)
+       (setq tags (ignore-errors (semantic-fetch-tags)))
+       ;; (kill-buffer buffer)
+       ))
+   (lispy--file-list))
+  (semanticdb-save-all-db))
+
+(defun lispy--file-list ()
+  "Get the list of same type files in current directory."
+  (let ((ext (file-name-extension (buffer-file-name))))
+    (cl-remove-if
+     (lambda(x) (string-match "\\(?:^\\.?#\\|~$\\)" x))
+     (file-expand-wildcards (format "*.%s" ext)))))
 
 (defvar lispy-tag-arity-alist
   '(("setq" . 2)
