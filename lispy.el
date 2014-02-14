@@ -1913,26 +1913,31 @@ For example, a `setq' statement is amended with variable name that it uses."
   (let* ((path default-directory)
          (db (semanticdb-directory-loaded-p
               (expand-file-name path))))
-    (if (null db)
-        (semantic-fetch-tags)
-      (setq db (cl-remove-if-not (lambda(x) (eq (aref x 4) major-mode)) (aref db 6)))
-      (apply #'append
-             (mapcar
-              (lambda(x)
-                (cl-remove-if-not
-                 (lambda(s) (stringp (car s)))
-                 (let ((buffer (aref x 2)))
-                   (mapcar (lambda(y)
-                             (if (overlayp (nth 4 y))
-                                 y
-                               (let ((z (cl-copy-list y))
-                                     (bnd (nth 4 y)))
-                                 (setcar (nthcdr 4 z)
-                                         (cons
-                                          bnd
-                                          buffer))
-                                 z)))
-                           (aref x 5))))) db)))))
+    (unless (and db
+                 (lexical-let ((db-files (mapcar (lambda(x) (aref x 2)) (aref db 6))))
+                   (cl-every (lambda(x) (member x db-files))
+                             (lispy--file-list))))
+      (lispy-build-semanticdb)
+      (setq db (semanticdb-directory-loaded-p
+                (expand-file-name path))))
+    (setq db (cl-remove-if-not (lambda(x) (eq (aref x 4) major-mode)) (aref db 6)))
+    (apply #'append
+           (mapcar
+            (lambda(x)
+              (cl-remove-if-not
+               (lambda(s) (stringp (car s)))
+               (let ((buffer (aref x 2)))
+                 (mapcar (lambda(y)
+                           (if (overlayp (nth 4 y))
+                               y
+                             (let ((z (cl-copy-list y))
+                                   (bnd (nth 4 y)))
+                               (setcar (nthcdr 4 z)
+                                       (cons
+                                        bnd
+                                        buffer))
+                               z)))
+                         (aref x 5))))) db))))
 
 (defun lispy--goto (fun)
   "Jump to symbol selected from (FUN)."
