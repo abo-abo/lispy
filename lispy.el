@@ -2122,6 +2122,7 @@ list."
             (self-insert-command 1)))))
 
 (defvar ac-trigger-commands '(self-insert-command))
+(defvar company-begin-commands '(self-insert-command))
 
 (defadvice ac-handle-post-command (around ac-post-command-advice activate)
   "Don't `auto-complete' when region is active."
@@ -2134,6 +2135,8 @@ list."
                   (lispy--insert-or-call def from-start))))
     (unless (member func ac-trigger-commands)
       (push func ac-trigger-commands))
+    (unless (member func company-begin-commands)
+      (push func company-begin-commands))
     (define-key keymap (kbd key) func)))
 
 (let ((map lispy-mode-map))
