@@ -1749,6 +1749,8 @@ For example, a `setq' statement is amended with variable name that it uses."
        (throw 'break nil))
      (cons
       (cond
+        ((not (stringp (car x)))
+         (throw 'break nil))
         ((eq (cadr x) 'include)
          (concat (propertize "require" 'face 'font-lock-keyword-face)
                  " " (car x)))
