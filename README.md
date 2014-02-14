@@ -247,7 +247,7 @@ Bound to `g` while in special. Use `helm` to select a top-level symbol
 to jump to in current directory.
 
 
-Works out of the box for Elisp.
+Works out of the box for Elisp, Scheme and Common Lisp.
 [clojure-semantic](https://github.com/kototama/clojure-semantic)
 is required for Clojure.
 
