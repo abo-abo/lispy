@@ -4,7 +4,7 @@
 
 ;; Author: Oleh Krehel <ohwoeowho@gmail.com>
 ;; URL: https://github.com/abo-abo/lispy
-;; Version: 0.7
+;; Version: 0.8
 ;; Keywords: lisp
 
 ;; This file is not part of GNU Emacs
