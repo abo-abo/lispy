@@ -942,7 +942,12 @@ Special case is (|( -> ( |(."
          (at-end (and regionp
                       (= (point) (region-end))))
          bnd1 bnd2)
-    (lispy--reindent 1)
+    (if regionp
+        (let ((deactivate-mark nil))
+          (when at-end (lispy-different))
+          (save-excursion
+            (lispy--reindent 1)))
+      (lispy--reindent 1))
     (setq bnd1 (lispy--bounds-dwim))
     (lispy--out-forward 1)
     (setq bnd2 (lispy--bounds-dwim))
