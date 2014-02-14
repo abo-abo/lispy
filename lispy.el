@@ -1726,7 +1726,10 @@ Return nil on failure, t otherwise."
   "Build and save semanticdb for current directory."
   (interactive)
   (let* ((ext (file-name-extension (buffer-file-name)))
-         (files (file-expand-wildcards (format "*.%s" ext))))
+         (files
+          (cl-remove-if
+           (lambda(x) (string-match "\\(?:^\\.?#\\|~$\\)" x))
+           (file-expand-wildcards (format "*.%s" ext)))))
     (mapc
      (lambda(f)
        (let ((buffer (find-file-noselect f))
