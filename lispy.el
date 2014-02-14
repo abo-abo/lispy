@@ -1937,25 +1937,34 @@ ACTION is called for the selected candidate."
   (require 'helm-help)
   ;; allows restriction with space
   (require 'helm-match-plugin)
-  (helm :sources
-        `((name . "Candidates")
-          (candidates . ,(mapcar
-                          (lambda(x)
-                            (if (listp x)
-                                (if (stringp (cdr x))
-                                    (cons (cdr x) (car x))
-                                  (cons (car x) x))
-                              x)) candidates))
-          (action . ,action))))
+  (let (helm-update-blacklist-regexps)
+    (helm :sources
+          `((name . "Candidates")
+            (candidates . ,(mapcar
+                            (lambda(x)
+                              (if (listp x)
+                                  (if (stringp (cdr x))
+                                      (cons (cdr x) (car x))
+                                    (cons (car x) x))
+                                x)) candidates))
+            (action . ,action)
+            (pattern-transformer . regexp-quote)))))
 
 (defun lispy--action-jump (tag)
   "Jump to TAG."
   (when (semantic-tag-p tag)
-    (push-mark)
-    (semantic-go-to-tag tag)
-    (when (eq major-mode 'clojure-mode)
-      (lispy-backward 1))
-    (switch-to-buffer (current-buffer))))
+    (let ((overlay (semantic-tag-overlay tag)))
+      (unless (overlayp overlay)
+        (let ((bnd (car overlay))
+              (buffer (find-file-noselect (cdr overlay))))
+          (semantic--tag-set-overlay
+           tag
+           (make-overlay (aref bnd 0) (aref bnd 1) buffer))))
+      (push-mark)
+      (semantic-go-to-tag tag)
+      (when (eq major-mode 'clojure-mode)
+        (lispy-backward 1))
+      (switch-to-buffer (current-buffer)))))
 
 (defun lispy--recenter-bounds (bnd)
   "Make sure BND is visible in window.
