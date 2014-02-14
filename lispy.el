@@ -1771,37 +1771,99 @@ Return nil on failure, t otherwise."
   "Start and end positions of columns when completing with `helm'."
   :group 'lispy)
 
+(defun lispy--tag-name-elisp (x)
+  "Build tag name for Elisp tag X."
+  (cond
+    ((not (stringp (car x)))
+     (throw 'break nil))
+    ((eq (cadr x) 'include)
+     (concat (propertize "require" 'face 'font-lock-keyword-face)
+             " " (car x)))
+    ((eq (cadr x) 'package)
+     (concat (propertize "provide" 'face 'font-lock-keyword-face)
+             " " (car x)))
+    ((eq (cadr x) 'customgroup)
+     (concat (propertize "defgroup" 'face 'font-lock-keyword-face)
+             " " (car x)))
+    ((eq (cadr x) 'function)
+     (propertize (car x) 'face 'font-lock-function-name-face))
+    ((eq (cadr x) 'variable)
+     (concat (propertize "defvar" 'face 'font-lock-keyword-face)
+             " " (car x)))
+    ((string-match lispy-tag-regexp (car x))
+     (lispy--tag-name-overlay x lispy-tag-regexp))
+    (t (car x))))
+
+(defvar lispy-tag-arity-alist-cl
+  '(("setq" . 2)
+    ("load" . 1)
+    ("defpackage" . 1)
+    ("cl:defpackage" . 1)
+    ("defconstant" . 1)
+    ("defparameter" . 1)
+    ("define-condition" . 1)
+    ("definterface" . 1))
+  "Alist of tag arities for `lispy--tag-name-overlay'.")
+
+(defvar lispy-tag-regexp-cl
+  (concat
+   "\\_<"
+   (regexp-opt
+    (mapcar #'car lispy-tag-arity-alist-cl))
+   "\\_>")
+  "Regexp for tags that we'd like to know more about.")
+
+(defun lispy--tag-name-lisp (x)
+  "Build tag name for Common Lisp tag X."
+  (cond
+    ((not (stringp (car x)))
+     (throw 'break nil))
+    ((eq (cadr x) 'function)
+     (propertize (car x) 'face 'font-lock-function-name-face))
+    ((eq (cadr x) 'type)
+     (concat (propertize "defstruct" 'face 'font-lock-keyword-face)
+             " "
+             (propertize (car x) 'face 'font-lock-type-face)))
+    ((eq (cadr x) 'variable)
+     (concat (propertize "defvar" 'face 'font-lock-keyword-face)
+             " " (car x)))
+    ((string-match lispy-tag-regexp-cl (car x))
+     (lispy--tag-name-overlay x lispy-tag-regexp-cl))
+    (t (car x))))
+
+(defun lispy--tag-name-clojure (x)
+  "Build tag name for Clojure tag X."
+  (cond
+    ((not (stringp (car x))))
+    ((eq (cadr x) 'package)
+     (concat (propertize "ns" 'face 'font-lock-keyword-face)
+             " " (car x)))
+    ((eq (cadr x) 'function)
+     (propertize (car x) 'face 'font-lock-function-name-face))
+    ((eq (cadr x) 'variable)
+     (concat (propertize "def" 'face 'font-lock-keyword-face)
+             " " (car x)))
+    (t (car x))))
+
 (defun lispy--tag-name (x)
   "Given a semantic tag X, amend it with additional info.
 For example, a `setq' statement is amended with variable name that it uses."
   (or
    (catch 'break
-     (unless (memq major-mode '(emacs-lisp-mode lisp-interaction-mode
-                                clojure-mode scheme-mode lisp-mode))
-       (throw 'break nil))
      (cons
       (concat
        (lispy--pad-string
         (cond
-          ((not (stringp (car x)))
-           (throw 'break nil))
-          ((eq (cadr x) 'include)
-           (concat (propertize "require" 'face 'font-lock-keyword-face)
-                   " " (car x)))
-          ((eq (cadr x) 'package)
-           (concat (propertize "provide" 'face 'font-lock-keyword-face)
-                   " " (car x)))
-          ((eq (cadr x) 'customgroup)
-           (concat (propertize "defgroup" 'face 'font-lock-keyword-face)
-                   " " (car x)))
-          ((eq (cadr x) 'function)
-           (propertize (car x) 'face 'font-lock-function-name-face))
-          ((eq (cadr x) 'variable)
-           (concat (propertize "defvar" 'face 'font-lock-keyword-face)
-                   " " (car x)))
-          ((string-match lispy-tag-regexp (car x))
-           (lispy--tag-name-overlay x))
-          (t (car x)))
+          ((memq major-mode '(emacs-lisp-mode lisp-interaction-mode))
+           (lispy--tag-name-elisp x))
+          ((eq major-mode 'clojure-mode)
+           (lispy--tag-name-clojure x))
+          ((eq major-mode 'scheme-mode)
+           ;; (lispy--tag-name-scheme x)
+           (car x))
+          ((eq major-mode 'lisp-mode)
+           (lispy--tag-name-lisp x))
+          (t (throw 'break nil)))
         (nth 1 lispy-helm-columns))
        (make-string (- (nth 2 lispy-helm-columns)
                        (nth 1 lispy-helm-columns))
@@ -1813,8 +1875,8 @@ For example, a `setq' statement is amended with variable name that it uses."
       (cdr x)))
    x))
 
-(defun lispy--tag-name-overlay (x)
-  "Return tag info for X based on its overlay."
+(defun lispy--tag-name-overlay (x regex)
+  "Return tag info for X based on its overlay and REGEX."
   (let ((overlay (nth 4 x)))
     (unless (overlayp overlay)
       (throw 'break nil))
@@ -1824,7 +1886,7 @@ For example, a `setq' statement is amended with variable name that it uses."
      (with-current-buffer (overlay-buffer overlay)
        (save-excursion
          (goto-char (overlay-start overlay))
-         (unless (re-search-forward lispy-tag-regexp nil t)
+         (unless (re-search-forward regex nil t)
            (throw 'break nil))
          (let ((tag-head (match-string 0))
                beg arity)
@@ -2042,7 +2104,8 @@ ACTION is called for the selected candidate."
       (push-mark)
       (semantic-go-to-tag tag)
       (when (eq major-mode 'clojure-mode)
-        (lispy-backward 1))
+        (ignore-errors (up-list 1))
+        (backward-list 1))
       (switch-to-buffer (current-buffer)))))
 
 (defun lispy--recenter-bounds (bnd)
