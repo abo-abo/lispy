@@ -1909,7 +1909,8 @@ For example, a `setq' statement is amended with variable name that it uses."
 (defun lispy--fetch-tags ()
   "Get a list of tags for `default-directory'."
   (let* ((path default-directory)
-         (db (semanticdb-directory-loaded-p path)))
+         (db (semanticdb-directory-loaded-p
+              (expand-file-name path))))
     (if (null db)
         (semantic-fetch-tags)
       (setq db (cl-remove-if-not (lambda(x) (eq (aref x 4) major-mode)) (aref db 6)))
