@@ -1936,9 +1936,10 @@ For example, a `setq' statement is amended with variable name that it uses."
   "Jump to symbol selected from (FUN)."
   (require 'semantic/bovine/el)
   (semantic-mode 1)
-  (lispy--select-candidate
-   (mapcar #'lispy--tag-name (funcall fun))
-   #'lispy--action-jump))
+  (let (helm-candidate-number-limit)
+    (lispy--select-candidate
+     (mapcar #'lispy--tag-name (funcall fun))
+     #'lispy--action-jump)))
 
 ;; ——— Utilities: slurping and barfing —————————————————————————————————————————
 (defun lispy--slurp-forward ()
