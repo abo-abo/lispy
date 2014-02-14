@@ -4,7 +4,7 @@
 
 ;; Author: Oleh Krehel <ohwoeowho@gmail.com>
 ;; URL: https://github.com/abo-abo/lispy
-;; Version: 0.7
+;; Version: 0.8
 ;; Package-Requires: ((helm "1.5.3") (ace-jump-mode "2.0") (s "1.4.0") (noflet "0.0.10"))
 ;; Keywords: lisp
 
@@ -109,6 +109,7 @@
 ;; | J   | `outline-next-visible-heading'     |
 ;; | K   | `outline-previous-visible-heading' |
 ;; | g   | `lispy-goto'                       |
+;; | G   | `lispy-goto-local'                 |
 ;; | q   | `lispy-ace-paren'                  |
 ;; | h   | `lispy-ace-symbol'                 |
 ;; | Q   | `lispy-ace-char'                   |
@@ -141,6 +142,7 @@
 (require 'edebug)
 (require 'outline)
 (require 'semantic)
+(require 'semantic/db)
 (require 'ace-jump-mode)
 (require 'newcomment)
 (require 'lispy-inline)
@@ -1352,13 +1354,14 @@ Quote newlines if ARG isn't 1."
       (doit))))
 
 (defun lispy-goto ()
-  "Jump to symbol entry point."
+  "Jump to symbol within files in current directory."
   (interactive)
-  (require 'semantic/bovine/el)
-  (semantic-mode 1)
-  (lispy--select-candidate
-   (mapcar #'lispy--tag-name (semantic-fetch-tags))
-   #'lispy--action-jump))
+  (lispy--goto 'lispy--fetch-tags))
+
+(defun lispy-goto-local ()
+  "Jump to symbol within current file."
+  (interactive)
+  (lispy--goto 'semantic-fetch-tags))
 
 (declare-function cider-jump-to-def "ext:cider")
 (declare-function lispy--clojure-resolve "ext:lispy")
@@ -1730,7 +1733,11 @@ Return nil on failure, t otherwise."
     ("ert-deftest" . 1)
     ("declare-function" . 1)
     ("defalias" . 2)
-    ("make-variable-buffer-local" . 1))
+    ("make-variable-buffer-local" . 1)
+    ("define-minor-mode" . 1)
+    ("make-obsolete" . 2)
+    ("put" . 3)
+    ("overlay-put" . 3))
   "Alist of tag arities for `lispy--tag-name-overlay'.")
 
 (defvar lispy-tag-regexp
@@ -1741,34 +1748,49 @@ Return nil on failure, t otherwise."
    "\\_>")
   "Regexp for tags that we'd like to know more about.")
 
+(defcustom lispy-helm-columns '(1 60 70 80)
+  "Start and end positions of columns when completing with `helm'."
+  :group 'lispy)
+
 (defun lispy--tag-name (x)
   "Given a semantic tag X, amend it with additional info.
 For example, a `setq' statement is amended with variable name that it uses."
   (or
    (catch 'break
-     (unless (memq major-mode '(emacs-lisp-mode lisp-interaction-mode))
+     (unless (memq major-mode '(emacs-lisp-mode lisp-interaction-mode
+                                clojure-mode scheme-mode lisp-mode))
        (throw 'break nil))
      (cons
-      (cond
-        ((not (stringp (car x)))
-         (throw 'break nil))
-        ((eq (cadr x) 'include)
-         (concat (propertize "require" 'face 'font-lock-keyword-face)
-                 " " (car x)))
-        ((eq (cadr x) 'package)
-         (concat (propertize "provide" 'face 'font-lock-keyword-face)
-                 " " (car x)))
-        ((eq (cadr x) 'customgroup)
-         (concat (propertize "defgroup" 'face 'font-lock-keyword-face)
-                 " " (car x)))
-        ((eq (cadr x) 'function)
-         (propertize (car x) 'face 'font-lock-function-name-face))
-        ((eq (cadr x) 'variable)
-         (concat (propertize "defvar" 'face 'font-lock-keyword-face)
-                 " " (car x)))
-        ((string-match lispy-tag-regexp (car x))
-         (lispy--tag-name-overlay x))
-        (t (throw 'break nil)))
+      (concat
+       (lispy--pad-string
+        (cond
+          ((not (stringp (car x)))
+           (throw 'break nil))
+          ((eq (cadr x) 'include)
+           (concat (propertize "require" 'face 'font-lock-keyword-face)
+                   " " (car x)))
+          ((eq (cadr x) 'package)
+           (concat (propertize "provide" 'face 'font-lock-keyword-face)
+                   " " (car x)))
+          ((eq (cadr x) 'customgroup)
+           (concat (propertize "defgroup" 'face 'font-lock-keyword-face)
+                   " " (car x)))
+          ((eq (cadr x) 'function)
+           (propertize (car x) 'face 'font-lock-function-name-face))
+          ((eq (cadr x) 'variable)
+           (concat (propertize "defvar" 'face 'font-lock-keyword-face)
+                   " " (car x)))
+          ((string-match lispy-tag-regexp (car x))
+           (lispy--tag-name-overlay x))
+          (t (car x)))
+        (nth 1 lispy-helm-columns))
+       (make-string (- (nth 2 lispy-helm-columns)
+                       (nth 1 lispy-helm-columns))
+                    ?\ )
+       (let ((overlay (nth 4 x)))
+         (if (overlayp overlay)
+             (file-name-nondirectory (buffer-file-name (overlay-buffer overlay)))
+           (cdr overlay))))
       (cdr x)))
    x))
 
@@ -1792,12 +1814,50 @@ For example, a `setq' statement is amended with variable name that it uses."
                (progn
                  (setq beg (point))
                  (forward-sexp arity)
-                 (let ((str (replace-regexp-in-string
-                             "\n" " " (buffer-substring beg (point)))))
-                   (if (> (length str) 60)
-                       (concat (substring str 0 57) "...")
-                     str)))
+                 (replace-regexp-in-string
+                  "\n" " " (buffer-substring beg (point))))
              (lispy--string-dwim))))))))
+
+(defun lispy--pad-string (str n)
+  "Make STR at most length N."
+  (setq str (replace-regexp-in-string "\t" "    " str))
+  (if (< (length str) (- n 3))
+      (concat str (make-string (- n (length str)) ?\ ))
+    (concat (substring str 0 (- n 3)) "...")))
+
+
+(defun lispy--fetch-tags ()
+  "Get a list of tags for `default-directory'."
+  (let* ((path default-directory)
+         (db (semanticdb-directory-loaded-p path)))
+    (if (null db)
+        (semantic-fetch-tags)
+      (setq db (cl-remove-if-not (lambda(x) (eq (aref x 4) major-mode)) (aref db 6)))
+      (apply #'append
+             (mapcar
+              (lambda(x)
+                (cl-remove-if-not
+                 (lambda(s) (stringp (car s)))
+                 (let ((buffer (aref x 2)))
+                   (mapcar (lambda(y)
+                             (if (overlayp (nth 4 y))
+                                 y
+                               (let ((z (cl-copy-list y))
+                                     (bnd (nth 4 y)))
+                                 (setcar (nthcdr 4 z)
+                                         (cons
+                                          bnd
+                                          buffer))
+                                 z)))
+                           (aref x 5))))) db)))))
+
+(defun lispy--goto (fun)
+  "Jump to symbol selected from (FUN)."
+  (require 'semantic/bovine/el)
+  (semantic-mode 1)
+  (lispy--select-candidate
+   (mapcar #'lispy--tag-name (funcall fun))
+   #'lispy--action-jump))
 
 ;; ——— Utilities: slurping and barfing —————————————————————————————————————————
 (defun lispy--slurp-forward ()
@@ -2226,6 +2286,7 @@ list."
   ;; ——— locals: dialect-specific —————————————
   (lispy-define-key map "e" 'lispy-eval)
   (lispy-define-key map "E" 'lispy-eval-and-insert)
+  (lispy-define-key map "G" 'lispy-goto-local)
   (lispy-define-key map "g" 'lispy-goto)
   (lispy-define-key map "F" 'lispy-follow)
   (lispy-define-key map "D" 'lispy-describe)

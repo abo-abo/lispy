@@ -124,6 +124,7 @@ Also, IDE-like commands ([details here](#ide-like-features)):
     | E   | `lispy-eval-and-insert`            |
     | D   | `lispy-describe`                   |
     | g   | `lispy-goto`                       |
+    | G   | `lispy-goto-local`                 |
     | F   | `lispy-follow`                     |
     |-----+------------------------------------|
 
@@ -243,11 +244,15 @@ searches for it in all loaded namespaces.
 
 ### `lispy-goto`
 Bound to `g` while in special. Use `helm` to select a top-level symbol
-to jump to in current file.
+to jump to in current directory.
+
 
 Works out of the box for Elisp.
 [clojure-semantic](https://github.com/kototama/clojure-semantic)
 is required for Clojure.
+
+## `lispy-goto-local`
+Bound to `G` while in special. Like `lispy-goto`, but works only on current file.
 
 # Screencasts
 
