@@ -1332,7 +1332,8 @@ Quote newlines if ARG isn't 1."
   (save-excursion
     (unless (or (looking-back lispy-right) (region-active-p))
       (lispy-forward 1))
-    (message (lispy--eval (lispy--string-dwim)))))
+    (message
+     (replace-regexp-in-string "%" "%%" (lispy--eval (lispy--string-dwim))))))
 
 (defun lispy-eval-and-insert ()
   "Eval last sexp and insert the result."
