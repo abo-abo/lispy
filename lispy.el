@@ -1883,7 +1883,10 @@ Unless inside string or comment, or `looking-back' at CONTEXT."
 
 (defun lispy--reindent (&optional arg)
   "Reindent current sexp.  Up-list ARG times before that."
-  (cond (arg
+  (cond ((region-active-p)
+         (indent-region (region-beginning)
+                        (region-end)))
+        (arg
          (lispy-save-excursion
           (lispy--out-forward arg)
           (backward-list)
