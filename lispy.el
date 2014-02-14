@@ -1926,7 +1926,7 @@ ACTION is called for the selected candidate."
   (require 'helm)
   (require 'helm-help)
   ;; allows restriction with space
-  (require 'helm-mode)
+  (require 'helm-match-plugin)
   (helm :sources
         `((name . "Candidates")
           (candidates . ,(mapcar
