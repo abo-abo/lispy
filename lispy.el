@@ -1159,23 +1159,25 @@ The outcome when ahead of sexps is different from when behind."
 (defun lispy-clone (arg)
   "Clone sexp ARG times."
   (interactive "p")
-  (let ((str (lispy--string-dwim)))
-    (cond ((region-active-p)
-           (let ((str (lispy--string-dwim)))
-             (let (deactivate-mark)
-               (save-excursion
-                 (newline-and-indent)
-                 (insert str)))))
-          ((looking-at lispy-left)
-           (save-excursion
+  (if (and (featurep 'edebug) edebug-active)
+      (edebug-continue-mode)
+    (let ((str (lispy--string-dwim)))
+      (cond ((region-active-p)
+             (let ((str (lispy--string-dwim)))
+               (let (deactivate-mark)
+                 (save-excursion
+                   (newline-and-indent)
+                   (insert str)))))
+            ((looking-at lispy-left)
+             (save-excursion
+               (dotimes-protect arg
+                 (insert str)
+                 (newline-and-indent))))
+            ((looking-back lispy-right)
              (dotimes-protect arg
-               (insert str)
-               (newline-and-indent))))
-          ((looking-back lispy-right)
-           (dotimes-protect arg
-             (newline-and-indent)
-             (insert str)))
-          (t (error "Unexpected")))))
+               (newline-and-indent)
+               (insert str)))
+            (t (error "Unexpected"))))))
 
 (defun lispy-oneline ()
   "Squeeze current sexp into one line.
