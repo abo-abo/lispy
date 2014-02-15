@@ -582,7 +582,8 @@ Otherwise (`backward-delete-char-untabify' ARG)."
                       (looking-back "\\\\\\\\)"))
                   (let ((pt (point)))
                     (goto-char (match-beginning 0))
-                    (unless (lispy--delete-pair-in-sting "\\\\\\\\(" "\\\\\\\\)")
+                    (unless (lispy--delete-pair-in-sting
+                             "\\\\\\\\(" "\\\\\\\\)")
                       (goto-char pt)
                       (backward-delete-char-untabify arg))))
                  (t (backward-delete-char-untabify arg))))
@@ -1916,13 +1917,16 @@ For example, a `setq' statement is amended with variable name that it uses."
          (db (semanticdb-directory-loaded-p
               (expand-file-name path))))
     (unless (and db
-                 (lexical-let ((db-files (mapcar (lambda(x) (aref x 2)) (aref db 6))))
+                 (lexical-let ((db-files
+                                (mapcar (lambda(x) (aref x 2)) (aref db 6))))
                    (cl-every (lambda(x) (member x db-files))
                              (lispy--file-list))))
       (lispy-build-semanticdb)
       (setq db (semanticdb-directory-loaded-p
                 (expand-file-name path))))
-    (setq db (cl-remove-if-not (lambda(x) (eq (aref x 4) major-mode)) (aref db 6)))
+    (setq db (cl-remove-if-not
+              (lambda(x) (eq (aref x 4) major-mode))
+              (aref db 6)))
     (apply #'append
            (mapcar
             (lambda(x)
