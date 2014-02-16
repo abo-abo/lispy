@@ -1734,6 +1734,12 @@ Return nil on failure, t otherwise."
            tags)
        (set-buffer buffer)
        (setq tags (ignore-errors (semantic-fetch-tags)))
+       ;; modifies tags
+       (when (eq major-mode 'lisp-mode)
+         (mapc (lambda(x) (lispy--modify-tag
+                      x
+                      lispy-tag-regexp-cl
+                      lispy-tag-arity-alist-cl))  tags))
        ;; (kill-buffer buffer)
        ))
    (lispy--file-list))
@@ -1795,25 +1801,6 @@ Return nil on failure, t otherwise."
      (lispy--tag-name-overlay x lispy-tag-regexp))
     (t (car x))))
 
-(defvar lispy-tag-arity-alist-cl
-  '(("setq" . 2)
-    ("load" . 1)
-    ("defpackage" . 1)
-    ("cl:defpackage" . 1)
-    ("defconstant" . 1)
-    ("defparameter" . 1)
-    ("define-condition" . 1)
-    ("definterface" . 1))
-  "Alist of tag arities for `lispy--tag-name-overlay'.")
-
-(defvar lispy-tag-regexp-cl
-  (concat
-   "\\_<"
-   (regexp-opt
-    (mapcar #'car lispy-tag-arity-alist-cl))
-   "\\_>")
-  "Regexp for tags that we'd like to know more about.")
-
 (defun lispy--propertize-tag (kind x &optional face)
   "Concatenate KIND and the name of tag X.
 KIND is fontified with `font-lock-keyword-face'.
@@ -1828,6 +1815,63 @@ FACE can be :keyword, :function or :type.  It defaults to 'default."
                  (:function 'font-lock-function-name-face)
                  (t 'default)))))
 
+(defvar lispy-tag-arity-alist-cl
+  '((defclass . 1)
+    (defconstant . 1)
+    (defgeneric . 1)
+    (define-condition . 1)
+    (define-symbol-macro . 1)
+    (defmethod . 1)
+    (defpackage . 1)
+    (defparameter . 1)
+    (defsetf . 1)
+    (defstruct . 1)
+    (deftype . 1)
+    (in-package . 1)
+    (load . 1)
+    (setq . 2)
+    ;; SLIME specific
+    (definterface . 1)
+    (defimplementation . 1)
+    (define-caller-pattern . 1)
+    (define-variable-pattern . 1)
+    (define-pattern-substitution . 1)
+    (defslimefun . 1))
+  "Alist of tag arities for Common Lisp.")
+
+(defvar lispy-tag-regexp-cl
+  (concat
+   "^([ \t\n]*\\_<\\(?:cl:\\)?"
+   "\\("
+   (regexp-opt
+    (mapcar (lambda(x) (symbol-name (car x))) lispy-tag-arity-alist-cl))
+   "\\)"
+   "\\_>")
+  "Regexp for tags that we'd like to know more about.")
+
+(defun lispy--modify-tag (x regex arity-alist)
+  "Re-parse X and modify it accordingly.
+REGEX selects the symbol is 1st place of sexp.
+ARITY-ALIST combines strings that REGEX matches and their arities."
+  (let ((overlay (nth 4 x)))
+    (when (overlayp overlay)
+      (with-current-buffer (overlay-buffer overlay)
+        (save-excursion
+          (goto-char (overlay-start overlay))
+          (when (looking-at regex)
+            (goto-char (match-end 0))
+            (let ((tag-head (match-string 1))
+                  beg arity str)
+              (skip-chars-forward " \n")
+              (when (setq arity (cdr (assoc (intern tag-head) arity-alist)))
+                (setq beg (point))
+                (forward-sexp arity)
+                (setq str (replace-regexp-in-string
+                           "\n" " " (buffer-substring-no-properties beg (point))))
+                (setcar x str)
+                (setcar (nthcdr 1 x) (intern tag-head)))))))))
+  x)
+
 (defun lispy--tag-name-lisp (x)
   "Build tag name for Common Lisp tag X."
   (cond
@@ -1839,10 +1883,8 @@ FACE can be :keyword, :function or :type.  It defaults to 'default."
      (lispy--propertize-tag "defstruct" x :type))
     ((eq (cadr x) 'variable)
      (lispy--propertize-tag "defvar" x))
-    ((eq (cadr x) 'defparameter)
-     (lispy--propertize-tag "defparameter" x))
-    ((string-match lispy-tag-regexp-cl (car x))
-     (lispy--tag-name-overlay x lispy-tag-regexp-cl))
+    ((assoc (cadr x) lispy-tag-arity-alist-cl)
+     (lispy--propertize-tag (symbol-name (cadr x)) x))
     (t (car x))))
 
 (defun lispy--tag-name-clojure (x)
