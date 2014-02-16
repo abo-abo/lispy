@@ -1782,19 +1782,15 @@ Return nil on failure, t otherwise."
     ((not (stringp (car x)))
      (throw 'break nil))
     ((eq (cadr x) 'include)
-     (concat (propertize "require" 'face 'font-lock-keyword-face)
-             " " (car x)))
+     (lispy--propertize-tag "require" x))
     ((eq (cadr x) 'package)
-     (concat (propertize "provide" 'face 'font-lock-keyword-face)
-             " " (car x)))
+     (lispy--propertize-tag "provide" x))
     ((eq (cadr x) 'customgroup)
-     (concat (propertize "defgroup" 'face 'font-lock-keyword-face)
-             " " (car x)))
+     (lispy--propertize-tag "defgroup" x))
     ((eq (cadr x) 'function)
-     (propertize (car x) 'face 'font-lock-function-name-face))
+     (lispy--propertize-tag nil x :function))
     ((eq (cadr x) 'variable)
-     (concat (propertize "defvar" 'face 'font-lock-keyword-face)
-             " " (car x)))
+     (lispy--propertize-tag "defvar" x))
     ((string-match lispy-tag-regexp (car x))
      (lispy--tag-name-overlay x lispy-tag-regexp))
     (t (car x))))
@@ -1818,20 +1814,33 @@ Return nil on failure, t otherwise."
    "\\_>")
   "Regexp for tags that we'd like to know more about.")
 
+(defun lispy--propertize-tag (kind x &optional face)
+  "Concatenate KIND and the name of tag X.
+KIND is fontified with `font-lock-keyword-face'.
+The name of X fontified according to FACE.
+FACE can be :keyword, :function or :type.  It defaults to 'default."
+  (concat
+   (if kind (concat (propertize kind 'face 'font-lock-keyword-face) " ") "")
+   (propertize (car x) 'face
+               (cl-case face
+                 (:keyword 'font-lock-keyword-face)
+                 (:type 'font-lock-type-face)
+                 (:function 'font-lock-function-name-face)
+                 (t 'default)))))
+
 (defun lispy--tag-name-lisp (x)
   "Build tag name for Common Lisp tag X."
   (cond
     ((not (stringp (car x)))
-     (throw 'break nil))
+     "tag with no name")
     ((eq (cadr x) 'function)
-     (propertize (car x) 'face 'font-lock-function-name-face))
+     (lispy--propertize-tag nil x :function))
     ((eq (cadr x) 'type)
-     (concat (propertize "defstruct" 'face 'font-lock-keyword-face)
-             " "
-             (propertize (car x) 'face 'font-lock-type-face)))
+     (lispy--propertize-tag "defstruct" x :type))
     ((eq (cadr x) 'variable)
-     (concat (propertize "defvar" 'face 'font-lock-keyword-face)
-             " " (car x)))
+     (lispy--propertize-tag "defvar" x))
+    ((eq (cadr x) 'defparameter)
+     (lispy--propertize-tag "defparameter" x))
     ((string-match lispy-tag-regexp-cl (car x))
      (lispy--tag-name-overlay x lispy-tag-regexp-cl))
     (t (car x))))
@@ -1841,13 +1850,11 @@ Return nil on failure, t otherwise."
   (cond
     ((not (stringp (car x))))
     ((eq (cadr x) 'package)
-     (concat (propertize "ns" 'face 'font-lock-keyword-face)
-             " " (car x)))
+     (lispy--propertize-tag "ns" x))
     ((eq (cadr x) 'function)
-     (propertize (car x) 'face 'font-lock-function-name-face))
+     (lispy--propertize-tag nil x :function))
     ((eq (cadr x) 'variable)
-     (concat (propertize "def" 'face 'font-lock-keyword-face)
-             " " (car x)))
+     (lispy--propertize-tag "def" x))
     (t (car x))))
 
 (defun lispy--tag-name (x)
