@@ -1409,7 +1409,12 @@ Quote newlines if ARG isn't 1."
                   (error "Can't jump to Java variables"))
                  (t
                   (error "Could't resolve '%s" symbol)))
-           (lispy--back-to-paren)))))
+           (lispy--back-to-paren))
+          ((eq major-mode 'lisp-mode)
+           (require 'slime)
+           (push-mark)
+           (deactivate-mark)
+           (slime-edit-definition symbol)))))
 
 (defun lispy-describe ()
   "Display documentation for `lispy--current-function'."
