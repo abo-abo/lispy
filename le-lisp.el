@@ -36,7 +36,7 @@
   (let ((args
          (list
           (mapconcat
-           #'symbol-name
+           #'prin1-to-string
            (read (lispy--eval-lisp
                   (format "(swank-backend:arglist #'%s)" symbol)))
            " "))))
