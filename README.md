@@ -113,6 +113,7 @@ Among other cool commands are:
     | C-e   | `lispy-move-end-of-line`           |
     | t     | `lispy-teleport`                   |
     | v     | `lispy-view`                       |
+    | n     | `lispy-new-copy`                   |
     |-------+------------------------------------|
 
 Also, IDE-like commands ([details here](#ide-like-features)):
@@ -189,7 +190,11 @@ To extend the region, use a combination of
 - `lispy-barf` "<"  
   Move region inside previous sexp ("l" will reverse this).
 - `lispy-convolute` "C"__
-  Exchange the order of application of two sexps that contain point.
+Exchange the order of application of two sexps that contain point.
+- `lispy-new-copy` "n"
+Copy region as kill without deactivating the region.
+Useful to search for currently marked symbol with "n g C-y".
+
 
 ## IDE-like features
 These features are specific to the Lisp dialect used.
