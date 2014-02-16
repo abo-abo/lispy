@@ -1371,6 +1371,7 @@ Quote newlines if ARG isn't 1."
 (defun lispy-goto ()
   "Jump to symbol within files in current directory."
   (interactive)
+  (deactivate-mark)
   (lispy--goto 'lispy--fetch-tags))
 
 (defun lispy-goto-local ()
