@@ -119,6 +119,7 @@
 ;; | C-1 | `lispy-describe-inline'            |
 ;; | C-2 | `lispy-arglist-inline'             |
 ;; | v   | `lispy-view'                       |
+;; | n   | `lispy-new-copy'                   |
 ;; |-----+------------------------------------|
 ;;
 ;; Most special commands will leave the point special after they're
@@ -699,6 +700,17 @@ With ARG not nil, cut instead of copying."
                       (lispy--bounds-string)
                       (lispy--bounds-list))))
       (kill-region (car bounds) (cdr bounds)))))
+
+(defun lispy-new-copy ()
+  "Copy marked region or sexp to kill ring."
+  (interactive)
+  (cond ((lispy--in-string-or-comment-p)
+         (self-insert-command 1))
+        ((or (region-active-p)
+             (looking-at lispy-left)
+             (looking-back lispy-right))
+         (kill-new (lispy--string-dwim)))
+        (t (error "Has to be called from special"))))
 
 ;; ——— Globals: pairs ——————————————————————————————————————————————————————————
 (defun lispy-pair (left right space-unless)
@@ -2392,6 +2404,7 @@ list."
   (define-key map (kbd "C-c p") 'lispy-pop-copy)
   (define-key map (kbd "C-,") 'lispy-kill-at-point)
   (define-key map (kbd "C-M-,") 'lispy-mark)
+  (define-key map (kbd "n") 'lispy-new-copy)
   ;; ——— globals: pairs ———————————————————————
   (define-key map (kbd "(") 'lispy-parens)
   (define-key map (kbd "{") 'lispy-braces)
