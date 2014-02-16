@@ -704,13 +704,11 @@ With ARG not nil, cut instead of copying."
 (defun lispy-new-copy ()
   "Copy marked region or sexp to kill ring."
   (interactive)
-  (cond ((lispy--in-string-or-comment-p)
-         (self-insert-command 1))
-        ((or (region-active-p)
-             (looking-at lispy-left)
-             (looking-back lispy-right))
-         (kill-new (lispy--string-dwim)))
-        (t (error "Has to be called from special"))))
+  (if (or (region-active-p)
+          (looking-at lispy-left)
+          (looking-back lispy-right))
+      (kill-new (lispy--string-dwim))
+    (self-insert-command 1)))
 
 ;; ——— Globals: pairs ——————————————————————————————————————————————————————————
 (defun lispy-pair (left right space-unless)
