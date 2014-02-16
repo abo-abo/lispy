@@ -1821,7 +1821,7 @@ FACE can be :keyword, :function or :type.  It defaults to 'default."
     (defgeneric . 1)
     (define-condition . 1)
     (define-symbol-macro . 1)
-    (defmethod . 1)
+    (defmethod . 2)
     (defpackage . 1)
     (defparameter . 1)
     (defsetf . 1)
