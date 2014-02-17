@@ -2092,7 +2092,7 @@ For example, a `setq' statement is amended with variable name that it uses."
 ;; ——— Utilities: rest —————————————————————————————————————————————————————————
 (defun lispy--indent-for-tab ()
   "Call `indent-for-tab-command'."
-  (let (completion-at-point-functions)
+  (let ((tab-always-indent t))
     (indent-for-tab-command)))
 
 (defun lispy--remove-gaps ()
