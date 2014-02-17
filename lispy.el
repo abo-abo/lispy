@@ -1769,11 +1769,10 @@ Return nil on failure, t otherwise."
        (set-buffer buffer)
        (setq tags (ignore-errors (semantic-fetch-tags)))
        ;; modifies tags
-       (when (eq major-mode 'lisp-mode)
-         (mapc (lambda(x) (lispy--modify-tag
-                      x
-                      lispy-tag-regexp-cl
-                      lispy-tag-arity-alist-cl))  tags))
+       (when (memq major-mode '(lisp-mode emacs-lisp-mode))
+         (lexical-let ((arity (cdr (assoc major-mode lispy-tag-arity)))
+                       (tag-regex (lispy--tag-regexp)))
+           (mapc (lambda(x) (lispy--modify-tag x tag-regex arity))  tags)))
        ;; (kill-buffer buffer)
        ))
    (lispy--file-list))
@@ -1786,54 +1785,78 @@ Return nil on failure, t otherwise."
      (lambda(x) (string-match "\\(?:^\\.?#\\|~$\\)" x))
      (file-expand-wildcards (format "*.%s" ext)))))
 
-(defvar lispy-tag-arity-alist
-  '(("setq" . 2)
-    ("setq-default" . 2)
-    ("add-to-list" . 2)
-    ("add-hook" . 2)
-    ("load" . 1)
-    ("load-file" . 1)
-    ("define-key" . 2)
-    ("ert-deftest" . 1)
-    ("declare-function" . 1)
-    ("defalias" . 2)
-    ("make-variable-buffer-local" . 1)
-    ("define-minor-mode" . 1)
-    ("make-obsolete" . 2)
-    ("put" . 3)
-    ("overlay-put" . 3))
-  "Alist of tag arities for `lispy--tag-name-overlay'.")
+(defvar lispy-tag-arity
+  '((lisp-mode .
+     ((defclass . 1)
+      (defconstant . 1)
+      (defgeneric . 1)
+      (define-condition . 1)
+      (define-symbol-macro . 1)
+      (defmethod . 2)
+      (defpackage . 1)
+      (defparameter . 1)
+      (defsetf . 1)
+      (defstruct . 1)
+      (deftype . 1)
+      (in-package . 1)
+      (load . 1)
+      (setq . 2)
+      ;; SLIME specific
+      (definterface . 1)
+      (defimplementation . 1)
+      (define-caller-pattern . 1)
+      (define-variable-pattern . 1)
+      (define-pattern-substitution . 1)
+      (defslimefun . 1)))
+    (emacs-lisp-mode .
+     ((setq . 2)
+      (setq-default . 2)
+      (add-to-list . 2)
+      (add-hook . 2)
+      (load . 1)
+      (load-file . 1)
+      (define-key . 3)
+      (ert-deftest . 1)
+      (declare-function . 1)
+      (defalias . 2)
+      (make-variable-buffer-local . 1)
+      (define-minor-mode . 1)
+      (make-obsolete . 2)
+      (put . 3)
+      (overlay-put . 3)
+      (make-obsolete-variable . 1)
+      (define-obsolete-function-alias . 1)
+      (define-obsolete-variable-alias . 1)
+      ;; org-mode specific
+      (org-defkey . 3))))
+  "Alist of tag arities for supported modes.")
 
-(defvar lispy-tag-regexp
-  (concat
-   "\\_<"
-   (regexp-opt
-    (mapcar #'car lispy-tag-arity-alist))
-   "\\_>")
-  "Regexp for tags that we'd like to know more about.")
+(defun lispy--tag-regexp (&optional mode)
+  "Return tag regexp based on MODE."
+  (setq mode (or mode major-mode))
+  (cond ((eq mode 'lisp-mode)
+         (concat
+          "^([ \t\n]*\\_<\\(?:cl:\\)?"
+          "\\("
+          (regexp-opt
+           (mapcar (lambda(x) (symbol-name (car x)))
+                   (cdr (assoc mode lispy-tag-arity))))
+          "\\)"
+          "\\_>"))
+        ((memq major-mode '(emacs-lisp-mode lisp-interaction-mode))
+         (concat
+          "^([ \t\n]*\\_<"
+          "\\("
+          (regexp-opt
+           (mapcar (lambda(x) (symbol-name (car x)))
+                   (cdr (assoc mode lispy-tag-arity))))
+          "\\)"
+          "\\_>"))
+        (t (error "%s isn't supported" mode))))
 
 (defcustom lispy-helm-columns '(1 60 70 80)
   "Start and end positions of columns when completing with `helm'."
   :group 'lispy)
-
-(defun lispy--tag-name-elisp (x)
-  "Build tag name for Elisp tag X."
-  (cond
-    ((not (stringp (car x)))
-     (throw 'break nil))
-    ((eq (cadr x) 'include)
-     (lispy--propertize-tag "require" x))
-    ((eq (cadr x) 'package)
-     (lispy--propertize-tag "provide" x))
-    ((eq (cadr x) 'customgroup)
-     (lispy--propertize-tag "defgroup" x))
-    ((eq (cadr x) 'function)
-     (lispy--propertize-tag nil x :function))
-    ((eq (cadr x) 'variable)
-     (lispy--propertize-tag "defvar" x))
-    ((string-match lispy-tag-regexp (car x))
-     (lispy--tag-name-overlay x lispy-tag-regexp))
-    (t (car x))))
 
 (defun lispy--propertize-tag (kind x &optional face)
   "Concatenate KIND and the name of tag X.
@@ -1848,40 +1871,6 @@ FACE can be :keyword, :function or :type.  It defaults to 'default."
                  (:type 'font-lock-type-face)
                  (:function 'font-lock-function-name-face)
                  (t 'default)))))
-
-(defvar lispy-tag-arity-alist-cl
-  '((defclass . 1)
-    (defconstant . 1)
-    (defgeneric . 1)
-    (define-condition . 1)
-    (define-symbol-macro . 1)
-    (defmethod . 2)
-    (defpackage . 1)
-    (defparameter . 1)
-    (defsetf . 1)
-    (defstruct . 1)
-    (deftype . 1)
-    (in-package . 1)
-    (load . 1)
-    (setq . 2)
-    ;; SLIME specific
-    (definterface . 1)
-    (defimplementation . 1)
-    (define-caller-pattern . 1)
-    (define-variable-pattern . 1)
-    (define-pattern-substitution . 1)
-    (defslimefun . 1))
-  "Alist of tag arities for Common Lisp.")
-
-(defvar lispy-tag-regexp-cl
-  (concat
-   "^([ \t\n]*\\_<\\(?:cl:\\)?"
-   "\\("
-   (regexp-opt
-    (mapcar (lambda(x) (symbol-name (car x))) lispy-tag-arity-alist-cl))
-   "\\)"
-   "\\_>")
-  "Regexp for tags that we'd like to know more about.")
 
 (defun lispy--modify-tag (x regex arity-alist)
   "Re-parse X and modify it accordingly.
@@ -1917,7 +1906,26 @@ ARITY-ALIST combines strings that REGEX matches and their arities."
      (lispy--propertize-tag "defstruct" x :type))
     ((eq (cadr x) 'variable)
      (lispy--propertize-tag "defvar" x))
-    ((assoc (cadr x) lispy-tag-arity-alist-cl)
+    ((assoc (cadr x) (cdr (assoc 'lisp-mode lispy-tag-arity)))
+     (lispy--propertize-tag (symbol-name (cadr x)) x))
+    (t (car x))))
+
+(defun lispy--tag-name-elisp (x)
+  "Build tag name for Elisp tag X."
+  (cond
+    ((not (stringp (car x)))
+     "tag with no name")
+    ((eq (cadr x) 'include)
+     (lispy--propertize-tag "require" x))
+    ((eq (cadr x) 'package)
+     (lispy--propertize-tag "provide" x))
+    ((eq (cadr x) 'customgroup)
+     (lispy--propertize-tag "defgroup" x))
+    ((eq (cadr x) 'function)
+     (lispy--propertize-tag nil x :function))
+    ((eq (cadr x) 'variable)
+     (lispy--propertize-tag "defvar" x))
+    ((assoc (cadr x) (cdr (assoc 'emacs-lisp-mode lispy-tag-arity)))
      (lispy--propertize-tag (symbol-name (cadr x)) x))
     (t (car x))))
 
@@ -1962,30 +1970,6 @@ For example, a `setq' statement is amended with variable name that it uses."
            (cdr overlay))))
       (cdr x)))
    x))
-
-(defun lispy--tag-name-overlay (x regex)
-  "Return tag info for X based on its overlay and REGEX."
-  (let ((overlay (nth 4 x)))
-    (unless (overlayp overlay)
-      (throw 'break nil))
-    (format
-     "%s %s"
-     (car x)
-     (with-current-buffer (overlay-buffer overlay)
-       (save-excursion
-         (goto-char (overlay-start overlay))
-         (unless (re-search-forward regex nil t)
-           (throw 'break nil))
-         (let ((tag-head (match-string 0))
-               beg arity)
-           (skip-chars-forward " \n")
-           (if (setq arity (cdr (assoc tag-head lispy-tag-arity-alist)))
-               (progn
-                 (setq beg (point))
-                 (forward-sexp arity)
-                 (replace-regexp-in-string
-                  "\n" " " (buffer-substring beg (point))))
-             (lispy--string-dwim))))))))
 
 (defun lispy--pad-string (str n)
   "Make STR at most length N."
