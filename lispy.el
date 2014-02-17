@@ -1835,9 +1835,10 @@ Return nil on failure, t otherwise."
       (make-obsolete-variable . 1)
       (define-obsolete-function-alias . 1)
       (define-obsolete-variable-alias . 1)
+      (eval-after-load . 1)
+      (global-set-key . 2)
       ;; org-mode specific
-      (org-defkey . 3)
-      (eval-after-load . 1))))
+      (org-defkey . 3))))
   "Alist of tag arities for supported modes.")
 
 (defun lispy--tag-regexp (&optional mode)
