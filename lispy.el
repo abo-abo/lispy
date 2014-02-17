@@ -164,6 +164,12 @@
   "If t, don't insert a space before parens/brackets/braces/colons.")
 (make-variable-buffer-local 'lispy-no-space)
 
+(defcustom lispy-lax-eval t
+  "If t, fix \"unbound variable\" error by setting the unbound variable to nil.
+This is useful when hacking functions with &optional arguments.
+So evaling (setq mode (or mode major-mode)) will set mode to nil on
+the first eval, and to major-mode on the second eval.")
+
 (defvar lispy-mode-map (make-sparse-keymap))
 
 ;;;###autoload
@@ -1734,8 +1740,23 @@ Return nil on failure, t otherwise."
 
 (defun lispy--eval-elisp (str)
   "Eval STR as Elisp code."
-  (prin1-to-string
-   (eval (read str))))
+  (let ((sexp (read str))
+        val)
+    (condition-case e
+        (prin1-to-string
+         (eval sexp))
+      (error
+       (progn
+         (let ((es (error-message-string e)))
+           (if (and lispy-lax-eval
+                    (string-match
+                     "^Symbol's value as variable is void: \\(.*\\)$"
+                     es))
+               (progn
+                 (setq es (match-string 1 es))
+                 (set (intern es) nil)
+                 (message "Caught unbound variable %s, setting it to nil." es))
+             (signal (car e) (cdr e)))))))))
 
 ;; ——— Utilities: tags —————————————————————————————————————————————————————————
 (defun lispy-build-semanticdb ()
