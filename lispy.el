@@ -2412,7 +2412,6 @@ list."
   (define-key map (kbd "C-c p") 'lispy-pop-copy)
   (define-key map (kbd "C-,") 'lispy-kill-at-point)
   (define-key map (kbd "C-M-,") 'lispy-mark)
-  (define-key map (kbd "n") 'lispy-new-copy)
   ;; ——— globals: pairs ———————————————————————
   (define-key map (kbd "(") 'lispy-parens)
   (define-key map (kbd "{") 'lispy-braces)
@@ -2468,6 +2467,7 @@ list."
   (lispy-define-key map "v" 'lispy-view t)
   (lispy-define-key map "T" 'lispy-ert)
   (lispy-define-key map "t" 'lispy-teleport)
+  (lispy-define-key map "n" 'lispy-new-copy)
   ;; ——— locals: digit argument ———————————————
   (mapc (lambda (x) (lispy-define-key map (format "%d" x) 'digit-argument))
         (number-sequence 0 9)))
