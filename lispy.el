@@ -282,8 +282,7 @@ Return nil on failure, t otherwise."
             (if (looking-at " *;")
                 (progn
                   (forward-line 1)
-                  (newline)
-                  (indent-for-tab-command)
+                  (newline-and-indent)
                   (forward-line -1))
               (newline-and-indent))
             (setq pt (point))
@@ -495,7 +494,7 @@ Return nil if can't move."
            (delete-region
             (match-beginning 0)
             (match-end 0))
-           (indent-for-tab-command)))
+           (lispy--indent-for-tab)))
         ((and (looking-at lispy-right) (looking-back lispy-left))
          (delete-char 1)
          (backward-delete-char 1))
@@ -738,7 +737,7 @@ When this function is called:
        ((looking-back "?\\\\")
         (insert ,left))
        ((= arg 1)
-        (indent-for-tab-command)
+        (lispy--indent-for-tab)
         (lispy--space-unless ,space-unless)
         (insert ,left ,right)
         (unless (or (eolp)
@@ -813,11 +812,11 @@ otherwise the whole string is unquoted."
             (progn
               (goto-char (match-beginning 1))
               (insert "()")
-              (indent-for-tab-command)
+              (lispy--indent-for-tab)
               (backward-char))
 
           (insert "\n()")
-          (indent-for-tab-command)
+          (lispy--indent-for-tab)
           (backward-char)))
     (error (indent-new-comment-line))))
 
@@ -1691,7 +1690,7 @@ Return nil on failure, (point) otherwise."
           (progn
             (unless lispy-ignore-whitespace
               (lispy--remove-gaps))
-            (indent-for-tab-command))
+            (lispy--indent-for-tab))
         (when (looking-at lispy-left)
           (forward-list))
         (throw 'break nil)))
@@ -2072,6 +2071,11 @@ For example, a `setq' statement is amended with variable name that it uses."
       (indent-region (point) pt))))
 
 ;; ——— Utilities: rest —————————————————————————————————————————————————————————
+(defun lispy--indent-for-tab ()
+  "Call `indent-for-tab-command'."
+  (let (completion-at-point-functions)
+    (indent-for-tab-command)))
+
 (defun lispy--remove-gaps ()
   "Remove dangling `\\s)'."
   (when (or (looking-back "[^ \t\n]\\([ \t\n]+\\)\\s)")
