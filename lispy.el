@@ -168,7 +168,14 @@
   "If t, fix \"unbound variable\" error by setting the unbound variable to nil.
 This is useful when hacking functions with &optional arguments.
 So evaling (setq mode (or mode major-mode)) will set mode to nil on
-the first eval, and to major-mode on the second eval.")
+the first eval, and to major-mode on the second eval."
+  :type 'boolean
+  :group 'lispy)
+
+(defcustom lispy-use-ctrl-digits t
+  "If t, lispy will bind C-1 .. C-9."
+  :type 'boolean
+  :group 'lispy)
 
 (defvar lispy-mode-map (make-sparse-keymap))
 
@@ -2394,19 +2401,6 @@ list."
   (define-key map (kbd "]") 'lispy-forward)
   (define-key map (kbd "[") 'lispy-backward)
   (define-key map (kbd ")") 'lispy-out-forward-nostring)
-  (define-key map (kbd "C-3") 'lispy-out-forward)
-  (define-key map (kbd "C-9") 'lispy-out-forward-newline)
-  ;; ——— locals: navigation ———————————————————
-  (lispy-define-key map "l" 'lispy-out-forward)
-  (lispy-define-key map "a" 'lispy-out-backward)
-  (lispy-define-key map "f" 'lispy-flow)
-  (lispy-define-key map "j" 'lispy-down)
-  (lispy-define-key map "k" 'lispy-up)
-  (lispy-define-key map "d" 'lispy-different)
-  (lispy-define-key map "o" 'lispy-counterclockwise)
-  (lispy-define-key map "p" 'lispy-clockwise)
-  (lispy-define-key map "J" 'outline-next-visible-heading)
-  (lispy-define-key map "K" 'outline-previous-visible-heading)
   ;; ——— globals: kill-related ————————————————
   (define-key map (kbd "C-k") 'lispy-kill)
   (define-key map (kbd "C-y") 'lispy-yank)
@@ -2423,7 +2417,6 @@ list."
   (define-key map (kbd "}") 'lispy-brackets)
   (define-key map (kbd "\"") 'lispy-quotes)
   ;; ——— globals: insertion ———————————————————
-  (define-key map (kbd "C-8") 'lispy-parens-down)
   (define-key map (kbd "SPC") 'lispy-space)
   (define-key map (kbd ":") 'lispy-colon)
   (define-key map (kbd "^") 'lispy-hat)
@@ -2432,6 +2425,24 @@ list."
   (define-key map (kbd "RET") 'newline-and-indent)
   (define-key map (kbd ";") 'lispy-comment)
   (define-key map (kbd "C-e") 'lispy-move-end-of-line)
+  ;; ——— globals: C-1 .. C-9 ——————————————————
+  (when lispy-use-ctrl-digits
+    (define-key map (kbd "C-1") 'lispy-describe-inline)
+    (define-key map (kbd "C-2") 'lispy-arglist-inline)
+    (define-key map (kbd "C-3") 'lispy-out-forward)
+    (define-key map (kbd "C-8") 'lispy-parens-down)
+    (define-key map (kbd "C-9") 'lispy-out-forward-newline))
+  ;; ——— locals: navigation ———————————————————
+  (lispy-define-key map "l" 'lispy-out-forward)
+  (lispy-define-key map "a" 'lispy-out-backward)
+  (lispy-define-key map "f" 'lispy-flow)
+  (lispy-define-key map "j" 'lispy-down)
+  (lispy-define-key map "k" 'lispy-up)
+  (lispy-define-key map "d" 'lispy-different)
+  (lispy-define-key map "o" 'lispy-counterclockwise)
+  (lispy-define-key map "p" 'lispy-clockwise)
+  (lispy-define-key map "J" 'outline-next-visible-heading)
+  (lispy-define-key map "K" 'outline-previous-visible-heading)
   ;; ——— locals: Paredit transformations ——————
   (lispy-define-key map ">" 'lispy-slurp)
   (lispy-define-key map "<" 'lispy-barf)
@@ -2446,9 +2457,6 @@ list."
   (lispy-define-key map "O" 'lispy-oneline t)
   (lispy-define-key map "M" 'lispy-multiline t)
   (lispy-define-key map "S" 'lispy-stringify)
-  ;; ——— globals: miscellanea —————————————————
-  (define-key map (kbd "C-1") 'lispy-describe-inline)
-  (define-key map (kbd "C-2") 'lispy-arglist-inline)
   ;; ——— locals: marking ——————————————————————
   (lispy-define-key map "h" 'lispy-ace-symbol)
   (lispy-define-key map "H" 'lispy-ace-symbol-replace)
