@@ -1745,7 +1745,7 @@ Return nil on failure, t otherwise."
         val)
     (condition-case e
         (prin1-to-string
-         (eval sexp))
+         (eval sexp lexical-binding))
       (error
        (progn
          (let ((es (error-message-string e)))
