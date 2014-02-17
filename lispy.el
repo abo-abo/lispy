@@ -1907,7 +1907,7 @@ ARITY-ALIST combines strings that REGEX matches and their arities."
      (lispy--propertize-tag "defstruct" x :type))
     ((eq (cadr x) 'variable)
      (lispy--propertize-tag "defvar" x))
-    ((assoc (cadr x) (cdr (assoc 'lisp-mode lispy-tag-arity)))
+    ((assq (cadr x) (cdr (assoc 'lisp-mode lispy-tag-arity)))
      (lispy--propertize-tag (symbol-name (cadr x)) x))
     (t (car x))))
 
@@ -1926,7 +1926,7 @@ ARITY-ALIST combines strings that REGEX matches and their arities."
      (lispy--propertize-tag nil x :function))
     ((eq (cadr x) 'variable)
      (lispy--propertize-tag "defvar" x))
-    ((assoc (cadr x) (cdr (assoc 'emacs-lisp-mode lispy-tag-arity)))
+    ((assq (cadr x) (cdr (assoc 'emacs-lisp-mode lispy-tag-arity)))
      (lispy--propertize-tag (symbol-name (cadr x)) x))
     (t (car x))))
 
