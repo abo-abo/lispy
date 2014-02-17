@@ -1180,25 +1180,23 @@ The outcome when ahead of sexps is different from when behind."
 (defun lispy-clone (arg)
   "Clone sexp ARG times."
   (interactive "p")
-  (if (and (featurep 'edebug) edebug-active)
-      (edebug-continue-mode)
-    (let ((str (lispy--string-dwim)))
-      (cond ((region-active-p)
-             (let ((str (lispy--string-dwim)))
-               (let (deactivate-mark)
-                 (save-excursion
-                   (newline-and-indent)
-                   (insert str)))))
-            ((looking-at lispy-left)
-             (save-excursion
-               (dotimes-protect arg
-                 (insert str)
-                 (newline-and-indent))))
-            ((looking-back lispy-right)
+  (let ((str (lispy--string-dwim)))
+    (cond ((region-active-p)
+           (let ((str (lispy--string-dwim)))
+             (let (deactivate-mark)
+               (save-excursion
+                 (newline-and-indent)
+                 (insert str)))))
+          ((looking-at lispy-left)
+           (save-excursion
              (dotimes-protect arg
-               (newline-and-indent)
-               (insert str)))
-            (t (error "Unexpected"))))))
+               (insert str)
+               (newline-and-indent))))
+          ((looking-back lispy-right)
+           (dotimes-protect arg
+             (newline-and-indent)
+             (insert str)))
+          (t (error "Unexpected")))))
 
 (defun lispy-oneline ()
   "Squeeze current sexp into one line.
@@ -2356,28 +2354,37 @@ list."
      ,(format "Call `%s' when special, self-insert otherwise.\n\n%s"
               (symbol-name def) (documentation def))
      ,(interactive-form def)
-     (cond ((region-active-p)
-            (call-interactively ',def))
+     (let (cmd)
+       (cond ((and (featurep 'edebug)
+                   edebug-active
+                   (= 1 (length (this-command-keys)))
+                   (let ((char (aref (this-command-keys) 0)))
+                     (setq cmd (or (assq char edebug-mode-map)
+                                   (assq char global-edebug-map)))))
+              (call-interactively (cdr cmd)))
 
-           ((lispy--in-string-or-comment-p)
-            (self-insert-command 1))
+             ((region-active-p)
+              (call-interactively ',def))
 
-           ((looking-at lispy-left)
-            (call-interactively ',def))
+             ((lispy--in-string-or-comment-p)
+              (self-insert-command 1))
 
-           ((looking-back lispy-right)
-            ,@(and from-start '((backward-list)))
-            (unwind-protect
-                 (call-interactively ',def)
-              ,@(and from-start '((forward-list)))))
+             ((looking-at lispy-left)
+              (call-interactively ',def))
 
-           ((or (and (looking-back "^ *") (looking-at ";"))
-                (and (= (point) (point-max))
-                     (memq ',def `(outline-previous-visible-heading))))
-            (call-interactively ',def))
+             ((looking-back lispy-right)
+              ,@(and from-start '((backward-list)))
+              (unwind-protect
+                   (call-interactively ',def)
+                ,@(and from-start '((forward-list)))))
 
-           (t
-            (self-insert-command 1)))))
+             ((or (and (looking-back "^ *") (looking-at ";"))
+                  (and (= (point) (point-max))
+                       (memq ',def `(outline-previous-visible-heading))))
+              (call-interactively ',def))
+
+             (t
+              (self-insert-command 1))))))
 
 (defvar ac-trigger-commands '(self-insert-command))
 (defvar company-begin-commands '(self-insert-command))
