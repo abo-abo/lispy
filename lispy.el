@@ -1381,6 +1381,7 @@ Quote newlines if ARG isn't 1."
   (lispy--goto 'semantic-fetch-tags))
 
 (declare-function cider-jump-to-def "ext:cider")
+(declare-function slime-edit-definition "ext:slime")
 (declare-function lispy--clojure-resolve "ext:lispy")
 
 (defun lispy-follow ()
