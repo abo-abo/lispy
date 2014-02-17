@@ -1014,7 +1014,7 @@ The outcome when ahead of sexps is different from when behind."
 
 ;; TODO add numeric arg: 1 is equivalent to prev behavior 2 will raise containing list twice.
 (defun lispy-convolute ()
-  "Convolute sexp."
+  "Replace (...(,,,|( with (,,,(...|( where ... and ,,, is arbitrary code."
   (interactive)
   (if (save-excursion
         (lispy--out-forward 2))
