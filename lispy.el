@@ -545,7 +545,7 @@ Return nil if can't move."
          (cond
            ((looking-at "\\\\\"")
             (delete-char 2))
-           ((lispy--delete-pair-in-sting "\\\\\\\\(" "\\\\\\\\)"))
+           ((lispy--delete-pair-in-string "\\\\\\\\(" "\\\\\\\\)"))
            ((save-excursion
               (forward-char 1)
               (lispy--in-string-or-comment-p))
@@ -595,7 +595,7 @@ Otherwise (`backward-delete-char-untabify' ARG)."
                       (looking-back "\\\\\\\\)"))
                   (let ((pt (point)))
                     (goto-char (match-beginning 0))
-                    (unless (lispy--delete-pair-in-sting
+                    (unless (lispy--delete-pair-in-string
                              "\\\\\\\\(" "\\\\\\\\)")
                       (goto-char pt)
                       (backward-delete-char-untabify arg))))
@@ -2316,7 +2316,7 @@ Make text marked if REGIONP is t."
     (insert str2)
     (goto-char (car bnd1))))
 
-(defun lispy--delete-pair-in-sting (left right)
+(defun lispy--delete-pair-in-string (left right)
   "Delete a pair of LEFT and RIGHT in string."
   (let ((bnd (lispy--bounds-string)))
     (when bnd
