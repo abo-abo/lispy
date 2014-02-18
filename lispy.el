@@ -836,7 +836,7 @@ otherwise the whole string is unquoted."
   "Insert one space.
 Special case is (|( -> ( |(."
   (interactive)
-  (if (and (featurep 'edebug) edebug-active)
+  (if (and (bound-and-true-p edebug-active))
       (edebug-step-mode)
     (if (region-active-p)
         (progn
@@ -2355,8 +2355,7 @@ list."
               (symbol-name def) (documentation def))
      ,(interactive-form def)
      (let (cmd)
-       (cond ((and (featurep 'edebug)
-                   edebug-active
+       (cond ((and (bound-and-true-p edebug-active)
                    (= 1 (length (this-command-keys)))
                    (let ((char (aref (this-command-keys) 0)))
                      (setq cmd (or (assq char edebug-mode-map)
