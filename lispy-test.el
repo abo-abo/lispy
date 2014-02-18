@@ -434,7 +434,9 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "(~\"foo\"|)" "\C-?")
                    "(~|)"))
   (should (string= (lispy-with "(|\"foo\"~)" "\C-?")
-                   "(~|)")))
+                   "(~|)"))
+  (should (string= (lispy-with "(foo bar)\n;; comment\n(foo bar)|" "\C-?")
+                   "(foo bar)|\n;; comment\n")))
 
 (ert-deftest lispy-pair ()
   (should (string= (lispy-with "\"\\\\|\"" "(")
