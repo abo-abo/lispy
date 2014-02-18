@@ -837,17 +837,15 @@ otherwise the whole string is unquoted."
   "Insert one space.
 Special case is (|( -> ( |(."
   (interactive)
-  (if (and (bound-and-true-p edebug-active))
-      (edebug-step-mode)
-    (if (region-active-p)
-        (progn
-          (goto-char (region-end))
-          (deactivate-mark)
-          (insert " "))
-      (insert " ")
-      (when (and (looking-at lispy-left)
-                 (looking-back "( "))
-        (backward-char)))))
+  (if (region-active-p)
+      (progn
+        (goto-char (region-end))
+        (deactivate-mark)
+        (insert " "))
+    (insert " ")
+    (when (and (looking-at lispy-left)
+               (looking-back "( "))
+      (backward-char))))
 
 (defun lispy-colon ()
   "Insert :."
@@ -2419,7 +2417,6 @@ list."
   (define-key map (kbd "}") 'lispy-brackets)
   (define-key map (kbd "\"") 'lispy-quotes)
   ;; ——— globals: insertion ———————————————————
-  (define-key map (kbd "SPC") 'lispy-space)
   (define-key map (kbd ":") 'lispy-colon)
   (define-key map (kbd "^") 'lispy-hat)
   (define-key map (kbd "C-j") 'lispy-newline-and-indent)
@@ -2472,6 +2469,7 @@ list."
   (lispy-define-key map "D" 'lispy-describe)
   (lispy-define-key map "A" 'lispy-arglist)
   ;; ——— locals: miscellanea ——————————————————
+  (lispy-define-key map "SPC" 'lispy-space)
   (lispy-define-key map "i" 'lispy-tab t)
   (lispy-define-key map "I" 'lispy-shifttab)
   (lispy-define-key map "N" 'lispy-normalize)
