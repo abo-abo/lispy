@@ -1376,7 +1376,7 @@ Quote newlines if ARG isn't 1."
 (defun lispy-goto-local ()
   "Jump to symbol within current file."
   (interactive)
-  (lispy--goto 'semantic-fetch-tags))
+  (lispy--goto 'lispy--fetch-this-file-tags))
 
 (declare-function cider-jump-to-def "ext:cider")
 (declare-function slime-edit-definition "ext:slime")
@@ -2000,18 +2000,28 @@ For example, a `setq' statement is amended with variable name that it uses."
             (lambda(x)
               (cl-remove-if-not
                (lambda(s) (stringp (car s)))
-               (let ((buffer (aref x 2)))
-                 (mapcar (lambda(y)
-                           (if (overlayp (nth 4 y))
-                               y
-                             (let ((z (cl-copy-list y))
-                                   (bnd (nth 4 y)))
-                               (setcar (nthcdr 4 z)
-                                       (cons
-                                        bnd
-                                        buffer))
-                               z)))
-                         (aref x 5))))) db))))
+               (lispy--set-file-to-tags (aref x 2) (aref x 5)))) db))))
+
+(defun lispy--set-file-to-tags (file tags)
+  "Put FILE as property of each tag in TAGS."
+  (mapcar
+   (lambda(y)
+     (if (overlayp (nth 4 y))
+         y
+       (let ((z (cl-copy-list y))
+             (bnd (nth 4 y)))
+         (setcar (nthcdr 4 z)
+                 (cons
+                  bnd
+                  file))
+         z)))
+   tags))
+
+(defun lispy--fetch-this-file-tags ()
+  "Fetch this file tags."
+  (lispy--set-file-to-tags
+   (file-name-nondirectory (buffer-file-name))
+   (semantic-fetch-tags)))
 
 (defun lispy--goto (fun)
   "Jump to symbol selected from (FUN)."
