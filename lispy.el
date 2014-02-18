@@ -1968,9 +1968,10 @@ For example, a `setq' statement is amended with variable name that it uses."
                        (nth 1 lispy-helm-columns))
                     ?\ )
        (let ((overlay (nth 4 x)))
-         (if (overlayp overlay)
-             (file-name-nondirectory (buffer-file-name (overlay-buffer overlay)))
-           (cdr overlay))))
+         (file-name-nondirectory
+          (if (overlayp overlay)
+              (buffer-file-name (overlay-buffer overlay))
+            (cdr overlay)))))
       (cdr x)))
    x))
 
