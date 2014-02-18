@@ -1375,6 +1375,26 @@ Quote newlines if ARG isn't 1."
   (deactivate-mark)
   (lispy--goto 'lispy--fetch-tags))
 
+(defun lispy-goto-recursive ()
+  "Jump to symbol within files in current directory and its subdiretories."
+  (interactive)
+  (deactivate-mark)
+  (lispy--goto 'lispy--fetch-tags-recursive))
+
+(defun lispy--fetch-tags-recursive ()
+  "Fetch all tags in current directory recursively."
+  (let ((dirs
+         (cl-remove-if
+          (lambda(y) (string-match "\\.git/" y))
+          (mapcar
+           (lambda(x) (concat (expand-file-name x) "/"))
+           (split-string
+            (shell-command-to-string "find . -type d")
+            "\n"
+            t)))))
+    (apply #'append
+           (mapcar #'lispy--fetch-tags dirs))))
+
 (defun lispy-goto-local ()
   "Jump to symbol within current file."
   (interactive)
@@ -1760,23 +1780,25 @@ Return nil on failure, t otherwise."
              (signal (car e) (cdr e)))))))))
 
 ;; ——— Utilities: tags —————————————————————————————————————————————————————————
-(defun lispy-build-semanticdb ()
-  "Build and save semanticdb for current directory."
+(defun lispy-build-semanticdb (&optional dir)
+  "Build and save semanticdb for DIR."
   (interactive)
-  (mapc
-   (lambda(f)
-     (let ((buffer (find-file-noselect f))
-           tags)
-       (set-buffer buffer)
-       (setq tags (ignore-errors (semantic-fetch-tags)))
-       ;; modifies tags
-       (when (memq major-mode '(lisp-mode emacs-lisp-mode))
-         (lexical-let ((arity (cdr (assoc major-mode lispy-tag-arity)))
-                       (tag-regex (lispy--tag-regexp)))
-           (mapc (lambda(x) (lispy--modify-tag x tag-regex arity))  tags)))
-       ;; (kill-buffer buffer)
-       ))
-   (lispy--file-list))
+  (setq dir (or dir default-directory))
+  (let ((default-directory dir))
+    (mapc
+     (lambda(f)
+       (let ((buffer (find-file-noselect f))
+             tags)
+         (set-buffer buffer)
+         (setq tags (ignore-errors (semantic-fetch-tags)))
+         ;; modifies tags
+         (when (memq major-mode '(lisp-mode emacs-lisp-mode))
+           (lexical-let ((arity (cdr (assoc major-mode lispy-tag-arity)))
+                         (tag-regex (lispy--tag-regexp)))
+             (mapc (lambda(x) (lispy--modify-tag x tag-regex arity))  tags)))
+         ;; (kill-buffer buffer)
+         ))
+     (lispy--file-list)))
   (semanticdb-save-all-db))
 
 (defun lispy--file-list ()
@@ -1982,28 +2004,38 @@ For example, a `setq' statement is amended with variable name that it uses."
       (concat str (make-string (- n (length str)) ?\ ))
     (concat (substring str 0 (- n 3)) "...")))
 
-(defun lispy--fetch-tags ()
+(defun lispy--fetch-tags (&optional path)
   "Get a list of tags for `default-directory'."
-  (let* ((path default-directory)
-         (db (semanticdb-directory-loaded-p
-              (expand-file-name path))))
-    (unless (and db
-                 (lexical-let ((db-files
-                                (mapcar (lambda(x) (aref x 2)) (aref db 6))))
-                   (cl-every (lambda(x) (member x db-files))
-                             (lispy--file-list))))
-      (lispy-build-semanticdb)
-      (setq db (semanticdb-directory-loaded-p
-                (expand-file-name path))))
-    (setq db (cl-remove-if-not
-              (lambda(x) (eq (aref x 4) major-mode))
-              (aref db 6)))
-    (apply #'append
-           (mapcar
-            (lambda(x)
-              (cl-remove-if-not
-               (lambda(s) (stringp (car s)))
-               (lispy--set-file-to-tags (aref x 2) (aref x 5)))) db))))
+  (setq path (or path default-directory))
+  (let* ((default-directory path)
+         (db (or (semanticdb-directory-loaded-p path)
+                 (let ((file (car (file-expand-wildcards "*.el*"))))
+                   (when file
+                     (with-current-buffer
+                         (find-file-noselect (expand-file-name file))
+                       (kill-buffer)))
+                   (semanticdb-directory-loaded-p path)))))
+    (unless (lexical-let ((db-files
+                           (mapcar (lambda(x) (aref x 2))
+                                   (and db (aref db 6)))))
+              (cl-every (lambda(x) (member x db-files))
+                        (let ((default-directory path))
+                          (lispy--file-list))))
+      (lispy-build-semanticdb path)
+      (setq db (semanticdb-directory-loaded-p path)))
+    (and db
+         (setq db (cl-remove-if-not
+                   (lambda(x) (eq (aref x 4) major-mode))
+                   (aref db 6)))
+         (apply
+          #'append
+          (mapcar
+           (lambda(x)
+             (cl-remove-if-not
+              (lambda(s) (stringp (car s)))
+              (lispy--set-file-to-tags
+               (expand-file-name (aref x 2) path)
+               (aref x 5)))) db)))))
 
 (defun lispy--set-file-to-tags (file tags)
   "Put FILE as property of each tag in TAGS."
