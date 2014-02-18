@@ -141,6 +141,7 @@
   (require 'org))
 (require 'help-fns)
 (require 'edebug)
+(require 'eldoc)
 (require 'outline)
 (require 'semantic)
 (require 'semantic/db)
@@ -2401,6 +2402,7 @@ list."
       (push func ac-trigger-commands))
     (unless (member func company-begin-commands)
       (push func company-begin-commands))
+    (eldoc-add-command func)
     (define-key keymap (kbd key) func)))
 
 (let ((map lispy-mode-map))
