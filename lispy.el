@@ -141,6 +141,8 @@
   (require 'org))
 (require 'help-fns)
 (require 'edebug)
+(require 'ediff)
+(require 'ediff-util)
 (require 'eldoc)
 (require 'outline)
 (require 'semantic)
@@ -2348,6 +2350,32 @@ Make text marked if REGIONP is t."
         (when pos
           (goto-char pos))))))
 
+(defun lispy-store-region-and-buffer ()
+  "Store current buffer and `lispy--bounds-dwim'."
+  (interactive)
+  (put 'lispy-store-bounds 'buffer (current-buffer))
+  (put 'lispy-store-bounds 'region (lispy--bounds-dwim)))
+
+(defun lispy-ediff-regions ()
+  "Comparable to `ediff-regions-linewise'.
+First region and buffer come from `lispy-store-region-and-buffer'
+Second region and buffer are the current ones."
+  (interactive)
+  (let ((bnd1 (get 'lispy-store-bounds 'region))
+        (bnd2 (lispy--bounds-dwim))
+        (buf1
+         (ediff-make-cloned-buffer (get 'lispy-store-bounds 'buffer) "-A-"))
+        (buf2
+         (ediff-make-cloned-buffer (current-buffer) "-B-")))
+    (with-current-buffer buf1
+      (setq ediff-temp-indirect-buffer t)
+      (set-buffer buf2)
+      (setq ediff-temp-indirect-buffer t))
+    (ediff-regions-internal
+     buf1 (car bnd1) (1+ (cdr bnd1))
+     buf2 (car bnd2) (1+ (cdr bnd2))
+     nil 'ediff-regions-linewise nil nil)))
+
 (defun lispy--insert-or-call (def &optional from-start)
   "Return a lambda to call DEF if position is special.
 Otherwise call `self-insert-command'.
@@ -2492,6 +2520,8 @@ list."
   (lispy-define-key map "T" 'lispy-ert)
   (lispy-define-key map "t" 'lispy-teleport)
   (lispy-define-key map "n" 'lispy-new-copy)
+  (lispy-define-key map "b" 'lispy-store-region-and-buffer)
+  (lispy-define-key map "B" 'lispy-ediff-regions)
   ;; ——— locals: digit argument ———————————————
   (mapc (lambda (x) (lispy-define-key map (format "%d" x) 'digit-argument))
         (number-sequence 0 9)))
