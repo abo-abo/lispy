@@ -2244,12 +2244,17 @@ ACTION is called for the selected candidate."
   "Jump to TAG."
   (when (semantic-tag-p tag)
     (let ((overlay (semantic-tag-overlay tag)))
-      (unless (overlayp overlay)
-        (let ((bnd (car overlay))
-              (buffer (find-file-noselect (cdr overlay))))
-          (semantic--tag-set-overlay
-           tag
-           (make-overlay (aref bnd 0) (aref bnd 1) buffer))))
+      (cond ((overlayp overlay))
+            ((consp overlay)
+             (let ((bnd (car overlay))
+                   (buffer (find-file-noselect (cdr overlay))))
+               (semantic--tag-set-overlay
+                tag
+                (make-overlay (aref bnd 0) (aref bnd 1) buffer))))
+            ((arrayp overlay)
+             (semantic--tag-set-overlay
+              tag
+              (make-overlay (aref overlay 0) (aref overlay 1) (current-buffer)))))
       (push-mark)
       (semantic-go-to-tag tag)
       (when (eq major-mode 'clojure-mode)
