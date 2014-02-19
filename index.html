@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
 <title><a href="https://github.com/abo-abo/lispy">lispy.el</a> documentation</title>
-<!-- 2014-02-19 Wed 21:46 -->
+<!-- 2014-02-19 Wed 23:09 -->
 <meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta  name="generator" content="Org-mode" />
 <meta  name="author" content="Oleh" />
@@ -143,6 +143,16 @@ for the JavaScript code in this tag.
 <td class="left">E</td>
 <td class="left"><a href="#sec-3-9">lispy-eval-and-insert</a></td>
 </tr>
+
+<tr>
+<td class="left">b</td>
+<td class="left"><a href="#sec-3-10">lispy-store-region-and-buffer</a></td>
+</tr>
+
+<tr>
+<td class="left">B</td>
+<td class="left"><a href="#sec-3-11">lispy-ediff-regions</a></td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -183,7 +193,7 @@ Unlike <code>forward-list</code>, parens in strings and comments are ignored.
 <h3 id="sec-3-2"><a id="ID-a0171dbc-b2d6-4196-ad1e-f8a7c860dd9b"></a><code>lispy-backward</code></h3>
 <div class="outline-text-3" id="text-3-2">
 <p>
-Works as replacement for the standard <code>bacward-list</code>.
+Works as replacement for the standard <code>backward-list</code>.
 </p>
 
 <p>
@@ -642,7 +652,7 @@ Use <kbd>C-2</kbd> to show the argument list for current function.
 <!-- Created by htmlize-1.47 in css mode. -->
 <html>
   <head>
-    <title>*Org Src oblog-min.org[ emacs-lisp ]*</title>
+    <title>lispy-arglist-inline</title>
     <style type="text/css">
     <!--
       body {
@@ -752,6 +762,52 @@ deactivated and result will be inserted at point.
 </li>
 </ul>
 <hr  />
+</div>
+</div>
+<div id="outline-container-sec-3-10" class="outline-3">
+<h3 id="sec-3-10"><a id="ID-3ddf7d0f-83c9-4880-b170-ce36c549c537"></a><code>lispy-store-region-and-buffer</code></h3>
+<div class="outline-text-3" id="text-3-10">
+<p>
+Store current buffer and region for further usage.  When region isn't
+active, store the bounds of current expression instead.
+</p>
+
+<p>
+Currently, only <a href="#sec-3-11">lispy-ediff-regions</a> makes use of stored info.
+</p>
+</div>
+</div>
+<div id="outline-container-sec-3-11" class="outline-3">
+<h3 id="sec-3-11"><a id="ID-c5f1cde9-1712-497a-afc2-356cd0dce702"></a><code>lispy-ediff-regions</code></h3>
+<div class="outline-text-3" id="text-3-11">
+<p>
+Comparable to <code>ediff-regions-linewise</code>, except for the region and
+buffer selection is done differently:
+</p>
+
+<ul class="org-ul">
+<li>first buffer and region are defined by <a href="#sec-3-10">lispy-store-region-and-buffer</a>.
+</li>
+<li>second buffer and region are the current buffer and region
+</li>
+</ul>
+
+<p>
+Buffers can of course be the same.
+</p>
+
+<p>
+A useful scenario for this function is <kbd>C-x v ~</kbd>
+(<code>vc-revision-other-window</code>) <kbd>RET</kbd> and then follow up by selecting one
+function that was changed with <kbd>b</kbd> in one buffer and with <kbd>B</kbd> in other
+buffer.  This results in ediff just for that one single
+function. This is helpful if <code>ediff-buffers</code> isn't what you want.
+</p>
+
+<p>
+Another scenario is to compare two different functions that have similar code,
+for instance <code>lispy-move-down</code> and <code>lispy-move-up</code>.
+</p>
 </div>
 </div>
 </div>

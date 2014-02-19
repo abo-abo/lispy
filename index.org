@@ -13,14 +13,16 @@
 |-----+-----------------------|
 
 * Local bindings
-| key | function name         |
-|-----+-----------------------|
-| q   | [[id:94b1a983-c847-4cb0-9c46-019f058c05a9][lispy-ace-paren]]       |
-| h   | [[id:0c51e02a-e411-4d68-97da-083db9584dc6][lispy-ace-symbol]]      |
-| F   | [[id:d3799a39-d3e0-4aa5-bff1-bae4c0baa5cf][lispy-follow]]          |
-| e   | [[id:117f2392-b4ff-4391-834a-7044cc850778][lispy-eval]]            |
-| E   | [[id:d38ff2d2-e49f-438e-b2dc-70308586cd8a][lispy-eval-and-insert]] |
-|-----+-----------------------|
+| key | function name                 |
+|-----+-------------------------------|
+| q   | [[id:94b1a983-c847-4cb0-9c46-019f058c05a9][lispy-ace-paren]]               |
+| h   | [[id:0c51e02a-e411-4d68-97da-083db9584dc6][lispy-ace-symbol]]              |
+| F   | [[id:d3799a39-d3e0-4aa5-bff1-bae4c0baa5cf][lispy-follow]]                  |
+| e   | [[id:117f2392-b4ff-4391-834a-7044cc850778][lispy-eval]]                    |
+| E   | [[id:d38ff2d2-e49f-438e-b2dc-70308586cd8a][lispy-eval-and-insert]]         |
+| b   | [[id:3ddf7d0f-83c9-4880-b170-ce36c549c537][lispy-store-region-and-buffer]] |
+| B   | [[id:c5f1cde9-1712-497a-afc2-356cd0dce702][lispy-ediff-regions]]           |
+|-----+-------------------------------|
 
 * Function reference
 ** =lispy-forward=
@@ -46,7 +48,7 @@ Unlike =forward-list=, parens in strings and comments are ignored.
 :PROPERTIES:
 :ID:       a0171dbc-b2d6-4196-ad1e-f8a7c860dd9b
 :END:
-Works as replacement for the standard =bacward-list=.
+Works as replacement for the standard =backward-list=.
 
 Takes a numeric prefix =arg= and moves backward list =arg= times or
 until error.
@@ -351,7 +353,6 @@ Now you can follow up with
 
 ** =lispy-follow=
 :PROPERTIES:
-:tags:     elisp clojure cl
 :ID:       d3799a39-d3e0-4aa5-bff1-bae4c0baa5cf
 :END:
 
@@ -466,7 +467,7 @@ Use ~C-2~ to show the argument list for current function.
 <!-- Created by htmlize-1.47 in css mode. -->
 <html>
   <head>
-    <title>*Org Src oblog-min.org[ emacs-lisp ]*</title>
+    <title>lispy-arglist-inline</title>
     <style type="text/css">
     <!--
       body {
@@ -568,3 +569,38 @@ after the evaluated expression.
 - Starting with an active region, the region will be
   deactivated and result will be inserted at point.
 -----
+
+** =lispy-store-region-and-buffer=
+:PROPERTIES:
+:ID:       3ddf7d0f-83c9-4880-b170-ce36c549c537
+:END:
+
+Store current buffer and region for further usage.  When region isn't
+active, store the bounds of current expression instead.
+
+Currently, only [[id:c5f1cde9-1712-497a-afc2-356cd0dce702][lispy-ediff-regions]] makes use of stored info.
+
+** =lispy-ediff-regions=
+:PROPERTIES:
+:ID:       c5f1cde9-1712-497a-afc2-356cd0dce702
+:END:
+
+Comparable to =ediff-regions-linewise=, except for the region and
+buffer selection is done differently:
+
+- first buffer and region are defined by [[id:3ddf7d0f-83c9-4880-b170-ce36c549c537][lispy-store-region-and-buffer]].
+- second buffer and region are the current buffer and region
+
+Buffers can of course be the same.
+
+A useful scenario for this function is ~C-x v ~~
+(=vc-revision-other-window=) ~RET~ and then follow up by selecting one
+function that was changed with ~b~ in one buffer and with ~B~ in other
+buffer.  This results in ediff just for that one single
+function. This is helpful if =ediff-buffers= isn't what you want.
+
+Another scenario is to compare two different functions that have similar code,
+for instance =lispy-move-down= and =lispy-move-up=.
+
+
+
