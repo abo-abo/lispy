@@ -10,6 +10,7 @@
 | [   | [[id:a0171dbc-b2d6-4196-ad1e-f8a7c860dd9b][lispy-backward]]        |
 | C-1 | [[id:54752047-032c-4f0d-97ac-ed9baefa3649][lispy-describe-inline]] |
 | C-2 | [[id:54becf27-661c-4c5d-92d8-baa22a50291d][lispy-arglist-inline]]  |
+| C-3 | [[id:79f14a39-011b-48bd-82a4-4c1587514948][lispy-out-forward]]     |
 |-----+-----------------------|
 
 * Local bindings
@@ -61,6 +62,25 @@ Return =t= if could move at least once, otherwise
 call =lispy-out-backward= and return =nil=.
 
 Unlike =backward-list=, parens in strings and comments are ignored.
+-----
+** =lispy-out-forward=
+:PROPERTIES:
+:ID:       79f14a39-011b-48bd-82a4-4c1587514948
+:END:
+
+Works as replacement for the standard =up-list=.
+
+Takes a numeric prefix =arg= and moves up forward list =arg= times or
+until error.
+
+Unlike =up-list=, no error will be reported if it's not possible
+to move up =arg= times.
+It that case, move as many times as possible.
+
+Return point if could move at least once, otherwise
+do nothing and return =nil=.
+
+Unlike =up-list=, parens in strings and comments are ignored.
 -----
 
 ** =lispy-ace-paren=
@@ -579,13 +599,14 @@ Store current buffer and region for further usage.  When region isn't
 active, store the bounds of current expression instead.
 
 Currently, only [[id:c5f1cde9-1712-497a-afc2-356cd0dce702][lispy-ediff-regions]] makes use of stored info.
+-----
 
 ** =lispy-ediff-regions=
 :PROPERTIES:
 :ID:       c5f1cde9-1712-497a-afc2-356cd0dce702
 :END:
 
-Comparable to =ediff-regions-linewise=, except for the region and
+Comparable to =ediff-regions-linewise=, except the region and
 buffer selection is done differently:
 
 - first buffer and region are defined by [[id:3ddf7d0f-83c9-4880-b170-ce36c549c537][lispy-store-region-and-buffer]].
@@ -601,6 +622,7 @@ function. This is helpful if =ediff-buffers= isn't what you want.
 
 Another scenario is to compare two different functions that have similar code,
 for instance =lispy-move-down= and =lispy-move-up=.
+-----
 
 
 

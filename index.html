@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
 <title><a href="https://github.com/abo-abo/lispy">lispy.el</a> documentation</title>
-<!-- 2014-02-19 Wed 23:09 -->
+<!-- 2014-02-19 Wed 23:24 -->
 <meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta  name="generator" content="Org-mode" />
 <meta  name="author" content="Oleh" />
@@ -90,12 +90,17 @@ for the JavaScript code in this tag.
 
 <tr>
 <td class="left">C-1</td>
-<td class="left"><a href="#sec-3-6">lispy-describe-inline</a></td>
+<td class="left"><a href="#sec-3-7">lispy-describe-inline</a></td>
 </tr>
 
 <tr>
 <td class="left">C-2</td>
-<td class="left"><a href="#sec-3-7">lispy-arglist-inline</a></td>
+<td class="left"><a href="#sec-3-8">lispy-arglist-inline</a></td>
+</tr>
+
+<tr>
+<td class="left">C-3</td>
+<td class="left"><a href="#sec-3-3">lispy-out-forward</a></td>
 </tr>
 </tbody>
 </table>
@@ -121,37 +126,37 @@ for the JavaScript code in this tag.
 <tbody>
 <tr>
 <td class="left">q</td>
-<td class="left"><a href="#sec-3-3">lispy-ace-paren</a></td>
+<td class="left"><a href="#sec-3-4">lispy-ace-paren</a></td>
 </tr>
 
 <tr>
 <td class="left">h</td>
-<td class="left"><a href="#sec-3-4">lispy-ace-symbol</a></td>
+<td class="left"><a href="#sec-3-5">lispy-ace-symbol</a></td>
 </tr>
 
 <tr>
 <td class="left">F</td>
-<td class="left"><a href="#sec-3-5">lispy-follow</a></td>
+<td class="left"><a href="#sec-3-6">lispy-follow</a></td>
 </tr>
 
 <tr>
 <td class="left">e</td>
-<td class="left"><a href="#sec-3-8">lispy-eval</a></td>
+<td class="left"><a href="#sec-3-9">lispy-eval</a></td>
 </tr>
 
 <tr>
 <td class="left">E</td>
-<td class="left"><a href="#sec-3-9">lispy-eval-and-insert</a></td>
+<td class="left"><a href="#sec-3-10">lispy-eval-and-insert</a></td>
 </tr>
 
 <tr>
 <td class="left">b</td>
-<td class="left"><a href="#sec-3-10">lispy-store-region-and-buffer</a></td>
+<td class="left"><a href="#sec-3-11">lispy-store-region-and-buffer</a></td>
 </tr>
 
 <tr>
 <td class="left">B</td>
-<td class="left"><a href="#sec-3-11">lispy-ediff-regions</a></td>
+<td class="left"><a href="#sec-3-12">lispy-ediff-regions</a></td>
 </tr>
 </tbody>
 </table>
@@ -218,9 +223,39 @@ Unlike <code>backward-list</code>, parens in strings and comments are ignored.
 <hr  />
 </div>
 </div>
+
 <div id="outline-container-sec-3-3" class="outline-3">
-<h3 id="sec-3-3"><a id="ID-94b1a983-c847-4cb0-9c46-019f058c05a9"></a><code>lispy-ace-paren</code></h3>
+<h3 id="sec-3-3"><a id="ID-79f14a39-011b-48bd-82a4-4c1587514948"></a><code>lispy-out-forward</code></h3>
 <div class="outline-text-3" id="text-3-3">
+<p>
+Works as replacement for the standard <code>up-list</code>.
+</p>
+
+<p>
+Takes a numeric prefix <code>arg</code> and moves up forward list <code>arg</code> times or
+until error.
+</p>
+
+<p>
+Unlike <code>up-list</code>, no error will be reported if it's not possible
+to move up <code>arg</code> times.
+It that case, move as many times as possible.
+</p>
+
+<p>
+Return point if could move at least once, otherwise
+do nothing and return <code>nil</code>.
+</p>
+
+<p>
+Unlike <code>up-list</code>, parens in strings and comments are ignored.
+</p>
+<hr  />
+</div>
+</div>
+<div id="outline-container-sec-3-4" class="outline-3">
+<h3 id="sec-3-4"><a id="ID-94b1a983-c847-4cb0-9c46-019f058c05a9"></a><code>lispy-ace-paren</code></h3>
+<div class="outline-text-3" id="text-3-4">
 <p>
 Starting with this:
 </p>
@@ -323,9 +358,9 @@ cancel with <kbd>C-g</kbd>.
 <hr  />
 </div>
 </div>
-<div id="outline-container-sec-3-4" class="outline-3">
-<h3 id="sec-3-4"><a id="ID-0c51e02a-e411-4d68-97da-083db9584dc6"></a><code>lispy-ace-symbol</code></h3>
-<div class="outline-text-3" id="text-3-4">
+<div id="outline-container-sec-3-5" class="outline-3">
+<h3 id="sec-3-5"><a id="ID-0c51e02a-e411-4d68-97da-083db9584dc6"></a><code>lispy-ace-symbol</code></h3>
+<div class="outline-text-3" id="text-3-5">
 <p>
 Starting with this:
 </p>
@@ -520,26 +555,26 @@ Now you can follow up with
 <tbody>
 <tr>
 <td class="left">F</td>
-<td class="left"><a href="#sec-3-5">lispy-follow</a></td>
+<td class="left"><a href="#sec-3-6">lispy-follow</a></td>
 </tr>
 
 <tr>
 <td class="left">C-1</td>
-<td class="left"><a href="#sec-3-6">lispy-describe-inline</a></td>
+<td class="left"><a href="#sec-3-7">lispy-describe-inline</a></td>
 </tr>
 
 <tr>
 <td class="left">e</td>
-<td class="left"><a href="#sec-3-8">lispy-eval</a></td>
+<td class="left"><a href="#sec-3-9">lispy-eval</a></td>
 </tr>
 </tbody>
 </table>
 <hr  />
 </div>
 </div>
-<div id="outline-container-sec-3-5" class="outline-3">
-<h3 id="sec-3-5"><a id="ID-d3799a39-d3e0-4aa5-bff1-bae4c0baa5cf"></a><code>lispy-follow</code></h3>
-<div class="outline-text-3" id="text-3-5">
+<div id="outline-container-sec-3-6" class="outline-3">
+<h3 id="sec-3-6"><a id="ID-d3799a39-d3e0-4aa5-bff1-bae4c0baa5cf"></a><code>lispy-follow</code></h3>
+<div class="outline-text-3" id="text-3-6">
 <p>
 When region is active, use <kbd>F</kbd> to jump to the definition of marked symbol.
 Otherwise jump to definition of the first symbol in current sexp.
@@ -556,12 +591,12 @@ Elisp, Clojure and Common Lisp are supported.
 <hr  />
 </div>
 </div>
-<div id="outline-container-sec-3-6" class="outline-3">
-<h3 id="sec-3-6"><a id="ID-54752047-032c-4f0d-97ac-ed9baefa3649"></a><code>lispy-describe-inline</code></h3>
-<div class="outline-text-3" id="text-3-6">
+<div id="outline-container-sec-3-7" class="outline-3">
+<h3 id="sec-3-7"><a id="ID-54752047-032c-4f0d-97ac-ed9baefa3649"></a><code>lispy-describe-inline</code></h3>
+<div class="outline-text-3" id="text-3-7">
 <p>
 Use <kbd>C-1</kbd> to show the documentation for current function or currently
-marked symbol (see <a href="#sec-3-4">lispy-ace-symbol</a>).
+marked symbol (see <a href="#sec-3-5">lispy-ace-symbol</a>).
 </p>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
@@ -641,9 +676,9 @@ marked symbol (see <a href="#sec-3-4">lispy-ace-symbol</a>).
 <hr  />
 </div>
 </div>
-<div id="outline-container-sec-3-7" class="outline-3">
-<h3 id="sec-3-7"><a id="ID-54becf27-661c-4c5d-92d8-baa22a50291d"></a><code>lispy-arglist-inline</code></h3>
-<div class="outline-text-3" id="text-3-7">
+<div id="outline-container-sec-3-8" class="outline-3">
+<h3 id="sec-3-8"><a id="ID-54becf27-661c-4c5d-92d8-baa22a50291d"></a><code>lispy-arglist-inline</code></h3>
+<div class="outline-text-3" id="text-3-8">
 <p>
 Use <kbd>C-2</kbd> to show the argument list for current function.
 </p>
@@ -727,9 +762,9 @@ Use <kbd>C-2</kbd> to show the argument list for current function.
 <hr  />
 </div>
 </div>
-<div id="outline-container-sec-3-8" class="outline-3">
-<h3 id="sec-3-8"><a id="ID-117f2392-b4ff-4391-834a-7044cc850778"></a><code>lispy-eval</code></h3>
-<div class="outline-text-3" id="text-3-8">
+<div id="outline-container-sec-3-9" class="outline-3">
+<h3 id="sec-3-9"><a id="ID-117f2392-b4ff-4391-834a-7044cc850778"></a><code>lispy-eval</code></h3>
+<div class="outline-text-3" id="text-3-9">
 <p>
 Use <kbd>e</kbd> to eval current region or sexp.
 The result will be displayed in the minibuffer.
@@ -741,9 +776,9 @@ Elisp, Clojure, Scheme and Common Lisp are supported.
 <hr  />
 </div>
 </div>
-<div id="outline-container-sec-3-9" class="outline-3">
-<h3 id="sec-3-9"><a id="ID-d38ff2d2-e49f-438e-b2dc-70308586cd8a"></a><code>lispy-eval-and-insert</code></h3>
-<div class="outline-text-3" id="text-3-9">
+<div id="outline-container-sec-3-10" class="outline-3">
+<h3 id="sec-3-10"><a id="ID-d38ff2d2-e49f-438e-b2dc-70308586cd8a"></a><code>lispy-eval-and-insert</code></h3>
+<div class="outline-text-3" id="text-3-10">
 <p>
 Use <kbd>E</kbd> to eval current region or sexp.
 The result will be inserted in the current buffer
@@ -764,29 +799,30 @@ deactivated and result will be inserted at point.
 <hr  />
 </div>
 </div>
-<div id="outline-container-sec-3-10" class="outline-3">
-<h3 id="sec-3-10"><a id="ID-3ddf7d0f-83c9-4880-b170-ce36c549c537"></a><code>lispy-store-region-and-buffer</code></h3>
-<div class="outline-text-3" id="text-3-10">
+<div id="outline-container-sec-3-11" class="outline-3">
+<h3 id="sec-3-11"><a id="ID-3ddf7d0f-83c9-4880-b170-ce36c549c537"></a><code>lispy-store-region-and-buffer</code></h3>
+<div class="outline-text-3" id="text-3-11">
 <p>
 Store current buffer and region for further usage.  When region isn't
 active, store the bounds of current expression instead.
 </p>
 
 <p>
-Currently, only <a href="#sec-3-11">lispy-ediff-regions</a> makes use of stored info.
+Currently, only <a href="#sec-3-12">lispy-ediff-regions</a> makes use of stored info.
 </p>
+<hr  />
 </div>
 </div>
-<div id="outline-container-sec-3-11" class="outline-3">
-<h3 id="sec-3-11"><a id="ID-c5f1cde9-1712-497a-afc2-356cd0dce702"></a><code>lispy-ediff-regions</code></h3>
-<div class="outline-text-3" id="text-3-11">
+<div id="outline-container-sec-3-12" class="outline-3">
+<h3 id="sec-3-12"><a id="ID-c5f1cde9-1712-497a-afc2-356cd0dce702"></a><code>lispy-ediff-regions</code></h3>
+<div class="outline-text-3" id="text-3-12">
 <p>
-Comparable to <code>ediff-regions-linewise</code>, except for the region and
+Comparable to <code>ediff-regions-linewise</code>, except the region and
 buffer selection is done differently:
 </p>
 
 <ul class="org-ul">
-<li>first buffer and region are defined by <a href="#sec-3-10">lispy-store-region-and-buffer</a>.
+<li>first buffer and region are defined by <a href="#sec-3-11">lispy-store-region-and-buffer</a>.
 </li>
 <li>second buffer and region are the current buffer and region
 </li>
@@ -808,6 +844,7 @@ function. This is helpful if <code>ediff-buffers</code> isn't what you want.
 Another scenario is to compare two different functions that have similar code,
 for instance <code>lispy-move-down</code> and <code>lispy-move-up</code>.
 </p>
+<hr  />
 </div>
 </div>
 </div>
