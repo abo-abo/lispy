@@ -2058,13 +2058,28 @@ For example, a `setq' statement is amended with variable name that it uses."
    (file-name-nondirectory (buffer-file-name))
    (semantic-fetch-tags)))
 
+(defvar lispy--goto-cache nil "Maps directories to pretty tags.")
+
 (defun lispy--goto (fun)
   "Jump to symbol selected from (FUN)."
   (require 'semantic/bovine/el)
   (semantic-mode 1)
-  (let (helm-candidate-number-limit)
+  (let ((candidates (funcall fun))
+        (cache (assoc default-directory lispy--goto-cache))
+        cached-cands
+        helm-candidate-number-limit)
     (lispy--select-candidate
-     (mapcar #'lispy--tag-name (funcall fun))
+     (cond ((null cache)
+            (setq cached-cands (mapcar #'lispy--tag-name candidates))
+            (push (cons default-directory cached-cands)
+                  lispy--goto-cache)
+            cached-cands)
+           ((and (setq cached-cands (cdr cache))
+                 (= (length cached-cands)
+                    (length candidates)))
+            cached-cands)
+           (t
+            (setcdr cache (mapcar #'lispy--tag-name candidates))))
      #'lispy--action-jump)))
 
 ;; ——— Utilities: slurping and barfing —————————————————————————————————————————
