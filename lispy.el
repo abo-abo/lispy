@@ -2009,7 +2009,7 @@ For example, a `setq' statement is amended with variable name that it uses."
   (setq path (or path default-directory))
   (let* ((default-directory path)
          (db (or (semanticdb-directory-loaded-p path)
-                 (let ((file (car (file-expand-wildcards "*.el*"))))
+                 (let ((file (car (lispy--file-list))))
                    (when file
                      (with-current-buffer
                          (find-file-noselect (expand-file-name file))
