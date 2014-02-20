@@ -1,7 +1,35 @@
-#+TITLE:     [[https://github.com/abo-abo/lispy][lispy.el]] documentation
+#+TITLE:     lispy.el documentation
 #+LANGUAGE:  en
 #+OPTIONS:   H:2 num:nil toc:nil
 #+HTML_HEAD: <link rel="stylesheet" type="text/css" href="style.css"/>
+
+[[https://github.com/abo-abo/lispy][Back to github.]]
+
+* Setup                                                                               :noexport:
+#+begin_src emacs-lisp :exports results :results silent
+(defun make-html-cursor--replace (x)
+  (if (string= "||\n" x)
+      "<cursor> </cursor>\n"
+    (format "<cursor>%c</cursor>" (aref x 2))))
+
+(defun make-html-cursor (str x y)
+  (replace-regexp-in-string
+   "||\\(.\\|\n\\)"
+   #'make-html-cursor--replace
+   str))
+
+(setq org-export-filter-src-block-functions '(make-html-cursor))
+(setq org-html-validation-link nil)
+(setq org-html-postamble nil)
+(setq org-html-text-markup-alist
+  '((bold . "<b>%s</b>")
+    (code . "<kbd>%s</kbd>")
+    (italic . "<i>%s</i>")
+    (strike-through . "<del>%s</del>")
+    (underline . "<span class=\"underline\">%s</span>")
+    (verbatim . "<code>%s</code>")))
+(setq org-html-style-default nil)
+#+end_src
 
 * Global bindings
 | key | function name         |
@@ -12,7 +40,6 @@
 | C-2 | [[id:54becf27-661c-4c5d-92d8-baa22a50291d][lispy-arglist-inline]]  |
 | C-3 | [[id:79f14a39-011b-48bd-82a4-4c1587514948][lispy-out-forward]]     |
 |-----+-----------------------|
-
 * Local bindings
 | key | function name                 |
 |-----+-------------------------------|
@@ -93,7 +120,7 @@ Starting with this:
   "Forward to (`define-key' KEYMAP KEY (`lispy-defun' DEF FROM-START))."
   (let ((func (defalias (intern (concat "special-" (symbol-name def)))
                   (lispy--insert-or-call def from-start))))
-    (unless (member func ac-trigger-commands)
+    ||(unless (member func ac-trigger-commands)
       (push func ac-trigger-commands))
     (unless (member func company-begin-commands)
       (push func company-begin-commands))
@@ -196,7 +223,7 @@ Starting with this:
   "Forward to (`define-key' KEYMAP KEY (`lispy-defun' DEF FROM-START))."
   (let ((func (defalias (intern (concat "special-" (symbol-name def)))
                   (lispy--insert-or-call def from-start))))
-    (unless (member func ac-trigger-commands)
+    ||(unless (member func ac-trigger-commands)
       (push func ac-trigger-commands))
     (unless (member func company-begin-commands)
       (push func company-begin-commands))
@@ -275,7 +302,7 @@ by pressing ~h~ you get this:
   </span><span class="doc"><span class="ace-jump-face-background">"Forward to (`</span></span><span class="doc"><span class="constant"><span class="ace-jump-face-background">define-key</span></span></span><span class="doc"><span class="ace-jump-face-background">' KEYMAP KEY (`</span></span><span class="doc"><span class="constant"><span class="ace-jump-face-background">lispy-defun</span></span></span><span class="doc"><span class="ace-jump-face-background">' DEF FROM-START))."</span></span><span class="ace-jump-face-background">
   (</span><span class="keyword"><span class="ace-jump-face-background">let</span></span><span class="ace-jump-face-background"> ((func (</span><span class="keyword"><span class="ace-jump-face-background">defalias</span></span><span class="ace-jump-face-background"> (</span><span class="function-name"><span class="ace-jump-face-background">intern</span></span><span class="ace-jump-face-background"> (concat </span><span class="string"><span class="ace-jump-face-background">"special-"</span></span><span class="ace-jump-face-background"> (symbol-name def)))
                   (lispy--insert-or-call def from-start))))
-    </span><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">a</span></span><span class="keyword"><span class="ace-jump-face-background">unless</span></span><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">b</span></span><span class="ace-jump-face-background">(member</span><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">c</span></span><span class="ace-jump-face-background">func</span><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">d</span></span><span class="ace-jump-face-background">ac-trigger-commands)
+    </span><span class="ace-jump-face-background"><span class="ace-jump-face-foreground"><cursor>a</cursor></span></span><span class="keyword"><span class="ace-jump-face-background">unless</span></span><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">b</span></span><span class="ace-jump-face-background">(member</span><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">c</span></span><span class="ace-jump-face-background">func</span><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">d</span></span><span class="ace-jump-face-background">ac-trigger-commands)
      </span><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">e</span></span><span class="ace-jump-face-background">(push</span><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">f</span></span><span class="ace-jump-face-background">func</span><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">g</span></span><span class="ace-jump-face-background">ac-trigger-commands))
     (</span><span class="keyword"><span class="ace-jump-face-background">unless</span></span><span class="ace-jump-face-background"> (member func company-begin-commands)
       (push func company-begin-commands))
@@ -352,7 +379,7 @@ Here's the end result of ~hd~:
   <span class="doc">"Forward to (`</span><span class="doc"><span class="constant">define-key</span></span><span class="doc">' KEYMAP KEY (`</span><span class="doc"><span class="constant">lispy-defun</span></span><span class="doc">' DEF FROM-START))."</span>
   (<span class="keyword">let</span> ((func (<span class="keyword">defalias</span> (<span class="function-name">intern</span> (concat <span class="string">"special-"</span> (symbol-name def)))
                   (lispy--insert-or-call def from-start))))
-    (<span class="keyword">unless</span> (member func <span class="region">ac-trigger-commands</span>)
+    (<span class="keyword">unless</span> (member func <span class="region">ac-trigger-commands</span><cursor>)</cursor>
       (push func ac-trigger-commands))
     (<span class="keyword">unless</span> (member func company-begin-commands)
       (push func company-begin-commands))
@@ -464,7 +491,7 @@ marked symbol (see [[id:0c51e02a-e411-4d68-97da-083db9584dc6][lispy-ace-symbol]]
             <span class="lispy-face-hint">The value is actually the tail of LIST whose car is ELT.</span>
 
             <span class="lispy-face-hint">(fn ELT LIST)</span>
-    (<span class="keyword">unless</span> (member func ac-trigger-commands)
+    (<span class="keyword">unless</span> (member func <cursor>a</cursor>c-trigger-commands)
       (push func ac-trigger-commands))
     (<span class="keyword">unless</span> (member func company-begin-commands)
       (push func company-begin-commands))
@@ -551,7 +578,7 @@ Use ~C-2~ to show the argument list for current function.
   (<span class="keyword">let</span> ((func (<span class="keyword">defalias</span> (<span class="function-name">intern</span> (concat <span class="string">"special-"</span> (symbol-name def)))
                   (lispy--insert-or-call def from-start))))
             (<span class="lispy-face-hint">member</span> <span class="lispy-face-req-nosel">elt</span> <span class="lispy-face-req-nosel">list</span>)
-    (<span class="keyword">unless</span> (member func ac-trigger-commands)
+    (<span class="keyword">unless</span> (member func <cursor>a</cursor>c-trigger-commands)
       (push func ac-trigger-commands))
     (<span class="keyword">unless</span> (member func company-begin-commands)
       (push func company-begin-commands))
