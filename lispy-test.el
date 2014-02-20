@@ -710,7 +710,7 @@ Insert KEY if there's no command."
   (should (string= (lispy-with ";; abc\n;; def\n;; ghi|" (lispy-mark))
                    "~;; abc\n;; def\n;; ghi|")))
 
-(ert-deftest lispy-lambda-ize ()
+(ert-deftest lispy-to-lambda ()
   (should (string= (lispy-with "|(defun foo (x y)\n  (bar))" "L")
                    "|(lambda (x y)\n  (bar))"))
   (should (string= (lispy-with "(defun foo (x y)\n  |(bar))" "L")
