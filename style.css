@@ -40,6 +40,10 @@ kbd {
     white-space:nowrap;
 }
 
+body a code {
+    color: black;
+}
+
 code {
     border: 1px solid Silver;
     background-color: #ffffdc;
