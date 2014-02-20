@@ -10,8 +10,9 @@
 (defun make-html-cursor--replace (x)
   (if (string= "||\n" x)
       "<cursor> </cursor>\n"
-    (format "<cursor>%c</cursor>" (aref x 2))))
-
+    (format "<cursor>%s</cursor>"
+            (regexp-quote
+             (substring x 2)))))
 (defun make-html-cursor (str x y)
   (replace-regexp-in-string
    "||\\(.\\|\n\\)"
@@ -38,6 +39,9 @@
 |-----+-----------------------|
 | ]   | [[id:d1065cb0-4b22-4d0c-9aad-a96eee0f4b54][lispy-forward]]         |
 | [   | [[id:a0171dbc-b2d6-4196-ad1e-f8a7c860dd9b][lispy-backward]]        |
+| (   | [[id:bdff1e23-07d0-4e84-b1ac-7b55ae0e0da7][lispy-parens]]          |
+| {   | [[id:d985a611-5a63-4107-9041-da36702d5522][lispy-braces]]          |
+| }   | [[id:83c46b4b-0417-4048-9240-d6fd686bbe21][lispy-brackets]]        |
 | C-1 | [[id:54752047-032c-4f0d-97ac-ed9baefa3649][lispy-describe-inline]] |
 | C-2 | [[id:54becf27-661c-4c5d-92d8-baa22a50291d][lispy-arglist-inline]]  |
 | C-3 | [[id:79f14a39-011b-48bd-82a4-4c1587514948][lispy-out-forward]]     |
@@ -52,7 +56,7 @@
 | E   | [[id:d38ff2d2-e49f-438e-b2dc-70308586cd8a][lispy-eval-and-insert]]         |
 | b   | [[id:3ddf7d0f-83c9-4880-b170-ce36c549c537][lispy-store-region-and-buffer]] |
 | B   | [[id:c5f1cde9-1712-497a-afc2-356cd0dce702][lispy-ediff-regions]]           |
-| L   | [[id:0333708a-609e-4619-a0d4-4507397c5c25][lispy-to-lambda]]              |
+| L   | [[id:0333708a-609e-4619-a0d4-4507397c5c25][lispy-to-lambda]]               |
 |-----+-------------------------------|
 
 * Function reference
@@ -60,6 +64,9 @@
 :PROPERTIES:
 :ID:       d1065cb0-4b22-4d0c-9aad-a96eee0f4b54
 :END:
+
+Bound to ~]~.
+
 Works as replacement for the standard =forward-list=.
 
 Takes a numeric prefix =arg= and moves forward list =arg= times or
@@ -70,7 +77,7 @@ to move =arg= times.
 It that case, move as many times as possible.
 
 Return =t= if could move at least once, otherwise
-call =lispy-out-forward= and return =nil=.
+call [[id:79f14a39-011b-48bd-82a4-4c1587514948][=lispy-out-forward=]] and return =nil=.
 
 Unlike =forward-list=, parens in strings and comments are ignored.
 -----
@@ -79,6 +86,9 @@ Unlike =forward-list=, parens in strings and comments are ignored.
 :PROPERTIES:
 :ID:       a0171dbc-b2d6-4196-ad1e-f8a7c860dd9b
 :END:
+
+Bound to ~[~.
+
 Works as replacement for the standard =backward-list=.
 
 Takes a numeric prefix =arg= and moves backward list =arg= times or
@@ -97,6 +107,8 @@ Unlike =backward-list=, parens in strings and comments are ignored.
 :PROPERTIES:
 :ID:       79f14a39-011b-48bd-82a4-4c1587514948
 :END:
+
+Bound to ~C-3~.
 
 Works as replacement for the standard =up-list=.
 
@@ -202,7 +214,7 @@ by pressing ~q~ you get this:
   </span><span class="doc"><span class="ace-jump-face-background">"Forward to </span></span><span class="doc"><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">c</span></span></span><span class="doc"><span class="ace-jump-face-background">`</span></span><span class="doc"><span class="constant"><span class="ace-jump-face-background">define-key</span></span></span><span class="doc"><span class="ace-jump-face-background">' KEYMAP KEY </span></span><span class="doc"><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">d</span></span></span><span class="doc"><span class="ace-jump-face-background">`</span></span><span class="doc"><span class="constant"><span class="ace-jump-face-background">lispy-defun</span></span></span><span class="doc"><span class="ace-jump-face-background">' DEF FROM-START))."</span></span><span class="ace-jump-face-background">
   </span><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">e</span></span><span class="keyword"><span class="ace-jump-face-background">let</span></span><span class="ace-jump-face-background"> </span><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">fg</span></span><span class="ace-jump-face-background">func </span><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">h</span></span><span class="keyword"><span class="ace-jump-face-background">defalias</span></span><span class="ace-jump-face-background"> </span><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">i</span></span><span class="function-name"><span class="ace-jump-face-background">intern</span></span><span class="ace-jump-face-background"> </span><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">j</span></span><span class="ace-jump-face-background">concat </span><span class="string"><span class="ace-jump-face-background">"special-"</span></span><span class="ace-jump-face-background"> </span><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">k</span></span><span class="ace-jump-face-background">symbol-name def)))
                   </span><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">l</span></span><span class="ace-jump-face-background">lispy--insert-or-call def from-start))))
-    </span><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">m</span></span><span class="keyword"><span class="ace-jump-face-background">unless</span></span><span class="ace-jump-face-background"> </span><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">n</span></span><span class="ace-jump-face-background">member func ac-trigger-commands)
+    </span><span class="ace-jump-face-background"><span class="ace-jump-face-foreground"><cursor>m</cursor></span></span><span class="keyword"><span class="ace-jump-face-background">unless</span></span><span class="ace-jump-face-background"> </span><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">n</span></span><span class="ace-jump-face-background">member func ac-trigger-commands)
       </span><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">o</span></span><span class="ace-jump-face-background">push func ac-trigger-commands))
     </span><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">p</span></span><span class="keyword"><span class="ace-jump-face-background">unless</span></span><span class="ace-jump-face-background"> </span><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">q</span></span><span class="ace-jump-face-background">member func company-begin-commands)
       </span><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">r</span></span><span class="ace-jump-face-background">push func company-begin-commands))
@@ -425,7 +437,7 @@ Elisp, Clojure and Common Lisp are supported.
 :END:
 
 Use ~C-1~ to show the documentation for current function or currently
-marked symbol (see [[id:0c51e02a-e411-4d68-97da-083db9584dc6][lispy-ace-symbol]]).
+marked symbol (see [[id:0c51e02a-e411-4d68-97da-083db9584dc6][=lispy-ace-symbol=]]).
 
 #+BEGIN_HTML
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
@@ -628,7 +640,7 @@ after the evaluated expression.
 Use ~b~ to store current buffer and region for further usage.  When
 region isn't active, store the bounds of current expression instead.
 
-Currently, only [[id:c5f1cde9-1712-497a-afc2-356cd0dce702][lispy-ediff-regions]] makes use of stored info.
+Currently, only [[id:c5f1cde9-1712-497a-afc2-356cd0dce702][=lispy-ediff-regions=]] makes use of stored info.
 -----
 
 ** =lispy-ediff-regions=
@@ -640,7 +652,7 @@ Use ~B~ to call this function. It's comparable to
 =ediff-regions-linewise=, except the region and
 buffer selection is done differently:
 
-- first buffer and region are defined by [[id:3ddf7d0f-83c9-4880-b170-ce36c549c537][lispy-store-region-and-buffer]].
+- first buffer and region are defined by [[id:3ddf7d0f-83c9-4880-b170-ce36c549c537][=lispy-store-region-and-buffer=]].
 - second buffer and region are the current buffer and region
 
 Buffers can of course be the same.
@@ -686,4 +698,106 @@ by pressing ~L~ you will get this:
               (format "%s.org" x)
               helm-owiki-directory)))
 #+end_src
+-----
+
+** =lispy-parens=
+:PROPERTIES:
+:ID:       bdff1e23-07d0-4e84-b1ac-7b55ae0e0da7
+:END:
+
+Use ~(~ to call [[id:80cb6d3d-f3fe-4c0f-9eaf-e098679aada4][=lispy-pair=]] specialized with =()=.
+-----
+
+** =lispy-braces=
+:PROPERTIES:
+:ID:       d985a611-5a63-4107-9041-da36702d5522
+:END:
+
+Use ~{~ to call [[id:80cb6d3d-f3fe-4c0f-9eaf-e098679aada4][=lispy-pair=]] specialized with ={}=.
+-----
+
+** =lispy-brackets=
+:PROPERTIES:
+:ID:       83c46b4b-0417-4048-9240-d6fd686bbe21
+:END:
+
+Use ~}~ to call [[id:80cb6d3d-f3fe-4c0f-9eaf-e098679aada4][=lispy-pair=]] specialized with =[]=.
+-----
+
+** =lispy-pair=
+:PROPERTIES:
+:ID:       80cb6d3d-f3fe-4c0f-9eaf-e098679aada4
+:END:
+
+This function, taking arguments =left= and =right=, is used to generate
+[[id:bdff1e23-07d0-4e84-b1ac-7b55ae0e0da7][lispy-parens]],
+[[id:d985a611-5a63-4107-9041-da36702d5522][lispy-braces]]
+and [[id:83c46b4b-0417-4048-9240-d6fd686bbe21][lispy-brackets]], which in turn take prefix =arg=.
+
+The result depends on the following conditions, each
+tried one by one until one that hold true is found:
+
+*** region active
+Wrap the region with =left= and =right=.
+
+*** inside a string before "\\"
+Starting with
+#+begin_src text-mode
+"a regex \\||"
+#+end_src
+pressing  ~(~ will give:
+#+begin_src text-mode
+"a regex \\(||\\)"
+#+end_src
+and pressing ~{~ will give:
+#+begin_src text-mode
+"a regex \\{||\\}"
+#+end_src
+and pressing ~}~ will give:
+#+begin_src text-mode
+"a regex \\[||\\]"
+#+end_src
+*** inside string or comment
+Insert =left=, =right= and put the point between them.
+
+Starting with
+#+begin_src emacs-lisp-mode
+"a string || "
+#+end_src
+pressing ~(~ will give:
+#+begin_src emacs-lisp
+"a string (||)"
+#+end_src
+
+*** elisp character expression
+Starting with
+#+begin_src text-mode
+?\||
+#+end_src
+pressing ~(~ will self-insert it to give:
+#+begin_src text-mode
+?\(||
+#+end_src
+
+*** =arg= is 1
+1. Re-indent and insert space according to =lispy--space-unless=.
+2. Insert =left=, =right= and put the point between them.
+3. Insert a space after =right= if it's appropriate.
+
+*** otherwise
+Wrap current sexp with =left= and =right=.
+
+Starting with:
+#+begin_src emacs-lisp
+||(do-some-thing)
+(do-other-thing)
+#+end_src
+
+pressing ~2(~ will give:
+#+begin_src emacs-lisp
+(|| (do-some-thing))
+(do-other-thing)
+#+end_src
+
+~2~ here is responsible to setting =arg= to 2.
 -----
