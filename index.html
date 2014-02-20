@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
 <title>lispy.el documentation</title>
-<!-- 2014-02-20 Thu 10:18 -->
+<!-- 2014-02-20 Thu 14:16 -->
 <meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta  name="generator" content="Org-mode" />
 <meta  name="author" content="Oleh" />
@@ -118,6 +118,11 @@
 <tr>
 <td class="left">B</td>
 <td class="left"><a href="#sec-3-12">lispy-ediff-regions</a></td>
+</tr>
+
+<tr>
+<td class="left">L</td>
+<td class="left"><a href="#sec-3-13">lispy-lambda-ize</a></td>
 </tr>
 </tbody>
 </table>
@@ -764,8 +769,8 @@ deactivated and result will be inserted at point.
 <h3 id="sec-3-11"><a id="ID-3ddf7d0f-83c9-4880-b170-ce36c549c537"></a><code>lispy-store-region-and-buffer</code></h3>
 <div class="outline-text-3" id="text-3-11">
 <p>
-Store current buffer and region for further usage.  When region isn't
-active, store the bounds of current expression instead.
+Use <kbd>b</kbd> to store current buffer and region for further usage.  When
+region isn't active, store the bounds of current expression instead.
 </p>
 
 <p>
@@ -778,7 +783,8 @@ Currently, only <a href="#sec-3-12">lispy-ediff-regions</a> makes use of stored 
 <h3 id="sec-3-12"><a id="ID-c5f1cde9-1712-497a-afc2-356cd0dce702"></a><code>lispy-ediff-regions</code></h3>
 <div class="outline-text-3" id="text-3-12">
 <p>
-Comparable to <code>ediff-regions-linewise</code>, except the region and
+Use <kbd>B</kbd> to call this function. It's comparable to
+<code>ediff-regions-linewise</code>, except the region and
 buffer selection is done differently:
 </p>
 
@@ -805,6 +811,52 @@ function. This is helpful if <code>ediff-buffers</code> isn't what you want.
 Another scenario is to compare two different functions that have similar code,
 for instance <code>lispy-move-down</code> and <code>lispy-move-up</code>.
 </p>
+<hr  />
+</div>
+</div>
+<div id="outline-container-sec-3-13" class="outline-3">
+<h3 id="sec-3-13"><a id="ID-0333708a-609e-4619-a0d4-4507397c5c25"></a><code>lispy-lambda-ize</code></h3>
+<div class="outline-text-3" id="text-3-13">
+<p>
+Use <kbd>L</kbd> to turn the current function definition into a lambda.
+</p>
+
+<p>
+One use case is when I want to edebug a lambda but not the function
+that's using it. So I extract the lambda, name it, edebug it and
+turn it back into a lambda with this function.
+</p>
+
+<p>
+Other use case is that I simply want to get the lambda since
+the function isn't used anywhere else.
+</p>
+
+<p>
+Starting with this:
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="font-weight: bold;">helm-owiki-action</span> (x)
+  (find-file (expand-file-name
+              (format <span style="color: #2A00FF;">"%s.org"</span> x)<cursor> </cursor>
+              helm-owiki-directory)))
+</pre>
+</div>
+
+<p>
+by pressing <kbd>L</kbd> you will get this:
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp"><cursor>(</cursor><span style="color: #7F0055; font-weight: bold;">lambda</span> (x)
+  (find-file (expand-file-name
+              (format <span style="color: #2A00FF;">"%s.org"</span> x)
+              helm-owiki-directory)))
+</pre>
+</div>
 <hr  />
 </div>
 </div>

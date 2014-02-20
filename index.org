@@ -52,6 +52,7 @@
 | E   | [[id:d38ff2d2-e49f-438e-b2dc-70308586cd8a][lispy-eval-and-insert]]         |
 | b   | [[id:3ddf7d0f-83c9-4880-b170-ce36c549c537][lispy-store-region-and-buffer]] |
 | B   | [[id:c5f1cde9-1712-497a-afc2-356cd0dce702][lispy-ediff-regions]]           |
+| L   | [[id:0333708a-609e-4619-a0d4-4507397c5c25][lispy-lambda-ize]]              |
 |-----+-------------------------------|
 
 * Function reference
@@ -624,8 +625,8 @@ after the evaluated expression.
 :ID:       3ddf7d0f-83c9-4880-b170-ce36c549c537
 :END:
 
-Store current buffer and region for further usage.  When region isn't
-active, store the bounds of current expression instead.
+Use ~b~ to store current buffer and region for further usage.  When
+region isn't active, store the bounds of current expression instead.
 
 Currently, only [[id:c5f1cde9-1712-497a-afc2-356cd0dce702][lispy-ediff-regions]] makes use of stored info.
 -----
@@ -635,7 +636,8 @@ Currently, only [[id:c5f1cde9-1712-497a-afc2-356cd0dce702][lispy-ediff-regions]]
 :ID:       c5f1cde9-1712-497a-afc2-356cd0dce702
 :END:
 
-Comparable to =ediff-regions-linewise=, except the region and
+Use ~B~ to call this function. It's comparable to
+=ediff-regions-linewise=, except the region and
 buffer selection is done differently:
 
 - first buffer and region are defined by [[id:3ddf7d0f-83c9-4880-b170-ce36c549c537][lispy-store-region-and-buffer]].
@@ -653,5 +655,35 @@ Another scenario is to compare two different functions that have similar code,
 for instance =lispy-move-down= and =lispy-move-up=.
 -----
 
+** =lispy-lambda-ize=
+:PROPERTIES:
+:ID:       0333708a-609e-4619-a0d4-4507397c5c25
+:END:
 
+Use ~L~ to turn the current function definition into a lambda.
 
+One use case is when I want to edebug a lambda but not the function
+that's using it. So I extract the lambda, name it, edebug it and
+turn it back into a lambda with this function.
+
+Other use case is that I simply want to get the lambda since
+the function isn't used anywhere else.
+
+Starting with this:
+
+#+begin_src emacs-lisp
+(defun helm-owiki-action (x)
+  (find-file (expand-file-name
+              (format "%s.org" x)||
+              helm-owiki-directory)))
+#+end_src
+
+by pressing ~L~ you will get this:
+
+#+begin_src emacs-lisp
+||(lambda (x)
+  (find-file (expand-file-name
+              (format "%s.org" x)
+              helm-owiki-directory)))
+#+end_src
+-----
