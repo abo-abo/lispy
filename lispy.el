@@ -366,6 +366,26 @@ Return nil on failure, t otherwise."
   (dotimes-protect arg
     (newline-and-indent)))
 
+(defvar lispy-meol-point 1
+  "Point where `lispy-move-end-of-line' should go when already at eol.")
+
+(defun lispy-move-end-of-line ()
+  "Forward to `move-end-of-line' unless already at end of line.
+Then return to the point where it was called last.
+If this point is inside string, move outside string."
+  (interactive)
+  (let ((pt (point)))
+    (if (eq pt (line-end-position))
+        (if (lispy--in-string-p)
+            (goto-char (cdr (lispy--bounds-string)))
+          (when (and (< lispy-meol-point pt)
+                     (>= lispy-meol-point (line-beginning-position)))
+            (goto-char lispy-meol-point)
+            (when (lispy--in-string-p)
+              (goto-char (cdr (lispy--bounds-string))))))
+      (setq lispy-meol-point (point))
+      (move-end-of-line 1))))
+
 ;; ——— Locals:  navigation —————————————————————————————————————————————————————
 (defun lispy-flow (arg)
   "Move inside list ARG times.
@@ -1270,26 +1290,6 @@ Comments will be moved ahead of sexp."
                    (lispy--out-backward 1))))
               (t (self-insert-command 1)))))))
 
-(defvar lispy-meol-point 1
-  "Point where `lispy-move-end-of-line' should go when already at eol.")
-
-(defun lispy-move-end-of-line ()
-  "Forward to `move-end-of-line' unless already at end of line.
-Then return to the point where it was called last.
-If this point is inside string, move outside string."
-  (interactive)
-  (let ((pt (point)))
-    (if (eq pt (line-end-position))
-        (if (lispy--in-string-p)
-            (goto-char (cdr (lispy--bounds-string)))
-          (when (and (< lispy-meol-point pt)
-                     (>= lispy-meol-point (line-beginning-position)))
-            (goto-char lispy-meol-point)
-            (when (lispy--in-string-p)
-              (goto-char (cdr (lispy--bounds-string))))))
-      (setq lispy-meol-point (point))
-      (move-end-of-line 1))))
-
 (defun lispy-string-oneline ()
   "Convert current string to one line."
   (interactive)
@@ -1730,9 +1730,11 @@ Return nil on failure, (point) otherwise."
 (defun lispy--out-backward (arg)
   "Move outside list forwards ARG times.
 Return nil on failure, t otherwise."
-  (lispy--out-forward arg)
-  (when (looking-back lispy-right)
-    (lispy-backward 1)))
+  (let ((pt (point)))
+    (lispy--out-forward arg)
+    (when (looking-back lispy-right)
+      (lispy-backward 1))
+    (not (= pt (point)))))
 
 (defun lispy--back-to-paren ()
   "Move to ( going out backwards."
