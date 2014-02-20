@@ -138,7 +138,11 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "((a) (b) (c)|)" "40[")
                    "(|(a) (b) (c))"))
   (should (string= (lispy-with "((b)|\"foo\")" "[")
-                   "(|(b)\"foo\")")))
+                   "(|(b)\"foo\")"))
+  (should (string= (lispy-with "(bar)\n;; (foo baar)|" "[")
+                   "|(bar)\n;; (foo baar)"))
+  (should (string= (lispy-with "(foo)\n;; (foo bar\n;;      tanf)|" "[")
+                   "|(foo)\n;; (foo bar\n;;      tanf)")))
 
 (ert-deftest lispy-out-forward ()
   (should (string= (lispy-with "(|(a) (b) (c))" "l")
@@ -626,7 +630,7 @@ Insert KEY if there's no command."
                         (lispy-with "(defun foo ()\n  (let (a b c)\n    (cond ((s1)\n           |(s2)\n           (s3)))))" ";;;;")))
   (should (string-match "|(defun foo ()\n  ;; (let (a b c)\n  ;;   ;; (cond ;; ((s1)\n  ;;   ;;       ;;  ;; (s2)\n  ;;   ;;       ;;  ;; (s3)\n  ;;   ;;       ;;  )\n  ;;   ;;  *)\n  ;;   )\n  )"
                         (lispy-with "(defun foo ()\n  (let (a b c)\n    (cond ((s1)\n           |(s2)\n           (s3)))))" ";;;;;")))
-  (should (string-match ";; (defun foo ()\n;;   ;; (let (a b c)\n;;   ;;   ;; (cond ;; ((s1)\n;;   ;;   ;;       ;;  ;; (s2)\n;;   ;;   ;;       ;;  ;; (s3)\n;;   ;;   ;;       ;;  )\n;;   ;;   ;;  *)\n;;   ;;   )\n;;   )|"
+  (should (string-match "|;; (defun foo ()\n;;   ;; (let (a b c)\n;;   ;;   ;; (cond ;; ((s1)\n;;   ;;   ;;       ;;  ;; (s2)\n;;   ;;   ;;       ;;  ;; (s3)\n;;   ;;   ;;       ;;  )\n;;   ;;   ;;  *)\n;;   ;;   )\n;;   )"
                         (lispy-with "(defun foo ()\n  (let (a b c)\n    (cond ((s1)\n           |(s2)\n           (s3)))))" ";;;;;;")))
   (should (string= (lispy-with ";; line| 1\n;; line 2\n (a b c)\n ;; line 3" (lispy-comment 2))
                    "line| 1\nline 2\n (a b c)\n ;; line 3"))
