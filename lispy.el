@@ -1820,8 +1820,7 @@ Return nil on failure, t otherwise."
          (when (memq major-mode '(lisp-mode emacs-lisp-mode))
            (lexical-let ((arity (cdr (assoc major-mode lispy-tag-arity)))
                          (tag-regex (lispy--tag-regexp)))
-             (mapc (lambda(x) (lispy--modify-tag x tag-regex arity))  tags)
-             (lispy--set-file-to-tags (buffer-file-name buffer) tags)))
+             (mapc (lambda(x) (lispy--modify-tag x tag-regex arity))  tags)))
          ;; (kill-buffer buffer)
          ))
      (lispy--file-list)))
@@ -2015,11 +2014,14 @@ For example, a `setq' statement is amended with variable name that it uses."
        (make-string (- (nth 2 lispy-helm-columns)
                        (nth 1 lispy-helm-columns))
                     ?\ )
-       (let ((overlay (nth 4 x)))
+       (let ((v (nth 4 x)))
          (file-name-nondirectory
-          (if (overlayp overlay)
-              (buffer-file-name (overlay-buffer overlay))
-            (cdr overlay)))))
+          (cond
+            ((overlayp v)
+             (buffer-file-name (overlay-buffer v)))
+            ((vectorp v)
+             (aref v 2))
+            (t (error "unexpected"))))))
       (cdr x)))
    x))
 
@@ -2033,16 +2035,17 @@ For example, a `setq' statement is amended with variable name that it uses."
 (defun lispy--fetch-tags (&optional path)
   "Get a list of tags for `default-directory'."
   (lispy--fetch-this-file-tags)
-  (semanticdb-save-current-db)
   (setq path (or path default-directory))
-  (let* ((default-directory path)
+  (let* ((this-file (buffer-file-name))
+         (default-directory path)
          (db (or (semanticdb-directory-loaded-p path)
                  ;; a trick to make sure semantic loads
-                 (let ((file (car (lispy--file-list))))
+                 (let ((file (expand-file-name (car (lispy--file-list)))))
                    (when file
                      (with-current-buffer
-                         (find-file-noselect (expand-file-name file))
-                       (kill-buffer)))
+                         (find-file-noselect file)
+                       (unless (equal this-file (buffer-file-name))
+                         (kill-buffer))))
                    (semanticdb-directory-loaded-p path)))))
     (unless (lexical-let ((db-files
                            (mapcar (lambda(x) (aref x 2))
@@ -2070,15 +2073,20 @@ For example, a `setq' statement is amended with variable name that it uses."
   "Put FILE as property of each tag in TAGS."
   (mapcar
    (lambda(y)
-     (if (overlayp (nth 4 y))
-         y
-       (let ((z (cl-copy-list y))
-             (bnd (nth 4 y)))
-         (setcar (nthcdr 4 z)
-                 (cons
-                  bnd
-                  file))
-         z)))
+     (let ((v (nth 4 y)))
+       (cond ((vectorp v)
+              (cl-case (length v)
+                (2 (setcar (nthcdr 4 y)
+                           (vconcat v (vector file))))
+                (3 nil)
+                (t (error "unexpected"))))
+             ((overlayp v)
+              (setcar (nthcdr 4 y)
+                      (vector (overlay-start v)
+                              (overlay-end v)
+                              file)))
+             (t (error "unexpected")))
+       y))
    tags))
 
 (defun lispy--fetch-this-file-tags ()
@@ -2273,16 +2281,13 @@ ACTION is called for the selected candidate."
   (when (semantic-tag-p tag)
     (let ((overlay (semantic-tag-overlay tag)))
       (cond ((overlayp overlay))
-            ((consp overlay)
-             (let ((bnd (car overlay))
-                   (buffer (find-file-noselect (cdr overlay))))
-               (semantic--tag-set-overlay
-                tag
-                (make-overlay (aref bnd 0) (aref bnd 1) buffer))))
             ((arrayp overlay)
              (semantic--tag-set-overlay
               tag
-              (make-overlay (aref overlay 0) (aref overlay 1) (current-buffer)))))
+              (make-overlay (aref overlay 0)
+                            (aref overlay 1)
+                            (find-file (aref overlay 2)))))
+            (t (error "unexpected")))
       (push-mark)
       (semantic-go-to-tag tag)
       (when (eq major-mode 'clojure-mode)
