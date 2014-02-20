@@ -52,7 +52,7 @@
 | E   | [[id:d38ff2d2-e49f-438e-b2dc-70308586cd8a][lispy-eval-and-insert]]         |
 | b   | [[id:3ddf7d0f-83c9-4880-b170-ce36c549c537][lispy-store-region-and-buffer]] |
 | B   | [[id:c5f1cde9-1712-497a-afc2-356cd0dce702][lispy-ediff-regions]]           |
-| L   | [[id:0333708a-609e-4619-a0d4-4507397c5c25][lispy-lambda-ize]]              |
+| L   | [[id:0333708a-609e-4619-a0d4-4507397c5c25][lispy-to-lambda]]              |
 |-----+-------------------------------|
 
 * Function reference
@@ -655,7 +655,7 @@ Another scenario is to compare two different functions that have similar code,
 for instance =lispy-move-down= and =lispy-move-up=.
 -----
 
-** =lispy-lambda-ize=
+** =lispy-to-lambda=
 :PROPERTIES:
 :ID:       0333708a-609e-4619-a0d4-4507397c5c25
 :END:
