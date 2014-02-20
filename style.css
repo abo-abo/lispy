@@ -23,7 +23,8 @@ kbd {
     padding:0.1em 0.6em;
     border:1px solid #ccc;
     font-size:13px;
-    font-family:sans-serif;
+    font-weight:bold;
+    font-family:monospace;
     background-color:#d6d8ec;
     color:#333;
     -moz-box-shadow:0 1px 0px rgba(0, 0, 0, 0.2),0 0 0 2px #ffffff inset;
