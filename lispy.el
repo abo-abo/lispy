@@ -236,6 +236,9 @@ otherwise call `lispy-out-forward' and return nil."
   (when (= arg 0)
     (setq arg 2000))
   (lispy--exit-string)
+  (let ((bnd (lispy--bounds-comment)))
+    (when bnd
+      (goto-char (1+ (cdr bnd)))))
   (let ((pt (point))
         (r (dotimes-protect arg
              (forward-list))))
@@ -258,6 +261,9 @@ If couldn't move backward at least once, move up backward and return nil."
   (when (= arg 0)
     (setq arg 2000))
   (lispy--exit-string)
+  (let ((bnd (lispy--bounds-comment)))
+    (when bnd
+      (goto-char (car bnd))))
   (let ((pt (point))
         (r (dotimes-protect arg
              (backward-list))))
