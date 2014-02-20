@@ -1278,6 +1278,8 @@ Comments will be moved ahead of sexp."
               ((looking-back lispy-right)
                (comment-dwim nil)
                (insert " "))
+              ((looking-back "^ *")
+               (comment-dwim nil))
               ((setq bnd (save-excursion
                            (and (lispy--out-forward 1)
                                 (point))))
