@@ -30,6 +30,7 @@
     (underline . "<span class=\"underline\">%s</span>")
     (verbatim . "<code>%s</code>")))
 (setq org-html-style-default nil)
+(setq org-html-head-include-scripts nil)
 #+end_src
 
 * Global bindings
