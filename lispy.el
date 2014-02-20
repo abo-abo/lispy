@@ -776,7 +776,7 @@ When this function is called:
         (insert ,left ,right)
         (backward-char 1))
        ((looking-back "?\\\\")
-        (insert ,left))
+        (self-insert-command 1))
        ((= arg 1)
         (lispy--indent-for-tab)
         (lispy--space-unless ,space-unless)
