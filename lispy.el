@@ -1546,7 +1546,7 @@ Sexp is obtained by exiting list ARG times."
       (put 'lispy-shifttab 'state 1))))
 
 ;; ——— Locals:  miscellanea ————————————————————————————————————————————————————
-(defun lispy-lambda-ize ()
+(defun lispy-to-lambda ()
   "Turn current function definition into a lambda."
   (interactive)
   (when (save-excursion (lispy--out-backward 1))
@@ -2604,7 +2604,7 @@ list."
   (lispy-define-key map "n" 'lispy-new-copy)
   (lispy-define-key map "b" 'lispy-store-region-and-buffer)
   (lispy-define-key map "B" 'lispy-ediff-regions)
-  (lispy-define-key map "L" 'lispy-lambda-ize)
+  (lispy-define-key map "L" 'lispy-to-lambda)
   ;; ——— locals: digit argument ———————————————
   (mapc (lambda (x) (lispy-define-key map (format "%d" x) 'digit-argument))
         (number-sequence 0 9)))
