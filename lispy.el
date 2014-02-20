@@ -2030,9 +2030,12 @@ For example, a `setq' statement is amended with variable name that it uses."
 
 (defun lispy--fetch-tags (&optional path)
   "Get a list of tags for `default-directory'."
+  (lispy--fetch-this-file-tags)
+  (semanticdb-save-current-db)
   (setq path (or path default-directory))
   (let* ((default-directory path)
          (db (or (semanticdb-directory-loaded-p path)
+                 ;; a trick to make sure semantic loads
                  (let ((file (car (lispy--file-list))))
                    (when file
                      (with-current-buffer
