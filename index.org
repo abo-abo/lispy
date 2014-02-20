@@ -21,6 +21,7 @@
 (setq org-export-filter-src-block-functions '(make-html-cursor))
 (setq org-html-validation-link nil)
 (setq org-html-postamble nil)
+(setq org-html-preamble "<link rel=\"icon\" type=\"image/x-icon\" href=\"https://github.com/favicon.ico\"/>")
 (setq org-html-text-markup-alist
   '((bold . "<b>%s</b>")
     (code . "<kbd>%s</kbd>")
