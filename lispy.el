@@ -2121,8 +2121,9 @@ For example, a `setq' statement is amended with variable name that it uses."
     (lispy--select-candidate
      (cond ((null cache)
             (setq cached-cands (mapcar #'lispy--tag-name candidates))
-            (push (cons default-directory cached-cands)
-                  lispy--goto-cache)
+            (when (> (length cached-cands) 1000)
+              (push (cons default-directory cached-cands)
+                    lispy--goto-cache))
             cached-cands)
            ((and (setq cached-cands (cdr cache))
                  (= (length cached-cands)
