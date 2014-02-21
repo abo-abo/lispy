@@ -1,6 +1,6 @@
 #+TITLE:     lispy.el documentation
 #+LANGUAGE:  en
-#+OPTIONS:   H:2 num:nil toc:nil
+#+OPTIONS:   H:3 num:nil toc:nil
 #+HTML_HEAD: <link rel="stylesheet" type="text/css" href="style.css"/>
 
 [[https://github.com/abo-abo/lispy][Back to github.]]
