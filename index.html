@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
 <title>lispy.el documentation</title>
-<!-- 2014-02-21 Fri 09:43 -->
+<!-- 2014-02-21 Fri 14:48 -->
 <meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta  name="generator" content="Org-mode" />
 <meta  name="author" content="Oleh" />
@@ -50,17 +50,17 @@
 
 <tr>
 <td class="left">(</td>
-<td class="left"><a href="#sec-3-14">lispy-parens</a></td>
+<td class="left"><a href="#sec-3-15">lispy-parens</a></td>
 </tr>
 
 <tr>
 <td class="left">{</td>
-<td class="left"><a href="#sec-3-15">lispy-braces</a></td>
+<td class="left"><a href="#sec-3-16">lispy-braces</a></td>
 </tr>
 
 <tr>
 <td class="left">}</td>
-<td class="left"><a href="#sec-3-16">lispy-brackets</a></td>
+<td class="left"><a href="#sec-3-17">lispy-brackets</a></td>
 </tr>
 
 <tr>
@@ -76,6 +76,11 @@
 <tr>
 <td class="left">C-3</td>
 <td class="left"><a href="#sec-3-3">lispy-out-forward</a></td>
+</tr>
+
+<tr>
+<td class="left">C-4</td>
+<td class="left"><a href="#sec-3-19">lispy-x</a></td>
 </tr>
 </tbody>
 </table>
@@ -136,8 +141,13 @@
 </tr>
 
 <tr>
-<td class="left">L</td>
+<td class="left">xl</td>
 <td class="left"><a href="#sec-3-13">lispy-to-lambda</a></td>
+</tr>
+
+<tr>
+<td class="left">xd</td>
+<td class="left"><a href="#sec-3-14">lispy-to-defun</a></td>
 </tr>
 </tbody>
 </table>
@@ -845,12 +855,14 @@ for instance <code>lispy-move-down</code> and <code>lispy-move-up</code>.
 <h3 id="sec-3-13"><a id="ID-0333708a-609e-4619-a0d4-4507397c5c25"></a><code>lispy-to-lambda</code></h3>
 <div class="outline-text-3" id="text-3-13">
 <p>
-Use <kbd>L</kbd> to turn the current function definition into a lambda.
+Use <kbd>xl</kbd> (local) or <kbd>C-4 l</kbd> (global) to turn the current function
+definition into a lambda.
 </p>
+
 
 <p>
 One use case is when I want to edebug a lambda but not the function
-that's using it. So I extract the lambda, name it, edebug it and
+that's using it. So I extract the lambda with <a href="#sec-3-14"><code>lispy-to-defun</code></a>, edebug it and
 turn it back into a lambda with this function.
 </p>
 
@@ -873,7 +885,7 @@ Starting with this:
 </div>
 
 <p>
-by pressing <kbd>L</kbd> you will get this:
+by pressing <kbd>xl</kbd> you will get this:
 </p>
 
 <div class="org-src-container">
@@ -887,41 +899,79 @@ by pressing <kbd>L</kbd> you will get this:
 <hr  />
 </div>
 </div>
+
 <div id="outline-container-sec-3-14" class="outline-3">
-<h3 id="sec-3-14"><a id="ID-bdff1e23-07d0-4e84-b1ac-7b55ae0e0da7"></a><code>lispy-parens</code></h3>
+<h3 id="sec-3-14"><a id="ID-0ace5ddb-2500-4deb-9ef9-e806aae7475b"></a><code>lispy-to-defun</code></h3>
 <div class="outline-text-3" id="text-3-14">
 <p>
-Use <kbd>(</kbd> to call <a href="#sec-3-17"><code>lispy-pair</code></a> specialized with <code>()</code>.
+Use <kbd>xd</kbd> (local) or <kbd>C-4 d</kbd> (global) to turn the current lambda
+into a defun.
 </p>
+
+<p>
+You'll be prompted for a name, the lambda will be replaced with that
+name and the new definition will be in the kill ring.
+</p>
+
+<p>
+Starting with this:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(mapcar <cursor>(</cursor><span style="color: #7F0055; font-weight: bold;">lambda</span> (x) (* x x))
+        (number-sequence 1 10))
+</pre>
+</div>
+
+<p>
+by pressing <kbd>xd</kbd> and entering <code>square</code> and then pressing <kbd>] ] C-m C-y</kbd>
+you'll get this:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(mapcar #'square
+        (number-sequence 1 10))
+(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="font-weight: bold;">square</span> (x) (* x x))<cursor> </cursor>
+</pre>
+</div>
 <hr  />
 </div>
 </div>
 <div id="outline-container-sec-3-15" class="outline-3">
-<h3 id="sec-3-15"><a id="ID-d985a611-5a63-4107-9041-da36702d5522"></a><code>lispy-braces</code></h3>
+<h3 id="sec-3-15"><a id="ID-bdff1e23-07d0-4e84-b1ac-7b55ae0e0da7"></a><code>lispy-parens</code></h3>
 <div class="outline-text-3" id="text-3-15">
 <p>
-Use <kbd>{</kbd> to call <a href="#sec-3-17"><code>lispy-pair</code></a> specialized with <code>{}</code>.
+Use <kbd>(</kbd> to call <a href="#sec-3-18"><code>lispy-pair</code></a> specialized with <code>()</code>.
 </p>
 <hr  />
 </div>
 </div>
 <div id="outline-container-sec-3-16" class="outline-3">
-<h3 id="sec-3-16"><a id="ID-83c46b4b-0417-4048-9240-d6fd686bbe21"></a><code>lispy-brackets</code></h3>
+<h3 id="sec-3-16"><a id="ID-d985a611-5a63-4107-9041-da36702d5522"></a><code>lispy-braces</code></h3>
 <div class="outline-text-3" id="text-3-16">
 <p>
-Use <kbd>}</kbd> to call <a href="#sec-3-17"><code>lispy-pair</code></a> specialized with <code>[]</code>.
+Use <kbd>{</kbd> to call <a href="#sec-3-18"><code>lispy-pair</code></a> specialized with <code>{}</code>.
 </p>
 <hr  />
 </div>
 </div>
 <div id="outline-container-sec-3-17" class="outline-3">
-<h3 id="sec-3-17"><a id="ID-80cb6d3d-f3fe-4c0f-9eaf-e098679aada4"></a><code>lispy-pair</code></h3>
+<h3 id="sec-3-17"><a id="ID-83c46b4b-0417-4048-9240-d6fd686bbe21"></a><code>lispy-brackets</code></h3>
 <div class="outline-text-3" id="text-3-17">
 <p>
+Use <kbd>}</kbd> to call <a href="#sec-3-18"><code>lispy-pair</code></a> specialized with <code>[]</code>.
+</p>
+<hr  />
+</div>
+</div>
+<div id="outline-container-sec-3-18" class="outline-3">
+<h3 id="sec-3-18"><a id="ID-80cb6d3d-f3fe-4c0f-9eaf-e098679aada4"></a><code>lispy-pair</code></h3>
+<div class="outline-text-3" id="text-3-18">
+<p>
 This function, taking arguments <code>left</code> and <code>right</code>, is used to generate
-<a href="#sec-3-14"><code>lispy-parens</code></a>,
-<a href="#sec-3-15"><code>lispy-braces</code></a>
-and <a href="#sec-3-16"><code>lispy-brackets</code></a>, which in turn take prefix <code>arg</code>.
+<a href="#sec-3-15"><code>lispy-parens</code></a>,
+<a href="#sec-3-16"><code>lispy-braces</code></a>
+and <a href="#sec-3-17"><code>lispy-brackets</code></a>, which in turn take prefix <code>arg</code>.
 </p>
 
 <p>
@@ -930,17 +980,17 @@ tried one by one until one that holds true is found:
 </p>
 </div>
 
-<div id="outline-container-sec-3-17-1" class="outline-4">
-<h4 id="sec-3-17-1">region active</h4>
-<div class="outline-text-4" id="text-3-17-1">
+<div id="outline-container-sec-3-18-1" class="outline-4">
+<h4 id="sec-3-18-1">region active</h4>
+<div class="outline-text-4" id="text-3-18-1">
 <p>
 Wrap the region with <code>left</code> and <code>right</code>.
 </p>
 </div>
 </div>
-<div id="outline-container-sec-3-17-2" class="outline-4">
-<h4 id="sec-3-17-2">inside a string before "\\"</h4>
-<div class="outline-text-4" id="text-3-17-2">
+<div id="outline-container-sec-3-18-2" class="outline-4">
+<h4 id="sec-3-18-2">inside a string before "\\"</h4>
+<div class="outline-text-4" id="text-3-18-2">
 <p>
 Starting with
 </p>
@@ -976,9 +1026,9 @@ and pressing <kbd>}</kbd> will give:
 </div>
 </div>
 
-<div id="outline-container-sec-3-17-3" class="outline-4">
-<h4 id="sec-3-17-3">inside string or comment</h4>
-<div class="outline-text-4" id="text-3-17-3">
+<div id="outline-container-sec-3-18-3" class="outline-4">
+<h4 id="sec-3-18-3">inside string or comment</h4>
+<div class="outline-text-4" id="text-3-18-3">
 <p>
 Insert <code>left</code>, <code>right</code> and put the point between them.
 </p>
@@ -1001,9 +1051,9 @@ pressing <kbd>(</kbd> will give:
 </div>
 </div>
 </div>
-<div id="outline-container-sec-3-17-4" class="outline-4">
-<h4 id="sec-3-17-4">elisp character expression</h4>
-<div class="outline-text-4" id="text-3-17-4">
+<div id="outline-container-sec-3-18-4" class="outline-4">
+<h4 id="sec-3-18-4">elisp character expression</h4>
+<div class="outline-text-4" id="text-3-18-4">
 <p>
 Starting with
 </p>
@@ -1030,9 +1080,9 @@ they should be inserted with <kbd>C-q [</kbd> and <kbd>C-q ]</kbd>.
 </p>
 </div>
 </div>
-<div id="outline-container-sec-3-17-5" class="outline-4">
-<h4 id="sec-3-17-5"><code>arg</code> is 1</h4>
-<div class="outline-text-4" id="text-3-17-5">
+<div id="outline-container-sec-3-18-5" class="outline-4">
+<h4 id="sec-3-18-5"><code>arg</code> is 1</h4>
+<div class="outline-text-4" id="text-3-18-5">
 <ol class="org-ol">
 <li>Re-indent and insert space according to <code>lispy--space-unless</code>.
 </li>
@@ -1043,9 +1093,9 @@ they should be inserted with <kbd>C-q [</kbd> and <kbd>C-q ]</kbd>.
 </ol>
 </div>
 </div>
-<div id="outline-container-sec-3-17-6" class="outline-4">
-<h4 id="sec-3-17-6">otherwise</h4>
-<div class="outline-text-4" id="text-3-17-6">
+<div id="outline-container-sec-3-18-6" class="outline-4">
+<h4 id="sec-3-18-6">otherwise</h4>
+<div class="outline-text-4" id="text-3-18-6">
 <p>
 Wrap current sexp with <code>left</code> and <code>right</code>.
 </p>
@@ -1075,6 +1125,39 @@ pressing <kbd>2(</kbd> will give:
 </p>
 <hr  />
 </div>
+</div>
+</div>
+<div id="outline-container-sec-3-19" class="outline-3">
+<h3 id="sec-3-19"><a id="ID-bd0758f8-4bb7-4154-af69-81368993184b"></a><code>lispy-x</code></h3>
+<div class="outline-text-3" id="text-3-19">
+<p>
+Bound to <kbd>x</kbd> (locally) or <kbd>C-4</kbd> (globally).
+</p>
+
+<p>
+Just a prefix to calling other commands, like
+</p>
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="left" />
+
+<col  class="left" />
+</colgroup>
+<tbody>
+<tr>
+<td class="left">l</td>
+<td class="left"><a href="#sec-3-13">lispy-to-lambda</a></td>
+</tr>
+
+<tr>
+<td class="left">d</td>
+<td class="left"><a href="#sec-3-14">lispy-to-defun</a></td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 </div>

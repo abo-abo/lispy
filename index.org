@@ -45,6 +45,7 @@
 | C-1 | [[id:54752047-032c-4f0d-97ac-ed9baefa3649][lispy-describe-inline]] |
 | C-2 | [[id:54becf27-661c-4c5d-92d8-baa22a50291d][lispy-arglist-inline]]  |
 | C-3 | [[id:79f14a39-011b-48bd-82a4-4c1587514948][lispy-out-forward]]     |
+| C-4 | [[id:bd0758f8-4bb7-4154-af69-81368993184b][lispy-x]]               |
 |-----+-----------------------|
 * Local bindings
 | key | function name                 |
@@ -56,7 +57,8 @@
 | E   | [[id:d38ff2d2-e49f-438e-b2dc-70308586cd8a][lispy-eval-and-insert]]         |
 | b   | [[id:3ddf7d0f-83c9-4880-b170-ce36c549c537][lispy-store-region-and-buffer]] |
 | B   | [[id:c5f1cde9-1712-497a-afc2-356cd0dce702][lispy-ediff-regions]]           |
-| L   | [[id:0333708a-609e-4619-a0d4-4507397c5c25][lispy-to-lambda]]               |
+| xl  | [[id:0333708a-609e-4619-a0d4-4507397c5c25][lispy-to-lambda]]               |
+| xd  | [[id:0ace5ddb-2500-4deb-9ef9-e806aae7475b][lispy-to-defun]]                |
 |-----+-------------------------------|
 
 * Function reference
@@ -672,10 +674,12 @@ for instance =lispy-move-down= and =lispy-move-up=.
 :ID:       0333708a-609e-4619-a0d4-4507397c5c25
 :END:
 
-Use ~L~ to turn the current function definition into a lambda.
+Use ~xl~ (local) or ~C-4 l~ (global) to turn the current function
+definition into a lambda.
+
 
 One use case is when I want to edebug a lambda but not the function
-that's using it. So I extract the lambda, name it, edebug it and
+that's using it. So I extract the lambda with [[id:0ace5ddb-2500-4deb-9ef9-e806aae7475b][=lispy-to-defun=]], edebug it and
 turn it back into a lambda with this function.
 
 Other use case is that I simply want to get the lambda since
@@ -690,13 +694,41 @@ Starting with this:
               helm-owiki-directory)))
 #+end_src
 
-by pressing ~L~ you will get this:
+by pressing ~xl~ you will get this:
 
 #+begin_src emacs-lisp
 ||(lambda (x)
   (find-file (expand-file-name
               (format "%s.org" x)
               helm-owiki-directory)))
+#+end_src
+-----
+*** TODO Add Clojure support                                                        :noexport:
+
+
+** =lispy-to-defun=
+:PROPERTIES:
+:ID:       0ace5ddb-2500-4deb-9ef9-e806aae7475b
+:END:
+
+Use ~xd~ (local) or ~C-4 d~ (global) to turn the current lambda
+into a defun.
+
+You'll be prompted for a name, the lambda will be replaced with that
+name and the new definition will be in the kill ring.
+
+Starting with this:
+#+begin_src elisp
+(mapcar ||(lambda (x) (* x x))
+        (number-sequence 1 10))
+#+end_src
+
+by pressing ~xd~ and entering =square= and then pressing ~] ] C-m C-y~
+you'll get this:
+#+begin_src elisp
+(mapcar #'square
+        (number-sequence 1 10))
+(defun square (x) (* x x))||
 #+end_src
 -----
 
@@ -805,3 +837,15 @@ pressing ~2(~ will give:
 
 ~2~ here is responsible to setting =arg= to 2.
 -----
+
+** =lispy-x=
+:PROPERTIES:
+:ID:       bd0758f8-4bb7-4154-af69-81368993184b
+:END:
+
+Bound to ~x~ (locally) or ~C-4~ (globally).
+
+Just a prefix to calling other commands, like
+
+| l | [[id:0333708a-609e-4619-a0d4-4507397c5c25][lispy-to-lambda]] |
+| d | [[id:0ace5ddb-2500-4deb-9ef9-e806aae7475b][lispy-to-defun]]  |
