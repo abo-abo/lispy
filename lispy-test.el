@@ -711,11 +711,11 @@ Insert KEY if there's no command."
                    "~;; abc\n;; def\n;; ghi|")))
 
 (ert-deftest lispy-to-lambda ()
-  (should (string= (lispy-with "|(defun foo (x y)\n  (bar))" "L")
+  (should (string= (lispy-with "|(defun foo (x y)\n  (bar))" (lispy-to-lambda))
                    "|(lambda (x y)\n  (bar))"))
-  (should (string= (lispy-with "(defun foo (x y)\n  |(bar))" "L")
+  (should (string= (lispy-with "(defun foo (x y)\n  |(bar))" (lispy-to-lambda))
                    "|(lambda (x y)\n  (bar))"))
-  (should (string= (lispy-with "(defun foo (x y)\n  (bar))|" "L")
+  (should (string= (lispy-with "(defun foo (x y)\n  (bar))|" (lispy-to-lambda))
                    "|(lambda (x y)\n  (bar))")))
 
 (provide 'lispy-test)

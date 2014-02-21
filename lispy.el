@@ -1545,9 +1545,9 @@ Sexp is obtained by exiting list ARG times."
       (org-overview)
       (put 'lispy-shifttab 'state 1))))
 
-;; ——— Locals:  miscellanea ————————————————————————————————————————————————————
+;; ——— Locals:  refactoring ————————————————————————————————————————————————————
 (defun lispy-to-lambda ()
-  "Turn current function definition into a lambda."
+  "Turn the current function definition into a lambda."
   (interactive)
   (when (save-excursion (lispy--out-backward 1))
     (beginning-of-defun))
@@ -1559,6 +1559,41 @@ Sexp is obtained by exiting list ARG times."
       (insert "lambda")
       (goto-char (1- beg)))))
 
+(defun lispy-to-defun ()
+  "Turn the current lambda into a defun."
+  (interactive)
+  (let ((pt (point)))
+    (when (looking-back ")")
+      (backward-list))
+    (while (and (not (looking-at "(lambda"))
+                (lispy--out-backward 1)))
+    (if (looking-at "(lambda")
+        (let ((name (read-string "Function name: ")))
+          (forward-char 1)
+          (delete-char 6)
+          (insert "defun " name)
+          (lispy-kill-at-point)
+          (insert "#'" name)
+          (message "defun stored to kill ring"))
+      (goto-char pt)
+      (error "Not in lambda"))))
+
+(defvar lispy-mode-x-map (make-sparse-keymap))
+
+(let ((map lispy-mode-x-map))
+  (define-key map "d" 'lispy-to-defun)
+  (define-key map "l" 'lispy-to-lambda))
+
+(defun lispy-x ()
+  "Forward to `lispy-mode-x-map'."
+  (interactive)
+  (let ((char (read-char))
+        fun)
+    (if (setq fun (cdr (assoc char lispy-mode-x-map)))
+        (call-interactively fun)
+      (error "Nothing bound to %c" char))))
+
+;; ——— Locals:  miscellanea ————————————————————————————————————————————————————
 (defun lispy-ert ()
   "Call (`ert' t)."
   (interactive)
@@ -1630,7 +1665,7 @@ Otherwise return cons of current string, symbol or list bounds."
            (forward-list)))
         ((or (looking-at (format "[`'#]*%s\\|\"" lispy-left))
              (looking-at "[`'#]"))
-          (bounds-of-thing-at-point 'sexp))
+         (bounds-of-thing-at-point 'sexp))
         ((looking-back "\"")
          (backward-sexp)
          (prog1 (bounds-of-thing-at-point 'sexp)
@@ -2028,7 +2063,7 @@ For example, a `setq' statement is amended with variable name that it uses."
              (buffer-file-name (overlay-buffer v)))
             ((vectorp v)
              (aref v 2))
-            (t (error "unexpected"))))))
+            (t (error "Unexpected"))))))
       (cdr x)))
    x))
 
@@ -2040,7 +2075,7 @@ For example, a `setq' statement is amended with variable name that it uses."
     (concat (substring str 0 (- n 3)) "...")))
 
 (defun lispy--fetch-tags (&optional path)
-  "Get a list of tags for `default-directory'."
+  "Get a list of tags for PATH."
   (lispy--fetch-this-file-tags)
   (setq path (or path default-directory))
   (let* ((this-file (buffer-file-name))
@@ -2086,13 +2121,13 @@ For example, a `setq' statement is amended with variable name that it uses."
                 (2 (setcar (nthcdr 4 y)
                            (vconcat v (vector file))))
                 (3 nil)
-                (t (error "unexpected"))))
+                (t (error "Unexpected"))))
              ((overlayp v)
               (setcar (nthcdr 4 y)
                       (vector (overlay-start v)
                               (overlay-end v)
                               file)))
-             (t (error "unexpected")))
+             (t (error "Unexpected")))
        y))
    tags))
 
@@ -2301,7 +2336,7 @@ ACTION is called for the selected candidate."
               (make-overlay (aref overlay 0)
                             (aref overlay 1)
                             (find-file (aref overlay 2)))))
-            (t (error "unexpected")))
+            (t (error "Unexpected")))
       (push-mark)
       (semantic-go-to-tag tag)
       (when (eq major-mode 'clojure-mode)
@@ -2569,6 +2604,7 @@ list."
     (define-key map (kbd "C-1") 'lispy-describe-inline)
     (define-key map (kbd "C-2") 'lispy-arglist-inline)
     (define-key map (kbd "C-3") 'lispy-out-forward)
+    (define-key map (kbd "C-4") 'lispy-x)
     (define-key map (kbd "C-8") 'lispy-parens-down)
     (define-key map (kbd "C-9") 'lispy-out-forward-newline))
   ;; ——— locals: navigation ———————————————————
@@ -2623,7 +2659,7 @@ list."
   (lispy-define-key map "n" 'lispy-new-copy)
   (lispy-define-key map "b" 'lispy-store-region-and-buffer)
   (lispy-define-key map "B" 'lispy-ediff-regions)
-  (lispy-define-key map "L" 'lispy-to-lambda)
+  (lispy-define-key map "x" 'lispy-x)
   ;; ——— locals: digit argument ———————————————
   (mapc (lambda (x) (lispy-define-key map (format "%d" x) 'digit-argument))
         (number-sequence 0 9)))
