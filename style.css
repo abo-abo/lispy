@@ -61,3 +61,16 @@ cursor {
     background-color: #000;
     overflow: hidden;
 }
+
+h3 {
+    counter-reset: chapter;
+}
+
+h4:before {
+    content: "case " counter(chapter) ": ";
+    counter-increment: chapter;
+}
+
+h4 {
+    margin-left: 1em;
+}
