@@ -2145,28 +2145,37 @@ For example, a `setq' statement is amended with variable name that it uses."
 
 (defvar lispy--goto-cache nil "Maps directories to pretty tags.")
 
+(defcustom lispy-no-permanent-semantic nil
+  "When t, `lispy' will not enable `semantic-mode' when it's off."
+  :type 'boolean
+  :group 'lispy)
+
 (defun lispy--goto (fun)
   "Jump to symbol selected from (FUN)."
   (require 'semantic/bovine/el)
-  (semantic-mode 1)
-  (let ((candidates (funcall fun))
-        (cache (assoc default-directory lispy--goto-cache))
-        cached-cands
-        helm-candidate-number-limit)
-    (lispy--select-candidate
-     (cond ((null cache)
-            (setq cached-cands (mapcar #'lispy--tag-name candidates))
-            (when (> (length cached-cands) 1000)
-              (push (cons default-directory cached-cands)
-                    lispy--goto-cache))
-            cached-cands)
-           ((and (setq cached-cands (cdr cache))
-                 (= (length cached-cands)
-                    (length candidates)))
-            cached-cands)
-           (t
-            (setcdr cache (mapcar #'lispy--tag-name candidates))))
-     #'lispy--action-jump)))
+  (let ((semantic-on (bound-and-true-p semantic-mode)))
+    (semantic-mode 1)
+    (let ((candidates (funcall fun))
+          (cache (assoc default-directory lispy--goto-cache))
+          cached-cands
+          helm-candidate-number-limit)
+      (lispy--select-candidate
+       (cond ((null cache)
+              (setq cached-cands (mapcar #'lispy--tag-name candidates))
+              (when (> (length cached-cands) 1000)
+                (push (cons default-directory cached-cands)
+                      lispy--goto-cache))
+              cached-cands)
+             ((and (setq cached-cands (cdr cache))
+                   (= (length cached-cands)
+                      (length candidates)))
+              cached-cands)
+             (t
+              (setcdr cache (mapcar #'lispy--tag-name candidates))))
+       #'lispy--action-jump))
+    (when (and lispy-no-permanent-semantic
+               (not semantic-on))
+      (semantic-mode -1))))
 
 ;; ——— Utilities: slurping and barfing —————————————————————————————————————————
 (defun lispy--slurp-forward ()
