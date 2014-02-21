@@ -1926,23 +1926,30 @@ FACE can be :keyword, :function or :type.  It defaults to 'default."
   "Re-parse X and modify it accordingly.
 REGEX selects the symbol is 1st place of sexp.
 ARITY-ALIST combines strings that REGEX matches and their arities."
-  (let ((overlay (nth 4 x)))
-    (when (overlayp overlay)
-      (with-current-buffer (overlay-buffer overlay)
-        (save-excursion
-          (goto-char (overlay-start overlay))
-          (when (looking-at regex)
-            (goto-char (match-end 0))
-            (let ((tag-head (match-string 1))
-                  beg arity str)
-              (skip-chars-forward " \n")
-              (when (setq arity (cdr (assoc (intern tag-head) arity-alist)))
-                (setq beg (point))
-                (forward-sexp arity)
-                (setq str (replace-regexp-in-string
-                           "\n" " " (buffer-substring-no-properties beg (point))))
-                (setcar x str)
-                (setcar (nthcdr 1 x) (intern tag-head)))))))))
+  (let ((overlay (nth 4 x))
+        buffer start)
+    (if (overlayp overlay)
+        (setq buffer (overlay-buffer overlay)
+              start (overlay-start overlay))
+      (if (vectorp overlay)
+          (setq buffer (find-file-noselect (aref overlay 2))
+                start (aref overlay 0))
+        (error "Unexpected")))
+    (with-current-buffer buffer
+      (save-excursion
+        (goto-char start)
+        (when (looking-at regex)
+          (goto-char (match-end 0))
+          (let ((tag-head (match-string 1))
+                beg arity str)
+            (skip-chars-forward " \n")
+            (when (setq arity (cdr (assoc (intern tag-head) arity-alist)))
+              (setq beg (point))
+              (forward-sexp arity)
+              (setq str (replace-regexp-in-string
+                         "\n" " " (buffer-substring-no-properties beg (point))))
+              (setcar x str)
+              (setcar (nthcdr 1 x) (intern tag-head))))))))
   x)
 
 (defun lispy--tag-name-lisp (x)
