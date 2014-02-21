@@ -801,7 +801,7 @@ When this function is called:
         (forward-char 1)))))
 
 (defalias 'lispy-parens
-    (lispy-pair "(" ")" "^\\|\\s-\\|lambda\\|\\[\\|[(`'#@~_%,]")
+    (lispy-pair "(" ")" "^\\|\\s-\\|\\[\\|[(`'#@~_%,]")
   "`lispy-pair' with ().")
 
 (defalias 'lispy-brackets
