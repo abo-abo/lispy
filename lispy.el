@@ -2113,11 +2113,12 @@ For example, a `setq' statement is amended with variable name that it uses."
 (defun lispy--goto (fun)
   "Jump to symbol selected from (FUN)."
   (require 'semantic/bovine/el)
-  (semantic-mode 1)
-  (let ((candidates (funcall fun))
+  (let ((semantic-already-enabled (bound-and-true-p semantic-mode))
+        (candidates (funcall fun))
         (cache (assoc default-directory lispy--goto-cache))
         cached-cands
         helm-candidate-number-limit)
+    (semantic-mode 1)
     (lispy--select-candidate
      (cond ((null cache)
             (setq cached-cands (mapcar #'lispy--tag-name candidates))
@@ -2130,7 +2131,8 @@ For example, a `setq' statement is amended with variable name that it uses."
             cached-cands)
            (t
             (setcdr cache (mapcar #'lispy--tag-name candidates))))
-     #'lispy--action-jump)))
+     #'lispy--action-jump)
+    (unless semantic-already-enabled (semantic-mode -1))))
 
 ;; ——— Utilities: slurping and barfing —————————————————————————————————————————
 (defun lispy--slurp-forward ()
