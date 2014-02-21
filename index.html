@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
 <title>lispy.el documentation</title>
-<!-- 2014-02-20 Thu 22:40 -->
+<!-- 2014-02-21 Fri 09:43 -->
 <meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta  name="generator" content="Org-mode" />
 <meta  name="author" content="Oleh" />
@@ -919,24 +919,28 @@ Use <kbd>}</kbd> to call <a href="#sec-3-17"><code>lispy-pair</code></a> special
 <div class="outline-text-3" id="text-3-17">
 <p>
 This function, taking arguments <code>left</code> and <code>right</code>, is used to generate
-<a href="#sec-3-14">lispy-parens</a>,
-<a href="#sec-3-15">lispy-braces</a>
-and <a href="#sec-3-16">lispy-brackets</a>, which in turn take prefix <code>arg</code>.
+<a href="#sec-3-14"><code>lispy-parens</code></a>,
+<a href="#sec-3-15"><code>lispy-braces</code></a>
+and <a href="#sec-3-16"><code>lispy-brackets</code></a>, which in turn take prefix <code>arg</code>.
 </p>
 
 <p>
 The result depends on the following conditions, each
-tried one by one until one that hold true is found:
+tried one by one until one that holds true is found:
 </p>
 </div>
 
-<ul class="org-ul"><li>region active<br  /><div class="outline-text-4" id="text-3-17-1">
+<div id="outline-container-sec-3-17-1" class="outline-4">
+<h4 id="sec-3-17-1">region active</h4>
+<div class="outline-text-4" id="text-3-17-1">
 <p>
 Wrap the region with <code>left</code> and <code>right</code>.
 </p>
 </div>
-</li>
-<li>inside a string before "\\"<br  /><div class="outline-text-4" id="text-3-17-2">
+</div>
+<div id="outline-container-sec-3-17-2" class="outline-4">
+<h4 id="sec-3-17-2">inside a string before "\\"</h4>
+<div class="outline-text-4" id="text-3-17-2">
 <p>
 Starting with
 </p>
@@ -970,9 +974,11 @@ and pressing <kbd>}</kbd> will give:
 </pre>
 </div>
 </div>
-</li>
+</div>
 
-<li>inside string or comment<br  /><div class="outline-text-4" id="text-3-17-3">
+<div id="outline-container-sec-3-17-3" class="outline-4">
+<h4 id="sec-3-17-3">inside string or comment</h4>
+<div class="outline-text-4" id="text-3-17-3">
 <p>
 Insert <code>left</code>, <code>right</code> and put the point between them.
 </p>
@@ -982,7 +988,7 @@ Starting with
 </p>
 <div class="org-src-container">
 
-<pre class="src src-emacs-lisp-mode">"a string <cursor> </cursor>"
+<pre class="src src-text-mode">"a string <cursor> </cursor>"
 </pre>
 </div>
 <p>
@@ -990,12 +996,14 @@ pressing <kbd>(</kbd> will give:
 </p>
 <div class="org-src-container">
 
-<pre class="src src-emacs-lisp"><span style="color: #2A00FF;">"a string (<cursor>)</cursor>"</span>
+<pre class="src src-text-mode">"a string (<cursor>)</cursor>"
 </pre>
 </div>
 </div>
-</li>
-<li>elisp character expression<br  /><div class="outline-text-4" id="text-3-17-4">
+</div>
+<div id="outline-container-sec-3-17-4" class="outline-4">
+<h4 id="sec-3-17-4">elisp character expression</h4>
+<div class="outline-text-4" id="text-3-17-4">
 <p>
 Starting with
 </p>
@@ -1012,9 +1020,19 @@ pressing <kbd>(</kbd> will self-insert it to give:
 <pre class="src src-text-mode">?\(<cursor> </cursor>
 </pre>
 </div>
+<p>
+This also works for <kbd>)</kbd>, <kbd>{</kbd>, <kbd>}</kbd>.
+</p>
+
+<p>
+This doesn't work for <kbd>[</kbd> and <kbd>]</kbd>,
+they should be inserted with <kbd>C-q [</kbd> and <kbd>C-q ]</kbd>.
+</p>
 </div>
-</li>
-<li><code>arg</code> is 1<br  /><div class="outline-text-4" id="text-3-17-5">
+</div>
+<div id="outline-container-sec-3-17-5" class="outline-4">
+<h4 id="sec-3-17-5"><code>arg</code> is 1</h4>
+<div class="outline-text-4" id="text-3-17-5">
 <ol class="org-ol">
 <li>Re-indent and insert space according to <code>lispy--space-unless</code>.
 </li>
@@ -1024,8 +1042,10 @@ pressing <kbd>(</kbd> will self-insert it to give:
 </li>
 </ol>
 </div>
-</li>
-<li>otherwise<br  /><div class="outline-text-4" id="text-3-17-6">
+</div>
+<div id="outline-container-sec-3-17-6" class="outline-4">
+<h4 id="sec-3-17-6">otherwise</h4>
+<div class="outline-text-4" id="text-3-17-6">
 <p>
 Wrap current sexp with <code>left</code> and <code>right</code>.
 </p>
@@ -1055,7 +1075,7 @@ pressing <kbd>2(</kbd> will give:
 </p>
 <hr  />
 </div>
-</li></ul>
+</div>
 </div>
 </div>
 </div>

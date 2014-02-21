@@ -730,12 +730,12 @@ Use ~}~ to call [[id:80cb6d3d-f3fe-4c0f-9eaf-e098679aada4][=lispy-pair=]] specia
 :END:
 
 This function, taking arguments =left= and =right=, is used to generate
-[[id:bdff1e23-07d0-4e84-b1ac-7b55ae0e0da7][lispy-parens]],
-[[id:d985a611-5a63-4107-9041-da36702d5522][lispy-braces]]
-and [[id:83c46b4b-0417-4048-9240-d6fd686bbe21][lispy-brackets]], which in turn take prefix =arg=.
+[[id:bdff1e23-07d0-4e84-b1ac-7b55ae0e0da7][=lispy-parens=]],
+[[id:d985a611-5a63-4107-9041-da36702d5522][=lispy-braces=]]
+and [[id:83c46b4b-0417-4048-9240-d6fd686bbe21][=lispy-brackets=]], which in turn take prefix =arg=.
 
 The result depends on the following conditions, each
-tried one by one until one that hold true is found:
+tried one by one until one that holds true is found:
 
 *** region active
 Wrap the region with =left= and =right=.
@@ -761,11 +761,11 @@ and pressing ~}~ will give:
 Insert =left=, =right= and put the point between them.
 
 Starting with
-#+begin_src emacs-lisp-mode
+#+begin_src text-mode
 "a string || "
 #+end_src
 pressing ~(~ will give:
-#+begin_src emacs-lisp
+#+begin_src text-mode
 "a string (||)"
 #+end_src
 
@@ -778,6 +778,10 @@ pressing ~(~ will self-insert it to give:
 #+begin_src text-mode
 ?\(||
 #+end_src
+This also works for ~)~, ~{~, ~}~.
+
+This doesn't work for ~[~ and ~]~,
+they should be inserted with ~C-q [~ and ~C-q ]~.
 
 *** =arg= is 1
 1. Re-indent and insert space according to =lispy--space-unless=.
