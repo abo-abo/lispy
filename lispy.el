@@ -2098,9 +2098,15 @@ For example, a `setq' statement is amended with variable name that it uses."
 
 (defun lispy--fetch-this-file-tags ()
   "Fetch this file tags."
-  (lispy--set-file-to-tags
-   (file-name-nondirectory (buffer-file-name))
-   (semantic-fetch-tags)))
+  (let ((tags
+         (lispy--set-file-to-tags
+          (file-name-nondirectory (buffer-file-name))
+          (semantic-fetch-tags))))
+    (when (memq major-mode '(lisp-mode emacs-lisp-mode))
+      (lexical-let ((arity (cdr (assoc major-mode lispy-tag-arity)))
+                    (tag-regex (lispy--tag-regexp)))
+        (mapc (lambda(x) (lispy--modify-tag x tag-regex arity))  tags)))
+    tags))
 
 (defvar lispy--goto-cache nil "Maps directories to pretty tags.")
 
