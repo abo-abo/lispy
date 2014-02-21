@@ -30,7 +30,8 @@
     (save-window-excursion
       (if geiser-impl--implementation
           (run-geiser geiser-impl--implementation)
-        (call-interactively 'run-geiser))))
+        (call-interactively 'run-geiser))
+      (geiser-mode 1)))
   (let* ((code `(:eval (:scm ,str)))
          (ret (geiser-eval--send/wait code))
          (err (geiser-eval--retort-error ret)))
