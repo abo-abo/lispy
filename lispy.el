@@ -1295,7 +1295,7 @@ Comments will be moved ahead of sexp."
                (comment-region (car bnd) (cdr bnd))
                (when (lispy--in-string-or-comment-p)
                  (lispy--out-backward 1)))
-              ((looking-back lispy-right)
+              ((or (looking-back lispy-right) (eolp))
                (comment-dwim nil)
                (insert " "))
               ((bolp)
