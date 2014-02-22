@@ -2166,7 +2166,7 @@ For example, a `setq' statement is amended with variable name that it uses."
 (defvar lispy--goto-cache nil "Maps directories to pretty tags.")
 
 (defcustom lispy-no-permanent-semantic nil
-  "When t, `lispy' will not enable `semantic-mode' when it's off."
+  "When t, `lispy' will not enable function `semantic-mode' when it's off."
   :type 'boolean
   :group 'lispy)
 
@@ -2590,7 +2590,8 @@ list."
     ad-do-it))
 
 (defun lispy-define-key (keymap key def &optional from-start)
-  "Forward to (`define-key' KEYMAP KEY (`lispy-defun' DEF FROM-START))."
+  "Forward to (`define-key' KEYMAP KEY FUNC).
+FUNC is obtained from (`lispy--insert-or-call' DEF FROM-START)"
   (let ((func (defalias (intern (concat "special-" (symbol-name def)))
                   (lispy--insert-or-call def from-start))))
     (unless (member func ac-trigger-commands)
