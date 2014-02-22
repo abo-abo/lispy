@@ -518,6 +518,15 @@ Return nil if can't move."
          (backward-list))
         (t (error "Unexpected"))))
 
+(defun lispy-outline-next (arg)
+  "Call `outline-next-visible-heading' ARG times."
+  (interactive "p")
+  (dotimes-protect arg
+    (let ((pt (point)))
+      (outline-next-visible-heading 1)
+      (unless (looking-at outline-regexp)
+        (goto-char pt)
+        (error "Past last outline")))))
 ;; ——— Globals: kill, yank, delete, mark, copy —————————————————————————————————
 (defun lispy-kill ()
   "Kill keeping parens consistent."
@@ -2625,8 +2634,8 @@ list."
   (lispy-define-key map "d" 'lispy-different)
   (lispy-define-key map "o" 'lispy-counterclockwise)
   (lispy-define-key map "p" 'lispy-clockwise)
-  (lispy-define-key map "J" 'outline-next-visible-heading)
   (lispy-define-key map "K" 'outline-previous-visible-heading)
+  (lispy-define-key map "J" 'lispy-outline-next)
   ;; ——— locals: Paredit transformations ——————
   (lispy-define-key map ">" 'lispy-slurp)
   (lispy-define-key map "<" 'lispy-barf)
