@@ -59,6 +59,10 @@
 | B   | [[id:c5f1cde9-1712-497a-afc2-356cd0dce702][lispy-ediff-regions]]           |
 | xl  | [[id:0333708a-609e-4619-a0d4-4507397c5c25][lispy-to-lambda]]               |
 | xd  | [[id:0ace5ddb-2500-4deb-9ef9-e806aae7475b][lispy-to-defun]]                |
+| J   | [[id:637e7ef8-31b0-4512-99d9-386de877b40e][lispy-outline-next]]            |
+| K   | [[id:caaf39aa-1860-43a9-a5ea-5fac9ca9a23c][lispy-outline-prev]]            |
+| I   | [[id:164552ee-b92d-4af6-9570-60d039876fac][lispy-shifttab]]                |
+| i   | [[id:5f945b62-0189-4c77-ae63-d0d5c72cc056][lispy-tab]]                     |
 |-----+-------------------------------|
 
 * Function reference
@@ -849,3 +853,85 @@ Just a prefix to calling other commands, like
 
 | l | [[id:0333708a-609e-4619-a0d4-4507397c5c25][lispy-to-lambda]] |
 | d | [[id:0ace5ddb-2500-4deb-9ef9-e806aae7475b][lispy-to-defun]]  |
+
+** =lispy-outline-next=
+:PROPERTIES:
+:ID:       637e7ef8-31b0-4512-99d9-386de877b40e
+:END:
+
+Bound to ~J~.
+
+Takes a numeric prefix =arg= and
+calls =outline-next-visible-heading= =arg= times or until
+past the last =outline-regexp=.
+
+See [[id:164552ee-b92d-4af6-9570-60d039876fac][=lispy-shifttab=]] for more info.
+-----
+
+** =lispy-outline-prev=
+:PROPERTIES:
+:ID:       caaf39aa-1860-43a9-a5ea-5fac9ca9a23c
+:END:
+
+Bound to ~K~.
+
+Takes a numeric prefix =arg= and
+calls =outline-previous-visible-heading= =arg= times or until
+past the first =outline-regexp=.
+
+See [[id:164552ee-b92d-4af6-9570-60d039876fac][=lispy-shifttab=]] for more info.
+-----
+
+** =lispy-shifttab=
+:PROPERTIES:
+:ID:       164552ee-b92d-4af6-9570-60d039876fac
+:END:
+
+Bound to ~I~.
+
+Toggles on/off an =org-mode=-like outline (actually calls
+=org-overview=).
+
+=outline-regexp= has to be set in order for this to work.
+To see how to set it locally for each file, see
+[[https://github.com/abo-abo/lispy/blob/master/lispy.el][the last lines of lispy.el]].
+
+I'm using this [[https://github.com/capitaomorte/yasnippet][yasnippet]] to insert outline comments
+(also needs [[https://github.com/abo-abo/auto-yasnippet][auto-yasnippet]] to make use of =aya-tab-position=):
+
+#+begin_src text
+# -*- mode: snippet -*-
+# name: long_comment
+# key: cc
+# --
+;; ——— $1 ${1:$(repeat-char (- 74 aya-tab-position (length yas-text)) "—")}$0
+#+end_src
+
+And here's the short comment:
+
+#+begin_src text
+# -*- mode: snippet -*-
+# name: comment
+# key: c
+# --
+;; ——— $1 ${1:$(repeat-char (- 40 aya-tab-position (length yas-text)) "—")}$0
+#+end_src
+
+Useful together with
+
+| J | [[id:637e7ef8-31b0-4512-99d9-386de877b40e][lispy-outline-next]] |
+| K | [[id:caaf39aa-1860-43a9-a5ea-5fac9ca9a23c][lispy-outline-prev]] |
+| i | [[id:5f945b62-0189-4c77-ae63-d0d5c72cc056][lispy-tab]]          |
+-----
+
+** =lispy-tab=
+:PROPERTIES:
+:ID:       5f945b62-0189-4c77-ae63-d0d5c72cc056
+:END:
+
+Bound to ~i~.
+
+Indent code.
+
+When in outline, hide/show outline.
+-----
