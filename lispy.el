@@ -1745,7 +1745,10 @@ First, try to return `lispy--bounds-string'."
                                       (if (bolp) 0 1)))
                               ;; count comments starting in different columns
                               ;; as separate
-                              (= col (current-column))))
+                              (= col (current-column))
+                              ;; if there's code in between,
+                              ;; count comments as separate
+                              (looking-back "^\\s-*")))
                (setq pt (point)))
              (goto-char pt)
              (end-of-line)
