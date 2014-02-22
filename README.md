@@ -298,6 +298,4 @@ Synopsis: find a function and make it echo its doc-string.
 9. Use `lispy-eval` "e" to eval our changes.
 10. Use `lispy-undo` "u" to see that the change is now in effect.
 
-This demonstrates , , and `lispy-move-down` ("s").
-
 ![screencast-4.gif](https://raw.github.com/abo-abo/lispy/master/doc/screencast-4.gif)
