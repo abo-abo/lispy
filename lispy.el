@@ -2374,12 +2374,16 @@ ACTION is called for the selected candidate."
             ((arrayp overlay)
              (semantic--tag-set-overlay
               tag
-              (make-overlay (aref overlay 0)
-                            (aref overlay 1)
-                            (find-file (aref overlay 2)))))
+              (setq overlay
+                    (make-overlay (aref overlay 0)
+                                  (aref overlay 1)
+                                  (find-file (aref overlay 2))))))
             (t (error "Unexpected")))
       (push-mark)
-      (semantic-go-to-tag tag)
+      (switch-to-buffer (overlay-buffer overlay))
+      (goto-char (overlay-start overlay))
+      (lispy--ensure-visible)
+      ;; (semantic-go-to-tag tag)
       (when (eq major-mode 'clojure-mode)
         (ignore-errors (up-list 1))
         (backward-list 1))
