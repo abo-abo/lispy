@@ -453,6 +453,7 @@ Return nil if can't move."
 (defun lispy-down (arg)
   "Move down ARG times inside current list."
   (interactive "p")
+  (lispy--ensure-visible)
   (cond ((region-active-p)
          (dotimes-protect arg
            (if (= (point) (region-beginning))
@@ -476,11 +477,13 @@ Return nil if can't move."
 
         (t
          (lispy-forward 1)
-         (lispy-backward 1))))
+         (lispy-backward 1)))
+  (lispy--ensure-visible))
 
 (defun lispy-up (arg)
   "Move up ARG times inside current list."
   (interactive "p")
+  (lispy--ensure-visible)
   (cond ((region-active-p)
          (dotimes-protect arg
            (if (= (point) (region-beginning))
@@ -504,7 +507,8 @@ Return nil if can't move."
 
         (t
          (lispy-backward 1)
-         (lispy-forward 1))))
+         (lispy-forward 1)))
+  (lispy--ensure-visible))
 
 (defun lispy-different ()
   "Switch to the different side of current sexp."
@@ -2491,6 +2495,15 @@ Make text marked if REGIONP is t."
     (delete-region (car bnd1) (cdr bnd1))
     (insert str2)
     (goto-char (car bnd1))))
+
+(defun lispy--ensure-visible ()
+  "Remove overlays hiding point."
+  (let ((overlays (overlays-at (point)))
+        ov invis-prop expose)
+    (while (setq ov (pop overlays))
+      (if (and (invisible-p (overlay-get ov 'invisible))
+               (setq expose (overlay-get ov 'isearch-open-invisible)))
+          (funcall expose ov)))))
 
 (defun lispy--delete-pair-in-string (left right)
   "Delete a pair of LEFT and RIGHT in string."
