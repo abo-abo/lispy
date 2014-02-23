@@ -1606,7 +1606,8 @@ Sexp is obtained by exiting list ARG times."
 
 (let ((map lispy-mode-x-map))
   (define-key map "d" 'lispy-to-defun)
-  (define-key map "l" 'lispy-to-lambda))
+  (define-key map "l" 'lispy-to-lambda)
+  (define-key map "e" 'edebug-defun))
 
 (defun lispy-x ()
   "Forward to `lispy-mode-x-map'."
