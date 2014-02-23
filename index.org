@@ -50,6 +50,9 @@
 * Local bindings
 | key | function name                 |
 |-----+-------------------------------|
+| j   | [[id:778c5418-17aa-4350-a8c4-e5fb07ecca16][lispy-down]]                    |
+| k   | [[id:eab5e8e4-3afb-40af-a7dc-8649b3b44877][lispy-up]]                      |
+| d   | [[id:bde67516-dfce-4e5a-b30d-9eb52ade7e3e][lispy-different]]               |
 | q   | [[id:94b1a983-c847-4cb0-9c46-019f058c05a9][lispy-ace-paren]]               |
 | h   | [[id:0c51e02a-e411-4d68-97da-083db9584dc6][lispy-ace-symbol]]              |
 | F   | [[id:d3799a39-d3e0-4aa5-bff1-bae4c0baa5cf][lispy-follow]]                  |
@@ -87,7 +90,6 @@ call [[id:79f14a39-011b-48bd-82a4-4c1587514948][=lispy-out-forward=]] and return
 
 Unlike =forward-list=, parens in strings and comments are ignored.
 -----
-
 ** =lispy-backward=
 :PROPERTIES:
 :ID:       a0171dbc-b2d6-4196-ad1e-f8a7c860dd9b
@@ -109,6 +111,7 @@ call =lispy-out-backward= and return =nil=.
 
 Unlike =backward-list=, parens in strings and comments are ignored.
 -----
+
 ** =lispy-out-forward=
 :PROPERTIES:
 :ID:       79f14a39-011b-48bd-82a4-4c1587514948
@@ -129,6 +132,71 @@ Return point if could move at least once, otherwise
 do nothing and return =nil=.
 
 Unlike =up-list=, parens in strings and comments are ignored.
+-----
+** =lispy-down=
+:PROPERTIES:
+:ID:       778c5418-17aa-4350-a8c4-e5fb07ecca16
+:END:
+
+Bound to ~j~.
+
+Takes a numeric prefix =arg= and moves down the current list =arg= times.
+
+Here, current list means the innermost list that contains the point.
+Moving down means so literally only if there is a newline after
+each element of current list, otherwise it's down or left.
+
+~j~ maintains a guarantee that it will not exit the current list, so
+you can use e.g. ~99j~ to move to the last element of current list.
+
+When it's not possible to move down any more, ~j~ will
+behave as [[id:bde67516-dfce-4e5a-b30d-9eb52ade7e3e][=lispy-different=]]. This allows to traverse the current
+list's elements with just ~j~ and ~k~.
+
+When region is active, ~j~ will call =forward-sexp=.
+This allows to:
+
+- grow the region when point is at =region-end=
+- shrink the region when point is at =region-beginning=
+-----
+
+** =lispy-up=
+:PROPERTIES:
+:ID:       eab5e8e4-3afb-40af-a7dc-8649b3b44877
+:END:
+
+Bound to ~k~.
+
+Takes a numeric prefix =arg= and moves up the current list =arg= times.
+
+Here, current list means the innermost list that contains the point.
+Moving up means so literally only if there is a newline after
+each element of current list, otherwise it's up or right.
+
+~k~ maintains a guarantee that it will not exit the current list, so
+you can use e.g. ~99k~ to move to the first element of current list.
+
+When it's not possible to move up any more, ~k~ will
+behave as [[id:bde67516-dfce-4e5a-b30d-9eb52ade7e3e][=lispy-different=]]. This allows to traverse the current
+list's elements with just ~j~ and ~k~.
+
+When region is active, ~k~ will call =backward-sexp=.
+This allows to:
+
+- shrink the region when point is at =region-end=
+- grow the region when point is at =region-beginning=
+-----
+
+** =lispy-different=
+:PROPERTIES:
+:ID:       bde67516-dfce-4e5a-b30d-9eb52ade7e3e
+:END:
+
+Bound to ~d~.
+
+Switch to the different side of current sexp.
+
+When region is active, equivalent to =exchange-point-and-mark=.
 -----
 
 ** =lispy-ace-paren=
