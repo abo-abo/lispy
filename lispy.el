@@ -815,7 +815,7 @@ When this function is called:
           (backward-char))
         (backward-char))
        (t
-        (insert ,left )
+        (insert ,left)
         (unless (looking-at " ")
           (insert " "))
         (forward-sexp)
@@ -1374,7 +1374,7 @@ Quote newlines if ARG isn't 1."
     (setq end (point))
     (goto-char beg)
     (lispy-ace-paren
-     `(lambda()
+     `(lambda ()
         (lispy--teleport ,beg ,end ,endp ,regionp))
      t)))
 
@@ -1393,12 +1393,12 @@ Quote newlines if ARG isn't 1."
   (interactive)
   (cl-labels
       ((doit ()
-             (unless (or (looking-back lispy-right) (region-active-p))
-               (lispy-forward 1))
-             (let ((str (lispy--eval (lispy--string-dwim))))
-               (when (> (current-column) 40)
-                 (newline-and-indent))
-               (insert str))))
+         (unless (or (looking-back lispy-right) (region-active-p))
+           (lispy-forward 1))
+         (let ((str (lispy--eval (lispy--string-dwim))))
+           (when (> (current-column) 40)
+             (newline-and-indent))
+           (insert str))))
     (if (looking-at lispy-left)
         (save-excursion
           (doit))
@@ -1420,9 +1420,9 @@ Quote newlines if ARG isn't 1."
   "Fetch all tags in current directory recursively."
   (let ((dirs
          (cl-remove-if
-          (lambda(y) (string-match "\\.git/" y))
+          (lambda (y) (string-match "\\.git/" y))
           (mapcar
-           (lambda(x) (concat (expand-file-name x) "/"))
+           (lambda (x) (concat (expand-file-name x) "/"))
            (split-string
             (shell-command-to-string "find . -type d")
             "\n"
@@ -1510,7 +1510,7 @@ When NO-NARROW is not nil, don't narrow."
   (lispy--ace-do
    lispy-left
    (save-excursion (lispy--out-backward 50) (lispy--bounds-dwim))
-   (lambda() (not (lispy--in-string-or-comment-p)))
+   (lambda () (not (lispy--in-string-or-comment-p)))
    func
    no-narrow))
 
@@ -1525,8 +1525,8 @@ Sexp is obtained by exiting list ARG times."
   (lispy--ace-do
    "[([{ ]\\(?:\\sw\\|\\s_\\|\\s(\\|[\"'`#]\\)"
    (lispy--bounds-dwim)
-   (lambda() (or (not (lispy--in-string-or-comment-p)) (looking-back ".\"")))
-   (lambda() (forward-char 1) (lispy-mark-symbol))))
+   (lambda () (or (not (lispy--in-string-or-comment-p)) (looking-back ".\"")))
+   (lambda () (forward-char 1) (lispy-mark-symbol))))
 
 (defun lispy-ace-symbol-replace (arg)
   "Use `ace-jump-char-mode' to jump to a symbol within a sexp and delete it.
@@ -1539,8 +1539,8 @@ Sexp is obtained by exiting list ARG times."
   (lispy--ace-do
    "[([{ ]\\(?:\\sw\\|\\s_\\|\\s(\\|[\"'`#]\\)"
    (lispy--bounds-dwim)
-   (lambda() (or (not (lispy--in-string-or-comment-p)) (looking-back ".\"")))
-   (lambda() (forward-char 1) (lispy-mark-symbol) (lispy-delete 1))))
+   (lambda () (or (not (lispy--in-string-or-comment-p)) (looking-back ".\"")))
+   (lambda () (forward-char 1) (lispy-mark-symbol) (lispy-delete 1))))
 
 ;; ——— Locals:  outline ————————————————————————————————————————————————————————
 (defun lispy-tab ()
@@ -1764,8 +1764,8 @@ First, try to return `lispy--bounds-string'."
   "Go to beginning of comment on current line."
   (end-of-line)
   (let ((cs (comment-search-backward (line-beginning-position) t)))
-      (when cs
-        (goto-char cs))))
+    (when cs
+      (goto-char cs))))
 
 (defun lispy--comment-search-forward (dir)
   "Search for a first comment in direction DIR.
@@ -1879,7 +1879,7 @@ Return nil on failure, t otherwise."
   (setq dir (or dir default-directory))
   (let ((default-directory dir))
     (mapc
-     (lambda(f)
+     (lambda (f)
        (let ((buffer (find-file-noselect f))
              tags)
          (set-buffer buffer)
@@ -1888,7 +1888,7 @@ Return nil on failure, t otherwise."
          (when (memq major-mode '(lisp-mode emacs-lisp-mode))
            (lexical-let ((arity (cdr (assoc major-mode lispy-tag-arity)))
                          (tag-regex (lispy--tag-regexp)))
-             (mapc (lambda(x) (lispy--modify-tag x tag-regex arity))  tags)))
+             (mapc (lambda (x) (lispy--modify-tag x tag-regex arity)) tags)))
          ;; (kill-buffer buffer)
          ))
      (lispy--file-list)))
@@ -1898,55 +1898,55 @@ Return nil on failure, t otherwise."
   "Get the list of same type files in current directory."
   (let ((ext (file-name-extension (buffer-file-name))))
     (cl-remove-if
-     (lambda(x) (string-match "\\(?:^\\.?#\\|~$\\)" x))
+     (lambda (x) (string-match "\\(?:^\\.?#\\|~$\\)" x))
      (file-expand-wildcards (format "*.%s" ext)))))
 
 (defvar lispy-tag-arity
-  '((lisp-mode .
-     ((defclass . 1)
-      (defconstant . 1)
-      (defgeneric . 1)
-      (define-condition . 1)
-      (define-symbol-macro . 1)
-      (defmethod . 2)
-      (defpackage . 1)
-      (defparameter . 1)
-      (defsetf . 1)
-      (defstruct . 1)
-      (deftype . 1)
-      (in-package . 1)
-      (load . 1)
-      (setq . 2)
-      ;; SLIME specific
-      (definterface . 1)
-      (defimplementation . 1)
-      (define-caller-pattern . 1)
-      (define-variable-pattern . 1)
-      (define-pattern-substitution . 1)
-      (defslimefun . 1)))
-    (emacs-lisp-mode .
-     ((setq . 2)
-      (setq-default . 2)
-      (add-to-list . 2)
-      (add-hook . 2)
-      (load . 1)
-      (load-file . 1)
-      (define-key . 3)
-      (ert-deftest . 1)
-      (declare-function . 1)
-      (defalias . 2)
-      (make-variable-buffer-local . 1)
-      (define-minor-mode . 1)
-      (make-obsolete . 2)
-      (put . 3)
-      (overlay-put . 3)
-      (make-obsolete-variable . 1)
-      (define-obsolete-function-alias . 1)
-      (define-obsolete-variable-alias . 1)
-      (eval-after-load . 1)
-      (global-set-key . 2)
-      ;; org-mode specific
-      (org-defkey . 3))))
+  '((lisp-mode
+     (defclass . 1)
+     (defconstant . 1)
+     (defgeneric . 1)
+     (define-condition . 1)
+     (define-symbol-macro . 1)
+     (defmethod . 2)
+     (defpackage . 1)
+     (defparameter . 1)
+     (defsetf . 1)
+     (defstruct . 1)
+     (deftype . 1)
+     (in-package . 1)
+     (load . 1)
+     (setq . 2)
+     ;; SLIME specific
+     (definterface . 1)
+     (defimplementation . 1)
+     (define-caller-pattern . 1)
+     (define-variable-pattern . 1)
+     (define-pattern-substitution . 1)
+     (defslimefun . 1))
+    (emacs-lisp-mode
+     (setq . 2)
+     (setq-default . 2)
+     (add-to-list . 2)
+     (add-hook . 2)
+     (load . 1)
+     (load-file . 1)
+     (define-key . 3)
+     (ert-deftest . 1)
+     (declare-function . 1)
+     (defalias . 2)
+     (make-variable-buffer-local . 1)
+     (define-minor-mode . 1)
+     (make-obsolete . 2)
+     (put . 3)
+     (overlay-put . 3)
+     (make-obsolete-variable . 1)
+     (define-obsolete-function-alias . 1)
+     (define-obsolete-variable-alias . 1)
+     (eval-after-load . 1)
+     (global-set-key . 2)
+     ;; org-mode specific
+     (org-defkey . 3)))
   "Alist of tag arities for supported modes.")
 
 (defun lispy--tag-regexp (&optional mode)
@@ -1957,7 +1957,7 @@ Return nil on failure, t otherwise."
           "^([ \t\n]*\\_<\\(?:cl:\\)?"
           "\\("
           (regexp-opt
-           (mapcar (lambda(x) (symbol-name (car x)))
+           (mapcar (lambda (x) (symbol-name (car x)))
                    (cdr (assoc mode lispy-tag-arity))))
           "\\)"
           "\\_>"))
@@ -1966,7 +1966,7 @@ Return nil on failure, t otherwise."
           "^([ \t\n]*\\_<"
           "\\("
           (regexp-opt
-           (mapcar (lambda(x) (symbol-name (car x)))
+           (mapcar (lambda (x) (symbol-name (car x)))
                    (cdr (assoc mode lispy-tag-arity))))
           "\\)"
           "\\_>"))
@@ -2123,23 +2123,23 @@ For example, a `setq' statement is amended with variable name that it uses."
                          (kill-buffer))))
                    (semanticdb-directory-loaded-p path)))))
     (unless (lexical-let ((db-files
-                           (mapcar (lambda(x) (aref x 2))
+                           (mapcar (lambda (x) (aref x 2))
                                    (and db (aref db 6)))))
-              (cl-every (lambda(x) (member x db-files))
+              (cl-every (lambda (x) (member x db-files))
                         (let ((default-directory path))
                           (lispy--file-list))))
       (lispy-build-semanticdb path)
       (setq db (semanticdb-directory-loaded-p path)))
     (and db
          (setq db (cl-remove-if-not
-                   (lambda(x) (eq (aref x 4) major-mode))
+                   (lambda (x) (eq (aref x 4) major-mode))
                    (aref db 6)))
          (apply
           #'append
           (mapcar
-           (lambda(x)
+           (lambda (x)
              (cl-remove-if-not
-              (lambda(s) (stringp (car s)))
+              (lambda (s) (stringp (car s)))
               (lispy--set-file-to-tags
                (expand-file-name (aref x 2) path)
                (aref x 5)))) db)))))
@@ -2147,7 +2147,7 @@ For example, a `setq' statement is amended with variable name that it uses."
 (defun lispy--set-file-to-tags (file tags)
   "Put FILE as property of each tag in TAGS."
   (mapcar
-   (lambda(y)
+   (lambda (y)
      (let ((v (nth 4 y)))
        (cond ((vectorp v)
               (cl-case (length v)
@@ -2173,7 +2173,7 @@ For example, a `setq' statement is amended with variable name that it uses."
     (when (memq major-mode '(lisp-mode emacs-lisp-mode))
       (lexical-let ((arity (cdr (assoc major-mode lispy-tag-arity)))
                     (tag-regex (lispy--tag-regexp)))
-        (mapc (lambda(x) (lispy--modify-tag x tag-regex arity))  tags)))
+        (mapc (lambda (x) (lispy--modify-tag x tag-regex arity)) tags)))
     tags))
 
 (defvar lispy--goto-cache nil "Maps directories to pretty tags.")
@@ -2472,7 +2472,7 @@ ACTION is called for the selected candidate."
     (helm :sources
           `((name . "Candidates")
             (candidates . ,(mapcar
-                            (lambda(x)
+                            (lambda (x)
                               (if (listp x)
                                   (if (stringp (cdr x))
                                       (cons (cdr x) (car x))
@@ -2528,7 +2528,7 @@ When NO-NARROW is not nil, don't narrow to BND."
     (narrow-to-region (car bnd) (cdr bnd)))
   (when func
     (setq ace-jump-mode-end-hook
-          (list `(lambda()
+          (list `(lambda ()
                    (setq ace-jump-mode-end-hook)
                    (,func)))))
   (let ((ace-jump-mode-scope 'window)
@@ -2590,8 +2590,8 @@ Make text marked if REGIONP is t."
         (insert "\n")
         (backward-char))
       (lispy-save-excursion
-        (goto-char (1- beg1))
-        (indent-sexp))
+       (goto-char (1- beg1))
+       (indent-sexp))
       (if regionp
           (progn
             (setq deactivate-mark nil)
