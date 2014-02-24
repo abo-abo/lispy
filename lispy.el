@@ -2262,6 +2262,63 @@ For example, a `setq' statement is amended with variable name that it uses."
       (insert char)
       (indent-region (point) pt))))
 
+;; ——— Utilities: source transformation ————————————————————————————————————————
+(defun lispy--read ()
+  "Read current sexp including comments and newlines."
+  (let* ((bnd (lispy--bounds-list))
+         (str (lispy--string-dwim bnd))
+         (mode major-mode)
+         cbnd
+         (str (with-temp-buffer
+                (funcall mode)
+                (insert str)
+                ;; ——— comments ———————————————
+                (goto-char (point-min))
+                (while (comment-search-forward (point-max) t)
+                  (lispy--beginning-of-comment)
+                  (setq cbnd (cons (point) (line-end-position)))
+                  (setq str (lispy--string-dwim cbnd))
+                  (delete-region (car cbnd) (cdr cbnd))
+                  (insert (format "(ly-raw comment %S)" str)))
+                ;; ——— strings ————————————————
+                (goto-char (point-min))
+                (while (re-search-forward "\"" nil t)
+                  (setq cbnd (lispy--bounds-string))
+                  (when (and cbnd (not (looking-back "ly-raw comment \"")))
+                    (setq str (lispy--string-dwim cbnd))
+                    (delete-region (car cbnd) (cdr cbnd))
+                    (insert (format "(ly-raw string %S)" str))))
+                ;; ——— newlines ———————————————
+                (goto-char (point-min))
+                (while (re-search-forward "\n" nil t)
+                  (unless (lispy--in-string-or-comment-p)
+                    (replace-match " (ly-raw newline)")))
+                ;; ——— () —————————————————————
+                (goto-char (point-min))
+                (while (re-search-forward "()" nil t)
+                  (unless (lispy--in-string-or-comment-p)
+                    (replace-match "(ly-raw empty)")))
+                ;; ——— ? char syntax ——————————
+                (goto-char (point-min))
+                (while (re-search-forward "\\?" nil t)
+                  (unless (lispy--in-string-or-comment-p)
+                    (let ((pt (point))
+                          sexp)
+                      (forward-sexp)
+                      (setq sexp (buffer-substring-no-properties pt (point)))
+                      (delete-region (1- pt) (point))
+                      (insert (format "(ly-raw char %S)" sexp)))))
+                (buffer-substring-no-properties
+                 (point-min)
+                 (point-max)))))
+    (ignore-errors
+      (read str))))
+
+(defvar lispy--insert-alist
+  '((` . "`")
+    (, . ",")
+    (,@ . ",@")))
+
 ;; ——— Utilities: rest —————————————————————————————————————————————————————————
 (defun lispy--indent-for-tab ()
   "Call `indent-for-tab-command'."
