@@ -718,6 +718,10 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "(defun foo (x y)\n  (bar))|" (lispy-to-lambda))
                    "|(lambda (x y)\n  (bar))")))
 
+(ert-deftest lispy-parens ()
+  (should (string= (lispy-with "'|(foo bar)" "2(")
+                   "'(| (foo bar))")))
+
 (provide 'lispy-test)
 
 ;;; Local Variables:

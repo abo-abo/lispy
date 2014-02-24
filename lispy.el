@@ -821,6 +821,7 @@ When this function is called:
         (forward-sexp)
         (insert ,right)
         (backward-sexp)
+        (skip-chars-forward "'`#")
         (indent-sexp)
         (forward-char 1)))))
 
