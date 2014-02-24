@@ -830,7 +830,7 @@ When this function is called:
   "`lispy-pair' with ().")
 
 (defalias 'lispy-brackets
-    (lispy-pair "[" "]" "\\s-\\|\\s(\\|[']")
+    (lispy-pair "[" "]" "^\\|\\s-\\|\\s(\\|[']")
   "`lispy-pair' with [].")
 
 (defalias 'lispy-braces
