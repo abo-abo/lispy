@@ -2263,11 +2263,9 @@ For example, a `setq' statement is amended with variable name that it uses."
       (indent-region (point) pt))))
 
 ;; ——— Utilities: source transformation ————————————————————————————————————————
-(defun lispy--read ()
-  "Read current sexp including comments and newlines."
-  (let* ((bnd (lispy--bounds-list))
-         (str (lispy--string-dwim bnd))
-         (mode major-mode)
+(defun lispy--read (str)
+  "Read STR including comments and newlines."
+  (let* ((mode major-mode)
          cbnd
          (str (with-temp-buffer
                 (funcall mode)
@@ -2375,6 +2373,23 @@ For example, a `setq' statement is amended with variable name that it uses."
             (t
              (ensure-space)
              (insert (prin1-to-string expr)))))))
+
+(defun lispy-expr-canonical-p (str)
+  "Return t if STR is the same when read and re-inserted."
+  (interactive
+   (list (lispy--string-dwim (lispy--bounds-list))))
+  (let* ((mode major-mode)
+         (result (string=
+                  str
+                  (with-temp-buffer
+                    (funcall mode)
+                    (lispy--insert (lispy--read str))
+                    (buffer-substring-no-properties
+                     (point-min)
+                     (point-max))))))
+    (when (called-interactively-p 'any)
+      (message "%s" result))
+    result))
 
 ;; ——— Utilities: rest —————————————————————————————————————————————————————————
 (defun lispy--indent-for-tab ()
