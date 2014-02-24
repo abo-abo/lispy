@@ -42,6 +42,7 @@
 | (   | [[id:bdff1e23-07d0-4e84-b1ac-7b55ae0e0da7][lispy-parens]]          |
 | {   | [[id:d985a611-5a63-4107-9041-da36702d5522][lispy-braces]]          |
 | }   | [[id:83c46b4b-0417-4048-9240-d6fd686bbe21][lispy-brackets]]        |
+| "   | [[id:5ab0cc00-df97-44dd-b451-6e977d25b6d9][lispy-quotes]]          |
 | C-1 | [[id:54752047-032c-4f0d-97ac-ed9baefa3649][lispy-describe-inline]] |
 | C-2 | [[id:54becf27-661c-4c5d-92d8-baa22a50291d][lispy-arglist-inline]]  |
 | C-3 | [[id:79f14a39-011b-48bd-82a4-4c1587514948][lispy-out-forward]]     |
@@ -828,6 +829,51 @@ Use ~{~ to call [[id:80cb6d3d-f3fe-4c0f-9eaf-e098679aada4][=lispy-pair=]] specia
 Use ~}~ to call [[id:80cb6d3d-f3fe-4c0f-9eaf-e098679aada4][=lispy-pair=]] specialized with =[]=.
 -----
 
+** =lispy-quotes=
+:PROPERTIES:
+:ID:       5ab0cc00-df97-44dd-b451-6e977d25b6d9
+:END:
+Use @@html:<kbd>"</kbd>@@ to insert a pair of quotes around the point.
+
+Takes a prefix =arg=.
+
+The result depends on the following conditions, each
+tried one by one until one that holds true is found:
+*** region active
+Wrap the region with quotes.
+*** in string and =arg= isn't =nil=
+Unquote current string.
+*** in string and =arg= is =nil=
+Insert a pair of quoted quotes around point.
+
+Starting with
+#+begin_src elisp
+"we are the knights who say ||"
+#+end_src
+
+pressing @@html:<kbd>"</kbd>@@ will give:
+#+begin_src elisp
+"we are the knights who say \"||\""
+#+end_src
+*** =arg= isn't =nil=
+
+Forward to =lispy-stringify=.
+
+*** otherwise
+Insert quotes, with a single space on either side where appropriate, 
+and position the point between the quotes.
+
+Starting with
+#+begin_src elisp
+(message||)
+#+end_src
+
+pressing @@html:<kbd>"</kbd>@@ will give:
+#+begin_src elisp
+(message "||")
+#+end_src
+-----
+
 ** =lispy-pair=
 :PROPERTIES:
 :ID:       80cb6d3d-f3fe-4c0f-9eaf-e098679aada4
@@ -846,40 +892,40 @@ Wrap the region with =left= and =right=.
 
 *** inside a string before "\\"
 Starting with
-#+begin_src text-mode
+#+begin_src text
 "a regex \\||"
 #+end_src
 pressing  ~(~ will give:
-#+begin_src text-mode
+#+begin_src text
 "a regex \\(||\\)"
 #+end_src
 and pressing ~{~ will give:
-#+begin_src text-mode
+#+begin_src text
 "a regex \\{||\\}"
 #+end_src
 and pressing ~}~ will give:
-#+begin_src text-mode
+#+begin_src text
 "a regex \\[||\\]"
 #+end_src
 *** inside string or comment
 Insert =left=, =right= and put the point between them.
 
 Starting with
-#+begin_src text-mode
+#+begin_src text
 "a string || "
 #+end_src
 pressing ~(~ will give:
-#+begin_src text-mode
+#+begin_src text
 "a string (||)"
 #+end_src
 
 *** elisp character expression
 Starting with
-#+begin_src text-mode
+#+begin_src text
 ?\||
 #+end_src
 pressing ~(~ will self-insert it to give:
-#+begin_src text-mode
+#+begin_src text
 ?\(||
 #+end_src
 This also works for ~)~, ~{~, ~}~.
