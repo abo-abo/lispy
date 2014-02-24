@@ -525,7 +525,10 @@ Insert KEY if there's no command."
                    "(thing2)|"))
   (should (string= (lispy-with "(a (f~oob|ar) c)" (lispy-raise)) "(a oob c)|"))
   (should (string= (lispy-with "(a (f|oob~ar) c)" (lispy-raise)) "(a oob c)|"))
-  (should (string= (lispy-with "(\n     |(foo))" "r") "|(foo)")))
+  (should (string= (lispy-with "(\n     |(foo))" "r") "|(foo)"))
+  ;; a bug in `indent-sexp' http://debbugs.gnu.org/cgi/bugreport.cgi?bug=16852
+  ;; (should (string= (lispy-with "(|(\n  progn\n  ))" "r") "|(\n progn\n )"))
+  )
 
 (ert-deftest lispy-raise-some ()
   (should (string= (lispy-with "(if (and |(pred1) (pred2))\n    (thing1)\n  (thing2))" "R")
