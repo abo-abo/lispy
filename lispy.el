@@ -134,6 +134,8 @@
 ;; Some Common Lisp support depends on `slime'.
 ;; You can get them from MELPA.
 ;;
+;; See http://abo-abo.github.io/lispy/ for a detailed documentation.
+;;
 ;;; Code:
 (eval-when-compile
   (require 'cl)
@@ -946,7 +948,8 @@ Special case is (|( -> ( |(."
         ((looking-back lispy-right)
          (dotimes-protect arg
            (lispy--slurp-forward))))
-  (lispy--reindent))
+  (unless (region-active-p)
+    (lispy--reindent)))
 
 (defun lispy-barf (arg)
   "Shrink current sexp by ARG sexps."
