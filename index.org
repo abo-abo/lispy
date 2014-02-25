@@ -47,6 +47,7 @@
 | C-2 | [[id:54becf27-661c-4c5d-92d8-baa22a50291d][lispy-arglist-inline]]  |
 | C-3 | [[id:79f14a39-011b-48bd-82a4-4c1587514948][lispy-out-forward]]     |
 | C-4 | [[id:bd0758f8-4bb7-4154-af69-81368993184b][lispy-x]]               |
+| C-k | [[id:410af24f-c333-42ae-b93d-d481a7772f44][lispy-kill]]            |
 |-----+-----------------------|
 * Local bindings
 | key | function name                 |
@@ -860,7 +861,7 @@ pressing ~"~ will give:
 Forward to =lispy-stringify=.
 
 *** otherwise
-Insert quotes, with a single space on either side where appropriate, 
+Insert quotes, with a single space on either side where appropriate,
 and position the point between the quotes.
 
 Starting with
@@ -965,8 +966,49 @@ Bound to ~x~ (locally) or ~C-4~ (globally).
 
 Just a prefix to calling other commands, like
 
-| l | [[id:0333708a-609e-4619-a0d4-4507397c5c25][lispy-to-lambda]] |
-| d | [[id:0ace5ddb-2500-4deb-9ef9-e806aae7475b][lispy-to-defun]]  |
+| key | function name   |
+|-----+-----------------|
+| l   | [[id:0333708a-609e-4619-a0d4-4507397c5c25][lispy-to-lambda]] |
+| d   | [[id:0ace5ddb-2500-4deb-9ef9-e806aae7475b][lispy-to-defun]]  |
+|-----+-----------------|
+-----
+
+** =lispy-kill=
+:PROPERTIES:
+:ID:       410af24f-c333-42ae-b93d-d481a7772f44
+:END:
+
+Bound to ~C-k~.
+
+A replacement for =kill-line= that keeps parens consistent.
+
+The result depends on the following conditions, each
+tried one by one until one that holds true is found:
+
+*** inside comment
+Call =kill-line=.
+
+*** inside string and string extends past this line
+Call =kill-line=.
+
+*** inside string that ends on this line
+Delete up to =line-end-position=.
+
+*** on a line of whitespace
+Delete whole line, moving to the next one, and re-indent.
+
+*** inside empty list
+Delete the empty list.
+
+*** parens between point and eol are balanced
+Call =kill-line=.
+
+*** possible to =up-list=
+Delete from point to end of list.
+
+*** otherwise
+Delete current sexp.
+-----
 
 ** =lispy-outline-next=
 :PROPERTIES:
@@ -1033,9 +1075,11 @@ And here's the short comment:
 
 Useful together with
 
-| J | [[id:637e7ef8-31b0-4512-99d9-386de877b40e][lispy-outline-next]] |
-| K | [[id:caaf39aa-1860-43a9-a5ea-5fac9ca9a23c][lispy-outline-prev]] |
-| i | [[id:5f945b62-0189-4c77-ae63-d0d5c72cc056][lispy-tab]]          |
+| key | function name      |
+|-----+--------------------|
+| J   | [[id:637e7ef8-31b0-4512-99d9-386de877b40e][lispy-outline-next]] |
+| K   | [[id:caaf39aa-1860-43a9-a5ea-5fac9ca9a23c][lispy-outline-prev]] |
+| i   | [[id:5f945b62-0189-4c77-ae63-d0d5c72cc056][lispy-tab]]          |
 -----
 
 ** =lispy-tab=
