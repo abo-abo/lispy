@@ -833,7 +833,8 @@ Use ~}~ to call [[id:80cb6d3d-f3fe-4c0f-9eaf-e098679aada4][=lispy-pair=]] specia
 :PROPERTIES:
 :ID:       5ab0cc00-df97-44dd-b451-6e977d25b6d9
 :END:
-Use @@html:<kbd>"</kbd>@@ to insert a pair of quotes around the point.
+
+Use ~"~ to insert a pair of quotes around the point.
 
 Takes a prefix =arg=.
 
@@ -851,12 +852,11 @@ Starting with
 "we are the knights who say ||"
 #+end_src
 
-pressing @@html:<kbd>"</kbd>@@ will give:
+pressing ~"~ will give:
 #+begin_src elisp
 "we are the knights who say \"||\""
 #+end_src
 *** =arg= isn't =nil=
-
 Forward to =lispy-stringify=.
 
 *** otherwise
