@@ -860,7 +860,7 @@ otherwise the whole string is unquoted."
          (lispy-stringify))
 
         (t
-         (lispy--space-unless "\\s-\\|\\s(\\|[#]")
+         (lispy--space-unless "^\\|\\s-\\|\\s(\\|[#]")
          (insert "\"\"")
          (unless (or (lispy--in-string-p)
                      (looking-at "\n\\|)\\|}\\|\\]"))
