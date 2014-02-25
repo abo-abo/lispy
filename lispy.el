@@ -2666,7 +2666,7 @@ Make text marked if REGIONP is t."
                                 e2 (match-end 0))
                           (delete-region b1 e1)
                           (delete-region b2 e2)
-                          (+ b2 (- e1 b1)))))))))
+                          (+ (point) (- b1 e2)))))))))
         (when pos
           (goto-char pos))))))
 
