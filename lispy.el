@@ -2399,6 +2399,12 @@ For example, a `setq' statement is amended with variable name that it uses."
       (message "%s" result))
     result))
 
+(defun lispy--whitespacep (x)
+  "Check if X is a whitespace tag."
+  (and (consp x)
+       (eq (car x) 'ly-raw)
+       (or (eq (cadr x) 'newline)
+           (eq (cadr x) 'comment))))
 ;; ——— Utilities: rest —————————————————————————————————————————————————————————
 (defun lispy--indent-for-tab ()
   "Call `indent-for-tab-command'."
