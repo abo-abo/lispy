@@ -1378,6 +1378,11 @@ Quote newlines if ARG isn't 1."
     (goto-char beg)
     (lispy-ace-paren
      `(lambda ()
+        (forward-char)
+        (ignore-errors
+          (unless (looking-at "(")
+            (forward-sexp)))
+        (backward-char)
         (lispy--teleport ,beg ,end ,endp ,regionp))
      t)))
 
@@ -2591,7 +2596,8 @@ Make text marked if REGIONP is t."
   (let ((str (buffer-substring-no-properties beg end))
         (beg1 (1+ (point)))
         end1
-        (size (buffer-size)))
+        (size (buffer-size))
+        (deactivate-mark nil))
     (if (and (>= (point) beg)
              (<= (point) end))
         (progn
@@ -2603,11 +2609,18 @@ Make text marked if REGIONP is t."
       (when (> beg1 beg)
         (decf beg1 (- size (buffer-size))))
       (goto-char beg1)
+      (when (looking-at "(")
+        (save-excursion
+          (newline-and-indent)))
+      (unless (looking-back "[ (]")
+        (insert " ")
+        (incf beg1))
       (insert str)
       (unless (looking-at "[\n)]")
         (insert "\n")
         (backward-char))
       (lispy-save-excursion
+       (lispy--reindent 1)
        (goto-char (1- beg1))
        (indent-sexp))
       (if regionp
