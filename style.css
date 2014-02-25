@@ -75,3 +75,18 @@ h4:before {
 h4 {
     margin-left: auto;
 }
+
+table, td, th {
+    border: 0px;
+}
+
+th {
+    background-color:#d6d8ec;
+}
+
+tr:nth-child(odd) {
+    background-color:#eedfee;
+}
+tr:nth-child(even) {
+    background-color:#fff;
+}
