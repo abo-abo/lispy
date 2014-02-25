@@ -4,6 +4,7 @@ body {
     margin-left: 1em;
     margin-right: auto;
     font-family: 'Ubuntu Mono', sans-serif;
+    max-width: 50em;
 }
 
 body a {
