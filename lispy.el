@@ -2405,6 +2405,10 @@ For example, a `setq' statement is amended with variable name that it uses."
        (eq (car x) 'ly-raw)
        (or (eq (cadr x) 'newline)
            (eq (cadr x) 'comment))))
+
+(defun lispy--not-whitespace (expr)
+  "Return non-whitespace part of EXPR."
+  (cl-remove-if #'lispy--whitespacep expr))
 ;; ——— Utilities: rest —————————————————————————————————————————————————————————
 (defun lispy--indent-for-tab ()
   "Call `indent-for-tab-command'."
