@@ -2692,25 +2692,36 @@ Make text marked if REGIONP is t."
   (put 'lispy-store-bounds 'buffer (current-buffer))
   (put 'lispy-store-bounds 'region (lispy--bounds-dwim)))
 
+(defun lispy--make-ediff-buffer (buffer ext bnd)
+  "Create a copy of BUFFER with EXT added to the name.
+Use only the part bounded by BND."
+  (multiple-value-bind (name mode str)
+      (with-current-buffer buffer
+        (list (concat (buffer-name) ext) major-mode (lispy--string-dwim bnd)))
+    (with-current-buffer (get-buffer-create name)
+      (funcall mode)
+      (insert str "\n")
+      (indent-region (point-min) (point-max))
+      (setq ediff-temp-indirect-buffer t)
+      (list (current-buffer) (point-min) (point-max)))))
+
 (defun lispy-ediff-regions ()
   "Comparable to `ediff-regions-linewise'.
 First region and buffer come from `lispy-store-region-and-buffer'
 Second region and buffer are the current ones."
   (interactive)
-  (let ((bnd1 (get 'lispy-store-bounds 'region))
-        (bnd2 (lispy--bounds-dwim))
-        (buf1
-         (ediff-make-cloned-buffer (get 'lispy-store-bounds 'buffer) "-A-"))
-        (buf2
-         (ediff-make-cloned-buffer (current-buffer) "-B-")))
-    (with-current-buffer buf1
-      (setq ediff-temp-indirect-buffer t)
-      (set-buffer buf2)
-      (setq ediff-temp-indirect-buffer t))
-    (ediff-regions-internal
-     buf1 (car bnd1) (1+ (cdr bnd1))
-     buf2 (car bnd2) (1+ (cdr bnd2))
-     nil 'ediff-regions-linewise nil nil)))
+  (multiple-value-bind (buf1 beg1 end1)
+      (lispy--make-ediff-buffer
+       (current-buffer) "-A-"
+       (lispy--bounds-dwim))
+    (multiple-value-bind (buf2 beg2 end2)
+        (lispy--make-ediff-buffer
+         (get 'lispy-store-bounds 'buffer) "-B-"
+         (get 'lispy-store-bounds 'region))
+      (ediff-regions-internal
+       buf1 beg1 end1
+       buf2 beg2 end2
+       nil 'ediff-regions-linewise nil nil))))
 
 (defun lispy--insert-or-call (def &optional from-start)
   "Return a lambda to call DEF if position is special.
