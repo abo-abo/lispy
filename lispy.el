@@ -2409,6 +2409,46 @@ For example, a `setq' statement is amended with variable name that it uses."
 (defun lispy--not-whitespace (expr)
   "Return non-whitespace part of EXPR."
   (cl-remove-if #'lispy--whitespacep expr))
+
+(defun lispy--to-ifs (expr)
+  "Transform EXPR to an equivalent using ifs."
+  (if (eq (car expr) 'cond)
+      (car (lispy--cases->ifs (cdr expr)))
+    (error "%s isn't 'cond" (car expr))))
+
+(defun lispy--case->if (case &optional else)
+  "Return an if statement based on  CASE statement and ELSE."
+  (append
+   `(if ,(car case))
+   (cond ((null (cdr case)) `((ly-raw newline) nil ,@else))
+         ((= (length (lispy--not-whitespace (cdr case))) 1)
+          (append (cdr case) else))
+         (t
+          (let ((p (or (cl-position-if-not
+                        #'lispy--whitespacep
+                        (cdr case))
+                       -1)))
+            `(,@(cl-subseq (cdr case) 0 p)
+                (progn
+                  (ly-raw newline)
+                  ,@(cl-subseq (cdr case) p))
+                ,@else))))))
+
+(defun lispy--cases->ifs (cases)
+  "Return nested if statements that correspond to CASES."
+  (cond ((= 1 (length cases))
+         (if (eq (caar cases) t)
+             (cdar cases)
+           (list (lispy--case->if (car cases)))))
+        ((lispy--whitespacep (car cases))
+         (cons (car cases)
+               (lispy--cases->ifs (cdr cases))))
+        (t
+         (list
+          (lispy--case->if
+           (car cases)
+           (lispy--cases->ifs (cdr cases)))))))
+
 ;; ——— Utilities: rest —————————————————————————————————————————————————————————
 (defun lispy--indent-for-tab ()
   "Call `indent-for-tab-command'."
