@@ -2815,6 +2815,7 @@ list."
 
 (defvar ac-trigger-commands '(self-insert-command))
 (defvar company-begin-commands '(self-insert-command))
+(defvar mc/cmds-to-run-for-all nil)
 
 (defadvice ac-handle-post-command (around ac-post-command-advice activate)
   "Don't `auto-complete' when region is active."
@@ -2830,6 +2831,8 @@ FUNC is obtained from (`lispy--insert-or-call' DEF FROM-START)"
       (push func ac-trigger-commands))
     (unless (member func company-begin-commands)
       (push func company-begin-commands))
+    (unless (member func mc/cmds-to-run-for-all)
+      (push func mc/cmds-to-run-for-all))
     (eldoc-add-command func)
     (define-key keymap (kbd key) func)))
 
