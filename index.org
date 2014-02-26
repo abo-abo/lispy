@@ -10,9 +10,12 @@
 (defun make-html-cursor--replace (x)
   (if (string= "||\n" x)
       "<cursor> </cursor>\n"
-    (format "<cursor>%s</cursor>"
-            (regexp-quote
-             (substring x 2)))))
+    (if (string= "||[" x)
+        "<cursor>[</cursor>"
+      (format "<cursor>%s</cursor>"
+              (regexp-quote
+               (substring x 2))))))
+
 (defun make-html-cursor (str x y)
   (replace-regexp-in-string
    "||\\(.\\|\n\\)"
@@ -48,6 +51,9 @@
 | C-3 | [[id:79f14a39-011b-48bd-82a4-4c1587514948][lispy-out-forward]]     |
 | C-4 | [[id:bd0758f8-4bb7-4154-af69-81368993184b][lispy-x]]               |
 | C-k | [[id:410af24f-c333-42ae-b93d-d481a7772f44][lispy-kill]]            |
+| C-y | [[id:6b1910b7-f217-422f-abed-1f8b4031969b][lispy-yank]]            |
+| C-d | [[id:eae9ac01-3498-41fd-bd98-939e97fa81fd][lispy-delete]]          |
+| DEL | [[id:3d62a0af-1210-4dbd-8821-57b3eca3377e][lispy-delete-backward]] |
 |-----+-----------------------|
 * Local bindings
 | key | function name                 |
@@ -1008,6 +1014,133 @@ Delete from point to end of list.
 
 *** otherwise
 Delete current sexp.
+-----
+
+** =lispy-yank=
+:PROPERTIES:
+:ID:       6b1910b7-f217-422f-abed-1f8b4031969b
+:END:
+
+Bound to ~C-y~.
+
+Replaces =yank=.
+The only difference is that yanking into an empty string will add
+escape sequences.
+
+Starting with:
+#+begin_src elisp
+||(message "test")
+#+end_src
+
+pressing ~C-k~ ~"~ ~C-y~ will give:
+#+begin_src elisp
+"(message \"test\")||"
+#+end_src
+
+whereas a regular =yank= would give:
+#+begin_src elisp
+"(message "test")||"
+#+end_src
+-----
+
+** =lispy-delete=
+:PROPERTIES:
+:ID:       eae9ac01-3498-41fd-bd98-939e97fa81fd
+:END:
+
+Bound to ~C-d~.
+
+Replaces =delete-char=, keeping parens consistent.
+
+The result depends on the following conditions, each
+tried one by one until one that holds true is found:
+
+*** region active
+Delete region.
+
+*** inside a string before \"
+Delete \".
+
+*** near \\( or \\)
+Remove \\( and \\).
+
+#+HTML: <table><tbody><tr><td>
+#+begin_src text
+(looking-at "\\([a-z]+||\\)")
+#+end_src
+#+HTML: </td><td>
+-> ~C-d~ ->
+#+HTML: </td><td>
+#+begin_src text
+(looking-at "[a-z]+||")
+#+end_src
+#+HTML: </td></tr></tbody></table>
+
+#+HTML: <table><tbody><tr><td>
+#+begin_src text
+(looking-at "||\\([a-z]+\\)")
+#+end_src
+#+HTML: </td><td>
+-> ~C-d~ ->
+#+HTML: </td><td>
+#+begin_src text
+(looking-at "||[a-z]+")
+#+end_src
+#+HTML: </td></tr></tbody></table>
+
+*** the next char isn't end of string
+Call =delete-char=.
+
+*** the next char is the end of string
+Move to the beginning of string.
+This allows to delete the whole string with the next ~C-d~.
+
+*** inside comment
+Call =delete-char=.
+
+*** before =lispy-left=
+Delete =arg= sexps.
+
+
+#+HTML: <table><tbody><tr><td>
+#+begin_src elisp
+(foo ||(bar) (baz))
+#+end_src
+#+HTML: </td><td>
+-> ~2~ ~C-d~ ->
+#+HTML: </td><td>
+#+begin_src elisp
+||(foo)
+#+end_src
+#+HTML: </td></tr></tbody></table>
+
+*** before "
+Delete string.
+
+*** before =lispy-right=
+Delete containing sexp.
+
+#+HTML: <table><tbody><tr><td>
+#+begin_src elisp
+(foo (bar) (baz||))
+#+end_src
+#+HTML: </td><td>
+-> ~C-d~ ->
+#+HTML: </td><td>
+#+begin_src elisp
+(foo (bar)||)
+#+end_src
+#+HTML: </td></tr></tbody></table>
+
+*** otherwise
+Call =delete-char=.
+
+** =lispy-delete-backward=
+:PROPERTIES:
+:ID:       3d62a0af-1210-4dbd-8821-57b3eca3377e
+:END:
+
+Bound to ~DEL~.
 -----
 
 ** =lispy-outline-next=

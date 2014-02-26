@@ -4,11 +4,53 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
 <title>lispy.el documentation</title>
-<!-- 2014-02-25 Tue 11:39 -->
+<!-- 2014-02-26 Wed 11:46 -->
 <meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta  name="generator" content="Org-mode" />
 <meta  name="author" content="Oleh" />
 <link rel="stylesheet" type="text/css" href="style.css"/>
+<script type="text/javascript" src="http://orgmode.org/mathjax/MathJax.js"></script>
+<script type="text/javascript">
+<!--/*--><![CDATA[/*><!--*/
+    MathJax.Hub.Config({
+        // Only one of the two following lines, depending on user settings
+        // First allows browser-native MathML display, second forces HTML/CSS
+        //  config: ["MMLorHTML.js"], jax: ["input/TeX"],
+            jax: ["input/TeX", "output/HTML-CSS"],
+        extensions: ["tex2jax.js","TeX/AMSmath.js","TeX/AMSsymbols.js",
+                     "TeX/noUndefined.js"],
+        tex2jax: {
+            inlineMath: [ ["\\(","\\)"] ],
+            displayMath: [ ['$$','$$'], ["\\[","\\]"], ["\\begin{displaymath}","\\end{displaymath}"] ],
+            skipTags: ["script","noscript","style","textarea","pre","code"],
+            ignoreClass: "tex2jax_ignore",
+            processEscapes: false,
+            processEnvironments: true,
+            preview: "TeX"
+        },
+        showProcessingMessages: true,
+        displayAlign: "center",
+        displayIndent: "2em",
+
+        "HTML-CSS": {
+             scale: 100,
+             availableFonts: ["STIX","TeX"],
+             preferredFont: "TeX",
+             webFont: "TeX",
+             imageFont: "TeX",
+             showMathMenu: true,
+        },
+        MMLorHTML: {
+             prefer: {
+                 MSIE:    "MML",
+                 Firefox: "MML",
+                 Opera:   "HTML",
+                 other:   "HTML"
+             }
+        }
+    });
+/*]]>*///-->
+</script>
 </head>
 <body>
 <div id="preamble" class="status">
@@ -91,6 +133,21 @@
 <tr>
 <td class="left">C-k</td>
 <td class="left"><a href="#sec-3-24">lispy-kill</a></td>
+</tr>
+
+<tr>
+<td class="left">C-y</td>
+<td class="left"><a href="#sec-3-25">lispy-yank</a></td>
+</tr>
+
+<tr>
+<td class="left">C-d</td>
+<td class="left"><a href="#sec-3-26">lispy-delete</a></td>
+</tr>
+
+<tr>
+<td class="left">DEL</td>
+<td class="left"><a href="#sec-3-27">lispy-delete-backward</a></td>
 </tr>
 </tbody>
 </table>
@@ -177,22 +234,22 @@
 
 <tr>
 <td class="left">J</td>
-<td class="left"><a href="#sec-3-25">lispy-outline-next</a></td>
+<td class="left"><a href="#sec-3-28">lispy-outline-next</a></td>
 </tr>
 
 <tr>
 <td class="left">K</td>
-<td class="left"><a href="#sec-3-26">lispy-outline-prev</a></td>
+<td class="left"><a href="#sec-3-29">lispy-outline-prev</a></td>
 </tr>
 
 <tr>
 <td class="left">I</td>
-<td class="left"><a href="#sec-3-27">lispy-shifttab</a></td>
+<td class="left"><a href="#sec-3-30">lispy-shifttab</a></td>
 </tr>
 
 <tr>
 <td class="left">i</td>
-<td class="left"><a href="#sec-3-28">lispy-tab</a></td>
+<td class="left"><a href="#sec-3-31">lispy-tab</a></td>
 </tr>
 </tbody>
 </table>
@@ -1496,8 +1553,231 @@ Delete current sexp.
 </div>
 </div>
 <div id="outline-container-sec-3-25" class="outline-3">
-<h3 id="sec-3-25"><a id="ID-637e7ef8-31b0-4512-99d9-386de877b40e"></a><code>lispy-outline-next</code></h3>
+<h3 id="sec-3-25"><a id="ID-6b1910b7-f217-422f-abed-1f8b4031969b"></a><code>lispy-yank</code></h3>
 <div class="outline-text-3" id="text-3-25">
+<p>
+Bound to <kbd>C-y</kbd>.
+</p>
+
+<p>
+Replaces <code>yank</code>.
+The only difference is that yanking into an empty string will add
+escape sequences.
+</p>
+
+<p>
+Starting with:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-elisp"><cursor>(</cursor>message <span style="color: #2A00FF;">"test"</span>)
+</pre>
+</div>
+
+<p>
+pressing <kbd>C-k</kbd> <kbd>"</kbd> <kbd>C-y</kbd> will give:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-elisp"><span style="color: #2A00FF;">"(message \"test\")<cursor>"</cursor></span>
+</pre>
+</div>
+
+<p>
+whereas a regular <code>yank</code> would give:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-elisp"><span style="color: #2A00FF;">"(message "</span>test<span style="color: #2A00FF;">")<cursor>"</cursor></span>
+</pre>
+</div>
+<hr  />
+</div>
+</div>
+<div id="outline-container-sec-3-26" class="outline-3">
+<h3 id="sec-3-26"><a id="ID-eae9ac01-3498-41fd-bd98-939e97fa81fd"></a><code>lispy-delete</code></h3>
+<div class="outline-text-3" id="text-3-26">
+<p>
+Bound to <kbd>C-d</kbd>.
+</p>
+
+<p>
+Replaces <code>delete-char</code>, keeping parens consistent.
+</p>
+
+<p>
+The result depends on the following conditions, each
+tried one by one until one that holds true is found:
+</p>
+</div>
+
+<div id="outline-container-sec-3-26-1" class="outline-4">
+<h4 id="sec-3-26-1">region active</h4>
+<div class="outline-text-4" id="text-3-26-1">
+<p>
+Delete region.
+</p>
+</div>
+</div>
+<div id="outline-container-sec-3-26-2" class="outline-4">
+<h4 id="sec-3-26-2">inside a string before \"</h4>
+<div class="outline-text-4" id="text-3-26-2">
+<p>
+Delete \".
+</p>
+</div>
+</div>
+<div id="outline-container-sec-3-26-3" class="outline-4">
+<h4 id="sec-3-26-3">near \\( or \\)</h4>
+<div class="outline-text-4" id="text-3-26-3">
+<p>
+Remove \\( and \\).
+</p>
+
+<table><tbody><tr><td>
+<div class="org-src-container">
+
+<pre class="src src-text">(looking-at "\\([a-z]+<cursor>\</cursor>\)")
+</pre>
+</div>
+</td><td>
+<p>
+-&gt; <kbd>C-d</kbd> -&gt;
+</p>
+</td><td>
+<div class="org-src-container">
+
+<pre class="src src-text">(looking-at "[a-z]+<cursor>"</cursor>)
+</pre>
+</div>
+</td></tr></tbody></table>
+
+<table><tbody><tr><td>
+<div class="org-src-container">
+
+<pre class="src src-text">(looking-at "<cursor>\</cursor>\([a-z]+\\)")
+</pre>
+</div>
+</td><td>
+<p>
+-&gt; <kbd>C-d</kbd> -&gt;
+</p>
+</td><td>
+<div class="org-src-container">
+
+<pre class="src src-text">(looking-at "<cursor>[</cursor>a-z]+")
+</pre>
+</div>
+</td></tr></tbody></table>
+</div>
+</div>
+<div id="outline-container-sec-3-26-4" class="outline-4">
+<h4 id="sec-3-26-4">the next char isn't end of string</h4>
+<div class="outline-text-4" id="text-3-26-4">
+<p>
+Call <code>delete-char</code>.
+</p>
+</div>
+</div>
+<div id="outline-container-sec-3-26-5" class="outline-4">
+<h4 id="sec-3-26-5">the next char is the end of string</h4>
+<div class="outline-text-4" id="text-3-26-5">
+<p>
+Move to the beginning of string.
+This allows to delete the whole string with the next <kbd>C-d</kbd>.
+</p>
+</div>
+</div>
+<div id="outline-container-sec-3-26-6" class="outline-4">
+<h4 id="sec-3-26-6">inside comment</h4>
+<div class="outline-text-4" id="text-3-26-6">
+<p>
+Call <code>delete-char</code>.
+</p>
+</div>
+</div>
+<div id="outline-container-sec-3-26-7" class="outline-4">
+<h4 id="sec-3-26-7">before <code>lispy-left</code></h4>
+<div class="outline-text-4" id="text-3-26-7">
+<p>
+Delete <code>arg</code> sexps.
+</p>
+
+
+<table><tbody><tr><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(foo <cursor>(</cursor>bar) (baz))
+</pre>
+</div>
+</td><td>
+<p>
+-&gt; <kbd>2</kbd> <kbd>C-d</kbd> -&gt;
+</p>
+</td><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp"><cursor>(</cursor>foo)
+</pre>
+</div>
+</td></tr></tbody></table>
+</div>
+</div>
+<div id="outline-container-sec-3-26-8" class="outline-4">
+<h4 id="sec-3-26-8">before "</h4>
+<div class="outline-text-4" id="text-3-26-8">
+<p>
+Delete string.
+</p>
+</div>
+</div>
+<div id="outline-container-sec-3-26-9" class="outline-4">
+<h4 id="sec-3-26-9">before <code>lispy-right</code></h4>
+<div class="outline-text-4" id="text-3-26-9">
+<p>
+Delete containing sexp.
+</p>
+
+<table><tbody><tr><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(foo (bar) (baz<cursor>)</cursor>)
+</pre>
+</div>
+</td><td>
+<p>
+-&gt; <kbd>C-d</kbd> -&gt;
+</p>
+</td><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(foo (bar)<cursor>)</cursor>
+</pre>
+</div>
+</td></tr></tbody></table>
+</div>
+</div>
+<div id="outline-container-sec-3-26-10" class="outline-4">
+<h4 id="sec-3-26-10">otherwise</h4>
+<div class="outline-text-4" id="text-3-26-10">
+<p>
+Call <code>delete-char</code>.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-sec-3-27" class="outline-3">
+<h3 id="sec-3-27"><a id="ID-3d62a0af-1210-4dbd-8821-57b3eca3377e"></a><code>lispy-delete-backward</code></h3>
+<div class="outline-text-3" id="text-3-27">
+<p>
+Bound to <kbd>DEL</kbd>.
+</p>
+<hr  />
+</div>
+</div>
+<div id="outline-container-sec-3-28" class="outline-3">
+<h3 id="sec-3-28"><a id="ID-637e7ef8-31b0-4512-99d9-386de877b40e"></a><code>lispy-outline-next</code></h3>
+<div class="outline-text-3" id="text-3-28">
 <p>
 Bound to <kbd>J</kbd>.
 </p>
@@ -1509,14 +1789,14 @@ past the last <code>outline-regexp</code>.
 </p>
 
 <p>
-See <a href="#sec-3-27"><code>lispy-shifttab</code></a> for more info.
+See <a href="#sec-3-30"><code>lispy-shifttab</code></a> for more info.
 </p>
 <hr  />
 </div>
 </div>
-<div id="outline-container-sec-3-26" class="outline-3">
-<h3 id="sec-3-26"><a id="ID-caaf39aa-1860-43a9-a5ea-5fac9ca9a23c"></a><code>lispy-outline-prev</code></h3>
-<div class="outline-text-3" id="text-3-26">
+<div id="outline-container-sec-3-29" class="outline-3">
+<h3 id="sec-3-29"><a id="ID-caaf39aa-1860-43a9-a5ea-5fac9ca9a23c"></a><code>lispy-outline-prev</code></h3>
+<div class="outline-text-3" id="text-3-29">
 <p>
 Bound to <kbd>K</kbd>.
 </p>
@@ -1528,14 +1808,14 @@ past the first <code>outline-regexp</code>.
 </p>
 
 <p>
-See <a href="#sec-3-27"><code>lispy-shifttab</code></a> for more info.
+See <a href="#sec-3-30"><code>lispy-shifttab</code></a> for more info.
 </p>
 <hr  />
 </div>
 </div>
-<div id="outline-container-sec-3-27" class="outline-3">
-<h3 id="sec-3-27"><a id="ID-164552ee-b92d-4af6-9570-60d039876fac"></a><code>lispy-shifttab</code></h3>
-<div class="outline-text-3" id="text-3-27">
+<div id="outline-container-sec-3-30" class="outline-3">
+<h3 id="sec-3-30"><a id="ID-164552ee-b92d-4af6-9570-60d039876fac"></a><code>lispy-shifttab</code></h3>
+<div class="outline-text-3" id="text-3-30">
 <p>
 Bound to <kbd>I</kbd>.
 </p>
@@ -1601,26 +1881,26 @@ Useful together with
 <tbody>
 <tr>
 <td class="left">J</td>
-<td class="left"><a href="#sec-3-25">lispy-outline-next</a></td>
+<td class="left"><a href="#sec-3-28">lispy-outline-next</a></td>
 </tr>
 
 <tr>
 <td class="left">K</td>
-<td class="left"><a href="#sec-3-26">lispy-outline-prev</a></td>
+<td class="left"><a href="#sec-3-29">lispy-outline-prev</a></td>
 </tr>
 
 <tr>
 <td class="left">i</td>
-<td class="left"><a href="#sec-3-28">lispy-tab</a></td>
+<td class="left"><a href="#sec-3-31">lispy-tab</a></td>
 </tr>
 </tbody>
 </table>
 <hr  />
 </div>
 </div>
-<div id="outline-container-sec-3-28" class="outline-3">
-<h3 id="sec-3-28"><a id="ID-5f945b62-0189-4c77-ae63-d0d5c72cc056"></a><code>lispy-tab</code></h3>
-<div class="outline-text-3" id="text-3-28">
+<div id="outline-container-sec-3-31" class="outline-3">
+<h3 id="sec-3-31"><a id="ID-5f945b62-0189-4c77-ae63-d0d5c72cc056"></a><code>lispy-tab</code></h3>
+<div class="outline-text-3" id="text-3-31">
 <p>
 Bound to <kbd>i</kbd>.
 </p>
