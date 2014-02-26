@@ -903,10 +903,18 @@ Special case is (|( -> ( |(."
                (looking-back "( "))
       (backward-char))))
 
+(defvar lispy-colon-no-space-regex
+  '((lisp-mode . "\\s-\\|[:^?#]\\|\\(?:\\s([[:word:]-]+\\)"))
+  "Overrides REGEX that `lispy-colon' will consider for `major-mode'.
+`lispy-colon' will insert \" :\" instead of \" \" unless
+`lispy-no-space' is t or `looking-back' REGEX.")
+
 (defun lispy-colon ()
   "Insert :."
   (interactive)
-  (lispy--space-unless "\\s-\\|\\s(\\|[:^?]")
+  (lispy--space-unless
+   (or (cdr (assoc major-mode lispy-colon-no-space-regex))
+       "\\s-\\|\\s(\\|[#:^?]"))
   (insert ":"))
 
 (defun lispy-hat ()
