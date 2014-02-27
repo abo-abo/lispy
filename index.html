@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
 <title>lispy.el documentation</title>
-<!-- 2014-02-27 Thu 16:01 -->
+<!-- 2014-02-27 Thu 17:31 -->
 <meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta  name="generator" content="Org-mode" />
 <meta  name="author" content="Oleh" />
@@ -1152,6 +1152,10 @@ you'll get this:
 <p>
 Use <kbd>(</kbd> to call <a href="#sec-3-22"><code>lispy-pair</code></a> specialized with <code>()</code>.
 </p>
+
+<p>
+<kbd>(</kbd> will self-insert in string, just like <kbd>)</kbd> does.
+</p>
 <hr  />
 </div>
 </div>
@@ -2049,7 +2053,7 @@ I'm using this <a href="https://github.com/capitaomorte/yasnippet">yasnippet</a>
 # name: long_comment
 # key: cc
 # --
-;; --- $1 ${1:$(repeat-char (- 74 aya-tab-position (length yas-text)) "-")}$0
+;; --- $1 ${1:$(make-string (- 74 aya-tab-position (length yas-text)) ?-)}$0
 </pre>
 </div>
 
@@ -2063,7 +2067,7 @@ And here's the short comment:
 # name: comment
 # key: c
 # --
-;; --- $1 ${1:$(repeat-char (- 40 aya-tab-position (length yas-text)) "-")}$0
+;; --- $1 ${1:$(make-string (- 40 aya-tab-position (length yas-text)) ?-)}$0
 </pre>
 </div>
 

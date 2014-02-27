@@ -819,6 +819,8 @@ you'll get this:
 :END:
 
 Use ~(~ to call [[id:80cb6d3d-f3fe-4c0f-9eaf-e098679aada4][=lispy-pair=]] specialized with =()=.
+
+~(~ will self-insert in string, just like ~)~ does.
 -----
 
 ** =lispy-braces=
