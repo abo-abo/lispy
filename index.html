@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
 <title>lispy.el documentation</title>
-<!-- 2014-02-26 Wed 11:46 -->
+<!-- 2014-02-27 Thu 10:50 -->
 <meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta  name="generator" content="Org-mode" />
 <meta  name="author" content="Oleh" />
@@ -1628,8 +1628,35 @@ Delete \".
 </div>
 </div>
 <div id="outline-container-sec-3-26-3" class="outline-4">
-<h4 id="sec-3-26-3">near \\( or \\)</h4>
+<h4 id="sec-3-26-3">at last char of the string</h4>
 <div class="outline-text-4" id="text-3-26-3">
+<p>
+Move to the beginning of string.
+This allows to delete the whole string with the next <kbd>C-d</kbd>.
+</p>
+
+<table><tbody><tr><td>
+<div class="org-src-container">
+
+<pre class="src src-text">(message "more gold is required<cursor>"</cursor>)
+</pre>
+</div>
+</td><td>
+<p>
+-&gt; <kbd>C-d</kbd> -&gt;
+</p>
+</td><td>
+<div class="org-src-container">
+
+<pre class="src src-text">(message <cursor>"</cursor>more gold is required")
+</pre>
+</div>
+</td></tr></tbody></table>
+</div>
+</div>
+<div id="outline-container-sec-3-26-4" class="outline-4">
+<h4 id="sec-3-26-4">in string near \\( or \\)</h4>
+<div class="outline-text-4" id="text-3-26-4">
 <p>
 Remove \\( and \\).
 </p>
@@ -1671,20 +1698,11 @@ Remove \\( and \\).
 </td></tr></tbody></table>
 </div>
 </div>
-<div id="outline-container-sec-3-26-4" class="outline-4">
-<h4 id="sec-3-26-4">the next char isn't end of string</h4>
-<div class="outline-text-4" id="text-3-26-4">
-<p>
-Call <code>delete-char</code>.
-</p>
-</div>
-</div>
 <div id="outline-container-sec-3-26-5" class="outline-4">
-<h4 id="sec-3-26-5">the next char is the end of string</h4>
+<h4 id="sec-3-26-5">the next char isn't end of string</h4>
 <div class="outline-text-4" id="text-3-26-5">
 <p>
-Move to the beginning of string.
-This allows to delete the whole string with the next <kbd>C-d</kbd>.
+Call <code>delete-char</code>.
 </p>
 </div>
 </div>
@@ -1763,6 +1781,7 @@ Delete containing sexp.
 <p>
 Call <code>delete-char</code>.
 </p>
+<hr  />
 </div>
 </div>
 </div>
@@ -1772,7 +1791,190 @@ Call <code>delete-char</code>.
 <p>
 Bound to <kbd>DEL</kbd>.
 </p>
+
+<p>
+Replaces <code>backward-delete-char</code>, keeping parens consistent.
+</p>
+
+<p>
+The result depends on the following conditions, each
+tried one by one until one that holds true is found:
+</p>
+</div>
+
+<div id="outline-container-sec-3-27-1" class="outline-4">
+<h4 id="sec-3-27-1">region active</h4>
+<div class="outline-text-4" id="text-3-27-1">
+<p>
+Delete region.
+</p>
+</div>
+</div>
+<div id="outline-container-sec-3-27-2" class="outline-4">
+<h4 id="sec-3-27-2">at first char of the string</h4>
+<div class="outline-text-4" id="text-3-27-2">
+<p>
+Move to the end of the string.
+This allows to delete the whole string with the next <kbd>DEL</kbd>.
+</p>
+
+<table><tbody><tr><td>
+<div class="org-src-container">
+
+<pre class="src src-text">(message "<cursor>m</cursor>ore gold is required")
+</pre>
+</div>
+</td><td>
+<p>
+-&gt; <kbd>DEL</kbd> -&gt;
+</p>
+</td><td>
+<div class="org-src-container">
+
+<pre class="src src-text">(message "more gold is required"<cursor>)</cursor>
+</pre>
+</div>
+</td></tr></tbody></table>
+</div>
+</div>
+<div id="outline-container-sec-3-27-3" class="outline-4">
+<h4 id="sec-3-27-3">in string near \\( or \\)</h4>
+<div class="outline-text-4" id="text-3-27-3">
+<p>
+Remove \\( and \\).
+</p>
+
+<table><tbody><tr><td>
+<div class="org-src-container">
+
+<pre class="src src-text">(looking-at "\\([a-z]+\\)<cursor>"</cursor>)
+</pre>
+</div>
+</td><td>
+<p>
+-&gt; <kbd>DEL</kbd> -&gt;
+</p>
+</td><td>
+<div class="org-src-container">
+
+<pre class="src src-text">(looking-at "[a-z]+<cursor>"</cursor>)
+</pre>
+</div>
+</td></tr></tbody></table>
+
+<table><tbody><tr><td>
+<div class="org-src-container">
+
+<pre class="src src-text">(looking-at "\\(<cursor>[</cursor>a-z]+\\)")
+</pre>
+</div>
+</td><td>
+<p>
+-&gt; <kbd>DEL</kbd> -&gt;
+</p>
+</td><td>
+<div class="org-src-container">
+
+<pre class="src src-text">(looking-at "<cursor>[</cursor>a-z]+")
+</pre>
+</div>
+</td></tr></tbody></table>
+</div>
+</div>
+<div id="outline-container-sec-3-27-4" class="outline-4">
+<h4 id="sec-3-27-4">in string or comment</h4>
+<div class="outline-text-4" id="text-3-27-4">
+<p>
+Call <code>backward-delete-char</code>.
+</p>
+</div>
+</div>
+<div id="outline-container-sec-3-27-5" class="outline-4">
+<h4 id="sec-3-27-5">after <code>lispy-right</code></h4>
+<div class="outline-text-4" id="text-3-27-5">
+<p>
+Delete <code>arg</code> sexps.
+</p>
+
+<table><tbody><tr><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(foo (bar) (baz)<cursor>)</cursor>
+</pre>
+</div>
+</td><td>
+<p>
+-&gt; <kbd>2</kbd> <kbd>DEL</kbd> -&gt;
+</p>
+</td><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(foo)<cursor> </cursor>
+</pre>
+</div>
+</td></tr></tbody></table>
+</div>
+</div>
+<div id="outline-container-sec-3-27-6" class="outline-4">
+<h4 id="sec-3-27-6">before <code>lispy-left</code></h4>
+<div class="outline-text-4" id="text-3-27-6">
+<p>
+Delete containing sexp.
+</p>
+
+<table><tbody><tr><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(foo (bar) (<cursor>b</cursor>az))
+</pre>
+</div>
+</td><td>
+<p>
+-&gt; <kbd>DEL</kbd> -&gt;
+</p>
+</td><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(foo (bar)<cursor>)</cursor>
+</pre>
+</div>
+</td></tr></tbody></table>
+</div>
+</div>
+<div id="outline-container-sec-3-27-7" class="outline-4">
+<h4 id="sec-3-27-7">after a string</h4>
+<div class="outline-text-4" id="text-3-27-7">
+<p>
+Delete string.
+</p>
+
+<table><tbody><tr><td>
+<div class="org-src-container">
+
+<pre class="src src-text">(message "more gold is required"<cursor>)</cursor>
+</pre>
+</div>
+</td><td>
+<p>
+-&gt; <kbd>DEL</kbd> -&gt;
+</p>
+</td><td>
+<div class="org-src-container">
+
+<pre class="src src-text">(message)<cursor> </cursor>
+</pre>
+</div>
+</td></tr></tbody></table>
+</div>
+</div>
+<div id="outline-container-sec-3-27-8" class="outline-4">
+<h4 id="sec-3-27-8">otherwise</h4>
+<div class="outline-text-4" id="text-3-27-8">
+<p>
+Call <code>backward-delete-char</code>.
+</p>
 <hr  />
+</div>
 </div>
 </div>
 <div id="outline-container-sec-3-28" class="outline-3">

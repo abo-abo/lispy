@@ -1061,7 +1061,23 @@ Delete region.
 *** inside a string before \"
 Delete \".
 
-*** near \\( or \\)
+*** at last char of the string
+Move to the beginning of string.
+This allows to delete the whole string with the next ~C-d~.
+
+#+HTML: <table><tbody><tr><td>
+#+begin_src text
+(message "more gold is required||")
+#+end_src
+#+HTML: </td><td>
+-> ~C-d~ ->
+#+HTML: </td><td>
+#+begin_src text
+(message ||"more gold is required")
+#+end_src
+#+HTML: </td></tr></tbody></table>
+
+*** in string near \\( or \\)
 Remove \\( and \\).
 
 #+HTML: <table><tbody><tr><td>
@@ -1090,10 +1106,6 @@ Remove \\( and \\).
 
 *** the next char isn't end of string
 Call =delete-char=.
-
-*** the next char is the end of string
-Move to the beginning of string.
-This allows to delete the whole string with the next ~C-d~.
 
 *** inside comment
 Call =delete-char=.
@@ -1134,6 +1146,7 @@ Delete containing sexp.
 
 *** otherwise
 Call =delete-char=.
+-----
 
 ** =lispy-delete-backward=
 :PROPERTIES:
@@ -1141,6 +1154,108 @@ Call =delete-char=.
 :END:
 
 Bound to ~DEL~.
+
+Replaces =backward-delete-char=, keeping parens consistent.
+
+The result depends on the following conditions, each
+tried one by one until one that holds true is found:
+
+*** region active
+Delete region.
+
+*** at first char of the string
+Move to the end of the string.
+This allows to delete the whole string with the next ~DEL~.
+
+#+HTML: <table><tbody><tr><td>
+#+begin_src text
+(message "||more gold is required")
+#+end_src
+#+HTML: </td><td>
+-> ~DEL~ ->
+#+HTML: </td><td>
+#+begin_src text
+(message "more gold is required"||)
+#+end_src
+#+HTML: </td></tr></tbody></table>
+
+*** in string near \\( or \\)
+Remove \\( and \\).
+
+#+HTML: <table><tbody><tr><td>
+#+begin_src text
+(looking-at "\\([a-z]+\\)||")
+#+end_src
+#+HTML: </td><td>
+-> ~DEL~ ->
+#+HTML: </td><td>
+#+begin_src text
+(looking-at "[a-z]+||")
+#+end_src
+#+HTML: </td></tr></tbody></table>
+
+#+HTML: <table><tbody><tr><td>
+#+begin_src text
+(looking-at "\\(||[a-z]+\\)")
+#+end_src
+#+HTML: </td><td>
+-> ~DEL~ ->
+#+HTML: </td><td>
+#+begin_src text
+(looking-at "||[a-z]+")
+#+end_src
+#+HTML: </td></tr></tbody></table>
+
+*** in string or comment
+Call =backward-delete-char=.
+
+*** after =lispy-right=
+Delete =arg= sexps.
+
+#+HTML: <table><tbody><tr><td>
+#+begin_src elisp
+(foo (bar) (baz)||)
+#+end_src
+#+HTML: </td><td>
+-> ~2~ ~DEL~ ->
+#+HTML: </td><td>
+#+begin_src elisp
+(foo)||
+#+end_src
+#+HTML: </td></tr></tbody></table>
+
+*** before =lispy-left=
+Delete containing sexp.
+
+#+HTML: <table><tbody><tr><td>
+#+begin_src elisp
+(foo (bar) (||baz))
+#+end_src
+#+HTML: </td><td>
+-> ~DEL~ ->
+#+HTML: </td><td>
+#+begin_src elisp
+(foo (bar)||)
+#+end_src
+#+HTML: </td></tr></tbody></table>
+
+*** after a string
+Delete string.
+
+#+HTML: <table><tbody><tr><td>
+#+begin_src text
+(message "more gold is required"||)
+#+end_src
+#+HTML: </td><td>
+-> ~DEL~ ->
+#+HTML: </td><td>
+#+begin_src text
+(message)||
+#+end_src
+#+HTML: </td></tr></tbody></table>
+
+*** otherwise
+Call =backward-delete-char=.
 -----
 
 ** =lispy-outline-next=
