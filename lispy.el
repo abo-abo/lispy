@@ -799,8 +799,10 @@ When this function is called:
             (progn
               (insert ,left "\\\\" ,right)
               (backward-char 3))
-          (insert ,left ,right)
-          (backward-char 1)))
+          (if (string= ,left "(")
+              (insert "(")
+            (insert ,left ,right)
+            (backward-char 1))))
        ((lispy--in-comment-p)
         (insert ,left ,right)
         (backward-char 1))
