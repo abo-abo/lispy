@@ -681,8 +681,9 @@ Otherwise (`backward-delete-char-untabify' ARG)."
              (delete-region beg end))
            (just-one-space)
            (lispy--remove-gaps)
-           (when (lispy-forward 1)
-             (backward-list)))
+           (unless (looking-back lispy-right)
+             (when (lispy-forward 1)
+               (backward-list))))
 
           (t (backward-delete-char-untabify arg)))))
 
