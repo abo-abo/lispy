@@ -676,7 +676,9 @@ Otherwise (`backward-delete-char-untabify' ARG)."
 
           ((looking-back "\"")
            (backward-sexp 1)
-           (kill-sexp)
+           (cl-destructuring-bind (beg . end)
+               (bounds-of-thing-at-point 'sexp)
+             (delete-region beg end))
            (just-one-space)
            (lispy--remove-gaps)
            (when (lispy-forward 1)
