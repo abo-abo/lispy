@@ -1309,7 +1309,7 @@ I'm using this [[https://github.com/capitaomorte/yasnippet][yasnippet]] to inser
 # name: long_comment
 # key: cc
 # --
-;; --- $1 ${1:$(repeat-char (- 74 aya-tab-position (length yas-text)) "-")}$0
+;; --- $1 ${1:$(make-string (- 74 aya-tab-position (length yas-text)) ?-)}$0
 #+end_src
 
 And here's the short comment:
@@ -1319,7 +1319,7 @@ And here's the short comment:
 # name: comment
 # key: c
 # --
-;; --- $1 ${1:$(repeat-char (- 40 aya-tab-position (length yas-text)) "-")}$0
+;; --- $1 ${1:$(make-string (- 40 aya-tab-position (length yas-text)) ?-)}$0
 #+end_src
 
 Useful together with
