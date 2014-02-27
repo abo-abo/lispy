@@ -212,7 +212,7 @@ When region is active, equivalent to =exchange-point-and-mark=.
 :ID:       94b1a983-c847-4cb0-9c46-019f058c05a9
 :END:
 Starting with this:
-#+begin_src emacs-lisp
+#+begin_src elisp
 (defun lispy-define-key (keymap key def &optional from-start)
   "Forward to (`define-key' KEYMAP KEY (`lispy-defun' DEF FROM-START))."
   (let ((func (defalias (intern (concat "special-" (symbol-name def)))
@@ -315,7 +315,7 @@ cancel with ~C-g~.
 :ID:       0c51e02a-e411-4d68-97da-083db9584dc6
 :END:
 Starting with this:
-#+begin_src emacs-lisp
+#+begin_src elisp
 (defun lispy-define-key (keymap key def &optional from-start)
   "Forward to (`define-key' KEYMAP KEY (`lispy-defun' DEF FROM-START))."
   (let ((func (defalias (intern (concat "special-" (symbol-name def)))
@@ -949,13 +949,13 @@ they should be inserted with ~C-q [~ and ~C-q ]~.
 Wrap current sexp with =left= and =right=.
 
 Starting with:
-#+begin_src emacs-lisp
+#+begin_src elisp
 ||(do-some-thing)
 (do-other-thing)
 #+end_src
 
 pressing ~2(~ will give:
-#+begin_src emacs-lisp
+#+begin_src elisp
 (|| (do-some-thing))
 (do-other-thing)
 #+end_src
@@ -1308,7 +1308,7 @@ I'm using this [[https://github.com/capitaomorte/yasnippet][yasnippet]] to inser
 # name: long_comment
 # key: cc
 # --
-;; ——— $1 ${1:$(repeat-char (- 74 aya-tab-position (length yas-text)) "—")}$0
+;; --- $1 ${1:$(repeat-char (- 74 aya-tab-position (length yas-text)) "-")}$0
 #+end_src
 
 And here's the short comment:
@@ -1318,7 +1318,7 @@ And here's the short comment:
 # name: comment
 # key: c
 # --
-;; ——— $1 ${1:$(repeat-char (- 40 aya-tab-position (length yas-text)) "—")}$0
+;; --- $1 ${1:$(repeat-char (- 40 aya-tab-position (length yas-text)) "-")}$0
 #+end_src
 
 Useful together with

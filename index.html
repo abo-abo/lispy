@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
 <title>lispy.el documentation</title>
-<!-- 2014-02-27 Thu 10:50 -->
+<!-- 2014-02-27 Thu 15:02 -->
 <meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta  name="generator" content="Org-mode" />
 <meta  name="author" content="Oleh" />
@@ -468,7 +468,7 @@ Starting with this:
 </p>
 <div class="org-src-container">
 
-<pre class="src src-emacs-lisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="font-weight: bold;">lispy-define-key</span> (keymap key def <span style="color: #000000; font-style: italic; text-decoration: underline;">&amp;optional</span> from-start)
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="font-weight: bold;">lispy-define-key</span> (keymap key def <span style="color: #000000; font-style: italic; text-decoration: underline;">&amp;optional</span> from-start)
   <span style="color: #2A00FF;">"Forward to (`</span><span style="color: #110099;">define-key</span><span style="color: #2A00FF;">' KEYMAP KEY (`</span><span style="color: #110099;">lispy-defun</span><span style="color: #2A00FF;">' DEF FROM-START))."</span>
   (<span style="color: #7F0055; font-weight: bold;">let</span> ((func (<span style="color: #7F0055; font-weight: bold;">defalias</span> (<span style="font-weight: bold;">intern</span> (concat <span style="color: #2A00FF;">"special-"</span> (symbol-name def)))
                   (lispy--insert-or-call def from-start))))
@@ -573,7 +573,7 @@ Starting with this:
 </p>
 <div class="org-src-container">
 
-<pre class="src src-emacs-lisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="font-weight: bold;">lispy-define-key</span> (keymap key def <span style="color: #000000; font-style: italic; text-decoration: underline;">&amp;optional</span> from-start)
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="font-weight: bold;">lispy-define-key</span> (keymap key def <span style="color: #000000; font-style: italic; text-decoration: underline;">&amp;optional</span> from-start)
   <span style="color: #2A00FF;">"Forward to (`</span><span style="color: #110099;">define-key</span><span style="color: #2A00FF;">' KEYMAP KEY (`</span><span style="color: #110099;">lispy-defun</span><span style="color: #2A00FF;">' DEF FROM-START))."</span>
   (<span style="color: #7F0055; font-weight: bold;">let</span> ((func (<span style="color: #7F0055; font-weight: bold;">defalias</span> (<span style="font-weight: bold;">intern</span> (concat <span style="color: #2A00FF;">"special-"</span> (symbol-name def)))
                   (lispy--insert-or-call def from-start))))
@@ -1407,7 +1407,7 @@ Starting with:
 </p>
 <div class="org-src-container">
 
-<pre class="src src-emacs-lisp"><cursor>(</cursor>do-some-thing)
+<pre class="src src-elisp"><cursor>(</cursor>do-some-thing)
 (do-other-thing)
 </pre>
 </div>
@@ -1417,7 +1417,7 @@ pressing <kbd>2(</kbd> will give:
 </p>
 <div class="org-src-container">
 
-<pre class="src src-emacs-lisp">(<cursor> </cursor>(do-some-thing))
+<pre class="src src-elisp">(<cursor> </cursor>(do-some-thing))
 (do-other-thing)
 </pre>
 </div>
@@ -2044,7 +2044,7 @@ I'm using this <a href="https://github.com/capitaomorte/yasnippet">yasnippet</a>
 # name: long_comment
 # key: cc
 # --
-;; &#8212;&#8212;&#8212; $1 ${1:$(repeat-char (- 74 aya-tab-position (length yas-text)) "&#8212;")}$0
+;; --- $1 ${1:$(repeat-char (- 74 aya-tab-position (length yas-text)) "-")}$0
 </pre>
 </div>
 
@@ -2058,7 +2058,7 @@ And here's the short comment:
 # name: comment
 # key: c
 # --
-;; &#8212;&#8212;&#8212; $1 ${1:$(repeat-char (- 40 aya-tab-position (length yas-text)) "&#8212;")}$0
+;; --- $1 ${1:$(repeat-char (- 40 aya-tab-position (length yas-text)) "-")}$0
 </pre>
 </div>
 
