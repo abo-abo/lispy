@@ -1674,6 +1674,29 @@ If already there, return it to previous position."
       (put 'lispy-recenter :line window-line)
       (recenter 0))))
 
+(defun lispy-edebug-stop ()
+  "Stop edebugging, while saving current function arguments."
+  (interactive)
+  (if (bound-and-true-p edebug-active)
+      (save-excursion
+        (lispy-out-backward 99)
+        (if (looking-at "(defun\\s-+\\_<[^ ]+\\_>\\s-+(")
+            (progn
+              (goto-char (match-end 0))
+              (backward-char 1)
+              (forward-sexp 1)
+              (let ((sexps (mapcar
+                            (lambda (x!) (cons x! (symbol-value x!)))
+                            (delq '&optional (delq '&rest (preceding-sexp)))))
+                    (wnd (current-window-configuration)))
+                (run-with-timer
+                 0 nil
+                 `(lambda ()
+                    (mapc (lambda (x!) (set (car x!) (cdr x!))) ',sexps)
+                    (set-window-configuration ,wnd)))
+                (top-level)))))
+    (self-insert-command 1)))
+
 ;; ——— Predicates ——————————————————————————————————————————————————————————————
 (defun lispy--in-string-p ()
   "Test if point is inside a string."
@@ -2936,6 +2959,7 @@ FUNC is obtained from (`lispy--insert-or-call' DEF FROM-START)"
   (lispy-define-key map "b" 'lispy-store-region-and-buffer)
   (lispy-define-key map "B" 'lispy-ediff-regions)
   (lispy-define-key map "x" 'lispy-x)
+  (lispy-define-key map "V" 'lispy-edebug-stop)
   ;; ——— locals: digit argument ———————————————
   (mapc (lambda (x) (lispy-define-key map (format "%d" x) 'digit-argument))
         (number-sequence 0 9)))
