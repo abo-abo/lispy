@@ -2939,6 +2939,7 @@ FUNC is obtained from (`lispy--insert-or-call' DEF FROM-START)"
     (define-key map (kbd "C-2") 'lispy-arglist-inline)
     (define-key map (kbd "C-3") 'lispy-out-forward)
     (define-key map (kbd "C-4") 'lispy-x)
+    (define-key map (kbd "C-7") 'lispy-cursor-down)
     (define-key map (kbd "C-8") 'lispy-parens-down)
     (define-key map (kbd "C-9") 'lispy-out-forward-newline))
   ;; ——— locals: navigation ———————————————————
