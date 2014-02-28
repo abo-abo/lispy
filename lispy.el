@@ -1630,7 +1630,8 @@ Sexp is obtained by exiting list ARG times."
   (define-key map "d" 'lispy-to-defun)
   (define-key map "l" 'lispy-to-lambda)
   (define-key map "e" 'edebug-defun)
-  (define-key map "j" 'lispy-cursor-down))
+  (define-key map "j" 'lispy-cursor-down)
+  (define-key map "m" 'lispy-cursor-ace))
 
 (defun lispy-x ()
   "Forward to `lispy-mode-x-map'."
@@ -1645,6 +1646,7 @@ Sexp is obtained by exiting list ARG times."
 (declare-function mc/create-fake-cursor-at-point "ext:multiple-cursors")
 (declare-function mc/all-fake-cursors "ext:multiple-cursors")
 (declare-function mc/maybe-multiple-cursors-mode "ext:multiple-cursors")
+(declare-function mc/mark-lines "ext:multiple-cursors")
 
 (defun lispy-cursor-down (arg)
   "Add a cursor using `lispy-down'."
@@ -1657,6 +1659,17 @@ Sexp is obtained by exiting list ARG times."
            while (mc/all-fake-cursors (point) (1+ (point)))))
     (mc/mark-lines arg 'forwards))
   (mc/maybe-multiple-cursors-mode))
+
+(defun lispy-cursor-ace ()
+  "Add a cursor using `lispy--ace-do'."
+  (interactive)
+  (require 'multiple-cursors)
+  (mc/create-fake-cursor-at-point)
+  (lexical-let ((pt (point)))
+    (lispy--ace-do
+     "(" (cons (window-start) (window-end))
+     (lambda () (not (lispy--in-string-or-comment-p)))
+     #'mc/maybe-multiple-cursors-mode)))
 
 ;; ——— Locals:  miscellanea ————————————————————————————————————————————————————
 (defun lispy-ert ()
