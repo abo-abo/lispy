@@ -55,6 +55,7 @@
 | C-d | [[id:eae9ac01-3498-41fd-bd98-939e97fa81fd][lispy-delete]]          |
 | DEL | [[id:3d62a0af-1210-4dbd-8821-57b3eca3377e][lispy-delete-backward]] |
 | M-m | [[id:b437dfe6-82be-4ac9-8fb1-1281d597ea0e][lispy-mark-symbol]]     |
+| M-o | [[id:664ccd1e-c4b3-472c-a45c-4d11420c5252][lispy-string-oneline]]  |
 |-----+-----------------------|
 * Local bindings
 | key | function name                 |
@@ -1286,6 +1287,29 @@ Call =forward-sexp=.
 
 *** otherwise
 Forward to =lispy-mark=.
+-----
+
+** =lispy-string-oneline=
+:PROPERTIES:
+:ID:       664ccd1e-c4b3-472c-a45c-4d11420c5252
+:END:
+
+Bound to ~M-o~.
+
+Convert current string to one line.
+
+Starting with
+#+begin_src text
+(message "foo||
+bar
+baz")
+#+end_src
+
+pressing ~M-o~ will give:
+
+#+begin_src text
+(message "foo\nbar\nbaz"||)
+#+end_src
 -----
 
 ** =lispy-outline-next=

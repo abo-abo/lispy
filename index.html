@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
 <title>lispy.el documentation</title>
-<!-- 2014-02-28 Fri 15:09 -->
+<!-- 2014-02-28 Fri 15:14 -->
 <meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta  name="generator" content="Org-mode" />
 <meta  name="author" content="Oleh" />
@@ -154,6 +154,11 @@
 <td class="left">M-m</td>
 <td class="left"><a href="#sec-3-28">lispy-mark-symbol</a></td>
 </tr>
+
+<tr>
+<td class="left">M-o</td>
+<td class="left"><a href="#sec-3-29">lispy-string-oneline</a></td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -239,27 +244,27 @@
 
 <tr>
 <td class="left">J</td>
-<td class="left"><a href="#sec-3-29">lispy-outline-next</a></td>
+<td class="left"><a href="#sec-3-30">lispy-outline-next</a></td>
 </tr>
 
 <tr>
 <td class="left">K</td>
-<td class="left"><a href="#sec-3-30">lispy-outline-prev</a></td>
+<td class="left"><a href="#sec-3-31">lispy-outline-prev</a></td>
 </tr>
 
 <tr>
 <td class="left">I</td>
-<td class="left"><a href="#sec-3-31">lispy-shifttab</a></td>
+<td class="left"><a href="#sec-3-32">lispy-shifttab</a></td>
 </tr>
 
 <tr>
 <td class="left">i</td>
-<td class="left"><a href="#sec-3-32">lispy-tab</a></td>
+<td class="left"><a href="#sec-3-33">lispy-tab</a></td>
 </tr>
 
 <tr>
 <td class="left">V</td>
-<td class="left"><a href="#sec-3-33">lispy-edebug-stop</a></td>
+<td class="left"><a href="#sec-3-34">lispy-edebug-stop</a></td>
 </tr>
 </tbody>
 </table>
@@ -2047,8 +2052,42 @@ Forward to <code>lispy-mark</code>.
 </div>
 </div>
 <div id="outline-container-sec-3-29" class="outline-3">
-<h3 id="sec-3-29"><a id="ID-637e7ef8-31b0-4512-99d9-386de877b40e"></a><code>lispy-outline-next</code></h3>
+<h3 id="sec-3-29"><a id="ID-664ccd1e-c4b3-472c-a45c-4d11420c5252"></a><code>lispy-string-oneline</code></h3>
 <div class="outline-text-3" id="text-3-29">
+<p>
+Bound to <kbd>M-o</kbd>. 
+</p>
+
+<p>
+Convert current string to one line.
+</p>
+
+<p>
+Starting with
+</p>
+<div class="org-src-container">
+
+<pre class="src src-text">(message "foo<cursor> </cursor>
+bar
+baz")
+</pre>
+</div>
+
+<p>
+pressing <kbd>M-o</kbd> will give:
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-text">(message "foo\nbar\nbaz"<cursor>)</cursor>
+</pre>
+</div>
+<hr  />
+</div>
+</div>
+<div id="outline-container-sec-3-30" class="outline-3">
+<h3 id="sec-3-30"><a id="ID-637e7ef8-31b0-4512-99d9-386de877b40e"></a><code>lispy-outline-next</code></h3>
+<div class="outline-text-3" id="text-3-30">
 <p>
 Bound to <kbd>J</kbd>.
 </p>
@@ -2060,14 +2099,14 @@ past the last <code>outline-regexp</code>.
 </p>
 
 <p>
-See <a href="#sec-3-31"><code>lispy-shifttab</code></a> for more info.
+See <a href="#sec-3-32"><code>lispy-shifttab</code></a> for more info.
 </p>
 <hr  />
 </div>
 </div>
-<div id="outline-container-sec-3-30" class="outline-3">
-<h3 id="sec-3-30"><a id="ID-caaf39aa-1860-43a9-a5ea-5fac9ca9a23c"></a><code>lispy-outline-prev</code></h3>
-<div class="outline-text-3" id="text-3-30">
+<div id="outline-container-sec-3-31" class="outline-3">
+<h3 id="sec-3-31"><a id="ID-caaf39aa-1860-43a9-a5ea-5fac9ca9a23c"></a><code>lispy-outline-prev</code></h3>
+<div class="outline-text-3" id="text-3-31">
 <p>
 Bound to <kbd>K</kbd>.
 </p>
@@ -2079,14 +2118,14 @@ past the first <code>outline-regexp</code>.
 </p>
 
 <p>
-See <a href="#sec-3-31"><code>lispy-shifttab</code></a> for more info.
+See <a href="#sec-3-32"><code>lispy-shifttab</code></a> for more info.
 </p>
 <hr  />
 </div>
 </div>
-<div id="outline-container-sec-3-31" class="outline-3">
-<h3 id="sec-3-31"><a id="ID-164552ee-b92d-4af6-9570-60d039876fac"></a><code>lispy-shifttab</code></h3>
-<div class="outline-text-3" id="text-3-31">
+<div id="outline-container-sec-3-32" class="outline-3">
+<h3 id="sec-3-32"><a id="ID-164552ee-b92d-4af6-9570-60d039876fac"></a><code>lispy-shifttab</code></h3>
+<div class="outline-text-3" id="text-3-32">
 <p>
 Bound to <kbd>I</kbd>.
 </p>
@@ -2152,26 +2191,26 @@ Useful together with
 <tbody>
 <tr>
 <td class="left">J</td>
-<td class="left"><a href="#sec-3-29">lispy-outline-next</a></td>
+<td class="left"><a href="#sec-3-30">lispy-outline-next</a></td>
 </tr>
 
 <tr>
 <td class="left">K</td>
-<td class="left"><a href="#sec-3-30">lispy-outline-prev</a></td>
+<td class="left"><a href="#sec-3-31">lispy-outline-prev</a></td>
 </tr>
 
 <tr>
 <td class="left">i</td>
-<td class="left"><a href="#sec-3-32">lispy-tab</a></td>
+<td class="left"><a href="#sec-3-33">lispy-tab</a></td>
 </tr>
 </tbody>
 </table>
 <hr  />
 </div>
 </div>
-<div id="outline-container-sec-3-32" class="outline-3">
-<h3 id="sec-3-32"><a id="ID-5f945b62-0189-4c77-ae63-d0d5c72cc056"></a><code>lispy-tab</code></h3>
-<div class="outline-text-3" id="text-3-32">
+<div id="outline-container-sec-3-33" class="outline-3">
+<h3 id="sec-3-33"><a id="ID-5f945b62-0189-4c77-ae63-d0d5c72cc056"></a><code>lispy-tab</code></h3>
+<div class="outline-text-3" id="text-3-33">
 <p>
 Bound to <kbd>i</kbd>.
 </p>
@@ -2186,9 +2225,9 @@ When in outline, hide/show outline.
 <hr  />
 </div>
 </div>
-<div id="outline-container-sec-3-33" class="outline-3">
-<h3 id="sec-3-33"><a id="ID-fe2c2eb3-aa63-4e7e-be95-44fff080910c"></a><code>lispy-edebug-stop</code></h3>
-<div class="outline-text-3" id="text-3-33">
+<div id="outline-container-sec-3-34" class="outline-3">
+<h3 id="sec-3-34"><a id="ID-fe2c2eb3-aa63-4e7e-be95-44fff080910c"></a><code>lispy-edebug-stop</code></h3>
+<div class="outline-text-3" id="text-3-34">
 <p>
 Bound to <kbd>V</kbd>.
 </p>
