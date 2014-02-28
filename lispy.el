@@ -1629,7 +1629,8 @@ Sexp is obtained by exiting list ARG times."
 (let ((map lispy-mode-x-map))
   (define-key map "d" 'lispy-to-defun)
   (define-key map "l" 'lispy-to-lambda)
-  (define-key map "e" 'edebug-defun))
+  (define-key map "e" 'edebug-defun)
+  (define-key map "j" 'lispy-cursor-down))
 
 (defun lispy-x ()
   "Forward to `lispy-mode-x-map'."
@@ -1639,6 +1640,23 @@ Sexp is obtained by exiting list ARG times."
     (if (setq fun (cdr (assoc char lispy-mode-x-map)))
         (call-interactively fun)
       (error "Nothing bound to %c" char))))
+
+;; ——— Locals:  multiple cursors ———————————————————————————————————————————————
+(declare-function mc/create-fake-cursor-at-point "ext:multiple-cursors")
+(declare-function mc/all-fake-cursors "ext:multiple-cursors")
+(declare-function mc/maybe-multiple-cursors-mode "ext:multiple-cursors")
+
+(defun lispy-cursor-down (arg)
+  "Add a cursor using `lispy-down'."
+  (interactive "p")
+  (require 'multiple-cursors)
+  (if (looking-at lispy-left)
+      (dotimes-protect arg
+        (mc/create-fake-cursor-at-point)
+        (loop do (lispy-down 1)
+           while (mc/all-fake-cursors (point) (1+ (point)))))
+    (mc/mark-lines arg 'forwards))
+  (mc/maybe-multiple-cursors-mode))
 
 ;; ——— Locals:  miscellanea ————————————————————————————————————————————————————
 (defun lispy-ert ()
@@ -2852,6 +2870,7 @@ list."
 (defvar ac-trigger-commands '(self-insert-command))
 (defvar company-begin-commands '(self-insert-command))
 (defvar mc/cmds-to-run-for-all nil)
+(defvar mc/cmds-to-run-once nil)
 
 (defadvice ac-handle-post-command (around ac-post-command-advice activate)
   "Don't `auto-complete' when region is active."
@@ -2867,7 +2886,8 @@ FUNC is obtained from (`lispy--insert-or-call' DEF FROM-START)"
       (push func ac-trigger-commands))
     (unless (member func company-begin-commands)
       (push func company-begin-commands))
-    (unless (member func mc/cmds-to-run-for-all)
+    (unless (or (member func mc/cmds-to-run-for-all)
+                (member func mc/cmds-to-run-once))
       (push func mc/cmds-to-run-for-all))
     (eldoc-add-command func)
     (define-key keymap (kbd key) func)))
