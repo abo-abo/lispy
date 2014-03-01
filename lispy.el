@@ -141,6 +141,8 @@
 ;; See http://abo-abo.github.io/lispy/ for a detailed documentation.
 ;;
 ;;; Code:
+
+;; ——— Requires ————————————————————————————————————————————————————————————————
 (eval-when-compile
   (require 'cl)
   (require 'noflet)
@@ -1405,6 +1407,24 @@ Quote newlines if ARG isn't 1."
         (lispy--teleport ,beg ,end ,endp ,regionp))
      t)))
 
+;; ——— Locals:  tags ———————————————————————————————————————————————————————————
+(defun lispy-goto ()
+  "Jump to symbol within files in current directory."
+  (interactive)
+  (deactivate-mark)
+  (lispy--goto 'lispy--fetch-tags))
+
+(defun lispy-goto-recursive ()
+  "Jump to symbol within files in current directory and its subdiretories."
+  (interactive)
+  (deactivate-mark)
+  (lispy--goto 'lispy--fetch-tags-recursive))
+
+(defun lispy-goto-local ()
+  "Jump to symbol within current file."
+  (interactive)
+  (lispy--goto 'lispy--fetch-this-file-tags))
+
 ;; ——— Locals:  dialect-related ————————————————————————————————————————————————
 (defun lispy-eval ()
   "Eval last sexp."
@@ -1430,37 +1450,6 @@ Quote newlines if ARG isn't 1."
         (save-excursion
           (doit))
       (doit))))
-
-(defun lispy-goto ()
-  "Jump to symbol within files in current directory."
-  (interactive)
-  (deactivate-mark)
-  (lispy--goto 'lispy--fetch-tags))
-
-(defun lispy-goto-recursive ()
-  "Jump to symbol within files in current directory and its subdiretories."
-  (interactive)
-  (deactivate-mark)
-  (lispy--goto 'lispy--fetch-tags-recursive))
-
-(defun lispy--fetch-tags-recursive ()
-  "Fetch all tags in current directory recursively."
-  (let ((dirs
-         (cl-remove-if
-          (lambda (y) (string-match "\\.git/" y))
-          (mapcar
-           (lambda (x) (concat (expand-file-name x) "/"))
-           (split-string
-            (shell-command-to-string "find . -type d")
-            "\n"
-            t)))))
-    (apply #'append
-           (mapcar #'lispy--fetch-tags dirs))))
-
-(defun lispy-goto-local ()
-  "Jump to symbol within current file."
-  (interactive)
-  (lispy--goto 'lispy--fetch-this-file-tags))
 
 (declare-function cider-jump-to-def "ext:cider")
 (declare-function slime-edit-definition "ext:slime")
@@ -1630,23 +1619,6 @@ Sexp is obtained by exiting list ARG times."
       (goto-char pt)
       (error "Not in lambda"))))
 
-(defvar lispy-mode-x-map (make-sparse-keymap))
-
-(let ((map lispy-mode-x-map))
-  (define-key map "d" 'lispy-to-defun)
-  (define-key map "l" 'lispy-to-lambda)
-  (define-key map "e" 'edebug-defun)
-  (define-key map "m" 'lispy-cursor-ace))
-
-(defun lispy-x ()
-  "Forward to `lispy-mode-x-map'."
-  (interactive)
-  (let ((char (read-char))
-        fun)
-    (if (setq fun (cdr (assoc char lispy-mode-x-map)))
-        (call-interactively fun)
-      (error "Nothing bound to %c" char))))
-
 ;; ——— Locals:  multiple cursors ———————————————————————————————————————————————
 (declare-function mc/create-fake-cursor-at-point "ext:multiple-cursors")
 (declare-function mc/all-fake-cursors "ext:multiple-cursors")
@@ -1654,7 +1626,7 @@ Sexp is obtained by exiting list ARG times."
 (declare-function mc/mark-lines "ext:multiple-cursors")
 
 (defun lispy-cursor-down (arg)
-  "Add a cursor using `lispy-down'."
+  "Add ARG cursors using `lispy-down'."
   (interactive "p")
   (require 'multiple-cursors)
   (if (looking-at lispy-left)
@@ -1679,6 +1651,23 @@ Any amount can be added with a global binding."
      #'mc/maybe-multiple-cursors-mode)))
 
 ;; ——— Locals:  miscellanea ————————————————————————————————————————————————————
+(defun lispy-x ()
+  "Forward to `lispy-mode-x-map'."
+  (interactive)
+  (let ((char (read-char))
+        fun)
+    (if (setq fun (cdr (assoc char lispy-mode-x-map)))
+        (call-interactively fun)
+      (error "Nothing bound to %c" char))))
+
+(defvar lispy-mode-x-map (make-sparse-keymap))
+
+(let ((map lispy-mode-x-map))
+  (define-key map "d" 'lispy-to-defun)
+  (define-key map "l" 'lispy-to-lambda)
+  (define-key map "e" 'edebug-defun)
+  (define-key map "m" 'lispy-cursor-ace))
+
 (defun lispy-ert ()
   "Call (`ert' t)."
   (interactive)
@@ -1842,20 +1831,6 @@ First, try to return `lispy--bounds-string'."
              (end-of-line)
              (cons beg (point)))))))
 
-(defun lispy--beginning-of-comment ()
-  "Go to beginning of comment on current line."
-  (end-of-line)
-  (let ((cs (comment-search-backward (line-beginning-position) t)))
-    (when cs
-      (goto-char cs))))
-
-(defun lispy--comment-search-forward (dir)
-  "Search for a first comment in direction DIR.
-Move to the end of line."
-  (while (not (lispy--in-comment-p))
-    (forward-line dir)
-    (end-of-line)))
-
 (defun lispy--string-dwim (&optional bounds)
   "Return the string that corresponds to BOUNDS.
 `lispy--bounds-dwim' is used if BOUNDS is nil."
@@ -1914,6 +1889,20 @@ Return nil on failure, t otherwise."
   (let ((s (syntax-ppss)))
     (when (nth 3 s)
       (goto-char (nth 8 s)))))
+
+(defun lispy--beginning-of-comment ()
+  "Go to beginning of comment on current line."
+  (end-of-line)
+  (let ((cs (comment-search-backward (line-beginning-position) t)))
+    (when cs
+      (goto-char cs))))
+
+(defun lispy--comment-search-forward (dir)
+  "Search for a first comment in direction DIR.
+Move to the end of line."
+  (while (not (lispy--in-comment-p))
+    (forward-line dir)
+    (end-of-line)))
 
 ;; ——— Utilities: evaluation ———————————————————————————————————————————————————
 (defun lispy--eval (str)
@@ -2225,6 +2214,20 @@ For example, a `setq' statement is amended with variable name that it uses."
               (lispy--set-file-to-tags
                (expand-file-name (aref x 2) path)
                (aref x 5)))) db)))))
+
+(defun lispy--fetch-tags-recursive ()
+  "Fetch all tags in current directory recursively."
+  (let ((dirs
+         (cl-remove-if
+          (lambda (y) (string-match "\\.git/" y))
+          (mapcar
+           (lambda (x) (concat (expand-file-name x) "/"))
+           (split-string
+            (shell-command-to-string "find . -type d")
+            "\n"
+            t)))))
+    (apply #'append
+           (mapcar #'lispy--fetch-tags dirs))))
 
 (defun lispy--set-file-to-tags (file tags)
   "Put FILE as property of each tag in TAGS."
