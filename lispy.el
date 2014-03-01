@@ -124,6 +124,7 @@
 ;; | xd  | `lispy-to-defun'                   |
 ;; | xl  | `lispy-to-lambda'                  |
 ;; | xm  | `lispy-to-cursor-ace'              |
+;; | xe  | `edebug-defun'                     |
 ;; |-----+------------------------------------|
 ;;
 ;; Most special commands will leave the point special after they're
@@ -1650,6 +1651,31 @@ Any amount can be added with a global binding."
      (lambda () (not (lispy--in-string-or-comment-p)))
      #'mc/maybe-multiple-cursors-mode)))
 
+;; ——— Locals:  ediff ——————————————————————————————————————————————————————————
+(defun lispy-store-region-and-buffer ()
+  "Store current buffer and `lispy--bounds-dwim'."
+  (interactive)
+  (put 'lispy-store-bounds 'buffer (current-buffer))
+  (put 'lispy-store-bounds 'region (lispy--bounds-dwim)))
+
+(defun lispy-ediff-regions ()
+  "Comparable to `ediff-regions-linewise'.
+First region and buffer come from `lispy-store-region-and-buffer'
+Second region and buffer are the current ones."
+  (interactive)
+  (multiple-value-bind (buf1 beg1 end1)
+      (lispy--make-ediff-buffer
+       (current-buffer) "-A-"
+       (lispy--bounds-dwim))
+    (multiple-value-bind (buf2 beg2 end2)
+        (lispy--make-ediff-buffer
+         (get 'lispy-store-bounds 'buffer) "-B-"
+         (get 'lispy-store-bounds 'region))
+      (ediff-regions-internal
+       buf1 beg1 end1
+       buf2 beg2 end2
+       nil 'ediff-regions-linewise nil nil))))
+
 ;; ——— Locals:  miscellanea ————————————————————————————————————————————————————
 (defun lispy-x ()
   "Forward to `lispy-mode-x-map'."
@@ -1659,14 +1685,6 @@ Any amount can be added with a global binding."
     (if (setq fun (cdr (assoc char lispy-mode-x-map)))
         (call-interactively fun)
       (error "Nothing bound to %c" char))))
-
-(defvar lispy-mode-x-map (make-sparse-keymap))
-
-(let ((map lispy-mode-x-map))
-  (define-key map "d" 'lispy-to-defun)
-  (define-key map "l" 'lispy-to-lambda)
-  (define-key map "e" 'edebug-defun)
-  (define-key map "m" 'lispy-cursor-ace))
 
 (defun lispy-ert ()
   "Call (`ert' t)."
@@ -2813,12 +2831,6 @@ Make text marked if REGIONP is t."
         (when pos
           (goto-char pos))))))
 
-(defun lispy-store-region-and-buffer ()
-  "Store current buffer and `lispy--bounds-dwim'."
-  (interactive)
-  (put 'lispy-store-bounds 'buffer (current-buffer))
-  (put 'lispy-store-bounds 'region (lispy--bounds-dwim)))
-
 (defun lispy--make-ediff-buffer (buffer ext bnd)
   "Create a copy of BUFFER with EXT added to the name.
 Use only the part bounded by BND."
@@ -2831,24 +2843,6 @@ Use only the part bounded by BND."
       (indent-region (point-min) (point-max))
       (setq ediff-temp-indirect-buffer t)
       (list (current-buffer) (point-min) (point-max)))))
-
-(defun lispy-ediff-regions ()
-  "Comparable to `ediff-regions-linewise'.
-First region and buffer come from `lispy-store-region-and-buffer'
-Second region and buffer are the current ones."
-  (interactive)
-  (multiple-value-bind (buf1 beg1 end1)
-      (lispy--make-ediff-buffer
-       (current-buffer) "-A-"
-       (lispy--bounds-dwim))
-    (multiple-value-bind (buf2 beg2 end2)
-        (lispy--make-ediff-buffer
-         (get 'lispy-store-bounds 'buffer) "-B-"
-         (get 'lispy-store-bounds 'region))
-      (ediff-regions-internal
-       buf1 beg1 end1
-       buf2 beg2 end2
-       nil 'ediff-regions-linewise nil nil))))
 
 (defun lispy--insert-or-call (def &optional from-start)
   "Return a lambda to call DEF if position is special.
@@ -2890,6 +2884,7 @@ list."
              (t
               (self-insert-command 1))))))
 
+;; ——— Key definitions —————————————————————————————————————————————————————————
 (defvar ac-trigger-commands '(self-insert-command))
 (defvar company-begin-commands '(self-insert-command))
 (defvar mc/cmds-to-run-for-all nil)
@@ -2899,6 +2894,14 @@ list."
   "Don't `auto-complete' when region is active."
   (unless (region-active-p)
     ad-do-it))
+
+(defvar lispy-mode-x-map (make-sparse-keymap))
+
+(let ((map lispy-mode-x-map))
+  (define-key map "d" 'lispy-to-defun)
+  (define-key map "l" 'lispy-to-lambda)
+  (define-key map "e" 'edebug-defun)
+  (define-key map "m" 'lispy-cursor-ace))
 
 (defun lispy-define-key (keymap key def &optional from-start)
   "Forward to (`define-key' KEYMAP KEY FUNC).
