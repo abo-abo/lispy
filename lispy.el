@@ -118,8 +118,12 @@
 ;; | N   | `lispy-normalize'                  |
 ;; | C-1 | `lispy-describe-inline'            |
 ;; | C-2 | `lispy-arglist-inline'             |
+;; | C-7 | `lispy-cursor-down'                |
 ;; | v   | `lispy-view'                       |
 ;; | n   | `lispy-new-copy'                   |
+;; | xd  | `lispy-to-defun'                   |
+;; | xl  | `lispy-to-lambda'                  |
+;; | xm  | `lispy-to-cursor-ace'              |
 ;; |-----+------------------------------------|
 ;;
 ;; Most special commands will leave the point special after they're
@@ -129,7 +133,7 @@
 ;; Not so useful, but fun is "/": start it from "|(" position and hold
 ;; until all your Lisp code is turned into Python :).
 ;;
-;; Some Clojure support depends on packages `cider' or `nrepl'.
+;; Some Clojure support depends on `cider'.
 ;; Some Scheme support depends on `geiser'.
 ;; Some Common Lisp support depends on `slime'.
 ;; You can get them from MELPA.
@@ -1632,7 +1636,6 @@ Sexp is obtained by exiting list ARG times."
   (define-key map "d" 'lispy-to-defun)
   (define-key map "l" 'lispy-to-lambda)
   (define-key map "e" 'edebug-defun)
-  (define-key map "j" 'lispy-cursor-down)
   (define-key map "m" 'lispy-cursor-ace))
 
 (defun lispy-x ()
@@ -1663,7 +1666,9 @@ Sexp is obtained by exiting list ARG times."
   (mc/maybe-multiple-cursors-mode))
 
 (defun lispy-cursor-ace ()
-  "Add a cursor using `lispy--ace-do'."
+  "Add a cursor using `lispy--ace-do'.
+Currently, only one cursor can be added with local binding.
+Any amount can be added with a global binding."
   (interactive)
   (require 'multiple-cursors)
   (mc/create-fake-cursor-at-point)
