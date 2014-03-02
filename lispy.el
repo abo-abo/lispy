@@ -1749,6 +1749,38 @@ If already there, return it to previous position."
                 (top-level)))))
     (self-insert-command 1)))
 
+(defun lispy-flatten ()
+  "Inline a function at the point of its call.
+The function body is stored with `lispy-store-region-and-buffer'."
+  (interactive)
+  (unless (looking-at lispy-left)
+    (lispy-backward 1))
+  (let* ((f-str (with-current-buffer (get 'lispy-store-bounds 'buffer)
+                  (lispy--string-dwim (get 'lispy-store-bounds 'region))))
+         (c-bnd (lispy--bounds-list))
+         (f-expr (lispy--read f-str))
+         (c-expr (lispy--read (lispy--string-dwim c-bnd))))
+    (unless (eq (car f-expr) 'defun)
+      (error "not a function"))
+    (let* ((f-args (caddr f-expr))
+           (c-args (cdr c-expr))
+           (body (cdddr f-expr))
+           (body (cl-subseq
+                  body
+                  (cl-position-if-not
+                   (lambda (x) (and (consp x) (eq (car x) 'ly-raw)))
+                   body)))
+           f-arg
+           c-arg)
+      (while (setq f-arg (pop f-args)
+                   c-arg (pop c-args))
+        (setq body (lispy--replace body f-arg c-arg)))
+      (if (= (length body) 1)
+          (setq body (car body))
+        (setq body (cons 'progn body)))
+      (delete-region (car c-bnd) (cdr c-bnd))
+      (lispy--insert body))))
+
 ;; ——— Predicates ——————————————————————————————————————————————————————————————
 (defun lispy--in-string-p ()
   "Test if point is inside a string."
@@ -2554,6 +2586,17 @@ For example, a `setq' statement is amended with variable name that it uses."
                   ,@(cl-subseq (cdr case) p))
                 ,@else))))))
 
+(defun lispy--replace (lst from to)
+  "Recursively replace FROM to TO in LST."
+  (cond ((eq lst from)
+         to)
+        ((not (consp lst))
+         lst)
+        (t
+         (cons
+          (lispy--replace (car lst) from to)
+          (lispy--replace (cdr lst) from to)))))
+
 (defun lispy--cases->ifs (cases)
   "Return nested if statements that correspond to CASES."
   (cond ((= 1 (length cases))
@@ -2963,7 +3006,8 @@ list."
   (define-key map "e" 'edebug-defun)
   (define-key map "m" 'lispy-cursor-ace)
   (define-key map "i" 'lispy-to-ifs)
-  (define-key map "c" 'lispy-to-cond))
+  (define-key map "c" 'lispy-to-cond)
+  (define-key map "f" 'lispy-flatten))
 
 (defun lispy-define-key (keymap key def &optional from-start)
   "Forward to (`define-key' KEYMAP KEY FUNC).
