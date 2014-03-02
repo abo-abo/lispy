@@ -2506,10 +2506,6 @@ For example, a `setq' statement is amended with variable name that it uses."
        (or (eq (cadr x) 'newline)
            (eq (cadr x) 'comment))))
 
-(defun lispy--not-whitespace (expr)
-  "Return non-whitespace part of EXPR."
-  (cl-remove-if #'lispy--whitespacep expr))
-
 (defun lispy-to-ifs ()
   "Transform current `cond' expression to equivalent `if' expressions."
   (interactive)
@@ -2545,7 +2541,7 @@ For example, a `setq' statement is amended with variable name that it uses."
   (append
    `(if ,(car case))
    (cond ((null (cdr case)) `((ly-raw newline) nil ,@else))
-         ((= (length (lispy--not-whitespace (cdr case))) 1)
+         ((= (length (cl-remove-if #'lispy--whitespacep (cdr case))) 1)
           (append (cdr case) else))
          (t
           (let ((p (or (cl-position-if-not
