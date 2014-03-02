@@ -236,6 +236,16 @@ Otherwise return t."
        (back-to-indentation))
      out))
 
+(defmacro lispy-from-left (&rest body)
+  "Ensure that BODY is executed from start of list."
+  (let ((at-end (cl-gensym "at-end")))
+    `(let ((,at-end (looking-back lispy-right)))
+       (unless (looking-at lispy-left)
+         (lispy-backward 1))
+       ,@body
+       (unless ,at-end
+         (backward-list 1)))))
+
 ;; ——— Globals: navigation —————————————————————————————————————————————————————
 (defun lispy-forward (arg)
   "Move forward list ARG times or until error.
