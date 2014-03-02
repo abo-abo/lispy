@@ -2610,7 +2610,10 @@ For example, a `setq' statement is amended with variable name that it uses."
 
 (defun lispy--if->case (cnd then)
   (if (eq (car then) 'progn)
-      (append cnd (cdr then))
+      (append cnd (cl-subseq
+                   (cdr then)
+                   (cl-position-if-not
+                    #'lispy--whitespacep (cdr then))))
     (append cnd (list then))))
 
 (defun lispy--ifs->cases (ifs)
