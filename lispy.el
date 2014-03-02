@@ -2522,6 +2522,18 @@ For example, a `setq' statement is amended with variable name that it uses."
      (lispy--to-ifs expr))
     (backward-list 1)))
 
+(defun lispy-to-cond ()
+  "Reverse of `lispy-to-ifs'."
+  (interactive)
+  (unless (looking-at lispy-left)
+    (error "Unexpected"))
+  (let* ((bnd (lispy--bounds-dwim))
+         (expr (lispy--read (lispy--string-dwim bnd))))
+    (delete-region (car bnd) (cdr bnd))
+    (lispy--insert
+     (cons 'cond (lispy--ifs->cases expr)))
+    (backward-list 1)))
+
 (defun lispy--to-ifs (expr)
   "Transform EXPR to an equivalent using ifs."
   (if (eq (car expr) 'cond)
@@ -2954,7 +2966,8 @@ list."
   (define-key map "l" 'lispy-to-lambda)
   (define-key map "e" 'edebug-defun)
   (define-key map "m" 'lispy-cursor-ace)
-  (define-key map "i" 'lispy-to-ifs))
+  (define-key map "i" 'lispy-to-ifs)
+  (define-key map "c" 'lispy-to-cond))
 
 (defun lispy-define-key (keymap key def &optional from-start)
   "Forward to (`define-key' KEYMAP KEY FUNC).
