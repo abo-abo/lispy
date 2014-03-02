@@ -2551,14 +2551,14 @@ For example, a `setq' statement is amended with variable name that it uses."
 (defun lispy-to-ifs ()
   "Transform current `cond' expression to equivalent `if' expressions."
   (interactive)
-  (unless (looking-at lispy-left)
-    (error "Unexpected"))
-  (let* ((bnd (lispy--bounds-dwim))
-         (expr (lispy--read (lispy--string-dwim bnd))))
-    (delete-region (car bnd) (cdr bnd))
-    (lispy--insert
-     (lispy--to-ifs expr))
-    (backward-list 1)))
+  (lispy-from-left
+   (let* ((bnd (lispy--bounds-dwim))
+          (expr (lispy--read (lispy--string-dwim bnd))))
+     (unless (eq (car expr) 'cond)
+       (error "%s isn't cond" (car expr)))
+     (delete-region (car bnd) (cdr bnd))
+     (lispy--insert
+      (car (lispy--cases->ifs (cdr expr)))))))
 
 (defun lispy-to-cond ()
   "Reverse of `lispy-to-ifs'."
@@ -2571,12 +2571,6 @@ For example, a `setq' statement is amended with variable name that it uses."
     (lispy--insert
      (cons 'cond (lispy--ifs->cases expr)))
     (backward-list 1)))
-
-(defun lispy--to-ifs (expr)
-  "Transform EXPR to an equivalent using ifs."
-  (if (eq (car expr) 'cond)
-      (car (lispy--cases->ifs (cdr expr)))
-    (error "%s isn't 'cond" (car expr))))
 
 (defun lispy--case->if (case &optional else)
   "Return an if statement based on  CASE statement and ELSE."
@@ -2595,17 +2589,6 @@ For example, a `setq' statement is amended with variable name that it uses."
                   (ly-raw newline)
                   ,@(cl-subseq (cdr case) p))
                 ,@else))))))
-
-(defun lispy--replace (lst from to)
-  "Recursively replace FROM to TO in LST."
-  (cond ((eq lst from)
-         to)
-        ((not (consp lst))
-         lst)
-        (t
-         (cons
-          (lispy--replace (car lst) from to)
-          (lispy--replace (cdr lst) from to)))))
 
 (defun lispy--cases->ifs (cases)
   "Return nested if statements that correspond to CASES."
@@ -2656,6 +2639,17 @@ For example, a `setq' statement is amended with variable name that it uses."
                                `((t ,@ifs4))))
           (setq ifs1))))
     result))
+
+(defun lispy--replace (lst from to)
+  "Recursively replace FROM to TO in LST."
+  (cond ((eq lst from)
+         to)
+        ((not (consp lst))
+         lst)
+        (t
+         (cons
+          (lispy--replace (car lst) from to)
+          (lispy--replace (cdr lst) from to)))))
 
 ;; ——— Utilities: rest —————————————————————————————————————————————————————————
 (defun lispy--indent-for-tab ()
