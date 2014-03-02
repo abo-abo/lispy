@@ -1663,18 +1663,23 @@ Any amount can be added with a global binding."
 First region and buffer come from `lispy-store-region-and-buffer'
 Second region and buffer are the current ones."
   (interactive)
-  (multiple-value-bind (buf1 beg1 end1)
-      (lispy--make-ediff-buffer
-       (current-buffer) "-A-"
-       (lispy--bounds-dwim))
-    (multiple-value-bind (buf2 beg2 end2)
+  (let ((wnd (current-window-configuration)))
+    (multiple-value-bind (buf1 beg1 end1)
         (lispy--make-ediff-buffer
-         (get 'lispy-store-bounds 'buffer) "-B-"
-         (get 'lispy-store-bounds 'region))
-      (ediff-regions-internal
-       buf1 beg1 end1
-       buf2 beg2 end2
-       nil 'ediff-regions-linewise nil nil))))
+         (current-buffer) "-A-"
+         (lispy--bounds-dwim))
+      (multiple-value-bind (buf2 beg2 end2)
+          (lispy--make-ediff-buffer
+           (get 'lispy-store-bounds 'buffer) "-B-"
+           (get 'lispy-store-bounds 'region))
+        (ediff-regions-internal
+         buf1 beg1 end1
+         buf2 beg2 end2
+         nil 'ediff-regions-linewise nil nil)))
+    (add-hook 'ediff-after-quit-hook-internal
+              `(lambda ()
+                 (setq ediff-after-quit-hook-internal)
+                 (set-window-configuration ,wnd)))))
 
 ;; ——— Locals:  miscellanea ————————————————————————————————————————————————————
 (defun lispy-x ()
