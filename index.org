@@ -37,6 +37,9 @@
 (setq org-html-head-include-scripts nil)
 #+end_src
 
+* Macros                                                                              :noexport:
+#+MACRO: replaces Works as replacement for the standard $1.
+#+MACRO: cond The result depends on the following conditions, each tried one by one until one that holds true is found:
 * Global bindings
 | key | function name         |
 |-----+-----------------------|
@@ -77,6 +80,7 @@
 | I   | [[id:164552ee-b92d-4af6-9570-60d039876fac][lispy-shifttab]]                |
 | i   | [[id:5f945b62-0189-4c77-ae63-d0d5c72cc056][lispy-tab]]                     |
 | V   | [[id:fe2c2eb3-aa63-4e7e-be95-44fff080910c][lispy-edebug-stop]]             |
+| xf  | [[id:0a7420dc-86f8-4012-88ee-2f4a10cdb012][lispy-flatten]]                 |
 |-----+-------------------------------|
 
 * Function reference
@@ -87,7 +91,7 @@
 
 Bound to ~]~.
 
-Works as replacement for the standard =forward-list=.
+{{{replaces(=forward-list=)}}}
 
 Takes a numeric prefix =arg= and moves forward list =arg= times or
 until error.
@@ -108,7 +112,7 @@ Unlike =forward-list=, parens in strings and comments are ignored.
 
 Bound to ~[~.
 
-Works as replacement for the standard =backward-list=.
+{{{replaces(=backward-list=)}}}
 
 Takes a numeric prefix =arg= and moves backward list =arg= times or
 until error.
@@ -130,7 +134,7 @@ Unlike =backward-list=, parens in strings and comments are ignored.
 
 Bound to ~C-3~.
 
-Works as replacement for the standard =up-list=.
+{{{replaces(=up-list=)}}}
 
 Takes a numeric prefix =arg= and moves up forward list =arg= times or
 until error.
@@ -214,6 +218,9 @@ When region is active, equivalent to =exchange-point-and-mark=.
 :PROPERTIES:
 :ID:       94b1a983-c847-4cb0-9c46-019f058c05a9
 :END:
+
+Bound to ~q~.
+
 Starting with this:
 #+begin_src elisp
 (defun lispy-define-key (keymap key def &optional from-start)
@@ -317,6 +324,9 @@ cancel with ~C-g~.
 :PROPERTIES:
 :ID:       0c51e02a-e411-4d68-97da-083db9584dc6
 :END:
+
+Bound to ~h~.
+
 Starting with this:
 #+begin_src elisp
 (defun lispy-define-key (keymap key def &optional from-start)
@@ -503,8 +513,10 @@ Now you can follow up with
 :ID:       d3799a39-d3e0-4aa5-bff1-bae4c0baa5cf
 :END:
 
-When region is active, use ~F~ to jump to the definition of marked symbol.
-Otherwise jump to definition of the first symbol in current sexp.
+Bound to ~F~.
+
+When region is active jump to the definition of marked symbol.
+Otherwise jump to the definition of the first symbol in current sexp.
 
 It sets the mark before jumping, so you can use ~C-u C-SPC~ to jump
 back within current file or ~C-x C-SPC~ to jump back to previous file.
@@ -521,7 +533,9 @@ Elisp, Clojure and Common Lisp are supported.
 :ID:       54752047-032c-4f0d-97ac-ed9baefa3649
 :END:
 
-Use ~C-1~ to show the documentation for current function or currently
+Bound to ~C-1~.
+
+Show the documentation for current function or currently
 marked symbol (see [[id:0c51e02a-e411-4d68-97da-083db9584dc6][=lispy-ace-symbol=]]).
 
 #+BEGIN_HTML
@@ -607,7 +621,9 @@ marked symbol (see [[id:0c51e02a-e411-4d68-97da-083db9584dc6][=lispy-ace-symbol=
 :ID:       54becf27-661c-4c5d-92d8-baa22a50291d
 :END:
 
-Use ~C-2~ to show the argument list for current function.
+Bound to ~C-2~.
+
+Show the argument list for current function.
 
 #+BEGIN_HTML
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
@@ -694,7 +710,9 @@ Use ~C-2~ to show the argument list for current function.
 :ID:       117f2392-b4ff-4391-834a-7044cc850778
 :END:
 
-Use ~e~ to eval current region or sexp.
+Bound to ~e~.
+
+Eval current region or sexp.
 The result will be displayed in the minibuffer.
 
 Elisp, Clojure, Scheme and Common Lisp are supported.
@@ -705,7 +723,9 @@ Elisp, Clojure, Scheme and Common Lisp are supported.
 :ID:       d38ff2d2-e49f-438e-b2dc-70308586cd8a
 :END:
 
-Use ~E~ to eval current region or sexp.
+Bound to ~E~.
+
+Eval current region or sexp.
 The result will be inserted in the current buffer
 after the evaluated expression.
 
@@ -722,10 +742,14 @@ after the evaluated expression.
 :ID:       3ddf7d0f-83c9-4880-b170-ce36c549c537
 :END:
 
-Use ~b~ to store current buffer and region for further usage.  When
+Bound to ~b~.
+
+Store current buffer and region for further usage.  When
 region isn't active, store the bounds of current expression instead.
 
-Currently, only [[id:c5f1cde9-1712-497a-afc2-356cd0dce702][=lispy-ediff-regions=]] makes use of stored info.
+Currently, these functions make use of stored info:
+| B  | [[id:c5f1cde9-1712-497a-afc2-356cd0dce702][lispy-ediff-regions]] |
+| xf | [[id:0a7420dc-86f8-4012-88ee-2f4a10cdb012][lispy-flatten]]       |
 -----
 
 ** =lispy-ediff-regions=
@@ -733,8 +757,9 @@ Currently, only [[id:c5f1cde9-1712-497a-afc2-356cd0dce702][=lispy-ediff-regions=
 :ID:       c5f1cde9-1712-497a-afc2-356cd0dce702
 :END:
 
-Use ~B~ to call this function. It's comparable to
-=ediff-regions-linewise=, except the region and
+Bound to ~B~.
+
+Comparable to =ediff-regions-linewise=, except the region and
 buffer selection is done differently:
 
 - first buffer and region are defined by [[id:3ddf7d0f-83c9-4880-b170-ce36c549c537][=lispy-store-region-and-buffer=]].
@@ -759,7 +784,6 @@ for instance =lispy-move-down= and =lispy-move-up=.
 
 Use ~xl~ (local) or ~C-4 l~ (global) to turn the current function
 definition into a lambda.
-
 
 One use case is when I want to edebug a lambda but not the function
 that's using it. So I extract the lambda with [[id:0ace5ddb-2500-4deb-9ef9-e806aae7475b][=lispy-to-defun=]], edebug it and
@@ -820,9 +844,9 @@ you'll get this:
 :ID:       bdff1e23-07d0-4e84-b1ac-7b55ae0e0da7
 :END:
 
-Use ~(~ to call [[id:80cb6d3d-f3fe-4c0f-9eaf-e098679aada4][=lispy-pair=]] specialized with =()=.
+Bound to ~(~.
 
-~(~ will self-insert in string, just like ~)~ does.
+Call [[id:80cb6d3d-f3fe-4c0f-9eaf-e098679aada4][=lispy-pair=]] specialized with =()=.
 -----
 
 ** =lispy-braces=
@@ -830,7 +854,9 @@ Use ~(~ to call [[id:80cb6d3d-f3fe-4c0f-9eaf-e098679aada4][=lispy-pair=]] specia
 :ID:       d985a611-5a63-4107-9041-da36702d5522
 :END:
 
-Use ~{~ to call [[id:80cb6d3d-f3fe-4c0f-9eaf-e098679aada4][=lispy-pair=]] specialized with ={}=.
+Bound to ~{~.
+
+Call [[id:80cb6d3d-f3fe-4c0f-9eaf-e098679aada4][=lispy-pair=]] specialized with ={}=.
 -----
 
 ** =lispy-brackets=
@@ -838,7 +864,9 @@ Use ~{~ to call [[id:80cb6d3d-f3fe-4c0f-9eaf-e098679aada4][=lispy-pair=]] specia
 :ID:       83c46b4b-0417-4048-9240-d6fd686bbe21
 :END:
 
-Use ~}~ to call [[id:80cb6d3d-f3fe-4c0f-9eaf-e098679aada4][=lispy-pair=]] specialized with =[]=.
+Bound to ~}~.
+
+Call [[id:80cb6d3d-f3fe-4c0f-9eaf-e098679aada4][=lispy-pair=]] specialized with =[]=.
 -----
 
 ** =lispy-quotes=
@@ -846,12 +874,13 @@ Use ~}~ to call [[id:80cb6d3d-f3fe-4c0f-9eaf-e098679aada4][=lispy-pair=]] specia
 :ID:       5ab0cc00-df97-44dd-b451-6e977d25b6d9
 :END:
 
-Use ~"~ to insert a pair of quotes around the point.
+Bound to ~"~.
+
+Insert a pair of quotes around the point.
 
 Takes a prefix =arg=.
 
-The result depends on the following conditions, each
-tried one by one until one that holds true is found:
+{{{cond}}}
 *** region active
 Wrap the region with quotes.
 *** in string and =arg= isn't =nil=
@@ -880,7 +909,7 @@ Starting with
 (message||)
 #+end_src
 
-pressing @@html:<kbd>"</kbd>@@ will give:
+pressing ~"~ will give:
 #+begin_src elisp
 (message "||")
 #+end_src
@@ -896,9 +925,7 @@ This function, taking arguments =left= and =right=, is used to generate
 [[id:d985a611-5a63-4107-9041-da36702d5522][=lispy-braces=]]
 and [[id:83c46b4b-0417-4048-9240-d6fd686bbe21][=lispy-brackets=]], which in turn take prefix =arg=.
 
-The result depends on the following conditions, each
-tried one by one until one that holds true is found:
-
+{{{cond}}}
 *** region active
 Wrap the region with =left= and =right=.
 
@@ -993,9 +1020,7 @@ Bound to ~C-k~.
 
 A replacement for =kill-line= that keeps parens consistent.
 
-The result depends on the following conditions, each
-tried one by one until one that holds true is found:
-
+{{{cond}}}
 *** inside comment
 Call =kill-line=.
 
@@ -1057,9 +1082,7 @@ Bound to ~C-d~.
 
 Replaces =delete-char=, keeping parens consistent.
 
-The result depends on the following conditions, each
-tried one by one until one that holds true is found:
-
+{{{cond}}}
 *** region active
 Delete region.
 
@@ -1162,9 +1185,7 @@ Bound to ~DEL~.
 
 Replaces =backward-delete-char=, keeping parens consistent.
 
-The result depends on the following conditions, each
-tried one by one until one that holds true is found:
-
+{{{cond}}}
 *** region active
 Delete region.
 
@@ -1270,9 +1291,7 @@ Call =backward-delete-char=.
 
 Bound to ~M-m~.
 
-The result depends on the following conditions, each
-tried one by one until one that holds true is found:
-
+{{{cond}}}
 *** in comment
 Mark comment.
 
@@ -1411,3 +1430,16 @@ This allows to continue debugging with [[id:117f2392-b4ff-4391-834a-7044cc850778
 
 The advantage is that you can edit the code as you debug.
 -----
+
+** =lispy-flatten=
+:PROPERTIES:
+:ID:       0a7420dc-86f8-4012-88ee-2f4a10cdb012
+:END:
+
+Bound to ~xf~.
+
+Inline current function call, i.e. replace it with function body.
+The function should be stored with [[id:3ddf7d0f-83c9-4880-b170-ce36c549c537][=lispy-store-region-and-buffer=]].
+-----
+
+*** TODO make use of =symbol-function= instead                                      :noexport:
