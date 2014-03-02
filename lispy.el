@@ -1928,7 +1928,7 @@ Move to the end of line."
     (end-of-line)))
 
 ;; ——— Utilities: evaluation ———————————————————————————————————————————————————
-(defun lispy--eval (str)
+(defun lispy--eval (str!)
   "Eval STR according to current `major-mode'."
   (funcall
    (cond
@@ -1944,11 +1944,11 @@ Move to the end of line."
       (require 'le-lisp)
       'lispy--eval-lisp)
      (t (error "%s isn't supported currently" major-mode)))
-   str))
+   str!))
 
-(defun lispy--eval-elisp (str)
+(defun lispy--eval-elisp (str!)
   "Eval STR as Elisp code."
-  (let ((sexp (read str))
+  (let ((sexp (read str!))
         val)
     (condition-case e
         (prin1-to-string
