@@ -1771,7 +1771,7 @@ The function body is stored with `lispy-store-region-and-buffer'."
          (f-expr (lispy--read f-str))
          (c-expr (lispy--read (lispy--string-dwim c-bnd))))
     (unless (eq (car f-expr) 'defun)
-      (error "not a function"))
+      (error "Not a function"))
     (let* ((f-args (caddr f-expr))
            (c-args (cdr c-expr))
            (body (cdddr f-expr))
@@ -1970,8 +1970,8 @@ Move to the end of line."
     (end-of-line)))
 
 ;; ——— Utilities: evaluation ———————————————————————————————————————————————————
-(defun lispy--eval (str!)
-  "Eval STR according to current `major-mode'."
+(defun lispy--eval (e-str)
+  "Eval E-STR according to current `major-mode'."
   (funcall
    (cond
      ((memq major-mode '(emacs-lisp-mode lisp-interaction-mode))
@@ -1986,11 +1986,11 @@ Move to the end of line."
       (require 'le-lisp)
       'lispy--eval-lisp)
      (t (error "%s isn't supported currently" major-mode)))
-   str!))
+   e-str))
 
-(defun lispy--eval-elisp (str!)
-  "Eval STR as Elisp code."
-  (let ((sexp (read str!))
+(defun lispy--eval-elisp (e-str)
+  "Eval E-STR as Elisp code."
+  (let ((sexp (read e-str))
         val)
     (condition-case e
         (prin1-to-string
@@ -2609,6 +2609,7 @@ For example, a `setq' statement is amended with variable name that it uses."
            (lispy--cases->ifs (cdr cases)))))))
 
 (defun lispy--if->case (cnd then)
+  "Return a case statement corresponding to if with CND and THEN."
   (if (eq (car then) 'progn)
       (append cnd (cl-subseq
                    (cdr then)
@@ -2617,6 +2618,7 @@ For example, a `setq' statement is amended with variable name that it uses."
     (append cnd (list then))))
 
 (defun lispy--ifs->cases (ifs)
+  "Return a list of cases corresponding to nested IFS."
   (let (result ifs1)
     (if (eq (car ifs) 'if)
         (setq ifs1 (cdr ifs))
@@ -2644,7 +2646,7 @@ For example, a `setq' statement is amended with variable name that it uses."
     result))
 
 (defun lispy--replace (lst from to)
-  "Recursively replace FROM to TO in LST."
+  "Recursively replace elements in LST from FROM to TO."
   (cond ((eq lst from)
          to)
         ((not (consp lst))
