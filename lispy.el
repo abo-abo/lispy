@@ -2639,7 +2639,7 @@ For example, a `setq' statement is amended with variable name that it uses."
         (if (and (eq (length ifs4) 1) (eq (caar ifs4) 'if))
             (setq ifs1 (cdar ifs4))
           (setq result (append result
-                               `((t ,@ifs4))))
+                               `((t (ly-raw newline) ,@ifs4))))
           (setq ifs1))))
     result))
 
