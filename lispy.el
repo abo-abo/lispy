@@ -2563,14 +2563,14 @@ For example, a `setq' statement is amended with variable name that it uses."
 (defun lispy-to-cond ()
   "Reverse of `lispy-to-ifs'."
   (interactive)
-  (unless (looking-at lispy-left)
-    (error "Unexpected"))
-  (let* ((bnd (lispy--bounds-dwim))
-         (expr (lispy--read (lispy--string-dwim bnd))))
-    (delete-region (car bnd) (cdr bnd))
-    (lispy--insert
-     (cons 'cond (lispy--ifs->cases expr)))
-    (backward-list 1)))
+  (lispy-from-left
+   (let* ((bnd (lispy--bounds-dwim))
+          (expr (lispy--read (lispy--string-dwim bnd))))
+     (unless (eq (car expr) 'if)
+       (error "%s isn't if" (car expr)))
+     (delete-region (car bnd) (cdr bnd))
+     (lispy--insert
+      (cons 'cond (lispy--ifs->cases expr))))))
 
 (defun lispy--case->if (case &optional else)
   "Return an if statement based on  CASE statement and ELSE."
