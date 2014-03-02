@@ -2510,6 +2510,18 @@ For example, a `setq' statement is amended with variable name that it uses."
   "Return non-whitespace part of EXPR."
   (cl-remove-if #'lispy--whitespacep expr))
 
+(defun lispy-to-ifs ()
+  "Transform current `cond' expression to equivalent `if' expressions."
+  (interactive)
+  (unless (looking-at lispy-left)
+    (error "Unexpected"))
+  (let* ((bnd (lispy--bounds-dwim))
+         (expr (lispy--read (lispy--string-dwim bnd))))
+    (delete-region (car bnd) (cdr bnd))
+    (lispy--insert
+     (lispy--to-ifs expr))
+    (backward-list 1)))
+
 (defun lispy--to-ifs (expr)
   "Transform EXPR to an equivalent using ifs."
   (if (eq (car expr) 'cond)
@@ -2538,7 +2550,10 @@ For example, a `setq' statement is amended with variable name that it uses."
   "Return nested if statements that correspond to CASES."
   (cond ((= 1 (length cases))
          (if (eq (caar cases) t)
-             (cdar cases)
+             (let ((then (cdar cases)))
+               (if (equal (car then) '(ly-raw newline))
+                   (cdr then)
+                 then))
            (list (lispy--case->if (car cases)))))
         ((lispy--whitespacep (car cases))
          (cons (car cases)
@@ -2548,6 +2563,38 @@ For example, a `setq' statement is amended with variable name that it uses."
           (lispy--case->if
            (car cases)
            (lispy--cases->ifs (cdr cases)))))))
+
+(defun lispy--if->case (cnd then)
+  (if (eq (car then) 'progn)
+      (append cnd (cdr then))
+    (append cnd (list then))))
+
+(defun lispy--ifs->cases (ifs)
+  (let (result ifs1)
+    (if (eq (car ifs) 'if)
+        (setq ifs1 (cdr ifs))
+      (error "Unexpected"))
+    (while ifs1
+      (let* ((p1 (cl-position-if-not #'lispy--whitespacep ifs1))
+             (whitespace1 (cl-subseq ifs1 0 p1))
+             (ifs2 (cl-subseq ifs1 (1+ p1)))
+             (p2 (cl-position-if-not #'lispy--whitespacep ifs2))
+             (cnd (cl-subseq ifs1 p1 (+ p1 (1+ p2))))
+             (then (nth p2 ifs2))
+             (ifs3 (cl-subseq ifs2 (1+ p2)))
+             (p3 (cl-position-if-not #'lispy--whitespacep ifs3))
+             (whitespace2 (cl-subseq ifs3 0 p3))
+             (ifs4 (cl-subseq ifs3 p3)))
+        (when whitespace1
+          (setq result (append result whitespace1)))
+        (setq result (append result (list (lispy--if->case cnd then))))
+        (setq result (append result whitespace2))
+        (if (and (eq (length ifs4) 1) (eq (caar ifs4) 'if))
+            (setq ifs1 (cdar ifs4))
+          (setq result (append result
+                               `((t ,@ifs4))))
+          (setq ifs1))))
+    result))
 
 ;; ——— Utilities: rest —————————————————————————————————————————————————————————
 (defun lispy--indent-for-tab ()
@@ -2906,7 +2953,8 @@ list."
   (define-key map "d" 'lispy-to-defun)
   (define-key map "l" 'lispy-to-lambda)
   (define-key map "e" 'edebug-defun)
-  (define-key map "m" 'lispy-cursor-ace))
+  (define-key map "m" 'lispy-cursor-ace)
+  (define-key map "i" 'lispy-to-ifs))
 
 (defun lispy-define-key (keymap key def &optional from-start)
   "Forward to (`define-key' KEYMAP KEY FUNC).
