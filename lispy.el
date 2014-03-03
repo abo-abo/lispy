@@ -91,41 +91,71 @@
 ;; | ;   | `lispy-comment'          | C-u ;      | `lispy-comment'   |
 ;; |-----+--------------------------+------------+-------------------|
 ;;
-;; Among other cool commands are:
+;; Here's a list of commands for inserting pairs:
 ;; |-----+------------------------------------|
 ;; | key | command                            |
 ;; |-----+------------------------------------|
-;; | f   | `lispy-flow'                       |
-;; | u   | `undo'                             |
-;; | e   | `lispy-eval'                       |
-;; | m   | `lispy-mark-list'                  |
-;; | l   | `lispy-out-forward'                |
-;; | a   | `lispy-out-backward'               |
-;; | E   | `lispy-eval-and-insert'            |
-;; | /   | `lispy-splice'                     |
-;; | i   | `indent-sexp'                      |
-;; | r   | `lispy-raise'                      |
-;; | R   | `lispy-raise-some'                 |
-;; | J   | `outline-next-visible-heading'     |
-;; | K   | `outline-previous-visible-heading' |
-;; | g   | `lispy-goto'                       |
-;; | G   | `lispy-goto-local'                 |
-;; | q   | `lispy-ace-paren'                  |
-;; | h   | `lispy-ace-symbol'                 |
-;; | Q   | `lispy-ace-char'                   |
-;; | D   | `lispy-describe'                   |
-;; | F   | `lispy-follow'                     |
-;; | N   | `lispy-normalize'                  |
-;; | C-1 | `lispy-describe-inline'            |
-;; | C-2 | `lispy-arglist-inline'             |
-;; | C-7 | `lispy-cursor-down'                |
-;; | v   | `lispy-view'                       |
-;; | n   | `lispy-new-copy'                   |
-;; | xd  | `lispy-to-defun'                   |
-;; | xl  | `lispy-to-lambda'                  |
-;; | xm  | `lispy-to-cursor-ace'              |
-;; | xe  | `edebug-defun'                     |
+;; |  (  | `lispy-parens'                     |
+;; |  {  | `lispy-braces'                     |
+;; |  }  | `lispy-brackets'                   |
+;; |  "  | `lispy-quotes'                     |
 ;; |-----+------------------------------------|
+;;
+;; Here's a list of modified insertion commands that handle whitespace
+;; in addition to self-inserting:
+;; |-----+------------------------------------|
+;; | key | command                            |
+;; |-----+------------------------------------|
+;; | SPC | `lispy-space'                      |
+;; |  :  | `lispy-colon'                      |
+;; |  ^  | `lispy-hat'                        |
+;; | C-m | `lispy-newline-and-indent'         |
+;; |-----+------------------------------------|
+;;
+;; Among other cool commands are:
+;; |-------+----------------------------------|
+;; | key   | command                          |
+;; |-------+----------------------------------|
+;; | f     | `lispy-flow'                     |
+;; | u     | `lispy-undo'                     |
+;; | e     | `lispy-eval'                     |
+;; | m     | `lispy-mark-list'                |
+;; | l     | `lispy-out-forward'              |
+;; | a     | `lispy-out-backward'             |
+;; | E     | `lispy-eval-and-insert'          |
+;; | /     | `lispy-splice'                   |
+;; | i     | `indent-sexp'                    |
+;; | r     | `lispy-raise'                    |
+;; | R     | `lispy-raise-some'               |
+;; | J     | `lispy-outline-next'             |
+;; | K     | `lispy-outline-prev'             |
+;; | g     | `lispy-goto'                     |
+;; | G     | `lispy-goto-local'               |
+;; | q     | `lispy-ace-paren'                |
+;; | h     | `lispy-ace-symbol'               |
+;; | Q     | `lispy-ace-char'                 |
+;; | D     | `lispy-describe'                 |
+;; | F     | `lispy-follow'                   |
+;; | N     | `lispy-normalize'                |
+;; | C-1   | `lispy-describe-inline'          |
+;; | C-2   | `lispy-arglist-inline'           |
+;; | C-7   | `lispy-cursor-down'              |
+;; | C-8   | `lispy-parens-down'              |
+;; | C-e   | `lispy-move-end-of-line'         |
+;; | C-k   | `lispy-kill'                     |
+;; | C-y   | `lispy-yank'                     |
+;; | C-d   | `lispy-delete'                   |
+;; | DEL   | `lispy-delete-backward'          |
+;; | C-,   | `lispy-kill-at-point'            |
+;; | C-M-, | `lispy-mark'                     |
+;; | M-m   | `lispy-mark-symbol'              |
+;; | v     | `lispy-view'                     |
+;; | n     | `lispy-new-copy'                 |
+;; | xd    | `lispy-to-defun'                 |
+;; | xl    | `lispy-to-lambda'                |
+;; | xm    | `lispy-to-cursor-ace'            |
+;; | xe    | `edebug-defun'                   |
+;; |-------+----------------------------------|
 ;;
 ;; Most special commands will leave the point special after they're
 ;; done.  This allows to chain them as well as apply them
