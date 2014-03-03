@@ -2813,8 +2813,9 @@ When NO-NARROW is not nil, don't narrow to BND."
                    (,func)))))
   (let ((ace-jump-mode-scope 'window)
         (ace-jump-search-filter filter))
-    (ace-jump-do x))
-  (widen))
+    (unwind-protect
+         (ace-jump-do x)
+      (widen))))
 
 (defun lispy--normalize (arg)
   "Go up ARG times and normalize."
