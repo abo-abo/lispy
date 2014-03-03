@@ -2638,14 +2638,18 @@ For example, a `setq' statement is amended with variable name that it uses."
            (car cases)
            (lispy--cases->ifs (cdr cases)))))))
 
+(defun lispy--whitespace-trim (x)
+  "Trim whitespace from start of X."
+  (cl-subseq x (cl-position-if-not #'lispy--whitespacep x)))
+
 (defun lispy--if->case (cnd then)
   "Return a case statement corresponding to if with CND and THEN."
-  (if (eq (car then) 'progn)
-      (append cnd (cl-subseq
-                   (cdr then)
-                   (cl-position-if-not
-                    #'lispy--whitespacep (cdr then))))
-    (append cnd (list then))))
+  (cond ((null then)
+         (reverse (lispy--whitespace-trim (reverse cnd))))
+        ((eq (car then) 'progn)
+         (append cnd (lispy--whitespace-trim (cdr then))))
+        (t
+         (append cnd (list then)))))
 
 (defun lispy--ifs->cases (ifs)
   "Return a list of cases corresponding to nested IFS."
@@ -2663,15 +2667,16 @@ For example, a `setq' statement is amended with variable name that it uses."
              (ifs3 (cl-subseq ifs2 (1+ p2)))
              (p3 (cl-position-if-not #'lispy--whitespacep ifs3))
              (whitespace2 (cl-subseq ifs3 0 p3))
-             (ifs4 (cl-subseq ifs3 p3)))
+             (ifs4 (and ifs3 (cl-subseq ifs3 p3))))
         (when whitespace1
           (setq result (append result whitespace1)))
         (setq result (append result (list (lispy--if->case cnd then))))
         (setq result (append result whitespace2))
         (if (and (eq (length ifs4) 1) (eq (caar ifs4) 'if))
             (setq ifs1 (cdar ifs4))
-          (setq result (append result
-                               `((t (ly-raw newline) ,@ifs4))))
+          (when ifs4
+            (setq result (append result
+                                 `((t (ly-raw newline) ,@ifs4)))))
           (setq ifs1))))
     result))
 

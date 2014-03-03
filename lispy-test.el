@@ -727,6 +727,16 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "'|(foo bar)" "2(")
                    "'(| (foo bar))")))
 
+(ert-deftest lispy-to-ifs ()
+  (should (string= (lispy-with "|(cond ((looking-at \" *;\"))\n      ((and (looking-at \"\\n\")\n            (looking-back \"^ *\"))\n       (delete-blank-lines))\n      ((looking-at \"\\\\([\\n ]+\\\\)[^\\n ;]\")\n       (delete-region (match-beginning 1)\n                      (match-end 1))))"
+                               (lispy-to-ifs))
+                   "|(if (looking-at \" *;\")\n    nil\n  (if (and (looking-at \"\\n\")\n           (looking-back \"^ *\"))\n      (delete-blank-lines)\n    (if (looking-at \"\\\\([\\n ]+\\\\)[^\\n ;]\")\n        (delete-region (match-beginning 1)\n                       (match-end 1)))))")))
+
+(ert-deftest lispy-to-cond ()
+  (should (string= (lispy-with "|(if (looking-at \" *;\")\n    nil\n  (if (and (looking-at \"\\n\")\n           (looking-back \"^ *\"))\n      (delete-blank-lines)\n    (if (looking-at \"\\\\([\\n ]+\\\\)[^\\n ;]\")\n        (delete-region (match-beginning 1)\n                       (match-end 1)))))"
+                               (lispy-to-cond))
+                   "|(cond ((looking-at \" *;\"))\n      ((and (looking-at \"\\n\")\n            (looking-back \"^ *\"))\n       (delete-blank-lines))\n      ((looking-at \"\\\\([\\n ]+\\\\)[^\\n ;]\")\n       (delete-region (match-beginning 1)\n                      (match-end 1))))")))
+
 (provide 'lispy-test)
 
 ;;; Local Variables:
