@@ -71,7 +71,7 @@
   "Face for rest selected args."
   :group 'lispy-faces)
 
-(defcustom lispy-window-height-ratio 0.75
+(defcustom lispy-window-height-ratio 0.65
   "`lispy--show' will fail with string taller than window height times this.
 The caller of `lispy--show' might use a substitute e.g. `describe-function'."
   :type 'float

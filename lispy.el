@@ -153,7 +153,9 @@
 ;; | n     | `lispy-new-copy'                 |
 ;; | xd    | `lispy-to-defun'                 |
 ;; | xl    | `lispy-to-lambda'                |
-;; | xm    | `lispy-to-cursor-ace'            |
+;; | xi    | `lispy-to-ifs'                   |
+;; | xc    | `lispy-to-cond'                  |
+;; | xm    | `lispy-cursor-ace'               |
 ;; | xe    | `edebug-defun'                   |
 ;; |-------+----------------------------------|
 ;;
