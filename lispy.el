@@ -1824,6 +1824,13 @@ The function body is stored with `lispy-store-region-and-buffer'."
       (delete-region (car c-bnd) (cdr c-bnd))
       (lispy--insert body))))
 
+(declare-function projectile-find-file "ext:projectile")
+
+(defun lispy-visit (arg)
+  "Forward to find file in project."
+  (interactive "P")
+  (projectile-find-file arg))
+
 ;; ——— Predicates ——————————————————————————————————————————————————————————————
 (defun lispy--in-string-p ()
   "Test if point is inside a string."
@@ -2591,7 +2598,9 @@ For example, a `setq' statement is amended with variable name that it uses."
        (error "%s isn't cond" (car expr)))
      (delete-region (car bnd) (cdr bnd))
      (lispy--insert
-      (car (lispy--cases->ifs (cdr expr)))))))
+      (car
+       (lispy--whitespace-trim
+        (lispy--cases->ifs (cdr expr))))))))
 
 (defun lispy-to-cond ()
   "Reverse of `lispy-to-ifs'."
@@ -3162,7 +3171,8 @@ FUNC is obtained from (`lispy--insert-or-call' DEF FROM-START)"
   (lispy-define-key map "b" 'lispy-store-region-and-buffer)
   (lispy-define-key map "B" 'lispy-ediff-regions)
   (lispy-define-key map "x" 'lispy-x)
-  (lispy-define-key map "V" 'lispy-edebug-stop)
+  (lispy-define-key map "X" 'lispy-edebug-stop)
+  (lispy-define-key map "V" 'lispy-visit)
   ;; ——— locals: digit argument ———————————————
   (mapc (lambda (x) (lispy-define-key map (format "%d" x) 'digit-argument))
         (number-sequence 0 9)))
