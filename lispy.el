@@ -607,27 +607,27 @@ Return nil if can't move."
              (delete-region (point)
                             (1- end)))))
         ((looking-at " *\n")
-         (progn
-           (delete-region
-            (match-beginning 0)
-            (match-end 0))
-           (lispy--indent-for-tab)))
+         (delete-region
+          (match-beginning 0)
+          (match-end 0))
+         (lispy--indent-for-tab))
         ((and (looking-at lispy-right) (looking-back lispy-left))
          (delete-char 1)
          (backward-delete-char 1))
-        (t (let* ((beg (point))
-                  (str (buffer-substring-no-properties
-                        beg
-                        (line-end-position))))
-             (if (= (cl-count ?\( str)
-                    (cl-count ?\) str))
-                 (kill-line)
-               (if (lispy--out-forward 1)
-                   (progn
-                     (backward-char 1)
-                     (kill-region beg (point)))
-                 (goto-char beg)
-                 (lispy-delete 1)))))))
+        (t
+         (let* ((beg (point))
+                (str (buffer-substring-no-properties
+                      beg
+                      (line-end-position))))
+           (if (= (cl-count ?\( str)
+                  (cl-count ?\) str))
+               (kill-line)
+             (if (lispy--out-forward 1)
+                 (progn
+                   (backward-char 1)
+                   (kill-region beg (point)))
+               (goto-char beg)
+               (lispy-delete 1)))))))
 
 (defun lispy-yank ()
   "Like regular `yank', but quotes body when called from \"|\"."
@@ -678,7 +678,8 @@ Return nil if can't move."
          (forward-char 1)
          (lispy-delete-backward 1))
 
-        (t (delete-char arg))))
+        (t
+         (delete-char arg))))
 
 (defun lispy-delete-backward (arg)
   "From \")|\", delete ARG sexps backwards.
