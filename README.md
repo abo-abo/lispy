@@ -79,48 +79,81 @@ Some examples are:
     |-----+--------------------------+------------+-------------------|
     | key | command                  | key        | command           |
     |-----+--------------------------+------------+-------------------|
-    | j   | `lispy-down`             | k          | `lispy-up`        |
-    | s   | `lispy-move-down`        | w          | `lispy-move-up`   |
-    | o   | `lispy-counterclockwise` | p          | `lispy-clockwise` |
-    | >   | `lispy-slurp`            | <          | `lispy-barf`      |
-    | c   | `lispy-clone`            | C-d or DEL |                   |
-    | C   | `lispy-convolute`        | C          | reverses itself   |
-    | d   | `lispy-different`        | d          | reverses itself   |
-    | M-j | `lispy-split`            | +          | `lispy-join`      |
-    | O   | `lispy-oneline`          | M          | `lispy-multiline` |
-    | S   | `lispy-stringify`        | C-u "      | `lispy-quotes`    |
-    | ;   | `lispy-comment`          | C-u ;      | `lispy-comment`   |
+    | j   | `lispy-down'             | k          | `lispy-up'        |
+    | s   | `lispy-move-down'        | w          | `lispy-move-up'   |
+    | o   | `lispy-counterclockwise' | p          | `lispy-clockwise' |
+    | >   | `lispy-slurp'            | <          | `lispy-barf'      |
+    | c   | `lispy-clone'            | C-d or DEL |                   |
+    | C   | `lispy-convolute'        | C          | reverses itself   |
+    | d   | `lispy-different'        | d          | reverses itself   |
+    | M-j | `lispy-split'            | +          | `lispy-join'      |
+    | O   | `lispy-oneline'          | M          | `lispy-multiline' |
+    | S   | `lispy-stringify'        | C-u "      | `lispy-quotes'    |
+    | ;   | `lispy-comment'          | C-u ;      | `lispy-comment'   |
+    | xi  | `lispy-to-ifs'           | xc         | `lispy-to-cond'   |
     |-----+--------------------------+------------+-------------------|
+
+Here's a list of commands for inserting pairs:
+
+    |-----+------------------------------------|
+    | key | command                            |
+    |-----+------------------------------------|
+    |  (  | `lispy-parens'                     |
+    |  {  | `lispy-braces'                     |
+    |  }  | `lispy-brackets'                   |
+    |  "  | `lispy-quotes'                     |
+    |-----+------------------------------------|
+
+
+Here's a list of modified insertion commands that handle whitespace
+in addition to self-inserting:
+
+    |-----+------------------------------------|
+    | key | command                            |
+    |-----+------------------------------------|
+    | SPC | `lispy-space'                      |
+    |  :  | `lispy-colon'                      |
+    |  ^  | `lispy-hat'                        |
+    | C-m | `lispy-newline-and-indent'         |
+    |-----+------------------------------------|
 
 Among other cool commands are:
 
-    |-------+------------------------------------|
-    | key   | command                            |
-    |-------+------------------------------------|
-    | f     | `lispy-flow`                       |
-    | u     | `undo`                             |
-    | m     | `lispy-mark-list`                  |
-    | l     | `lispy-out-forward`                |
-    | a     | `lispy-out-backward`               |
-    | /     | `lispy-splice`                     |
-    | i     | `indent-sexp`                      |
-    | r     | `lispy-raise`                      |
-    | R     | `lispy-raise-some`                 |
-    | J     | `outline-next-visible-heading`     |
-    | K     | `outline-previous-visible-heading` |
-    | q     | `lispy-ace-paren`                  |
-    | h     | `lispy-ace-symbol`                 |
-    | Q     | `lispy-ace-char`                   |
-    | N     | `lispy-normalize`                  |
-    | M-m   | `lispy-mark-symbol`                |
-    | M-o   | `lispy-string-one-line`            |
-    | C-,   | `lispy-kill-at-point`              |
-    | C-M-, | `lispy-kill-at-point`              |
-    | C-e   | `lispy-move-end-of-line`           |
-    | t     | `lispy-teleport`                   |
-    | v     | `lispy-view`                       |
-    | n     | `lispy-new-copy`                   |
-    |-------+------------------------------------|
+    |-------+----------------------------------|
+    | key   | command                          |
+    |-------+----------------------------------|
+    | f     | `lispy-flow'                     |
+    | u     | `lispy-undo'                     |
+    | m     | `lispy-mark-list'                |
+    | l     | `lispy-out-forward'              |
+    | a     | `lispy-out-backward'             |
+    | /     | `lispy-splice'                   |
+    | i     | `indent-sexp'                    |
+    | r     | `lispy-raise'                    |
+    | R     | `lispy-raise-some'               |
+    | J     | `lispy-outline-next'             |
+    | K     | `lispy-outline-prev'             |
+    | q     | `lispy-ace-paren'                |
+    | h     | `lispy-ace-symbol'               |
+    | Q     | `lispy-ace-char'                 |
+    | N     | `lispy-normalize'                |
+    | C-7   | `lispy-cursor-down'              |
+    | C-8   | `lispy-parens-down'              |
+    | C-e   | `lispy-move-end-of-line'         |
+    | C-k   | `lispy-kill'                     |
+    | C-y   | `lispy-yank'                     |
+    | C-d   | `lispy-delete'                   |
+    | DEL   | `lispy-delete-backward'          |
+    | C-,   | `lispy-kill-at-point'            |
+    | C-M-, | `lispy-mark'                     |
+    | M-m   | `lispy-mark-symbol'              |
+    | v     | `lispy-view'                     |
+    | n     | `lispy-new-copy'                 |
+    | xd    | `lispy-to-defun'                 |
+    | xl    | `lispy-to-lambda'                |
+    | xm    | `lispy-cursor-ace'               |
+    | xe    | `edebug-defun'                   |
+    |-------+----------------------------------|
 
 Also, IDE-like commands ([details here](#ide-like-features)):
 
@@ -167,33 +200,33 @@ While not in special:
 
 ### Ways to extend region
 To extend the region, use a combination of
-- `lispy-down` "j"  
+- `lispy-down` "j"
   Move one sexp forward. Use prefix argument to move several sexps forward.
-- `lispy-up` "k"  
+- `lispy-up` "k"
   Move one sexp backward. Use prefix argument to move several sexps backward.
-- `lispy-different` "d"  
+- `lispy-different` "d"
   Move to the different side of the region.
 
 ### Commands that operate on region
-- `lispy-clone` "c"  
+- `lispy-clone` "c"
   Clone region and keep it active.
-- `lispy-move-down` "s"  
+- `lispy-move-down` "s"
   Move region one sexp down.
-- `lispy-move-up` "w".  
+- `lispy-move-up` "w".
   Move region one sexp up.
-- `lispy-undo` "u"  
+- `lispy-undo` "u"
   Deactivate region and undo.
-- `lispy-mark-list` "m"  
+- `lispy-mark-list` "m"
   Deactivate region.
-- `lispy-out-forward` "l"  
+- `lispy-out-forward` "l"
   Move region out of current sexp forwards.
-- `lispy-out-backward` "a"  
+- `lispy-out-backward` "a"
   Move region out of current sexp backwards.
-- `lispy-teleport` "t"  
+- `lispy-teleport` "t"
   Move region inside the sexp you select with `lispy-ace-paren`.
-- `lispy-slurp` ">"  
+- `lispy-slurp` ">"
   Move region inside next sexp ("a" will reverse this).
-- `lispy-barf` "<"  
+- `lispy-barf` "<"
   Move region inside previous sexp ("l" will reverse this).
 - `lispy-convolute` "C"__
 Exchange the order of application of two sexps that contain point.
