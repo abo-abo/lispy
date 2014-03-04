@@ -89,6 +89,7 @@
 ;; | O   | `lispy-oneline'          | M          | `lispy-multiline' |
 ;; | S   | `lispy-stringify'        | C-u "      | `lispy-quotes'    |
 ;; | ;   | `lispy-comment'          | C-u ;      | `lispy-comment'   |
+;; | xi  | `lispy-to-ifs'           | xc         | `lispy-to-cond'   |
 ;; |-----+--------------------------+------------+-------------------|
 ;;
 ;; Here's a list of commands for inserting pairs:
@@ -153,8 +154,6 @@
 ;; | n     | `lispy-new-copy'                 |
 ;; | xd    | `lispy-to-defun'                 |
 ;; | xl    | `lispy-to-lambda'                |
-;; | xi    | `lispy-to-ifs'                   |
-;; | xc    | `lispy-to-cond'                  |
 ;; | xm    | `lispy-cursor-ace'               |
 ;; | xe    | `edebug-defun'                   |
 ;; |-------+----------------------------------|
