@@ -81,6 +81,8 @@
 | i   | [[#lispy-tab][lispy-tab]]                     |
 | V   | [[#lispy-edebug-stop][lispy-edebug-stop]]             |
 | xf  | [[#lispy-flatten][lispy-flatten]]                 |
+| xi  | [[#lispy-to-ifs][lispy-to-ifs]]                  |
+| xc  | [[#lispy-to-cond][lispy-to-cond]]                 |
 |-----+-------------------------------|
 
 * Function reference
@@ -1443,3 +1445,143 @@ The function should be stored with [[#lispy-store-region-and-buffer][=lispy-stor
 -----
 
 *** TODO make use of =symbol-function= instead                                      :noexport:
+
+** =lispy-to-ifs=
+:PROPERTIES:
+:CUSTOM_ID: lispy-to-ifs
+:END:
+
+Bound to ~xi~.
+
+Transform current =cond= expression to equivalent nested =if=
+expressions.
+
+The reverse is [[#lispy-to-cond][=lispy-to-cond=]].
+
+#+HTML: <table><tbody><tr><td>
+#+begin_src elisp
+||(cond ((region-active-p)
+       (dotimes-protect arg
+         (if (= (point) (region-beginning))
+             (progn
+               (forward-sexp 1)
+               (skip-chars-forward " \n"))
+           (forward-sexp 1))))
+
+      ((looking-at lispy-left)
+       (lispy-forward arg)
+       (let ((pt (point)))
+         (if (lispy-forward 1)
+             (lispy-backward 1)
+           (goto-char pt))))
+
+      ((looking-back lispy-right)
+       (let ((pt (point)))
+         (unless (lispy-forward arg)
+           (goto-char pt)
+           (lispy-backward 1))))
+
+      (t
+       (lispy-forward 1)
+       (lispy-backward 1)))
+#+end_src
+#+HTML: </td><td>
+-> ~xi~ ->
+#+HTML: </td><td>
+#+begin_src elisp
+||(if (region-active-p)
+    (dotimes-protect arg
+      (if (= (point) (region-beginning))
+          (progn
+            (forward-sexp 1)
+            (skip-chars-forward " \n"))
+        (forward-sexp 1)))
+
+  (if (looking-at lispy-left)
+      (progn
+        (lispy-forward arg)
+        (let ((pt (point)))
+          (if (lispy-forward 1)
+              (lispy-backward 1)
+            (goto-char pt))))
+
+    (if (looking-back lispy-right)
+        (let ((pt (point)))
+          (unless (lispy-forward arg)
+            (goto-char pt)
+            (lispy-backward 1)))
+
+      (lispy-forward 1)
+      (lispy-backward 1))))
+#+end_src
+#+HTML: </td></tr></tbody></table>
+
+** =lispy-to-cond=
+:PROPERTIES:
+:CUSTOM_ID: lispy-to-cond
+:END:
+
+Bound to ~xc~.
+
+Transform current nested =if= expressions to an equivalent =cond=
+expression.
+
+The reverse is [[#lispy-to-ifs][=lispy-to-ifs=]].
+
+#+HTML: <table><tbody><tr><td>
+#+begin_src elisp
+||(if (region-active-p)
+    (dotimes-protect arg
+      (if (= (point) (region-beginning))
+          (progn
+            (forward-sexp 1)
+            (skip-chars-forward " \n"))
+        (forward-sexp 1)))
+
+  (if (looking-at lispy-left)
+      (progn
+        (lispy-forward arg)
+        (let ((pt (point)))
+          (if (lispy-forward 1)
+              (lispy-backward 1)
+            (goto-char pt))))
+
+    (if (looking-back lispy-right)
+        (let ((pt (point)))
+          (unless (lispy-forward arg)
+            (goto-char pt)
+            (lispy-backward 1)))
+
+      (lispy-forward 1)
+      (lispy-backward 1))))
+#+end_src
+#+HTML: </td><td>
+-> ~xc~ ->
+#+HTML: </td><td>
+#+begin_src elisp
+||(cond ((region-active-p)
+       (dotimes-protect arg
+         (if (= (point) (region-beginning))
+             (progn
+               (forward-sexp 1)
+               (skip-chars-forward " \n"))
+           (forward-sexp 1))))
+
+      ((looking-at lispy-left)
+       (lispy-forward arg)
+       (let ((pt (point)))
+         (if (lispy-forward 1)
+             (lispy-backward 1)
+           (goto-char pt))))
+
+      ((looking-back lispy-right)
+       (let ((pt (point)))
+         (unless (lispy-forward arg)
+           (goto-char pt)
+           (lispy-backward 1))))
+
+      (t
+       (lispy-forward 1)
+       (lispy-backward 1)))
+#+end_src
+#+HTML: </td></tr></tbody></table>

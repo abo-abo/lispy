@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
 <title>lispy.el documentation</title>
-<!-- 2014-03-04 Tue 16:40 -->
+<!-- 2014-03-04 Tue 17:15 -->
 <meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta  name="generator" content="Org-mode" />
 <meta  name="author" content="Oleh" />
@@ -270,6 +270,16 @@
 <tr>
 <td class="left">xf</td>
 <td class="left"><a href="#lispy-flatten">lispy-flatten</a></td>
+</tr>
+
+<tr>
+<td class="left">xi</td>
+<td class="left"><a href="#lispy-to-ifs">lispy-to-ifs</a></td>
+</tr>
+
+<tr>
+<td class="left">xc</td>
+<td class="left"><a href="#lispy-to-cond">lispy-to-cond</a></td>
 </tr>
 </tbody>
 </table>
@@ -2320,6 +2330,168 @@ Inline current function call, i.e. replace it with function body.
 The function should be stored with <a href="#lispy-store-region-and-buffer"><code>lispy-store-region-and-buffer</code></a>.
 </p>
 <hr  />
+</div>
+</div>
+<div id="outline-container-lispy-to-ifs" class="outline-3">
+<h3 id="lispy-to-ifs"><a id="sec-3-36"></a><code>lispy-to-ifs</code></h3>
+<div class="outline-text-3" id="text-lispy-to-ifs">
+<p>
+Bound to <kbd>xi</kbd>.
+</p>
+
+<p>
+Transform current <code>cond</code> expression to equivalent nested <code>if</code>
+expressions.
+</p>
+
+<p>
+The reverse is <a href="#lispy-to-cond"><code>lispy-to-cond</code></a>.
+</p>
+
+<table><tbody><tr><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp"><cursor>(</cursor><span style="color: #7F0055; font-weight: bold;">cond</span> ((region-active-p)
+       (dotimes-protect arg
+         (<span style="color: #7F0055; font-weight: bold;">if</span> (= (point) (region-beginning))
+             (<span style="color: #7F0055; font-weight: bold;">progn</span>
+               (forward-sexp 1)
+               (skip-chars-forward <span style="color: #2A00FF;">" \n"</span>))
+           (forward-sexp 1))))
+
+      ((looking-at lispy-left)
+       (lispy-forward arg)
+       (<span style="color: #7F0055; font-weight: bold;">let</span> ((pt (point)))
+         (<span style="color: #7F0055; font-weight: bold;">if</span> (lispy-forward 1)
+             (lispy-backward 1)
+           (goto-char pt))))
+
+      ((looking-back lispy-right)
+       (<span style="color: #7F0055; font-weight: bold;">let</span> ((pt (point)))
+         (<span style="color: #7F0055; font-weight: bold;">unless</span> (lispy-forward arg)
+           (goto-char pt)
+           (lispy-backward 1))))
+
+      (t
+       (lispy-forward 1)
+       (lispy-backward 1)))
+</pre>
+</div>
+</td><td>
+<p>
+-&gt; <kbd>xi</kbd> -&gt;
+</p>
+</td><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp"><cursor>(</cursor><span style="color: #7F0055; font-weight: bold;">if</span> (region-active-p)
+    (dotimes-protect arg
+      (<span style="color: #7F0055; font-weight: bold;">if</span> (= (point) (region-beginning))
+          (<span style="color: #7F0055; font-weight: bold;">progn</span>
+            (forward-sexp 1)
+            (skip-chars-forward <span style="color: #2A00FF;">" \n"</span>))
+        (forward-sexp 1)))
+
+  (<span style="color: #7F0055; font-weight: bold;">if</span> (looking-at lispy-left)
+      (<span style="color: #7F0055; font-weight: bold;">progn</span>
+        (lispy-forward arg)
+        (<span style="color: #7F0055; font-weight: bold;">let</span> ((pt (point)))
+          (<span style="color: #7F0055; font-weight: bold;">if</span> (lispy-forward 1)
+              (lispy-backward 1)
+            (goto-char pt))))
+
+    (<span style="color: #7F0055; font-weight: bold;">if</span> (looking-back lispy-right)
+        (<span style="color: #7F0055; font-weight: bold;">let</span> ((pt (point)))
+          (<span style="color: #7F0055; font-weight: bold;">unless</span> (lispy-forward arg)
+            (goto-char pt)
+            (lispy-backward 1)))
+
+      (lispy-forward 1)
+      (lispy-backward 1))))
+</pre>
+</div>
+</td></tr></tbody></table>
+</div>
+</div>
+<div id="outline-container-lispy-to-cond" class="outline-3">
+<h3 id="lispy-to-cond"><a id="sec-3-37"></a><code>lispy-to-cond</code></h3>
+<div class="outline-text-3" id="text-lispy-to-cond">
+<p>
+Bound to <kbd>xc</kbd>.
+</p>
+
+<p>
+Transform current nested <code>if</code> expressions to an equivalent <code>cond</code>
+expression.
+</p>
+
+<p>
+The reverse is <a href="#lispy-to-ifs"><code>lispy-to-ifs</code></a>.
+</p>
+
+<table><tbody><tr><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp"><cursor>(</cursor><span style="color: #7F0055; font-weight: bold;">if</span> (region-active-p)
+    (dotimes-protect arg
+      (<span style="color: #7F0055; font-weight: bold;">if</span> (= (point) (region-beginning))
+          (<span style="color: #7F0055; font-weight: bold;">progn</span>
+            (forward-sexp 1)
+            (skip-chars-forward <span style="color: #2A00FF;">" \n"</span>))
+        (forward-sexp 1)))
+
+  (<span style="color: #7F0055; font-weight: bold;">if</span> (looking-at lispy-left)
+      (<span style="color: #7F0055; font-weight: bold;">progn</span>
+        (lispy-forward arg)
+        (<span style="color: #7F0055; font-weight: bold;">let</span> ((pt (point)))
+          (<span style="color: #7F0055; font-weight: bold;">if</span> (lispy-forward 1)
+              (lispy-backward 1)
+            (goto-char pt))))
+
+    (<span style="color: #7F0055; font-weight: bold;">if</span> (looking-back lispy-right)
+        (<span style="color: #7F0055; font-weight: bold;">let</span> ((pt (point)))
+          (<span style="color: #7F0055; font-weight: bold;">unless</span> (lispy-forward arg)
+            (goto-char pt)
+            (lispy-backward 1)))
+
+      (lispy-forward 1)
+      (lispy-backward 1))))
+</pre>
+</div>
+</td><td>
+<p>
+-&gt; <kbd>xc</kbd> -&gt;
+</p>
+</td><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp"><cursor>(</cursor><span style="color: #7F0055; font-weight: bold;">cond</span> ((region-active-p)
+       (dotimes-protect arg
+         (<span style="color: #7F0055; font-weight: bold;">if</span> (= (point) (region-beginning))
+             (<span style="color: #7F0055; font-weight: bold;">progn</span>
+               (forward-sexp 1)
+               (skip-chars-forward <span style="color: #2A00FF;">" \n"</span>))
+           (forward-sexp 1))))
+
+      ((looking-at lispy-left)
+       (lispy-forward arg)
+       (<span style="color: #7F0055; font-weight: bold;">let</span> ((pt (point)))
+         (<span style="color: #7F0055; font-weight: bold;">if</span> (lispy-forward 1)
+             (lispy-backward 1)
+           (goto-char pt))))
+
+      ((looking-back lispy-right)
+       (<span style="color: #7F0055; font-weight: bold;">let</span> ((pt (point)))
+         (<span style="color: #7F0055; font-weight: bold;">unless</span> (lispy-forward arg)
+           (goto-char pt)
+           (lispy-backward 1))))
+
+      (t
+       (lispy-forward 1)
+       (lispy-backward 1)))
+</pre>
+</div>
+</td></tr></tbody></table>
 </div>
 </div>
 </div>
