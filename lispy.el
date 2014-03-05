@@ -2599,16 +2599,20 @@ For example, a `setq' statement is amended with variable name that it uses."
      (unless (eq (car expr) 'cond)
        (error "%s isn't cond" (car expr)))
      (delete-region (car bnd) (cdr bnd))
-     (insert
-      (with-temp-buffer
-        (emacs-lisp-mode)
-        (lispy--insert
-         (car
-          (lispy--whitespace-trim
-           (lispy--cases->ifs (cdr expr)))))
-        (buffer-string)))))
+     (lispy--fast-insert
+      (car
+       (lispy--whitespace-trim
+        (lispy--cases->ifs (cdr expr)))))))
   (lispy-from-left
    (indent-sexp)))
+
+(defun lispy--fast-insert (f-expr)
+  "`lispy--insert' EXPR into a temp buffer and return `buffer-string'."
+  (insert
+   (with-temp-buffer
+     (emacs-lisp-mode)
+     (lispy--insert f-expr)
+     (buffer-string))))
 
 (defun lispy-to-cond ()
   "Reverse of `lispy-to-ifs'."
@@ -2619,8 +2623,10 @@ For example, a `setq' statement is amended with variable name that it uses."
      (unless (eq (car expr) 'if)
        (error "%s isn't if" (car expr)))
      (delete-region (car bnd) (cdr bnd))
-     (lispy--insert
-      (cons 'cond (lispy--ifs->cases expr))))))
+     (lispy--fast-insert
+      (cons 'cond (lispy--ifs->cases expr)))))
+  (lispy-from-left
+   (indent-sexp)))
 
 (defun lispy--case->if (case &optional else)
   "Return an if statement based on  CASE statement and ELSE."
