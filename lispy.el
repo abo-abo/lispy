@@ -2599,10 +2599,16 @@ For example, a `setq' statement is amended with variable name that it uses."
      (unless (eq (car expr) 'cond)
        (error "%s isn't cond" (car expr)))
      (delete-region (car bnd) (cdr bnd))
-     (lispy--insert
-      (car
-       (lispy--whitespace-trim
-        (lispy--cases->ifs (cdr expr))))))))
+     (insert
+      (with-temp-buffer
+        (emacs-lisp-mode)
+        (lispy--insert
+         (car
+          (lispy--whitespace-trim
+           (lispy--cases->ifs (cdr expr)))))
+        (buffer-string)))))
+  (lispy-from-left
+   (indent-sexp)))
 
 (defun lispy-to-cond ()
   "Reverse of `lispy-to-ifs'."
