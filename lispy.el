@@ -570,7 +570,8 @@ Return nil if can't move."
          (forward-list))
         ((looking-back lispy-right)
          (backward-list))
-        (t (error "Unexpected"))))
+        (t
+         (error "Unexpected"))))
 
 (defun lispy-outline-next (arg)
   "Call `outline-next-visible-heading' ARG times."
@@ -645,15 +646,15 @@ Return nil if can't move."
           (region-end)))
 
         ((lispy--in-string-p)
-         (cond
-           ((looking-at "\\\\\"")
-            (delete-char 2))
-           ((lispy--delete-pair-in-string "\\\\\\\\(" "\\\\\\\\)"))
-           ((save-excursion
-              (forward-char 1)
-              (lispy--in-string-or-comment-p))
-            (delete-char arg))
-           (t (lispy--exit-string))))
+         (cond ((looking-at "\\\\\"")
+                (delete-char 2))
+               ((lispy--delete-pair-in-string "\\\\\\\\(" "\\\\\\\\)"))
+               ((save-excursion
+                  (forward-char 1)
+                  (lispy--in-string-or-comment-p))
+                (delete-char arg))
+               (t
+                (lispy--exit-string))))
 
         ((lispy--in-comment-p)
          (delete-char arg))
@@ -703,7 +704,8 @@ Otherwise (`backward-delete-char-untabify' ARG)."
                              "\\\\\\\\(" "\\\\\\\\)")
                       (goto-char pt)
                       (backward-delete-char-untabify arg))))
-                 (t (backward-delete-char-untabify arg))))
+                 (t
+                  (backward-delete-char-untabify arg))))
 
           ((lispy--in-comment-p)
            (backward-delete-char-untabify arg))
@@ -734,7 +736,8 @@ Otherwise (`backward-delete-char-untabify' ARG)."
              (when (lispy-forward 1)
                (backward-list))))
 
-          (t (backward-delete-char-untabify arg)))))
+          (t
+           (backward-delete-char-untabify arg)))))
 
 (defun lispy-mark ()
   "Mark the quoted string or the list that includes the point.
@@ -840,48 +843,47 @@ When this function is called:
   Wrap current sexp with LEFT RIGHT."
   `(lambda (arg)
      (interactive "p")
-     (cond
-       ((region-active-p)
-        (lispy--surround-region ,left ,right))
-       ((lispy--in-string-p)
-        (if (looking-back "\\\\\\\\")
-            (progn
-              (insert ,left "\\\\" ,right)
-              (backward-char 3))
-          (if (string= ,left "(")
-              (insert "(")
+     (cond ((region-active-p)
+            (lispy--surround-region ,left ,right))
+           ((lispy--in-string-p)
+            (if (looking-back "\\\\\\\\")
+                (progn
+                  (insert ,left "\\\\" ,right)
+                  (backward-char 3))
+              (if (string= ,left "(")
+                  (insert "(")
+                (insert ,left ,right)
+                (backward-char 1))))
+           ((lispy--in-comment-p)
+            (if (string= ,left "(")
+                (insert "(")
+              (insert ,left ,right)
+              (backward-char 1)))
+           ((looking-back "?\\\\")
+            (self-insert-command 1))
+           ((= arg 1)
+            (lispy--indent-for-tab)
+            (lispy--space-unless ,space-unless)
             (insert ,left ,right)
-            (backward-char 1))))
-       ((lispy--in-comment-p)
-        (if (string= ,left "(")
-            (insert "(")
-          (insert ,left ,right)
-          (backward-char 1)))
-       ((looking-back "?\\\\")
-        (self-insert-command 1))
-       ((= arg 1)
-        (lispy--indent-for-tab)
-        (lispy--space-unless ,space-unless)
-        (insert ,left ,right)
-        (unless (or (eolp)
-                    (lispy--in-string-p)
-                    (looking-at "\n\\|)\\|}\\|\\]"))
-          (just-one-space)
-          (backward-char 1))
-        (when (looking-at ,(regexp-quote left))
-          (insert " ")
-          (backward-char))
-        (backward-char))
-       (t
-        (insert ,left)
-        (unless (looking-at " ")
-          (insert " "))
-        (forward-sexp)
-        (insert ,right)
-        (backward-sexp)
-        (skip-chars-forward "'`#")
-        (indent-sexp)
-        (forward-char 1)))))
+            (unless (or (eolp)
+                        (lispy--in-string-p)
+                        (looking-at "\n\\|)\\|}\\|\\]"))
+              (just-one-space)
+              (backward-char 1))
+            (when (looking-at ,(regexp-quote left))
+              (insert " ")
+              (backward-char))
+            (backward-char))
+           (t
+            (insert ,left)
+            (unless (looking-at " ")
+              (insert " "))
+            (forward-sexp)
+            (insert ,right)
+            (backward-sexp)
+            (skip-chars-forward "'`#")
+            (indent-sexp)
+            (forward-char 1)))))
 
 (defalias 'lispy-parens
     (lispy-pair "(" ")" "^\\|\\s-\\|\\[\\|[(`'#@~_%,]")
@@ -1129,7 +1131,8 @@ The outcome when ahead of sexps is different from when behind."
            (set-mark (point))
            (goto-char pt))
 
-          (t (error "Unexpected")))
+          (t
+           (error "Unexpected")))
     (lispy-raise)))
 
 ;; TODO add numeric arg: 1 is equivalent to prev behavior 2 will raise containing list twice.
@@ -1309,7 +1312,8 @@ The outcome when ahead of sexps is different from when behind."
            (dotimes-protect arg
              (newline-and-indent)
              (insert str)))
-          (t (error "Unexpected")))))
+          (t
+           (error "Unexpected")))))
 
 (defun lispy-oneline ()
   "Squeeze current sexp into one line.
@@ -1384,7 +1388,8 @@ Comments will be moved ahead of sexp."
                             (lispy-backward 1))
                    (comment-region (point) (1- bnd))
                    (lispy--out-backward 1))))
-              (t (self-insert-command 1)))))))
+              (t
+               (self-insert-command 1)))))))
 
 (defun lispy-string-oneline ()
   "Convert current string to one line."
@@ -1437,7 +1442,8 @@ Quote newlines if ARG isn't 1."
            (unless (dotimes-protect arg
                      (backward-list arg))
              (error "Unexpected")))
-          (t (error "Unexpected")))
+          (t
+           (error "Unexpected")))
     (setq end (point))
     (goto-char beg)
     (lispy-ace-paren
@@ -1747,7 +1753,8 @@ Second region and buffer are the current ones."
           ((looking-back lispy-right)
            (backward-list)
            (forward-char 1))
-          (t (error "Unexpected")))
+          (t
+           (error "Unexpected")))
     (lispy--normalize 1)))
 
 (defun lispy-undo ()
@@ -2012,19 +2019,18 @@ Move to the end of line."
 (defun lispy--eval (e-str)
   "Eval E-STR according to current `major-mode'."
   (funcall
-   (cond
-     ((memq major-mode '(emacs-lisp-mode lisp-interaction-mode))
-      'lispy--eval-elisp)
-     ((eq major-mode 'clojure-mode)
-      (require 'le-clojure)
-      'lispy--eval-clojure)
-     ((eq major-mode 'scheme-mode)
-      (require 'le-scheme)
-      'lispy--eval-scheme)
-     ((eq major-mode 'lisp-mode)
-      (require 'le-lisp)
-      'lispy--eval-lisp)
-     (t (error "%s isn't supported currently" major-mode)))
+   (cond ((memq major-mode '(emacs-lisp-mode lisp-interaction-mode))
+          'lispy--eval-elisp)
+         ((eq major-mode 'clojure-mode)
+          (require 'le-clojure)
+          'lispy--eval-clojure)
+         ((eq major-mode 'scheme-mode)
+          (require 'le-scheme)
+          'lispy--eval-scheme)
+         ((eq major-mode 'lisp-mode)
+          (require 'le-lisp)
+          'lispy--eval-lisp)
+         (t (error "%s isn't supported currently" major-mode)))
    e-str))
 
 (defun lispy--eval-elisp (e-str)
@@ -2197,49 +2203,46 @@ ARITY-ALIST combines strings that REGEX matches and their arities."
 
 (defun lispy--tag-name-lisp (x)
   "Build tag name for Common Lisp tag X."
-  (cond
-    ((not (stringp (car x)))
-     "tag with no name")
-    ((eq (cadr x) 'function)
-     (lispy--propertize-tag nil x :function))
-    ((eq (cadr x) 'type)
-     (lispy--propertize-tag "defstruct" x :type))
-    ((eq (cadr x) 'variable)
-     (lispy--propertize-tag "defvar" x))
-    ((assq (cadr x) (cdr (assoc 'lisp-mode lispy-tag-arity)))
-     (lispy--propertize-tag (symbol-name (cadr x)) x))
-    (t (car x))))
+  (cond ((not (stringp (car x)))
+         "tag with no name")
+        ((eq (cadr x) 'function)
+         (lispy--propertize-tag nil x :function))
+        ((eq (cadr x) 'type)
+         (lispy--propertize-tag "defstruct" x :type))
+        ((eq (cadr x) 'variable)
+         (lispy--propertize-tag "defvar" x))
+        ((assq (cadr x) (cdr (assoc 'lisp-mode lispy-tag-arity)))
+         (lispy--propertize-tag (symbol-name (cadr x)) x))
+        (t (car x))))
 
 (defun lispy--tag-name-elisp (x)
   "Build tag name for Elisp tag X."
-  (cond
-    ((not (stringp (car x)))
-     "tag with no name")
-    ((eq (cadr x) 'include)
-     (lispy--propertize-tag "require" x))
-    ((eq (cadr x) 'package)
-     (lispy--propertize-tag "provide" x))
-    ((eq (cadr x) 'customgroup)
-     (lispy--propertize-tag "defgroup" x))
-    ((eq (cadr x) 'function)
-     (lispy--propertize-tag nil x :function))
-    ((eq (cadr x) 'variable)
-     (lispy--propertize-tag "defvar" x))
-    ((assq (cadr x) (cdr (assoc 'emacs-lisp-mode lispy-tag-arity)))
-     (lispy--propertize-tag (symbol-name (cadr x)) x))
-    (t (car x))))
+  (cond ((not (stringp (car x)))
+         "tag with no name")
+        ((eq (cadr x) 'include)
+         (lispy--propertize-tag "require" x))
+        ((eq (cadr x) 'package)
+         (lispy--propertize-tag "provide" x))
+        ((eq (cadr x) 'customgroup)
+         (lispy--propertize-tag "defgroup" x))
+        ((eq (cadr x) 'function)
+         (lispy--propertize-tag nil x :function))
+        ((eq (cadr x) 'variable)
+         (lispy--propertize-tag "defvar" x))
+        ((assq (cadr x) (cdr (assoc 'emacs-lisp-mode lispy-tag-arity)))
+         (lispy--propertize-tag (symbol-name (cadr x)) x))
+        (t (car x))))
 
 (defun lispy--tag-name-clojure (x)
   "Build tag name for Clojure tag X."
-  (cond
-    ((not (stringp (car x))))
-    ((eq (cadr x) 'package)
-     (lispy--propertize-tag "ns" x))
-    ((eq (cadr x) 'function)
-     (lispy--propertize-tag nil x :function))
-    ((eq (cadr x) 'variable)
-     (lispy--propertize-tag "def" x))
-    (t (car x))))
+  (cond ((not (stringp (car x))))
+        ((eq (cadr x) 'package)
+         (lispy--propertize-tag "ns" x))
+        ((eq (cadr x) 'function)
+         (lispy--propertize-tag nil x :function))
+        ((eq (cadr x) 'variable)
+         (lispy--propertize-tag "def" x))
+        (t (car x))))
 
 (defun lispy--tag-name (x)
   "Given a semantic tag X, amend it with additional info.
@@ -2249,29 +2252,27 @@ For example, a `setq' statement is amended with variable name that it uses."
      (cons
       (concat
        (lispy--pad-string
-        (cond
-          ((memq major-mode '(emacs-lisp-mode lisp-interaction-mode))
-           (lispy--tag-name-elisp x))
-          ((eq major-mode 'clojure-mode)
-           (lispy--tag-name-clojure x))
-          ((eq major-mode 'scheme-mode)
-           ;; (lispy--tag-name-scheme x)
-           (car x))
-          ((eq major-mode 'lisp-mode)
-           (lispy--tag-name-lisp x))
-          (t (throw 'break nil)))
+        (cond ((memq major-mode '(emacs-lisp-mode lisp-interaction-mode))
+               (lispy--tag-name-elisp x))
+              ((eq major-mode 'clojure-mode)
+               (lispy--tag-name-clojure x))
+              ((eq major-mode 'scheme-mode)
+               ;; (lispy--tag-name-scheme x)
+               (car x))
+              ((eq major-mode 'lisp-mode)
+               (lispy--tag-name-lisp x))
+              (t (throw 'break nil)))
         (nth 1 lispy-helm-columns))
        (make-string (- (nth 2 lispy-helm-columns)
                        (nth 1 lispy-helm-columns))
                     ?\ )
        (let ((v (nth 4 x)))
          (file-name-nondirectory
-          (cond
-            ((overlayp v)
-             (buffer-file-name (overlay-buffer v)))
-            ((vectorp v)
-             (aref v 2))
-            (t (error "Unexpected"))))))
+          (cond ((overlayp v)
+                 (buffer-file-name (overlay-buffer v)))
+                ((vectorp v)
+                 (aref v 2))
+                (t (error "Unexpected"))))))
       (cdr x)))
    x))
 
@@ -2964,29 +2965,28 @@ Make text marked if REGIONP is t."
   "Delete a pair of LEFT and RIGHT in string."
   (let ((bnd (lispy--bounds-string)))
     (when bnd
-      (let ((pos (cond
-                   ((looking-at left)
-                    (save-excursion
-                      (let ((b1 (match-beginning 0))
-                            (e1 (match-end 0))
-                            b2 e2)
-                        (when (re-search-forward right (cdr bnd) t)
-                          (setq b2 (match-beginning 0)
-                                e2 (match-end 0))
-                          (delete-region b2 e2)
-                          (delete-region b1 e1)
-                          b1))))
-                   ((looking-at right)
-                    (save-excursion
-                      (let ((b1 (match-beginning 0))
-                            (e1 (match-end 0))
-                            b2 e2)
-                        (when (re-search-backward left (car bnd) t)
-                          (setq b2 (match-beginning 0)
-                                e2 (match-end 0))
-                          (delete-region b1 e1)
-                          (delete-region b2 e2)
-                          (+ (point) (- b1 e2)))))))))
+      (let ((pos (cond ((looking-at left)
+                        (save-excursion
+                          (let ((b1 (match-beginning 0))
+                                (e1 (match-end 0))
+                                b2 e2)
+                            (when (re-search-forward right (cdr bnd) t)
+                              (setq b2 (match-beginning 0)
+                                    e2 (match-end 0))
+                              (delete-region b2 e2)
+                              (delete-region b1 e1)
+                              b1))))
+                       ((looking-at right)
+                        (save-excursion
+                          (let ((b1 (match-beginning 0))
+                                (e1 (match-end 0))
+                                b2 e2)
+                            (when (re-search-backward left (car bnd) t)
+                              (setq b2 (match-beginning 0)
+                                    e2 (match-end 0))
+                              (delete-region b1 e1)
+                              (delete-region b2 e2)
+                              (+ (point) (- b1 e2)))))))))
         (when pos
           (goto-char pos))))))
 
