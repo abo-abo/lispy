@@ -1895,6 +1895,11 @@ The function body is stored with `lispy-store-region-and-buffer'."
          (or (eq (char-after beg) ?\")
              (comment-only-p beg (point))))))
 
+(defun lispy--buffer-narrowed-p ()
+  "Returns T if the current buffer is narrowed."
+  (or (/= (point-min) 1)
+      (/= (point-max) (1+ (buffer-size)))))
+
 ;; ——— Pure ————————————————————————————————————————————————————————————————————
 (defun lispy--bounds-dwim ()
   "Return a cons of region bounds if it's active.
@@ -2903,18 +2908,20 @@ When FUNC is not nil, call it after a successful move.
 When NO-NARROW is not nil, don't narrow to BND."
   (require 'ace-jump-mode)
   (lispy--recenter-bounds bnd)
-  (unless no-narrow
-    (narrow-to-region (car bnd) (cdr bnd)))
-  (when func
-    (setq ace-jump-mode-end-hook
-          (list `(lambda ()
-                   (setq ace-jump-mode-end-hook)
-                   (,func)))))
-  (let ((ace-jump-mode-scope 'window)
-        (ace-jump-search-filter filter))
-    (unwind-protect
-         (ace-jump-do x)
-      (widen))))
+  (let ((already-narrowed (lispy--buffer-narrowed-p)))
+    (unless no-narrow
+      (narrow-to-region (car bnd) (cdr bnd)))
+    (when func
+      (setq ace-jump-mode-end-hook
+            (list `(lambda ()
+                     (setq ace-jump-mode-end-hook)
+                     (,func)))))
+    (let ((ace-jump-mode-scope 'window)
+          (ace-jump-search-filter filter))
+      (unwind-protect
+           (ace-jump-do x)
+        (unless already-narrowed
+          (widen))))))
 
 (defun lispy--normalize (arg)
   "Go up ARG times and normalize."
