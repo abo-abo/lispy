@@ -41,31 +41,34 @@
 #+MACRO: replaces Works as replacement for the standard $1.
 #+MACRO: cond The result depends on the following conditions, each tried one by one until one that holds true is found:
 * Global bindings
-| key | function name         |
-|-----+-----------------------|
-| ]   | [[#lispy-forward][lispy-forward]]         |
-| [   | [[#lispy-backward][lispy-backward]]        |
-| (   | [[#lispy-parens][lispy-parens]]          |
-| {   | [[#lispy-braces][lispy-braces]]          |
-| }   | [[#lispy-brackets][lispy-brackets]]        |
-| "   | [[#lispy-quotes][lispy-quotes]]          |
-| C-1 | [[#lispy-describe-inline][lispy-describe-inline]] |
-| C-2 | [[#lispy-arglist-inline][lispy-arglist-inline]]  |
-| C-3 | [[#lispy-out-forward][lispy-out-forward]]     |
-| C-4 | [[#lispy-x][lispy-x]]               |
-| C-k | [[#lispy-kill][lispy-kill]]            |
-| C-y | [[#lispy-yank][lispy-yank]]            |
-| C-d | [[#lispy-delete][lispy-delete]]          |
-| DEL | [[#lispy-delete-backward][lispy-delete-backward]] |
-| M-m | [[#lispy-mark-symbol][lispy-mark-symbol]]     |
-| M-o | [[#lispy-string-oneline][lispy-string-oneline]]  |
-|-----+-----------------------|
+| key | function name              |
+|-----+----------------------------|
+| ]   | [[#lispy-forward][lispy-forward]]              |
+| [   | [[#lispy-backward][lispy-backward]]             |
+| (   | [[#lispy-parens][lispy-parens]]               |
+| {   | [[#lispy-braces][lispy-braces]]               |
+| }   | [[#lispy-brackets][lispy-brackets]]             |
+| "   | [[#lispy-quotes][lispy-quotes]]               |
+| )   | [[#lispy-out-forward-nostring][lispy-out-forward-nostring]] |
+| C-1 | [[#lispy-describe-inline][lispy-describe-inline]]      |
+| C-2 | [[#lispy-arglist-inline][lispy-arglist-inline]]       |
+| C-3 | [[#lispy-out-forward][lispy-out-forward]]          |
+| C-4 | [[#lispy-x][lispy-x]]                    |
+| C-k | [[#lispy-kill][lispy-kill]]                 |
+| C-y | [[#lispy-yank][lispy-yank]]                 |
+| C-d | [[#lispy-delete][lispy-delete]]               |
+| DEL | [[#lispy-delete-backward][lispy-delete-backward]]      |
+| M-m | [[#lispy-mark-symbol][lispy-mark-symbol]]          |
+| M-o | [[#lispy-string-oneline][lispy-string-oneline]]       |
+|-----+----------------------------|
 * Local bindings
 | key | function name                 |
 |-----+-------------------------------|
 | j   | [[#lispy-down][lispy-down]]                    |
 | k   | [[#lispy-up][lispy-up]]                      |
 | d   | [[#lispy-different][lispy-different]]               |
+| a   | [[#lispy-out-backward][lispy-out-backward]]            |
+| l   | [[#lispy-out-forward][lispy-out-forward]]             |
 | q   | [[#lispy-ace-paren][lispy-ace-paren]]               |
 | h   | [[#lispy-ace-symbol][lispy-ace-symbol]]              |
 | F   | [[#lispy-follow][lispy-follow]]                  |
@@ -150,6 +153,137 @@ do nothing and return =nil=.
 
 Unlike =up-list=, parens in strings and comments are ignored.
 -----
+
+** =lispy-out-forward-nostring=
+:PROPERTIES:
+:CUSTOM_ID: lispy-out-forward-nostring
+:END:
+
+Bound to ~)~.
+
+Works the same ways as [[#lispy-out-forward][=lispy-out-forward=]], except self-inserts in
+strings and comments.
+
+Self-inserting in strings and comments makes parens different from the
+other pair functions that always insert the whole pair:
+
+| key | function       | inserts |
+|-----+----------------+---------|
+| {   | [[#lispy-braces][lispy-braces]]   | {}      |
+| }   | [[#lispy-brackets][lispy-brackets]] | []      |
+| "   | [[#lispy-quotes][lispy-quotes]]   | ""      |
+
+When you want to insert a single character from the pair, use ~C-q~.
+-----
+
+** =lispy-out-backward=
+:PROPERTIES:
+:CUSTOM_ID: lispy-out-backward
+:END:
+
+Bound to ~a~.
+
+
+Takes a numeric prefix =arg= and moves up backward list =arg= times or
+until error. This is a combination of =arg= times [[#lispy-out-forward][=lispy-out-forward=]] and once
+[[#lispy-different][=lispy-different=]].
+
+When the region is active, the region will be moved up backward =arg=
+times:
+
+#+HTML: <table><tbody><tr><td>
+#+BEGIN_HTML
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<!-- Created by htmlize-1.47 in css mode. -->
+<html>
+  <head>
+    <title>temp</title>
+    <style type="text/css">
+    <!--
+      body {
+        color: #000000;
+        background-color: #ffffff;
+      }
+      .keyword {
+        /* font-lock-keyword-face */
+        color: #7F0055;
+        font-weight: bold;
+      }
+      .region {
+        /* region */
+        color: #ffffff;
+        background-color: #f9b593;
+      }
+
+      a {
+        color: inherit;
+        background-color: inherit;
+        font: inherit;
+        text-decoration: inherit;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+    -->
+    </style>
+  </head>
+  <body>
+    <pre>
+(<span class="keyword">progn</span>
+  <span class="region">(foo)</span>)</pre>
+  </body>
+</html>
+#+END_HTML
+#+HTML: </td><td>
+-> ~a~ ->
+#+HTML: </td><td>
+#+BEGIN_HTML
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<!-- Created by htmlize-1.47 in css mode. -->
+<html>
+  <head>
+    <title>temp</title>
+    <style type="text/css">
+    <!--
+      body {
+        color: #000000;
+        background-color: #ffffff;
+      }
+      .keyword {
+        /* font-lock-keyword-face */
+        color: #7F0055;
+        font-weight: bold;
+      }
+      .region {
+        /* region */
+        color: #ffffff;
+        background-color: #f9b593;
+      }
+
+      a {
+        color: inherit;
+        background-color: inherit;
+        font: inherit;
+        text-decoration: inherit;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+    -->
+    </style>
+  </head>
+  <body>
+    <pre>
+<span class="region">(foo)</span>
+(<span class="keyword">progn</span>)</pre>
+  </body>
+</html>
+
+#+END_HTML
+#+HTML: </td></tr></tbody></table>
+
+
+
 ** =lispy-down=
 :PROPERTIES:
 :CUSTOM_ID: lispy-down
