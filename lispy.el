@@ -1506,6 +1506,15 @@ Quote newlines if ARG isn't 1."
           (doit))
       (doit))))
 
+(defun lispy-eval-and-replace ()
+  "Eval last sexp and replace it with the result."
+  (interactive)
+  (lispy-from-left
+   (let* ((bnd (lispy--bounds-list))
+          (str (lispy--string-dwim bnd)))
+     (delete-region (car bnd) (cdr bnd))
+     (insert (lispy--eval str)))))
+
 (declare-function cider-jump-to-def "ext:cider")
 (declare-function slime-edit-definition "ext:slime")
 (declare-function lispy--clojure-resolve "ext:lispy")
@@ -3196,7 +3205,8 @@ list."
   (define-key map "m" 'lispy-cursor-ace)
   (define-key map "i" 'lispy-to-ifs)
   (define-key map "c" 'lispy-to-cond)
-  (define-key map "f" 'lispy-flatten))
+  (define-key map "f" 'lispy-flatten)
+  (define-key map "r" 'lispy-eval-and-replace))
 
 (defun lispy-define-key (keymap key def &optional from-start)
   "Forward to (`define-key' KEYMAP KEY FUNC).
