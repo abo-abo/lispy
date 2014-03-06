@@ -1429,7 +1429,7 @@ Quote newlines if ARG isn't 1."
     (lispy-backward 1)))
 
 (defun lispy-teleport (arg)
-  "Move ARG sexps inside of result of `lispy-ace-paren'."
+  "Move ARG sexps into a sexp determined by ace-jump."
   (interactive "p")
   (let ((beg (point))
         end endp regionp)
@@ -1450,7 +1450,10 @@ Quote newlines if ARG isn't 1."
            (error "Unexpected")))
     (setq end (point))
     (goto-char beg)
-    (lispy-ace-paren
+    (lispy--ace-do
+     lispy-left
+     (save-excursion (lispy--out-backward 50) (lispy--bounds-dwim))
+     (lambda () (not (lispy--in-string-or-comment-p)))
      `(lambda ()
         (forward-char)
         (ignore-errors
