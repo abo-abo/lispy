@@ -1842,6 +1842,22 @@ The function body is stored with `lispy-store-region-and-buffer'."
   (interactive "P")
   (projectile-find-file arg))
 
+(defun lispy-narrow (arg)
+  "Narrow ARG sexps or region."
+  (interactive "p")
+  (cond ((region-active-p)
+         (narrow-to-region (region-beginning) (region-end)))
+        ((looking-at lispy-left)
+         (narrow-to-region (point)
+                           (progn
+                             (lispy-forward arg)
+                             (point))))
+        ((looking-back lispy-right)
+         (narrow-to-region (point)
+                           (progn
+                             (lispy-backward arg)
+                             (point))))))
+
 ;; ——— Predicates ——————————————————————————————————————————————————————————————
 (defun lispy--in-string-p ()
   "Test if point is inside a string."
@@ -3178,7 +3194,8 @@ FUNC is obtained from (`lispy--insert-or-call' DEF FROM-START)"
   (lispy-define-key map "SPC" 'lispy-space)
   (lispy-define-key map "i" 'lispy-tab t)
   (lispy-define-key map "I" 'lispy-shifttab)
-  (lispy-define-key map "N" 'lispy-normalize)
+  (lispy-define-key map "N" 'lispy-narrow)
+  (lispy-define-key map "W" 'widen)
   (lispy-define-key map "c" 'lispy-clone)
   (lispy-define-key map "u" 'lispy-undo)
   (lispy-define-key map "q" 'lispy-ace-paren)

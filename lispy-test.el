@@ -684,9 +684,9 @@ Insert KEY if there's no command."
                    "(foo)|")))
 
 (ert-deftest lispy-normalize ()
-  (should (string= (lispy-with "|(foo (bar)baz)" "N")
+  (should (string= (lispy-with "|(foo (bar)baz)" (lispy-normalize))
                    "|(foo (bar) baz)"))
-  (should (string= (lispy-with "(foo (bar)baz)|" "N")
+  (should (string= (lispy-with "(foo (bar)baz)|" (lispy-normalize))
                    "(foo (bar) baz)|")))
 
 (ert-deftest lispy--normalize ()
