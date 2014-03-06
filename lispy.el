@@ -4,8 +4,7 @@
 
 ;; Author: Oleh Krehel <ohwoeowho@gmail.com>
 ;; URL: https://github.com/abo-abo/lispy
-;; Version: 0.8
-;; Package-Requires: ((helm "1.5.3") (ace-jump-mode "2.0") (s "1.4.0") (noflet "0.0.10") (iedit "0.97"))
+;; Version: 0.9.0
 ;; Keywords: lisp
 
 ;; This file is not part of GNU Emacs
