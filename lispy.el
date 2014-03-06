@@ -1496,8 +1496,7 @@ Quote newlines if ARG isn't 1."
          (unless (or (looking-back lispy-right) (region-active-p))
            (lispy-forward 1))
          (let ((str (lispy--eval (lispy--string-dwim))))
-           (when (> (current-column) 40)
-             (newline-and-indent))
+           (newline-and-indent)
            (insert str))))
     (if (looking-at lispy-left)
         (save-excursion
