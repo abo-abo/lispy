@@ -5,7 +5,7 @@
 ;; Author: Oleh Krehel <ohwoeowho@gmail.com>
 ;; URL: https://github.com/abo-abo/lispy
 ;; Version: 0.8
-;; Package-Requires: ((helm "1.5.3") (ace-jump-mode "2.0") (s "1.4.0") (noflet "0.0.10"))
+;; Package-Requires: ((helm "1.5.3") (ace-jump-mode "2.0") (s "1.4.0") (noflet "0.0.10") (iedit "0.97"))
 ;; Keywords: lisp
 
 ;; This file is not part of GNU Emacs
@@ -190,6 +190,8 @@
 (require 'ace-jump-mode)
 (require 'newcomment)
 (require 'lispy-inline)
+
+(require 'iedit)
 
 ;; ——— Customization ———————————————————————————————————————————————————————————
 (defgroup lispy nil
@@ -996,6 +998,22 @@ Special case is (|( -> ( |(."
     (when (looking-at lispy-left)
       (indent-sexp))))
 
+;; ——— Globals: miscellanea ————————————————————————————————————————————————————
+(defun lispy-string-oneline ()
+  "Convert current string to one line."
+  (interactive)
+  (when (looking-back "\"")
+    (backward-char 1))
+  (let (bnd str)
+    (setq str (lispy--string-dwim (setq bnd (lispy--bounds-string))))
+    (delete-region (car bnd) (cdr bnd))
+    (insert (replace-regexp-in-string "\n" "\\\\n" str))))
+
+(defun lispy-iedit ()
+  "Wrap around `iedit'"
+  (interactive)
+  (iedit-mode 0))
+
 ;; ——— Locals:  Paredit transformations ————————————————————————————————————————
 (defun lispy-slurp (arg)
   "Grow current sexp by ARG sexps."
@@ -1394,16 +1412,6 @@ Comments will be moved ahead of sexp."
                    (lispy--out-backward 1))))
               (t
                (self-insert-command 1)))))))
-
-(defun lispy-string-oneline ()
-  "Convert current string to one line."
-  (interactive)
-  (when (looking-back "\"")
-    (backward-char 1))
-  (let (bnd str)
-    (setq str (lispy--string-dwim (setq bnd (lispy--bounds-string))))
-    (delete-region (car bnd) (cdr bnd))
-    (insert (replace-regexp-in-string "\n" "\\\\n" str))))
 
 (defun lispy-stringify (&optional arg)
   "Transform current sexp into a string.
@@ -3234,7 +3242,6 @@ FUNC is obtained from (`lispy--insert-or-call' DEF FROM-START)"
   (define-key map (kbd "C-d") 'lispy-delete)
   (define-key map (kbd "DEL") 'lispy-delete-backward)
   (define-key map (kbd "M-m") 'lispy-mark-symbol)
-  (define-key map (kbd "M-o") 'lispy-string-oneline)
   (define-key map (kbd "C-c p") 'lispy-pop-copy)
   (define-key map (kbd "C-,") 'lispy-kill-at-point)
   (define-key map (kbd "C-M-,") 'lispy-mark)
@@ -3260,6 +3267,9 @@ FUNC is obtained from (`lispy--insert-or-call' DEF FROM-START)"
     (define-key map (kbd "C-7") 'lispy-cursor-down)
     (define-key map (kbd "C-8") 'lispy-parens-down)
     (define-key map (kbd "C-9") 'lispy-out-forward-newline))
+  ;; ——— globals: miscellanea —————————————————
+  (define-key map (kbd "M-o") 'lispy-string-oneline)
+  (define-key map (kbd "M-i") 'lispy-iedit)
   ;; ——— locals: navigation ———————————————————
   (lispy-define-key map "l" 'lispy-out-forward)
   (lispy-define-key map "a" 'lispy-out-backward)
