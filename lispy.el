@@ -251,6 +251,7 @@ the context.
   "Execute N times the BODYFORM unless an error is signaled.
 Return nil couldn't execute BODYFORM at least once.
 Otherwise return t."
+  (declare (indent 1))
   `(let ((i 0)
          out)
      (ignore-errors
