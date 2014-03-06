@@ -1573,7 +1573,7 @@ Quote newlines if ARG isn't 1."
       (call-interactively 'ace-jump-char-mode))
     (widen)))
 
-(defun lispy-ace-paren (&optional func no-narrow)
+(defun lispy-ace-paren ()
   "Use `lispy--ace-do' to jump to `lispy-left' within current defun.
 When FUNC is not nil, call it after a successful move.
 When NO-NARROW is not nil, don't narrow."
@@ -1582,8 +1582,8 @@ When NO-NARROW is not nil, don't narrow."
    lispy-left
    (save-excursion (lispy--out-backward 50) (lispy--bounds-dwim))
    (lambda () (not (lispy--in-string-or-comment-p)))
-   func
-   no-narrow))
+   nil
+   nil))
 
 (defun lispy-ace-symbol (arg)
   "Use `lispy--ace-do' to mark to a symbol within a sexp.
