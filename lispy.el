@@ -1816,6 +1816,33 @@ If already there, return it to previous position."
                 (top-level)))))
     (self-insert-command 1)))
 
+(defun lispy-edebug (arg)
+  "Start/stop edebug of current thing depending on ARG.
+ARG is 1: `edebug-defun' on this function.
+ARG is 2: `eval-defun' on this function.
+ARG is 3: `edebug-defun' on the function from this sexp.
+ARG is 4: `eval-defun' on the function from this sexp."
+  (interactive "p")
+  (cond ((= arg 1)
+         (edebug-defun))
+        ((= arg 2)
+         (eval-defun nil))
+        (t
+         (let* ((expr (lispy--read (lispy--string-dwim)))
+                (fun (car expr)))
+           (if (fboundp fun)
+               (cl-destructuring-bind (buf . pt)
+                   (find-definition-noselect fun nil)
+                 (with-current-buffer buf
+                   (goto-char pt)
+                   (cond ((= arg 3)
+                          (edebug-defun))
+                         ((= arg 4)
+                          (eval-defun nil))
+                         (t
+                          (error "arg=%s isn't supported" arg)))))
+             (error "%s isn't bound" fun))))))
+
 (defun lispy-flatten ()
   "Inline a function at the point of its call.
 The function body is stored with `lispy-store-region-and-buffer'."
@@ -3117,7 +3144,7 @@ list."
 (let ((map lispy-mode-x-map))
   (define-key map "d" 'lispy-to-defun)
   (define-key map "l" 'lispy-to-lambda)
-  (define-key map "e" 'edebug-defun)
+  (define-key map "e" 'lispy-edebug)
   (define-key map "m" 'lispy-cursor-ace)
   (define-key map "i" 'lispy-to-ifs)
   (define-key map "c" 'lispy-to-cond)
