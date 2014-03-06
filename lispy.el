@@ -1862,6 +1862,8 @@ With ARG, use the contents of `lispy-store-region-and-buffer' instead."
          (e-args (cl-remove-if #'lispy--whitespacep (cdr expr))))
     (multiple-value-setq (f-args body)
       (lispy--function-parse fstr))
+    (when (equal f-args '(ly-raw empty))
+      (setq f-args))
     (setq f-args (delq '&optional (delq '&rest f-args)))
     (let ((e-n (length e-args))
           (f-n (length f-args))
