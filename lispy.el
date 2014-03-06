@@ -1843,36 +1843,37 @@ ARG is 4: `eval-defun' on the function from this sexp."
                           (error "arg=%s isn't supported" arg)))))
              (error "%s isn't bound" fun))))))
 
-(defun lispy-flatten ()
+(defun lispy-flatten (arg)
   "Inline a function at the point of its call.
-The function body is stored with `lispy-store-region-and-buffer'."
-  (interactive)
-  (unless (looking-at lispy-left)
-    (lispy-backward 1))
-  (let* ((f-str (with-current-buffer (get 'lispy-store-bounds 'buffer)
-                  (lispy--string-dwim (get 'lispy-store-bounds 'region))))
-         (c-bnd (lispy--bounds-list))
-         (f-expr (lispy--read f-str))
-         (c-expr (lispy--read (lispy--string-dwim c-bnd))))
-    (unless (eq (car f-expr) 'defun)
-      (error "Not a function"))
-    (let* ((f-args (caddr f-expr))
-           (c-args (cdr c-expr))
-           (body (cdddr f-expr))
-           (body (cl-subseq
-                  body
-                  (cl-position-if-not
-                   (lambda (x) (and (consp x) (eq (car x) 'ly-raw)))
-                   body)))
-           f-arg
-           c-arg)
-      (while (setq f-arg (pop f-args)
-                   c-arg (pop c-args))
-        (setq body (lispy--replace body f-arg c-arg)))
+The function body is obtained from `find-function-noselect'.
+With ARG, use the contents of `lispy-store-region-and-buffer' instead."
+  (interactive "P")
+  (let* ((bnd (lispy--bounds-list))
+         (expr (lispy--read (lispy--string-dwim bnd)))
+         (fstr (if arg
+                   (with-current-buffer (get 'lispy-store-bounds 'buffer)
+                     (lispy--string-dwim (get 'lispy-store-bounds 'region)))
+                 (ignore-errors
+                   (lispy--function-str (car expr)))))
+         f-args body
+         (e-args (cl-remove-if #'lispy--whitespacep (cdr expr))))
+    (multiple-value-setq (f-args body)
+      (lispy--function-parse fstr))
+    (setq f-args (delq '&optional (delq '&rest f-args)))
+    (let ((e-n (length e-args))
+          (f-n (length f-args))
+          f-arg e-arg)
+      (if (> e-n f-n)
+          (error "Too many arguments: expected %s, got %s" f-n e-n)
+        (setq e-args (append e-args (make-list (- f-n e-n) nil))))
+      (while (setq e-arg (pop e-args)
+                   f-arg (pop f-args))
+        (setq body (lispy--replace body f-arg e-arg)))
       (if (= (length body) 1)
           (setq body (car body))
         (setq body (cons 'progn body)))
-      (delete-region (car c-bnd) (cdr c-bnd))
+      (goto-char (car bnd))
+      (delete-region (car bnd) (cdr bnd))
       (lispy--insert body))))
 
 (declare-function projectile-find-file "ext:projectile")
@@ -2658,6 +2659,48 @@ For example, a `setq' statement is amended with variable name that it uses."
        (eq (car x) 'ly-raw)
        (or (eq (cadr x) 'newline)
            (eq (cadr x) 'comment))))
+
+(defun lispy--function-str (fun)
+  "Return FUN definition as a string."
+  (if (fboundp fun)
+      (cl-destructuring-bind (buf . pt)
+          (save-window-excursion
+            (save-excursion
+              (find-function-noselect fun)))
+        (with-current-buffer buf
+          (goto-char pt)
+          (lispy--string-dwim)))
+    (error "%s isn't bound" fun)))
+
+(defun lispy--function-parse (str)
+  "Extract the function body and args from it's expression STR."
+  (let ((body (lispy--read str))
+        args)
+    (if (eq (car body) 'defun)
+        (setq body (lispy--whitespace-trim (cdr body)))
+      (error "Expected defun, got %s" (car body)))
+    (if (symbolp (car body))
+        (setq body (lispy--whitespace-trim (cdr body)))
+      (error "Expected function name, got %s" (car body)))
+    (if (listp (car body))
+        (progn
+          (setq args (car body))
+          (setq body (lispy--whitespace-trim (cdr body))))
+      (error "Expected function arguments, got %s" (car body)))
+    ;; skip docstring
+    (if (and (listp (car body))
+             (eq (caar body) 'ly-raw)
+             (eq (cadar body) 'string))
+        (setq body (lispy--whitespace-trim (cdr body))))
+    ;; skip declare
+    (if (and (listp (car body))
+             (eq (caar body) 'declare))
+        (setq body (lispy--whitespace-trim (cdr body))))
+    ;; skip interactive
+    (if (and (listp (car body))
+             (eq (caar body) 'interactive))
+        (setq body (lispy--whitespace-trim (cdr body))))
+    (list args body)))
 
 (defun lispy-to-ifs ()
   "Transform current `cond' expression to equivalent `if' expressions."
