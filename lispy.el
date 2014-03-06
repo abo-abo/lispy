@@ -1597,6 +1597,20 @@ Sexp is obtained by exiting list ARG times."
    (lambda () (or (not (lispy--in-string-or-comment-p)) (looking-back ".\"")))
    (lambda () (forward-char 1) (lispy-mark-symbol))))
 
+(defun lispy-ace-subword (arg)
+  "Mark sub-word within a sexp.
+Sexp is obtained by exiting list ARG times."
+  (interactive "p")
+  (lispy--out-forward
+   (if (region-active-p)
+       (progn (deactivate-mark) arg)
+     (1- arg)))
+  (lispy--ace-do
+   "[([{ -]\\(?:\\sw\\|\\s_\\|\\s(\\|[\"'`#]\\)"
+   (lispy--bounds-dwim)
+   (lambda () (or (not (lispy--in-string-or-comment-p)) (looking-back ".\"")))
+   (lambda () (skip-chars-forward "-([{ `'#") (mark-word))))
+
 (defun lispy-ace-symbol-replace (arg)
   "Use `ace-jump-char-mode' to jump to a symbol within a sexp and delete it.
 Sexp is obtained by exiting list ARG times."
@@ -3211,6 +3225,7 @@ FUNC is obtained from (`lispy--insert-or-call' DEF FROM-START)"
   (lispy-define-key map "x" 'lispy-x)
   (lispy-define-key map "X" 'lispy-edebug-stop)
   (lispy-define-key map "V" 'lispy-visit)
+  (lispy-define-key map "-" 'lispy-ace-subword)
   ;; ——— locals: digit argument ———————————————
   (mapc (lambda (x) (lispy-define-key map (format "%d" x) 'digit-argument))
         (number-sequence 0 9)))
