@@ -2039,6 +2039,9 @@ Move to the end of line."
   "Eval E-STR as Elisp code."
   (let ((sexp (read e-str))
         val)
+    (when (and (eq (car sexp) 'defvar)
+               (boundp (cadr sexp)))
+      (set (cadr sexp) (eval (caddr sexp))))
     (condition-case e
         (prin1-to-string
          (eval sexp lexical-binding))
