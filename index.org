@@ -718,6 +718,18 @@ Eval current region or sexp.
 The result will be displayed in the minibuffer.
 
 Elisp, Clojure, Scheme and Common Lisp are supported.
+
+Elisp extensions:
+
+*** =lispy-lax-eval=
+
+When =lispy-lax-eval= isn't =nil=, "Symbol's value as variable is
+void..." error will be caught and the variable in question will be set
+to =nil=.
+
+*** eval of =defvar=
+
+Will do a =setq= in addition to =defvar= (i.e. the behavior of ~C-M-x~).
 -----
 
 ** =lispy-eval-and-insert=
