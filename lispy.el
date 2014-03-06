@@ -262,6 +262,7 @@ Otherwise return t."
 
 (defmacro lispy-save-excursion (&rest body)
   "More intuitive (`save-excursion' BODY)."
+  (declare (indent 0))
   `(let ((out (save-excursion
                 ,@body)))
      (when (bolp)
@@ -1150,15 +1151,15 @@ The outcome when ahead of sexps is different from when behind."
             deactivate-mark)
         (when endp (exchange-point-and-mark))
         (lispy-save-excursion
-         (setq beg (point))
-         (lispy--out-forward 1)
-         (setq end (backward-list))
-         (lispy--out-forward 1)
-         (backward-list)
-         (lispy--swap-regions (cons beg end)
-                              (cons (point) (point)))
-         (lispy--out-forward 1)
-         (lispy--reindent))
+          (setq beg (point))
+          (lispy--out-forward 1)
+          (setq end (backward-list))
+          (lispy--out-forward 1)
+          (backward-list)
+          (lispy--swap-regions (cons beg end)
+                               (cons (point) (point)))
+          (lispy--out-forward 1)
+          (lispy--reindent))
         (when endp (exchange-point-and-mark)))
     (error "Not enough depth to convolute")))
 
@@ -2771,9 +2772,9 @@ Unless inside string or comment, or `looking-back' at CONTEXT."
                         (region-end)))
         (arg
          (lispy-save-excursion
-          (lispy--out-forward arg)
-          (backward-list)
-          (indent-sexp)))
+           (lispy--out-forward arg)
+           (backward-list)
+           (indent-sexp)))
 
         ((looking-back lispy-right)
          (save-excursion
@@ -2943,9 +2944,9 @@ Make text marked if REGIONP is t."
         (insert "\n")
         (backward-char))
       (lispy-save-excursion
-       (lispy--reindent 1)
-       (goto-char (1- beg1))
-       (indent-sexp))
+        (lispy--reindent 1)
+        (goto-char (1- beg1))
+        (indent-sexp))
       (if regionp
           (progn
             (setq deactivate-mark nil)
