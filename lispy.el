@@ -1624,7 +1624,8 @@ Sexp is obtained by exiting list ARG times."
            (if (string= (error-message-string e) "before first heading")
                (outline-next-visible-heading 1)
              (signal (car e) (cdr e))))))
-    (indent-sexp)))
+    (indent-sexp))
+  (lispy-normalize))
 
 (defun lispy-shifttab ()
   "Hide/show outline summary."
