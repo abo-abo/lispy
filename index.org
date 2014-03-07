@@ -58,6 +58,7 @@
 | C-y | [[#lispy-yank][lispy-yank]]                 |
 | C-d | [[#lispy-delete][lispy-delete]]               |
 | DEL | [[#lispy-delete-backward][lispy-delete-backward]]      |
+| C-e | [[#lispy-move-end-of-line][lispy-move-end-of-line]]     |
 | M-m | [[#lispy-mark-symbol][lispy-mark-symbol]]          |
 | M-o | [[#lispy-string-oneline][lispy-string-oneline]]       |
 |-----+----------------------------|
@@ -67,6 +68,7 @@
 | j   | [[#lispy-down][lispy-down]]                    |
 | k   | [[#lispy-up][lispy-up]]                      |
 | d   | [[#lispy-different][lispy-different]]               |
+| f   | [[#lispy-flow][lispy-flow]]                    |
 | a   | [[#lispy-out-backward][lispy-out-backward]]            |
 | l   | [[#lispy-out-forward][lispy-out-forward]]             |
 | q   | [[#lispy-ace-paren][lispy-ace-paren]]               |
@@ -349,6 +351,43 @@ Switch to the different side of current sexp.
 
 When region is active, equivalent to =exchange-point-and-mark=.
 -----
+
+** =lispy-flow=
+:PROPERTIES:
+:CUSTOM_ID: lispy-flow
+:END:
+
+Bound to ~f~.
+
+Flow in the direction of current paren, i.e.
+
+*** looking at =lispy-left=
+Find the next =lispy-left= not in comment or string going down the
+file.
+
+*** looking back =lispy-right=
+Find the next =lispy-right= not in comment or string going up the
+file.
+
+** =lispy-move-end-of-line=
+:PROPERTIES:
+:CUSTOM_ID: lispy-move-end-of-line
+:END:
+
+Bound to ~C-e~.
+
+{{{replaces(=move-end-of-line=)}}}
+
+Regular =move-end-of-line= does nothing the second time when called
+twice in a row.
+
+When called twice in a row and
+
+*** inside string
+Move to the end of the string.
+
+*** otherwise
+Return to the starting position.
 
 ** =lispy-ace-paren=
 :PROPERTIES:
