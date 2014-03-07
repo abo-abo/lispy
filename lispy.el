@@ -1901,8 +1901,13 @@ With ARG, use the contents of `lispy-store-region-and-buffer' instead."
 
 (defun lispy-visit (arg)
   "Forward to find file in project."
-  (interactive "P")
-  (projectile-find-file arg))
+  (interactive "p")
+  (cond ((= arg 1)
+         (projectile-find-file nil))
+        ((= arg 2)
+         (projectile-find-file-other-window))
+        (t
+         (projectile-find-file arg))))
 
 (defun lispy-narrow (arg)
   "Narrow ARG sexps or region."
