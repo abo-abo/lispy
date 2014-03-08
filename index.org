@@ -69,6 +69,8 @@
 | k   | [[#lispy-up][lispy-up]]                      |
 | d   | [[#lispy-different][lispy-different]]               |
 | f   | [[#lispy-flow][lispy-flow]]                    |
+| p   | [[#lispy-clockwise][lispy-clockwise]]               |
+| o   | [[#lispy-counterclockwise][lispy-counterclockwise]]        |
 | a   | [[#lispy-out-backward][lispy-out-backward]]            |
 | l   | [[#lispy-out-forward][lispy-out-forward]]             |
 | q   | [[#lispy-ace-paren][lispy-ace-paren]]               |
@@ -368,6 +370,24 @@ file.
 *** looking back =lispy-right=
 Find the next =lispy-right= not in comment or string going up the
 file.
+
+** =lispy-clockwise=
+:PROPERTIES:
+:CUSTOM_ID: lispy-clockwise
+:END:
+
+Bound to ~p~.
+
+Move clockwise within current list.
+
+** =lispy-counterclockwise=
+:PROPERTIES:
+:CUSTOM_ID: lispy-counterclockwise
+:END:
+
+Bound to ~o~.
+
+Move counterclockwise within current list.
 
 ** =lispy-move-end-of-line=
 :PROPERTIES:
