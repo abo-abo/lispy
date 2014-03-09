@@ -1916,12 +1916,12 @@ With ARG, use the contents of `lispy-store-region-and-buffer' instead."
          (narrow-to-region (region-beginning) (region-end)))
         ((looking-at lispy-left)
          (narrow-to-region (point)
-                           (progn
+                           (save-excursion
                              (lispy-forward arg)
                              (point))))
         ((looking-back lispy-right)
          (narrow-to-region (point)
-                           (progn
+                           (save-excursion
                              (lispy-backward arg)
                              (point))))))
 
