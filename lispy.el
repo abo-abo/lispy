@@ -1898,6 +1898,7 @@ With ARG, use the contents of `lispy-store-region-and-buffer' instead."
       (lispy--insert body))))
 
 (declare-function projectile-find-file "ext:projectile")
+(declare-function projectile-find-file-other-window "ext:projectile")
 
 (defun lispy-visit (arg)
   "Forward to find file in project."
@@ -1924,6 +1925,11 @@ With ARG, use the contents of `lispy-store-region-and-buffer' instead."
                            (save-excursion
                              (lispy-backward arg)
                              (point))))))
+
+(defun lispy-widen ()
+  "Forward to `widen'."
+  (interactive)
+  (widen))
 
 ;; ——— Predicates ——————————————————————————————————————————————————————————————
 (defun lispy--in-string-p ()
@@ -3316,7 +3322,7 @@ FUNC is obtained from (`lispy--insert-or-call' DEF FROM-START)"
   (lispy-define-key map "i" 'lispy-tab t)
   (lispy-define-key map "I" 'lispy-shifttab)
   (lispy-define-key map "N" 'lispy-narrow)
-  (lispy-define-key map "W" 'widen)
+  (lispy-define-key map "W" 'lispy-widen)
   (lispy-define-key map "c" 'lispy-clone)
   (lispy-define-key map "u" 'lispy-undo)
   (lispy-define-key map "q" 'lispy-ace-paren)
