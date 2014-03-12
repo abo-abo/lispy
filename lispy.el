@@ -3202,6 +3202,7 @@ list."
 ;; ——— Key definitions —————————————————————————————————————————————————————————
 (defvar ac-trigger-commands '(self-insert-command))
 (defvar company-begin-commands '(self-insert-command))
+(defvar company-no-begin-commands '(special-lispy-space))
 (defvar mc/cmds-to-run-for-all nil)
 (defvar mc/cmds-to-run-once nil)
 
@@ -3230,7 +3231,8 @@ FUNC is obtained from (`lispy--insert-or-call' DEF FROM-START)"
     (unless (member func ac-trigger-commands)
       (push func ac-trigger-commands))
     (unless (member func company-begin-commands)
-      (push func company-begin-commands))
+      (unless (member func company-no-begin-commands)
+        (push func company-begin-commands)))
     (unless (or (member func mc/cmds-to-run-for-all)
                 (member func mc/cmds-to-run-once))
       (push func mc/cmds-to-run-for-all))
