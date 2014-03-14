@@ -2812,7 +2812,7 @@ For example, a `setq' statement is amended with variable name that it uses."
   "Return a case statement corresponding to if with CND and THEN."
   (cond ((null then)
          (reverse (lispy--whitespace-trim (reverse cnd))))
-        ((eq (car then) 'progn)
+        ((and (listp then) (eq (car then) 'progn))
          (append cnd (lispy--whitespace-trim (cdr then))))
         (t
          (append cnd (list then)))))
@@ -2838,7 +2838,9 @@ For example, a `setq' statement is amended with variable name that it uses."
           (setq result (append result whitespace1)))
         (setq result (append result (list (lispy--if->case cnd then))))
         (setq result (append result whitespace2))
-        (if (and (eq (length ifs4) 1) (eq (caar ifs4) 'if))
+        (if (and (eq (length ifs4) 1)
+                 (listp (car ifs4))
+                 (eq (caar ifs4) 'if))
             (setq ifs1 (cdar ifs4))
           (when ifs4
             (setq result (append result
