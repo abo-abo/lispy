@@ -1863,7 +1863,8 @@ ARG is 4: `eval-defun' on the function from this sexp."
 The function body is obtained from `find-function-noselect'.
 With ARG, use the contents of `lispy-store-region-and-buffer' instead."
   (interactive "P")
-  (let* ((bnd (lispy--bounds-list))
+  (let* ((begp (looking-at lispy-left))
+         (bnd (lispy--bounds-list))
          (expr (lispy--read (lispy--string-dwim bnd)))
          (fstr (if arg
                    (with-current-buffer (get 'lispy-store-bounds 'buffer)
@@ -1891,7 +1892,9 @@ With ARG, use the contents of `lispy-store-region-and-buffer' instead."
         (setq body (cons 'progn body)))
       (goto-char (car bnd))
       (delete-region (car bnd) (cdr bnd))
-      (lispy--insert body))))
+      (lispy--insert body)
+      (when begp
+        (goto-char (car bnd))))))
 
 (declare-function projectile-find-file "ext:projectile")
 (declare-function projectile-find-file-other-window "ext:projectile")
