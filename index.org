@@ -61,6 +61,7 @@
 | C-e   | [[#lispy-move-end-of-line][lispy-move-end-of-line]]     |
 | M-m   | [[#lispy-mark-symbol][lispy-mark-symbol]]          |
 | M-o   | [[#lispy-string-oneline][lispy-string-oneline]]       |
+| C-,   | [[#lispy-kill-at-point][lispy-kill-at-point]]        |
 | C-M-, | [[#lispy-mark][lispy-mark]]                 |
 |-------+----------------------------|
 * Local bindings
@@ -76,6 +77,7 @@
 | l   | [[#lispy-out-forward][lispy-out-forward]]             |
 | q   | [[#lispy-ace-paren][lispy-ace-paren]]               |
 | h   | [[#lispy-ace-symbol][lispy-ace-symbol]]              |
+| n   | [[#lispy-new-copy][lispy-new-copy]]                |
 | F   | [[#lispy-follow][lispy-follow]]                  |
 | e   | [[#lispy-eval][lispy-eval]]                    |
 | E   | [[#lispy-eval-and-insert][lispy-eval-and-insert]]         |
@@ -1254,6 +1256,16 @@ Delete from point to end of list.
 Delete current sexp.
 -----
 
+** =lispy-new-copy=
+:PROPERTIES:
+:CUSTOM_ID: lispy-new-copy
+:END:
+
+Bound to ~n~.
+
+Copy current sexp or region to kill ring.
+
+
 ** =lispy-yank=
 :PROPERTIES:
 :CUSTOM_ID: lispy-yank
@@ -1502,6 +1514,15 @@ Bound to ~C-M-,~.
 Mark the smallest comment or string or list that includes point.
 
 This command will expand region when repeated.
+
+** =lispy-kill-at-point=
+:PROPERTIES:
+:CUSTOM_ID: lispy-kill-at-point
+:END:
+
+Bound to ~C-,~.
+
+Kill the smallest comment or string or list that includes point.
 
 ** =lispy-mark-symbol=
 :PROPERTIES:
