@@ -54,6 +54,7 @@
 | C-2   | [[#lispy-arglist-inline][lispy-arglist-inline]]       |
 | C-3   | [[#lispy-out-forward][lispy-out-forward]]          |
 | C-4   | [[#lispy-x][lispy-x]]                    |
+| C-8   | [[#lispy-parens-down][lispy-parens-down]]          |
 | C-k   | [[#lispy-kill][lispy-kill]]                 |
 | C-y   | [[#lispy-yank][lispy-yank]]                 |
 | C-d   | [[#lispy-delete][lispy-delete]]               |
@@ -1124,6 +1125,15 @@ pressing ~"~ will give:
 (message "||")
 #+end_src
 -----
+
+** =lispy-parens-down=
+:PROPERTIES:
+:CUSTOM_ID: lispy-parens-down
+:END:
+
+Bound to ~C-8~.
+
+Exit current list and insert a newline and a pair of parens.
 
 ** =lispy-pair=
 :PROPERTIES:
