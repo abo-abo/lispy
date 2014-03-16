@@ -91,6 +91,7 @@
 | I   | [[#lispy-shifttab][lispy-shifttab]]                |
 | i   | [[#lispy-tab][lispy-tab]]                     |
 | V   | [[#lispy-edebug-stop][lispy-edebug-stop]]             |
+| SPC | [[#lispy-space][lispy-space]]                   |
 | xf  | [[#lispy-flatten][lispy-flatten]]                 |
 | xi  | [[#lispy-to-ifs][lispy-to-ifs]]                  |
 | xc  | [[#lispy-to-cond][lispy-to-cond]]                 |
@@ -1134,6 +1135,29 @@ pressing ~"~ will give:
 Bound to ~C-8~.
 
 Exit current list and insert a newline and a pair of parens.
+
+** =lispy-space=
+:PROPERTIES:
+:CUSTOM_ID: lispy-space
+:END:
+
+Bound to ~SPC~.
+
+Insert a space.
+
+Behave differently in this situation:
+
+#+HTML: <table><tbody><tr><td>
+#+begin_src elisp
+(|(foo))
+#+end_src
+#+HTML: </td><td>
+-> ~C-d~ ->
+#+HTML: </td><td>
+#+begin_src elisp
+(| (foo))
+#+end_src
+#+HTML: </td></tr></tbody></table>
 
 ** =lispy-pair=
 :PROPERTIES:
