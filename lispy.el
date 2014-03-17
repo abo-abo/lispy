@@ -3028,14 +3028,15 @@ When NO-NARROW is not nil, don't narrow to BND."
   (lispy--out-backward arg)
   (let ((bnd (lispy--bounds-list)))
     (save-excursion
-      (narrow-to-region (car bnd) (cdr bnd))
-      (lispy--do-replace "[^ ]\\( \\{2,\\}\\)[^ ]" " ")
-      (lispy--do-replace "[^\\\\]\\(([\n ]+\\)" "(")
-      (lispy--do-replace "\\([\n ]+)\\)" ")")
-      (lispy--do-replace "\\([ ]+\\)\n" "")
-      (lispy--do-replace ")\\([^] \n)}]\\)" " \\1")
-      (lispy--do-replace "\\(( (\\)" "((")
-      (widen))))
+      (save-restriction
+        (narrow-to-region (car bnd) (cdr bnd))
+        (lispy--do-replace "[^ ]\\( \\{2,\\}\\)[^ ]" " ")
+        (lispy--do-replace "[^\\\\]\\(([\n ]+\\)" "(")
+        (lispy--do-replace "\\([\n ]+)\\)" ")")
+        (lispy--do-replace "\\([ ]+\\)\n" "")
+        (lispy--do-replace ")\\([^] \n)}]\\)" " \\1")
+        (lispy--do-replace "\\(( (\\)" "((")
+        (widen)))))
 
 (defun lispy--do-replace (from to)
   "Replace first match group of FROM to TO."
