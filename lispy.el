@@ -2865,11 +2865,13 @@ For example, a `setq' statement is amended with variable name that it uses."
 (defun lispy--indent-region (beg end)
   "Replacement for `indent-region' that doesn't report progress."
   (save-excursion
+    (setq end (copy-marker end))
     (goto-char beg)
     (while (< (point) end)
       (or (and (bolp) (eolp))
           (indent-according-to-mode))
-      (forward-line 1))))
+      (forward-line 1))
+    (move-marker end nil)))
 
 (defun lispy--indent-for-tab ()
   "Call `indent-for-tab-command'."
