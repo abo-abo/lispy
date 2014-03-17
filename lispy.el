@@ -2506,7 +2506,8 @@ For example, a `setq' statement is amended with variable name that it uses."
 ;; ——— Utilities: slurping and barfing —————————————————————————————————————————
 (defun lispy--slurp-forward ()
   "Grow current sexp forward by one sexp."
-  (unless (looking-back "[()])")
+  (unless (or (looking-back "[()])")
+              (looking-at "$"))
     (just-one-space)
     (backward-char 1))
   (let ((pt (point))
