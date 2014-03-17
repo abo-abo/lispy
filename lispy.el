@@ -1062,10 +1062,7 @@ Special case is (|( -> ( |(."
 
         ((looking-back lispy-right)
          (dotimes-protect arg
-           (lispy--barf-backward))
-         (save-excursion
-           (lispy--out-forward 1)
-           (lispy--reindent)))
+           (lispy--barf-backward)))
 
         ((looking-at lispy-left)
          (dotimes-protect arg
