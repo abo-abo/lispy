@@ -2552,7 +2552,7 @@ For example, a `setq' statement is amended with variable name that it uses."
         (skip-chars-backward " \n	"))
       (delete-region (1- pt) pt)
       (insert char)
-      (indent-region (point) pt))))
+      (lispy--indent-region (point) pt))))
 
 ;; ——— Utilities: source transformation ————————————————————————————————————————
 (defun lispy--read (str)
@@ -2862,6 +2862,17 @@ For example, a `setq' statement is amended with variable name that it uses."
           (lispy--replace (cdr lst) from to)))))
 
 ;; ——— Utilities: rest —————————————————————————————————————————————————————————
+(defun lispy--indent-region (beg end)
+  "Replacement for `indent-region' that doesn't report progress."
+  (save-excursion
+    (let ((end (copy-marker end))))
+    (goto-char beg)
+    (while (< (point) end)
+      (or (and (bolp) (eolp))
+          (indent-according-to-mode))
+      (forward-line 1))
+    (move-marker end nil)))
+
 (defun lispy--indent-for-tab ()
   "Call `indent-for-tab-command'."
   (let ((tab-always-indent t))
