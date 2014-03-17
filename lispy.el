@@ -3228,7 +3228,8 @@ list."
   (define-key map "i" 'lispy-to-ifs)
   (define-key map "c" 'lispy-to-cond)
   (define-key map "f" 'lispy-flatten)
-  (define-key map "r" 'lispy-eval-and-replace))
+  (define-key map "r" 'lispy-eval-and-replace)
+  (define-key map "s" 'save-buffer))
 
 (defun lispy-define-key (keymap key def &optional from-start)
   "Forward to (`define-key' KEYMAP KEY FUNC).
