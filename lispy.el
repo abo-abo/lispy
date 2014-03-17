@@ -1577,10 +1577,11 @@ Quote newlines if ARG isn't 1."
   (let ((bnd (save-excursion
                (lispy--out-backward 50)
                (lispy--bounds-dwim))))
-    (narrow-to-region (car bnd) (cdr bnd))
-    (let ((ace-jump-mode-scope 'window))
-      (call-interactively 'ace-jump-char-mode))
-    (widen)))
+    (save-restriction
+      (narrow-to-region (car bnd) (cdr bnd))
+      (let ((ace-jump-mode-scope 'window))
+        (call-interactively 'ace-jump-char-mode))
+      (widen))))
 
 (defun lispy-ace-paren ()
   "Use `lispy--ace-do' to jump to `lispy-left' within current defun.
