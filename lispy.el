@@ -3269,6 +3269,7 @@ FUNC is obtained from (`lispy--insert-or-call' DEF FROM-START)"
   (define-key map (kbd "^") 'lispy-hat)
   (define-key map (kbd "C-j") 'lispy-newline-and-indent)
   (define-key map (kbd "M-j") 'lispy-split)
+  (define-key map (kbd "M-J") 'lispy-join)
   (define-key map (kbd "RET") 'newline-and-indent)
   (define-key map (kbd ";") 'lispy-comment)
   (define-key map (kbd "C-e") 'lispy-move-end-of-line)
