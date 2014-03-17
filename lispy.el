@@ -2974,8 +2974,7 @@ ACTION is called for the selected candidate."
                                       (cons (cdr x) (car x))
                                     (cons (car x) x))
                                 x)) candidates))
-            (action . ,action)
-            (pattern-transformer . regexp-quote)))))
+            (action . ,action)))))
 
 (defun lispy--action-jump (tag)
   "Jump to TAG."
