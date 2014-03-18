@@ -1657,6 +1657,7 @@ Sexp is obtained by exiting list ARG times."
   "Hide/show outline summary."
   (interactive)
   (require 'noflet)
+  (require 'org)
   (outline-minor-mode 1)
   (noflet ((org-unlogged-message (&rest x)))
     (if (get 'lispy-shifttab 'state)
