@@ -2391,14 +2391,17 @@ For example, a `setq' statement is amended with variable name that it uses."
   "Get a list of tags for PATH."
   (lispy--fetch-this-file-tags)
   (setq path (or path default-directory))
+  (unless (string-match "/$" path)
+    (setq path (concat path "/")))
   (let* ((this-file (buffer-file-name))
          (default-directory path)
          (db (or (semanticdb-directory-loaded-p path)
                  ;; a trick to make sure semantic loads
-                 (let ((file (expand-file-name (car (lispy--file-list)))))
-                   (when file
+                 (let ((files (lispy--file-list)))
+                   (when files
                      (with-current-buffer
-                         (find-file-noselect file)
+                         (find-file-noselect
+                          (expand-file-name (car files)))
                        (unless (equal this-file (buffer-file-name))
                          (kill-buffer))))
                    (semanticdb-directory-loaded-p path)))))
@@ -2427,14 +2430,11 @@ For example, a `setq' statement is amended with variable name that it uses."
 (defun lispy--fetch-tags-recursive ()
   "Fetch all tags in current directory recursively."
   (let ((dirs
-         (cl-remove-if
-          (lambda (y) (string-match "\\.git/" y))
-          (mapcar
-           (lambda (x) (concat (expand-file-name x) "/"))
-           (split-string
-            (shell-command-to-string "find . -type d")
-            "\n"
-            t)))))
+         (split-string
+          (shell-command-to-string
+           (format "find %s -type d ! -regex \".*\\.git.*\"" default-directory))
+          "\n"
+          t)))
     (apply #'append
            (mapcar #'lispy--fetch-tags dirs))))
 
