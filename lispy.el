@@ -282,6 +282,56 @@ Otherwise return t."
          (unless ,at-start
            (forward-list 1))))))
 
+(defvar lispy-known-verbs nil
+  "List of registered verbs.")
+
+(defun lispy-disable-verbs-except (verb)
+  "Disable all verbs except VERB."
+  (mapc
+   (lambda (v) (funcall v -1))
+   (remq verb lispy-known-verbs)))
+
+(defmacro lispy-defverb (name grammar)
+  "Define the verb NAME.
+GRAMMAR is a list of nouns that work with this verb."
+  (let ((sym (intern (format "lispy-%s-mode" name)))
+        (keymap (intern (format "lispy-%s-mode-map" name)))
+        (doc (format "%s verb." (capitalize name)))
+        (lighter (format " [%s]" name)))
+    `(progn
+       (defvar ,keymap (make-sparse-keymap))
+       (define-minor-mode ,sym
+           ,doc
+         :keymap ,keymap
+         :group 'lispy
+         :lighter ,lighter
+         (cond (,sym
+                (lispy-disable-verbs-except ',sym))
+               (t nil)))
+       (mapc (lambda (x)
+               (let ((y (memq :disable x)))
+                 (when y
+                   (setcar y (cons :disable ',sym))))
+               (apply 'lispy-define-key (cons ,keymap x)))
+             ,grammar)
+       (unless (memq ',sym lispy-known-verbs)
+         (push ',sym lispy-known-verbs))
+       lispy-known-verbs)))
+
+(defun lispy-quit ()
+  "Remove modifiers."
+  (interactive)
+  (mapc (lambda (x) (funcall x -1)) lispy-known-verbs))
+
+(lispy-defverb
+ "goto"
+ '(("d" lispy-goto :disable)
+   ("f" lispy-goto-local :disable)
+   ("r" lispy-goto-recursive :disable)
+   ("c" lispy-follow :disable)
+   ("b" pop-global-mark :disable)
+   ("q" lispy-quit)))
+
 ;; ——— Globals: navigation —————————————————————————————————————————————————————
 (defun lispy-forward (arg)
   "Move forward list ARG times or until error.
@@ -3184,12 +3234,14 @@ Otherwise call `self-insert-command'.
 BLIST is a boolean list.
 When :a is on the list, call DEF as if it was invoked from beginning
 of list."
-  (let ((from-start (memq :a blist)))
+  (let ((from-start (memq :a blist))
+        (disable (cdr (assoc :disable blist))))
     `(lambda ,(help-function-arglist def)
        ,(format "Call `%s' when special, self-insert otherwise.\n\n%s"
                 (symbol-name def) (documentation def))
        ,(interactive-form def)
        (let (cmd)
+         ,(when disable `(,disable -1))
          (cond ((and (bound-and-true-p edebug-active)
                      (= 1 (length (this-command-keys)))
                      (let ((char (aref (this-command-keys) 0)))
@@ -3334,7 +3386,8 @@ FUNC is obtained from (`lispy--insert-or-call' DEF BLIST)"
   (lispy-define-key map "e" 'lispy-eval)
   (lispy-define-key map "E" 'lispy-eval-and-insert)
   (lispy-define-key map "G" 'lispy-goto-local)
-  (lispy-define-key map "g" 'lispy-goto)
+  ;; (lispy-define-key map "g" 'lispy-goto)
+  (lispy-define-key map "g" 'lispy-goto-mode)
   (lispy-define-key map "F" 'lispy-follow t)
   (lispy-define-key map "D" 'lispy-describe)
   (lispy-define-key map "A" 'lispy-arglist)
