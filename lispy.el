@@ -1821,12 +1821,14 @@ If already there, return it to previous position."
               (let ((sexps (mapcar
                             (lambda (x!) (cons x! (symbol-value x!)))
                             (delq '&optional (delq '&rest (preceding-sexp)))))
-                    (wnd (current-window-configuration)))
+                    (wnd (current-window-configuration))
+                    (pt (point)))
                 (run-with-timer
                  0 nil
                  `(lambda ()
                     (mapc (lambda (x!) (set (car x!) (cdr x!))) ',sexps)
-                    (set-window-configuration ,wnd)))
+                    (set-window-configuration ,wnd)
+                    (goto-char ,pt)))
                 (top-level)))))
     (self-insert-command 1)))
 
@@ -3353,7 +3355,7 @@ FUNC is obtained from (`lispy--insert-or-call' DEF BLIST)"
   (lispy-define-key map "b" 'lispy-store-region-and-buffer)
   (lispy-define-key map "B" 'lispy-ediff-regions)
   (lispy-define-key map "x" 'lispy-x)
-  (lispy-define-key map "X" 'lispy-edebug-stop)
+  (lispy-define-key map "Z" 'lispy-edebug-stop)
   (lispy-define-key map "V" 'lispy-visit)
   (lispy-define-key map "-" 'lispy-ace-subword)
   ;; ——— locals: digit argument ———————————————
