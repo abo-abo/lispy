@@ -3176,45 +3176,47 @@ Use only the part bounded by BND."
       (setq ediff-temp-indirect-buffer t)
       (list (current-buffer) (point-min) (point-max)))))
 
-(defun lispy--insert-or-call (def &optional from-start)
+(defun lispy--insert-or-call (def blist)
   "Return a lambda to call DEF if position is special.
 Otherwise call `self-insert-command'.
-When FROM-START is t, call DEF as if it was invoked from beginning of
-list."
-  `(lambda ,(help-function-arglist def)
-     ,(format "Call `%s' when special, self-insert otherwise.\n\n%s"
-              (symbol-name def) (documentation def))
-     ,(interactive-form def)
-     (let (cmd)
-       (cond ((and (bound-and-true-p edebug-active)
-                   (= 1 (length (this-command-keys)))
-                   (let ((char (aref (this-command-keys) 0)))
-                     (setq cmd (or (assq char edebug-mode-map)
-                                   (assq char global-edebug-map)))))
-              (call-interactively (cdr cmd)))
+BLIST is a boolean list.
+When :a is on the list, call DEF as if it was invoked from beginning
+of list."
+  (let ((from-start (memq :a blist)))
+    `(lambda ,(help-function-arglist def)
+       ,(format "Call `%s' when special, self-insert otherwise.\n\n%s"
+                (symbol-name def) (documentation def))
+       ,(interactive-form def)
+       (let (cmd)
+         (cond ((and (bound-and-true-p edebug-active)
+                     (= 1 (length (this-command-keys)))
+                     (let ((char (aref (this-command-keys) 0)))
+                       (setq cmd (or (assq char edebug-mode-map)
+                                     (assq char global-edebug-map)))))
+                (call-interactively (cdr cmd)))
 
-             ((region-active-p)
-              (call-interactively ',def))
+               ((region-active-p)
+                (call-interactively ',def))
 
-             ((lispy--in-string-or-comment-p)
-              (self-insert-command 1))
+               ((lispy--in-string-or-comment-p)
+                (self-insert-command 1))
 
-             ((looking-at lispy-left)
-              (call-interactively ',def))
+               ((looking-at lispy-left)
+                (call-interactively ',def))
 
-             ((looking-back lispy-right)
-              ,@(and from-start '((backward-list)))
-              (unwind-protect
-                   (call-interactively ',def)
-                ,@(and from-start '((forward-list)))))
+               ((looking-back lispy-right)
+                ,@(and from-start '((backward-list)))
+                (unwind-protect
+                     (call-interactively ',def)
+                  ,@(and from-start '((forward-list)))))
 
-             ((or (and (looking-back "^ *") (looking-at ";"))
-                  (and (= (point) (point-max))
-                       (memq ',def `(outline-previous-visible-heading))))
-              (call-interactively ',def))
+               ((or (and (looking-back "^ *") (looking-at ";"))
+                    (and (= (point) (point-max))
+                         (memq ',def `(outline-previous-visible-heading))))
+                (call-interactively ',def))
 
-             (t
-              (self-insert-command 1))))))
+               (t
+                (self-insert-command 1)))))))
 
 ;; ——— Key definitions —————————————————————————————————————————————————————————
 (defvar ac-trigger-commands '(self-insert-command))
@@ -3241,11 +3243,11 @@ list."
   (define-key map "r" 'lispy-eval-and-replace)
   (define-key map "s" 'save-buffer))
 
-(defun lispy-define-key (keymap key def &optional from-start)
+(defun lispy-define-key (keymap key def &rest blist)
   "Forward to (`define-key' KEYMAP KEY FUNC).
-FUNC is obtained from (`lispy--insert-or-call' DEF FROM-START)"
+FUNC is obtained from (`lispy--insert-or-call' DEF BLIST)"
   (let ((func (defalias (intern (concat "special-" (symbol-name def)))
-                  (lispy--insert-or-call def from-start))))
+                  (lispy--insert-or-call def blist))))
     (unless (member func ac-trigger-commands)
       (push func ac-trigger-commands))
     (unless (member func company-begin-commands)
@@ -3312,15 +3314,15 @@ FUNC is obtained from (`lispy--insert-or-call' DEF FROM-START)"
   (lispy-define-key map ">" 'lispy-slurp)
   (lispy-define-key map "<" 'lispy-barf)
   (lispy-define-key map "/" 'lispy-splice)
-  (lispy-define-key map "r" 'lispy-raise t)
+  (lispy-define-key map "r" 'lispy-raise :a)
   (lispy-define-key map "R" 'lispy-raise-some)
   (lispy-define-key map "+" 'lispy-join)
   ;; ——— locals: more transformations —————————
-  (lispy-define-key map "C" 'lispy-convolute t)
-  (lispy-define-key map "w" 'lispy-move-up t)
-  (lispy-define-key map "s" 'lispy-move-down t)
-  (lispy-define-key map "O" 'lispy-oneline t)
-  (lispy-define-key map "M" 'lispy-multiline t)
+  (lispy-define-key map "C" 'lispy-convolute :a)
+  (lispy-define-key map "w" 'lispy-move-up :a)
+  (lispy-define-key map "s" 'lispy-move-down :a)
+  (lispy-define-key map "O" 'lispy-oneline :a)
+  (lispy-define-key map "M" 'lispy-multiline :a)
   (lispy-define-key map "S" 'lispy-stringify)
   ;; ——— locals: marking ——————————————————————
   (lispy-define-key map "h" 'lispy-ace-symbol)
@@ -3336,7 +3338,7 @@ FUNC is obtained from (`lispy--insert-or-call' DEF FROM-START)"
   (lispy-define-key map "A" 'lispy-arglist)
   ;; ——— locals: miscellanea ——————————————————
   (lispy-define-key map "SPC" 'lispy-space)
-  (lispy-define-key map "i" 'lispy-tab t)
+  (lispy-define-key map "i" 'lispy-tab :a)
   (lispy-define-key map "I" 'lispy-shifttab)
   (lispy-define-key map "N" 'lispy-narrow)
   (lispy-define-key map "W" 'lispy-widen)
@@ -3344,7 +3346,7 @@ FUNC is obtained from (`lispy--insert-or-call' DEF FROM-START)"
   (lispy-define-key map "u" 'lispy-undo)
   (lispy-define-key map "q" 'lispy-ace-paren)
   (lispy-define-key map "Q" 'lispy-ace-char)
-  (lispy-define-key map "v" 'lispy-view t)
+  (lispy-define-key map "v" 'lispy-view :a)
   (lispy-define-key map "T" 'lispy-ert)
   (lispy-define-key map "t" 'lispy-teleport)
   (lispy-define-key map "n" 'lispy-new-copy)
