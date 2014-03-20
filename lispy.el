@@ -282,6 +282,11 @@ Otherwise return t."
          (unless ,at-start
            (forward-list 1))))))
 
+(defmacro lispy-push-into-set (newelt place)
+  "Push NEWELT into list PLACE, unless it's already there."
+  `(unless (memq ,newelt ,place)
+     (push ,newelt ,place)))
+
 ;; ——— Globals: navigation —————————————————————————————————————————————————————
 (defun lispy-forward (arg)
   "Move forward list ARG times or until error.
@@ -3225,6 +3230,7 @@ of list."
 (defvar company-no-begin-commands '(special-lispy-space))
 (defvar mc/cmds-to-run-for-all nil)
 (defvar mc/cmds-to-run-once nil)
+(lispy-push-into-set 'lispy-cursor-down mc/cmds-to-run-once)
 
 (defadvice ac-handle-post-command (around ac-post-command-advice activate)
   "Don't `auto-complete' when region is active."
@@ -3249,14 +3255,11 @@ of list."
 FUNC is obtained from (`lispy--insert-or-call' DEF BLIST)"
   (let ((func (defalias (intern (concat "special-" (symbol-name def)))
                   (lispy--insert-or-call def blist))))
-    (unless (member func ac-trigger-commands)
-      (push func ac-trigger-commands))
-    (unless (member func company-begin-commands)
-      (unless (member func company-no-begin-commands)
-        (push func company-begin-commands)))
-    (unless (or (member func mc/cmds-to-run-for-all)
-                (member func mc/cmds-to-run-once))
-      (push func mc/cmds-to-run-for-all))
+    (lispy-push-into-set func ac-trigger-commands)
+    (unless (memq func mc/cmds-to-run-once)
+      (lispy-push-into-set func mc/cmds-to-run-for-all))
+    (unless (memq func company-no-begin-commands)
+      (lispy-push-into-set func company-begin-commands))
     (eldoc-add-command func)
     (define-key keymap (kbd key) func)))
 
