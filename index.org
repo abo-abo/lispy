@@ -90,7 +90,7 @@
 | K   | [[#lispy-outline-prev][lispy-outline-prev]]            |
 | I   | [[#lispy-shifttab][lispy-shifttab]]                |
 | i   | [[#lispy-tab][lispy-tab]]                     |
-| V   | [[#lispy-edebug-stop][lispy-edebug-stop]]             |
+| Z   | [[#lispy-edebug-stop][lispy-edebug-stop]]             |
 | SPC | [[#lispy-space][lispy-space]]                   |
 | xf  | [[#lispy-flatten][lispy-flatten]]                 |
 | xi  | [[#lispy-to-ifs][lispy-to-ifs]]                  |
@@ -1693,7 +1693,7 @@ When in outline, hide/show outline.
 :CUSTOM_ID: lispy-edebug-stop
 :END:
 
-Bound to ~V~.
+Bound to ~Z~.
 
 Does the same as ~q~ in =edebug=, except current function's variables
 will be saved to their current values.
