@@ -1711,8 +1711,20 @@ The advantage is that you can edit the code as you debug.
 
 Bound to ~xf~.
 
-Inline current function call, i.e. replace it with function body.
+Inline current function or macro call, i.e. replace it with function body.
 The function should be stored with [[#lispy-store-region-and-buffer][=lispy-store-region-and-buffer=]].
+
+#+HTML: <table><tbody><tr><td>
+#+begin_src elisp
+||(setq-local foo 10)
+#+end_src
+#+HTML: </td><td>
+-> ~xf~ ->
+#+HTML: </td><td>
+#+begin_src elisp
+||(set (make-local-variable 'foo) 10)
+#+end_src
+#+HTML: </td></tr></tbody></table>
 -----
 
 *** TODO make use of =symbol-function= instead                                      :noexport:
