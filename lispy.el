@@ -3238,6 +3238,8 @@ of list."
 (defvar mc/cmds-to-run-for-all nil)
 (defvar mc/cmds-to-run-once nil)
 (lispy-push-into-set 'lispy-cursor-down mc/cmds-to-run-once)
+(mapc (lambda (x) (lispy-push-into-set x mc/cmds-to-run-for-all))
+      '(lispy-parens lispy-brackets lispy-braces lispy-quotes))
 
 (defadvice ac-handle-post-command (around ac-post-command-advice activate)
   "Don't `auto-complete' when region is active."
