@@ -3057,7 +3057,7 @@ When NO-NARROW is not nil, don't narrow to BND."
         (narrow-to-region (car bnd) (cdr bnd))
         (lispy--do-replace "[^ ]\\( \\{2,\\}\\)[^; ]" " ")
         (lispy--do-replace "[^\\\\]\\(([\n ]+\\)" "(")
-        (lispy--do-replace "\\([\n ]+)\\)" ")")
+        (lispy--do-replace "[^\\]\\([\n ]+)\\)" ")")
         (lispy--do-replace "\\([ ]+\\)\n" "")
         (lispy--do-replace ")\\([^] \n)}]\\)" " \\1")
         (lispy--do-replace "\\(( (\\)" "((")
