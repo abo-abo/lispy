@@ -255,10 +255,13 @@ Otherwise return t."
   (declare (indent 1))
   `(let ((i 0)
          out)
-     (ignore-errors
+     (condition-case e
        (while (<= (incf i) ,n)
          ,@bodyform
-         (setq out t)))
+         (setq out t))
+       (error
+        (if (string-match "Buffer is read-only:" (error-message-string e))
+            (signal (car e) (cdr e)))))
      out))
 
 (defmacro lispy-save-excursion (&rest body)
