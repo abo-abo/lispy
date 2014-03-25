@@ -3229,9 +3229,7 @@ of list."
                      (call-interactively ',def)
                   ,@(and from-start '((forward-list)))))
 
-               ((or (and (looking-back "^ *") (looking-at ";"))
-                    (and (= (point) (point-max))
-                         (memq ',def `(outline-previous-visible-heading))))
+               ((and (looking-back "^ *") (looking-at ";"))
                 (call-interactively ',def))
 
                (t
