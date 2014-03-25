@@ -256,12 +256,15 @@ Otherwise return t."
   `(let ((i 0)
          out)
      (condition-case e
-       (while (<= (incf i) ,n)
-         ,@bodyform
-         (setq out t))
+         (while (<= (incf i) ,n)
+           ,@bodyform
+           (setq out t))
        (error
-        (if (string-match "Buffer is read-only:" (error-message-string e))
-            (signal (car e) (cdr e)))))
+        (let ((estr (error-message-string e)))
+          (if (string-match "Buffer is read-only:" estr)
+              (prog1 nil
+                (message estr))
+            out))))
      out))
 
 (defmacro lispy-save-excursion (&rest body)
