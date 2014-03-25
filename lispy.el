@@ -1016,7 +1016,7 @@ Special case is (|( -> ( |(."
     (insert (replace-regexp-in-string "\n" "\\\\n" str))))
 
 (defun lispy-iedit ()
-  "Wrap around `iedit'"
+  "Wrap around `iedit'."
   (interactive)
   (iedit-mode 0))
 
@@ -1830,7 +1830,10 @@ If already there, return it to previous position."
               (backward-char 1)
               (forward-sexp 1)
               (let ((sexps (mapcar
-                            (lambda (x!) (cons x! (symbol-value x!)))
+                            (lambda (x!)
+                              (cons x!
+                                    (let ((expr x!))
+                                      (edebug-eval expr))))
                             (delq '&optional (delq '&rest (preceding-sexp)))))
                     (wnd (current-window-configuration))
                     (pt (point)))
@@ -1867,7 +1870,7 @@ ARG is 4: `eval-defun' on the function from this sexp."
                          ((= arg 4)
                           (eval-defun nil))
                          (t
-                          (error "arg=%s isn't supported" arg)))))
+                          (error "Argument = %s isn't supported" arg)))))
              (error "%s isn't bound" fun))))))
 
 (defun lispy-flatten (arg)
@@ -1898,7 +1901,7 @@ With ARG, use the contents of `lispy-store-region-and-buffer' instead."
 (declare-function projectile-find-file-other-window "ext:projectile")
 
 (defun lispy-visit (arg)
-  "Forward to find file in project."
+  "Forward to find file in project depending on ARG."
   (interactive "p")
   (cond ((= arg 1)
          (projectile-find-file nil))
@@ -1952,7 +1955,7 @@ With ARG, use the contents of `lispy-store-region-and-buffer' instead."
              (comment-only-p beg (point))))))
 
 (defun lispy--buffer-narrowed-p ()
-  "Returns T if the current buffer is narrowed."
+  "Return T if the current buffer is narrowed."
   (or (/= (point-min) 1)
       (/= (point-max) (1+ (buffer-size)))))
 
@@ -2769,7 +2772,7 @@ For example, a `setq' statement is amended with variable name that it uses."
    (indent-sexp)))
 
 (defun lispy--fast-insert (f-expr)
-  "`lispy--insert' EXPR into a temp buffer and return `buffer-string'."
+  "`lispy--insert' F-EXPR into a temp buffer and return `buffer-string'."
   (insert
    (with-temp-buffer
      (emacs-lisp-mode)
@@ -2883,7 +2886,7 @@ For example, a `setq' statement is amended with variable name that it uses."
 
 ;; ——— Utilities: rest —————————————————————————————————————————————————————————
 (defun lispy--indent-region (beg end)
-  "Replacement for `indent-region' that doesn't report progress."
+  "Indent region BEG END without reporting progress."
   (save-excursion
     (setq end (copy-marker end))
     (goto-char beg)
