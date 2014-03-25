@@ -3218,7 +3218,7 @@ of list."
                 (call-interactively ',def))
 
                ((lispy--in-string-or-comment-p)
-                (self-insert-command 1))
+                (call-interactively 'self-insert-command))
 
                ((looking-at lispy-left)
                 (call-interactively ',def))
@@ -3235,7 +3235,7 @@ of list."
                 (call-interactively ',def))
 
                (t
-                (self-insert-command 1)))))))
+                (call-interactively 'self-insert-command)))))))
 
 ;; ——— Key definitions —————————————————————————————————————————————————————————
 (defvar ac-trigger-commands '(self-insert-command))
