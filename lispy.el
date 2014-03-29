@@ -3321,14 +3321,13 @@ FUNC is obtained from (`lispy--insert-or-call' DEF BLIST)"
   (define-key map (kbd "M-o") 'lispy-string-oneline)
   (define-key map (kbd "M-i") 'lispy-iedit)
   ;; ——— locals: navigation ———————————————————
-  (lispy-define-key map "l" 'lispy-out-forward)
-  (lispy-define-key map "a" 'lispy-out-backward)
-  (lispy-define-key map "f" 'lispy-flow)
+  (lispy-define-key map "h" 'lispy-out-backward)
   (lispy-define-key map "j" 'lispy-down)
   (lispy-define-key map "k" 'lispy-up)
-  (lispy-define-key map "d" 'lispy-different)
-  (lispy-define-key map "o" 'lispy-counterclockwise)
-  (lispy-define-key map "p" 'lispy-clockwise)
+  (lispy-define-key map "l" 'lispy-out-forward)
+  (lispy-define-key map "f" 'lispy-flow)
+  (lispy-define-key map "o" 'lispy-different)
+  (lispy-define-key map "p" 'pop-tag-mark)
   (lispy-define-key map "J" 'lispy-outline-next)
   (lispy-define-key map "K" 'lispy-outline-prev)
   ;; ——— locals: Paredit transformations ——————
@@ -3346,7 +3345,7 @@ FUNC is obtained from (`lispy--insert-or-call' DEF BLIST)"
   (lispy-define-key map "M" 'lispy-multiline :a)
   (lispy-define-key map "S" 'lispy-stringify)
   ;; ——— locals: marking ——————————————————————
-  (lispy-define-key map "h" 'lispy-ace-symbol)
+  (lispy-define-key map "a" 'lispy-ace-symbol)
   (lispy-define-key map "H" 'lispy-ace-symbol-replace)
   (lispy-define-key map "m" 'lispy-mark-list)
   ;; ——— locals: dialect-specific —————————————
