@@ -321,10 +321,9 @@ GRAMMAR is a list of nouns that work with this verb."
                 (lispy-disable-verbs-except ',sym))
                (t nil)))
        (mapc (lambda (x)
-               (let ((y (memq :disable x)))
-                 (when y
-                   (setcar y (cons :disable ',sym))))
-               (apply 'lispy-define-key (cons ,keymap x)))
+               (lispy-define-key
+                ,keymap
+                (car x) (cadr x) (cons :disable ',sym)))
              ',grammar)
        (unless (memq ',sym lispy-known-verbs)
          (push ',sym lispy-known-verbs))
@@ -1538,12 +1537,70 @@ Quote newlines if ARG isn't 1."
   (interactive)
   (lispy--goto 'lispy--fetch-this-file-tags))
 
-(defun lispy-goto-down (arg)
+(defun lispy-goto-def-down (arg)
   "Jump to definition of ARGth element of current list"
-  (let ((expr (read (lispy--string-dwim)))
-        (n (length expr)))
+  (interactive "p")
+  (let* ((expr (read (lispy--string-dwim)))
+         (n (length expr)))
     (if (>= arg n)
-        (error "Can't go to %sth elt, current length is %s" arg n))))
+        (error "Out of range: %s/%s" arg n)
+      (let ((elt (nth arg expr)))
+        (while (consp elt)
+          (if (eq (car elt) 'quote)
+              (setq elt (cadr elt))
+            (setq elt (car elt))))
+        (if elt
+            (lispy-goto-symbol elt)
+          (error "No symbol found"))))))
+
+(defun lispy-goto-def-ace (arg)
+  "Jump to definition of selected element of current sexp.
+Sexp is obtained by exiting list ARG times."
+  (interactive "p")
+  (lispy--out-forward
+   (if (region-active-p)
+       (progn (deactivate-mark) arg)
+     (1- arg)))
+  (lispy--ace-do
+   "[([{ ]\\(?:\\sw\\|\\s_\\|\\s(\\|[\"'`#]\\)"
+   (lispy--bounds-dwim)
+   (lambda () (or (not (lispy--in-string-or-comment-p)) (looking-back ".\"")))
+   (lambda () (forward-char 1) (lispy-follow))))
+
+(defun lispy-goto-symbol (symbol)
+  "Go to definition of SYMBOL."
+  (interactive)
+  (let (rsymbol)
+    (ring-insert find-tag-marker-ring (point-marker))
+    (cond ((and (memq major-mode '(emacs-lisp-mode lisp-interaction-mode))
+                (setq symbol (intern-soft symbol)))
+           (cond ((fboundp symbol)
+                  (find-function symbol))
+                 ((boundp symbol)
+                  (find-variable symbol))
+                 (t
+                  (error "Couldn't fild definition of %s"
+                         symbol))))
+          ((eq major-mode 'clojure-mode)
+           (require 'le-clojure)
+           (setq rsymbol (lispy--clojure-resolve symbol))
+           (cond ((stringp rsymbol)
+                  (cider-jump-to-def rsymbol))
+                 ((eq rsymbol 'special)
+                  (error "Can't jump to '%s because it's special" symbol))
+                 ((eq rsymbol 'keyword)
+                  (error "Can't jump to keywords"))
+                 ((and (listp rsymbol)
+                       (eq (car rsymbol) 'variable))
+                  (error "Can't jump to Java variables"))
+                 (t
+                  (error "Could't resolve '%s" symbol)))
+           (lispy--back-to-paren))
+          ((eq major-mode 'lisp-mode)
+           (require 'slime)
+           (slime-edit-definition symbol)))))
+
+
 
 ;; ——— Locals:  dialect-related ————————————————————————————————————————————————
 (defun lispy-eval ()
@@ -1586,33 +1643,7 @@ Quote newlines if ARG isn't 1."
 (defun lispy-follow ()
   "Follow to `lispy--current-function'."
   (interactive)
-  (let ((symbol (lispy--current-function))
-        rsymbol)
-    (ring-insert find-tag-marker-ring (point-marker))
-    (cond ((and (memq major-mode '(emacs-lisp-mode lisp-interaction-mode))
-                (setq symbol (intern-soft symbol)))
-           (cond ((fboundp symbol)
-                  (find-function symbol))
-                 ((boundp symbol)
-                  (find-variable symbol))))
-          ((eq major-mode 'clojure-mode)
-           (require 'le-clojure)
-           (setq rsymbol (lispy--clojure-resolve symbol))
-           (cond ((stringp rsymbol)
-                  (cider-jump-to-def rsymbol))
-                 ((eq rsymbol 'special)
-                  (error "Can't jump to '%s because it's special" symbol))
-                 ((eq rsymbol 'keyword)
-                  (error "Can't jump to keywords"))
-                 ((and (listp rsymbol)
-                       (eq (car rsymbol) 'variable))
-                  (error "Can't jump to Java variables"))
-                 (t
-                  (error "Could't resolve '%s" symbol)))
-           (lispy--back-to-paren))
-          ((eq major-mode 'lisp-mode)
-           (require 'slime)
-           (slime-edit-definition symbol)))))
+  (lispy-goto-symbol (lispy--current-function)))
 
 (defun lispy-describe ()
   "Display documentation for `lispy--current-function'."
@@ -3332,13 +3363,14 @@ FUNC is obtained from (`lispy--insert-or-call' DEF BLIST)"
 
 (lispy-defverb
  "goto"
- (("d" lispy-goto :disable)
-  ("f" lispy-goto-local :disable)
-  ("r" lispy-goto-recursive :disable)
-  ("c" lispy-follow :disable)
-  ("b" pop-global-mark :disable)
+ (("d" lispy-goto)
+  ("f" lispy-goto-local)
+  ("r" lispy-goto-recursive)
+  ("c" lispy-follow)
+  ("b" pop-global-mark)
   ("q" lispy-quit)
-  ("j" lispy-goto-down :disable)))
+  ("j" lispy-goto-def-down)
+  ("a" lispy-goto-def-ace)))
 
 (let ((map lispy-mode-map))
   ;; ——— globals: navigation ——————————————————
@@ -3386,6 +3418,7 @@ FUNC is obtained from (`lispy--insert-or-call' DEF BLIST)"
   (lispy-define-key map "k" 'lispy-up)
   (lispy-define-key map "l" 'lispy-out-forward)
   (lispy-define-key map "f" 'lispy-flow)
+  (lispy-define-key map "d" 'lispy-different)
   (lispy-define-key map "o" 'lispy-different)
   (lispy-define-key map "p" 'pop-tag-mark)
   (lispy-define-key map "J" 'lispy-outline-next)
@@ -3411,10 +3444,7 @@ FUNC is obtained from (`lispy--insert-or-call' DEF BLIST)"
   ;; ——— locals: dialect-specific —————————————
   (lispy-define-key map "e" 'lispy-eval)
   (lispy-define-key map "E" 'lispy-eval-and-insert)
-  (lispy-define-key map "G" 'lispy-goto-local)
-  ;; (lispy-define-key map "g" 'lispy-goto)
   (lispy-define-key map "g" 'lispy-goto-verb)
-  (lispy-define-key map "F" 'lispy-follow t)
   (lispy-define-key map "D" 'lispy-describe)
   (lispy-define-key map "A" 'lispy-arglist)
   ;; ——— locals: miscellanea ——————————————————
