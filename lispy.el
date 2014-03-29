@@ -291,6 +291,11 @@ Otherwise return t."
 (defvar lispy-known-verbs nil
   "List of registered verbs.")
 
+(defun lispy-quit ()
+  "Remove modifiers."
+  (interactive)
+  (mapc (lambda (x) (funcall x -1)) lispy-known-verbs))
+
 (defun lispy-disable-verbs-except (verb)
   "Disable all verbs except VERB."
   (mapc
@@ -328,42 +333,6 @@ GRAMMAR is a list of nouns that work with this verb."
          (if (bound-and-true-p ,sym)
              (,sym -1)
            (,sym 1))))))
-
-(defmacro lispy-defverb-2 (name grammar)
-  "Define the verb NAME.
-GRAMMAR is a list of nouns that work with this verb."
-  (let ((sym (intern (format "lispy-%s-verb" name)))
-        (opts (mapconcat
-               (lambda (x)
-                 (destructuring-bind (key fun desc) x
-                   desc))
-               grammar ", ")))
-    `(defun ,sym ()
-       (interactive)
-       (message "%s: %s" ,name ,opts))))
-
-(lispy-defverb
- "goto"
- (("b" "[b]ack" pop-global-mark)
-  ("c" "[c]ar" lispy-follow)
-  ("d" "[d]ir" lispy-goto)
-  ("f" "[f]ile" lispy-goto-local)
-  ("r" "[r]ecurse" lispy-goto-recursive)
-  ("q" "[q]uit" lispy-quit)))
-
-(defun lispy-quit ()
-  "Remove modifiers."
-  (interactive)
-  (mapc (lambda (x) (funcall x -1)) lispy-known-verbs))
-
-(lispy-defverb
- "goto"
- '(("d" lispy-goto :disable)
-   ("f" lispy-goto-local :disable)
-   ("r" lispy-goto-recursive :disable)
-   ("c" lispy-follow :disable)
-   ("b" pop-global-mark :disable)
-   ("q" lispy-quit)))
 
 (defmacro lispy-push-into-set (newelt place)
   "Push NEWELT into list PLACE, unless it's already there."
@@ -1569,6 +1538,13 @@ Quote newlines if ARG isn't 1."
   (interactive)
   (lispy--goto 'lispy--fetch-this-file-tags))
 
+(defun lispy-goto-down (arg)
+  "Jump to definition of ARGth element of current list"
+  (let ((expr (read (lispy--string-dwim)))
+        (n (length expr)))
+    (if (>= arg n)
+        (error "Can't go to %sth elt, current length is %s" arg n))))
+
 ;; ——— Locals:  dialect-related ————————————————————————————————————————————————
 (defun lispy-eval ()
   "Eval last sexp."
@@ -1612,15 +1588,12 @@ Quote newlines if ARG isn't 1."
   (interactive)
   (let ((symbol (lispy--current-function))
         rsymbol)
+    (ring-insert find-tag-marker-ring (point-marker))
     (cond ((and (memq major-mode '(emacs-lisp-mode lisp-interaction-mode))
                 (setq symbol (intern-soft symbol)))
            (cond ((fboundp symbol)
-                  (push-mark)
-                  (deactivate-mark)
                   (find-function symbol))
                  ((boundp symbol)
-                  (push-mark)
-                  (deactivate-mark)
                   (find-variable symbol))))
           ((eq major-mode 'clojure-mode)
            (require 'le-clojure)
@@ -1639,8 +1612,6 @@ Quote newlines if ARG isn't 1."
            (lispy--back-to-paren))
           ((eq major-mode 'lisp-mode)
            (require 'slime)
-           (push-mark)
-           (deactivate-mark)
            (slime-edit-definition symbol)))))
 
 (defun lispy-describe ()
@@ -3359,6 +3330,16 @@ FUNC is obtained from (`lispy--insert-or-call' DEF BLIST)"
     (eldoc-add-command func)
     (define-key keymap (kbd key) func)))
 
+(lispy-defverb
+ "goto"
+ (("d" lispy-goto :disable)
+  ("f" lispy-goto-local :disable)
+  ("r" lispy-goto-recursive :disable)
+  ("c" lispy-follow :disable)
+  ("b" pop-global-mark :disable)
+  ("q" lispy-quit)
+  ("j" lispy-goto-down :disable)))
+
 (let ((map lispy-mode-map))
   ;; ——— globals: navigation ——————————————————
   (define-key map (kbd "]") 'lispy-forward)
@@ -3400,14 +3381,13 @@ FUNC is obtained from (`lispy--insert-or-call' DEF BLIST)"
   (define-key map (kbd "M-o") 'lispy-string-oneline)
   (define-key map (kbd "M-i") 'lispy-iedit)
   ;; ——— locals: navigation ———————————————————
-  (lispy-define-key map "l" 'lispy-out-forward)
-  (lispy-define-key map "a" 'lispy-out-backward)
-  (lispy-define-key map "f" 'lispy-flow)
+  (lispy-define-key map "h" 'lispy-out-backward)
   (lispy-define-key map "j" 'lispy-down)
   (lispy-define-key map "k" 'lispy-up)
-  (lispy-define-key map "d" 'lispy-different)
-  (lispy-define-key map "o" 'lispy-counterclockwise)
-  (lispy-define-key map "p" 'lispy-clockwise)
+  (lispy-define-key map "l" 'lispy-out-forward)
+  (lispy-define-key map "f" 'lispy-flow)
+  (lispy-define-key map "o" 'lispy-different)
+  (lispy-define-key map "p" 'pop-tag-mark)
   (lispy-define-key map "J" 'lispy-outline-next)
   (lispy-define-key map "K" 'lispy-outline-prev)
   ;; ——— locals: Paredit transformations ——————
@@ -3425,7 +3405,7 @@ FUNC is obtained from (`lispy--insert-or-call' DEF BLIST)"
   (lispy-define-key map "M" 'lispy-multiline :a)
   (lispy-define-key map "S" 'lispy-stringify)
   ;; ——— locals: marking ——————————————————————
-  (lispy-define-key map "h" 'lispy-ace-symbol)
+  (lispy-define-key map "a" 'lispy-ace-symbol)
   (lispy-define-key map "H" 'lispy-ace-symbol-replace)
   (lispy-define-key map "m" 'lispy-mark-list)
   ;; ——— locals: dialect-specific —————————————
