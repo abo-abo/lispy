@@ -303,7 +303,8 @@ GRAMMAR is a list of nouns that work with this verb."
   (let ((sym (intern (format "lispy-%s-mode" name)))
         (keymap (intern (format "lispy-%s-mode-map" name)))
         (doc (format "%s verb." (capitalize name)))
-        (lighter (format " [%s]" name)))
+        (lighter (format " [%s]" name))
+        (verb (intern (format "lispy-%s-verb" name))))
     `(progn
        (defvar ,keymap (make-sparse-keymap))
        (define-minor-mode ,sym
@@ -319,10 +320,36 @@ GRAMMAR is a list of nouns that work with this verb."
                  (when y
                    (setcar y (cons :disable ',sym))))
                (apply 'lispy-define-key (cons ,keymap x)))
-             ,grammar)
+             ',grammar)
        (unless (memq ',sym lispy-known-verbs)
          (push ',sym lispy-known-verbs))
-       lispy-known-verbs)))
+       (defun ,verb ()
+         (interactive)
+         (if (bound-and-true-p ,sym)
+             (,sym -1)
+           (,sym 1))))))
+
+(defmacro lispy-defverb-2 (name grammar)
+  "Define the verb NAME.
+GRAMMAR is a list of nouns that work with this verb."
+  (let ((sym (intern (format "lispy-%s-verb" name)))
+        (opts (mapconcat
+               (lambda (x)
+                 (destructuring-bind (key fun desc) x
+                   desc))
+               grammar ", ")))
+    `(defun ,sym ()
+       (interactive)
+       (message "%s: %s" ,name ,opts))))
+
+(lispy-defverb
+ "goto"
+ (("b" "[b]ack" pop-global-mark)
+  ("c" "[c]ar" lispy-follow)
+  ("d" "[d]ir" lispy-goto)
+  ("f" "[f]ile" lispy-goto-local)
+  ("r" "[r]ecurse" lispy-goto-recursive)
+  ("q" "[q]uit" lispy-quit)))
 
 (defun lispy-quit ()
   "Remove modifiers."
@@ -1874,7 +1901,7 @@ If already there, return it to previous position."
   (if (bound-and-true-p edebug-active)
       (save-excursion
         (lispy-out-backward 99)
-        (if (looking-at "(defun\\s-+\\_<[^ ]+\\_>\\s-+(")
+        (if (looking-at "(\\(?:cl\\|\\)def\\(?:un\\|macro\\)\\s-+\\_<[^ ]+\\_>\\s-+(")
             (progn
               (goto-char (match-end 0))
               (backward-char 1)
@@ -3406,7 +3433,7 @@ FUNC is obtained from (`lispy--insert-or-call' DEF BLIST)"
   (lispy-define-key map "E" 'lispy-eval-and-insert)
   (lispy-define-key map "G" 'lispy-goto-local)
   ;; (lispy-define-key map "g" 'lispy-goto)
-  (lispy-define-key map "g" 'lispy-goto-mode)
+  (lispy-define-key map "g" 'lispy-goto-verb)
   (lispy-define-key map "F" 'lispy-follow t)
   (lispy-define-key map "D" 'lispy-describe)
   (lispy-define-key map "A" 'lispy-arglist)
