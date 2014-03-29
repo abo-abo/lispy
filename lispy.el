@@ -255,10 +255,16 @@ Otherwise return t."
   (declare (indent 1))
   `(let ((i 0)
          out)
-     (ignore-errors
-       (while (<= (incf i) ,n)
-         ,@bodyform
-         (setq out t)))
+     (condition-case e
+         (while (<= (incf i) ,n)
+           ,@bodyform
+           (setq out t))
+       (error
+        (let ((estr (error-message-string e)))
+          (if (string-match "Buffer is read-only:" estr)
+              (prog1 nil
+                (message estr))
+            out))))
      out))
 
 (defmacro lispy-save-excursion (&rest body)
@@ -331,6 +337,11 @@ GRAMMAR is a list of nouns that work with this verb."
    ("c" lispy-follow :disable)
    ("b" pop-global-mark :disable)
    ("q" lispy-quit)))
+
+(defmacro lispy-push-into-set (newelt place)
+  "Push NEWELT into list PLACE, unless it's already there."
+  `(unless (memq ,newelt ,place)
+     (push ,newelt ,place)))
 
 ;; ——— Globals: navigation —————————————————————————————————————————————————————
 (defun lispy-forward (arg)
@@ -1055,7 +1066,7 @@ Special case is (|( -> ( |(."
     (insert (replace-regexp-in-string "\n" "\\\\n" str))))
 
 (defun lispy-iedit ()
-  "Wrap around `iedit'"
+  "Wrap around `iedit'."
   (interactive)
   (iedit-mode 0))
 
@@ -1406,7 +1417,7 @@ Comments will be moved ahead of sexp."
   (interactive)
   (let ((pt (point)))
     (lispy-forward 1)
-    (while (and (> (point) pt) (lispy-flow 1))
+    (while (and (lispy-flow 1) (> (point) pt))
       (unless (looking-at ")\\|\n")
         (when (looking-at " *")
           (replace-match "\n")
@@ -1869,7 +1880,10 @@ If already there, return it to previous position."
               (backward-char 1)
               (forward-sexp 1)
               (let ((sexps (mapcar
-                            (lambda (x!) (cons x! (symbol-value x!)))
+                            (lambda (x!)
+                              (cons x!
+                                    (let ((expr x!))
+                                      (edebug-eval expr))))
                             (delq '&optional (delq '&rest (preceding-sexp)))))
                     (wnd (current-window-configuration))
                     (pt (point)))
@@ -1906,7 +1920,7 @@ ARG is 4: `eval-defun' on the function from this sexp."
                          ((= arg 4)
                           (eval-defun nil))
                          (t
-                          (error "arg=%s isn't supported" arg)))))
+                          (error "Argument = %s isn't supported" arg)))))
              (error "%s isn't bound" fun))))))
 
 (defun lispy-flatten (arg)
@@ -1916,42 +1930,28 @@ With ARG, use the contents of `lispy-store-region-and-buffer' instead."
   (interactive "P")
   (let* ((begp (looking-at lispy-left))
          (bnd (lispy--bounds-list))
-         (expr (lispy--read (lispy--string-dwim bnd)))
+         (str (lispy--string-dwim bnd))
+         (expr (lispy--read str))
          (fstr (if arg
                    (with-current-buffer (get 'lispy-store-bounds 'buffer)
                      (lispy--string-dwim (get 'lispy-store-bounds 'region)))
                  (ignore-errors
                    (lispy--function-str (car expr)))))
-         f-args body
-         (e-args (cl-remove-if #'lispy--whitespacep (cdr expr))))
-    (multiple-value-setq (f-args body)
-      (lispy--function-parse fstr))
-    (when (equal f-args '(ly-raw empty))
-      (setq f-args))
-    (setq f-args (delq '&optional (delq '&rest f-args)))
-    (let ((e-n (length e-args))
-          (f-n (length f-args))
-          f-arg e-arg)
-      (if (> e-n f-n)
-          (error "Too many arguments: expected %s, got %s" f-n e-n)
-        (setq e-args (append e-args (make-list (- f-n e-n) nil))))
-      (while (setq e-arg (pop e-args)
-                   f-arg (pop f-args))
-        (setq body (lispy--replace body f-arg e-arg)))
-      (if (= (length body) 1)
-          (setq body (car body))
-        (setq body (cons 'progn body)))
-      (goto-char (car bnd))
-      (delete-region (car bnd) (cdr bnd))
-      (lispy--insert body)
-      (when begp
-        (goto-char (car bnd))))))
+         (e-args (cl-remove-if #'lispy--whitespacep (cdr expr)))
+         (body (if (macrop (car expr))
+                   (macroexpand (read str))
+                 (lispy--flatten-function fstr e-args))))
+    (goto-char (car bnd))
+    (delete-region (car bnd) (cdr bnd))
+    (lispy--insert body)
+    (when begp
+      (goto-char (car bnd)))))
 
 (declare-function projectile-find-file "ext:projectile")
 (declare-function projectile-find-file-other-window "ext:projectile")
 
 (defun lispy-visit (arg)
-  "Forward to find file in project."
+  "Forward to find file in project depending on ARG."
   (interactive "p")
   (cond ((= arg 1)
          (projectile-find-file nil))
@@ -2005,7 +2005,7 @@ With ARG, use the contents of `lispy-store-region-and-buffer' instead."
              (comment-only-p beg (point))))))
 
 (defun lispy--buffer-narrowed-p ()
-  "Returns T if the current buffer is narrowed."
+  "Return T if the current buffer is narrowed."
   (or (/= (point-min) 1)
       (/= (point-max) (1+ (buffer-size)))))
 
@@ -2759,7 +2759,7 @@ For example, a `setq' statement is amended with variable name that it uses."
   "Extract the function body and args from it's expression STR."
   (let ((body (lispy--read str))
         args)
-    (if (eq (car body) 'defun)
+    (if (memq (car body) '(defun defmacro))
         (setq body (lispy--whitespace-trim (cdr body)))
       (error "Expected defun, got %s" (car body)))
     (if (symbolp (car body))
@@ -2785,6 +2785,26 @@ For example, a `setq' statement is amended with variable name that it uses."
         (setq body (lispy--whitespace-trim (cdr body))))
     (list args body)))
 
+(defun lispy--flatten-function (fstr e-args)
+  "Return body of FSTR with args replaced by E-ARGS."
+  (cl-destructuring-bind (f-args body)
+      (lispy--function-parse fstr)
+    (when (equal f-args '(ly-raw empty))
+      (setq f-args))
+    (setq f-args (delq '&optional (delq '&rest f-args)))
+    (let ((e-n (length e-args))
+          (f-n (length f-args))
+          f-arg e-arg)
+      (if (> e-n f-n)
+          (error "Too many arguments: expected %s, got %s" f-n e-n)
+        (setq e-args (append e-args (make-list (- f-n e-n) nil))))
+      (while (setq e-arg (pop e-args)
+                   f-arg (pop f-args))
+        (setq body (lispy--replace body f-arg e-arg)))
+      (if (= (length body) 1)
+          (setq body (car body))
+        (setq body (cons 'progn body))))))
+
 (defun lispy-to-ifs ()
   "Transform current `cond' expression to equivalent `if' expressions."
   (interactive)
@@ -2802,7 +2822,7 @@ For example, a `setq' statement is amended with variable name that it uses."
    (indent-sexp)))
 
 (defun lispy--fast-insert (f-expr)
-  "`lispy--insert' EXPR into a temp buffer and return `buffer-string'."
+  "`lispy--insert' F-EXPR into a temp buffer and return `buffer-string'."
   (insert
    (with-temp-buffer
      (emacs-lisp-mode)
@@ -2916,7 +2936,7 @@ For example, a `setq' statement is amended with variable name that it uses."
 
 ;; ——— Utilities: rest —————————————————————————————————————————————————————————
 (defun lispy--indent-region (beg end)
-  "Replacement for `indent-region' that doesn't report progress."
+  "Indent region BEG END without reporting progress."
   (save-excursion
     (setq end (copy-marker end))
     (goto-char beg)
@@ -3096,7 +3116,7 @@ When NO-NARROW is not nil, don't narrow to BND."
         (narrow-to-region (car bnd) (cdr bnd))
         (lispy--do-replace "[^ ]\\( \\{2,\\}\\)[^; ]" " ")
         (lispy--do-replace "[^\\\\]\\(([\n ]+\\)" "(")
-        (lispy--do-replace "\\([\n ]+)\\)" ")")
+        (lispy--do-replace "[^\\]\\([\n ]+)\\)" ")")
         (lispy--do-replace "\\([ ]+\\)\n" "")
         (lispy--do-replace ")\\([^] \n)}]\\)" " \\1")
         (lispy--do-replace "\\(( (\\)" "((")
@@ -3253,7 +3273,7 @@ of list."
                 (call-interactively ',def))
 
                ((lispy--in-string-or-comment-p)
-                (self-insert-command 1))
+                (call-interactively 'self-insert-command))
 
                ((looking-at lispy-left)
                 (call-interactively ',def))
@@ -3264,13 +3284,11 @@ of list."
                      (call-interactively ',def)
                   ,@(and from-start '((forward-list)))))
 
-               ((or (and (looking-back "^ *") (looking-at ";"))
-                    (and (= (point) (point-max))
-                         (memq ',def `(outline-previous-visible-heading))))
+               ((and (looking-back "^ *") (looking-at ";"))
                 (call-interactively ',def))
 
                (t
-                (self-insert-command 1)))))))
+                (call-interactively 'self-insert-command)))))))
 
 ;; ——— Key definitions —————————————————————————————————————————————————————————
 (defvar ac-trigger-commands '(self-insert-command))
@@ -3278,6 +3296,10 @@ of list."
 (defvar company-no-begin-commands '(special-lispy-space))
 (defvar mc/cmds-to-run-for-all nil)
 (defvar mc/cmds-to-run-once nil)
+(lispy-push-into-set 'lispy-cursor-down mc/cmds-to-run-once)
+(mapc (lambda (x) (lispy-push-into-set x mc/cmds-to-run-for-all))
+      '(lispy-parens lispy-brackets lispy-braces lispy-quotes
+        lispy-kill lispy-delete))
 
 (defadvice ac-handle-post-command (around ac-post-command-advice activate)
   "Don't `auto-complete' when region is active."
@@ -3302,14 +3324,11 @@ of list."
 FUNC is obtained from (`lispy--insert-or-call' DEF BLIST)"
   (let ((func (defalias (intern (concat "special-" (symbol-name def)))
                   (lispy--insert-or-call def blist))))
-    (unless (member func ac-trigger-commands)
-      (push func ac-trigger-commands))
-    (unless (member func company-begin-commands)
-      (unless (member func company-no-begin-commands)
-        (push func company-begin-commands)))
-    (unless (or (member func mc/cmds-to-run-for-all)
-                (member func mc/cmds-to-run-once))
-      (push func mc/cmds-to-run-for-all))
+    (lispy-push-into-set func ac-trigger-commands)
+    (unless (memq func mc/cmds-to-run-once)
+      (lispy-push-into-set func mc/cmds-to-run-for-all))
+    (unless (memq func company-no-begin-commands)
+      (lispy-push-into-set func company-begin-commands))
     (eldoc-add-command func)
     (define-key keymap (kbd key) func)))
 
