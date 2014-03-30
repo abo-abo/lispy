@@ -3291,7 +3291,6 @@ FUNC is obtained from (`lispy--insert-or-call' DEF BLIST)"
   (define-key map (kbd "C-d") 'lispy-delete)
   (define-key map (kbd "DEL") 'lispy-delete-backward)
   (define-key map (kbd "M-m") 'lispy-mark-symbol)
-  (define-key map (kbd "C-c p") 'lispy-pop-copy)
   (define-key map (kbd "C-,") 'lispy-kill-at-point)
   (define-key map (kbd "C-M-,") 'lispy-mark)
   ;; ——— globals: pairs ———————————————————————
