@@ -288,6 +288,51 @@ Otherwise return t."
          (unless ,at-start
            (forward-list 1))))))
 
+(defvar lispy-known-verbs nil
+  "List of registered verbs.")
+
+(defun lispy-quit ()
+  "Remove modifiers."
+  (interactive)
+  (mapc (lambda (x) (funcall x -1)) lispy-known-verbs))
+
+(defun lispy-disable-verbs-except (verb)
+  "Disable all verbs except VERB."
+  (mapc
+   (lambda (v) (funcall v -1))
+   (remq verb lispy-known-verbs)))
+
+(defmacro lispy-defverb (name grammar)
+  "Define the verb NAME.
+GRAMMAR is a list of nouns that work with this verb."
+  (let ((sym (intern (format "lispy-%s-mode" name)))
+        (keymap (intern (format "lispy-%s-mode-map" name)))
+        (doc (format "%s verb." (capitalize name)))
+        (lighter (format " [%s]" name))
+        (verb (intern (format "lispy-%s-verb" name))))
+    `(progn
+       (defvar ,keymap (make-sparse-keymap))
+       (define-minor-mode ,sym
+           ,doc
+         :keymap ,keymap
+         :group 'lispy
+         :lighter ,lighter
+         (cond (,sym
+                (lispy-disable-verbs-except ',sym))
+               (t nil)))
+       (mapc (lambda (x)
+               (lispy-define-key
+                ,keymap
+                (car x) (cadr x) (cons :disable ',sym)))
+             ',grammar)
+       (unless (memq ',sym lispy-known-verbs)
+         (push ',sym lispy-known-verbs))
+       (defun ,verb ()
+         (interactive)
+         (if (bound-and-true-p ,sym)
+             (,sym -1)
+           (,sym 1))))))
+
 (defmacro lispy-push-into-set (newelt place)
   "Push NEWELT into list PLACE, unless it's already there."
   `(unless (memq ,newelt ,place)
@@ -1492,6 +1537,69 @@ Quote newlines if ARG isn't 1."
   (interactive)
   (lispy--goto 'lispy--fetch-this-file-tags))
 
+(defun lispy-goto-def-down (arg)
+  "Jump to definition of ARGth element of current list"
+  (interactive "p")
+  (let* ((expr (read (lispy--string-dwim)))
+         (n (length expr)))
+    (if (>= arg n)
+        (error "Out of range: %s/%s" arg n)
+      (let ((elt (nth arg expr)))
+        (while (consp elt)
+          (if (eq (car elt) 'quote)
+              (setq elt (cadr elt))
+            (setq elt (car elt))))
+        (if elt
+            (lispy-goto-symbol elt)
+          (error "No symbol found"))))))
+
+(defun lispy-goto-def-ace (arg)
+  "Jump to definition of selected element of current sexp.
+Sexp is obtained by exiting list ARG times."
+  (interactive "p")
+  (lispy--out-forward
+   (if (region-active-p)
+       (progn (deactivate-mark) arg)
+     (1- arg)))
+  (lispy--ace-do
+   "[([{ ]\\(?:\\sw\\|\\s_\\|\\s(\\|[\"'`#]\\)"
+   (lispy--bounds-dwim)
+   (lambda () (or (not (lispy--in-string-or-comment-p)) (looking-back ".\"")))
+   (lambda () (forward-char 1) (lispy-follow))))
+
+(defun lispy-goto-symbol (symbol)
+  "Go to definition of SYMBOL."
+  (interactive)
+  (let (rsymbol)
+    (ring-insert find-tag-marker-ring (point-marker))
+    (cond ((and (memq major-mode '(emacs-lisp-mode lisp-interaction-mode))
+                (setq symbol (intern-soft symbol)))
+           (cond ((fboundp symbol)
+                  (find-function symbol))
+                 ((boundp symbol)
+                  (find-variable symbol))
+                 (t
+                  (error "Couldn't fild definition of %s"
+                         symbol))))
+          ((eq major-mode 'clojure-mode)
+           (require 'le-clojure)
+           (setq rsymbol (lispy--clojure-resolve symbol))
+           (cond ((stringp rsymbol)
+                  (cider-jump-to-def rsymbol))
+                 ((eq rsymbol 'special)
+                  (error "Can't jump to '%s because it's special" symbol))
+                 ((eq rsymbol 'keyword)
+                  (error "Can't jump to keywords"))
+                 ((and (listp rsymbol)
+                       (eq (car rsymbol) 'variable))
+                  (error "Can't jump to Java variables"))
+                 (t
+                  (error "Could't resolve '%s" symbol)))
+           (lispy--back-to-paren))
+          ((eq major-mode 'lisp-mode)
+           (require 'slime)
+           (slime-edit-definition symbol)))))
+
 ;; ——— Locals:  dialect-related ————————————————————————————————————————————————
 (defun lispy-eval ()
   "Eval last sexp."
@@ -1533,38 +1641,7 @@ Quote newlines if ARG isn't 1."
 (defun lispy-follow ()
   "Follow to `lispy--current-function'."
   (interactive)
-  (let ((symbol (lispy--current-function))
-        rsymbol)
-    (cond ((and (memq major-mode '(emacs-lisp-mode lisp-interaction-mode))
-                (setq symbol (intern-soft symbol)))
-           (cond ((fboundp symbol)
-                  (push-mark)
-                  (deactivate-mark)
-                  (find-function symbol))
-                 ((boundp symbol)
-                  (push-mark)
-                  (deactivate-mark)
-                  (find-variable symbol))))
-          ((eq major-mode 'clojure-mode)
-           (require 'le-clojure)
-           (setq rsymbol (lispy--clojure-resolve symbol))
-           (cond ((stringp rsymbol)
-                  (cider-jump-to-def rsymbol))
-                 ((eq rsymbol 'special)
-                  (error "Can't jump to '%s because it's special" symbol))
-                 ((eq rsymbol 'keyword)
-                  (error "Can't jump to keywords"))
-                 ((and (listp rsymbol)
-                       (eq (car rsymbol) 'variable))
-                  (error "Can't jump to Java variables"))
-                 (t
-                  (error "Could't resolve '%s" symbol)))
-           (lispy--back-to-paren))
-          ((eq major-mode 'lisp-mode)
-           (require 'slime)
-           (push-mark)
-           (deactivate-mark)
-           (slime-edit-definition symbol)))))
+  (lispy-goto-symbol (lispy--current-function)))
 
 (defun lispy-describe ()
   "Display documentation for `lispy--current-function'."
@@ -1824,7 +1901,7 @@ If already there, return it to previous position."
   (if (bound-and-true-p edebug-active)
       (save-excursion
         (lispy-out-backward 99)
-        (if (looking-at "(defun\\s-+\\_<[^ ]+\\_>\\s-+(")
+        (if (looking-at "(\\(?:cl\\|\\)def\\(?:un\\|macro\\)\\s-+\\_<[^ ]+\\_>\\s-+(")
             (progn
               (goto-char (match-end 0))
               (backward-char 1)
@@ -3204,12 +3281,14 @@ Otherwise call `self-insert-command'.
 BLIST is a boolean list.
 When :a is on the list, call DEF as if it was invoked from beginning
 of list."
-  (let ((from-start (memq :a blist)))
+  (let ((from-start (memq :a blist))
+        (disable (cdr (assoc :disable blist))))
     `(lambda ,(help-function-arglist def)
        ,(format "Call `%s' when special, self-insert otherwise.\n\n%s"
                 (symbol-name def) (documentation def))
        ,(interactive-form def)
        (let (cmd)
+         ,(when disable `(,disable -1))
          (cond ((and (bound-and-true-p edebug-active)
                      (= 1 (length (this-command-keys)))
                      (let ((char (aref (this-command-keys) 0)))
@@ -3379,6 +3458,28 @@ FUNC is obtained from (`lispy--insert-or-call' DEF BLIST)"
   ;; ——— locals: digit argument ———————————————
   (mapc (lambda (x) (lispy-define-key map (format "%d" x) 'digit-argument))
         (number-sequence 0 9)))
+
+(lispy-defverb
+ "goto"
+ (("d" lispy-goto)
+  ("f" lispy-goto-local)
+  ("r" lispy-goto-recursive)
+  ("c" lispy-follow)
+  ("b" pop-global-mark)
+  ("q" lispy-quit)
+  ("j" lispy-goto-def-down)
+  ("a" lispy-goto-def-ace)))
+
+(defun lispy-setup-new-bindings ()
+  "Change to new-style bindings.
+They may become the defaults in the future."
+  (let ((map lispy-mode-map))
+    (lispy-define-key map "h" 'lispy-out-backward)
+    (lispy-define-key map "a" 'lispy-ace-symbol)
+    (lispy-define-key map "o" 'lispy-different)
+    (lispy-define-key map "g" 'lispy-goto-mode)
+    (define-key map (kbd "M-.") 'lispy-follow)
+    (lispy-define-key map "." 'pop-tag-mark)))
 
 (provide 'lispy)
 
