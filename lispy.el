@@ -1592,6 +1592,10 @@ Sexp is obtained by exiting list ARG times."
    (lambda () (or (not (lispy--in-string-or-comment-p)) (looking-back ".\"")))
    (lambda () (forward-char 1) (call-interactively 'lispy-goto-symbol))))
 
+(declare-function cider-jump-to-def "ext:cider")
+(declare-function slime-edit-definition "ext:slime")
+(declare-function lispy--clojure-resolve "ext:lispy")
+
 (defun lispy-goto-symbol (symbol)
   "Go to definition of SYMBOL."
   (interactive (list (let ((str (thing-at-point 'symbol)))
@@ -1661,10 +1665,6 @@ Sexp is obtained by exiting list ARG times."
           (str (lispy--string-dwim bnd)))
      (delete-region (car bnd) (cdr bnd))
      (insert (lispy--eval str)))))
-
-(declare-function cider-jump-to-def "ext:cider")
-(declare-function slime-edit-definition "ext:slime")
-(declare-function lispy--clojure-resolve "ext:lispy")
 
 (defun lispy-follow ()
   "Follow to `lispy--current-function'."
@@ -1979,6 +1979,14 @@ ARG is 4: `eval-defun' on the function from this sexp."
                          (t
                           (error "Argument = %s isn't supported" arg)))))
              (error "%s isn't bound" fun))))))
+
+(when (version< emacs-version "24.4")
+  (defun macrop (object)
+    "Non-nil if and only if OBJECT is a macro."
+    (let ((def (indirect-function object t)))
+      (when (consp def)
+        (or (eq 'macro (car def))
+            (and (autoloadp def) (memq (nth 4 def) '(macro t))))))))
 
 (defun lispy-flatten (arg)
   "Inline a function at the point of its call.
