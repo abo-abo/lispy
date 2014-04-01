@@ -1566,7 +1566,7 @@ Sexp is obtained by exiting list ARG times."
    "[([{ ]\\(?:\\sw\\|\\s_\\|\\s(\\|[\"'`#]\\)"
    (lispy--bounds-dwim)
    (lambda () (or (not (lispy--in-string-or-comment-p)) (looking-back ".\"")))
-   (lambda () (forward-char 1) (lispy-follow))))
+   (lambda () (forward-char 1) (call-interactively 'lispy-goto-symbol))))
 
 (defun lispy-goto-symbol (symbol)
   "Go to definition of SYMBOL."
