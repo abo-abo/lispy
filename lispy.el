@@ -1390,22 +1390,22 @@ The outcome when ahead of sexps is different from when behind."
   "Squeeze current sexp into one line.
 Comments will be moved ahead of sexp."
   (interactive)
-  (let (str bnd)
+  (let ((from-left (looking-at lispy-left))
+        str bnd)
     (setq str (lispy--string-dwim (setq bnd (lispy--bounds-dwim))))
-    (save-excursion
-      (delete-region (car bnd) (cdr bnd))
-      (let ((no-comment "")
-            comments)
-        (loop for s in (split-string str "\n" t)
-           do (if (string-match "^ *\\(;\\)" s)
-                  (push (substring s (match-beginning 1)) comments)
-                (setq no-comment (concat no-comment "\n" s))))
-        (when comments
-          (insert (mapconcat #'identity comments "\n") "\n"))
-        (insert (substring
-                 (replace-regexp-in-string "\n *" " " no-comment) 1))))
-    ;; work around `( and '(
-    (lispy-forward 1)
+    (delete-region (car bnd) (cdr bnd))
+    (let ((no-comment "")
+          comments)
+      (loop for s in (split-string str "\n" t)
+         do (if (string-match "^ *\\(;\\)" s)
+                (push (substring s (match-beginning 1)) comments)
+              (setq no-comment (concat no-comment "\n" s))))
+      (when comments
+        (insert (mapconcat #'identity comments "\n") "\n"))
+      (insert (substring
+               (replace-regexp-in-string "\n *" " " no-comment) 1))
+      (when from-left
+        (backward-list)))
     (lispy--normalize 0)))
 
 (defun lispy-multiline ()
