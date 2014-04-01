@@ -3481,8 +3481,8 @@ They may become the defaults in the future."
     (lispy-define-key map "h" 'lispy-out-backward)
     (lispy-define-key map "a" 'lispy-ace-symbol)
     (lispy-define-key map "o" 'lispy-different)
-    (lispy-define-key map "g" 'lispy-goto-mode)
-    (define-key map (kbd "M-.") 'lispy-follow)
+    (lispy-define-key map "G" 'lispy-goto-mode)
+    (define-key map (kbd "M-.") 'lispy-goto-symbol)
     (lispy-define-key map "." 'pop-tag-mark)))
 
 (provide 'lispy)
