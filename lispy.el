@@ -3143,9 +3143,9 @@ When NO-NARROW is not nil, don't narrow to BND."
 
 (defun lispy--normalize (arg)
   "Go up ARG times and normalize."
-  (lispy--out-backward arg)
-  (let ((bnd (lispy--bounds-list)))
-    (save-excursion
+  (save-excursion
+    (lispy--out-backward arg)
+    (let ((bnd (lispy--bounds-list)))
       (save-restriction
         (narrow-to-region (car bnd) (cdr bnd))
         (lispy--do-replace "[^ ]\\( \\{2,\\}\\)[^; ]" " ")
@@ -3427,8 +3427,8 @@ FUNC is obtained from (`lispy--insert-or-call' DEF BLIST)"
   (lispy-define-key map "C" 'lispy-convolute :a)
   (lispy-define-key map "w" 'lispy-move-up :a)
   (lispy-define-key map "s" 'lispy-move-down :a)
-  (lispy-define-key map "O" 'lispy-oneline :a)
-  (lispy-define-key map "M" 'lispy-multiline :a)
+  (lispy-define-key map "O" 'lispy-oneline)
+  (lispy-define-key map "M" 'lispy-multiline)
   (lispy-define-key map "S" 'lispy-stringify)
   ;; ——— locals: marking ——————————————————————
   (lispy-define-key map "h" 'lispy-ace-symbol)
@@ -3444,7 +3444,7 @@ FUNC is obtained from (`lispy--insert-or-call' DEF BLIST)"
   (lispy-define-key map "A" 'lispy-arglist)
   ;; ——— locals: miscellanea ——————————————————
   (lispy-define-key map "SPC" 'lispy-space)
-  (lispy-define-key map "i" 'lispy-tab :a)
+  (lispy-define-key map "i" 'lispy-tab)
   (lispy-define-key map "I" 'lispy-shifttab)
   (lispy-define-key map "N" 'lispy-narrow)
   (lispy-define-key map "W" 'lispy-widen)
@@ -3452,7 +3452,7 @@ FUNC is obtained from (`lispy--insert-or-call' DEF BLIST)"
   (lispy-define-key map "u" 'lispy-undo)
   (lispy-define-key map "q" 'lispy-ace-paren)
   (lispy-define-key map "Q" 'lispy-ace-char)
-  (lispy-define-key map "v" 'lispy-view :a)
+  (lispy-define-key map "v" 'lispy-view)
   (lispy-define-key map "T" 'lispy-ert)
   (lispy-define-key map "t" 'lispy-teleport)
   (lispy-define-key map "n" 'lispy-new-copy)
