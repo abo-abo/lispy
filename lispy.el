@@ -1894,12 +1894,13 @@ Second region and buffer are the current ones."
   "Recenter current sexp to first screen line.
 If already there, return it to previous position."
   (interactive)
-  (let ((window-line (count-lines (window-start) (point))))
-    (if (or (= window-line 0)
-            (and (not (bolp)) (= window-line 1)))
-        (recenter (or (get 'lispy-recenter :line) 0))
-      (put 'lispy-recenter :line window-line)
-      (recenter 0))))
+  (lispy-from-left
+   (let ((window-line (count-lines (window-start) (point))))
+     (if (or (= window-line 0)
+             (and (not (bolp)) (= window-line 1)))
+         (recenter (or (get 'lispy-recenter :line) 0))
+       (put 'lispy-recenter :line window-line)
+       (recenter 0)))))
 
 (defun lispy-edebug-stop ()
   "Stop edebugging, while saving current function arguments."
