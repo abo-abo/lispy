@@ -183,6 +183,7 @@
 (require 'ediff)
 (require 'ediff-util)
 (require 'eldoc)
+(require 'etags)
 (require 'outline)
 (require 'semantic)
 (require 'semantic/db)
@@ -1569,7 +1570,10 @@ Sexp is obtained by exiting list ARG times."
 
 (defun lispy-goto-symbol (symbol)
   "Go to definition of SYMBOL."
-  (interactive)
+  (interactive (list (let ((str (thing-at-point 'symbol)))
+                       (if str
+                           (intern str)
+                         (lispy--current-function)))))
   (let (rsymbol)
     (ring-insert find-tag-marker-ring (point-marker))
     (cond ((and (memq major-mode '(emacs-lisp-mode lisp-interaction-mode))
