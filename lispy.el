@@ -3492,6 +3492,17 @@ FUNC is obtained from (`lispy--insert-or-call' DEF BLIST)"
   ("j" lispy-goto-def-down)
   ("a" lispy-goto-def-ace)))
 
+(lispy-defverb
+ "transform"
+ (("o" lispy-oneline)
+  ("m" lispy-multiline)
+  ("s" lispy-stringify)
+  ("d" lispy-to-defun)
+  ("l" lispy-to-lambda)
+  ("i" lispy-to-ifs)
+  ("c" lispy-to-cond)
+  ("f" lispy-flatten)))
+
 (defun lispy-setup-new-bindings ()
   "Change to new-style bindings.
 They may become the defaults in the future."
@@ -3500,8 +3511,19 @@ They may become the defaults in the future."
     (lispy-define-key map "a" 'lispy-ace-symbol)
     (lispy-define-key map "o" 'lispy-different)
     (lispy-define-key map "G" 'lispy-goto-mode)
+    (lispy-define-key map "t" 'lispy-transform-mode)
     (define-key map (kbd "M-.") 'lispy-goto-symbol)
-    (lispy-define-key map "." 'pop-tag-mark)))
+    (lispy-define-key map "." 'pop-tag-mark))
+  (let ((map lispy-mode-x-map))
+    (define-key map "d" nil)
+    (define-key map "l" nil)
+    (define-key map "e" 'lispy-edebug)
+    (define-key map "m" 'lispy-cursor-ace)
+    (define-key map "i" nil)
+    (define-key map "c" nil)
+    (define-key map "f" nil)
+    (define-key map "r" 'lispy-eval-and-replace)
+    (define-key map "s" 'save-buffer)))
 
 (provide 'lispy)
 
