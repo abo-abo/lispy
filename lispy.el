@@ -3308,11 +3308,8 @@ Use only the part bounded by BND."
 (defun lispy--insert-or-call (def blist)
   "Return a lambda to call DEF if position is special.
 Otherwise call `self-insert-command'.
-BLIST is a boolean list.
-When :a is on the list, call DEF as if it was invoked from beginning
-of list."
-  (let ((from-start (memq :a blist))
-        (disable (cdr (assoc :disable blist))))
+BLIST is an alist."
+  (let ((disable (cdr (assoc :disable blist))))
     `(lambda ,(help-function-arglist def)
        ,(format "Call `%s' when special, self-insert otherwise.\n\n%s"
                 (symbol-name def) (documentation def))
@@ -3332,14 +3329,9 @@ of list."
                ((lispy--in-string-or-comment-p)
                 (call-interactively 'self-insert-command))
 
-               ((looking-at lispy-left)
+               ((or (looking-at lispy-left)
+                    (looking-back lispy-right))
                 (call-interactively ',def))
-
-               ((looking-back lispy-right)
-                ,@(and from-start '((backward-list)))
-                (unwind-protect
-                     (call-interactively ',def)
-                  ,@(and from-start '((forward-list)))))
 
                ((and (looking-back "^ *") (looking-at ";"))
                 (call-interactively ',def))
