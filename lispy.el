@@ -1168,12 +1168,15 @@ Special case is (|( -> ( |(."
   (let* ((regionp (region-active-p))
          (at-end (and regionp
                       (= (point) (region-end))))
+         (from-right (looking-back lispy-right))
          bnd1 bnd2)
     (if regionp
         (let ((deactivate-mark nil))
           (when at-end (lispy-different))
           (save-excursion
             (lispy--reindent 1)))
+      (when from-right
+        (backward-list))
       (lispy--reindent 1))
     (setq bnd1 (lispy--bounds-dwim))
     (lispy--out-forward 1)
@@ -1191,7 +1194,9 @@ Special case is (|( -> ( |(."
           (or (looking-at lispy-left)
               (looking-back lispy-right)
               (lispy--out-forward 1)))
-      (indent-sexp))))
+      (indent-sexp)
+      (when from-right
+        (forward-list)))))
 
 (defun lispy-raise-some ()
   "Use current sexps as replacement for their parent.
@@ -3438,7 +3443,7 @@ FUNC is obtained from (`lispy--insert-or-call' DEF BLIST)"
   (lispy-define-key map ">" 'lispy-slurp)
   (lispy-define-key map "<" 'lispy-barf)
   (lispy-define-key map "/" 'lispy-splice)
-  (lispy-define-key map "r" 'lispy-raise :a)
+  (lispy-define-key map "r" 'lispy-raise)
   (lispy-define-key map "R" 'lispy-raise-some)
   (lispy-define-key map "+" 'lispy-join)
   ;; ——— locals: more transformations —————————
