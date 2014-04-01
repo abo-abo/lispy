@@ -1225,9 +1225,12 @@ The outcome when ahead of sexps is different from when behind."
         (lispy--out-forward 2))
       (let ((endp (and (region-active-p)
                        (= (point) (region-end))))
+            (from-right (looking-back lispy-right))
             beg end
             deactivate-mark)
-        (when endp (exchange-point-and-mark))
+        (if endp
+            (exchange-point-and-mark)
+          (when from-right (backward-list)))
         (lispy-save-excursion
           (setq beg (point))
           (lispy--out-forward 1)
@@ -1238,7 +1241,9 @@ The outcome when ahead of sexps is different from when behind."
                                (cons (point) (point)))
           (lispy--out-forward 1)
           (lispy--reindent))
-        (when endp (exchange-point-and-mark)))
+        (if endp
+            (exchange-point-and-mark)
+          (when from-right (forward-list))))
     (error "Not enough depth to convolute")))
 
 (defun lispy-join ()
@@ -3437,7 +3442,7 @@ FUNC is obtained from (`lispy--insert-or-call' DEF BLIST)"
   (lispy-define-key map "R" 'lispy-raise-some)
   (lispy-define-key map "+" 'lispy-join)
   ;; ——— locals: more transformations —————————
-  (lispy-define-key map "C" 'lispy-convolute :a)
+  (lispy-define-key map "C" 'lispy-convolute)
   (lispy-define-key map "w" 'lispy-move-up)
   (lispy-define-key map "s" 'lispy-move-down)
   (lispy-define-key map "O" 'lispy-oneline)
