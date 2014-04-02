@@ -364,6 +364,8 @@ otherwise call `lispy-out-forward' and return nil."
       (goto-char (1+ (cdr bnd)))))
   (let ((pt (point))
         (r (dotimes-protect arg
+             (when (= (point) (point-max))
+               (error "Reached end of buffer"))
              (forward-list))))
     ;; `forward-list' returns true at and of buffer
     (if (or (null r)
