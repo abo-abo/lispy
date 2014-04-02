@@ -1603,6 +1603,7 @@ Sexp is obtained by exiting list ARG times."
                            (intern str)
                          (lispy--current-function)))))
   (let (rsymbol)
+    (deactivate-mark)
     (ring-insert find-tag-marker-ring (point-marker))
     (cond ((and (memq major-mode '(emacs-lisp-mode lisp-interaction-mode))
                 (setq symbol (intern-soft symbol)))
