@@ -1705,6 +1705,7 @@ Sexp is obtained by exiting list ARG times."
 When FUNC is not nil, call it after a successful move.
 When NO-NARROW is not nil, don't narrow."
   (interactive)
+  (deactivate-mark)
   (lispy--ace-do
    lispy-left
    (save-excursion (lispy--out-backward 50) (lispy--bounds-dwim))
