@@ -264,11 +264,9 @@ Otherwise return t."
            (setq out t)
            (setq lispy-dotimes-counter i))
        (error
-        (let ((estr (error-message-string e)))
-          (if (string-match "Buffer is read-only:" estr)
-              (prog1 nil
-                (message estr))
-            out))))
+        (when (eq (car e) 'buffer-read-only)
+          (message "Buffer is read-only: %s" (current-buffer)))
+        nil))
      out))
 
 (defmacro lispy-save-excursion (&rest body)
