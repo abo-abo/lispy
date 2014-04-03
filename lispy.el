@@ -394,6 +394,8 @@ If couldn't move backward at least once, move up backward and return nil."
       (goto-char (car bnd))))
   (let ((pt (point))
         (r (dotimes-protect arg
+             (when (= (point) (point-min))
+               (error "Reached beginning of buffer"))
              (backward-list))))
     ;; `backward-list' returns true at beginning of buffer
     (if (or (null r)
