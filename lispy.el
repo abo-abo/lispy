@@ -248,6 +248,8 @@ the context.
   :group 'lispy
   :lighter " LY")
 
+(defvar lispy-dotimes-counter 0)
+
 ;; ——— Macros ——————————————————————————————————————————————————————————————————
 (defmacro dotimes-protect (n &rest bodyform)
   "Execute N times the BODYFORM unless an error is signaled.
@@ -259,7 +261,8 @@ Otherwise return t."
      (condition-case e
          (while (<= (incf i) ,n)
            ,@bodyform
-           (setq out t))
+           (setq out t)
+           (setq lispy-dotimes-counter i))
        (error
         (let ((estr (error-message-string e)))
           (if (string-match "Buffer is read-only:" estr)
