@@ -1087,16 +1087,11 @@ Special case is (|( -> ( |(."
   "Grow current sexp by ARG sexps."
   (interactive "p")
   (cond ((region-active-p)
-         (let ((bnd (lispy--bounds-dwim))
-               (endp (= (point) (region-end)))
-               deactivate-mark)
-           (let ((pt (save-excursion
-                       (when (lispy-forward 1)
-                         (lispy-backward 1)
-                         (point)))))
-             (when pt
-               (goto-char pt)
-               (lispy--teleport (car bnd) (cdr bnd) endp t)))))
+         (if (= (point) (region-end))
+             (lispy-dotimes-protect arg
+               (forward-sexp 1))
+           (lispy-dotimes-protect arg
+             (forward-sexp -1))))
         ((or (looking-at "()")
              (and (looking-at lispy-left) (not (looking-back "()"))))
          (lispy-dotimes-protect arg
@@ -1107,29 +1102,64 @@ Special case is (|( -> ( |(."
   (unless (region-active-p)
     (lispy--reindent)))
 
+(defun lispy-down-slurp ()
+  "Move current sexp or region into the next sexp."
+  (interactive)
+  (when (looking-at lispy-left)
+    (forward-sexp))
+  (let ((bnd (lispy--bounds-dwim))
+        (endp (= (point) (region-end)))
+        deactivate-mark)
+    (let ((pt (save-excursion
+                (when (lispy-forward 1)
+                  (lispy-backward 1)
+                  (point)))))
+      (when pt
+        (goto-char pt)
+        (lispy--teleport (car bnd) (cdr bnd) endp t)))))
+
+(defun lispy-up-slurp ()
+  "Move current sexp or region into the previous sexp."
+  (interactive)
+  (let ((bnd (lispy--bounds-dwim))
+        (endp (= (point) (region-end)))
+        (bsize (buffer-size))
+        deactivate-mark)
+    (let ((pt (save-excursion
+                (goto-char (car bnd))
+                (when (lispy-backward 1)
+                  (lispy-forward 1)
+                  (backward-char 1)
+                  (setq deactivate-mark nil)
+                  (newline-and-indent)
+                  (point)))))
+      (when pt
+        (goto-char pt)
+        (decf bsize (buffer-size))
+        (backward-char 1)
+        (lispy--teleport (- (car bnd) bsize)
+                         (- (cdr bnd) bsize)
+                         endp t)))))
+
 (defun lispy-barf (arg)
   "Shrink current sexp by ARG sexps."
   (interactive "p")
   (cond ((region-active-p)
-         (let ((bnd (lispy--bounds-dwim))
-               (endp (= (point) (region-end)))
-               (bsize (buffer-size))
-               deactivate-mark)
-           (let ((pt (save-excursion
-                       (goto-char (car bnd))
-                       (when (lispy-backward 1)
-                         (lispy-forward 1)
-                         (backward-char 1)
-                         (setq deactivate-mark nil)
-                         (newline-and-indent)
-                         (point)))))
-             (when pt
-               (goto-char pt)
-               (decf bsize (buffer-size))
-               (backward-char 1)
-               (lispy--teleport (- (car bnd) bsize)
-                                (- (cdr bnd) bsize)
-                                endp t)))))
+         (if (= (point) (region-end))
+             (save-restriction
+               (narrow-to-region (region-beginning)
+                                 (point-max))
+               (lispy-dotimes-protect (1+ arg)
+                 (forward-sexp -1))
+               (forward-sexp 1)
+               (widen))
+           (save-restriction
+             (narrow-to-region (point-min)
+                               (region-end))
+             (lispy-dotimes-protect (1+ arg)
+               (forward-sexp 1))
+             (forward-sexp -1)
+             (widen))))
 
         ((looking-at "()"))
 
@@ -3528,7 +3558,9 @@ They may become the defaults in the future."
     (lispy-define-key map "G" 'lispy-goto-mode)
     (lispy-define-key map "t" 'lispy-transform-mode)
     (define-key map (kbd "M-.") 'lispy-goto-symbol)
-    (lispy-define-key map "." 'pop-tag-mark))
+    (lispy-define-key map "." 'pop-tag-mark)
+    (lispy-define-key map "H" 'lispy-down-slurp)
+    (lispy-define-key map "L" 'lispy-up-slurp))
   (let ((map lispy-mode-x-map))
     (define-key map "d" nil)
     (define-key map "l" nil)
