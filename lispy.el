@@ -4,7 +4,7 @@
 
 ;; Author: Oleh Krehel <ohwoeowho@gmail.com>
 ;; URL: https://github.com/abo-abo/lispy
-;; Version: 0.9.0
+;; Version: 0.10.0
 ;; Keywords: lisp
 
 ;; This file is not part of GNU Emacs
@@ -1099,11 +1099,15 @@ Special case is (|( -> ( |(."
   "Grow current sexp by ARG sexps."
   (interactive "p")
   (cond ((region-active-p)
-         (if (= (point) (region-end))
-             (lispy-dotimes-protect arg
-               (forward-sexp 1))
-           (lispy-dotimes-protect arg
-             (forward-sexp -1))))
+         (if (> arg 1)
+             (let (deactivate-mark)
+               (lispy--out-backward 1)
+               (lispy-mark-list))
+          (if (= (point) (region-end))
+              (lispy-dotimes-protect arg
+                (forward-sexp 1))
+            (lispy-dotimes-protect arg
+              (forward-sexp -1)))))
         ((or (looking-at "()")
              (and (looking-at lispy-left) (not (looking-back "()"))))
          (lispy-dotimes-protect arg
