@@ -577,8 +577,10 @@ Insert KEY if there's no command."
                    "((c)| (a) (b))"))
   (should (string= (lispy-with "((a) (b) (c)|)" "www")
                    "((c)| (a) (b))"))
-  (should (string= (lispy-with "((a) |(b) (c))" "mjw")
+  (should (string= (lispy-with "((a) |(b) (c))" "m>w")
                    "(~(b) (c)| (a))"))
+  (should (string= (lispy-with "((a) |(b) (c))" "mjw")
+                   "((a) ~(c)| (b))"))
   (should (string= (lispy-with "(foo b|ar)"
                                (lispy-mark-symbol)
                                (lispy-move-up))

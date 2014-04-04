@@ -583,12 +583,18 @@ Return nil if can't move."
   (interactive "p")
   (lispy--ensure-visible)
   (cond ((region-active-p)
-         (lispy-dotimes-protect arg
-           (if (= (point) (region-beginning))
-               (progn
-                 (forward-sexp 1)
-                 (skip-chars-forward " \n"))
-             (forward-sexp 1))))
+         (if (= (point) (region-end))
+             (lispy-dotimes-protect arg
+               (forward-sexp 1)
+               (lispy-different)
+               (forward-sexp 2)
+               (forward-sexp -1)
+               (lispy-different))
+           (lispy-dotimes-protect arg
+             (forward-sexp 2)
+             (lispy-different)
+             (forward-sexp 1)
+             (forward-sexp -1))))
 
         ((looking-at lispy-left)
          (lispy-forward arg)
