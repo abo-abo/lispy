@@ -222,6 +222,13 @@ the first eval, and to major-mode on the second eval."
   :type 'boolean
   :group 'lispy)
 
+(defcustom lispy-verbose t
+  "If t, lispy will display some messages on error state.
+These messages are similar to \"Beginning of buffer\" error for
+`backward-char' and can safely be ignored."
+  :type 'boolean
+  :group 'lispy)
+
 (defvar lispy-mode-map (make-sparse-keymap))
 
 ;;;###autoload
@@ -1614,7 +1621,7 @@ Quote newlines if ARG isn't 1."
   (lispy--goto 'lispy--fetch-this-file-tags))
 
 (defun lispy-goto-def-down (arg)
-  "Jump to definition of ARGth element of current list"
+  "Jump to definition of ARGth element of current list."
   (interactive "p")
   (let* ((expr (read (lispy--string-dwim)))
          (n (length expr)))
@@ -3051,6 +3058,17 @@ For example, a `setq' statement is amended with variable name that it uses."
          (cons
           (lispy--replace (car lst) from to)
           (lispy--replace (cdr lst) from to)))))
+
+;; ——— Utilities: error reporting ——————————————————————————————————————————————
+(defun lispy-complain (msg)
+  "Display MSG if `lispy-verbose' is t."
+  (when lispy-verbose
+    (message "%s: %s"
+             (propertize
+              (prin1-to-string
+               this-command) 'face 'font-lock-keyword-face)
+             msg)
+    nil))
 
 ;; ——— Utilities: rest —————————————————————————————————————————————————————————
 (defun lispy--indent-region (beg end)
