@@ -1938,6 +1938,22 @@ Second region and buffer are the current ones."
                  (setq ediff-after-quit-hook-internal)
                  (set-window-configuration ,wnd)))))
 
+;; ——— Locals:  marking ————————————————————————————————————————————————————————
+(defun lispy-mark-right (arg)
+  (interactive "p")
+  "Go right ARG times and mark."
+  (let ((pt (point))
+        (r (lispy--out-forward arg)))
+    (if (or (= pt (point))
+            (and (region-active-p)
+                 (= (region-beginning)
+                    (region-end))))
+        (progn
+          (goto-char pt)
+          (lispy-complain "can't go any further"))
+      (lispy--mark
+       (lispy--bounds-dwim))
+      r)))
 ;; ——— Locals:  miscellanea ————————————————————————————————————————————————————
 (defun lispy-x ()
   "Forward to `lispy-mode-x-map'."
