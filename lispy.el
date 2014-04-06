@@ -1954,6 +1954,13 @@ Second region and buffer are the current ones."
       (lispy--mark
        (lispy--bounds-dwim))
       r)))
+
+(defun lispy-mark-left (arg)
+  (interactive "p")
+  "Go left ARG times and mark."
+  (when (lispy-mark-right arg)
+    (lispy-different)))
+
 ;; ——— Locals:  miscellanea ————————————————————————————————————————————————————
 (defun lispy-x ()
   "Forward to `lispy-mode-x-map'."
