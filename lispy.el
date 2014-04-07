@@ -414,7 +414,7 @@ If couldn't move backward at least once, move up backward and return nil."
 Return nil on failure, t otherwise."
   (interactive "p")
   (if (region-active-p)
-      (lispy-move-right arg)
+      (lispy-mark-right arg)
     (lispy--out-forward arg)))
 
 (defun lispy-out-forward-nostring (arg)
@@ -431,7 +431,7 @@ Self-insert otherwise."
 Return nil on failure, t otherwise."
   (interactive "p")
   (if (region-active-p)
-      (lispy-move-left arg)
+      (lispy-mark-left arg)
     (lispy--out-backward arg)))
 
 (defun lispy-out-forward-newline (arg)
@@ -3639,6 +3639,13 @@ FUNC is obtained from (`lispy--insert-or-call' DEF BLIST)"
         (number-sequence 0 9)))
 
 (lispy-defverb
+ "other"
+ (("h" lispy-move-left)
+  ("j" lispy-move-down)
+  ("k" lispy-move-up)
+  ("l" lispy-move-right)))
+
+(lispy-defverb
  "goto"
  (("d" lispy-goto)
   ("f" lispy-goto-local)
@@ -3666,7 +3673,7 @@ They may become the defaults in the future."
   (let ((map lispy-mode-map))
     (lispy-define-key map "h" 'lispy-out-backward)
     (lispy-define-key map "a" 'lispy-ace-symbol)
-    (lispy-define-key map "o" 'lispy-different)
+    (lispy-define-key map "o" 'lispy-other-mode)
     (lispy-define-key map "G" 'lispy-goto-mode)
     (lispy-define-key map "t" 'lispy-transform-mode)
     (define-key map (kbd "M-.") 'lispy-goto-symbol)
