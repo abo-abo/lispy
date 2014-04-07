@@ -1984,19 +1984,23 @@ Second region and buffer are the current ones."
 (defun lispy-mark-car ()
   "Mark the car of current thing."
   (interactive)
-  (let* ((bnd (lispy--bounds-dwim))
+  (let* ((pt (point))
+         (bnd (lispy--bounds-dwim))
          (str (lispy--string-dwim bnd))
          (expr (ignore-errors (read str)))
          end)
-    (if (and (consp expr) (car expr))
-        (progn
-          (goto-char (car bnd))
-          (let ((newbnd (bounds-of-thing-at-point 'sexp)))
-            (when (equal newbnd bnd)
-              (forward-char)))
-          (lispy--mark
-           (bounds-of-thing-at-point 'sexp)))
-      (lispy-complain "current expression has no car"))))
+    (goto-char (car bnd))
+    (if (consp expr)
+        (if (car expr)
+            (let ((newbnd (bounds-of-thing-at-point 'sexp)))
+              (when (equal newbnd bnd)
+                (forward-char)))
+          (goto-char pt)
+          (lispy-complain "current expression's car is empty")))
+    (lispy--mark
+     (bounds-of-thing-at-point 'sexp))
+    (when (equal bnd (lispy--bounds-dwim))
+      (lispy-complain "expression is same as car"))))
 
 ;; ——— Locals:  miscellanea ————————————————————————————————————————————————————
 (defun lispy-x ()
@@ -3123,11 +3127,11 @@ For example, a `setq' statement is amended with variable name that it uses."
 (defun lispy-complain (msg)
   "Display MSG if `lispy-verbose' is t."
   (when lispy-verbose
-    (message "%s: %s"
-             (propertize
-              (prin1-to-string
-               this-command) 'face 'font-lock-keyword-face)
-             msg)
+    (user-error "%s: %s"
+                (propertize
+                 (prin1-to-string
+                  this-command) 'face 'font-lock-keyword-face)
+                msg)
     nil))
 
 ;; ——— Utilities: rest —————————————————————————————————————————————————————————
