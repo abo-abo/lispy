@@ -1997,19 +1997,27 @@ Second region and buffer are the current ones."
          (bnd (lispy--bounds-dwim))
          (str (lispy--string-dwim bnd))
          (expr (ignore-errors (read str)))
+         bnd-1
+         bnd-2
          end)
     (goto-char (car bnd))
-    (if (consp expr)
-        (if (car expr)
-            (let ((newbnd (bounds-of-thing-at-point 'sexp)))
-              (when (equal newbnd bnd)
-                (forward-char)))
+    (when (equal bnd (setq bnd-1 (bounds-of-thing-at-point 'sexp)))
+      (forward-char)
+      (if (setq bnd-2 (bounds-of-thing-at-point 'sexp))
+        (let ((str (lispy--string-dwim bnd-2)))
+          (if (string-match "[[({\"]\\(\\s-*\\)[])}\"]" str)
+              (setq bnd-1 (cons (+ (car bnd-2) (match-beginning 1))
+                                (+ (car bnd-2) (match-end 1))))
+            (setq bnd-1 bnd-2)))
+        (setq bnd-1 (cons (point) (point)))))
+    (if (equal bnd bnd-1)
+        (progn
           (goto-char pt)
-          (lispy-complain "current expression's car is empty")))
-    (lispy--mark
-     (bounds-of-thing-at-point 'sexp))
-    (when (equal bnd (lispy--bounds-dwim))
-      (lispy-complain "expression is same as car"))))
+          (lispy-complain "expression is same as car"))
+      (lispy--mark bnd-1))
+    (when (= (region-beginning)
+             (region-end))
+      (lispy-complain "empty region set"))))
 
 ;; ——— Locals:  miscellanea ————————————————————————————————————————————————————
 (defun lispy-x ()
@@ -3136,11 +3144,11 @@ For example, a `setq' statement is amended with variable name that it uses."
 (defun lispy-complain (msg)
   "Display MSG if `lispy-verbose' is t."
   (when lispy-verbose
-    (user-error "%s: %s"
-                (propertize
-                 (prin1-to-string
-                  this-command) 'face 'font-lock-keyword-face)
-                msg)
+    (message "%s: %s"
+             (propertize
+              (prin1-to-string
+               this-command) 'face 'font-lock-keyword-face)
+             msg)
     nil))
 
 ;; ——— Utilities: rest —————————————————————————————————————————————————————————
