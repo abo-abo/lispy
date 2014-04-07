@@ -190,7 +190,6 @@
 (require 'ace-jump-mode)
 (require 'newcomment)
 (require 'lispy-inline)
-
 (require 'iedit)
 
 ;; ——— Customization ———————————————————————————————————————————————————————————
@@ -579,10 +578,15 @@ Return nil if can't move."
   (cond ((region-active-p)
          (if (= (point) (region-end))
              (lispy-dotimes-protect arg
-               (backward-sexp 2)
                (lispy-different)
-               (backward-sexp 1)
-               (backward-sexp -1))
+               (if (ignore-errors
+                     (backward-sexp 1) t)
+                   (progn
+                     (lispy-different)
+                     (backward-sexp 2)
+                     (backward-sexp -1))
+                 (lispy-different)
+                 (error "Can't move up")))
            (lispy-dotimes-protect arg
              (backward-sexp 1)
              (lispy-different)
