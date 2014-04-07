@@ -1832,20 +1832,23 @@ Sexp is obtained by exiting list ARG times."
 
 ;; ——— Locals:  outline ————————————————————————————————————————————————————————
 (defun lispy-tab ()
-  "Indent code and hide/show outlines."
+  "Indent code and hide/show outlines.
+When region is active, call `lispy-mark-car'."
   (interactive)
-  (if (looking-at ";")
-      (progn
-        (outline-minor-mode 1)
-        (condition-case e
-            (outline-toggle-children)
-          (error
-           (if (string= (error-message-string e) "before first heading")
-               (outline-next-visible-heading 1)
-             (signal (car e) (cdr e))))))
-    (lispy-from-left
-     (indent-sexp))
-    (lispy-normalize)))
+  (if (region-active-p)
+      (lispy-mark-car)
+    (if (looking-at ";")
+        (progn
+          (outline-minor-mode 1)
+          (condition-case e
+              (outline-toggle-children)
+            (error
+             (if (string= (error-message-string e) "before first heading")
+                 (outline-next-visible-heading 1)
+               (signal (car e) (cdr e))))))
+      (lispy-from-left
+       (indent-sexp))
+      (lispy-normalize))))
 
 (defun lispy-shifttab ()
   "Hide/show outline summary."
