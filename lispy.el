@@ -1978,6 +1978,23 @@ Second region and buffer are the current ones."
   (when (lispy-mark-right arg)
     (lispy-different)))
 
+(defun lispy-mark-car ()
+  "Mark the car of current thing."
+  (interactive)
+  (let* ((bnd (lispy--bounds-dwim))
+         (str (lispy--string-dwim bnd))
+         (expr (ignore-errors (read str)))
+         end)
+    (if (and (consp expr) (car expr))
+        (progn
+          (goto-char (car bnd))
+          (let ((newbnd (bounds-of-thing-at-point 'sexp)))
+            (when (equal newbnd bnd)
+              (forward-char)))
+          (lispy--mark
+           (bounds-of-thing-at-point 'sexp)))
+      (lispy-complain "current expression has no car"))))
+
 ;; ——— Locals:  miscellanea ————————————————————————————————————————————————————
 (defun lispy-x ()
   "Forward to `lispy-mode-x-map'."
