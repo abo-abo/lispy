@@ -544,10 +544,15 @@ Return nil if can't move."
                (forward-sexp -1)
                (lispy-different))
            (lispy-dotimes-protect arg
-             (forward-sexp 2)
              (lispy-different)
-             (forward-sexp 1)
-             (forward-sexp -1))))
+             (if (ignore-errors
+                   (forward-sexp 1)
+                   t)
+                 (progn
+                   (lispy-different)
+                   (forward-sexp 2)
+                   (forward-sexp -1))
+               (lispy-different)))))
 
         ((looking-at lispy-left)
          (lispy-forward arg)
