@@ -1017,7 +1017,7 @@ Special case is (|( -> ( |(."
 (defun lispy-hat ()
   "Insert ^."
   (interactive)
-  (lispy--space-unless "\\s-\\|\\s(\\|[:?]")
+  (lispy--space-unless "\\s-\\|\\s(\\|[:?]\\\\?")
   (insert "^"))
 
 (defun lispy-newline-and-indent ()
