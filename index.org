@@ -1686,6 +1686,7 @@ Bound to ~i~.
 Indent code.
 
 When in outline, hide/show outline.
+When region is active, go to car of the region.
 -----
 
 ** =lispy-edebug-stop=

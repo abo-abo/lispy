@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
 <title>lispy.el documentation</title>
-<!-- 2014-03-21 Fri 12:33 -->
+<!-- 2014-04-09 Wed 19:43 -->
 <meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta  name="generator" content="Org-mode" />
 <meta  name="author" content="Oleh" />
@@ -825,9 +825,9 @@ Starting with this:
 </p>
 <div class="org-src-container">
 
-<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="font-weight: bold;">lispy-define-key</span> (keymap key def <span style="color: #000000; font-style: italic; text-decoration: underline;">&amp;optional</span> from-start)
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">lispy-define-key</span> (keymap key def <span style="color: #000000; font-style: italic; text-decoration: underline;">&amp;optional</span> from-start)
   <span style="color: #2A00FF;">"Forward to (`</span><span style="color: #110099;">define-key</span><span style="color: #2A00FF;">' KEYMAP KEY (`</span><span style="color: #110099;">lispy-defun</span><span style="color: #2A00FF;">' DEF FROM-START))."</span>
-  (<span style="color: #7F0055; font-weight: bold;">let</span> ((func (<span style="color: #7F0055; font-weight: bold;">defalias</span> (<span style="font-weight: bold;">intern</span> (concat <span style="color: #2A00FF;">"special-"</span> (symbol-name def)))
+  (<span style="color: #7F0055; font-weight: bold;">let</span> ((func (<span style="color: #7F0055; font-weight: bold;">defalias</span> (<span style="color: #000000; font-weight: bold;">intern</span> (concat <span style="color: #2A00FF;">"special-"</span> (symbol-name def)))
                   (lispy--insert-or-call def from-start))))
     <cursor>(</cursor><span style="color: #7F0055; font-weight: bold;">unless</span> (member func ac-trigger-commands)
       (push func ac-trigger-commands))
@@ -934,9 +934,9 @@ Starting with this:
 </p>
 <div class="org-src-container">
 
-<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="font-weight: bold;">lispy-define-key</span> (keymap key def <span style="color: #000000; font-style: italic; text-decoration: underline;">&amp;optional</span> from-start)
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">lispy-define-key</span> (keymap key def <span style="color: #000000; font-style: italic; text-decoration: underline;">&amp;optional</span> from-start)
   <span style="color: #2A00FF;">"Forward to (`</span><span style="color: #110099;">define-key</span><span style="color: #2A00FF;">' KEYMAP KEY (`</span><span style="color: #110099;">lispy-defun</span><span style="color: #2A00FF;">' DEF FROM-START))."</span>
-  (<span style="color: #7F0055; font-weight: bold;">let</span> ((func (<span style="color: #7F0055; font-weight: bold;">defalias</span> (<span style="font-weight: bold;">intern</span> (concat <span style="color: #2A00FF;">"special-"</span> (symbol-name def)))
+  (<span style="color: #7F0055; font-weight: bold;">let</span> ((func (<span style="color: #7F0055; font-weight: bold;">defalias</span> (<span style="color: #000000; font-weight: bold;">intern</span> (concat <span style="color: #2A00FF;">"special-"</span> (symbol-name def)))
                   (lispy--insert-or-call def from-start))))
     <cursor>(</cursor><span style="color: #7F0055; font-weight: bold;">unless</span> (member func ac-trigger-commands)
       (push func ac-trigger-commands))
@@ -1511,7 +1511,7 @@ Starting with this:
 
 <div class="org-src-container">
 
-<pre class="src src-emacs-lisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="font-weight: bold;">helm-owiki-action</span> (x)
+<pre class="src src-emacs-lisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">helm-owiki-action</span> (x)
   (find-file (expand-file-name
               (format <span style="color: #2A00FF;">"%s.org"</span> x)<cursor> </cursor>
               helm-owiki-directory)))
@@ -1565,7 +1565,7 @@ you'll get this:
 
 <pre class="src src-elisp">(mapcar #'square
         (number-sequence 1 10))
-(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="font-weight: bold;">square</span> (x) (* x x))<cursor> </cursor>
+(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">square</span> (x) (* x x))<cursor> </cursor>
 </pre>
 </div>
 <hr  />
@@ -2725,6 +2725,7 @@ Indent code.
 
 <p>
 When in outline, hide/show outline.
+When region is active, go to car of the region.
 </p>
 <hr  />
 </div>
