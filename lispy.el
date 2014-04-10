@@ -3289,7 +3289,8 @@ When NO-NARROW is not nil, don't narrow to BND."
         (lispy--do-replace "\\([ ]+\\)\n" "")
         (lispy--do-replace ")\\([^] \n)}]\\)" " \\1")
         (lispy--do-replace "\\(( (\\)" "((")
-        (widen)))))
+        (widen))
+      (indent-sexp))))
 
 (defun lispy--do-replace (from to)
   "Replace first match group of FROM to TO."
