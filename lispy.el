@@ -352,11 +352,6 @@ GRAMMAR is a list of nouns that work with this verb."
              (,sym -1)
            (,sym 1))))))
 
-(defmacro lispy-push-into-set (newelt place)
-  "Push NEWELT into list PLACE, unless it's already there."
-  `(unless (memq ,newelt ,place)
-     (push ,newelt ,place)))
-
 ;; ——— Globals: navigation —————————————————————————————————————————————————————
 (defun lispy-forward (arg)
   "Move forward list ARG times or until error.
@@ -674,7 +669,8 @@ Return nil if can't move."
            (if (= (cl-count ?\( str)
                   (cl-count ?\) str))
                (kill-line)
-             (if (lispy--out-forward 1)
+             (if (let ((lispy-ignore-whitespace t))
+                   (lispy--out-forward 1))
                  (progn
                    (backward-char 1)
                    (kill-region beg (point)))
@@ -1969,8 +1965,8 @@ Second region and buffer are the current ones."
 
 ;; ——— Locals:  marking ————————————————————————————————————————————————————————
 (defun lispy-mark-right (arg)
-  (interactive "p")
   "Go right ARG times and mark."
+  (interactive "p")
   (let ((pt (point))
         (r (lispy--out-forward arg)))
     (if (or (= pt (point))
@@ -1985,8 +1981,8 @@ Second region and buffer are the current ones."
       r)))
 
 (defun lispy-mark-left (arg)
-  (interactive "p")
   "Go left ARG times and mark."
+  (interactive "p")
   (when (lispy-mark-right arg)
     (lispy-different)))
 
@@ -2328,8 +2324,8 @@ Return nil on failure, (point) otherwise."
       (if (ignore-errors (up-list) t)
           (progn
             (unless lispy-ignore-whitespace
-              (lispy--remove-gaps))
-            (lispy--indent-for-tab))
+              (lispy--remove-gaps)
+              (lispy--indent-for-tab)))
         (when (looking-at lispy-left)
           (forward-list))
         (throw 'break nil)))
@@ -3469,7 +3465,7 @@ Use only the part bounded by BND."
 (defun lispy--insert-or-call (def blist)
   "Return a lambda to call DEF if position is special.
 Otherwise call `self-insert-command'.
-BLIST is an alist."
+BLIST is an alist with keys working as booleans."
   (let ((disable (cdr (assoc :disable blist))))
     `(lambda ,(help-function-arglist def)
        ,(format "Call `%s' when special, self-insert otherwise.\n\n%s"
@@ -3506,8 +3502,8 @@ BLIST is an alist."
 (defvar company-no-begin-commands '(special-lispy-space))
 (defvar mc/cmds-to-run-for-all nil)
 (defvar mc/cmds-to-run-once nil)
-(lispy-push-into-set 'lispy-cursor-down mc/cmds-to-run-once)
-(mapc (lambda (x) (lispy-push-into-set x mc/cmds-to-run-for-all))
+(add-to-list 'mc/cmds-to-run-once 'lispy-cursor-down)
+(mapc (lambda (x) (add-to-list 'mc/cmds-to-run-for-all x))
       '(lispy-parens lispy-brackets lispy-braces lispy-quotes
         lispy-kill lispy-delete))
 
@@ -3534,11 +3530,11 @@ BLIST is an alist."
 FUNC is obtained from (`lispy--insert-or-call' DEF BLIST)"
   (let ((func (defalias (intern (concat "special-" (symbol-name def)))
                   (lispy--insert-or-call def blist))))
-    (lispy-push-into-set func ac-trigger-commands)
+    (add-to-list 'ac-trigger-commands func)
     (unless (memq func mc/cmds-to-run-once)
-      (lispy-push-into-set func mc/cmds-to-run-for-all))
+      (add-to-list 'mc/cmds-to-run-for-all func))
     (unless (memq func company-no-begin-commands)
-      (lispy-push-into-set func company-begin-commands))
+      (add-to-list 'company-begin-commands func))
     (eldoc-add-command func)
     (define-key keymap (kbd key) func)))
 

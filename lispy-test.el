@@ -374,7 +374,9 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "((a)|\n (b) (c))" "\C-k\C-k")
                    "((a)|)"))
   (should (string= (lispy-with "(a b c)\n(|)" "\C-k")
-                   "(a b c)\n|")))
+                   "(a b c)\n|"))
+  (should (string= (lispy-with "(foo\nbar | baz  )" "\C-k")
+                   "(foo\nbar |)")))
 
 (ert-deftest lispy-yank ()
   (should (string= (lispy-with "\"|\"" (kill-new "foo") (lispy-yank))
