@@ -4,7 +4,7 @@
 
 ;; Author: Oleh Krehel <ohwoeowho@gmail.com>
 ;; URL: https://github.com/abo-abo/lispy
-;; Version: 0.10.0
+;; Version: 0.12.0
 ;; Keywords: lisp
 
 ;; This file is not part of GNU Emacs
@@ -3665,7 +3665,8 @@ FUNC is obtained from (`lispy--insert-or-call' DEF BLIST)"
   ("l" lispy-to-lambda)
   ("i" lispy-to-ifs)
   ("c" lispy-to-cond)
-  ("f" lispy-flatten)))
+  ("f" lispy-flatten)
+  ("a" lispy-teleport)))
 
 (defun lispy-setup-new-bindings ()
   "Change to new-style bindings.
