@@ -1049,6 +1049,20 @@ you'll get this:
         (number-sequence 1 10))
 (defun square (x) (* x x))||
 #+end_src
+
+It's also possible to transform a toplevel function call into a defun
+with ~xd~:
+
+Starting with this
+#+begin_src elisp
+(foo-delete-region beg end)||
+#+end_src
+
+by pressing ~xd~ you'll get this:
+#+begin_src elisp
+(defun foo-delete-region (beg end)
+  ||)
+#+end_src
 -----
 
 ** =lispy-parens=

@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
 <title>lispy.el documentation</title>
-<!-- 2014-04-09 Wed 19:43 -->
+<!-- 2014-04-15 Tue 15:50 -->
 <meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta  name="generator" content="Org-mode" />
 <meta  name="author" content="Oleh" />
@@ -1566,6 +1566,30 @@ you'll get this:
 <pre class="src src-elisp">(mapcar #'square
         (number-sequence 1 10))
 (<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">square</span> (x) (* x x))<cursor> </cursor>
+</pre>
+</div>
+
+<p>
+It's also possible to transform a toplevel function call into a defun
+with <kbd>xd</kbd>:
+</p>
+
+<p>
+Starting with this
+</p>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(foo-delete-region beg end)<cursor> </cursor>
+</pre>
+</div>
+
+<p>
+by pressing <kbd>xd</kbd> you'll get this:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">foo-delete-region</span> (beg end)
+  <cursor>)</cursor>
 </pre>
 </div>
 <hr  />
