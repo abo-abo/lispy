@@ -1460,11 +1460,18 @@ The outcome when ahead of sexps is different from when behind."
   (interactive "p")
   (let ((str (lispy--string-dwim)))
     (cond ((region-active-p)
-           (let ((str (lispy--string-dwim)))
-             (let (deactivate-mark)
-               (save-excursion
-                 (newline-and-indent)
-                 (insert str)))))
+           (lispy-dotimes-protect arg
+             (cl-labels
+                 ((doit ()
+                    (let (deactivate-mark)
+                      (save-excursion
+                        (newline-and-indent)
+                        (insert str)))))
+               (if (= (point) (region-end))
+                   (doit)
+                 (exchange-point-and-mark)
+                 (doit)
+                 (exchange-point-and-mark)))))
           ((looking-at lispy-left)
            (save-excursion
              (lispy-dotimes-protect arg

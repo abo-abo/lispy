@@ -610,7 +610,11 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "(foo)|" "c")
                    "(foo)\n(foo)|"))
   (should (string= (lispy-with "|(foo)" "c")
-                   "|(foo)\n(foo)")))
+                   "|(foo)\n(foo)"))
+  (should (string= (lispy-with "(foo ~(bar)|)" "c")
+                   "(foo ~(bar)|\n     (bar))"))
+  (should (string= (lispy-with "(foo |(bar)~)" "c")
+                   "(foo |(bar)~\n     (bar))")))
 
 (ert-deftest lispy-oneline ()
   (should (string= (lispy-with "|(defun abc (x)\n  \"def.\"\n  (+ x\n     x\n     x))" "O")
