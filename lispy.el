@@ -1061,11 +1061,11 @@ Special case is (|( -> ( |(."
              (let (deactivate-mark)
                (lispy--out-backward 1)
                (lispy-mark-list))
-          (if (= (point) (region-end))
-              (lispy-dotimes-protect arg
-                (forward-sexp 1))
-            (lispy-dotimes-protect arg
-              (forward-sexp -1)))))
+           (if (= (point) (region-end))
+               (lispy-dotimes-protect arg
+                 (forward-sexp 1))
+             (lispy-dotimes-protect arg
+               (forward-sexp -1)))))
         ((or (looking-at "()")
              (and (looking-at lispy-left) (not (looking-back "()"))))
          (lispy-dotimes-protect arg
@@ -3641,8 +3641,8 @@ FUNC is obtained from (`lispy--insert-or-call' DEF BLIST)"
 (lispy-defverb
  "other"
  (("h" lispy-move-left)
-  ("j" lispy-move-down)
-  ("k" lispy-move-up)
+  ("j" lispy-down-slurp)
+  ("k" lispy-up-slurp)
   ("l" lispy-move-right)))
 
 (lispy-defverb
@@ -3677,9 +3677,7 @@ They may become the defaults in the future."
     (lispy-define-key map "G" 'lispy-goto-mode)
     (lispy-define-key map "t" 'lispy-transform-mode)
     (define-key map (kbd "M-.") 'lispy-goto-symbol)
-    (lispy-define-key map "." 'pop-tag-mark)
-    (lispy-define-key map "H" 'lispy-down-slurp)
-    (lispy-define-key map "L" 'lispy-up-slurp))
+    (lispy-define-key map "." 'pop-tag-mark))
   (let ((map lispy-mode-x-map))
     (define-key map "d" nil)
     (define-key map "l" nil)
