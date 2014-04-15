@@ -1884,23 +1884,38 @@ When region is active, call `lispy-mark-car'."
       (goto-char (1- beg)))))
 
 (defun lispy-to-defun ()
-  "Turn the current lambda into a defun."
+  "Turn the current lambda or toplevel sexp into a defun."
   (interactive)
-  (let ((pt (point)))
-    (when (looking-back ")")
-      (backward-list))
-    (while (and (not (looking-at "(lambda"))
-                (lispy--out-backward 1)))
-    (if (looking-at "(lambda")
-        (let ((name (read-string "Function name: ")))
-          (forward-char 1)
-          (delete-char 6)
-          (insert "defun " name)
-          (lispy-kill-at-point)
-          (insert "#'" name)
-          (message "defun stored to kill ring"))
-      (goto-char pt)
-      (error "Not in lambda"))))
+  (let (bnd expr)
+    (if (and (lispy-from-left (bolp))
+             (progn
+               (setq expr
+                     (lispy--read
+                      (lispy--string-dwim
+                       (setq bnd (lispy--bounds-dwim)))))
+               (cl-every #'symbolp expr)))
+        (progn
+          (delete-region (car bnd)
+                         (cdr bnd))
+          (lispy--insert
+           `(defun ,(car expr) ,(cdr expr)
+              (ly-raw newline)))
+          (backward-char))
+      (let ((pt (point)))
+        (when (looking-back ")")
+          (backward-list))
+        (while (and (not (looking-at "(lambda"))
+                    (lispy--out-backward 1)))
+        (if (looking-at "(lambda")
+            (let ((name (read-string "Function name: ")))
+              (forward-char 1)
+              (delete-char 6)
+              (insert "defun " name)
+              (lispy-kill-at-point)
+              (insert "#'" name)
+              (message "defun stored to kill ring"))
+          (goto-char pt)
+          (error "Not in lambda"))))))
 
 ;; ——— Locals:  multiple cursors ———————————————————————————————————————————————
 (declare-function mc/create-fake-cursor-at-point "ext:multiple-cursors")
