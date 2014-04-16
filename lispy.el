@@ -1057,15 +1057,11 @@ Special case is (|( -> ( |(."
   "Grow current sexp by ARG sexps."
   (interactive "p")
   (cond ((region-active-p)
-         (if (> arg 1)
-             (let (deactivate-mark)
-               (lispy--out-backward 1)
-               (lispy-mark-list))
-           (if (= (point) (region-end))
-               (lispy-dotimes-protect arg
-                 (forward-sexp 1))
+         (if (= (point) (region-end))
              (lispy-dotimes-protect arg
-               (forward-sexp -1)))))
+               (forward-sexp 1))
+           (lispy-dotimes-protect arg
+             (forward-sexp -1))))
         ((or (looking-at "()")
              (and (looking-at lispy-left) (not (looking-back "()"))))
          (lispy-dotimes-protect arg
