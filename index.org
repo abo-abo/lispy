@@ -88,6 +88,7 @@
 | xd  | [[#lispy-to-defun][lispy-to-defun]]                |
 | J   | [[#lispy-outline-next][lispy-outline-next]]            |
 | K   | [[#lispy-outline-prev][lispy-outline-prev]]            |
+| V   | [[#lispy-visit][lispy-visit]]                   |
 | I   | [[#lispy-shifttab][lispy-shifttab]]                |
 | i   | [[#lispy-tab][lispy-tab]]                     |
 | Z   | [[#lispy-edebug-stop][lispy-edebug-stop]]             |
@@ -1883,3 +1884,10 @@ The reverse is [[#lispy-to-ifs][=lispy-to-ifs=]].
        (lispy-backward 1)))
 #+end_src
 #+HTML: </td></tr></tbody></table>
+
+** =lispy-visit=
+   :PROPERTIES:
+   :CUSTOM_ID: lispy-visit
+   :END:
+   Forward to =projectile-find-file= or
+   =projectile-find-file-other-window= on ~2V~.
