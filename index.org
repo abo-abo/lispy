@@ -89,6 +89,7 @@
 | J   | [[#lispy-outline-next][lispy-outline-next]]            |
 | K   | [[#lispy-outline-prev][lispy-outline-prev]]            |
 | V   | [[#lispy-visit][lispy-visit]]                   |
+| N   | [[#lispy-narrow][lispy-narrow]]                  |
 | I   | [[#lispy-shifttab][lispy-shifttab]]                |
 | i   | [[#lispy-tab][lispy-tab]]                     |
 | Z   | [[#lispy-edebug-stop][lispy-edebug-stop]]             |
@@ -1814,6 +1815,7 @@ The reverse is [[#lispy-to-cond][=lispy-to-cond=]].
       (lispy-backward 1))))
 #+end_src
 #+HTML: </td></tr></tbody></table>
+-----
 
 ** =lispy-to-cond=
 :PROPERTIES:
@@ -1884,10 +1886,22 @@ The reverse is [[#lispy-to-ifs][=lispy-to-ifs=]].
        (lispy-backward 1)))
 #+end_src
 #+HTML: </td></tr></tbody></table>
+-----
 
 ** =lispy-visit=
-   :PROPERTIES:
-   :CUSTOM_ID: lispy-visit
-   :END:
-   Forward to =projectile-find-file= or
-   =projectile-find-file-other-window= on ~2V~.
+:PROPERTIES:
+:CUSTOM_ID: lispy-visit
+:END:
+
+Use ~V~ to call =projectile-find-file=.
+Use ~2V~ to call =projectile-find-file-other-window=.
+-----
+
+** =lispy-narrow=
+:PROPERTIES:
+:CUSTOM_ID: lispy-narrow
+:END:
+Bound to ~N~.
+
+Narrow to current sexp or region.
+-----

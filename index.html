@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
 <title>lispy.el documentation</title>
-<!-- 2014-04-18 Fri 17:51 -->
+<!-- 2014-04-19 Sat 13:31 -->
 <meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta  name="generator" content="Org-mode" />
 <meta  name="author" content="Oleh" />
@@ -310,6 +310,11 @@
 <tr>
 <td class="left">V</td>
 <td class="left"><a href="#lispy-visit">lispy-visit</a></td>
+</tr>
+
+<tr>
+<td class="left">N</td>
+<td class="left"><a href="#lispy-narrow">lispy-narrow</a></td>
 </tr>
 
 <tr>
@@ -2893,6 +2898,7 @@ The reverse is <a href="#lispy-to-cond"><code>lispy-to-cond</code></a>.
 </pre>
 </div>
 </td></tr></tbody></table>
+<hr  />
 </div>
 </div>
 <div id="outline-container-lispy-to-cond" class="outline-3">
@@ -2974,15 +2980,30 @@ The reverse is <a href="#lispy-to-ifs"><code>lispy-to-ifs</code></a>.
 </pre>
 </div>
 </td></tr></tbody></table>
+<hr  />
 </div>
 </div>
 <div id="outline-container-lispy-visit" class="outline-3">
 <h3 id="lispy-visit"><a id="sec-3-49"></a><code>lispy-visit</code></h3>
 <div class="outline-text-3" id="text-lispy-visit">
 <p>
-Forward to <code>projectile-find-file</code> or
-<code>projectile-find-file-other-window</code> on <kbd>2V</kbd>.
+Use <kbd>V</kbd> to call <code>projectile-find-file</code>.
+Use <kbd>2V</kbd> to call <code>projectile-find-file-other-window</code>.
 </p>
+<hr  />
+</div>
+</div>
+<div id="outline-container-lispy-narrow" class="outline-3">
+<h3 id="lispy-narrow"><a id="sec-3-50"></a><code>lispy-narrow</code></h3>
+<div class="outline-text-3" id="text-lispy-narrow">
+<p>
+Bound to <kbd>N</kbd>.
+</p>
+
+<p>
+Narrow to current sexp or region.
+</p>
+<hr  />
 </div>
 </div>
 </div>
