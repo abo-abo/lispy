@@ -90,6 +90,7 @@
 | K   | [[#lispy-outline-prev][lispy-outline-prev]]            |
 | V   | [[#lispy-visit][lispy-visit]]                   |
 | N   | [[#lispy-narrow][lispy-narrow]]                  |
+| W   | [[#lispy-widen][lispy-widen]]                   |
 | I   | [[#lispy-shifttab][lispy-shifttab]]                |
 | i   | [[#lispy-tab][lispy-tab]]                     |
 | Z   | [[#lispy-edebug-stop][lispy-edebug-stop]]             |
@@ -1905,3 +1906,11 @@ Bound to ~N~.
 
 Narrow to current sexp or region.
 -----
+
+** =lispy-widen=
+   :PROPERTIES:
+   :CUSTOM_ID: lispy-widen
+   :END:
+Bound to ~W~.
+
+Forward to =widen=.
