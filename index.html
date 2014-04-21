@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
 <title>lispy.el documentation</title>
-<!-- 2014-04-20 Sun 13:50 -->
+<!-- 2014-04-21 Mon 18:42 -->
 <meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta  name="generator" content="Org-mode" />
 <meta  name="author" content="Oleh" />
@@ -2800,8 +2800,11 @@ Bound to <kbd>xf</kbd>.
 </p>
 
 <p>
-Inline current function or macro call, i.e. replace it with function body.
-The function should be stored with <a href="#lispy-store-region-and-buffer"><code>lispy-store-region-and-buffer</code></a>.
+Inline current function or macro call, i.e. replace it with function
+body.
+The function should be interned and its body findable.
+Alternatively call it with prefix argument to use a function
+body stored with <a href="#lispy-store-region-and-buffer"><code>lispy-store-region-and-buffer</code></a>.
 </p>
 
 <table><tbody><tr><td>

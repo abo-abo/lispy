@@ -1729,8 +1729,11 @@ The advantage is that you can edit the code as you debug.
 
 Bound to ~xf~.
 
-Inline current function or macro call, i.e. replace it with function body.
-The function should be stored with [[#lispy-store-region-and-buffer][=lispy-store-region-and-buffer=]].
+Inline current function or macro call, i.e. replace it with function
+body.
+The function should be interned and its body findable.
+Alternatively call it with prefix argument to use a function
+body stored with [[#lispy-store-region-and-buffer][=lispy-store-region-and-buffer=]].
 
 #+HTML: <table><tbody><tr><td>
 #+begin_src elisp
