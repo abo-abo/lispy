@@ -1894,7 +1894,7 @@ When region is active, call `lispy-mark-car'."
           (delete-region (car bnd)
                          (cdr bnd))
           (lispy--insert
-           `(defun ,(car expr) ,(cdr expr)
+           `(defun ,(car expr) ,(or (cdr expr) '(ly-raw empty))
               (ly-raw newline)))
           (backward-char))
       (let ((pt (point)))

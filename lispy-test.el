@@ -751,7 +751,11 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "(foo bar)|" (lispy-to-defun))
                    "(defun foo (bar)\n  |)"))
   (should (string= (lispy-with "|(foo bar)" (lispy-to-defun))
-                   "(defun foo (bar)\n  |)")))
+                   "(defun foo (bar)\n  |)"))
+  (should (string= (lispy-with "(foo)|" (lispy-to-defun))
+                   "(defun foo ()\n  |)"))
+  (should (string= (lispy-with "|(foo)" (lispy-to-defun))
+                   "(defun foo ()\n  |)")))
 
 (provide 'lispy-test)
 
