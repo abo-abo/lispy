@@ -747,6 +747,12 @@ Insert KEY if there's no command."
                                (lispy-to-cond))
                    "|(cond ((looking-at \" *;\"))\n      ((and (looking-at \"\\n\")\n            (looking-back \"^ *\"))\n       (delete-blank-lines))\n      ((looking-at \"\\\\([\\n ]+\\\\)[^\\n ;]\")\n       (delete-region (match-beginning 1)\n                      (match-end 1))))")))
 
+(ert-deftest lispy-to-defun ()
+  (should (string= (lispy-with "(foo bar)|" (lispy-to-defun))
+                   "(defun foo (bar)\n  |)"))
+  (should (string= (lispy-with "|(foo bar)" (lispy-to-defun))
+                   "(defun foo (bar)\n  |)")))
+
 (provide 'lispy-test)
 
 ;;; Local Variables:
