@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
 <title>lispy.el documentation</title>
-<!-- 2014-04-21 Mon 18:42 -->
+<!-- 2014-04-23 Wed 11:07 -->
 <meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta  name="generator" content="Org-mode" />
 <meta  name="author" content="Oleh" />
@@ -663,19 +663,146 @@ list's elements with just <kbd>j</kbd> and <kbd>k</kbd>.
 </p>
 
 <p>
-When region is active, <kbd>j</kbd> will call <code>forward-sexp</code>.
-This allows to:
+When region is active, <kbd>j</kbd> will move the region by <code>forward-sexp</code>,
+i.e. move the point and the mark by <code>forward-sexp</code>.
 </p>
 
-<ul class="org-ul">
-<li>grow the region when point is at <code>region-end</code>
-</li>
-<li>shrink the region when point is at <code>region-beginning</code>
-</li>
-</ul>
+<p>
+This allows to easily mark any element(s) of current list.
+<kbd>j</kbd> maintains a guarantee that the region will not exit the currrent
+list, so if you want to mark last 3 elements of the current list, you
+can mark the first 3 elements of the current list and press <kbd>99j</kbd>.
+</p>
+
+<p>
+For example, starting with:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-elisp"><cursor>(</cursor>a b c d e f g h i j k l m n o p q r s t u v w x y z)
+</pre>
+</div>
+<p>
+after <kbd>mi</kbd>:
+</p>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<!-- Created by htmlize-1.47 in css mode. -->
+<html>
+  <head>
+    <title>*scratch*</title>
+    <style type="text/css">
+    <!--
+      body {
+        color: #000000;
+        background-color: #ffffff;
+      }
+      .region {
+        /* region */
+        color: #ffffff;
+        background-color: #f9b593;
+      }
+
+      a {
+        color: inherit;
+        background-color: inherit;
+        font: inherit;
+        text-decoration: inherit;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+    -->
+    </style>
+  </head>
+  <body>
+    <pre>
+(<span class="region">a</span> b c d e f g h i j k l m n o p q r s t u v w x y z)
+
+</pre>
+  </body>
+</html>
+<p>
+after <kbd>2&gt;</kbd>:
+</p>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<!-- Created by htmlize-1.47 in css mode. -->
+<html>
+  <head>
+    <title>*scratch*</title>
+    <style type="text/css">
+    <!--
+      body {
+        color: #000000;
+        background-color: #ffffff;
+      }
+      .region {
+        /* region */
+        color: #ffffff;
+        background-color: #f9b593;
+      }
+
+      a {
+        color: inherit;
+        background-color: inherit;
+        font: inherit;
+        text-decoration: inherit;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+    -->
+    </style>
+  </head>
+  <body>
+    <pre>
+(<span class="region">a b c</span> d e f g h i j k l m n o p q r s t u v w x y z)
+
+</pre>
+  </body>
+</html>
+<p>
+after <kbd>99j</kbd>:
+</p>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<!-- Created by htmlize-1.47 in css mode. -->
+<html>
+  <head>
+    <title>*scratch*</title>
+    <style type="text/css">
+    <!--
+      body {
+        color: #000000;
+        background-color: #ffffff;
+      }
+      .region {
+        /* region */
+        color: #ffffff;
+        background-color: #f9b593;
+      }
+
+      a {
+        color: inherit;
+        background-color: inherit;
+        font: inherit;
+        text-decoration: inherit;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+    -->
+    </style>
+  </head>
+  <body>
+    <pre>
+(a b c d e f g h i j k l m n o p q r s t u v w <span class="region">x y z</span>)
+
+</pre>
+  </body>
+</html>
 <hr  />
 </div>
 </div>
+
 <div id="outline-container-lispy-up" class="outline-3">
 <h3 id="lispy-up"><a id="sec-3-7"></a><code>lispy-up</code></h3>
 <div class="outline-text-3" id="text-lispy-up">

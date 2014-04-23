@@ -316,13 +316,136 @@ When it's not possible to move down any more, ~j~ will
 behave as [[#lispy-different][=lispy-different=]]. This allows to traverse the current
 list's elements with just ~j~ and ~k~.
 
-When region is active, ~j~ will call =forward-sexp=.
-This allows to:
+When region is active, ~j~ will move the region by =forward-sexp=,
+i.e. move the point and the mark by =forward-sexp=.
 
-- grow the region when point is at =region-end=
-- shrink the region when point is at =region-beginning=
+This allows to easily mark any element(s) of current list.
+~j~ maintains a guarantee that the region will not exit the currrent
+list, so if you want to mark last 3 elements of the current list, you
+can mark the first 3 elements of the current list and press ~99j~.
+
+For example, starting with:
+#+begin_src elisp
+||(a b c d e f g h i j k l m n o p q r s t u v w x y z)
+#+end_src
+after ~mi~:
+#+BEGIN_HTML
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<!-- Created by htmlize-1.47 in css mode. -->
+<html>
+  <head>
+    <title>*scratch*</title>
+    <style type="text/css">
+    <!--
+      body {
+        color: #000000;
+        background-color: #ffffff;
+      }
+      .region {
+        /* region */
+        color: #ffffff;
+        background-color: #f9b593;
+      }
+
+      a {
+        color: inherit;
+        background-color: inherit;
+        font: inherit;
+        text-decoration: inherit;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+    -->
+    </style>
+  </head>
+  <body>
+    <pre>
+(<span class="region">a</span> b c d e f g h i j k l m n o p q r s t u v w x y z)
+
+</pre>
+  </body>
+</html>
+#+END_HTML
+after ~2>~:
+#+BEGIN_HTML
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<!-- Created by htmlize-1.47 in css mode. -->
+<html>
+  <head>
+    <title>*scratch*</title>
+    <style type="text/css">
+    <!--
+      body {
+        color: #000000;
+        background-color: #ffffff;
+      }
+      .region {
+        /* region */
+        color: #ffffff;
+        background-color: #f9b593;
+      }
+
+      a {
+        color: inherit;
+        background-color: inherit;
+        font: inherit;
+        text-decoration: inherit;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+    -->
+    </style>
+  </head>
+  <body>
+    <pre>
+(<span class="region">a b c</span> d e f g h i j k l m n o p q r s t u v w x y z)
+
+</pre>
+  </body>
+</html>
+#+END_HTML
+after ~99j~:
+#+BEGIN_HTML
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<!-- Created by htmlize-1.47 in css mode. -->
+<html>
+  <head>
+    <title>*scratch*</title>
+    <style type="text/css">
+    <!--
+      body {
+        color: #000000;
+        background-color: #ffffff;
+      }
+      .region {
+        /* region */
+        color: #ffffff;
+        background-color: #f9b593;
+      }
+
+      a {
+        color: inherit;
+        background-color: inherit;
+        font: inherit;
+        text-decoration: inherit;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+    -->
+    </style>
+  </head>
+  <body>
+    <pre>
+(a b c d e f g h i j k l m n o p q r s t u v w <span class="region">x y z</span>)
+
+</pre>
+  </body>
+</html>
+#+END_HTML
 -----
-
 ** =lispy-up=
 :PROPERTIES:
 :CUSTOM_ID: lispy-up
