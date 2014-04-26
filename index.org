@@ -92,6 +92,7 @@
 | N   | [[#lispy-narrow][lispy-narrow]]                  |
 | W   | [[#lispy-widen][lispy-widen]]                   |
 | I   | [[#lispy-shifttab][lispy-shifttab]]                |
+| O   | [[#lispy-oneline][lispy-oneline]]                 |
 | i   | [[#lispy-tab][lispy-tab]]                     |
 | Z   | [[#lispy-edebug-stop][lispy-edebug-stop]]             |
 | SPC | [[#lispy-space][lispy-space]]                   |
@@ -2034,9 +2035,18 @@ Narrow to current sexp or region.
 -----
 
 ** =lispy-widen=
-   :PROPERTIES:
-   :CUSTOM_ID: lispy-widen
-   :END:
+:PROPERTIES:
+:CUSTOM_ID: lispy-widen
+:END:
 Bound to ~W~.
 
 Forward to =widen=.
+
+** =lispy-oneline=
+:PROPERTIES:
+:CUSTOM_ID: lispy-oneline
+:END:
+
+Bound to ~O~.
+
+Turn current sexp into one line.
