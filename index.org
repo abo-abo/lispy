@@ -93,6 +93,7 @@
 | W   | [[#lispy-widen][lispy-widen]]                   |
 | I   | [[#lispy-shifttab][lispy-shifttab]]                |
 | O   | [[#lispy-oneline][lispy-oneline]]                 |
+| M   | [[#lispy-multiline][lispy-multiline]]               |
 | i   | [[#lispy-tab][lispy-tab]]                     |
 | Z   | [[#lispy-edebug-stop][lispy-edebug-stop]]             |
 | SPC | [[#lispy-space][lispy-space]]                   |
@@ -2050,3 +2051,13 @@ Forward to =widen=.
 Bound to ~O~.
 
 Turn current sexp into one line.
+
+** =lispy-multiline=
+:PROPERTIES:
+:CUSTOM_ID: lispy-multiline
+:END:
+
+Bound to ~M~.
+
+Extend current sexp into multiple lines.
+Especially useful on results of =macroexpand=.
