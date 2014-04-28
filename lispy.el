@@ -2402,7 +2402,7 @@ Move to the end of line."
   (let ((sexp (read e-str))
         val)
     (when (and (consp sexp)
-               (eq (car sexp) 'defvar)
+               (memq (car sexp) '(defvar defcustom))
                (consp (cdr sexp))
                (boundp (cadr sexp)))
       (set (cadr sexp) (eval (caddr sexp))))
