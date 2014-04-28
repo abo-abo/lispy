@@ -818,12 +818,19 @@ Extend region when it's aleardy active."
         ((or (looking-at "[ ]*[()]")
              (and (region-active-p)
                   (looking-at "[ \n]*[()]")))
-         (skip-chars-forward "() \n")
-         (set-mark-command nil)
-         (re-search-forward "[() \n]")
-         (while (lispy--in-string-or-comment-p)
-           (re-search-forward "[() \n]"))
-         (backward-char 1))
+         (let ((pt (point)))
+           (skip-chars-forward "() \n")
+           (set-mark-command nil)
+           (condition-case nil
+               (progn
+                 (re-search-forward "[() \n]")
+                 (while (lispy--in-string-or-comment-p)
+                   (re-search-forward "[() \n]"))
+                 (backward-char 1))
+             (error
+              (message "No further symbols found")
+              (deactivate-mark)
+              (goto-char pt)))))
 
         ((looking-back lispy-right)
          (skip-chars-backward "() \n")
