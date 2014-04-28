@@ -1056,7 +1056,13 @@ to =nil=.
 *** eval of =defvar=
 
 Will do a =setq= in addition to =defvar= (i.e. the behavior of ~C-M-x~).
+
+
+*** eval of =defcustom=
+
+Same as for =defvar=.
 -----
+
 
 ** =lispy-eval-and-insert=
 :PROPERTIES:
