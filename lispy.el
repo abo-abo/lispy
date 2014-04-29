@@ -2503,7 +2503,9 @@ Move to the end of line."
      (eval-after-load . 1)
      (global-set-key . 2)
      ;; org-mode specific
-     (org-defkey . 3)))
+     (org-defkey . 3)
+     ;; use-package specific
+     (use-package . 1)))
   "Alist of tag arities for supported modes.")
 
 (defun lispy--tag-regexp (&optional mode)
