@@ -3183,8 +3183,9 @@ For example, a `setq' statement is amended with variable name that it uses."
 
 (defun lispy--indent-for-tab ()
   "Call `indent-for-tab-command'."
-  (let ((tab-always-indent t))
-    (indent-for-tab-command)))
+  (unless (eq major-mode 'minibuffer-inactive-mode)
+    (let ((tab-always-indent t))
+      (indent-for-tab-command))))
 
 (defun lispy--remove-gaps ()
   "Remove dangling `\\s)'."
