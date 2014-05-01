@@ -1043,6 +1043,12 @@ Special case is (|( -> ( |(."
     (when (looking-at lispy-left)
       (indent-sexp))))
 
+(defun lispy-newline-and-indent-plain ()
+  (interactive)
+  (if (eq major-mode 'minibuffer-inactive-mode)
+      (exit-minibuffer)
+    (newline-and-indent)))
+
 ;; ——— Globals: miscellanea ————————————————————————————————————————————————————
 (defun lispy-string-oneline ()
   "Convert current string to one line."
@@ -3585,7 +3591,7 @@ FUNC is obtained from (`lispy--insert-or-call' DEF BLIST)"
   (define-key map (kbd "C-j") 'lispy-newline-and-indent)
   (define-key map (kbd "M-j") 'lispy-split)
   (define-key map (kbd "M-J") 'lispy-join)
-  (define-key map (kbd "RET") 'newline-and-indent)
+  (define-key map (kbd "RET") 'lispy-newline-and-indent-plain)
   (define-key map (kbd ";") 'lispy-comment)
   (define-key map (kbd "C-e") 'lispy-move-end-of-line)
   ;; ——— globals: C-1 .. C-9 ——————————————————
