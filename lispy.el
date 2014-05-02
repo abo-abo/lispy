@@ -3253,7 +3253,7 @@ For example, a `setq' statement is amended with variable name that it uses."
   "Mark BND.  BND is a cons of beginning and end positions."
   (destructuring-bind (beg . end) bnd
     (goto-char beg)
-    (set-mark-command nil)
+    (push-mark-command t t)
     (goto-char end)))
 
 (defun lispy--space-unless (context)
