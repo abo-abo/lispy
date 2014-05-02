@@ -764,6 +764,20 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "|(foo)" (lispy-to-defun))
                    "(defun foo ()\n  |)")))
 
+(ert-deftest lispy-up-slurp ()
+  (should (string= (lispy-with "(progn\n  (foo))\n|(bar)" (lispy-up-slurp))
+                   "(progn\n  (foo)\n  |(bar))"))
+  (should (string= (lispy-with "(progn\n  (foo))\n(bar)|" (lispy-up-slurp))
+                   "(progn\n  (foo)\n  (bar)|)"))
+  (should (string= (lispy-with "(progn\n  (foo))\n~(bar)|" (lispy-up-slurp))
+                   "(progn\n  (foo)\n  ~(bar)|)"))
+  (should (string= (lispy-with "(progn\n  (foo))\n|(bar)~" (lispy-up-slurp))
+                   "(progn\n  (foo)\n  |(bar)~)"))
+  (should (string= (lispy-with "(progn\n  (foo))\n|(bar)\n(baz)~" (lispy-up-slurp))
+                   "(progn\n  (foo)\n  |(bar)\n  (baz)~)"))
+  (should (string= (lispy-with "(progn\n  (foo))\n~(bar)\n(baz)|" (lispy-up-slurp))
+                   "(progn\n  (foo)\n  ~(bar)\n  (baz)|)")))
+
 (provide 'lispy-test)
 
 ;;; Local Variables:

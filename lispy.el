@@ -1102,28 +1102,57 @@ Special case is (|( -> ( |(."
         (goto-char pt)
         (lispy--teleport (car bnd) (cdr bnd) endp t)))))
 
+(defun lispy--endp ()
+  (or (looking-back lispy-right)
+      (and (region-active-p) (= (point) (region-end)))))
+
 (defun lispy-up-slurp ()
   "Move current sexp or region into the previous sexp."
   (interactive)
   (let ((bnd (lispy--bounds-dwim))
-        (endp (= (point) (region-end)))
-        (bsize (buffer-size))
-        deactivate-mark)
-    (let ((pt (save-excursion
-                (goto-char (car bnd))
-                (when (lispy-backward 1)
-                  (lispy-forward 1)
-                  (backward-char 1)
-                  (setq deactivate-mark nil)
-                  (newline-and-indent)
-                  (point)))))
-      (when pt
-        (goto-char pt)
-        (decf bsize (buffer-size))
-        (backward-char 1)
-        (lispy--teleport (- (car bnd) bsize)
-                         (- (cdr bnd) bsize)
-                         endp t)))))
+        (regionp (region-active-p))
+        (endp (lispy--endp))
+        p-beg p-end
+        (pt (point))
+        (deactivate-mark nil)
+        bsize)
+    (deactivate-mark)
+    (goto-char (car bnd))
+    (if (not (lispy-backward 1))
+        (progn
+          (lispy-complain "No list above to slurp into")
+          (if regionp
+              (lispy--mark bnd)
+            (goto-char
+             (if endp
+                 (cdr bnd)
+               (car bnd)))))
+      (setq p-beg (point))
+      (forward-list)
+      (setq p-end (point))
+      (goto-char (car bnd))
+      (setq bsize (buffer-size))
+      (lispy-save-excursion
+        (goto-char (cdr bnd))
+        (insert ")")
+        (goto-char p-end)
+        (backward-delete-char 1)
+        (goto-char p-beg)
+        (indent-sexp))
+      (setq bnd (cons (point)
+                      (+ (point)
+                         (- (cdr bnd) (car bnd))
+                         (- (buffer-size)
+                            bsize
+                            (- (point) (car bnd))
+                            1))))
+      (when regionp
+        (lispy--mark bnd))
+      (if endp
+          (goto-char (cdr bnd))
+        (if (region-active-p)
+            (lispy-different)
+          (goto-char (car bnd)))))))
 
 (defun lispy-barf (arg)
   "Shrink current sexp by ARG sexps."
