@@ -1557,9 +1557,11 @@ Comments will be moved ahead of sexp."
                  (lispy--out-backward 1)))
               ((bolp)
                (insert ";;"))
-              ((or (looking-back lispy-right) (eolp))
+              ((looking-back lispy-right)
                (comment-dwim nil)
                (insert " "))
+              ((eolp)
+               (comment-dwim nil))
               ((looking-back "^ +")
                (comment-dwim nil))
               ((setq bnd (save-excursion
