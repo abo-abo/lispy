@@ -342,7 +342,8 @@ GRAMMAR is a list of nouns that work with this verb."
        (mapc (lambda (x)
                (lispy-define-key
                 ,keymap
-                (car x) (cadr x) (cons :disable ',sym)))
+                   (car x) (cadr x)
+                 :disable ',sym))
              ',grammar)
        (unless (memq ',sym lispy-known-verbs)
          (push ',sym lispy-known-verbs))
@@ -1686,6 +1687,7 @@ Sexp is obtained by exiting list ARG times."
 (declare-function cider-jump-to-def "ext:cider")
 (declare-function slime-edit-definition "ext:slime")
 (declare-function lispy--clojure-resolve "ext:lispy")
+
 
 (defun lispy-goto-symbol (symbol)
   "Go to definition of SYMBOL."
@@ -3493,18 +3495,23 @@ Use only the part bounded by BND."
       (setq ediff-temp-indirect-buffer t)
       (list (current-buffer) (point-min) (point-max)))))
 
-(defun lispy--insert-or-call (def blist)
+(defun lispy--insert-or-call (def plist)
   "Return a lambda to call DEF if position is special.
 Otherwise call `self-insert-command'.
-BLIST is an alist with keys working as booleans."
-  (let ((disable (cdr (assoc :disable blist))))
+PLIST currently accepts:
+- :disable with a mode to disable
+- :override with a lambda to conditionally abort command"
+  (let ((disable (plist-get plist :disable))
+        (override (plist-get plist :override)))
     `(lambda ,(help-function-arglist def)
        ,(format "Call `%s' when special, self-insert otherwise.\n\n%s"
                 (symbol-name def) (documentation def))
        ,(interactive-form def)
        (let (cmd)
-         ,(when disable `(,disable -1))
-         (cond ((and (bound-and-true-p edebug-active)
+         ,@(when disable `((,disable -1)))
+         (cond ,@(when override `(((,override))))
+
+               ((and (bound-and-true-p edebug-active)
                      (= 1 (length (this-command-keys)))
                      (let ((char (aref (this-command-keys) 0)))
                        (setq cmd (or (assq char edebug-mode-map)
@@ -3556,11 +3563,12 @@ BLIST is an alist with keys working as booleans."
   (define-key map "r" 'lispy-eval-and-replace)
   (define-key map "s" 'save-buffer))
 
-(defun lispy-define-key (keymap key def &rest blist)
+(defun lispy-define-key (keymap key def &rest plist)
   "Forward to (`define-key' KEYMAP KEY FUNC).
-FUNC is obtained from (`lispy--insert-or-call' DEF BLIST)"
+FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)"
+  (declare (indent 3))
   (let ((func (defalias (intern (concat "special-" (symbol-name def)))
-                  (lispy--insert-or-call def blist))))
+                  (lispy--insert-or-call def plist))))
     (add-to-list 'ac-trigger-commands func)
     (unless (memq func mc/cmds-to-run-once)
       (add-to-list 'mc/cmds-to-run-for-all func))
