@@ -1687,7 +1687,7 @@ Sexp is obtained by exiting list ARG times."
 (declare-function cider-jump-to-def "ext:cider")
 (declare-function slime-edit-definition "ext:slime")
 (declare-function lispy--clojure-resolve "ext:lispy")
-
+(declare-function View-quit "view")
 
 (defun lispy-goto-symbol (symbol)
   "Go to definition of SYMBOL."
@@ -3661,7 +3661,8 @@ FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)"
   (lispy-define-key map "W" 'lispy-widen)
   (lispy-define-key map "c" 'lispy-clone)
   (lispy-define-key map "u" 'lispy-undo)
-  (lispy-define-key map "q" 'lispy-ace-paren)
+  (lispy-define-key map "q" 'lispy-ace-paren
+    :override (lambda () (when (bound-and-true-p view-mode) (View-quit) t)))
   (lispy-define-key map "Q" 'lispy-ace-char)
   (lispy-define-key map "v" 'lispy-view)
   (lispy-define-key map "T" 'lispy-ert)
