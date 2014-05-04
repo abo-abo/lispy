@@ -2240,6 +2240,15 @@ With ARG, use the contents of `lispy-store-region-and-buffer' instead."
   (interactive)
   (widen))
 
+(defun lispy-amend ()
+  "Amend current sexp."
+  (interactive)
+  (cond ((looking-back ")")
+         (backward-char 1)
+         (insert " "))
+        ((looking-at "(")
+         (forward-char 1))))
+
 ;; ——— Predicates ——————————————————————————————————————————————————————————————
 (defun lispy--in-string-p ()
   "Test if point is inside a string."
@@ -3712,7 +3721,8 @@ FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)"
  (("h" lispy-move-left)
   ("j" lispy-down-slurp)
   ("k" lispy-up-slurp)
-  ("l" lispy-move-right)))
+  ("l" lispy-move-right)
+  ("i" lispy-amend)))
 
 (lispy-defverb
  "goto"
