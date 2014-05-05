@@ -95,6 +95,7 @@
 | O   | [[#lispy-oneline][lispy-oneline]]                 |
 | M   | [[#lispy-multiline][lispy-multiline]]               |
 | i   | [[#lispy-tab][lispy-tab]]                     |
+| v   | [[#lispy-view][lispy-view]]                    |
 | Z   | [[#lispy-edebug-stop][lispy-edebug-stop]]             |
 | SPC | [[#lispy-space][lispy-space]]                   |
 | xf  | [[#lispy-flatten][lispy-flatten]]                 |
@@ -2067,3 +2068,13 @@ Bound to ~M~.
 
 Extend current sexp into multiple lines.
 Especially useful on results of =macroexpand=.
+
+** =lispy-view=
+:PROPERTIES:
+:CUSTOM_ID: lispy-view
+:END:
+
+Bound to ~v~.
+
+Recenter current sexp to be on the first line of the window.
+When called twice in a row, recenter back to the original position.
