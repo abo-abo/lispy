@@ -2879,6 +2879,14 @@ For example, a `setq' statement is amended with variable name that it uses."
       (insert char)
       (lispy--indent-region (point) pt))))
 
+(defun lispy--replace-regexp-in-code (regexp to-string)
+  "Replace text matching REGEXP with TO-STRING in whole buffer.
+Ignore the matches in strings and comments."
+  (goto-char (point-min))
+  (while (re-search-forward regexp nil t)
+    (unless (lispy--in-string-or-comment-p)
+      (replace-match to-string))))
+
 ;; ——— Utilities: source transformation ————————————————————————————————————————
 (defun lispy--read (str)
   "Read STR including comments and newlines."
