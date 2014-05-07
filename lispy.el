@@ -2277,6 +2277,13 @@ With ARG, use the contents of `lispy-store-region-and-buffer' instead."
   (or (/= (point-min) 1)
       (/= (point-max) (1+ (buffer-size)))))
 
+(defun lispy--raw-comment-p (expr)
+  "Return t if EXPR is a raw comment."
+  (and (listp expr)
+       (eq (car expr) 'ly-raw)
+       (consp (cdr expr))
+       (eq (cadr expr) 'comment)))
+
 ;; ——— Pure ————————————————————————————————————————————————————————————————————
 (defun lispy--bounds-dwim ()
   "Return a cons of region bounds if it's active.
