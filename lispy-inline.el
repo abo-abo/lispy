@@ -37,7 +37,7 @@
   :prefix "lispy-face-")
 
 (defface lispy-face-hint
-  '((t (:background "#fff3bc" :foreground "black")))
+    '((t (:background "#fff3bc" :foreground "black")))
   "Basic hint face."
   :group 'lispy-faces)
 
@@ -168,8 +168,7 @@ Return t if at least one was deleted."
                                               "undocumented")))
                                 dc
                               (describe-variable sym)
-                              nil)
-                            )
+                              nil))
                            (t "unbound"))))
                   ((eq major-mode 'clojure-mode)
                    (require 'le-clojure)
@@ -213,7 +212,7 @@ Return t if at least one was deleted."
 (defun lispy--join-pad (strs width)
   "Join STRS padding each line with WIDTH spaces."
   (let ((padding (make-string width ?\ )))
-    (mapconcat (lambda(x) (concat padding x))
+    (mapconcat (lambda (x) (concat padding x))
                strs
                "\n")))
 
@@ -265,12 +264,12 @@ Return t if at least one was deleted."
       #'identity
       (append
        (list (propertize (symbol-name symbol) 'face 'lispy-face-hint))
-       (mapcar (lambda(x) (propertize (downcase x)
-                                 'face 'lispy-face-req-nosel)) a-req)
-       (mapcar (lambda(x) (propertize (downcase x)
-                                 'face 'lispy-face-opt-nosel)) a-opt)
-       (mapcar (lambda(x) (propertize (concat (downcase x) "...")
-                                 'face 'lispy-face-rst-nosel)) a-rst))
+       (mapcar (lambda (x) (propertize (downcase x)
+                                  'face 'lispy-face-req-nosel)) a-req)
+       (mapcar (lambda (x) (propertize (downcase x)
+                                  'face 'lispy-face-opt-nosel)) a-opt)
+       (mapcar (lambda (x) (propertize (concat (downcase x) "...")
+                                  'face 'lispy-face-rst-nosel)) a-rst))
       " "))))
 
 (provide 'lispy-inline)
