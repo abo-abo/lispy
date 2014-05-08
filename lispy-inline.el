@@ -264,12 +264,18 @@ Return t if at least one was deleted."
       #'identity
       (append
        (list (propertize (symbol-name symbol) 'face 'lispy-face-hint))
-       (mapcar (lambda (x) (propertize (downcase x)
-                                  'face 'lispy-face-req-nosel)) a-req)
-       (mapcar (lambda (x) (propertize (downcase x)
-                                  'face 'lispy-face-opt-nosel)) a-opt)
-       (mapcar (lambda (x) (propertize (concat (downcase x) "...")
-                                  'face 'lispy-face-rst-nosel)) a-rst))
+       (mapcar
+        (lambda (x)
+          (propertize (downcase x) 'face 'lispy-face-req-nosel))
+        a-req)
+       (mapcar
+        (lambda (x)
+          (propertize (downcase x) 'face 'lispy-face-opt-nosel))
+        a-opt)
+       (mapcar
+        (lambda (x)
+          (propertize (concat (downcase x) "...") 'face 'lispy-face-rst-nosel))
+        a-rst))
       " "))))
 
 (provide 'lispy-inline)
