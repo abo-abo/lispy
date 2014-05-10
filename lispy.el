@@ -3845,8 +3845,6 @@ They may become the defaults in the future."
     (define-key map "l" nil)
     (define-key map "e" 'lispy-edebug)
     (define-key map "m" 'lispy-cursor-ace)
-    (define-key map "i" nil)
-    (define-key map "c" nil)
     (define-key map "f" nil)
     (define-key map "r" 'lispy-eval-and-replace)
     (define-key map "s" 'save-buffer)))
