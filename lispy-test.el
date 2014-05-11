@@ -691,19 +691,27 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "\"(fo|o)\"" (lispy-quotes 1))
                    "(foo)|")))
 
-(ert-deftest lispy-normalize ()
-  (should (string= (lispy-with "|(foo (bar)baz)" (lispy-normalize))
+(ert-deftest lispy--normalize-1 ()
+  (should (string= (lispy-with "|(foo (bar)baz)" (lispy--normalize-1))
                    "|(foo (bar) baz)"))
-  (should (string= (lispy-with "(foo (bar)baz)|" (lispy-normalize))
-                   "(foo (bar) baz)|")))
-
-(ert-deftest lispy--normalize ()
-  (should (string= (lispy-with "|(bar\n  foo )" (lispy--normalize 0))
+  (should (string= (lispy-with "(foo (bar)baz)|" (lispy--normalize-1))
+                   "(foo (bar) baz)|"))
+  (should (string= (lispy-with "|(bar\n  foo )" (lispy--normalize-1))
                    "|(bar\n foo)"))
-  (should (string= (lispy-with "|(foo \")\")" (lispy--normalize 0))
+  (should (string= (lispy-with "|(foo \")\")" (lispy--normalize-1))
                    "|(foo \")\")"))
-  (should (string= (lispy-with "|(foo     \n bar)" (lispy--normalize 0))
+  (should (string= (lispy-with "|(foo     \n bar)" (lispy--normalize-1))
                    "|(foo\n bar)")))
+
+(ert-deftest lispy--sexp-normalize ()
+  (should (equal
+           (lispy--sexp-normalize
+            '(progn
+              (ly-raw comment "foo")
+              (ly-raw newline)))
+           '(progn
+             (ly-raw comment "foo")
+             (ly-raw newline)))))
 
 (ert-deftest lispy--remove-gaps ()
   (should (string= (lispy-with "((a) |(c))" (lispy--remove-gaps))
@@ -731,6 +739,27 @@ Insert KEY if there's no command."
   ;; (should (string= (lispy-with "(foo \"bar\"|)" (lispy-mark-symbol))
   ;;                  "(foo ~\"bar\"|)"))
   )
+
+(ert-deftest lispy--read ()
+  (should (equal (lispy--read "(progn
+  #'foo
+  (ly-raw function foo)
+  (function foo)
+  \"#'bar\"
+  \"(ly-raw)\"
+  #'bar)")
+                 '(progn (ly-raw newline)
+                   (ly-raw function foo)
+                   (ly-raw newline)
+                   (ly-raw raw function foo)
+                   (ly-raw newline)
+                   (function foo)
+                   (ly-raw newline)
+                   (ly-raw string "\"#'bar\"")
+                   (ly-raw newline)
+                   (ly-raw string "\"(ly-raw)\"")
+                   (ly-raw newline)
+                   (ly-raw function bar)))))
 
 (ert-deftest lispy-to-lambda ()
   (should (string= (lispy-with "|(defun foo (x y)\n  (bar))" (lispy-to-lambda))
@@ -777,6 +806,18 @@ Insert KEY if there's no command."
                    "(progn\n  (foo)\n  |(bar)\n  (baz)~)"))
   (should (string= (lispy-with "(progn\n  (foo))\n~(bar)\n(baz)|" (lispy-up-slurp))
                    "(progn\n  (foo)\n  ~(bar)\n  (baz)|)")))
+
+(defun lispy-test-normalize ()
+  (interactive)
+  (goto-char (point-min))
+  (catch 'break
+    (let ((pt (point)))
+      (while (not (buffer-modified-p))
+        (setq pt (max pt (point)))
+        (lispy-down 1)
+        (if (< (point) pt)
+            (throw 'break nil))
+        (lispy-tab)))))
 
 (provide 'lispy-test)
 

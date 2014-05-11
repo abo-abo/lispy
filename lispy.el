@@ -1455,7 +1455,7 @@ The outcome when ahead of sexps is different from when behind."
                               (match-end 1))))
         (up-list)
         (backward-list)
-        (lispy--normalize 0)
+        (lispy--normalize-1)
         (lispy--remove-gaps)
         (setq pt (point))
         (insert str1)
@@ -1549,7 +1549,7 @@ Comments will be moved ahead of sexp."
                (replace-regexp-in-string "\n *" " " no-comment) 1))
       (when from-left
         (backward-list)))
-    (lispy--normalize 0)))
+    (lispy--normalize-1)))
 
 (defun lispy-multiline ()
   "Spread current sexp over multiple lines."
@@ -1894,9 +1894,7 @@ When region is active, call `lispy-mark-car'."
              (if (string= (error-message-string e) "before first heading")
                  (outline-next-visible-heading 1)
                (signal (car e) (cdr e))))))
-      (lispy-from-left
-       (indent-sexp))
-      (lispy-normalize))))
+      (lispy--normalize-1))))
 
 (defun lispy-shifttab ()
   "Hide/show outline summary."
@@ -2087,19 +2085,6 @@ Second region and buffer are the current ones."
   "Call (`ert' t)."
   (interactive)
   (ert t))
-
-(defun lispy-normalize ()
-  "Normalize current sexp."
-  (interactive)
-  (save-excursion
-    (cond ((looking-at lispy-left)
-           (forward-char 1))
-          ((looking-back lispy-right)
-           (backward-list)
-           (forward-char 1))
-          (t
-           (error "Unexpected")))
-    (lispy--normalize 1)))
 
 (defun lispy-undo ()
   "Deactivate region and `undo'."
@@ -2903,6 +2888,8 @@ Ignore the matches in strings and comments."
          (str (with-temp-buffer
                 (funcall mode)
                 (insert str)
+                ;; ——— ly-raw —————————————————
+                (lispy--replace-regexp-in-code "(ly-raw" "(ly-raw raw")
                 ;; ——— comments ———————————————
                 (goto-char (point-min))
                 (while (comment-search-forward (point-max) t)
@@ -2914,24 +2901,21 @@ Ignore the matches in strings and comments."
                 ;; ——— strings ————————————————
                 (goto-char (point-min))
                 (while (re-search-forward "\"" nil t)
-                  (setq cbnd (lispy--bounds-string))
-                  (when (and cbnd (not (looking-back "ly-raw comment \"")))
-                    (setq str (lispy--string-dwim cbnd))
-                    (delete-region (car cbnd) (cdr cbnd))
-                    (insert (format "(ly-raw string %S)" str))))
+                  (progn
+                    (setq cbnd (lispy--bounds-string))
+                    (when cbnd
+                      (if (looking-back "ly-raw comment \"")
+                          (goto-char (cdr cbnd))
+                        (setq str (lispy--string-dwim cbnd))
+                        (delete-region (car cbnd) (cdr cbnd))
+                        (insert (format "(ly-raw string %S)" str))))))
                 ;; ——— newlines ———————————————
-                (goto-char (point-min))
-                (while (re-search-forward "\n" nil t)
-                  (unless (lispy--in-string-or-comment-p)
-                    (replace-match " (ly-raw newline)")))
+                (lispy--replace-regexp-in-code "\n" " (ly-raw newline)")
                 ;; ——— () —————————————————————
-                (goto-char (point-min))
-                (while (re-search-forward "()" nil t)
-                  (unless (lispy--in-string-or-comment-p)
-                    (replace-match "(ly-raw empty)")))
+                (lispy--replace-regexp-in-code "()" "(ly-raw empty)")
                 ;; ——— ? char syntax ——————————
                 (goto-char (point-min))
-                (while (re-search-forward "\\?" nil t)
+                (while (re-search-forward "\\(?:\\s-\\|\\s(\\)\\?" nil t)
                   (unless (lispy--in-string-or-comment-p)
                     (let ((pt (point))
                           sexp)
@@ -2939,6 +2923,67 @@ Ignore the matches in strings and comments."
                       (setq sexp (buffer-substring-no-properties pt (point)))
                       (delete-region (1- pt) (point))
                       (insert (format "(ly-raw char %S)" sexp)))))
+                ;; ——— #' —————————————————————
+                (goto-char (point-min))
+                (while (re-search-forward "#'" nil t)
+                  (unless (lispy--in-string-or-comment-p)
+                    (let ((beg (point)))
+                      (forward-sexp)
+                      (insert ")")
+                      (replace-match "(ly-raw function "))))
+                ;; ——— ' ——————————————————————
+                (goto-char (point-min))
+                (while (re-search-forward "'" nil t)
+                  (unless (lispy--in-string-or-comment-p)
+                    (backward-char 1)
+                    (let ((beg (point))
+                          (sxp (ignore-errors (read (current-buffer)))))
+                      (when (and (consp sxp)
+                                 (eq (car sxp) 'quote))
+                        (insert ")")
+                        (goto-char beg)
+                        (delete-char 1)
+                        (insert "(ly-raw quote ")))))
+                ;; ——— ` ——————————————————————
+                (goto-char (point-min))
+                (while (re-search-forward "`" nil t)
+                  (unless (lispy--in-string-or-comment-p)
+                    (backward-char 1)
+                    (let ((beg (point))
+                          (sxp (ignore-errors (read (current-buffer)))))
+                      (when (and (consp sxp)
+                                 (eq (car sxp) '\`))
+                        (insert ")")
+                        (goto-char beg)
+                        (delete-char 1)
+                        (insert "(ly-raw \\` ")))))
+                ;; ——— , ——————————————————————
+                (goto-char (point-min))
+                (while (re-search-forward ",[^@\"]" nil t)
+                  (unless (lispy--in-string-or-comment-p)
+                    (backward-char 2)
+                    (let ((beg (point))
+                          (sxp (ignore-errors (read (current-buffer)))))
+                      (when (and (consp sxp)
+                                 (eq (car sxp) '\,))
+                        (insert ")")
+                        (goto-char beg)
+                        (delete-char 1)
+                        (insert "(ly-raw \\, ")))))
+                ;; ——— ,@ —————————————————————
+                (goto-char (point-min))
+                (while (re-search-forward "\\(?:[^\\]\\|^\\),@" nil t)
+                  (unless (lispy--in-string-or-comment-p)
+                    (backward-char 2)
+                    (let ((beg (point))
+                          (sxp (ignore-errors (read (current-buffer)))))
+                      (when (and (consp sxp)
+                                 (eq (car sxp) '\,@))
+                        (insert ")")
+                        (replace-match "(ly-raw \\\\,@ ")))))
+                ;; ——— cons cell syntax ———————
+                (lispy--replace-regexp-in-code " \\. " " (ly-raw dot) ")
+                ;; ———  ———————————————————————
                 (buffer-substring-no-properties
                  (point-min)
                  (point-max)))))
@@ -3114,7 +3159,7 @@ Ignore the matches in strings and comments."
   (insert
    (with-temp-buffer
      (emacs-lisp-mode)
-     (lispy--insert f-expr)
+     (lispy--insert-1 f-expr)
      (buffer-string))))
 
 (defun lispy-to-cond ()
@@ -3407,21 +3452,18 @@ When NO-NARROW is not nil, don't narrow to BND."
         (unless already-narrowed
           (widen))))))
 
-(defun lispy--normalize (arg)
-  "Go up ARG times and normalize."
-  (save-excursion
-    (lispy--out-backward arg)
-    (let ((bnd (lispy--bounds-list)))
-      (save-restriction
-        (narrow-to-region (car bnd) (cdr bnd))
-        (lispy--do-replace "[^ ]\\( \\{2,\\}\\)[^; ]" " ")
-        (lispy--do-replace "[^\\\\]\\(([\n ]+\\)" "(")
-        (lispy--do-replace "[^\\]\\([\n ]+)\\)" ")")
-        (lispy--do-replace "\\([ ]+\\)\n" "")
-        (lispy--do-replace ")\\([^] \n)}]\\)" " \\1")
-        (lispy--do-replace "\\(( (\\)" "((")
-        (widen))
-      (indent-sexp))))
+(defun lispy--prin1-to-string (expr offset)
+  "Return the string representation of EXPR.
+EXPR is indented first, with OFFSET being the column position of
+the first character of EXPR."
+  (with-temp-buffer
+    (emacs-lisp-mode)
+    (dotimes (i offset)
+      (insert ?\ ))
+    (lispy--insert-1 expr)
+    (buffer-substring-no-properties
+     (+ (point-min) offset)
+     (point-max))))
 
 (defun lispy--insert-1 (expr)
   (let ((start-pt (point))
@@ -3445,7 +3487,10 @@ When NO-NARROW is not nil, don't narrow to BND."
                  (insert (caddr sxp)))
                 ((eq (cadr sxp) 'raw)
                  (delete-region beg (point))
-                 (prin1 (cons 'ly-raw (cddr sxp)) (current-buffer)))
+                 (lispy--insert-1 (cddr sxp))
+                 (backward-list)
+                 (forward-char)
+                 (insert "ly-raw "))
                 ((eq (cadr sxp) 'quote)
                  (delete-region beg (point))
                  (insert "'")
@@ -3490,6 +3535,61 @@ When NO-NARROW is not nil, don't narrow to BND."
   (backward-list)
   (indent-sexp)
   (forward-list))
+
+(defun lispy--normalize-1 ()
+  (let* ((bnd (lispy--bounds-dwim))
+         (str (lispy--string-dwim bnd))
+         (was-mod (buffer-modified-p))
+         (was-left (looking-at lispy-left))
+         (res (lispy--sexp-normalize
+               (lispy--read str)))
+         (offset (save-excursion
+                   (goto-char (car bnd))
+                   (current-column))))
+    (let ((new-str (lispy--prin1-to-string res offset)))
+      (unless (string= str new-str)
+        (delete-region (car bnd)
+                       (cdr bnd))
+        (lispy--insert-1 res)
+        (when was-left
+          (backward-list))
+        (unless was-mod
+          (when (string= (lispy--string-dwim)
+                         str)
+            (set-buffer-modified-p nil)))))))
+
+(defun lispy--sexp-trim-leading-newlines (expr comment)
+  "Trim leading (ly-raw newline) from EXPR."
+  (while (and (consp expr)
+              (listp expr)
+              (equal (car expr) '(ly-raw newline))
+              (not (and comment
+                        (lispy--raw-comment-p (cadr expr)))))
+    (setq expr (cdr expr)))
+  expr)
+
+(defun lispy--sexp-trim-newlines (expr)
+  "Trim leading and trailing (ly-raw newline) from EXPR."
+  (nreverse
+   (lispy--sexp-trim-leading-newlines
+    (nreverse
+     (lispy--sexp-trim-leading-newlines expr nil))
+    t)))
+
+(defun lispy--sexp-normalize (foo)
+  "Return a pretty version of SEXP.
+Only `ly-raw' lists within SEXP are manipulated."
+  (cond ((null foo)
+         nil)
+
+        ((and (consp foo)
+              (consp (cdr foo)))
+         (mapcar
+          #'lispy--sexp-normalize
+          (lispy--sexp-trim-newlines foo)))
+        (t
+         foo)))
+
 (defun lispy--do-replace (from to)
   "Replace first match group of FROM to TO."
   (goto-char (point-min))
