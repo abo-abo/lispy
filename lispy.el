@@ -136,7 +136,8 @@
 ;; | Q     | `lispy-ace-char'                 |
 ;; | D     | `lispy-describe'                 |
 ;; | F     | `lispy-follow'                   |
-;; | N     | `lispy-normalize'                |
+;; | N     | `lispy-narrow'                   |
+;; | W     | `lispy-widen'                    |
 ;; | C-1   | `lispy-describe-inline'          |
 ;; | C-2   | `lispy-arglist-inline'           |
 ;; | C-7   | `lispy-cursor-down'              |
@@ -341,7 +342,7 @@ GRAMMAR is a list of nouns that work with this verb."
                (t nil)))
        (mapc (lambda (x)
                (lispy-define-key
-                ,keymap
+                   ,keymap
                    (car x) (cadr x)
                  :disable ',sym))
              ',grammar)
@@ -2057,11 +2058,11 @@ Second region and buffer are the current ones."
     (when (equal bnd (setq bnd-1 (bounds-of-thing-at-point 'sexp)))
       (forward-char)
       (if (setq bnd-2 (bounds-of-thing-at-point 'sexp))
-        (let ((str (lispy--string-dwim bnd-2)))
-          (if (string-match "[[({\"]\\(\\s-*\\)[])}\"]" str)
-              (setq bnd-1 (cons (+ (car bnd-2) (match-beginning 1))
-                                (+ (car bnd-2) (match-end 1))))
-            (setq bnd-1 bnd-2)))
+          (let ((str (lispy--string-dwim bnd-2)))
+            (if (string-match "[[({\"]\\(\\s-*\\)[])}\"]" str)
+                (setq bnd-1 (cons (+ (car bnd-2) (match-beginning 1))
+                                  (+ (car bnd-2) (match-end 1))))
+              (setq bnd-1 bnd-2)))
         (setq bnd-1 (cons (point) (point)))))
     (if (equal bnd bnd-1)
         (progn

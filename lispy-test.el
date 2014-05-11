@@ -12,7 +12,7 @@
        (goto-char (point-max)))
      (search-backward "|")
      (delete-char 1)
-     ,@(mapcar (lambda(x) (if (stringp x) `(lispy-unalias ,x) x)) body)
+     ,@(mapcar (lambda (x) (if (stringp x) `(lispy-unalias ,x) x)) body)
      (insert "|")
      (when (region-active-p)
        (exchange-point-and-mark)
@@ -32,7 +32,7 @@
        (goto-char (point-max)))
      (search-backward "|")
      (delete-char 1)
-     ,@(mapcar (lambda(x) (if (stringp x) `(lispy-unalias ,x) x)) body)))
+     ,@(mapcar (lambda (x) (if (stringp x) `(lispy-unalias ,x) x)) body)))
 
 (defun lispy-decode-keysequence (str)
   "Decode STR from e.g. \"23ab5c\" to '(23 \"a\" \"b\" 5 \"c\")"
@@ -42,8 +42,8 @@
     (loop for i from ? to ? do
          (modify-syntax-entry i "w" table))
     (loop for i in '(? ?\( ?\) ?\[ ?\] ?{ ?} ?\" ?\')
-         do (modify-syntax-entry i "w" table))
-    (cl-mapcan (lambda(x)
+       do (modify-syntax-entry i "w" table))
+    (cl-mapcan (lambda (x)
                  (let ((y (ignore-errors (read x))))
                    (if (numberp y)
                        (list y)
