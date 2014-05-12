@@ -3575,6 +3575,18 @@ the first character of EXPR."
     (nreverse
      (lispy--sexp-trim-leading-newlines expr nil))
     t)))
+(defun lispy--sexp-trim-trailing-newlines (foo comment)
+  "Trim trailing (ly-raw newline) from EXPR."
+  (if (and (consp foo) (consp (cdr foo)))
+      (let ((expr (reverse foo)))
+        (while (and (consp expr)
+                    (listp expr)
+                    (equal (car expr) '(ly-raw newline))
+                    (not (and comment
+                              (lispy--raw-comment-p (cadr expr)))))
+          (setq expr (cdr expr)))
+        (reverse expr))
+    foo))
 
 (defun lispy--sexp-normalize (foo)
   "Return a pretty version of SEXP.
