@@ -3570,11 +3570,15 @@ the first character of EXPR."
 
 (defun lispy--sexp-trim-newlines (expr)
   "Trim leading and trailing (ly-raw newline) from EXPR."
-  (nreverse
-   (lispy--sexp-trim-leading-newlines
-    (nreverse
-     (lispy--sexp-trim-leading-newlines expr nil))
-    t)))
+  (if (and (consp expr)
+           (consp (cdr expr)))
+      (nreverse
+       (lispy--sexp-trim-leading-newlines
+        (nreverse
+         (lispy--sexp-trim-leading-newlines expr nil))
+        t))
+    expr))
+
 (defun lispy--sexp-trim-trailing-newlines (foo comment)
   "Trim trailing (ly-raw newline) from EXPR."
   (if (and (consp foo) (consp (cdr foo)))
@@ -3594,11 +3598,11 @@ Only `ly-raw' lists within SEXP are manipulated."
   (cond ((null foo)
          nil)
 
-        ((and (consp foo)
-              (consp (cdr foo)))
-         (mapcar
-          #'lispy--sexp-normalize
-          (lispy--sexp-trim-newlines foo)))
+        ((consp foo)
+         (cons (lispy--sexp-normalize
+                (lispy--sexp-trim-trailing-newlines (car foo) t))
+               (lispy--sexp-normalize
+                (lispy--sexp-trim-trailing-newlines (cdr foo) t))))
         (t
          foo)))
 
