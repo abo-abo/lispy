@@ -1903,12 +1903,12 @@ When region is active, call `lispy-mark-car'."
   (require 'org)
   (outline-minor-mode 1)
   (noflet ((org-unlogged-message (&rest x)))
-    (if (get 'lispy-shifttab 'state)
-        (progn
-          (org-cycle '(64))
-          (put 'lispy-shifttab 'state nil))
-      (org-overview)
-      (put 'lispy-shifttab 'state 1))))
+          (if (get 'lispy-shifttab 'state)
+              (progn
+                (org-cycle '(64))
+                (put 'lispy-shifttab 'state nil))
+            (org-overview)
+            (put 'lispy-shifttab 'state 1))))
 
 ;; ——— Locals:  refactoring ————————————————————————————————————————————————————
 (defun lispy-to-lambda ()
