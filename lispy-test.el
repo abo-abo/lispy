@@ -472,7 +472,9 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "(a) (b) (c)|()" ">>>>")
                    "|((a) (b) (c))"))
   (should (string= (lispy-with "(insert)|\"foo\"" ">")
-                   "(insert \"foo\")|")))
+                   "(insert \"foo\")|"))
+  (should (string= (lispy-with "|(a) (b) (c)" "m>")
+                   "~(a) (b)| (c)")))
 
 (ert-deftest lispy-barf ()
   (should (string= (lispy-with "((a) (b) (c))|" "<")
