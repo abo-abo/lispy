@@ -101,6 +101,7 @@
 | xf  | [[#lispy-flatten][lispy-flatten]]                 |
 | xi  | [[#lispy-to-ifs][lispy-to-ifs]]                  |
 | xc  | [[#lispy-to-cond][lispy-to-cond]]                 |
+| >   | [[#lispy-slurp][lispy-slurp]]                   |
 |-----+-------------------------------|
 
 * Function reference
@@ -2049,6 +2050,7 @@ Narrow to current sexp or region.
 Bound to ~W~.
 
 Forward to =widen=.
+-----
 
 ** =lispy-oneline=
 :PROPERTIES:
@@ -2058,6 +2060,7 @@ Forward to =widen=.
 Bound to ~O~.
 
 Turn current sexp into one line.
+-----
 
 ** =lispy-multiline=
 :PROPERTIES:
@@ -2068,6 +2071,7 @@ Bound to ~M~.
 
 Extend current sexp into multiple lines.
 Especially useful on results of =macroexpand=.
+-----
 
 ** =lispy-view=
 :PROPERTIES:
@@ -2078,3 +2082,41 @@ Bound to ~v~.
 
 Recenter current sexp to be on the first line of the window.
 When called twice in a row, recenter back to the original position.
+-----
+
+** =lispy-slurp=
+:PROPERTIES:
+:CUSTOM_ID: lispy-slurp
+:END:
+
+Bound to ~>~.
+
+Grow either current sexp or region (if it's active) in appropriate
+direction.
+
+Example 1:
+#+HTML: <table><tbody><tr><td>
+#+begin_src elisp
+(progn)|| (foo) (bar)
+#+end_src
+#+HTML: </td><td>
+-> ~>~ ->
+#+HTML: </td><td>
+#+begin_src elisp
+(progn (foo))|| (bar)
+#+end_src
+#+HTML: </td></tr></tbody></table>
+
+Example 2:
+#+HTML: <table><tbody><tr><td>
+#+begin_src elisp
+"foo" ||(bar)
+#+end_src
+#+HTML: </td><td>
+-> ~>~ ->
+#+HTML: </td><td>
+#+begin_src elisp
+||("foo" bar)
+#+end_src
+#+HTML: </td></tr></tbody></table>
+-----
