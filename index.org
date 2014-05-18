@@ -102,6 +102,7 @@
 | xi  | [[#lispy-to-ifs][lispy-to-ifs]]                  |
 | xc  | [[#lispy-to-cond][lispy-to-cond]]                 |
 | >   | [[#lispy-slurp][lispy-slurp]]                   |
+| <   | [[#lispy-barf][lispy-barf]]                    |
 |-----+-------------------------------|
 
 * Function reference
@@ -2092,7 +2093,7 @@ When called twice in a row, recenter back to the original position.
 Bound to ~>~.
 
 Grow either current sexp or region (if it's active) in appropriate
-direction.
+direction. Opposite of [[#lispy-barf][=lispy-barf=]].
 
 Example 1:
 #+HTML: <table><tbody><tr><td>
@@ -2117,6 +2118,43 @@ Example 2:
 #+HTML: </td><td>
 #+begin_src elisp
 ||("foo" bar)
+#+end_src
+#+HTML: </td></tr></tbody></table>
+-----
+
+** =lispy-barf=
+:PROPERTIES:
+:CUSTOM_ID: lispy-barf
+:END:
+
+Bound to ~<~.
+
+Shrink either current sexp or region (if it's active) in appropriate
+direction. Opposite of [[#lispy-slurp][=lispy-slurp=]].
+
+Example 1:
+#+HTML: <table><tbody><tr><td>
+#+begin_src elisp
+(progn (foo))|| (bar)
+#+end_src
+#+HTML: </td><td>
+-> ~<~ ->
+#+HTML: </td><td>
+#+begin_src elisp
+(progn)|| (foo) (bar)
+#+end_src
+#+HTML: </td></tr></tbody></table>
+
+Example 2:
+#+HTML: <table><tbody><tr><td>
+#+begin_src elisp
+||("foo" bar)
+#+end_src
+#+HTML: </td><td>
+-> ~>~ ->
+#+HTML: </td><td>
+#+begin_src elisp
+"foo" ||(bar)
 #+end_src
 #+HTML: </td></tr></tbody></table>
 -----

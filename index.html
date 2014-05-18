@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
 <title>lispy.el documentation</title>
-<!-- 2014-05-17 Sat 13:20 -->
+<!-- 2014-05-18 Sun 18:06 -->
 <meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta  name="generator" content="Org-mode" />
 <meta  name="author" content="Oleh" />
@@ -374,6 +374,11 @@
 <tr>
 <td class="left">&gt;</td>
 <td class="left"><a href="#lispy-slurp">lispy-slurp</a></td>
+</tr>
+
+<tr>
+<td class="left">&lt;</td>
+<td class="left"><a href="#lispy-barf">lispy-barf</a></td>
 </tr>
 </tbody>
 </table>
@@ -3314,7 +3319,7 @@ Bound to <kbd>&gt;</kbd>.
 
 <p>
 Grow either current sexp or region (if it's active) in appropriate
-direction.
+direction. Opposite of <a href="#lispy-barf"><code>lispy-barf</code></a>.
 </p>
 
 <p>
@@ -3355,6 +3360,63 @@ Example 2:
 <div class="org-src-container">
 
 <pre class="src src-elisp"><cursor>(</cursor><span style="color: #2A00FF;">"foo"</span> bar)
+</pre>
+</div>
+</td></tr></tbody></table>
+<hr  />
+</div>
+</div>
+
+<div id="outline-container-lispy-barf" class="outline-3">
+<h3 id="lispy-barf"><a id="sec-3-56"></a><code>lispy-barf</code></h3>
+<div class="outline-text-3" id="text-lispy-barf">
+<p>
+Bound to <kbd>&lt;</kbd>.
+</p>
+
+<p>
+Shrink either current sexp or region (if it's active) in appropriate
+direction. Opposite of <a href="#lispy-slurp"><code>lispy-slurp</code></a>.
+</p>
+
+<p>
+Example 1:
+</p>
+<table><tbody><tr><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">progn</span> (foo))<cursor> </cursor>(bar)
+</pre>
+</div>
+</td><td>
+<p>
+-&gt; <kbd>&lt;</kbd> -&gt;
+</p>
+</td><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">progn</span>)<cursor> </cursor>(foo) (bar)
+</pre>
+</div>
+</td></tr></tbody></table>
+
+<p>
+Example 2:
+</p>
+<table><tbody><tr><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp"><cursor>(</cursor><span style="color: #2A00FF;">"foo"</span> bar)
+</pre>
+</div>
+</td><td>
+<p>
+-&gt; <kbd>&gt;</kbd> -&gt;
+</p>
+</td><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp"><span style="color: #2A00FF;">"foo"</span> <cursor>(</cursor>bar)
 </pre>
 </div>
 </td></tr></tbody></table>
