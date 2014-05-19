@@ -703,7 +703,9 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "|(foo \")\")" (lispy--normalize-1))
                    "|(foo \")\")"))
   (should (string= (lispy-with "|(foo     \n bar)" (lispy--normalize-1))
-                   "|(foo\n bar)")))
+                   "|(foo\n bar)"))
+  (should (string= (lispy-with "|(require' foo)" (lispy--normalize-1))
+                   "|(require 'foo)")))
 
 (ert-deftest lispy--sexp-normalize ()
   (should (equal
