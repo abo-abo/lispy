@@ -1903,12 +1903,12 @@ When region is active, call `lispy-mark-car'."
   (require 'org)
   (outline-minor-mode 1)
   (noflet ((org-unlogged-message (&rest x)))
-          (if (get 'lispy-shifttab 'state)
-              (progn
-                (org-cycle '(64))
-                (put 'lispy-shifttab 'state nil))
-            (org-overview)
-            (put 'lispy-shifttab 'state 1))))
+    (if (get 'lispy-shifttab 'state)
+        (progn
+          (org-cycle '(64))
+          (put 'lispy-shifttab 'state nil))
+      (org-overview)
+      (put 'lispy-shifttab 'state 1))))
 
 ;; ——— Locals:  refactoring ————————————————————————————————————————————————————
 (defun lispy-to-lambda ()
@@ -2946,7 +2946,7 @@ Ignore the matches in strings and comments."
                         (insert "(ly-raw quote ")))))
                 ;; ——— ` ——————————————————————
                 (goto-char (point-min))
-                (while (re-search-forward "`" nil t)
+                (while (re-search-forward "[^\\]`" nil t)
                   (unless (lispy--in-string-or-comment-p)
                     (backward-char 1)
                     (let ((beg (point))
@@ -2959,7 +2959,7 @@ Ignore the matches in strings and comments."
                         (insert "(ly-raw \\` ")))))
                 ;; ——— , ——————————————————————
                 (goto-char (point-min))
-                (while (re-search-forward ",[^@\"]" nil t)
+                (while (re-search-forward "[^\\],[^@\"]" nil t)
                   (unless (lispy--in-string-or-comment-p)
                     (backward-char 2)
                     (let ((beg (point))
