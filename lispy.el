@@ -3465,6 +3465,16 @@ the first character of EXPR."
      (+ (point-min) offset)
      (point-max))))
 
+(defun lispy-quote-symbol (symbol)
+  (cond ((not (symbolp symbol))
+         symbol)
+        ((memq symbol '(\` \, \,@))
+         symbol)
+        ((string= (symbol-name symbol)
+                  (prin1-to-string symbol))
+         symbol)
+        (t
+         `(ly-raw symbol ,(symbol-name symbol)))))
 (defun lispy--insert-1 (expr)
   (let ((start-pt (point))
         end)
