@@ -109,7 +109,7 @@ The caller of `lispy--show' might use a substitute e.g. `describe-function'."
                  (cond ((fboundp sym)
                         (setq lispy-hint-pos (point))
                         (lispy--show (lispy--pretty-args sym))))))
-              ((eq major-mode 'clojure-mode)
+              ((memq major-mode '(clojure-mode cider-repl-mode))
                (require 'le-clojure)
                (setq lispy-hint-pos (point))
                (lispy--show (lispy--clojure-args (lispy--current-function))))
@@ -170,7 +170,7 @@ Return t if at least one was deleted."
                               (describe-variable sym)
                               nil))
                            (t "unbound"))))
-                  ((eq major-mode 'clojure-mode)
+                  ((memq major-mode '(clojure-mode cider-repl-mode))
                    (require 'le-clojure)
                    (let ((rsymbol (lispy--clojure-resolve sym)))
                      (s-trim
