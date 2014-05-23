@@ -3475,6 +3475,16 @@ the first character of EXPR."
          symbol)
         (t
          `(ly-raw symbol ,(symbol-name symbol)))))
+
+(defun lispy-mapcar-tree (function tree)
+  (cond ((null tree)
+         nil)
+        ((consp tree)
+         (cons (lispy-mapcar-tree function (car tree))
+               (lispy-mapcar-tree function (cdr tree))))
+        (t
+         (funcall function tree))))
+
 (defun lispy--insert-1 (expr)
   (let ((start-pt (point))
         end)
