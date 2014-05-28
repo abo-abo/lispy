@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
 <title>lispy.el documentation</title>
-<!-- 2014-05-18 Sun 18:06 -->
+<!-- 2014-05-28 Wed 13:32 -->
 <meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta  name="generator" content="Org-mode" />
 <meta  name="author" content="Oleh" />
@@ -233,7 +233,7 @@
 
 <tr>
 <td class="left">o</td>
-<td class="left"><a href="#lispy-counterclockwise">lispy-counterclockwise</a></td>
+<td class="left"><a href="#lispy-other-mode">lispy-other-mode</a></td>
 </tr>
 
 <tr>
@@ -3420,6 +3420,118 @@ Example 2:
 </pre>
 </div>
 </td></tr></tbody></table>
+<hr  />
+</div>
+</div>
+
+<div id="outline-container-lispy-other-mode" class="outline-3">
+<h3 id="lispy-other-mode"><a id="sec-3-57"></a><code>lispy-other-mode</code></h3>
+<div class="outline-text-3" id="text-lispy-other-mode">
+<p>
+Bound to <kbd>o</kbd>.
+</p>
+
+<p>
+This is a minor mode that changes the behavior of several key
+bindings, most notably the <kbd>hjkl</kbd> arrow keys.
+This mode can is turned off automatically after one of its key
+bindings is used. You can toggle it off with <kbd>o</kbd> if you change your
+mind about calling the modified <kbd>hjkl</kbd>.
+</p>
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="left" />
+
+<col  class="left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="left">key</th>
+<th scope="col" class="left">function name</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="left"><kbd>h</kbd></td>
+<td class="left"><a href="#lispy-move-left">lispy-move-left</a></td>
+</tr>
+
+<tr>
+<td class="left"><kbd>j</kbd></td>
+<td class="left"><a href="#lispy-down-slurp">lispy-down-slurp</a></td>
+</tr>
+
+<tr>
+<td class="left"><kbd>k</kbd></td>
+<td class="left"><a href="#lispy-up-slurp">lispy-up-slurp</a></td>
+</tr>
+
+<tr>
+<td class="left"><kbd>l</kbd></td>
+<td class="left"><a href="#lispy-move-right">lispy-move-right</a></td>
+</tr>
+
+<tr>
+<td class="left"><kbd>i</kbd></td>
+<td class="left"><a href="#lispy-amend">lispy-amend</a></td>
+</tr>
+</tbody>
+</table>
+<hr  />
+</div>
+</div>
+
+<div id="outline-container-lispy-move-left" class="outline-3">
+<h3 id="lispy-move-left"><a id="sec-3-58"></a><code>lispy-move-left</code></h3>
+<div class="outline-text-3" id="text-lispy-move-left">
+<p>
+Move current expression to the left, outside the current list.
+</p>
+<hr  />
+</div>
+</div>
+
+<div id="outline-container-lispy-down-slurp" class="outline-3">
+<h3 id="lispy-down-slurp"><a id="sec-3-59"></a><code>lispy-down-slurp</code></h3>
+<div class="outline-text-3" id="text-lispy-down-slurp">
+<p>
+Move current expression to become the first element of the first list below.
+</p>
+<hr  />
+</div>
+</div>
+
+<div id="outline-container-lispy-up-slurp" class="outline-3">
+<h3 id="lispy-up-slurp"><a id="sec-3-60"></a><code>lispy-up-slurp</code></h3>
+<div class="outline-text-3" id="text-lispy-up-slurp">
+<p>
+Move current expression to become the last element of the first list above.
+</p>
+
+<hr  />
+</div>
+</div>
+<div id="outline-container-lispy-move-right" class="outline-3">
+<h3 id="lispy-move-right"><a id="sec-3-61"></a><code>lispy-move-right</code></h3>
+<div class="outline-text-3" id="text-lispy-move-right">
+<p>
+Move current expression to the right, outside the current list.
+</p>
+<hr  />
+</div>
+</div>
+<div id="outline-container-lispy-amend" class="outline-3">
+<h3 id="lispy-amend"><a id="sec-3-62"></a><code>lispy-amend</code></h3>
+<div class="outline-text-3" id="text-lispy-amend">
+<p>
+Break out of special position for amending.
+When called from the start of the list, it's equivalent to <kbd>C-f</kbd>.
+When called from the end of the list, it's equivalent to <kbd>C-b</kbd> with
+and additional space inserted appropriately.
+</p>
 <hr  />
 </div>
 </div>

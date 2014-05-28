@@ -73,7 +73,7 @@
 | d   | [[#lispy-different][lispy-different]]               |
 | f   | [[#lispy-flow][lispy-flow]]                    |
 | p   | [[#lispy-clockwise][lispy-clockwise]]               |
-| o   | [[#lispy-counterclockwise][lispy-counterclockwise]]        |
+| o   | [[#lispy-other-mode][lispy-other-mode]]              |
 | a   | [[#lispy-out-backward][lispy-out-backward]]            |
 | l   | [[#lispy-out-forward][lispy-out-forward]]             |
 | q   | [[#lispy-ace-paren][lispy-ace-paren]]               |
@@ -2157,4 +2157,63 @@ Example 2:
 "foo" ||(bar)
 #+end_src
 #+HTML: </td></tr></tbody></table>
+-----
+
+** =lispy-other-mode=
+:PROPERTIES:
+:CUSTOM_ID: lispy-other-mode
+:END:
+
+Bound to ~o~.
+
+This is a minor mode that changes the behavior of several key
+bindings, most notably the ~hjkl~ arrow keys.
+This mode can is turned off automatically after one of its key
+bindings is used. You can toggle it off with ~o~ if you change your
+mind about calling the modified ~hjkl~.
+
+| key | function name    |
+|-----+------------------|
+| ~h~ | [[#lispy-move-left][lispy-move-left]]  |
+| ~j~ | [[#lispy-down-slurp][lispy-down-slurp]] |
+| ~k~ | [[#lispy-up-slurp][lispy-up-slurp]]   |
+| ~l~ | [[#lispy-move-right][lispy-move-right]] |
+| ~i~ | [[#lispy-amend][lispy-amend]]      |
+-----
+
+** =lispy-move-left=
+:PROPERTIES:
+:CUSTOM_ID: lispy-move-left
+:END:
+Move current expression to the left, outside the current list.
+-----
+
+** =lispy-down-slurp=
+:PROPERTIES:
+:CUSTOM_ID: lispy-down-slurp
+:END:
+Move current expression to become the first element of the first list below.
+-----
+
+** =lispy-up-slurp=
+:PROPERTIES:
+:CUSTOM_ID: lispy-up-slurp
+:END:
+Move current expression to become the last element of the first list above.
+
+-----
+** =lispy-move-right=
+:PROPERTIES:
+:CUSTOM_ID: lispy-move-right
+:END:
+Move current expression to the right, outside the current list.
+-----
+** =lispy-amend=
+:PROPERTIES:
+:CUSTOM_ID: lispy-amend
+:END:
+Break out of special position for amending.
+When called from the start of the list, it's equivalent to ~C-f~.
+When called from the end of the list, it's equivalent to ~C-b~ with
+and additional space inserted appropriately.
 -----
