@@ -2215,5 +2215,5 @@ Move current expression to the right, outside the current list.
 Break out of special position for amending.
 When called from the start of the list, it's equivalent to ~C-f~.
 When called from the end of the list, it's equivalent to ~C-b~ with
-and additional space inserted appropriately.
+and additional space inserted after the last element of the list.
 -----
