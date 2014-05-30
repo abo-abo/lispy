@@ -2200,7 +2200,6 @@ Move current expression to become the first element of the first list below.
 :CUSTOM_ID: lispy-up-slurp
 :END:
 Move current expression to become the last element of the first list above.
-
 -----
 ** =lispy-move-right=
 :PROPERTIES:
