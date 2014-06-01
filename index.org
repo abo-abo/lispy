@@ -1834,7 +1834,9 @@ Useful together with
 
 Bound to ~i~.
 
-Indent code.
+Indent and prettify code.
+Prettify means to remove hanging closing parens, extra spaces,
+and to add space where it's needed, e.g. =(lambda (x))= instead of =(lambda(x))=.
 
 When in outline, hide/show outline.
 When region is active, go to car of the region.
