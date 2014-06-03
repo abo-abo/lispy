@@ -1287,6 +1287,17 @@ Bound to ~C-8~.
 
 Exit current list and insert a newline and a pair of parens.
 
+Starting with
+#+begin_src elisp
+(foo||)
+#+end_src
+
+pressing ~C-8~ will give:
+#+begin_src elisp
+(foo)
+(||)
+#+end_src
+
 ** =lispy-space=
 :PROPERTIES:
 :CUSTOM_ID: lispy-space
