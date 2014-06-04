@@ -3803,6 +3803,35 @@ PLIST currently accepts:
                (t
                 (call-interactively 'self-insert-command)))))))
 
+(defun lispy--setq-expression ()
+  "Return the smallest list that contains point.
+If inside VARLIST part of `let' form,
+return the corresponding `setq' expression."
+  (interactive)
+  (ignore-errors
+    (save-excursion
+      (if (looking-at lispy-left)
+          (forward-list)
+        (up-list))
+      (let ((tsexp (preceding-sexp)))
+        (backward-list 1)
+        (cond
+          ((looking-back "(\\(?:let\\|lexical-let\\)\\*?[ \t]*")
+           (cons 'setq
+                 (if (and (= (length tsexp) 1)
+                          (listp (car tsexp)))
+                     (car tsexp)
+                   (cl-mapcan
+                    (lambda (x) (unless (listp x) (list x nil)))
+                    tsexp))))
+          ((ignore-errors
+             (up-list)
+             (backward-list 1)
+             (looking-back "(\\(?:let\\|lexical-let\\|with\\)\\*?[ \t]*"))
+           (cons 'setq tsexp))
+          (t
+           tsexp))))))
+
 ;; ——— Key definitions —————————————————————————————————————————————————————————
 (defvar ac-trigger-commands '(self-insert-command))
 (defvar company-begin-commands '(self-insert-command))
