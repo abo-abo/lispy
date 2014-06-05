@@ -3832,6 +3832,22 @@ return the corresponding `setq' expression."
           (t
            tsexp))))))
 
+(defun lispy-debug-step-in ()
+  "Eval current function arguments and jump to definition."
+  (interactive)
+  (let* ((sxp (lispy--setq-expression))
+         (fun (car sxp)))
+    (when (functionp fun)
+      (let ((args (delq '&optional (copy-seq (help-function-arglist fun))))
+            (vals (cdr sxp)))
+        (if vals
+            (setcdr (last vals) (make-list (- (length args) (length vals)) nil))
+          (setq vals (make-list (- (length args) (length vals)) nil)))
+
+        (cl-mapcar (lambda (x_ y_) (set x_ (eval y_)))
+                   args vals)
+        (lispy-goto-symbol fun)))))
+
 ;; ——— Key definitions —————————————————————————————————————————————————————————
 (defvar ac-trigger-commands '(self-insert-command))
 (defvar company-begin-commands '(self-insert-command))
