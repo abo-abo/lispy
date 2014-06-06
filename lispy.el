@@ -3827,7 +3827,7 @@ return the corresponding `setq' expression."
           ((ignore-errors
              (up-list)
              (backward-list 1)
-             (looking-back "(\\(?:let\\|lexical-let\\|with\\)\\*?[ \t]*"))
+             (looking-back "(\\(?:let\\|lexical-let\\)\\*?[ \t]*"))
            (cons 'setq tsexp))
           (t
            tsexp))))))
