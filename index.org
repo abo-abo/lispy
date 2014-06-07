@@ -1866,7 +1866,8 @@ will be saved to their current values.
 This allows to continue debugging with [[#lispy-eval][=lispy-eval=]] (~e~) from
 =edebug='s current context.
 
-The advantage is that you can edit the code as you debug.
+The advantage is that you can edit the code as you debug, as =edebug=
+puts your code in read-only mode.
 -----
 
 ** =lispy-flatten=
