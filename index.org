@@ -50,6 +50,7 @@
 | }     | [[#lispy-brackets][lispy-brackets]]             |
 | "     | [[#lispy-quotes][lispy-quotes]]               |
 | )     | [[#lispy-out-forward-nostring][lispy-out-forward-nostring]] |
+| ;     | [[#lispy-comment][lispy-comment]]              |
 | C-1   | [[#lispy-describe-inline][lispy-describe-inline]]      |
 | C-2   | [[#lispy-arglist-inline][lispy-arglist-inline]]       |
 | C-3   | [[#lispy-out-forward][lispy-out-forward]]          |
@@ -2230,3 +2231,13 @@ When called from the start of the list, it's equivalent to ~C-f~.
 When called from the end of the list, it's equivalent to ~C-b~ with
 and additional space inserted after the last element of the list.
 -----
+** =lispy-comment=
+:PROPERTIES:
+:CUSTOM_ID: lispy-comment
+:END:
+
+Bound to ~;~.
+
+Comment current expression or region.
+With a prefix arg, comment many expressions.
+With a prefix arg and already inside comment, uncomment instead.
