@@ -1,0 +1,2703 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<title>lispy.el region manipulation</title>
+<!-- 2014-04-16 Wed 13:44 -->
+<meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta  name="generator" content="Org-mode" />
+<meta  name="author" content="Oleh" />
+<link rel="stylesheet" type="text/css" href="style.css"/>
+<script type="text/javascript" src="http://orgmode.org/mathjax/MathJax.js"></script>
+<script type="text/javascript">
+<!--/*--><![CDATA[/*><!--*/
+    MathJax.Hub.Config({
+        // Only one of the two following lines, depending on user settings
+        // First allows browser-native MathML display, second forces HTML/CSS
+        //  config: ["MMLorHTML.js"], jax: ["input/TeX"],
+            jax: ["input/TeX", "output/HTML-CSS"],
+        extensions: ["tex2jax.js","TeX/AMSmath.js","TeX/AMSsymbols.js",
+                     "TeX/noUndefined.js"],
+        tex2jax: {
+            inlineMath: [ ["\\(","\\)"] ],
+            displayMath: [ ['$$','$$'], ["\\[","\\]"], ["\\begin{displaymath}","\\end{displaymath}"] ],
+            skipTags: ["script","noscript","style","textarea","pre","code"],
+            ignoreClass: "tex2jax_ignore",
+            processEscapes: false,
+            processEnvironments: true,
+            preview: "TeX"
+        },
+        showProcessingMessages: true,
+        displayAlign: "center",
+        displayIndent: "2em",
+
+        "HTML-CSS": {
+             scale: 100,
+             availableFonts: ["STIX","TeX"],
+             preferredFont: "TeX",
+             webFont: "TeX",
+             imageFont: "TeX",
+             showMathMenu: true,
+        },
+        MMLorHTML: {
+             prefer: {
+                 MSIE:    "MML",
+                 Firefox: "MML",
+                 Opera:   "HTML",
+                 other:   "HTML"
+             }
+        }
+    });
+/*]]>*///-->
+</script>
+</head>
+<body>
+<div id="preamble" class="status">
+<link rel="icon" type="image/x-icon" href="https://github.com/favicon.ico"/>
+</div>
+<div id="content">
+<h1 class="title">lispy.el region manipulation</h1>
+<p>
+<a href="https://github.com/abo-abo/lispy">Back to github.</a>
+</p>
+
+<p>
+<a href="http://www.gnu.org/software/emacs/manual/html_node/emacs/Using-Region.html"><code>delete-selection-mode</code></a> is mighty wasteful: there's a specific state
+available (region active), which was triggered purposefully by the
+user, and instead of doing something useful connected to this state,
+<i>all alphanumeric keys</i> do the same thing: delete region and
+self-insert.
+</p>
+
+
+<div id="outline-container-sec-1" class="outline-2">
+<h2 id="sec-1">Function reference</h2>
+<div class="outline-text-2" id="text-1">
+</div><div id="outline-container-lispy-forward" class="outline-3">
+<h3 id="lispy-forward"><a id="sec-1-1"></a><code>lispy-forward</code></h3>
+<div class="outline-text-3" id="text-lispy-forward">
+<p>
+Bound to <kbd>]</kbd>.
+</p>
+
+<p>
+Works as replacement for the standard <code>forward-list</code>.
+</p>
+
+<p>
+Takes a numeric prefix <code>arg</code> and moves forward list <code>arg</code> times or
+until error.
+</p>
+
+<p>
+Unlike <code>forward-list</code>, no error will be reported if it's not possible
+to move <code>arg</code> times.
+It that case, move as many times as possible.
+</p>
+
+<p>
+Return <code>t</code> if could move at least once, otherwise
+call <a href="#lispy-out-forward"><code>lispy-out-forward</code></a> and return <code>nil</code>.
+</p>
+
+<p>
+Unlike <code>forward-list</code>, parens in strings and comments are ignored.
+</p>
+<hr  />
+</div>
+</div>
+
+<div id="outline-container-lispy-backward" class="outline-3">
+<h3 id="lispy-backward"><a id="sec-1-2"></a><code>lispy-backward</code></h3>
+<div class="outline-text-3" id="text-lispy-backward">
+<p>
+Bound to <kbd>[</kbd>.
+</p>
+
+<p>
+Works as replacement for the standard <code>backward-list</code>.
+</p>
+
+<p>
+Takes a numeric prefix <code>arg</code> and moves backward list <code>arg</code> times or
+until error.
+</p>
+
+<p>
+Unlike <code>backward-list</code>, no error will be reported if it's not possible
+to move <code>arg</code> times.
+It that case, move as many times as possible.
+</p>
+
+<p>
+Return <code>t</code> if could move at least once, otherwise
+call <code>lispy-out-backward</code> and return <code>nil</code>.
+</p>
+
+<p>
+Unlike <code>backward-list</code>, parens in strings and comments are ignored.
+</p>
+<hr  />
+</div>
+</div>
+<div id="outline-container-lispy-out-forward" class="outline-3">
+<h3 id="lispy-out-forward"><a id="sec-1-3"></a><code>lispy-out-forward</code></h3>
+<div class="outline-text-3" id="text-lispy-out-forward">
+<p>
+Bound to <kbd>C-3</kbd>.
+</p>
+
+<p>
+Works as replacement for the standard <code>up-list</code>.
+</p>
+
+<p>
+Takes a numeric prefix <code>arg</code> and moves up forward list <code>arg</code> times or
+until error.
+</p>
+
+<p>
+Unlike <code>up-list</code>, no error will be reported if it's not possible
+to move up <code>arg</code> times.
+It that case, move as many times as possible.
+</p>
+
+<p>
+Return point if could move at least once, otherwise
+do nothing and return <code>nil</code>.
+</p>
+
+<p>
+Unlike <code>up-list</code>, parens in strings and comments are ignored.
+</p>
+<hr  />
+</div>
+</div>
+<div id="outline-container-lispy-out-forward-nostring" class="outline-3">
+<h3 id="lispy-out-forward-nostring"><a id="sec-1-4"></a><code>lispy-out-forward-nostring</code></h3>
+<div class="outline-text-3" id="text-lispy-out-forward-nostring">
+<p>
+Bound to <kbd>)</kbd>.
+</p>
+
+<p>
+Works the same ways as <a href="#lispy-out-forward"><code>lispy-out-forward</code></a>, except self-inserts in
+strings and comments.
+</p>
+
+<p>
+Self-inserting in strings and comments makes parens different from the
+other pair functions that always insert the whole pair:
+</p>
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="left" />
+
+<col  class="left" />
+
+<col  class="left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="left">key</th>
+<th scope="col" class="left">function</th>
+<th scope="col" class="left">inserts</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="left">{</td>
+<td class="left"><a href="#lispy-braces">lispy-braces</a></td>
+<td class="left">{}</td>
+</tr>
+
+<tr>
+<td class="left">}</td>
+<td class="left"><a href="#lispy-brackets">lispy-brackets</a></td>
+<td class="left">[]</td>
+</tr>
+
+<tr>
+<td class="left">"</td>
+<td class="left"><a href="#lispy-quotes">lispy-quotes</a></td>
+<td class="left">""</td>
+</tr>
+</tbody>
+</table>
+
+<p>
+When you want to insert a single character from the pair, use <kbd>C-q</kbd>.
+</p>
+<hr  />
+</div>
+</div>
+<div id="outline-container-lispy-out-backward" class="outline-3">
+<h3 id="lispy-out-backward"><a id="sec-1-5"></a><code>lispy-out-backward</code></h3>
+<div class="outline-text-3" id="text-lispy-out-backward">
+<p>
+Bound to <kbd>a</kbd>.
+</p>
+
+
+<p>
+Takes a numeric prefix <code>arg</code> and moves up backward list <code>arg</code> times or
+until error. This is a combination of <code>arg</code> times <a href="#lispy-out-forward"><code>lispy-out-forward</code></a> and once
+<a href="#lispy-different"><code>lispy-different</code></a>.
+</p>
+
+<p>
+When the region is active, the region will be moved up backward <code>arg</code>
+times:
+</p>
+
+<table><tbody><tr><td>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<!-- Created by htmlize-1.47 in css mode. -->
+<html>
+  <head>
+    <title>temp</title>
+    <style type="text/css">
+    <!--
+      body {
+        color: #000000;
+        background-color: #ffffff;
+      }
+      .keyword {
+        /* font-lock-keyword-face */
+        color: #7F0055;
+        font-weight: bold;
+      }
+      .region {
+        /* region */
+        color: #ffffff;
+        background-color: #f9b593;
+      }
+
+      a {
+        color: inherit;
+        background-color: inherit;
+        font: inherit;
+        text-decoration: inherit;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+    -->
+    </style>
+  </head>
+  <body>
+    <pre>
+(<span class="keyword">progn</span>
+  <span class="region">(foo)</span>)</pre>
+  </body>
+</html>
+</td><td>
+<p>
+-&gt; <kbd>a</kbd> -&gt;
+</p>
+</td><td>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<!-- Created by htmlize-1.47 in css mode. -->
+<html>
+  <head>
+    <title>temp</title>
+    <style type="text/css">
+    <!--
+      body {
+        color: #000000;
+        background-color: #ffffff;
+      }
+      .keyword {
+        /* font-lock-keyword-face */
+        color: #7F0055;
+        font-weight: bold;
+      }
+      .region {
+        /* region */
+        color: #ffffff;
+        background-color: #f9b593;
+      }
+
+      a {
+        color: inherit;
+        background-color: inherit;
+        font: inherit;
+        text-decoration: inherit;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+    -->
+    </style>
+  </head>
+  <body>
+    <pre>
+<span class="region">(foo)</span>
+(<span class="keyword">progn</span>)</pre>
+  </body>
+</html>
+</td></tr></tbody></table>
+</div>
+</div>
+
+
+<div id="outline-container-lispy-down" class="outline-3">
+<h3 id="lispy-down"><a id="sec-1-6"></a><code>lispy-down</code></h3>
+<div class="outline-text-3" id="text-lispy-down">
+<p>
+Bound to <kbd>j</kbd>.
+</p>
+
+<p>
+Takes a numeric prefix <code>arg</code> and moves down the current list <code>arg</code> times.
+</p>
+
+<p>
+Here, current list means the innermost list that contains the point.
+Moving down means so literally only if there is a newline after
+each element of current list, otherwise it's down or left.
+</p>
+
+<p>
+<kbd>j</kbd> maintains a guarantee that it will not exit the current list, so
+you can use e.g. <kbd>99j</kbd> to move to the last element of current list.
+</p>
+
+<p>
+When it's not possible to move down any more, <kbd>j</kbd> will
+behave as <a href="#lispy-different"><code>lispy-different</code></a>. This allows to traverse the current
+list's elements with just <kbd>j</kbd> and <kbd>k</kbd>.
+</p>
+
+<p>
+When region is active, <kbd>j</kbd> will call <code>forward-sexp</code>.
+This allows to:
+</p>
+
+<ul class="org-ul">
+<li>grow the region when point is at <code>region-end</code>
+</li>
+<li>shrink the region when point is at <code>region-beginning</code>
+</li>
+</ul>
+<hr  />
+</div>
+</div>
+<div id="outline-container-lispy-up" class="outline-3">
+<h3 id="lispy-up"><a id="sec-1-7"></a><code>lispy-up</code></h3>
+<div class="outline-text-3" id="text-lispy-up">
+<p>
+Bound to <kbd>k</kbd>.
+</p>
+
+<p>
+Takes a numeric prefix <code>arg</code> and moves up the current list <code>arg</code> times.
+</p>
+
+<p>
+Here, current list means the innermost list that contains the point.
+Moving up means so literally only if there is a newline after
+each element of current list, otherwise it's up or right.
+</p>
+
+<p>
+<kbd>k</kbd> maintains a guarantee that it will not exit the current list, so
+you can use e.g. <kbd>99k</kbd> to move to the first element of current list.
+</p>
+
+<p>
+When it's not possible to move up any more, <kbd>k</kbd> will
+behave as <a href="#lispy-different"><code>lispy-different</code></a>. This allows to traverse the current
+list's elements with just <kbd>j</kbd> and <kbd>k</kbd>.
+</p>
+
+<p>
+When region is active, <kbd>k</kbd> will call <code>backward-sexp</code>.
+This allows to:
+</p>
+
+<ul class="org-ul">
+<li>shrink the region when point is at <code>region-end</code>
+</li>
+<li>grow the region when point is at <code>region-beginning</code>
+</li>
+</ul>
+<hr  />
+</div>
+</div>
+<div id="outline-container-lispy-different" class="outline-3">
+<h3 id="lispy-different"><a id="sec-1-8"></a><code>lispy-different</code></h3>
+<div class="outline-text-3" id="text-lispy-different">
+<p>
+Bound to <kbd>d</kbd>.
+</p>
+
+<p>
+Switch to the different side of current sexp.
+</p>
+
+<p>
+When region is active, equivalent to <code>exchange-point-and-mark</code>.
+</p>
+<hr  />
+</div>
+</div>
+<div id="outline-container-lispy-flow" class="outline-3">
+<h3 id="lispy-flow"><a id="sec-1-9"></a><code>lispy-flow</code></h3>
+<div class="outline-text-3" id="text-lispy-flow">
+<p>
+Bound to <kbd>f</kbd>.
+</p>
+
+<p>
+Flow in the direction of current paren, i.e.
+</p>
+</div>
+
+<div id="outline-container-sec-1-9-1" class="outline-4">
+<h4 id="sec-1-9-1">looking at <code>lispy-left</code></h4>
+<div class="outline-text-4" id="text-1-9-1">
+<p>
+Find the next <code>lispy-left</code> not in comment or string going down the
+file.
+</p>
+</div>
+</div>
+<div id="outline-container-sec-1-9-2" class="outline-4">
+<h4 id="sec-1-9-2">looking back <code>lispy-right</code></h4>
+<div class="outline-text-4" id="text-1-9-2">
+<p>
+Find the next <code>lispy-right</code> not in comment or string going up the
+file.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-lispy-clockwise" class="outline-3">
+<h3 id="lispy-clockwise"><a id="sec-1-10"></a><code>lispy-clockwise</code></h3>
+<div class="outline-text-3" id="text-lispy-clockwise">
+<p>
+Bound to <kbd>p</kbd>.
+</p>
+
+<p>
+Move clockwise within current list.
+</p>
+</div>
+</div>
+<div id="outline-container-lispy-counterclockwise" class="outline-3">
+<h3 id="lispy-counterclockwise"><a id="sec-1-11"></a><code>lispy-counterclockwise</code></h3>
+<div class="outline-text-3" id="text-lispy-counterclockwise">
+<p>
+Bound to <kbd>o</kbd>.
+</p>
+
+<p>
+Move counterclockwise within current list.
+</p>
+</div>
+</div>
+<div id="outline-container-lispy-move-end-of-line" class="outline-3">
+<h3 id="lispy-move-end-of-line"><a id="sec-1-12"></a><code>lispy-move-end-of-line</code></h3>
+<div class="outline-text-3" id="text-lispy-move-end-of-line">
+<p>
+Bound to <kbd>C-e</kbd>.
+</p>
+
+<p>
+Works as replacement for the standard <code>move-end-of-line</code>.
+</p>
+
+<p>
+Regular <code>move-end-of-line</code> does nothing the second time when called
+twice in a row.
+</p>
+
+<p>
+When called twice in a row and
+</p>
+</div>
+
+<div id="outline-container-sec-1-12-1" class="outline-4">
+<h4 id="sec-1-12-1">inside string</h4>
+<div class="outline-text-4" id="text-1-12-1">
+<p>
+Move to the end of the string.
+</p>
+</div>
+</div>
+<div id="outline-container-sec-1-12-2" class="outline-4">
+<h4 id="sec-1-12-2">otherwise</h4>
+<div class="outline-text-4" id="text-1-12-2">
+<p>
+Return to the starting position.
+</p>
+</div>
+</div>
+</div>
+<div id="outline-container-lispy-ace-paren" class="outline-3">
+<h3 id="lispy-ace-paren"><a id="sec-1-13"></a><code>lispy-ace-paren</code></h3>
+<div class="outline-text-3" id="text-lispy-ace-paren">
+<p>
+Bound to <kbd>q</kbd>.
+</p>
+
+<p>
+Starting with this:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">lispy-define-key</span> (keymap key def <span style="color: #000000; font-style: italic; text-decoration: underline;">&amp;optional</span> from-start)
+  <span style="color: #2A00FF;">"Forward to (`</span><span style="color: #110099;">define-key</span><span style="color: #2A00FF;">' KEYMAP KEY (`</span><span style="color: #110099;">lispy-defun</span><span style="color: #2A00FF;">' DEF FROM-START))."</span>
+  (<span style="color: #7F0055; font-weight: bold;">let</span> ((func (<span style="color: #7F0055; font-weight: bold;">defalias</span> (<span style="color: #000000; font-weight: bold;">intern</span> (concat <span style="color: #2A00FF;">"special-"</span> (symbol-name def)))
+                  (lispy--insert-or-call def from-start))))
+    <cursor>(</cursor><span style="color: #7F0055; font-weight: bold;">unless</span> (member func ac-trigger-commands)
+      (push func ac-trigger-commands))
+    (<span style="color: #7F0055; font-weight: bold;">unless</span> (member func company-begin-commands)
+      (push func company-begin-commands))
+    (eldoc-add-command func)
+    (define-key keymap (kbd key) func)))
+</pre>
+</div>
+<p>
+by pressing <kbd>q</kbd> you get this:
+</p>
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<!-- Created by htmlize-1.47 in css mode. -->
+<html>
+  <head>
+    <title>temp</title>
+    <style type="text/css">
+    <!--
+      body {
+        color: #000000;
+        background-color: #ffffff;
+      }
+      .ace-jump-face-background {
+        /* ace-jump-face-background */
+        color: #666666;
+      }
+      .ace-jump-face-foreground {
+        /* ace-jump-face-foreground */
+        color: #ff0000;
+      }
+      .constant {
+        /* font-lock-constant-face */
+        color: #110099;
+      }
+      .doc {
+        /* font-lock-doc-face */
+        color: #2A00FF;
+      }
+      .function-name {
+        /* font-lock-function-name-face */
+        font-weight: bold;
+      }
+      .keyword {
+        /* font-lock-keyword-face */
+        color: #7F0055;
+        font-weight: bold;
+      }
+      .string {
+        /* font-lock-string-face */
+        color: #2A00FF;
+      }
+      .type {
+        /* font-lock-type-face */
+        color: #000000;
+        font-style: italic;
+        text-decoration: underline;
+      }
+
+      a {
+        color: inherit;
+        background-color: inherit;
+        font: inherit;
+        text-decoration: inherit;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+    -->
+    </style>
+  </head>
+  <body>
+    <pre>
+<span class="ace-jump-face-background"><span class="ace-jump-face-foreground">a</span></span><span class="keyword"><span class="ace-jump-face-background">defun</span></span><span class="ace-jump-face-background"> </span><span class="function-name"><span class="ace-jump-face-background">lispy-define-key</span></span><span class="ace-jump-face-background"> </span><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">b</span></span><span class="ace-jump-face-background">keymap key def </span><span class="type"><span class="ace-jump-face-background">&amp;optional</span></span><span class="ace-jump-face-background"> from-start)
+  </span><span class="doc"><span class="ace-jump-face-background">"Forward to </span></span><span class="doc"><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">c</span></span></span><span class="doc"><span class="ace-jump-face-background">`</span></span><span class="doc"><span class="constant"><span class="ace-jump-face-background">define-key</span></span></span><span class="doc"><span class="ace-jump-face-background">' KEYMAP KEY </span></span><span class="doc"><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">d</span></span></span><span class="doc"><span class="ace-jump-face-background">`</span></span><span class="doc"><span class="constant"><span class="ace-jump-face-background">lispy-defun</span></span></span><span class="doc"><span class="ace-jump-face-background">' DEF FROM-START))."</span></span><span class="ace-jump-face-background">
+  </span><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">e</span></span><span class="keyword"><span class="ace-jump-face-background">let</span></span><span class="ace-jump-face-background"> </span><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">fg</span></span><span class="ace-jump-face-background">func </span><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">h</span></span><span class="keyword"><span class="ace-jump-face-background">defalias</span></span><span class="ace-jump-face-background"> </span><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">i</span></span><span class="function-name"><span class="ace-jump-face-background">intern</span></span><span class="ace-jump-face-background"> </span><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">j</span></span><span class="ace-jump-face-background">concat </span><span class="string"><span class="ace-jump-face-background">"special-"</span></span><span class="ace-jump-face-background"> </span><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">k</span></span><span class="ace-jump-face-background">symbol-name def)))
+                  </span><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">l</span></span><span class="ace-jump-face-background">lispy--insert-or-call def from-start))))
+    </span><span class="ace-jump-face-background"><span class="ace-jump-face-foreground"><cursor>m</cursor></span></span><span class="keyword"><span class="ace-jump-face-background">unless</span></span><span class="ace-jump-face-background"> </span><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">n</span></span><span class="ace-jump-face-background">member func ac-trigger-commands)
+      </span><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">o</span></span><span class="ace-jump-face-background">push func ac-trigger-commands))
+    </span><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">p</span></span><span class="keyword"><span class="ace-jump-face-background">unless</span></span><span class="ace-jump-face-background"> </span><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">q</span></span><span class="ace-jump-face-background">member func company-begin-commands)
+      </span><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">r</span></span><span class="ace-jump-face-background">push func company-begin-commands))
+    </span><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">s</span></span><span class="ace-jump-face-background">eldoc-add-command func)
+    </span><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">t</span></span><span class="ace-jump-face-background">define-key keymap </span><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">u</span></span><span class="ace-jump-face-background">kbd key) func)))</span></pre>
+  </body>
+</html>
+
+<p>
+Now you can change the point position by pressing a letter or
+cancel with <kbd>C-g</kbd>.
+</p>
+<hr  />
+</div>
+</div>
+<div id="outline-container-lispy-ace-symbol" class="outline-3">
+<h3 id="lispy-ace-symbol"><a id="sec-1-14"></a><code>lispy-ace-symbol</code></h3>
+<div class="outline-text-3" id="text-lispy-ace-symbol">
+<p>
+Bound to <kbd>h</kbd>.
+</p>
+
+<p>
+Starting with this:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">lispy-define-key</span> (keymap key def <span style="color: #000000; font-style: italic; text-decoration: underline;">&amp;optional</span> from-start)
+  <span style="color: #2A00FF;">"Forward to (`</span><span style="color: #110099;">define-key</span><span style="color: #2A00FF;">' KEYMAP KEY (`</span><span style="color: #110099;">lispy-defun</span><span style="color: #2A00FF;">' DEF FROM-START))."</span>
+  (<span style="color: #7F0055; font-weight: bold;">let</span> ((func (<span style="color: #7F0055; font-weight: bold;">defalias</span> (<span style="color: #000000; font-weight: bold;">intern</span> (concat <span style="color: #2A00FF;">"special-"</span> (symbol-name def)))
+                  (lispy--insert-or-call def from-start))))
+    <cursor>(</cursor><span style="color: #7F0055; font-weight: bold;">unless</span> (member func ac-trigger-commands)
+      (push func ac-trigger-commands))
+    (<span style="color: #7F0055; font-weight: bold;">unless</span> (member func company-begin-commands)
+      (push func company-begin-commands))
+    (eldoc-add-command func)
+    (define-key keymap (kbd key) func)))
+</pre>
+</div>
+<p>
+by pressing <kbd>h</kbd> you get this:
+</p>
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<!-- Created by htmlize-1.47 in css mode. -->
+<html>
+  <head>
+    <title>*Org Src oblog-min.org[ emacs-lisp ]*</title>
+    <style type="text/css">
+    <!--
+      body {
+        color: #000000;
+        background-color: #ffffff;
+      }
+      .ace-jump-face-background {
+        /* ace-jump-face-background */
+        color: #666666;
+      }
+      .ace-jump-face-foreground {
+        /* ace-jump-face-foreground */
+        color: #ff0000;
+      }
+      .constant {
+        /* font-lock-constant-face */
+        color: #110099;
+      }
+      .doc {
+        /* font-lock-doc-face */
+        color: #2A00FF;
+      }
+      .function-name {
+        /* font-lock-function-name-face */
+        font-weight: bold;
+      }
+      .keyword {
+        /* font-lock-keyword-face */
+        color: #7F0055;
+        font-weight: bold;
+      }
+      .string {
+        /* font-lock-string-face */
+        color: #2A00FF;
+      }
+      .type {
+        /* font-lock-type-face */
+        color: #000000;
+        font-style: italic;
+        text-decoration: underline;
+      }
+
+      a {
+        color: inherit;
+        background-color: inherit;
+        font: inherit;
+        text-decoration: inherit;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+    -->
+    </style>
+  </head>
+  <body>
+    <pre>
+<span class="ace-jump-face-background">(</span><span class="keyword"><span class="ace-jump-face-background">defun</span></span><span class="ace-jump-face-background"> </span><span class="function-name"><span class="ace-jump-face-background">lispy-define-key</span></span><span class="ace-jump-face-background"> (keymap key def </span><span class="type"><span class="ace-jump-face-background">&amp;optional</span></span><span class="ace-jump-face-background"> from-start)
+  </span><span class="doc"><span class="ace-jump-face-background">"Forward to (`</span></span><span class="doc"><span class="constant"><span class="ace-jump-face-background">define-key</span></span></span><span class="doc"><span class="ace-jump-face-background">' KEYMAP KEY (`</span></span><span class="doc"><span class="constant"><span class="ace-jump-face-background">lispy-defun</span></span></span><span class="doc"><span class="ace-jump-face-background">' DEF FROM-START))."</span></span><span class="ace-jump-face-background">
+  (</span><span class="keyword"><span class="ace-jump-face-background">let</span></span><span class="ace-jump-face-background"> ((func (</span><span class="keyword"><span class="ace-jump-face-background">defalias</span></span><span class="ace-jump-face-background"> (</span><span class="function-name"><span class="ace-jump-face-background">intern</span></span><span class="ace-jump-face-background"> (concat </span><span class="string"><span class="ace-jump-face-background">"special-"</span></span><span class="ace-jump-face-background"> (symbol-name def)))
+                  (lispy--insert-or-call def from-start))))
+    </span><span class="ace-jump-face-background"><span class="ace-jump-face-foreground"><cursor>a</cursor></span></span><span class="keyword"><span class="ace-jump-face-background">unless</span></span><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">b</span></span><span class="ace-jump-face-background">(member</span><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">c</span></span><span class="ace-jump-face-background">func</span><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">d</span></span><span class="ace-jump-face-background">ac-trigger-commands)
+     </span><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">e</span></span><span class="ace-jump-face-background">(push</span><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">f</span></span><span class="ace-jump-face-background">func</span><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">g</span></span><span class="ace-jump-face-background">ac-trigger-commands))
+    (</span><span class="keyword"><span class="ace-jump-face-background">unless</span></span><span class="ace-jump-face-background"> (member func company-begin-commands)
+      (push func company-begin-commands))
+    (eldoc-add-command func)
+    (define-key keymap (kbd key) func)))</span></pre>
+  </body>
+</html>
+
+<p>
+Now you can mark a symbol by pressing a letter, or cancel with <kbd>C-g</kbd>.
+</p>
+
+<p>
+Here's the end result of <kbd>hd</kbd>:
+</p>
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<!-- Created by htmlize-1.47 in css mode. -->
+<html>
+  <head>
+    <title>*Org Src oblog-min.org[ emacs-lisp ]*</title>
+    <style type="text/css">
+    <!--
+      body {
+        color: #000000;
+        background-color: #ffffff;
+      }
+      .constant {
+        /* font-lock-constant-face */
+        color: #110099;
+      }
+      .doc {
+        /* font-lock-doc-face */
+        color: #2A00FF;
+      }
+      .function-name {
+        /* font-lock-function-name-face */
+        font-weight: bold;
+      }
+      .keyword {
+        /* font-lock-keyword-face */
+        color: #7F0055;
+        font-weight: bold;
+      }
+      .region {
+        /* region */
+        color: #ffffff;
+        background-color: #f9b593;
+      }
+      .string {
+        /* font-lock-string-face */
+        color: #2A00FF;
+      }
+      .type {
+        /* font-lock-type-face */
+        color: #000000;
+        font-style: italic;
+        text-decoration: underline;
+      }
+
+      a {
+        color: inherit;
+        background-color: inherit;
+        font: inherit;
+        text-decoration: inherit;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+    -->
+    </style>
+  </head>
+  <body>
+    <pre>
+(<span class="keyword">defun</span> <span class="function-name">lispy-define-key</span> (keymap key def <span class="type">&amp;optional</span> from-start)
+  <span class="doc">"Forward to (`</span><span class="doc"><span class="constant">define-key</span></span><span class="doc">' KEYMAP KEY (`</span><span class="doc"><span class="constant">lispy-defun</span></span><span class="doc">' DEF FROM-START))."</span>
+  (<span class="keyword">let</span> ((func (<span class="keyword">defalias</span> (<span class="function-name">intern</span> (concat <span class="string">"special-"</span> (symbol-name def)))
+                  (lispy--insert-or-call def from-start))))
+    (<span class="keyword">unless</span> (member func <span class="region">ac-trigger-commands</span><cursor>)</cursor>
+      (push func ac-trigger-commands))
+    (<span class="keyword">unless</span> (member func company-begin-commands)
+      (push func company-begin-commands))
+    (eldoc-add-command func)
+    (define-key keymap (kbd key) func)))</pre>
+  </body>
+</html>
+
+<p>
+Now you can follow up with
+</p>
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="left" />
+
+<col  class="left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="left">key</th>
+<th scope="col" class="left">function name</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="left">F</td>
+<td class="left"><a href="#lispy-follow">lispy-follow</a></td>
+</tr>
+
+<tr>
+<td class="left">C-1</td>
+<td class="left"><a href="#lispy-describe-inline">lispy-describe-inline</a></td>
+</tr>
+
+<tr>
+<td class="left">e</td>
+<td class="left"><a href="#lispy-eval">lispy-eval</a></td>
+</tr>
+</tbody>
+</table>
+<hr  />
+</div>
+</div>
+<div id="outline-container-lispy-follow" class="outline-3">
+<h3 id="lispy-follow"><a id="sec-1-15"></a><code>lispy-follow</code></h3>
+<div class="outline-text-3" id="text-lispy-follow">
+<p>
+Bound to <kbd>F</kbd>.
+</p>
+
+<p>
+When region is active jump to the definition of marked symbol.
+Otherwise jump to the definition of the first symbol in current sexp.
+</p>
+
+<p>
+It sets the mark before jumping, so you can use <kbd>C-u C-SPC</kbd> to jump
+back within current file or <kbd>C-x C-SPC</kbd> to jump back to previous file.
+</p>
+
+<p>
+Elisp, Clojure and Common Lisp are supported.
+</p>
+<hr  />
+</div>
+</div>
+<div id="outline-container-lispy-describe-inline" class="outline-3">
+<h3 id="lispy-describe-inline"><a id="sec-1-16"></a><code>lispy-describe-inline</code></h3>
+<div class="outline-text-3" id="text-lispy-describe-inline">
+<p>
+Bound to <kbd>C-1</kbd>.
+</p>
+
+<p>
+Show the documentation for current function or currently
+marked symbol (see <a href="#lispy-ace-symbol"><code>lispy-ace-symbol</code></a>).
+</p>
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<!-- Created by htmlize-1.47 in css mode. -->
+<html>
+  <head>
+    <title>temp</title>
+    <style type="text/css">
+    <!--
+      body {
+        color: #000000;
+        background-color: #ffffff;
+      }
+      .constant {
+        /* font-lock-constant-face */
+        color: #110099;
+      }
+      .doc {
+        /* font-lock-doc-face */
+        color: #2A00FF;
+      }
+      .function-name {
+        /* font-lock-function-name-face */
+        font-weight: bold;
+      }
+      .keyword {
+        /* font-lock-keyword-face */
+        color: #7F0055;
+        font-weight: bold;
+      }
+      .lispy-face-hint {
+        /* lispy-face-hint */
+        color: #000000;
+        background-color: #fff3bc;
+      }
+      .string {
+        /* font-lock-string-face */
+        color: #2A00FF;
+      }
+      .type {
+        /* font-lock-type-face */
+        color: #000000;
+        font-style: italic;
+        text-decoration: underline;
+      }
+
+      a {
+        color: inherit;
+        background-color: inherit;
+        font: inherit;
+        text-decoration: inherit;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+    -->
+    </style>
+  </head>
+  <body>
+    <pre>
+(<span class="keyword">defun</span> <span class="function-name">lispy-define-key</span> (keymap key def <span class="type">&amp;optional</span> from-start)
+  <span class="doc">"Forward to (`</span><span class="doc"><span class="constant">define-key</span></span><span class="doc">' KEYMAP KEY (`</span><span class="doc"><span class="constant">lispy-defun</span></span><span class="doc">' DEF FROM-START))."</span>
+  (<span class="keyword">let</span> ((func (<span class="keyword">defalias</span> (<span class="function-name">intern</span> (concat <span class="string">"special-"</span> (symbol-name def)))
+                  (lispy--insert-or-call def from-start))))
+            <span class="lispy-face-hint">Return non-nil if ELT is an element of LIST.  Comparison done with `equal'.</span>
+            <span class="lispy-face-hint">The value is actually the tail of LIST whose car is ELT.</span>
+
+            <span class="lispy-face-hint">(fn ELT LIST)</span>
+    (<span class="keyword">unless</span> (member func <cursor>a</cursor>c-trigger-commands)
+      (push func ac-trigger-commands))
+    (<span class="keyword">unless</span> (member func company-begin-commands)
+      (push func company-begin-commands))
+    (eldoc-add-command func)
+    (define-key keymap (kbd key) func)))</pre>
+  </body>
+</html>
+<hr  />
+</div>
+</div>
+<div id="outline-container-lispy-arglist-inline" class="outline-3">
+<h3 id="lispy-arglist-inline"><a id="sec-1-17"></a><code>lispy-arglist-inline</code></h3>
+<div class="outline-text-3" id="text-lispy-arglist-inline">
+<p>
+Bound to <kbd>C-2</kbd>.
+</p>
+
+<p>
+Show the argument list for current function.
+</p>
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<!-- Created by htmlize-1.47 in css mode. -->
+<html>
+  <head>
+    <title>lispy-arglist-inline</title>
+    <style type="text/css">
+    <!--
+      body {
+        color: #000000;
+        background-color: #ffffff;
+      }
+      .constant {
+        /* font-lock-constant-face */
+        color: #110099;
+      }
+      .doc {
+        /* font-lock-doc-face */
+        color: #2A00FF;
+      }
+      .function-name {
+        /* font-lock-function-name-face */
+        font-weight: bold;
+      }
+      .keyword {
+        /* font-lock-keyword-face */
+        color: #7F0055;
+        font-weight: bold;
+      }
+      .lispy-face-hint {
+        /* lispy-face-hint */
+        color: #000000;
+        background-color: #fff3bc;
+      }
+      .lispy-face-req-nosel {
+        /* lispy-face-req-nosel */
+        color: #000000;
+        background-color: #fff3bc;
+      }
+      .string {
+        /* font-lock-string-face */
+        color: #2A00FF;
+      }
+      .type {
+        /* font-lock-type-face */
+        color: #000000;
+        font-style: italic;
+        text-decoration: underline;
+      }
+
+      a {
+        color: inherit;
+        background-color: inherit;
+        font: inherit;
+        text-decoration: inherit;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+    -->
+    </style>
+  </head>
+  <body>
+    <pre>
+(<span class="keyword">defun</span> <span class="function-name">lispy-define-key</span> (keymap key def <span class="type">&amp;optional</span> from-start)
+  <span class="doc">"Forward to (`</span><span class="doc"><span class="constant">define-key</span></span><span class="doc">' KEYMAP KEY (`</span><span class="doc"><span class="constant">lispy-defun</span></span><span class="doc">' DEF FROM-START))."</span>
+  (<span class="keyword">let</span> ((func (<span class="keyword">defalias</span> (<span class="function-name">intern</span> (concat <span class="string">"special-"</span> (symbol-name def)))
+                  (lispy--insert-or-call def from-start))))
+            (<span class="lispy-face-hint">member</span> <span class="lispy-face-req-nosel">elt</span> <span class="lispy-face-req-nosel">list</span>)
+    (<span class="keyword">unless</span> (member func <cursor>a</cursor>c-trigger-commands)
+      (push func ac-trigger-commands))
+    (<span class="keyword">unless</span> (member func company-begin-commands)
+      (push func company-begin-commands))
+    (eldoc-add-command func)
+    (define-key keymap (kbd key) func)))</pre>
+  </body>
+</html>
+<hr  />
+</div>
+</div>
+<div id="outline-container-lispy-eval" class="outline-3">
+<h3 id="lispy-eval"><a id="sec-1-18"></a><code>lispy-eval</code></h3>
+<div class="outline-text-3" id="text-lispy-eval">
+<p>
+Bound to <kbd>e</kbd>.
+</p>
+
+<p>
+Eval current region or sexp.
+The result will be displayed in the minibuffer.
+</p>
+
+<p>
+Elisp, Clojure, Scheme and Common Lisp are supported.
+</p>
+
+<p>
+Elisp extensions:
+</p>
+</div>
+
+<div id="outline-container-sec-1-18-1" class="outline-4">
+<h4 id="sec-1-18-1"><code>lispy-lax-eval</code></h4>
+<div class="outline-text-4" id="text-1-18-1">
+<p>
+When <code>lispy-lax-eval</code> isn't <code>nil</code>, "Symbol's value as variable is
+void&#x2026;" error will be caught and the variable in question will be set
+to <code>nil</code>.
+</p>
+</div>
+</div>
+<div id="outline-container-sec-1-18-2" class="outline-4">
+<h4 id="sec-1-18-2">eval of <code>defvar</code></h4>
+<div class="outline-text-4" id="text-1-18-2">
+<p>
+Will do a <code>setq</code> in addition to <code>defvar</code> (i.e. the behavior of <kbd>C-M-x</kbd>).
+</p>
+<hr  />
+</div>
+</div>
+</div>
+<div id="outline-container-lispy-eval-and-insert" class="outline-3">
+<h3 id="lispy-eval-and-insert"><a id="sec-1-19"></a><code>lispy-eval-and-insert</code></h3>
+<div class="outline-text-3" id="text-lispy-eval-and-insert">
+<p>
+Bound to <kbd>E</kbd>.
+</p>
+
+<p>
+Eval current region or sexp.
+The result will be inserted in the current buffer
+after the evaluated expression.
+</p>
+
+<ul class="org-ul">
+<li>Starting with <code>|(</code> the point will not be moved,
+allowing to press <kbd>E</kbd> again.
+</li>
+<li>Starting with <code>)|</code> the point will end up after the
+inserted expression.
+</li>
+<li>Starting with an active region, the region will be
+deactivated and result will be inserted at point.
+</li>
+</ul>
+<hr  />
+</div>
+</div>
+<div id="outline-container-lispy-store-region-and-buffer" class="outline-3">
+<h3 id="lispy-store-region-and-buffer"><a id="sec-1-20"></a><code>lispy-store-region-and-buffer</code></h3>
+<div class="outline-text-3" id="text-lispy-store-region-and-buffer">
+<p>
+Bound to <kbd>b</kbd>.
+</p>
+
+<p>
+Store current buffer and region for further usage.  When
+region isn't active, store the bounds of current expression instead.
+</p>
+
+<p>
+Currently, these functions make use of stored info:
+</p>
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="left" />
+
+<col  class="left" />
+</colgroup>
+<tbody>
+<tr>
+<td class="left">B</td>
+<td class="left"><a href="#lispy-ediff-regions">lispy-ediff-regions</a></td>
+</tr>
+
+<tr>
+<td class="left">xf</td>
+<td class="left"><a href="#lispy-flatten">lispy-flatten</a></td>
+</tr>
+</tbody>
+</table>
+<hr  />
+</div>
+</div>
+<div id="outline-container-lispy-ediff-regions" class="outline-3">
+<h3 id="lispy-ediff-regions"><a id="sec-1-21"></a><code>lispy-ediff-regions</code></h3>
+<div class="outline-text-3" id="text-lispy-ediff-regions">
+<p>
+Bound to <kbd>B</kbd>.
+</p>
+
+<p>
+Comparable to <code>ediff-regions-linewise</code>, except the region and
+buffer selection is done differently:
+</p>
+
+<ul class="org-ul">
+<li>first buffer and region are defined by <a href="#lispy-store-region-and-buffer"><code>lispy-store-region-and-buffer</code></a>.
+</li>
+<li>second buffer and region are the current buffer and region
+</li>
+</ul>
+
+<p>
+Buffers can of course be the same.
+</p>
+
+<p>
+A useful scenario for this function is <kbd>C-x v ~</kbd>
+(<code>vc-revision-other-window</code>) <kbd>RET</kbd> and then follow up by selecting one
+function that was changed with <kbd>b</kbd> in one buffer and with <kbd>B</kbd> in other
+buffer.  This results in ediff just for that one single
+function. This is helpful if <code>ediff-buffers</code> isn't what you want.
+</p>
+
+<p>
+Another scenario is to compare two different functions that have similar code,
+for instance <code>lispy-move-down</code> and <code>lispy-move-up</code>.
+</p>
+<hr  />
+</div>
+</div>
+<div id="outline-container-lispy-to-lambda" class="outline-3">
+<h3 id="lispy-to-lambda"><a id="sec-1-22"></a><code>lispy-to-lambda</code></h3>
+<div class="outline-text-3" id="text-lispy-to-lambda">
+<p>
+Use <kbd>xl</kbd> (local) or <kbd>C-4 l</kbd> (global) to turn the current function
+definition into a lambda.
+</p>
+
+<p>
+One use case is when I want to edebug a lambda but not the function
+that's using it. So I extract the lambda with <a href="#lispy-to-defun"><code>lispy-to-defun</code></a>, edebug it and
+turn it back into a lambda with this function.
+</p>
+
+<p>
+Other use case is that I simply want to get the lambda since
+the function isn't used anywhere else.
+</p>
+
+<p>
+Starting with this:
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">helm-owiki-action</span> (x)
+  (find-file (expand-file-name
+              (format <span style="color: #2A00FF;">"%s.org"</span> x)<cursor> </cursor>
+              helm-owiki-directory)))
+</pre>
+</div>
+
+<p>
+by pressing <kbd>xl</kbd> you will get this:
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp"><cursor>(</cursor><span style="color: #7F0055; font-weight: bold;">lambda</span> (x)
+  (find-file (expand-file-name
+              (format <span style="color: #2A00FF;">"%s.org"</span> x)
+              helm-owiki-directory)))
+</pre>
+</div>
+<hr  />
+</div>
+</div>
+
+<div id="outline-container-lispy-to-defun" class="outline-3">
+<h3 id="lispy-to-defun"><a id="sec-1-23"></a><code>lispy-to-defun</code></h3>
+<div class="outline-text-3" id="text-lispy-to-defun">
+<p>
+Use <kbd>xd</kbd> (local) or <kbd>C-4 d</kbd> (global) to turn the current lambda
+into a defun.
+</p>
+
+<p>
+You'll be prompted for a name, the lambda will be replaced with that
+name and the new definition will be in the kill ring.
+</p>
+
+<p>
+Starting with this:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(mapcar <cursor>(</cursor><span style="color: #7F0055; font-weight: bold;">lambda</span> (x) (* x x))
+        (number-sequence 1 10))
+</pre>
+</div>
+
+<p>
+by pressing <kbd>xd</kbd> and entering <code>square</code> and then pressing <kbd>] ] C-m C-y</kbd>
+you'll get this:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(mapcar #'square
+        (number-sequence 1 10))
+(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">square</span> (x) (* x x))<cursor> </cursor>
+</pre>
+</div>
+
+<p>
+It's also possible to transform a toplevel function call into a defun
+with <kbd>xd</kbd>:
+</p>
+
+<p>
+Starting with this
+</p>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(foo-delete-region beg end)<cursor> </cursor>
+</pre>
+</div>
+
+<p>
+by pressing <kbd>xd</kbd> you'll get this:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">foo-delete-region</span> (beg end)
+  <cursor>)</cursor>
+</pre>
+</div>
+<hr  />
+</div>
+</div>
+<div id="outline-container-lispy-parens" class="outline-3">
+<h3 id="lispy-parens"><a id="sec-1-24"></a><code>lispy-parens</code></h3>
+<div class="outline-text-3" id="text-lispy-parens">
+<p>
+Bound to <kbd>(</kbd>.
+</p>
+
+<p>
+Call <a href="#lispy-pair"><code>lispy-pair</code></a> specialized with <code>()</code>.
+</p>
+<hr  />
+</div>
+</div>
+<div id="outline-container-lispy-braces" class="outline-3">
+<h3 id="lispy-braces"><a id="sec-1-25"></a><code>lispy-braces</code></h3>
+<div class="outline-text-3" id="text-lispy-braces">
+<p>
+Bound to <kbd>{</kbd>.
+</p>
+
+<p>
+Call <a href="#lispy-pair"><code>lispy-pair</code></a> specialized with <code>{}</code>.
+</p>
+<hr  />
+</div>
+</div>
+<div id="outline-container-lispy-brackets" class="outline-3">
+<h3 id="lispy-brackets"><a id="sec-1-26"></a><code>lispy-brackets</code></h3>
+<div class="outline-text-3" id="text-lispy-brackets">
+<p>
+Bound to <kbd>}</kbd>.
+</p>
+
+<p>
+Call <a href="#lispy-pair"><code>lispy-pair</code></a> specialized with <code>[]</code>.
+</p>
+<hr  />
+</div>
+</div>
+<div id="outline-container-lispy-quotes" class="outline-3">
+<h3 id="lispy-quotes"><a id="sec-1-27"></a><code>lispy-quotes</code></h3>
+<div class="outline-text-3" id="text-lispy-quotes">
+<p>
+Bound to <kbd>"</kbd>.
+</p>
+
+<p>
+Insert a pair of quotes around the point.
+</p>
+
+<p>
+Takes a prefix <code>arg</code>.
+</p>
+
+<p>
+The result depends on the following conditions, each tried one by one until one that holds true is found:
+</p>
+</div>
+<div id="outline-container-sec-1-27-1" class="outline-4">
+<h4 id="sec-1-27-1">region active</h4>
+<div class="outline-text-4" id="text-1-27-1">
+<p>
+Wrap the region with quotes.
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-1-27-2" class="outline-4">
+<h4 id="sec-1-27-2">in string and <code>arg</code> isn't <code>nil</code></h4>
+<div class="outline-text-4" id="text-1-27-2">
+<p>
+Unquote current string.
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-1-27-3" class="outline-4">
+<h4 id="sec-1-27-3">in string and <code>arg</code> is <code>nil</code></h4>
+<div class="outline-text-4" id="text-1-27-3">
+<p>
+Insert a pair of quoted quotes around point.
+</p>
+
+<p>
+Starting with
+</p>
+<div class="org-src-container">
+
+<pre class="src src-elisp"><span style="color: #2A00FF;">"we are the knights who say <cursor>"</cursor></span>
+</pre>
+</div>
+
+<p>
+pressing <kbd>"</kbd> will give:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-elisp"><span style="color: #2A00FF;">"we are the knights who say \"<cursor>\</cursor>""</span>
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-1-27-4" class="outline-4">
+<h4 id="sec-1-27-4"><code>arg</code> isn't <code>nil</code></h4>
+<div class="outline-text-4" id="text-1-27-4">
+<p>
+Forward to <code>lispy-stringify</code>.
+</p>
+</div>
+</div>
+<div id="outline-container-sec-1-27-5" class="outline-4">
+<h4 id="sec-1-27-5">otherwise</h4>
+<div class="outline-text-4" id="text-1-27-5">
+<p>
+Insert quotes, with a single space on either side where appropriate,
+and position the point between the quotes.
+</p>
+
+<p>
+Starting with
+</p>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(message<cursor>)</cursor>
+</pre>
+</div>
+
+<p>
+pressing <kbd>"</kbd> will give:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(message <span style="color: #2A00FF;">"<cursor>"</cursor></span>)
+</pre>
+</div>
+<hr  />
+</div>
+</div>
+</div>
+<div id="outline-container-lispy-parens-down" class="outline-3">
+<h3 id="lispy-parens-down"><a id="sec-1-28"></a><code>lispy-parens-down</code></h3>
+<div class="outline-text-3" id="text-lispy-parens-down">
+<p>
+Bound to <kbd>C-8</kbd>.
+</p>
+
+<p>
+Exit current list and insert a newline and a pair of parens.
+</p>
+</div>
+</div>
+<div id="outline-container-lispy-space" class="outline-3">
+<h3 id="lispy-space"><a id="sec-1-29"></a><code>lispy-space</code></h3>
+<div class="outline-text-3" id="text-lispy-space">
+<p>
+Bound to <kbd>SPC</kbd>.
+</p>
+
+<p>
+Insert a space.
+</p>
+
+<p>
+Behave differently in this situation:
+</p>
+
+<table><tbody><tr><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(|(foo))
+</pre>
+</div>
+</td><td>
+<p>
+-&gt; <kbd>C-d</kbd> -&gt;
+</p>
+</td><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(| (foo))
+</pre>
+</div>
+</td></tr></tbody></table>
+</div>
+</div>
+<div id="outline-container-lispy-pair" class="outline-3">
+<h3 id="lispy-pair"><a id="sec-1-30"></a><code>lispy-pair</code></h3>
+<div class="outline-text-3" id="text-lispy-pair">
+<p>
+This function, taking arguments <code>left</code> and <code>right</code>, is used to generate
+<a href="#lispy-parens"><code>lispy-parens</code></a>,
+<a href="#lispy-braces"><code>lispy-braces</code></a>
+and <a href="#lispy-brackets"><code>lispy-brackets</code></a>, which in turn take prefix <code>arg</code>.
+</p>
+
+<p>
+The result depends on the following conditions, each tried one by one until one that holds true is found:
+</p>
+</div>
+<div id="outline-container-sec-1-30-1" class="outline-4">
+<h4 id="sec-1-30-1">region active</h4>
+<div class="outline-text-4" id="text-1-30-1">
+<p>
+Wrap the region with <code>left</code> and <code>right</code>.
+</p>
+</div>
+</div>
+<div id="outline-container-sec-1-30-2" class="outline-4">
+<h4 id="sec-1-30-2">inside a string before "\\"</h4>
+<div class="outline-text-4" id="text-1-30-2">
+<p>
+Starting with
+</p>
+<div class="org-src-container">
+
+<pre class="src src-text">"a regex \\<cursor>"</cursor>
+</pre>
+</div>
+<p>
+pressing  <kbd>(</kbd> will give:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-text">"a regex \\(<cursor>\</cursor>\)"
+</pre>
+</div>
+<p>
+and pressing <kbd>{</kbd> will give:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-text">"a regex \\{<cursor>\</cursor>\}"
+</pre>
+</div>
+<p>
+and pressing <kbd>}</kbd> will give:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-text">"a regex \\[<cursor>\</cursor>\]"
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-sec-1-30-3" class="outline-4">
+<h4 id="sec-1-30-3">inside string or comment</h4>
+<div class="outline-text-4" id="text-1-30-3">
+<p>
+Insert <code>left</code>, <code>right</code> and put the point between them.
+</p>
+
+<p>
+Starting with
+</p>
+<div class="org-src-container">
+
+<pre class="src src-text">"a string <cursor> </cursor>"
+</pre>
+</div>
+<p>
+pressing <kbd>(</kbd> will give:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-text">"a string (<cursor>)</cursor>"
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-sec-1-30-4" class="outline-4">
+<h4 id="sec-1-30-4">elisp character expression</h4>
+<div class="outline-text-4" id="text-1-30-4">
+<p>
+Starting with
+</p>
+<div class="org-src-container">
+
+<pre class="src src-text">?\<cursor> </cursor>
+</pre>
+</div>
+<p>
+pressing <kbd>(</kbd> will self-insert it to give:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-text">?\(<cursor> </cursor>
+</pre>
+</div>
+<p>
+This also works for <kbd>)</kbd>, <kbd>{</kbd>, <kbd>}</kbd>.
+</p>
+
+<p>
+This doesn't work for <kbd>[</kbd> and <kbd>]</kbd>,
+they should be inserted with <kbd>C-q [</kbd> and <kbd>C-q ]</kbd>.
+</p>
+</div>
+</div>
+<div id="outline-container-sec-1-30-5" class="outline-4">
+<h4 id="sec-1-30-5"><code>arg</code> is 1</h4>
+<div class="outline-text-4" id="text-1-30-5">
+<ol class="org-ol">
+<li>Re-indent and insert space according to <code>lispy--space-unless</code>.
+</li>
+<li>Insert <code>left</code>, <code>right</code> and put the point between them.
+</li>
+<li>Insert a space after <code>right</code> if it's appropriate.
+</li>
+</ol>
+</div>
+</div>
+<div id="outline-container-sec-1-30-6" class="outline-4">
+<h4 id="sec-1-30-6">otherwise</h4>
+<div class="outline-text-4" id="text-1-30-6">
+<p>
+Wrap current sexp with <code>left</code> and <code>right</code>.
+</p>
+
+<p>
+Starting with:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-elisp"><cursor>(</cursor>do-some-thing)
+(do-other-thing)
+</pre>
+</div>
+
+<p>
+pressing <kbd>2(</kbd> will give:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(<cursor> </cursor>(do-some-thing))
+(do-other-thing)
+</pre>
+</div>
+
+<p>
+<kbd>2</kbd> here is responsible to setting <code>arg</code> to 2.
+</p>
+<hr  />
+</div>
+</div>
+</div>
+<div id="outline-container-lispy-x" class="outline-3">
+<h3 id="lispy-x"><a id="sec-1-31"></a><code>lispy-x</code></h3>
+<div class="outline-text-3" id="text-lispy-x">
+<p>
+Bound to <kbd>x</kbd> (locally) or <kbd>C-4</kbd> (globally).
+</p>
+
+<p>
+Just a prefix to calling other commands, like
+</p>
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="left" />
+
+<col  class="left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="left">key</th>
+<th scope="col" class="left">function name</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="left">l</td>
+<td class="left"><a href="#lispy-to-lambda">lispy-to-lambda</a></td>
+</tr>
+
+<tr>
+<td class="left">d</td>
+<td class="left"><a href="#lispy-to-defun">lispy-to-defun</a></td>
+</tr>
+</tbody>
+</table>
+<hr  />
+</div>
+</div>
+<div id="outline-container-lispy-kill" class="outline-3">
+<h3 id="lispy-kill"><a id="sec-1-32"></a><code>lispy-kill</code></h3>
+<div class="outline-text-3" id="text-lispy-kill">
+<p>
+Bound to <kbd>C-k</kbd>.
+</p>
+
+<p>
+A replacement for <code>kill-line</code> that keeps parens consistent.
+</p>
+
+<p>
+The result depends on the following conditions, each tried one by one until one that holds true is found:
+</p>
+</div>
+<div id="outline-container-sec-1-32-1" class="outline-4">
+<h4 id="sec-1-32-1">inside comment</h4>
+<div class="outline-text-4" id="text-1-32-1">
+<p>
+Call <code>kill-line</code>.
+</p>
+</div>
+</div>
+<div id="outline-container-sec-1-32-2" class="outline-4">
+<h4 id="sec-1-32-2">inside string and string extends past this line</h4>
+<div class="outline-text-4" id="text-1-32-2">
+<p>
+Call <code>kill-line</code>.
+</p>
+</div>
+</div>
+<div id="outline-container-sec-1-32-3" class="outline-4">
+<h4 id="sec-1-32-3">inside string that ends on this line</h4>
+<div class="outline-text-4" id="text-1-32-3">
+<p>
+Delete up to <code>line-end-position</code>.
+</p>
+</div>
+</div>
+<div id="outline-container-sec-1-32-4" class="outline-4">
+<h4 id="sec-1-32-4">on a line of whitespace</h4>
+<div class="outline-text-4" id="text-1-32-4">
+<p>
+Delete whole line, moving to the next one, and re-indent.
+</p>
+</div>
+</div>
+<div id="outline-container-sec-1-32-5" class="outline-4">
+<h4 id="sec-1-32-5">inside empty list</h4>
+<div class="outline-text-4" id="text-1-32-5">
+<p>
+Delete the empty list.
+</p>
+</div>
+</div>
+<div id="outline-container-sec-1-32-6" class="outline-4">
+<h4 id="sec-1-32-6">parens between point and eol are balanced</h4>
+<div class="outline-text-4" id="text-1-32-6">
+<p>
+Call <code>kill-line</code>.
+</p>
+</div>
+</div>
+<div id="outline-container-sec-1-32-7" class="outline-4">
+<h4 id="sec-1-32-7">possible to <code>up-list</code></h4>
+<div class="outline-text-4" id="text-1-32-7">
+<p>
+Delete from point to end of list.
+</p>
+</div>
+</div>
+<div id="outline-container-sec-1-32-8" class="outline-4">
+<h4 id="sec-1-32-8">otherwise</h4>
+<div class="outline-text-4" id="text-1-32-8">
+<p>
+Delete current sexp.
+</p>
+<hr  />
+</div>
+</div>
+</div>
+<div id="outline-container-lispy-new-copy" class="outline-3">
+<h3 id="lispy-new-copy"><a id="sec-1-33"></a><code>lispy-new-copy</code></h3>
+<div class="outline-text-3" id="text-lispy-new-copy">
+<p>
+Bound to <kbd>n</kbd>.
+</p>
+
+<p>
+Copy current sexp or region to kill ring.
+</p>
+</div>
+</div>
+
+<div id="outline-container-lispy-yank" class="outline-3">
+<h3 id="lispy-yank"><a id="sec-1-34"></a><code>lispy-yank</code></h3>
+<div class="outline-text-3" id="text-lispy-yank">
+<p>
+Bound to <kbd>C-y</kbd>.
+</p>
+
+<p>
+Replaces <code>yank</code>.
+The only difference is that yanking into an empty string will add
+escape sequences.
+</p>
+
+<p>
+Starting with:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-elisp"><cursor>(</cursor>message <span style="color: #2A00FF;">"test"</span>)
+</pre>
+</div>
+
+<p>
+pressing <kbd>C-k</kbd> <kbd>"</kbd> <kbd>C-y</kbd> will give:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-elisp"><span style="color: #2A00FF;">"(message \"test\")<cursor>"</cursor></span>
+</pre>
+</div>
+
+<p>
+whereas a regular <code>yank</code> would give:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-elisp"><span style="color: #2A00FF;">"(message "</span>test<span style="color: #2A00FF;">")<cursor>"</cursor></span>
+</pre>
+</div>
+<hr  />
+</div>
+</div>
+<div id="outline-container-lispy-delete" class="outline-3">
+<h3 id="lispy-delete"><a id="sec-1-35"></a><code>lispy-delete</code></h3>
+<div class="outline-text-3" id="text-lispy-delete">
+<p>
+Bound to <kbd>C-d</kbd>.
+</p>
+
+<p>
+Replaces <code>delete-char</code>, keeping parens consistent.
+</p>
+
+<p>
+The result depends on the following conditions, each tried one by one until one that holds true is found:
+</p>
+</div>
+<div id="outline-container-sec-1-35-1" class="outline-4">
+<h4 id="sec-1-35-1">region active</h4>
+<div class="outline-text-4" id="text-1-35-1">
+<p>
+Delete region.
+</p>
+</div>
+</div>
+<div id="outline-container-sec-1-35-2" class="outline-4">
+<h4 id="sec-1-35-2">inside a string before \"</h4>
+<div class="outline-text-4" id="text-1-35-2">
+<p>
+Delete \".
+</p>
+</div>
+</div>
+<div id="outline-container-sec-1-35-3" class="outline-4">
+<h4 id="sec-1-35-3">at last char of the string</h4>
+<div class="outline-text-4" id="text-1-35-3">
+<p>
+Move to the beginning of string.
+This allows to delete the whole string with the next <kbd>C-d</kbd>.
+</p>
+
+<table><tbody><tr><td>
+<div class="org-src-container">
+
+<pre class="src src-text">(message "more gold is required<cursor>"</cursor>)
+</pre>
+</div>
+</td><td>
+<p>
+-&gt; <kbd>C-d</kbd> -&gt;
+</p>
+</td><td>
+<div class="org-src-container">
+
+<pre class="src src-text">(message <cursor>"</cursor>more gold is required")
+</pre>
+</div>
+</td></tr></tbody></table>
+</div>
+</div>
+<div id="outline-container-sec-1-35-4" class="outline-4">
+<h4 id="sec-1-35-4">in string near \\( or \\)</h4>
+<div class="outline-text-4" id="text-1-35-4">
+<p>
+Remove \\( and \\).
+</p>
+
+<table><tbody><tr><td>
+<div class="org-src-container">
+
+<pre class="src src-text">(looking-at "\\([a-z]+<cursor>\</cursor>\)")
+</pre>
+</div>
+</td><td>
+<p>
+-&gt; <kbd>C-d</kbd> -&gt;
+</p>
+</td><td>
+<div class="org-src-container">
+
+<pre class="src src-text">(looking-at "[a-z]+<cursor>"</cursor>)
+</pre>
+</div>
+</td></tr></tbody></table>
+
+<table><tbody><tr><td>
+<div class="org-src-container">
+
+<pre class="src src-text">(looking-at "<cursor>\</cursor>\([a-z]+\\)")
+</pre>
+</div>
+</td><td>
+<p>
+-&gt; <kbd>C-d</kbd> -&gt;
+</p>
+</td><td>
+<div class="org-src-container">
+
+<pre class="src src-text">(looking-at "<cursor>[</cursor>a-z]+")
+</pre>
+</div>
+</td></tr></tbody></table>
+</div>
+</div>
+<div id="outline-container-sec-1-35-5" class="outline-4">
+<h4 id="sec-1-35-5">the next char isn't end of string</h4>
+<div class="outline-text-4" id="text-1-35-5">
+<p>
+Call <code>delete-char</code>.
+</p>
+</div>
+</div>
+<div id="outline-container-sec-1-35-6" class="outline-4">
+<h4 id="sec-1-35-6">inside comment</h4>
+<div class="outline-text-4" id="text-1-35-6">
+<p>
+Call <code>delete-char</code>.
+</p>
+</div>
+</div>
+<div id="outline-container-sec-1-35-7" class="outline-4">
+<h4 id="sec-1-35-7">before <code>lispy-left</code></h4>
+<div class="outline-text-4" id="text-1-35-7">
+<p>
+Delete <code>arg</code> sexps.
+</p>
+
+
+<table><tbody><tr><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(foo <cursor>(</cursor>bar) (baz))
+</pre>
+</div>
+</td><td>
+<p>
+-&gt; <kbd>2</kbd> <kbd>C-d</kbd> -&gt;
+</p>
+</td><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp"><cursor>(</cursor>foo)
+</pre>
+</div>
+</td></tr></tbody></table>
+</div>
+</div>
+<div id="outline-container-sec-1-35-8" class="outline-4">
+<h4 id="sec-1-35-8">before "</h4>
+<div class="outline-text-4" id="text-1-35-8">
+<p>
+Delete string.
+</p>
+</div>
+</div>
+<div id="outline-container-sec-1-35-9" class="outline-4">
+<h4 id="sec-1-35-9">before <code>lispy-right</code></h4>
+<div class="outline-text-4" id="text-1-35-9">
+<p>
+Delete containing sexp.
+</p>
+
+<table><tbody><tr><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(foo (bar) (baz<cursor>)</cursor>)
+</pre>
+</div>
+</td><td>
+<p>
+-&gt; <kbd>C-d</kbd> -&gt;
+</p>
+</td><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(foo (bar)<cursor>)</cursor>
+</pre>
+</div>
+</td></tr></tbody></table>
+</div>
+</div>
+<div id="outline-container-sec-1-35-10" class="outline-4">
+<h4 id="sec-1-35-10">otherwise</h4>
+<div class="outline-text-4" id="text-1-35-10">
+<p>
+Call <code>delete-char</code>.
+</p>
+<hr  />
+</div>
+</div>
+</div>
+<div id="outline-container-lispy-delete-backward" class="outline-3">
+<h3 id="lispy-delete-backward"><a id="sec-1-36"></a><code>lispy-delete-backward</code></h3>
+<div class="outline-text-3" id="text-lispy-delete-backward">
+<p>
+Bound to <kbd>DEL</kbd>.
+</p>
+
+<p>
+Replaces <code>backward-delete-char</code>, keeping parens consistent.
+</p>
+
+<p>
+The result depends on the following conditions, each tried one by one until one that holds true is found:
+</p>
+</div>
+<div id="outline-container-sec-1-36-1" class="outline-4">
+<h4 id="sec-1-36-1">region active</h4>
+<div class="outline-text-4" id="text-1-36-1">
+<p>
+Delete region.
+</p>
+</div>
+</div>
+<div id="outline-container-sec-1-36-2" class="outline-4">
+<h4 id="sec-1-36-2">at first char of the string</h4>
+<div class="outline-text-4" id="text-1-36-2">
+<p>
+Move to the end of the string.
+This allows to delete the whole string with the next <kbd>DEL</kbd>.
+</p>
+
+<table><tbody><tr><td>
+<div class="org-src-container">
+
+<pre class="src src-text">(message "<cursor>m</cursor>ore gold is required")
+</pre>
+</div>
+</td><td>
+<p>
+-&gt; <kbd>DEL</kbd> -&gt;
+</p>
+</td><td>
+<div class="org-src-container">
+
+<pre class="src src-text">(message "more gold is required"<cursor>)</cursor>
+</pre>
+</div>
+</td></tr></tbody></table>
+</div>
+</div>
+<div id="outline-container-sec-1-36-3" class="outline-4">
+<h4 id="sec-1-36-3">in string near \\( or \\)</h4>
+<div class="outline-text-4" id="text-1-36-3">
+<p>
+Remove \\( and \\).
+</p>
+
+<table><tbody><tr><td>
+<div class="org-src-container">
+
+<pre class="src src-text">(looking-at "\\([a-z]+\\)<cursor>"</cursor>)
+</pre>
+</div>
+</td><td>
+<p>
+-&gt; <kbd>DEL</kbd> -&gt;
+</p>
+</td><td>
+<div class="org-src-container">
+
+<pre class="src src-text">(looking-at "[a-z]+<cursor>"</cursor>)
+</pre>
+</div>
+</td></tr></tbody></table>
+
+<table><tbody><tr><td>
+<div class="org-src-container">
+
+<pre class="src src-text">(looking-at "\\(<cursor>[</cursor>a-z]+\\)")
+</pre>
+</div>
+</td><td>
+<p>
+-&gt; <kbd>DEL</kbd> -&gt;
+</p>
+</td><td>
+<div class="org-src-container">
+
+<pre class="src src-text">(looking-at "<cursor>[</cursor>a-z]+")
+</pre>
+</div>
+</td></tr></tbody></table>
+</div>
+</div>
+<div id="outline-container-sec-1-36-4" class="outline-4">
+<h4 id="sec-1-36-4">in string or comment</h4>
+<div class="outline-text-4" id="text-1-36-4">
+<p>
+Call <code>backward-delete-char</code>.
+</p>
+</div>
+</div>
+<div id="outline-container-sec-1-36-5" class="outline-4">
+<h4 id="sec-1-36-5">after <code>lispy-right</code></h4>
+<div class="outline-text-4" id="text-1-36-5">
+<p>
+Delete <code>arg</code> sexps.
+</p>
+
+<table><tbody><tr><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(foo (bar) (baz)<cursor>)</cursor>
+</pre>
+</div>
+</td><td>
+<p>
+-&gt; <kbd>2</kbd> <kbd>DEL</kbd> -&gt;
+</p>
+</td><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(foo)<cursor> </cursor>
+</pre>
+</div>
+</td></tr></tbody></table>
+</div>
+</div>
+<div id="outline-container-sec-1-36-6" class="outline-4">
+<h4 id="sec-1-36-6">before <code>lispy-left</code></h4>
+<div class="outline-text-4" id="text-1-36-6">
+<p>
+Delete containing sexp.
+</p>
+
+<table><tbody><tr><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(foo (bar) (<cursor>b</cursor>az))
+</pre>
+</div>
+</td><td>
+<p>
+-&gt; <kbd>DEL</kbd> -&gt;
+</p>
+</td><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(foo (bar)<cursor>)</cursor>
+</pre>
+</div>
+</td></tr></tbody></table>
+</div>
+</div>
+<div id="outline-container-sec-1-36-7" class="outline-4">
+<h4 id="sec-1-36-7">after a string</h4>
+<div class="outline-text-4" id="text-1-36-7">
+<p>
+Delete string.
+</p>
+
+<table><tbody><tr><td>
+<div class="org-src-container">
+
+<pre class="src src-text">(message "more gold is required"<cursor>)</cursor>
+</pre>
+</div>
+</td><td>
+<p>
+-&gt; <kbd>DEL</kbd> -&gt;
+</p>
+</td><td>
+<div class="org-src-container">
+
+<pre class="src src-text">(message)<cursor> </cursor>
+</pre>
+</div>
+</td></tr></tbody></table>
+</div>
+</div>
+<div id="outline-container-sec-1-36-8" class="outline-4">
+<h4 id="sec-1-36-8">otherwise</h4>
+<div class="outline-text-4" id="text-1-36-8">
+<p>
+Call <code>backward-delete-char</code>.
+</p>
+<hr  />
+</div>
+</div>
+</div>
+<div id="outline-container-lispy-mark" class="outline-3">
+<h3 id="lispy-mark"><a id="sec-1-37"></a><code>lispy-mark</code></h3>
+<div class="outline-text-3" id="text-lispy-mark">
+<p>
+Bound to <kbd>C-M-,</kbd>.
+</p>
+
+<p>
+Mark the smallest comment or string or list that includes point.
+</p>
+
+<p>
+This command will expand region when repeated.
+</p>
+</div>
+</div>
+<div id="outline-container-lispy-kill-at-point" class="outline-3">
+<h3 id="lispy-kill-at-point"><a id="sec-1-38"></a><code>lispy-kill-at-point</code></h3>
+<div class="outline-text-3" id="text-lispy-kill-at-point">
+<p>
+Bound to <kbd>C-,</kbd>.
+</p>
+
+<p>
+Kill the smallest comment or string or list that includes point.
+</p>
+</div>
+</div>
+<div id="outline-container-lispy-mark-symbol" class="outline-3">
+<h3 id="lispy-mark-symbol"><a id="sec-1-39"></a><code>lispy-mark-symbol</code></h3>
+<div class="outline-text-3" id="text-lispy-mark-symbol">
+<p>
+Bound to <kbd>M-m</kbd>.
+</p>
+
+<p>
+The result depends on the following conditions, each tried one by one until one that holds true is found:
+</p>
+</div>
+<div id="outline-container-sec-1-39-1" class="outline-4">
+<h4 id="sec-1-39-1">in comment</h4>
+<div class="outline-text-4" id="text-1-39-1">
+<p>
+Mark comment.
+</p>
+</div>
+</div>
+<div id="outline-container-sec-1-39-2" class="outline-4">
+<h4 id="sec-1-39-2">looking at space or parens</h4>
+<div class="outline-text-4" id="text-1-39-2">
+<p>
+Skip space and parens and mark the next thing between them.
+</p>
+</div>
+</div>
+<div id="outline-container-sec-1-39-3" class="outline-4">
+<h4 id="sec-1-39-3">looking back <code>lispy-right</code></h4>
+<div class="outline-text-4" id="text-1-39-3">
+<p>
+Mark last symbol in previous list.
+</p>
+</div>
+</div>
+<div id="outline-container-sec-1-39-4" class="outline-4">
+<h4 id="sec-1-39-4">region is active</h4>
+<div class="outline-text-4" id="text-1-39-4">
+<p>
+Call <code>forward-sexp</code>.
+</p>
+</div>
+</div>
+<div id="outline-container-sec-1-39-5" class="outline-4">
+<h4 id="sec-1-39-5">otherwise</h4>
+<div class="outline-text-4" id="text-1-39-5">
+<p>
+Forward to <code>lispy-mark</code>.
+</p>
+<hr  />
+</div>
+</div>
+</div>
+
+<div id="outline-container-lispy-string-oneline" class="outline-3">
+<h3 id="lispy-string-oneline"><a id="sec-1-40"></a><code>lispy-string-oneline</code></h3>
+<div class="outline-text-3" id="text-lispy-string-oneline">
+<p>
+Bound to <kbd>M-o</kbd>.
+</p>
+
+<p>
+Convert current string to one line.
+</p>
+
+<p>
+Starting with
+</p>
+<div class="org-src-container">
+
+<pre class="src src-text">(message "foo<cursor> </cursor>
+bar
+baz")
+</pre>
+</div>
+
+<p>
+pressing <kbd>M-o</kbd> will give:
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-text">(message "foo\nbar\nbaz"<cursor>)</cursor>
+</pre>
+</div>
+<hr  />
+</div>
+</div>
+<div id="outline-container-lispy-outline-next" class="outline-3">
+<h3 id="lispy-outline-next"><a id="sec-1-41"></a><code>lispy-outline-next</code></h3>
+<div class="outline-text-3" id="text-lispy-outline-next">
+<p>
+Bound to <kbd>J</kbd>.
+</p>
+
+<p>
+Takes a numeric prefix <code>arg</code> and
+calls <code>outline-next-visible-heading</code> <code>arg</code> times or until
+past the last <code>outline-regexp</code>.
+</p>
+
+<p>
+See <a href="#lispy-shifttab"><code>lispy-shifttab</code></a> for more info.
+</p>
+<hr  />
+</div>
+</div>
+<div id="outline-container-lispy-outline-prev" class="outline-3">
+<h3 id="lispy-outline-prev"><a id="sec-1-42"></a><code>lispy-outline-prev</code></h3>
+<div class="outline-text-3" id="text-lispy-outline-prev">
+<p>
+Bound to <kbd>K</kbd>.
+</p>
+
+<p>
+Takes a numeric prefix <code>arg</code> and
+calls <code>outline-previous-visible-heading</code> <code>arg</code> times or until
+past the first <code>outline-regexp</code>.
+</p>
+
+<p>
+See <a href="#lispy-shifttab"><code>lispy-shifttab</code></a> for more info.
+</p>
+<hr  />
+</div>
+</div>
+<div id="outline-container-lispy-shifttab" class="outline-3">
+<h3 id="lispy-shifttab"><a id="sec-1-43"></a><code>lispy-shifttab</code></h3>
+<div class="outline-text-3" id="text-lispy-shifttab">
+<p>
+Bound to <kbd>I</kbd>.
+</p>
+
+<p>
+Toggles on/off an <code>org-mode</code>-like outline (actually calls
+<code>org-overview</code>).
+</p>
+
+<p>
+<code>outline-regexp</code> has to be set in order for this to work.
+To see how to set it locally for each file, see
+<a href="https://github.com/abo-abo/lispy/blob/master/lispy.el">the last lines of lispy.el</a>.
+</p>
+
+<p>
+I'm using this <a href="https://github.com/capitaomorte/yasnippet">yasnippet</a> to insert outline comments
+(also needs <a href="https://github.com/abo-abo/auto-yasnippet">auto-yasnippet</a> to make use of <code>aya-tab-position</code>):
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-text"># -*- mode: snippet -*-
+# name: long_comment
+# key: cc
+# --
+;; --- $1 ${1:$(make-string (- 74 aya-tab-position (length yas-text)) ?-)}$0
+</pre>
+</div>
+
+<p>
+And here's the short comment:
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-text"># -*- mode: snippet -*-
+# name: comment
+# key: c
+# --
+;; --- $1 ${1:$(make-string (- 40 aya-tab-position (length yas-text)) ?-)}$0
+</pre>
+</div>
+
+<p>
+Useful together with
+</p>
+
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="left" />
+
+<col  class="left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="left">key</th>
+<th scope="col" class="left">function name</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="left">J</td>
+<td class="left"><a href="#lispy-outline-next">lispy-outline-next</a></td>
+</tr>
+
+<tr>
+<td class="left">K</td>
+<td class="left"><a href="#lispy-outline-prev">lispy-outline-prev</a></td>
+</tr>
+
+<tr>
+<td class="left">i</td>
+<td class="left"><a href="#lispy-tab">lispy-tab</a></td>
+</tr>
+</tbody>
+</table>
+<hr  />
+</div>
+</div>
+<div id="outline-container-lispy-tab" class="outline-3">
+<h3 id="lispy-tab"><a id="sec-1-44"></a><code>lispy-tab</code></h3>
+<div class="outline-text-3" id="text-lispy-tab">
+<p>
+Bound to <kbd>i</kbd>.
+</p>
+
+<p>
+Indent code.
+</p>
+
+<p>
+When in outline, hide/show outline.
+When region is active, go to car of the region.
+</p>
+<hr  />
+</div>
+</div>
+<div id="outline-container-lispy-edebug-stop" class="outline-3">
+<h3 id="lispy-edebug-stop"><a id="sec-1-45"></a><code>lispy-edebug-stop</code></h3>
+<div class="outline-text-3" id="text-lispy-edebug-stop">
+<p>
+Bound to <kbd>Z</kbd>.
+</p>
+
+<p>
+Does the same as <kbd>q</kbd> in <code>edebug</code>, except current function's variables
+will be saved to their current values.
+</p>
+
+<p>
+This allows to continue debugging with <a href="#lispy-eval"><code>lispy-eval</code></a> (<kbd>e</kbd>) from
+<code>edebug</code>'s current context.
+</p>
+
+<p>
+The advantage is that you can edit the code as you debug.
+</p>
+<hr  />
+</div>
+</div>
+<div id="outline-container-lispy-flatten" class="outline-3">
+<h3 id="lispy-flatten"><a id="sec-1-46"></a><code>lispy-flatten</code></h3>
+<div class="outline-text-3" id="text-lispy-flatten">
+<p>
+Bound to <kbd>xf</kbd>.
+</p>
+
+<p>
+Inline current function or macro call, i.e. replace it with function body.
+The function should be stored with <a href="#lispy-store-region-and-buffer"><code>lispy-store-region-and-buffer</code></a>.
+</p>
+
+<table><tbody><tr><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp"><cursor>(</cursor>setq-local foo 10)
+</pre>
+</div>
+</td><td>
+<p>
+-&gt; <kbd>xf</kbd> -&gt;
+</p>
+</td><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp"><cursor>(</cursor>set (make-local-variable 'foo) 10)
+</pre>
+</div>
+</td></tr></tbody></table>
+<hr  />
+</div>
+</div>
+<div id="outline-container-lispy-to-ifs" class="outline-3">
+<h3 id="lispy-to-ifs"><a id="sec-1-47"></a><code>lispy-to-ifs</code></h3>
+<div class="outline-text-3" id="text-lispy-to-ifs">
+<p>
+Bound to <kbd>xi</kbd>.
+</p>
+
+<p>
+Transform current <code>cond</code> expression to equivalent nested <code>if</code>
+expressions.
+</p>
+
+<p>
+The reverse is <a href="#lispy-to-cond"><code>lispy-to-cond</code></a>.
+</p>
+
+<table><tbody><tr><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp"><cursor>(</cursor><span style="color: #7F0055; font-weight: bold;">cond</span> ((region-active-p)
+       (dotimes-protect arg
+         (<span style="color: #7F0055; font-weight: bold;">if</span> (= (point) (region-beginning))
+             (<span style="color: #7F0055; font-weight: bold;">progn</span>
+               (forward-sexp 1)
+               (skip-chars-forward <span style="color: #2A00FF;">" \n"</span>))
+           (forward-sexp 1))))
+
+      ((looking-at lispy-left)
+       (lispy-forward arg)
+       (<span style="color: #7F0055; font-weight: bold;">let</span> ((pt (point)))
+         (<span style="color: #7F0055; font-weight: bold;">if</span> (lispy-forward 1)
+             (lispy-backward 1)
+           (goto-char pt))))
+
+      ((looking-back lispy-right)
+       (<span style="color: #7F0055; font-weight: bold;">let</span> ((pt (point)))
+         (<span style="color: #7F0055; font-weight: bold;">unless</span> (lispy-forward arg)
+           (goto-char pt)
+           (lispy-backward 1))))
+
+      (t
+       (lispy-forward 1)
+       (lispy-backward 1)))
+</pre>
+</div>
+</td><td>
+<p>
+-&gt; <kbd>xi</kbd> -&gt;
+</p>
+</td><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp"><cursor>(</cursor><span style="color: #7F0055; font-weight: bold;">if</span> (region-active-p)
+    (dotimes-protect arg
+      (<span style="color: #7F0055; font-weight: bold;">if</span> (= (point) (region-beginning))
+          (<span style="color: #7F0055; font-weight: bold;">progn</span>
+            (forward-sexp 1)
+            (skip-chars-forward <span style="color: #2A00FF;">" \n"</span>))
+        (forward-sexp 1)))
+
+  (<span style="color: #7F0055; font-weight: bold;">if</span> (looking-at lispy-left)
+      (<span style="color: #7F0055; font-weight: bold;">progn</span>
+        (lispy-forward arg)
+        (<span style="color: #7F0055; font-weight: bold;">let</span> ((pt (point)))
+          (<span style="color: #7F0055; font-weight: bold;">if</span> (lispy-forward 1)
+              (lispy-backward 1)
+            (goto-char pt))))
+
+    (<span style="color: #7F0055; font-weight: bold;">if</span> (looking-back lispy-right)
+        (<span style="color: #7F0055; font-weight: bold;">let</span> ((pt (point)))
+          (<span style="color: #7F0055; font-weight: bold;">unless</span> (lispy-forward arg)
+            (goto-char pt)
+            (lispy-backward 1)))
+
+      (lispy-forward 1)
+      (lispy-backward 1))))
+</pre>
+</div>
+</td></tr></tbody></table>
+</div>
+</div>
+<div id="outline-container-lispy-to-cond" class="outline-3">
+<h3 id="lispy-to-cond"><a id="sec-1-48"></a><code>lispy-to-cond</code></h3>
+<div class="outline-text-3" id="text-lispy-to-cond">
+<p>
+Bound to <kbd>xc</kbd>.
+</p>
+
+<p>
+Transform current nested <code>if</code> expressions to an equivalent <code>cond</code>
+expression.
+</p>
+
+<p>
+The reverse is <a href="#lispy-to-ifs"><code>lispy-to-ifs</code></a>.
+</p>
+
+<table><tbody><tr><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp"><cursor>(</cursor><span style="color: #7F0055; font-weight: bold;">if</span> (region-active-p)
+    (dotimes-protect arg
+      (<span style="color: #7F0055; font-weight: bold;">if</span> (= (point) (region-beginning))
+          (<span style="color: #7F0055; font-weight: bold;">progn</span>
+            (forward-sexp 1)
+            (skip-chars-forward <span style="color: #2A00FF;">" \n"</span>))
+        (forward-sexp 1)))
+
+  (<span style="color: #7F0055; font-weight: bold;">if</span> (looking-at lispy-left)
+      (<span style="color: #7F0055; font-weight: bold;">progn</span>
+        (lispy-forward arg)
+        (<span style="color: #7F0055; font-weight: bold;">let</span> ((pt (point)))
+          (<span style="color: #7F0055; font-weight: bold;">if</span> (lispy-forward 1)
+              (lispy-backward 1)
+            (goto-char pt))))
+
+    (<span style="color: #7F0055; font-weight: bold;">if</span> (looking-back lispy-right)
+        (<span style="color: #7F0055; font-weight: bold;">let</span> ((pt (point)))
+          (<span style="color: #7F0055; font-weight: bold;">unless</span> (lispy-forward arg)
+            (goto-char pt)
+            (lispy-backward 1)))
+
+      (lispy-forward 1)
+      (lispy-backward 1))))
+</pre>
+</div>
+</td><td>
+<p>
+-&gt; <kbd>xc</kbd> -&gt;
+</p>
+</td><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp"><cursor>(</cursor><span style="color: #7F0055; font-weight: bold;">cond</span> ((region-active-p)
+       (dotimes-protect arg
+         (<span style="color: #7F0055; font-weight: bold;">if</span> (= (point) (region-beginning))
+             (<span style="color: #7F0055; font-weight: bold;">progn</span>
+               (forward-sexp 1)
+               (skip-chars-forward <span style="color: #2A00FF;">" \n"</span>))
+           (forward-sexp 1))))
+
+      ((looking-at lispy-left)
+       (lispy-forward arg)
+       (<span style="color: #7F0055; font-weight: bold;">let</span> ((pt (point)))
+         (<span style="color: #7F0055; font-weight: bold;">if</span> (lispy-forward 1)
+             (lispy-backward 1)
+           (goto-char pt))))
+
+      ((looking-back lispy-right)
+       (<span style="color: #7F0055; font-weight: bold;">let</span> ((pt (point)))
+         (<span style="color: #7F0055; font-weight: bold;">unless</span> (lispy-forward arg)
+           (goto-char pt)
+           (lispy-backward 1))))
+
+      (t
+       (lispy-forward 1)
+       (lispy-backward 1)))
+</pre>
+</div>
+</td></tr></tbody></table>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>
