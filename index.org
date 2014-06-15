@@ -2046,6 +2046,8 @@ The reverse is [[#lispy-to-ifs][=lispy-to-ifs=]].
 :CUSTOM_ID: lispy-visit
 :END:
 
+Visit another file within this project using Projectile.
+
 Use ~V~ to call =projectile-find-file=.
 Use ~2V~ to call =projectile-find-file-other-window=.
 -----
