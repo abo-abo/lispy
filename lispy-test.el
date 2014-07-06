@@ -811,6 +811,10 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "(progn\n  (foo))\n~(bar)\n(baz)|" (lispy-up-slurp))
                    "(progn\n  (foo)\n  ~(bar)\n  (baz)|)")))
 
+(ert-deftest lispy-tab ()
+  (should (string= (lispy-with "|(defun test?  (x) x)" "i")
+                   "|(defun test? (x) x)")))
+
 (defun lispy-test-normalize ()
   (interactive)
   (goto-char (point-min))
