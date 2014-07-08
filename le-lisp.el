@@ -51,10 +51,11 @@
          (propertize symbol 'face 'lispy-face-hint)
          (mapconcat
           #'identity
-          (mapcar (lambda(x) (propertize (downcase x)
-                                    'face 'lispy-face-req-nosel)) args)
+          (mapcar (lambda (x) (propertize (downcase x)
+                                          'face 'lispy-face-req-nosel))
+                  args)
           (concat "\n"
-                  (make-string (+ 2 (length symbol)) ? ))))
+                  (make-string (+ 2 (length symbol)) ?\ ))))
       (propertize args 'face 'lispy-face-hint))))
 
 (defun lispy--lisp-describe (symbol)

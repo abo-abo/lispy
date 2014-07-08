@@ -2740,7 +2740,8 @@ For example, a `setq' statement is amended with variable name that it uses."
               (lambda (s) (stringp (car s)))
               (lispy--set-file-to-tags
                (expand-file-name (aref x 2) path)
-               (aref x 5)))) db)))))
+               (aref x 5))))
+           db)))))
 
 (defun lispy--fetch-tags-recursive ()
   "Fetch all tags in current directory recursively."
@@ -3274,7 +3275,8 @@ Ignore the matches in strings and comments."
     (message "%s: %s"
              (propertize
               (prin1-to-string
-               this-command) 'face 'font-lock-keyword-face)
+               this-command)
+              'face 'font-lock-keyword-face)
              msg)
     nil))
 
@@ -3391,7 +3393,8 @@ ACTION is called for the selected candidate."
                                   (if (stringp (cdr x))
                                       (cons (cdr x) (car x))
                                     (cons (car x) x))
-                                x)) candidates))
+                                x))
+                            candidates))
             (action . ,action)))))
 
 (defun lispy--action-jump (tag)
