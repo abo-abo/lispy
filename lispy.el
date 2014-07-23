@@ -1719,6 +1719,7 @@ Sexp is obtained by exiting list ARG times."
 (declare-function slime-edit-definition "ext:slime")
 (declare-function lispy--clojure-resolve "ext:lispy")
 (declare-function View-quit "view")
+(declare-function org-overview "org")
 
 (defun lispy-goto-symbol (symbol)
   "Go to definition of SYMBOL."
