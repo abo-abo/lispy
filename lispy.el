@@ -1215,6 +1215,7 @@ Special case is (|( -> ( |(."
   "Use current sexp or region as replacement for its parent."
   (interactive)
   (let* ((regionp (region-active-p))
+         (deactivate-mark nil)
          (at-end (and regionp
                       (= (point) (region-end))))
          (from-right (looking-back lispy-right))
@@ -1237,12 +1238,9 @@ Special case is (|( -> ( |(."
     (if regionp
         (progn
           (indent-region (car bnd2) (point))
-          (unless at-end
-            (goto-char (car bnd2)))
-          (lispy--reindent 1)
-          (or (looking-at lispy-left)
-              (looking-back lispy-right)
-              (lispy--out-forward 1)))
+          (lispy--mark (cons (point) (car bnd2)))
+          (when at-end
+            (exchange-point-and-mark)))
       (indent-sexp)
       (when from-right
         (forward-list)))))
@@ -1269,7 +1267,8 @@ The outcome when ahead of sexps is different from when behind."
 
           (t
            (error "Unexpected")))
-    (lispy-raise)))
+    (lispy-raise)
+    (deactivate-mark)))
 
 ;; TODO add numeric arg: 1 is equivalent to prev behavior 2 will raise containing list twice.
 (defun lispy-convolute ()
