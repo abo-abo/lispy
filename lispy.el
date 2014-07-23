@@ -2046,33 +2046,15 @@ Second region and buffer are the current ones."
 (defun lispy-mark-car ()
   "Mark the car of current thing."
   (interactive)
-  (let* ((pt (point))
-         (bnd (lispy--bounds-dwim))
-         (str (lispy--string-dwim bnd))
-         bnd-1
-         bnd-2
-         end)
-    (goto-char (car bnd))
-    (while (and (equal bnd (setq bnd-1 (bounds-of-thing-at-point 'sexp)))
-                (< (point) (cdr bnd)))
+  (let ((bnd-1 (lispy--bounds-dwim))
+        bnd-2)
+    (goto-char (car bnd-1))
+    (while (and (equal bnd-1 (setq bnd-2 (bounds-of-thing-at-point 'sexp)))
+                (< (point) (cdr bnd-1)))
       (forward-char))
-    (if (not bnd-1)
-        (lispy-complain "expression is same as car")
-      (if (setq bnd-2 (bounds-of-thing-at-point 'sexp))
-          (let ((str (lispy--string-dwim bnd-2)))
-            (if (string-match "[[({\"]\\(\\s-*\\)[])}\"]" str)
-                (setq bnd-1 (cons (+ (car bnd-2) (match-beginning 1))
-                                  (+ (car bnd-2) (match-end 1))))
-              (setq bnd-1 bnd-2)))
-        (setq bnd-1 (cons (point) (point))))
-      (if (equal bnd bnd-1)
-          (progn
-            (goto-char pt)
-            (lispy-complain "expression is same as car"))
-        (lispy--mark bnd-1))
-      (when (= (region-beginning)
-               (region-end))
-        (lispy-complain "empty region set")))))
+    (if bnd-2
+        (lispy--mark bnd-2)
+      (lispy-complain "can't descend further"))))
 
 ;; ——— Locals:  miscellanea ————————————————————————————————————————————————————
 (defun lispy-x ()
