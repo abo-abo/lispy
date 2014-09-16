@@ -2418,7 +2418,7 @@ Move to the end of line."
   (funcall
    (cond ((memq major-mode '(emacs-lisp-mode lisp-interaction-mode))
           'lispy--eval-elisp)
-         ((eq major-mode 'clojure-mode)
+         ((memq major-mode '(clojure-mode nrepl-repl-mode))
           (require 'le-clojure)
           'lispy--eval-clojure)
          ((eq major-mode 'scheme-mode)
