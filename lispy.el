@@ -2173,7 +2173,7 @@ With ARG, use the contents of `lispy-store-region-and-buffer' instead."
                  (lispy--flatten-function fstr e-args))))
     (goto-char (car bnd))
     (delete-region (car bnd) (cdr bnd))
-    (lispy--insert body)
+    (lispy--insert-1 body)
     (when begp
       (goto-char (car bnd)))))
 
