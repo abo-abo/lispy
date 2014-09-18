@@ -3285,7 +3285,8 @@ Ignore the matches in strings and comments."
 
 (defun lispy--indent-for-tab ()
   "Call `indent-for-tab-command'."
-  (unless (eq major-mode 'minibuffer-inactive-mode)
+  (unless (or (eq major-mode 'minibuffer-inactive-mode)
+              (= 0 (buffer-size)))
     (let ((tab-always-indent t))
       (indent-for-tab-command))))
 
