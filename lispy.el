@@ -2280,7 +2280,13 @@ Otherwise return cons of current string, symbol or list bounds."
           (ignore-errors
             (bounds-of-thing-at-point 'symbol))
           (ignore-errors
-            (bounds-of-thing-at-point 'sentence))))))
+            (bounds-of-thing-at-point 'sentence))
+          (ignore-errors
+            (backward-word 1)
+            (bounds-of-thing-at-point 'symbol))
+          (ignore-errors
+            (forward-word 1)
+            (bounds-of-thing-at-point 'symbol))))))
 
 (defun lispy--bounds-list ()
   "Return the bounds of smallest list that includes the point.
