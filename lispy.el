@@ -1046,6 +1046,7 @@ Special case is (|( -> ( |(."
       (indent-sexp))))
 
 (defun lispy-newline-and-indent-plain ()
+  "When in minibuffer, exit it.  Otherwise forward to `newline-and-indent'."
   (interactive)
   (if (eq major-mode 'minibuffer-inactive-mode)
       (exit-minibuffer)
@@ -1103,16 +1104,13 @@ Special case is (|( -> ( |(."
         (goto-char pt)
         (lispy--teleport (car bnd) (cdr bnd) endp t)))))
 
-(defun lispy--endp ()
-  (or (looking-back lispy-right)
-      (and (region-active-p) (= (point) (region-end)))))
-
 (defun lispy-up-slurp ()
   "Move current sexp or region into the previous sexp."
   (interactive)
   (let ((bnd (lispy--bounds-dwim))
         (regionp (region-active-p))
-        (endp (lispy--endp))
+        (endp (or (looking-back lispy-right)
+                  (and (region-active-p) (= (point) (region-end)))))
         p-beg p-end
         (pt (point))
         (deactivate-mark nil)
