@@ -345,3 +345,17 @@ Synopsis: find a function and make it echo its doc-string.
 10. Use `lispy-undo` "u" to see that the change is now in effect.
 
 ![screencast-4.gif](https://raw.github.com/abo-abo/lispy/master/doc/screencast-4.gif)
+
+## screencast 5
+Synopsis:
+
+- press "O" to fit the current list on one line
+- press "M" to fit the current list on multiple lines
+
+Note that there's multiple ways to implement the rules for "M".  It's
+maybe not sophisticated enough to save the code formatting verbatim,
+but it sure does help making `macroexpand` output readable.
+
+![oneline-multiline.gif](https://raw.github.com/abo-abo/lispy/master/doc/oneline-multiline.gif)
+
+
