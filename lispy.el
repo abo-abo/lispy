@@ -1563,16 +1563,26 @@ Comments will be moved ahead of sexp."
 (defun lispy-multiline ()
   "Spread current sexp over multiple lines."
   (interactive)
-  (lispy-from-left
-   (let ((pt (point)))
-     (lispy-forward 1)
-     (while (and (lispy-flow 1) (> (point) pt))
-       (unless (looking-at ")\\|\n")
-         (when (looking-at " *")
-           (replace-match "\n")
-           (backward-char 1))))
-     (goto-char pt)
-     (indent-sexp))))
+  (let* ((bnd (lispy--bounds-list))
+         (str (lispy--string-dwim bnd))
+         (expr (read str)))
+    (if (cl-some #'listp expr)
+        (lispy-from-left
+         (let ((pt (point)))
+           (lispy-forward 1)
+           (while (and (lispy-flow 1) (> (point) pt))
+             (unless (looking-at ")\\|\n")
+               (when (looking-at " *")
+                 (replace-match "\n")
+                 (backward-char 1))))
+           (goto-char pt)
+           (indent-sexp)))
+      (lispy-from-left
+       (delete-region (car bnd) (cdr bnd))
+       (lispy--insert-1
+        (butlast
+         (mapcan (lambda (y) (list y '(ly-raw newline)))
+                 (lispy--read str))))))))
 
 (defun lispy-comment (&optional arg)
   "Comment ARG sexps."
