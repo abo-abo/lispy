@@ -138,7 +138,8 @@ Return t if at least one was deleted."
   "Display documentation for `lispy--current-function' inline."
   (interactive)
   (let ((deleted (lispy--delete-help-windows))
-        (sym (lispy--current-function)))
+        (sym (lispy--current-function))
+        (pt (point)))
     (when (overlayp lispy-overlay)
       (delete-overlay lispy-overlay)
       (setq lispy-overlay nil)
@@ -159,6 +160,7 @@ Return t if at least one was deleted."
                                  (setq dc (or (documentation sym)
                                               "undocumented")))
                                 dc
+                              (goto-char pt)
                               (describe-function sym)
                               nil))
                            ((boundp sym)
@@ -167,6 +169,7 @@ Return t if at least one was deleted."
                                                sym 'variable-documentation)
                                               "undocumented")))
                                 dc
+                              (goto-char pt)
                               (describe-variable sym)
                               nil))
                            (t "unbound"))))
