@@ -3105,6 +3105,8 @@ Ignore the matches in strings and comments."
   "Extract the function body and args from it's expression STR."
   (let ((body (lispy--read str))
         args)
+    (when (eq (car body) 'lambda)
+      (setq body (cons 'defun body)))
     (if (memq (car body) '(defun defmacro))
         (setq body (lispy--whitespace-trim (cdr body)))
       (error "Expected defun, got %s" (car body)))
