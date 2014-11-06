@@ -3090,13 +3090,15 @@ Ignore the matches in strings and comments."
 (defun lispy--function-str (fun)
   "Return FUN definition as a string."
   (if (fboundp fun)
-      (cl-destructuring-bind (buf . pt)
-          (save-window-excursion
-            (save-excursion
-              (find-function-noselect fun)))
-        (with-current-buffer buf
-          (goto-char pt)
-          (lispy--string-dwim)))
+      (condition-case nil
+          (cl-destructuring-bind (buf . pt)
+              (save-window-excursion
+                (save-excursion
+                  (find-function-noselect fun)))
+            (with-current-buffer buf
+              (goto-char pt)
+              (lispy--string-dwim)))
+        (error (prin1-to-string (symbol-function fun))))
     (error "%s isn't bound" fun)))
 
 (defun lispy--function-parse (str)
