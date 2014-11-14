@@ -1761,7 +1761,8 @@ Sexp is obtained by exiting list ARG times."
            (require 'le-clojure)
            (setq rsymbol (lispy--clojure-resolve symbol))
            (cond ((stringp rsymbol)
-                  (cider-jump-to-def rsymbol))
+                  (cider--jump-to-loc-from-info
+                   (cider-var-info rsymbol)))
                  ((eq rsymbol 'special)
                   (error "Can't jump to '%s because it's special" symbol))
                  ((eq rsymbol 'keyword)
