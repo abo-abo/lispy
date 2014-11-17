@@ -412,7 +412,9 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "\"\\\\(foo|\\\\)\"" "\C-d")
                    "\"foo|\""))
   (should (string= (lispy-with "(looking-at \"\\\\([a-z]+|\\\\)\")" "\C-d")
-                   "(looking-at \"[a-z]+|\")")))
+                   "(looking-at \"[a-z]+|\")"))
+  (should (string= (lispy-with "(progn `|(foobar) (foo))" "\C-d")
+                   "(progn |(foo))")))
 
 (ert-deftest lispy-delete-backward ()
   (should (string= (lispy-with "((a) (b) (c)|)" "\C-?")

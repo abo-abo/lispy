@@ -710,6 +710,11 @@ Return nil if can't move."
          (delete-char arg))
 
         ((looking-at lispy-left)
+         (when (looking-back "\\(?:\\s-\\|^\\)[`',@]+")
+           (delete-region
+            (match-beginning 0)
+            (match-end 0))
+           (insert " "))
          (lispy-dotimes-protect arg (lispy--delete))
          (unless (looking-at lispy-left)
            (when (looking-at " +")
