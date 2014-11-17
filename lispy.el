@@ -47,13 +47,13 @@
 ;; |                    |     |  (looking-at "(")  |
 ;; |--------------------+-----+--------------------|
 ;;
-;; When special, the digit keys call `digit-argument' which is very
-;; convenient since most Lispy commands accept a numeric argument.
-;; For instance, "3c" is equivalent to "ccc" (clone sexp 3 times), and
-;; "4j" is equivalent to "jjjj" (move point 4 sexps down).  Some
-;; useful applications are "9l" and "9a" - they exit list forwards and
-;; backwards respectively at most 9 times which makes them effectively
-;; equivalent to `end-of-defun' and `beginning-of-defun'.
+;; When special, the digit keys call `digit-argument', since most
+;; Lispy commands accept a numeric argument.  For instance, "3c" is
+;; equivalent to "ccc" (clone sexp 3 times), and "4j" is equivalent to
+;; "jjjj" (move point 4 sexps down).  Some useful applications are
+;; "9l" and "9a" - they exit list forwards and backwards respectively
+;; at most 9 times which makes them effectively equivalent to
+;; `end-of-defun' and `beginning-of-defun'.
 ;;
 ;; To move the point into a special position, use:
 ;; "]" - calls `lispy-forward'
@@ -121,7 +121,7 @@
 ;; | e     | `lispy-eval'                     |
 ;; | m     | `lispy-mark-list'                |
 ;; | l     | `lispy-out-forward'              |
-;; | a     | `lispy-out-backward'             |
+;; | h     | `lispy-out-backward'             |
 ;; | E     | `lispy-eval-and-insert'          |
 ;; | /     | `lispy-splice'                   |
 ;; | i     | `indent-sexp'                    |
@@ -3985,7 +3985,7 @@ In case 'setq isn't present, add it."
   (define-key map (kbd "M-i") 'lispy-iedit)
   ;; ——— locals: navigation ———————————————————
   (lispy-define-key map "l" 'lispy-out-forward)
-  (lispy-define-key map "a" 'lispy-out-backward)
+  (lispy-define-key map "h" 'lispy-out-backward)
   (lispy-define-key map "f" 'lispy-flow)
   (lispy-define-key map "j" 'lispy-down)
   (lispy-define-key map "k" 'lispy-up)
@@ -4008,8 +4008,8 @@ In case 'setq isn't present, add it."
   (lispy-define-key map "O" 'lispy-oneline)
   (lispy-define-key map "M" 'lispy-multiline)
   (lispy-define-key map "S" 'lispy-stringify)
-  ;; ——— locals: marking ——————————————————————
-  (lispy-define-key map "h" 'lispy-ace-symbol)
+  ;; ——— locals: marking —————————————————————
+  (lispy-define-key map "a" 'lispy-ace-symbol)
   (lispy-define-key map "H" 'lispy-ace-symbol-replace)
   (lispy-define-key map "m" 'lispy-mark-list)
   ;; ——— locals: dialect-specific —————————————
@@ -4080,8 +4080,6 @@ In case 'setq isn't present, add it."
   "Change to new-style bindings.
 They may become the defaults in the future."
   (let ((map lispy-mode-map))
-    (lispy-define-key map "h" 'lispy-out-backward)
-    (lispy-define-key map "a" 'lispy-ace-symbol)
     (lispy-define-key map "o" 'lispy-other-mode)
     (lispy-define-key map "G" 'lispy-goto-mode)
     (lispy-define-key map "t" 'lispy-transform-mode)
