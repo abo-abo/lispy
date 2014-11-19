@@ -1,8 +1,9 @@
 # Introduction
 
-This package implements various commands for navigating and editing
-Lisp code. It's influenced by Paredit and re-implements most of its features
-in order to provide faster and more intuitive key bindings.
+This package implements a special key binding method and various commands that are
+useful for navigating and editing LISP code.
+The key binding method is influenced by vi, although this isn't modal editing *per se*.
+The list manipulation commands are influenced by and are a superset of Paredit.
 
 ## Relation to vi
 
@@ -28,14 +29,14 @@ char and calling a command:
 
 Advantages/disadvantages:
 
-- Emacs can do both things without switching modes, but the command
-  binding are long
-- vi has short command bindings, but you have to switch modes to do both things
+- Emacs can both insert and call commands without switching modes (since it has none),
+  but the command bindings are long
+- vi has short command bindings, but you have to switch modes between inserting and calling commands
 - lispy has short command bindings and doesn't need to switch modes
 
 Of course it's not magic, lispy needs to have normal/insert mode to
 perform both functions with `j`.  The difference from vi is that the
-mode is *explicit* instead of *implicit*, it's determined by the point
+mode is *explicit* instead of *implicit* - it's determined by the point
 position or the region state:
 
 - you're in normal mode when the point is before/after paren or the
@@ -44,9 +45,7 @@ position or the region state:
 
 But if you ask: "what if I want to insert when the point is
 before/after paren or the region is active?". The answer is that you
-don't want to because of how LISP code is structured.
-
-You don't want to write this:
+don't want to because of how LISP code is structured, i.e you don't want to write this:
 
     j(progn
        (forward-char 1))k
