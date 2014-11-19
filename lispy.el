@@ -79,7 +79,6 @@
 ;; |-----+--------------------------+------------+-------------------|
 ;; | j   | `lispy-down'             | k          | `lispy-up'        |
 ;; | s   | `lispy-move-down'        | w          | `lispy-move-up'   |
-;; | o   | `lispy-counterclockwise' | p          | `lispy-clockwise' |
 ;; | >   | `lispy-slurp'            | <          | `lispy-barf'      |
 ;; | c   | `lispy-clone'            | C-d or DEL |                   |
 ;; | C   | `lispy-convolute'        | C          | reverses itself   |
@@ -3993,8 +3992,9 @@ In case 'setq isn't present, add it."
   (lispy-define-key map "j" 'lispy-down)
   (lispy-define-key map "k" 'lispy-up)
   (lispy-define-key map "d" 'lispy-different)
-  (lispy-define-key map "o" 'lispy-counterclockwise)
-  (lispy-define-key map "p" 'lispy-clockwise)
+  (lispy-define-key map "o" 'lispy-other-mode)
+  (lispy-define-key map "p" 'lispy-eval-other-window)
+  (lispy-define-key map "P" 'lispy-paste)
   (lispy-define-key map "J" 'lispy-outline-next)
   (lispy-define-key map "K" 'lispy-outline-prev)
   ;; ——— locals: Paredit transformations ——————
@@ -4104,13 +4104,11 @@ If the region is active, replace instead of yanking."
   "Change to new-style bindings.
 They may become the defaults in the future."
   (let ((map lispy-mode-map))
-    (lispy-define-key map "o" 'lispy-other-mode)
     (lispy-define-key map "G" 'lispy-goto-mode)
     (lispy-define-key map "t" 'lispy-transform-mode)
     (define-key map (kbd "M-.") 'lispy-goto-symbol)
     (lispy-define-key map "." 'pop-tag-mark)
-    (lispy-define-key map "p" 'lispy-eval-other-window)
-    (lispy-define-key map "p" 'lispy-paste))
+    (lispy-define-key map "y" 'lispy-eval-other-window))
   (let ((map lispy-mode-x-map))
     (define-key map "d" nil)
     (define-key map "l" nil)
