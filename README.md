@@ -33,8 +33,6 @@ Advantages/disadvantages:
 - vi has short command bindings, but you have to switch modes to do both things
 - lispy has short command bindings and doesn't need to switch modes
 
-### How does lispy work?
-
 Of course it's not magic, lispy needs to have normal/insert mode to
 perform both functions with `j`.  The difference from vi is that the
 mode is *explicit* instead of *implicit*, it's determined by the point
@@ -203,45 +201,7 @@ in addition to self-inserting:
     | C-m | `lispy-newline-and-indent'         |
     |-----+------------------------------------|
 
-Among other cool commands are:
-
-    |-------+----------------------------------|
-    | key   | command                          |
-    |-------+----------------------------------|
-    | f     | `lispy-flow'                     |
-    | u     | `lispy-undo'                     |
-    | m     | `lispy-mark-list'                |
-    | l     | `lispy-out-forward'              |
-    | a     | `lispy-out-backward'             |
-    | /     | `lispy-splice'                   |
-    | i     | `indent-sexp'                    |
-    | r     | `lispy-raise'                    |
-    | R     | `lispy-raise-some'               |
-    | J     | `lispy-outline-next'             |
-    | K     | `lispy-outline-prev'             |
-    | q     | `lispy-ace-paren'                |
-    | h     | `lispy-ace-symbol'               |
-    | Q     | `lispy-ace-char'                 |
-    | N     | `lispy-normalize'                |
-    | C-7   | `lispy-cursor-down'              |
-    | C-8   | `lispy-parens-down'              |
-    | C-e   | `lispy-move-end-of-line'         |
-    | C-k   | `lispy-kill'                     |
-    | C-y   | `lispy-yank'                     |
-    | C-d   | `lispy-delete'                   |
-    | DEL   | `lispy-delete-backward'          |
-    | C-,   | `lispy-kill-at-point'            |
-    | C-M-, | `lispy-mark'                     |
-    | M-m   | `lispy-mark-symbol'              |
-    | v     | `lispy-view'                     |
-    | n     | `lispy-new-copy'                 |
-    | xd    | `lispy-to-defun'                 |
-    | xl    | `lispy-to-lambda'                |
-    | xm    | `lispy-cursor-ace'               |
-    | xe    | `edebug-defun'                   |
-    |-------+----------------------------------|
-
-Also, IDE-like commands ([details here](#ide-like-features)):
+Here's a list of IDE-like commands ([details here](#ide-like-features)):
 
     |-----+------------------------------------|
     | C-1 | `lispy-describe-inline`            |
@@ -257,7 +217,7 @@ Also, IDE-like commands ([details here](#ide-like-features)):
 Most special commands will leave the point special after they're
 done.  This allows to chain them as well as apply them
 continuously by holding the key.  Some useful hold-able keys are
-"jkopf<>cws;".
+"jkf<>cws;".
 Not so useful, but fun is "/": start it from "|(" position and hold
 until all your Lisp code is turned into Python :).
 
@@ -345,14 +305,10 @@ Bound to `C-2`. Show arguments for current function inline.
 `eldoc-mode` is cool, but it shows you arguments *over there* and
 you're writing *over here*!. No problem, `C-2` fixes that:
 
-![screenshot](https://raw.github.com/abo-abo/lispy/master/doc/arglist-1.png)
-
-In a recent version normal, &optional and &rest arguments have each
-a different face:
-
 ![screenshot](https://raw.github.com/abo-abo/lispy/master/doc/arglist-2.png)
 
-Here's how it looks for Clojure:
+As you see, normal, &optional and &rest arguments have each a
+different face. Here's how it looks for Clojure:
 
 ![screenshot](https://raw.github.com/abo-abo/lispy/master/doc/arglist-3.png)
 
@@ -386,22 +342,15 @@ Bound to `G` while in special. Like `lispy-goto`, but works only on current file
 
 # Screencasts
 
-## screencast 1
+I've recorded a few gifs that show some features:
 
-This one isn't the best quality, so it's not [inline](https://raw.github.com/abo-abo/lispy/master/doc/screencast-1.gif).
-
-## screencast 2
-
-This one is also available [on vimeo](https://vimeo.com/85831418)
-and for [download](https://raw.github.com/abo-abo/lispy/master/doc/screencast-2.ogv).
-
-![screencast-2.gif](https://raw.github.com/abo-abo/lispy/master/doc/screencast-2.gif)
-
-## screencast 3
-
-This demonstrates mostly `lispy-comment` (";") and `special-undo` ("u").
-
-![screencast-3.gif](https://raw.github.com/abo-abo/lispy/master/doc/screencast-3.gif)
+- [1-gif](https://raw.github.com/abo-abo/lispy/master/doc/screencast-1.gif),
+- [2-vimeo](https://vimeo.com/85831418),
+  [2-ogv](https://raw.github.com/abo-abo/lispy/master/doc/screencast-2.ogv),
+  [2-gif](https://raw.github.com/abo-abo/lispy/master/doc/screencast-2.gif)
+- [3-gif](https://raw.github.com/abo-abo/lispy/master/doc/screencast-3.gif)
+- [4-gif](https://raw.github.com/abo-abo/lispy/master/doc/screencast-4.gif)
+- [5-gif](https://raw.github.com/abo-abo/lispy/master/doc/oneline-multiline.gif)
 
 ## screencast 4
 Synopsis: find a function and make it echo its doc-string.
@@ -418,15 +367,3 @@ Synopsis: find a function and make it echo its doc-string.
 10. Use `lispy-undo` "u" to see that the change is now in effect.
 
 ![screencast-4.gif](https://raw.github.com/abo-abo/lispy/master/doc/screencast-4.gif)
-
-## screencast 5
-Synopsis:
-
-- press "O" to fit the current list on one line
-- press "M" to fit the current list on multiple lines
-
-Note that there's multiple ways to implement the rules for "M".  It's
-maybe not sophisticated enough to save the code formatting verbatim,
-but it sure does help making `macroexpand` output readable.
-
-![oneline-multiline.gif](https://raw.github.com/abo-abo/lispy/master/doc/oneline-multiline.gif)
