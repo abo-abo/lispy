@@ -4089,6 +4089,17 @@ In case 'setq isn't present, add it."
   ("f" lispy-flatten)
   ("a" lispy-teleport)))
 
+(defun lispy-paste ()
+  "Forward to `yank'.
+If the region is active, replace instead of yanking."
+  (interactive)
+  (if (region-active-p)
+      (progn
+        (delete-active-region)
+        (yank)
+        (lispy-out-forward 1))
+    (yank)))
+
 (defun lispy-setup-new-bindings ()
   "Change to new-style bindings.
 They may become the defaults in the future."
@@ -4098,7 +4109,8 @@ They may become the defaults in the future."
     (lispy-define-key map "t" 'lispy-transform-mode)
     (define-key map (kbd "M-.") 'lispy-goto-symbol)
     (lispy-define-key map "." 'pop-tag-mark)
-    (lispy-define-key map "p" 'lispy-eval-other-window))
+    (lispy-define-key map "p" 'lispy-eval-other-window)
+    (lispy-define-key map "p" 'lispy-paste))
   (let ((map lispy-mode-x-map))
     (define-key map "d" nil)
     (define-key map "l" nil)
