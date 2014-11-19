@@ -4048,13 +4048,23 @@ In case 'setq isn't present, add it."
   (mapc (lambda (x) (lispy-define-key map (format "%d" x) 'digit-argument))
         (number-sequence 0 9)))
 
+(defun lispy-add-space ()
+  (interactive)
+  (cond ((looking-at lispy-left)
+         (insert " ")
+         (backward-char 1))
+        ((looking-back lispy-right)
+         (backward-char 1)
+         (insert " "))))
+
 (lispy-defverb
  "other"
  (("h" lispy-move-left)
   ("j" lispy-down-slurp)
   ("k" lispy-up-slurp)
   ("l" lispy-move-right)
-  ("i" lispy-amend)))
+  ("i" lispy-amend)
+  ("SPC" lispy-add-space)))
 
 (lispy-defverb
  "goto"
