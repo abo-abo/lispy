@@ -4,6 +4,55 @@ This package implements various commands for navigating and editing
 Lisp code. It's influenced by Paredit and re-implements most of its features
 in order to provide faster and more intuitive key bindings.
 
+## Relation to vi
+
+Here's a quote from Wikipedia on how vi works, in case you don't know:
+
+> vi is a modal editor: it operates in either insert mode (where typed
+> text becomes part of the document) or normal mode (where keystrokes
+> are interpreted as commands that control the edit session). For
+> example, typing i while in normal mode switches the editor to insert
+> mode, but typing i again at this point places an "i" character in
+> the document. From insert mode, pressing ESC switches the editor
+> back to normal mode.
+
+Here's an illustration of Emacs, vi and lispy bindings for inserting a
+char and calling a command:
+
+    |                   | insert "j" | forward-list |
+    |-------------------+------------+--------------|
+    | Emacs             | j          | C-M-n        |
+    | vi in insert mode | j          | impossible   |
+    | vi in normal mode | impossible | j            |
+    | lispy             | j          | j            |
+
+Advantages/disadvantages:
+
+- Emacs can do both things without switching modes, but the command
+  binding are long
+- vi has short command bindings, but you have to switch modes to do both things
+- lispy has short command bindings and doesn't need to switch modes
+
+### How does lispy work?
+
+Of course it's not magic, lispy needs to have normal/insert mode to
+perform both functions with `j`.  The difference from vi is that the
+mode is *explicit* instead of *implicit*, it's determined by the point
+position or the region state:
+
+- you're in normal mode when the point is before/after paren or the
+  region is active
+- otherwise it's in insert mode
+
+But if you ask: "what if I want to insert when the point is
+before/after paren or the region is active?". The answer is that you
+don't want to because of how LISP code is structured.
+
+You don't want to write this:
+
+    j(progn
+       (forward-char 1))k
+
 ## Features
 
 - Basic navigation by-list and by-region with `h`, `j`, `k`, `l`.
@@ -36,6 +85,7 @@ in order to provide faster and more intuitive key bindings.
 
 ## Function reference
 Available at http://abo-abo.github.io/lispy/.
+
 
 ## Installation instructions
 It's easiest to install this from [MELPA](http://melpa.milkbox.net/).
