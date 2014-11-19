@@ -349,11 +349,11 @@ I've recorded a few gifs that show some features:
   [2-ogv](https://raw.github.com/abo-abo/lispy/master/doc/screencast-2.ogv),
   [2-gif](https://raw.github.com/abo-abo/lispy/master/doc/screencast-2.gif)
 - [3-gif](https://raw.github.com/abo-abo/lispy/master/doc/screencast-3.gif)
-- [4-gif](https://raw.github.com/abo-abo/lispy/master/doc/screencast-4.gif)
-- [5-gif](https://raw.github.com/abo-abo/lispy/master/doc/oneline-multiline.gif)
+- [4-gif](https://raw.github.com/abo-abo/lispy/master/doc/oneline-multiline.gif)
 
-## screencast 4
-Synopsis: find a function and make it echo its doc-string.
+Synopsis for
+[5](https://raw.github.com/abo-abo/lispy/master/doc/screencast-4.gif):
+find a function and make it echo its doc-string.
 
 1. Use `lispy-goto` "g" to find the function.
 2. Use `lispy-ace-symbol` "h" to mark its doc-string.
@@ -365,5 +365,3 @@ Synopsis: find a function and make it echo its doc-string.
 8. Use `lispy-forward` "]" twice to exit defun.
 9. Use `lispy-eval` "e" to eval our changes.
 10. Use `lispy-undo` "u" to see that the change is now in effect.
-
-![screencast-4.gif](https://raw.github.com/abo-abo/lispy/master/doc/screencast-4.gif)
