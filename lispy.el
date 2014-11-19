@@ -1522,7 +1522,9 @@ The outcome when ahead of sexps is different from when behind."
 (defun lispy-clone (arg)
   "Clone sexp ARG times."
   (interactive "p")
-  (let ((str (lispy--string-dwim)))
+  (let* ((bnd (lispy--bounds-dwim))
+         (str (lispy--string-dwim bnd))
+         (pt (point)))
     (cond ((region-active-p)
            (lispy-dotimes-protect arg
              (cl-labels
@@ -1537,10 +1539,11 @@ The outcome when ahead of sexps is different from when behind."
                  (doit)
                  (exchange-point-and-mark)))))
           ((looking-at lispy-left)
-           (save-excursion
-             (lispy-dotimes-protect arg
-               (insert str)
-               (newline-and-indent))))
+           (goto-char (car bnd))
+           (lispy-dotimes-protect arg
+             (insert str)
+             (newline-and-indent))
+           (goto-char pt))
           ((looking-back lispy-right)
            (lispy-dotimes-protect arg
              (newline-and-indent)
