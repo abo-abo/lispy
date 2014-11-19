@@ -237,7 +237,7 @@ In that case you can mark it with a region and operate on that.
 ### Ways to activate region
 While in special:
 - Mark a sexp with `lispy-mark-list` "m".
-- Mark a symbol within sexp with `lispy-ace-symbol` "h".
+- Mark a symbol within sexp with `lispy-ace-symbol` "a".
 
 While not in special:
 - `set-mark-command` "C-SPC".
@@ -266,7 +266,7 @@ To extend the region, use a combination of
   Deactivate region.
 - `lispy-out-forward` "l"
   Move region out of current sexp forwards.
-- `lispy-out-backward` "a"
+- `lispy-out-backward` "h"
   Move region out of current sexp backwards.
 - `lispy-teleport` "t"
   Move region inside the sexp you select with `lispy-ace-paren`.
