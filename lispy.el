@@ -1402,40 +1402,40 @@ The outcome when ahead of sexps is different from when behind."
   (interactive "p")
   (if (region-active-p)
       (let ((at-start (= (point) (region-beginning))))
-       (if (= arg 1)
-           (let ((pt (point))
-                 (bnd0 (save-excursion
-                         (deactivate-mark)
-                         (if (ignore-errors (up-list) t)
-                             (lispy--bounds-dwim)
-                           (cons (point-min) (point-max)))))
-                 (bnd1 (lispy--bounds-dwim))
-                 bnd2)
-             (goto-char (cdr bnd1))
-             (if (re-search-forward "[^ \n]" (1- (cdr bnd0)) t)
-                 (progn
-                   (deactivate-mark)
-                   (if (lispy--in-comment-p)
-                       (setq bnd2 (lispy--bounds-comment))
-                     (when (memq (char-before) '(?\( ?\" ?\[ ?{))
-                       (backward-char))
-                     (setq bnd2 (lispy--bounds-dwim)))
-                   (lispy--swap-regions bnd1 bnd2)
-                   (setq deactivate-mark nil)
-                   (goto-char (cdr bnd2))
-                   (set-mark (point))
-                   (backward-char (- (cdr bnd1) (car bnd1)))
-                   (unless at-start
-                     (exchange-point-and-mark)))
-               (goto-char pt)))
-         (let ((bnd1 (lispy--bounds-dwim)))
-           (lispy-down arg)
-           (lispy--mark
-            (cdr
-             (lispy--swap-regions
-              bnd1 (lispy--bounds-dwim))))
-           (when at-start
-             (exchange-point-and-mark)))))
+        (if (= arg 1)
+            (let ((pt (point))
+                  (bnd0 (save-excursion
+                          (deactivate-mark)
+                          (if (ignore-errors (up-list) t)
+                              (lispy--bounds-dwim)
+                            (cons (point-min) (point-max)))))
+                  (bnd1 (lispy--bounds-dwim))
+                  bnd2)
+              (goto-char (cdr bnd1))
+              (if (re-search-forward "[^ \n]" (1- (cdr bnd0)) t)
+                  (progn
+                    (deactivate-mark)
+                    (if (lispy--in-comment-p)
+                        (setq bnd2 (lispy--bounds-comment))
+                      (when (memq (char-before) '(?\( ?\" ?\[ ?{))
+                        (backward-char))
+                      (setq bnd2 (lispy--bounds-dwim)))
+                    (lispy--swap-regions bnd1 bnd2)
+                    (setq deactivate-mark nil)
+                    (goto-char (cdr bnd2))
+                    (set-mark (point))
+                    (backward-char (- (cdr bnd1) (car bnd1)))
+                    (unless at-start
+                      (exchange-point-and-mark)))
+                (goto-char pt)))
+          (let ((bnd1 (lispy--bounds-dwim)))
+            (lispy-down arg)
+            (lispy--mark
+             (cdr
+              (lispy--swap-regions
+               bnd1 (lispy--bounds-dwim))))
+            (when at-start
+              (exchange-point-and-mark)))))
     (lispy-from-left*
      (if (and (looking-at lispy-left)
               (save-excursion
@@ -2254,14 +2254,26 @@ With ARG, use the contents of `lispy-store-region-and-buffer' instead."
   (interactive)
   (widen))
 
-(defun lispy-amend ()
-  "Amend current sexp."
+(defun lispy-other-space ()
+  "Alternative to `lispy-space'."
   (interactive)
-  (cond ((looking-back ")")
+  (cond ((looking-at lispy-left)
+         (insert " ")
+         (backward-char 1))
+        ((looking-back lispy-right)
          (backward-char 1)
-         (insert " "))
-        ((looking-at "(")
-         (forward-char 1))))
+         (insert " "))))
+
+(defun lispy-paste ()
+  "Forward to `yank'.
+If the region is active, replace instead of yanking."
+  (interactive)
+  (if (region-active-p)
+      (progn
+        (delete-active-region)
+        (yank)
+        (lispy-out-forward 1))
+    (yank)))
 
 ;; ——— Predicates ——————————————————————————————————————————————————————————————
 (defun lispy--in-string-p ()
@@ -4048,23 +4060,13 @@ In case 'setq isn't present, add it."
   (mapc (lambda (x) (lispy-define-key map (format "%d" x) 'digit-argument))
         (number-sequence 0 9)))
 
-(defun lispy-add-space ()
-  (interactive)
-  (cond ((looking-at lispy-left)
-         (insert " ")
-         (backward-char 1))
-        ((looking-back lispy-right)
-         (backward-char 1)
-         (insert " "))))
-
 (lispy-defverb
  "other"
  (("h" lispy-move-left)
   ("j" lispy-down-slurp)
   ("k" lispy-up-slurp)
   ("l" lispy-move-right)
-  ("i" lispy-amend)
-  ("SPC" lispy-add-space)))
+  ("SPC" lispy-other-space)))
 
 (lispy-defverb
  "goto"
@@ -4088,17 +4090,6 @@ In case 'setq isn't present, add it."
   ("c" lispy-to-cond)
   ("f" lispy-flatten)
   ("a" lispy-teleport)))
-
-(defun lispy-paste ()
-  "Forward to `yank'.
-If the region is active, replace instead of yanking."
-  (interactive)
-  (if (region-active-p)
-      (progn
-        (delete-active-region)
-        (yank)
-        (lispy-out-forward 1))
-    (yank)))
 
 (defun lispy-setup-new-bindings ()
   "Change to new-style bindings.
