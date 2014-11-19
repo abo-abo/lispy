@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
 <title>lispy.el documentation</title>
-<!-- 2014-06-28 Sat 17:12 -->
+<!-- 2014-11-19 Wed 18:19 -->
 <meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta  name="generator" content="Org-mode" />
 <meta  name="author" content="Oleh" />
@@ -62,9 +62,9 @@
 <a href="https://github.com/abo-abo/lispy">Back to github.</a>
 </p>
 
-<div id="outline-container-sec-1" class="outline-2">
-<h2 id="sec-1">Global bindings</h2>
-<div class="outline-text-2" id="text-1">
+<div id="outline-container-unnumbered-3" class="outline-2">
+<h2 id="unnumbered-3">Global bindings</h2>
+<div class="outline-text-2" id="text-unnumbered-3">
 <table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
 
@@ -193,10 +193,9 @@
 </table>
 </div>
 </div>
-
-<div id="outline-container-sec-2" class="outline-2">
-<h2 id="sec-2">Local bindings</h2>
-<div class="outline-text-2" id="text-2">
+<div id="outline-container-unnumbered-4" class="outline-2">
+<h2 id="unnumbered-4">[a-z] local bindings</h2>
+<div class="outline-text-2" id="text-unnumbered-4">
 <table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
 
@@ -213,6 +212,51 @@
 </thead>
 <tbody>
 <tr>
+<td class="left">a</td>
+<td class="left"><a href="#lispy-ace-symbol">lispy-ace-symbol</a></td>
+</tr>
+
+<tr>
+<td class="left">b</td>
+<td class="left"><a href="#lispy-store-region-and-buffer">lispy-store-region-and-buffer</a></td>
+</tr>
+
+<tr>
+<td class="left">c</td>
+<td class="left"><a href="#lispy-clone">lispy-clone</a></td>
+</tr>
+
+<tr>
+<td class="left">d</td>
+<td class="left"><a href="#lispy-different">lispy-different</a></td>
+</tr>
+
+<tr>
+<td class="left">e</td>
+<td class="left"><a href="#lispy-eval">lispy-eval</a></td>
+</tr>
+
+<tr>
+<td class="left">f</td>
+<td class="left"><a href="#lispy-flow">lispy-flow</a></td>
+</tr>
+
+<tr>
+<td class="left">g</td>
+<td class="left"><a href="#lispy-goto">lispy-goto</a></td>
+</tr>
+
+<tr>
+<td class="left">h</td>
+<td class="left"><a href="#lispy-out-backward">lispy-out-backward</a></td>
+</tr>
+
+<tr>
+<td class="left">i</td>
+<td class="left"><a href="#lispy-tab">lispy-tab</a></td>
+</tr>
+
+<tr>
 <td class="left">j</td>
 <td class="left"><a href="#lispy-down">lispy-down</a></td>
 </tr>
@@ -223,43 +267,13 @@
 </tr>
 
 <tr>
-<td class="left">d</td>
-<td class="left"><a href="#lispy-different">lispy-different</a></td>
-</tr>
-
-<tr>
-<td class="left">f</td>
-<td class="left"><a href="#lispy-flow">lispy-flow</a></td>
-</tr>
-
-<tr>
-<td class="left">p</td>
-<td class="left"><a href="#lispy-clockwise">lispy-clockwise</a></td>
-</tr>
-
-<tr>
-<td class="left">o</td>
-<td class="left"><a href="#lispy-other-mode">lispy-other-mode</a></td>
-</tr>
-
-<tr>
-<td class="left">a</td>
-<td class="left"><a href="#lispy-out-backward">lispy-out-backward</a></td>
-</tr>
-
-<tr>
 <td class="left">l</td>
 <td class="left"><a href="#lispy-out-forward">lispy-out-forward</a></td>
 </tr>
 
 <tr>
-<td class="left">q</td>
-<td class="left"><a href="#lispy-ace-paren">lispy-ace-paren</a></td>
-</tr>
-
-<tr>
-<td class="left">h</td>
-<td class="left"><a href="#lispy-ace-symbol">lispy-ace-symbol</a></td>
+<td class="left">m</td>
+<td class="left"><a href="#lispy-mark-list">lispy-mark-list</a></td>
 </tr>
 
 <tr>
@@ -268,83 +282,38 @@
 </tr>
 
 <tr>
-<td class="left">F</td>
-<td class="left"><a href="#lispy-follow">lispy-follow</a></td>
+<td class="left">o</td>
+<td class="left"><a href="#lispy-other-mode">lispy-other-mode</a></td>
 </tr>
 
 <tr>
-<td class="left">e</td>
-<td class="left"><a href="#lispy-eval">lispy-eval</a></td>
+<td class="left">p</td>
+<td class="left"><a href="#lispy-clockwise">lispy-clockwise</a></td>
 </tr>
 
 <tr>
-<td class="left">E</td>
-<td class="left"><a href="#lispy-eval-and-insert">lispy-eval-and-insert</a></td>
+<td class="left">q</td>
+<td class="left"><a href="#lispy-ace-paren">lispy-ace-paren</a></td>
 </tr>
 
 <tr>
-<td class="left">b</td>
-<td class="left"><a href="#lispy-store-region-and-buffer">lispy-store-region-and-buffer</a></td>
+<td class="left">r</td>
+<td class="left"><a href="#lispy-raise">lispy-raise</a></td>
 </tr>
 
 <tr>
-<td class="left">B</td>
-<td class="left"><a href="#lispy-ediff-regions">lispy-ediff-regions</a></td>
+<td class="left">s</td>
+<td class="left"><a href="#lispy-move-down">lispy-move-down</a></td>
 </tr>
 
 <tr>
-<td class="left">xl</td>
-<td class="left"><a href="#lispy-to-lambda">lispy-to-lambda</a></td>
+<td class="left">t</td>
+<td class="left"><a href="#lispy-teleport">lispy-teleport</a></td>
 </tr>
 
 <tr>
-<td class="left">xd</td>
-<td class="left"><a href="#lispy-to-defun">lispy-to-defun</a></td>
-</tr>
-
-<tr>
-<td class="left">J</td>
-<td class="left"><a href="#lispy-outline-next">lispy-outline-next</a></td>
-</tr>
-
-<tr>
-<td class="left">K</td>
-<td class="left"><a href="#lispy-outline-prev">lispy-outline-prev</a></td>
-</tr>
-
-<tr>
-<td class="left">V</td>
-<td class="left"><a href="#lispy-visit">lispy-visit</a></td>
-</tr>
-
-<tr>
-<td class="left">N</td>
-<td class="left"><a href="#lispy-narrow">lispy-narrow</a></td>
-</tr>
-
-<tr>
-<td class="left">W</td>
-<td class="left"><a href="#lispy-widen">lispy-widen</a></td>
-</tr>
-
-<tr>
-<td class="left">I</td>
-<td class="left"><a href="#lispy-shifttab">lispy-shifttab</a></td>
-</tr>
-
-<tr>
-<td class="left">O</td>
-<td class="left"><a href="#lispy-oneline">lispy-oneline</a></td>
-</tr>
-
-<tr>
-<td class="left">M</td>
-<td class="left"><a href="#lispy-multiline">lispy-multiline</a></td>
-</tr>
-
-<tr>
-<td class="left">i</td>
-<td class="left"><a href="#lispy-tab">lispy-tab</a></td>
+<td class="left">u</td>
+<td class="left"><a href="#lispy-undo">lispy-undo</a></td>
 </tr>
 
 <tr>
@@ -353,28 +322,23 @@
 </tr>
 
 <tr>
-<td class="left">Z</td>
-<td class="left"><a href="#lispy-edebug-stop">lispy-edebug-stop</a></td>
+<td class="left">w</td>
+<td class="left"><a href="#lispy-move-up">lispy-move-up</a></td>
 </tr>
 
 <tr>
-<td class="left">SPC</td>
-<td class="left"><a href="#lispy-space">lispy-space</a></td>
+<td class="left">x</td>
+<td class="left"><a href="#x-bindings">see</a></td>
 </tr>
 
 <tr>
-<td class="left">xf</td>
-<td class="left"><a href="#lispy-flatten">lispy-flatten</a></td>
+<td class="left">y</td>
+<td class="left">debug eval</td>
 </tr>
 
 <tr>
-<td class="left">xi</td>
-<td class="left"><a href="#lispy-to-ifs">lispy-to-ifs</a></td>
-</tr>
-
-<tr>
-<td class="left">xc</td>
-<td class="left"><a href="#lispy-to-cond">lispy-to-cond</a></td>
+<td class="left">z</td>
+<td class="left">unbound</td>
 </tr>
 
 <tr>
@@ -390,11 +354,216 @@
 </table>
 </div>
 </div>
-<div id="outline-container-sec-3" class="outline-2">
-<h2 id="sec-3">Function reference</h2>
-<div class="outline-text-2" id="text-3">
+<div id="outline-container-unnumbered-5" class="outline-2">
+<h2 id="unnumbered-5">[A-Z] local bindings</h2>
+<div class="outline-text-2" id="text-unnumbered-5">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="left" />
+
+<col  class="left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="left">key</th>
+<th scope="col" class="left">function name</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="left">A</td>
+<td class="left">arglist</td>
+</tr>
+
+<tr>
+<td class="left">B</td>
+<td class="left"><a href="#lispy-ediff-regions">lispy-ediff-regions</a></td>
+</tr>
+
+<tr>
+<td class="left">C</td>
+<td class="left">convolute</td>
+</tr>
+
+<tr>
+<td class="left">D</td>
+<td class="left">describe</td>
+</tr>
+
+<tr>
+<td class="left">E</td>
+<td class="left"><a href="#lispy-eval-and-insert">lispy-eval-and-insert</a></td>
+</tr>
+
+<tr>
+<td class="left">F</td>
+<td class="left"><a href="#lispy-follow">lispy-follow</a></td>
+</tr>
+
+<tr>
+<td class="left">G</td>
+<td class="left">goto</td>
+</tr>
+
+<tr>
+<td class="left">H</td>
+<td class="left"><a href="#lispy-ace-symbol-replace">lispy-ace-symbol-replace</a></td>
+</tr>
+
+<tr>
+<td class="left">I</td>
+<td class="left"><a href="#lispy-shifttab">lispy-shifttab</a></td>
+</tr>
+
+<tr>
+<td class="left">J</td>
+<td class="left"><a href="#lispy-outline-next">lispy-outline-next</a></td>
+</tr>
+
+<tr>
+<td class="left">K</td>
+<td class="left"><a href="#lispy-outline-prev">lispy-outline-prev</a></td>
+</tr>
+
+<tr>
+<td class="left">L</td>
+<td class="left">unbound</td>
+</tr>
+
+<tr>
+<td class="left">M</td>
+<td class="left"><a href="#lispy-multiline">lispy-multiline</a></td>
+</tr>
+
+<tr>
+<td class="left">N</td>
+<td class="left"><a href="#lispy-narrow">lispy-narrow</a></td>
+</tr>
+
+<tr>
+<td class="left">O</td>
+<td class="left"><a href="#lispy-oneline">lispy-oneline</a></td>
+</tr>
+
+<tr>
+<td class="left">P</td>
+<td class="left">unbound</td>
+</tr>
+
+<tr>
+<td class="left">Q</td>
+<td class="left">ace-char</td>
+</tr>
+
+<tr>
+<td class="left">R</td>
+<td class="left">raise-some</td>
+</tr>
+
+<tr>
+<td class="left">S</td>
+<td class="left">stringify</td>
+</tr>
+
+<tr>
+<td class="left">T</td>
+<td class="left">ert</td>
+</tr>
+
+<tr>
+<td class="left">U</td>
+<td class="left">unbound</td>
+</tr>
+
+<tr>
+<td class="left">V</td>
+<td class="left"><a href="#lispy-visit">lispy-visit</a></td>
+</tr>
+
+<tr>
+<td class="left">W</td>
+<td class="left"><a href="#lispy-widen">lispy-widen</a></td>
+</tr>
+
+<tr>
+<td class="left">X</td>
+<td class="left">unbound</td>
+</tr>
+
+<tr>
+<td class="left">Y</td>
+<td class="left">unbound</td>
+</tr>
+
+<tr>
+<td class="left">Z</td>
+<td class="left"><a href="#lispy-edebug-stop">lispy-edebug-stop</a></td>
+</tr>
+
+<tr>
+<td class="left">SPC</td>
+<td class="left"><a href="#lispy-space">lispy-space</a></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div id="outline-container-x-bindings" class="outline-2">
+<h2 id="x-bindings"><a id="unnumbered-6"></a>x[a-z] local bindings</h2>
+<div class="outline-text-2" id="text-x-bindings">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="left" />
+
+<col  class="left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="left">key</th>
+<th scope="col" class="left">function name</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="left">xc</td>
+<td class="left"><a href="#lispy-to-cond">lispy-to-cond</a></td>
+</tr>
+
+<tr>
+<td class="left">xd</td>
+<td class="left"><a href="#lispy-to-defun">lispy-to-defun</a></td>
+</tr>
+
+<tr>
+<td class="left">xf</td>
+<td class="left"><a href="#lispy-flatten">lispy-flatten</a></td>
+</tr>
+
+<tr>
+<td class="left">xi</td>
+<td class="left"><a href="#lispy-to-ifs">lispy-to-ifs</a></td>
+</tr>
+
+<tr>
+<td class="left">xl</td>
+<td class="left"><a href="#lispy-to-lambda">lispy-to-lambda</a></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+
+<div id="outline-container-unnumbered-7" class="outline-2">
+<h2 id="unnumbered-7">Function reference</h2>
+<div class="outline-text-2" id="text-unnumbered-7">
 </div><div id="outline-container-lispy-forward" class="outline-3">
-<h3 id="lispy-forward"><a id="sec-3-1"></a><code>lispy-forward</code></h3>
+<h3 id="lispy-forward"><a id="unnumbered-8"></a><code>lispy-forward</code></h3>
 <div class="outline-text-3" id="text-lispy-forward">
 <p>
 Bound to <kbd>]</kbd>.
@@ -426,9 +595,8 @@ Unlike <code>forward-list</code>, parens in strings and comments are ignored.
 <hr  />
 </div>
 </div>
-
 <div id="outline-container-lispy-backward" class="outline-3">
-<h3 id="lispy-backward"><a id="sec-3-2"></a><code>lispy-backward</code></h3>
+<h3 id="lispy-backward"><a id="unnumbered-9"></a><code>lispy-backward</code></h3>
 <div class="outline-text-3" id="text-lispy-backward">
 <p>
 Bound to <kbd>[</kbd>.
@@ -460,8 +628,9 @@ Unlike <code>backward-list</code>, parens in strings and comments are ignored.
 <hr  />
 </div>
 </div>
+
 <div id="outline-container-lispy-out-forward" class="outline-3">
-<h3 id="lispy-out-forward"><a id="sec-3-3"></a><code>lispy-out-forward</code></h3>
+<h3 id="lispy-out-forward"><a id="unnumbered-10"></a><code>lispy-out-forward</code></h3>
 <div class="outline-text-3" id="text-lispy-out-forward">
 <p>
 Bound to <kbd>C-3</kbd>.
@@ -493,8 +662,9 @@ Unlike <code>up-list</code>, parens in strings and comments are ignored.
 <hr  />
 </div>
 </div>
+
 <div id="outline-container-lispy-out-forward-nostring" class="outline-3">
-<h3 id="lispy-out-forward-nostring"><a id="sec-3-4"></a><code>lispy-out-forward-nostring</code></h3>
+<h3 id="lispy-out-forward-nostring"><a id="unnumbered-11"></a><code>lispy-out-forward-nostring</code></h3>
 <div class="outline-text-3" id="text-lispy-out-forward-nostring">
 <p>
 Bound to <kbd>)</kbd>.
@@ -554,11 +724,12 @@ When you want to insert a single character from the pair, use <kbd>C-q</kbd>.
 <hr  />
 </div>
 </div>
+
 <div id="outline-container-lispy-out-backward" class="outline-3">
-<h3 id="lispy-out-backward"><a id="sec-3-5"></a><code>lispy-out-backward</code></h3>
+<h3 id="lispy-out-backward"><a id="unnumbered-12"></a><code>lispy-out-backward</code></h3>
 <div class="outline-text-3" id="text-lispy-out-backward">
 <p>
-Bound to <kbd>a</kbd>.
+Bound to <kbd>h</kbd>.
 </p>
 
 
@@ -664,8 +835,9 @@ times:
 </div>
 
 
+
 <div id="outline-container-lispy-down" class="outline-3">
-<h3 id="lispy-down"><a id="sec-3-6"></a><code>lispy-down</code></h3>
+<h3 id="lispy-down"><a id="unnumbered-13"></a><code>lispy-down</code></h3>
 <div class="outline-text-3" id="text-lispy-down">
 <p>
 Bound to <kbd>j</kbd>.
@@ -832,9 +1004,8 @@ after <kbd>99j</kbd>:
 <hr  />
 </div>
 </div>
-
 <div id="outline-container-lispy-up" class="outline-3">
-<h3 id="lispy-up"><a id="sec-3-7"></a><code>lispy-up</code></h3>
+<h3 id="lispy-up"><a id="unnumbered-14"></a><code>lispy-up</code></h3>
 <div class="outline-text-3" id="text-lispy-up">
 <p>
 Bound to <kbd>k</kbd>.
@@ -875,8 +1046,9 @@ This allows to:
 <hr  />
 </div>
 </div>
+
 <div id="outline-container-lispy-different" class="outline-3">
-<h3 id="lispy-different"><a id="sec-3-8"></a><code>lispy-different</code></h3>
+<h3 id="lispy-different"><a id="unnumbered-15"></a><code>lispy-different</code></h3>
 <div class="outline-text-3" id="text-lispy-different">
 <p>
 Bound to <kbd>d</kbd>.
@@ -892,8 +1064,9 @@ When region is active, equivalent to <code>exchange-point-and-mark</code>.
 <hr  />
 </div>
 </div>
+
 <div id="outline-container-lispy-flow" class="outline-3">
-<h3 id="lispy-flow"><a id="sec-3-9"></a><code>lispy-flow</code></h3>
+<h3 id="lispy-flow"><a id="unnumbered-16"></a><code>lispy-flow</code></h3>
 <div class="outline-text-3" id="text-lispy-flow">
 <p>
 Bound to <kbd>f</kbd>.
@@ -904,18 +1077,19 @@ Flow in the direction of current paren, i.e.
 </p>
 </div>
 
-<div id="outline-container-sec-3-9-1" class="outline-4">
-<h4 id="sec-3-9-1">looking at <code>lispy-left</code></h4>
-<div class="outline-text-4" id="text-3-9-1">
+<div id="outline-container-unnumbered-17" class="outline-4">
+<h4 id="unnumbered-17">looking at <code>lispy-left</code></h4>
+<div class="outline-text-4" id="text-unnumbered-17">
 <p>
 Find the next <code>lispy-left</code> not in comment or string going down the
 file.
 </p>
 </div>
 </div>
-<div id="outline-container-sec-3-9-2" class="outline-4">
-<h4 id="sec-3-9-2">looking back <code>lispy-right</code></h4>
-<div class="outline-text-4" id="text-3-9-2">
+
+<div id="outline-container-unnumbered-18" class="outline-4">
+<h4 id="unnumbered-18">looking back <code>lispy-right</code></h4>
+<div class="outline-text-4" id="text-unnumbered-18">
 <p>
 Find the next <code>lispy-right</code> not in comment or string going up the
 file.
@@ -923,8 +1097,9 @@ file.
 </div>
 </div>
 </div>
+
 <div id="outline-container-lispy-clockwise" class="outline-3">
-<h3 id="lispy-clockwise"><a id="sec-3-10"></a><code>lispy-clockwise</code></h3>
+<h3 id="lispy-clockwise"><a id="unnumbered-19"></a><code>lispy-clockwise</code></h3>
 <div class="outline-text-3" id="text-lispy-clockwise">
 <p>
 Bound to <kbd>p</kbd>.
@@ -935,8 +1110,9 @@ Move clockwise within current list.
 </p>
 </div>
 </div>
+
 <div id="outline-container-lispy-counterclockwise" class="outline-3">
-<h3 id="lispy-counterclockwise"><a id="sec-3-11"></a><code>lispy-counterclockwise</code></h3>
+<h3 id="lispy-counterclockwise"><a id="unnumbered-20"></a><code>lispy-counterclockwise</code></h3>
 <div class="outline-text-3" id="text-lispy-counterclockwise">
 <p>
 Bound to <kbd>o</kbd>.
@@ -947,8 +1123,9 @@ Move counterclockwise within current list.
 </p>
 </div>
 </div>
+
 <div id="outline-container-lispy-move-end-of-line" class="outline-3">
-<h3 id="lispy-move-end-of-line"><a id="sec-3-12"></a><code>lispy-move-end-of-line</code></h3>
+<h3 id="lispy-move-end-of-line"><a id="unnumbered-21"></a><code>lispy-move-end-of-line</code></h3>
 <div class="outline-text-3" id="text-lispy-move-end-of-line">
 <p>
 Bound to <kbd>C-e</kbd>.
@@ -968,25 +1145,27 @@ When called twice in a row and
 </p>
 </div>
 
-<div id="outline-container-sec-3-12-1" class="outline-4">
-<h4 id="sec-3-12-1">inside string</h4>
-<div class="outline-text-4" id="text-3-12-1">
+<div id="outline-container-unnumbered-22" class="outline-4">
+<h4 id="unnumbered-22">inside string</h4>
+<div class="outline-text-4" id="text-unnumbered-22">
 <p>
 Move to the end of the string.
 </p>
 </div>
 </div>
-<div id="outline-container-sec-3-12-2" class="outline-4">
-<h4 id="sec-3-12-2">otherwise</h4>
-<div class="outline-text-4" id="text-3-12-2">
+
+<div id="outline-container-unnumbered-23" class="outline-4">
+<h4 id="unnumbered-23">otherwise</h4>
+<div class="outline-text-4" id="text-unnumbered-23">
 <p>
 Return to the starting position.
 </p>
 </div>
 </div>
 </div>
+
 <div id="outline-container-lispy-ace-paren" class="outline-3">
-<h3 id="lispy-ace-paren"><a id="sec-3-13"></a><code>lispy-ace-paren</code></h3>
+<h3 id="lispy-ace-paren"><a id="unnumbered-24"></a><code>lispy-ace-paren</code></h3>
 <div class="outline-text-3" id="text-lispy-ace-paren">
 <p>
 Bound to <kbd>q</kbd>.
@@ -1094,11 +1273,12 @@ cancel with <kbd>C-g</kbd>.
 <hr  />
 </div>
 </div>
+
 <div id="outline-container-lispy-ace-symbol" class="outline-3">
-<h3 id="lispy-ace-symbol"><a id="sec-3-14"></a><code>lispy-ace-symbol</code></h3>
+<h3 id="lispy-ace-symbol"><a id="unnumbered-25"></a><code>lispy-ace-symbol</code></h3>
 <div class="outline-text-3" id="text-lispy-ace-symbol">
 <p>
-Bound to <kbd>h</kbd>.
+Bound to <kbd>a</kbd>.
 </p>
 
 <p>
@@ -1312,8 +1492,9 @@ Now you can follow up with
 <hr  />
 </div>
 </div>
+
 <div id="outline-container-lispy-follow" class="outline-3">
-<h3 id="lispy-follow"><a id="sec-3-15"></a><code>lispy-follow</code></h3>
+<h3 id="lispy-follow"><a id="unnumbered-26"></a><code>lispy-follow</code></h3>
 <div class="outline-text-3" id="text-lispy-follow">
 <p>
 Bound to <kbd>F</kbd>.
@@ -1335,8 +1516,9 @@ Elisp, Clojure and Common Lisp are supported.
 <hr  />
 </div>
 </div>
+
 <div id="outline-container-lispy-describe-inline" class="outline-3">
-<h3 id="lispy-describe-inline"><a id="sec-3-16"></a><code>lispy-describe-inline</code></h3>
+<h3 id="lispy-describe-inline"><a id="unnumbered-29"></a><code>lispy-describe-inline</code></h3>
 <div class="outline-text-3" id="text-lispy-describe-inline">
 <p>
 Bound to <kbd>C-1</kbd>.
@@ -1424,8 +1606,9 @@ marked symbol (see <a href="#lispy-ace-symbol"><code>lispy-ace-symbol</code></a>
 <hr  />
 </div>
 </div>
+
 <div id="outline-container-lispy-arglist-inline" class="outline-3">
-<h3 id="lispy-arglist-inline"><a id="sec-3-17"></a><code>lispy-arglist-inline</code></h3>
+<h3 id="lispy-arglist-inline"><a id="unnumbered-30"></a><code>lispy-arglist-inline</code></h3>
 <div class="outline-text-3" id="text-lispy-arglist-inline">
 <p>
 Bound to <kbd>C-2</kbd>.
@@ -1514,8 +1697,9 @@ Show the argument list for current function.
 <hr  />
 </div>
 </div>
+
 <div id="outline-container-lispy-eval" class="outline-3">
-<h3 id="lispy-eval"><a id="sec-3-18"></a><code>lispy-eval</code></h3>
+<h3 id="lispy-eval"><a id="unnumbered-31"></a><code>lispy-eval</code></h3>
 <div class="outline-text-3" id="text-lispy-eval">
 <p>
 Bound to <kbd>e</kbd>.
@@ -1535,9 +1719,9 @@ Elisp extensions:
 </p>
 </div>
 
-<div id="outline-container-sec-3-18-1" class="outline-4">
-<h4 id="sec-3-18-1"><code>lispy-lax-eval</code></h4>
-<div class="outline-text-4" id="text-3-18-1">
+<div id="outline-container-unnumbered-32" class="outline-4">
+<h4 id="unnumbered-32"><code>lispy-lax-eval</code></h4>
+<div class="outline-text-4" id="text-unnumbered-32">
 <p>
 When <code>lispy-lax-eval</code> isn't <code>nil</code>, "Symbol's value as variable is
 void&#x2026;" error will be caught and the variable in question will be set
@@ -1545,18 +1729,20 @@ to <code>nil</code>.
 </p>
 </div>
 </div>
-<div id="outline-container-sec-3-18-2" class="outline-4">
-<h4 id="sec-3-18-2">eval of <code>defvar</code></h4>
-<div class="outline-text-4" id="text-3-18-2">
+
+<div id="outline-container-unnumbered-33" class="outline-4">
+<h4 id="unnumbered-33">eval of <code>defvar</code></h4>
+<div class="outline-text-4" id="text-unnumbered-33">
 <p>
 Will do a <code>setq</code> in addition to <code>defvar</code> (i.e. the behavior of <kbd>C-M-x</kbd>).
 </p>
 </div>
 </div>
 
-<div id="outline-container-sec-3-18-3" class="outline-4">
-<h4 id="sec-3-18-3">eval of <code>defcustom</code></h4>
-<div class="outline-text-4" id="text-3-18-3">
+
+<div id="outline-container-unnumbered-34" class="outline-4">
+<h4 id="unnumbered-34">eval of <code>defcustom</code></h4>
+<div class="outline-text-4" id="text-unnumbered-34">
 <p>
 Same as for <code>defvar</code>.
 </p>
@@ -1565,8 +1751,9 @@ Same as for <code>defvar</code>.
 </div>
 </div>
 
+
 <div id="outline-container-lispy-eval-and-insert" class="outline-3">
-<h3 id="lispy-eval-and-insert"><a id="sec-3-19"></a><code>lispy-eval-and-insert</code></h3>
+<h3 id="lispy-eval-and-insert"><a id="unnumbered-35"></a><code>lispy-eval-and-insert</code></h3>
 <div class="outline-text-3" id="text-lispy-eval-and-insert">
 <p>
 Bound to <kbd>E</kbd>.
@@ -1592,8 +1779,9 @@ deactivated and result will be inserted at point.
 <hr  />
 </div>
 </div>
+
 <div id="outline-container-lispy-store-region-and-buffer" class="outline-3">
-<h3 id="lispy-store-region-and-buffer"><a id="sec-3-20"></a><code>lispy-store-region-and-buffer</code></h3>
+<h3 id="lispy-store-region-and-buffer"><a id="unnumbered-36"></a><code>lispy-store-region-and-buffer</code></h3>
 <div class="outline-text-3" id="text-lispy-store-region-and-buffer">
 <p>
 Bound to <kbd>b</kbd>.
@@ -1630,8 +1818,9 @@ Currently, these functions make use of stored info:
 <hr  />
 </div>
 </div>
+
 <div id="outline-container-lispy-ediff-regions" class="outline-3">
-<h3 id="lispy-ediff-regions"><a id="sec-3-21"></a><code>lispy-ediff-regions</code></h3>
+<h3 id="lispy-ediff-regions"><a id="unnumbered-37"></a><code>lispy-ediff-regions</code></h3>
 <div class="outline-text-3" id="text-lispy-ediff-regions">
 <p>
 Bound to <kbd>B</kbd>.
@@ -1668,8 +1857,9 @@ for instance <code>lispy-move-down</code> and <code>lispy-move-up</code>.
 <hr  />
 </div>
 </div>
+
 <div id="outline-container-lispy-to-lambda" class="outline-3">
-<h3 id="lispy-to-lambda"><a id="sec-3-22"></a><code>lispy-to-lambda</code></h3>
+<h3 id="lispy-to-lambda"><a id="unnumbered-38"></a><code>lispy-to-lambda</code></h3>
 <div class="outline-text-3" id="text-lispy-to-lambda">
 <p>
 Use <kbd>xl</kbd> (local) or <kbd>C-4 l</kbd> (global) to turn the current function
@@ -1716,8 +1906,9 @@ by pressing <kbd>xl</kbd> you will get this:
 </div>
 </div>
 
+
 <div id="outline-container-lispy-to-defun" class="outline-3">
-<h3 id="lispy-to-defun"><a id="sec-3-23"></a><code>lispy-to-defun</code></h3>
+<h3 id="lispy-to-defun"><a id="unnumbered-40"></a><code>lispy-to-defun</code></h3>
 <div class="outline-text-3" id="text-lispy-to-defun">
 <p>
 Use <kbd>xd</kbd> (local) or <kbd>C-4 d</kbd> (global) to turn the current lambda
@@ -1777,8 +1968,9 @@ by pressing <kbd>xd</kbd> you'll get this:
 <hr  />
 </div>
 </div>
+
 <div id="outline-container-lispy-parens" class="outline-3">
-<h3 id="lispy-parens"><a id="sec-3-24"></a><code>lispy-parens</code></h3>
+<h3 id="lispy-parens"><a id="unnumbered-41"></a><code>lispy-parens</code></h3>
 <div class="outline-text-3" id="text-lispy-parens">
 <p>
 Bound to <kbd>(</kbd>.
@@ -1790,8 +1982,9 @@ Call <a href="#lispy-pair"><code>lispy-pair</code></a> specialized with <code>()
 <hr  />
 </div>
 </div>
+
 <div id="outline-container-lispy-braces" class="outline-3">
-<h3 id="lispy-braces"><a id="sec-3-25"></a><code>lispy-braces</code></h3>
+<h3 id="lispy-braces"><a id="unnumbered-42"></a><code>lispy-braces</code></h3>
 <div class="outline-text-3" id="text-lispy-braces">
 <p>
 Bound to <kbd>{</kbd>.
@@ -1803,8 +1996,9 @@ Call <a href="#lispy-pair"><code>lispy-pair</code></a> specialized with <code>{}
 <hr  />
 </div>
 </div>
+
 <div id="outline-container-lispy-brackets" class="outline-3">
-<h3 id="lispy-brackets"><a id="sec-3-26"></a><code>lispy-brackets</code></h3>
+<h3 id="lispy-brackets"><a id="unnumbered-43"></a><code>lispy-brackets</code></h3>
 <div class="outline-text-3" id="text-lispy-brackets">
 <p>
 Bound to <kbd>}</kbd>.
@@ -1816,8 +2010,9 @@ Call <a href="#lispy-pair"><code>lispy-pair</code></a> specialized with <code>[]
 <hr  />
 </div>
 </div>
+
 <div id="outline-container-lispy-quotes" class="outline-3">
-<h3 id="lispy-quotes"><a id="sec-3-27"></a><code>lispy-quotes</code></h3>
+<h3 id="lispy-quotes"><a id="unnumbered-44"></a><code>lispy-quotes</code></h3>
 <div class="outline-text-3" id="text-lispy-quotes">
 <p>
 Bound to ~"~.
@@ -1835,27 +2030,25 @@ Takes a prefix <code>arg</code>.
 The result depends on the following conditions, each tried one by one until one that holds true is found:
 </p>
 </div>
-<div id="outline-container-sec-3-27-1" class="outline-4">
-<h4 id="sec-3-27-1">region active</h4>
-<div class="outline-text-4" id="text-3-27-1">
+<div id="outline-container-unnumbered-45" class="outline-4">
+<h4 id="unnumbered-45">region active</h4>
+<div class="outline-text-4" id="text-unnumbered-45">
 <p>
 Wrap the region with quotes.
 </p>
 </div>
 </div>
-
-<div id="outline-container-sec-3-27-2" class="outline-4">
-<h4 id="sec-3-27-2">in string and <code>arg</code> isn't <code>nil</code></h4>
-<div class="outline-text-4" id="text-3-27-2">
+<div id="outline-container-unnumbered-46" class="outline-4">
+<h4 id="unnumbered-46">in string and <code>arg</code> isn't <code>nil</code></h4>
+<div class="outline-text-4" id="text-unnumbered-46">
 <p>
 Unquote current string.
 </p>
 </div>
 </div>
-
-<div id="outline-container-sec-3-27-3" class="outline-4">
-<h4 id="sec-3-27-3">in string and <code>arg</code> is <code>nil</code></h4>
-<div class="outline-text-4" id="text-3-27-3">
+<div id="outline-container-unnumbered-47" class="outline-4">
+<h4 id="unnumbered-47">in string and <code>arg</code> is <code>nil</code></h4>
+<div class="outline-text-4" id="text-unnumbered-47">
 <p>
 Insert a pair of quoted quotes around point.
 </p>
@@ -1879,18 +2072,18 @@ pressing ~"~ will give:
 </div>
 </div>
 </div>
-
-<div id="outline-container-sec-3-27-4" class="outline-4">
-<h4 id="sec-3-27-4"><code>arg</code> isn't <code>nil</code></h4>
-<div class="outline-text-4" id="text-3-27-4">
+<div id="outline-container-unnumbered-48" class="outline-4">
+<h4 id="unnumbered-48"><code>arg</code> isn't <code>nil</code></h4>
+<div class="outline-text-4" id="text-unnumbered-48">
 <p>
 Forward to <code>lispy-stringify</code>.
 </p>
 </div>
 </div>
-<div id="outline-container-sec-3-27-5" class="outline-4">
-<h4 id="sec-3-27-5">otherwise</h4>
-<div class="outline-text-4" id="text-3-27-5">
+
+<div id="outline-container-unnumbered-49" class="outline-4">
+<h4 id="unnumbered-49">otherwise</h4>
+<div class="outline-text-4" id="text-unnumbered-49">
 <p>
 Insert quotes, with a single space on either side where appropriate,
 and position the point between the quotes.
@@ -1917,8 +2110,9 @@ pressing ~"~ will give:
 </div>
 </div>
 </div>
+
 <div id="outline-container-lispy-parens-down" class="outline-3">
-<h3 id="lispy-parens-down"><a id="sec-3-28"></a><code>lispy-parens-down</code></h3>
+<h3 id="lispy-parens-down"><a id="unnumbered-50"></a><code>lispy-parens-down</code></h3>
 <div class="outline-text-3" id="text-lispy-parens-down">
 <p>
 Bound to <kbd>C-8</kbd>.
@@ -1948,8 +2142,9 @@ pressing <kbd>C-8</kbd> will give:
 </div>
 </div>
 </div>
+
 <div id="outline-container-lispy-space" class="outline-3">
-<h3 id="lispy-space"><a id="sec-3-29"></a><code>lispy-space</code></h3>
+<h3 id="lispy-space"><a id="unnumbered-51"></a><code>lispy-space</code></h3>
 <div class="outline-text-3" id="text-lispy-space">
 <p>
 Bound to <kbd>SPC</kbd>.
@@ -1982,8 +2177,9 @@ Behave differently in this situation:
 </td></tr></tbody></table>
 </div>
 </div>
+
 <div id="outline-container-lispy-pair" class="outline-3">
-<h3 id="lispy-pair"><a id="sec-3-30"></a><code>lispy-pair</code></h3>
+<h3 id="lispy-pair"><a id="unnumbered-52"></a><code>lispy-pair</code></h3>
 <div class="outline-text-3" id="text-lispy-pair">
 <p>
 This function, taking arguments <code>left</code> and <code>right</code>, is used to generate
@@ -1996,17 +2192,18 @@ and <a href="#lispy-brackets"><code>lispy-brackets</code></a>, which in turn tak
 The result depends on the following conditions, each tried one by one until one that holds true is found:
 </p>
 </div>
-<div id="outline-container-sec-3-30-1" class="outline-4">
-<h4 id="sec-3-30-1">region active</h4>
-<div class="outline-text-4" id="text-3-30-1">
+<div id="outline-container-unnumbered-53" class="outline-4">
+<h4 id="unnumbered-53">region active</h4>
+<div class="outline-text-4" id="text-unnumbered-53">
 <p>
 Wrap the region with <code>left</code> and <code>right</code>.
 </p>
 </div>
 </div>
-<div id="outline-container-sec-3-30-2" class="outline-4">
-<h4 id="sec-3-30-2">inside a string before "\\"</h4>
-<div class="outline-text-4" id="text-3-30-2">
+
+<div id="outline-container-unnumbered-54" class="outline-4">
+<h4 id="unnumbered-54">inside a string before "\\"</h4>
+<div class="outline-text-4" id="text-unnumbered-54">
 <p>
 Starting with
 </p>
@@ -2041,10 +2238,9 @@ and pressing <kbd>}</kbd> will give:
 </div>
 </div>
 </div>
-
-<div id="outline-container-sec-3-30-3" class="outline-4">
-<h4 id="sec-3-30-3">inside string or comment</h4>
-<div class="outline-text-4" id="text-3-30-3">
+<div id="outline-container-unnumbered-55" class="outline-4">
+<h4 id="unnumbered-55">inside string or comment</h4>
+<div class="outline-text-4" id="text-unnumbered-55">
 <p>
 Insert <code>left</code>, <code>right</code> and put the point between them.
 </p>
@@ -2067,9 +2263,10 @@ pressing <kbd>(</kbd> will give:
 </div>
 </div>
 </div>
-<div id="outline-container-sec-3-30-4" class="outline-4">
-<h4 id="sec-3-30-4">elisp character expression</h4>
-<div class="outline-text-4" id="text-3-30-4">
+
+<div id="outline-container-unnumbered-56" class="outline-4">
+<h4 id="unnumbered-56">elisp character expression</h4>
+<div class="outline-text-4" id="text-unnumbered-56">
 <p>
 Starting with
 </p>
@@ -2096,9 +2293,10 @@ they should be inserted with <kbd>C-q [</kbd> and <kbd>C-q ]</kbd>.
 </p>
 </div>
 </div>
-<div id="outline-container-sec-3-30-5" class="outline-4">
-<h4 id="sec-3-30-5"><code>arg</code> is 1</h4>
-<div class="outline-text-4" id="text-3-30-5">
+
+<div id="outline-container-unnumbered-57" class="outline-4">
+<h4 id="unnumbered-57"><code>arg</code> is 1</h4>
+<div class="outline-text-4" id="text-unnumbered-57">
 <ol class="org-ol">
 <li>Re-indent and insert space according to <code>lispy--space-unless</code>.
 </li>
@@ -2109,9 +2307,10 @@ they should be inserted with <kbd>C-q [</kbd> and <kbd>C-q ]</kbd>.
 </ol>
 </div>
 </div>
-<div id="outline-container-sec-3-30-6" class="outline-4">
-<h4 id="sec-3-30-6">otherwise</h4>
-<div class="outline-text-4" id="text-3-30-6">
+
+<div id="outline-container-unnumbered-58" class="outline-4">
+<h4 id="unnumbered-58">otherwise</h4>
+<div class="outline-text-4" id="text-unnumbered-58">
 <p>
 Wrap current sexp with <code>left</code> and <code>right</code>.
 </p>
@@ -2143,8 +2342,9 @@ pressing <kbd>2(</kbd> will give:
 </div>
 </div>
 </div>
+
 <div id="outline-container-lispy-x" class="outline-3">
-<h3 id="lispy-x"><a id="sec-3-31"></a><code>lispy-x</code></h3>
+<h3 id="lispy-x"><a id="unnumbered-59"></a><code>lispy-x</code></h3>
 <div class="outline-text-3" id="text-lispy-x">
 <p>
 Bound to <kbd>x</kbd> (locally) or <kbd>C-4</kbd> (globally).
@@ -2183,8 +2383,9 @@ Just a prefix to calling other commands, like
 <hr  />
 </div>
 </div>
+
 <div id="outline-container-lispy-kill" class="outline-3">
-<h3 id="lispy-kill"><a id="sec-3-32"></a><code>lispy-kill</code></h3>
+<h3 id="lispy-kill"><a id="unnumbered-60"></a><code>lispy-kill</code></h3>
 <div class="outline-text-3" id="text-lispy-kill">
 <p>
 Bound to <kbd>C-k</kbd>.
@@ -2198,65 +2399,72 @@ A replacement for <code>kill-line</code> that keeps parens consistent.
 The result depends on the following conditions, each tried one by one until one that holds true is found:
 </p>
 </div>
-<div id="outline-container-sec-3-32-1" class="outline-4">
-<h4 id="sec-3-32-1">inside comment</h4>
-<div class="outline-text-4" id="text-3-32-1">
+<div id="outline-container-unnumbered-61" class="outline-4">
+<h4 id="unnumbered-61">inside comment</h4>
+<div class="outline-text-4" id="text-unnumbered-61">
 <p>
 Call <code>kill-line</code>.
 </p>
 </div>
 </div>
-<div id="outline-container-sec-3-32-2" class="outline-4">
-<h4 id="sec-3-32-2">inside string and string extends past this line</h4>
-<div class="outline-text-4" id="text-3-32-2">
+
+<div id="outline-container-unnumbered-62" class="outline-4">
+<h4 id="unnumbered-62">inside string and string extends past this line</h4>
+<div class="outline-text-4" id="text-unnumbered-62">
 <p>
 Call <code>kill-line</code>.
 </p>
 </div>
 </div>
-<div id="outline-container-sec-3-32-3" class="outline-4">
-<h4 id="sec-3-32-3">inside string that ends on this line</h4>
-<div class="outline-text-4" id="text-3-32-3">
+
+<div id="outline-container-unnumbered-63" class="outline-4">
+<h4 id="unnumbered-63">inside string that ends on this line</h4>
+<div class="outline-text-4" id="text-unnumbered-63">
 <p>
 Delete up to <code>line-end-position</code>.
 </p>
 </div>
 </div>
-<div id="outline-container-sec-3-32-4" class="outline-4">
-<h4 id="sec-3-32-4">on a line of whitespace</h4>
-<div class="outline-text-4" id="text-3-32-4">
+
+<div id="outline-container-unnumbered-64" class="outline-4">
+<h4 id="unnumbered-64">on a line of whitespace</h4>
+<div class="outline-text-4" id="text-unnumbered-64">
 <p>
 Delete whole line, moving to the next one, and re-indent.
 </p>
 </div>
 </div>
-<div id="outline-container-sec-3-32-5" class="outline-4">
-<h4 id="sec-3-32-5">inside empty list</h4>
-<div class="outline-text-4" id="text-3-32-5">
+
+<div id="outline-container-unnumbered-65" class="outline-4">
+<h4 id="unnumbered-65">inside empty list</h4>
+<div class="outline-text-4" id="text-unnumbered-65">
 <p>
 Delete the empty list.
 </p>
 </div>
 </div>
-<div id="outline-container-sec-3-32-6" class="outline-4">
-<h4 id="sec-3-32-6">parens between point and eol are balanced</h4>
-<div class="outline-text-4" id="text-3-32-6">
+
+<div id="outline-container-unnumbered-66" class="outline-4">
+<h4 id="unnumbered-66">parens between point and eol are balanced</h4>
+<div class="outline-text-4" id="text-unnumbered-66">
 <p>
 Call <code>kill-line</code>.
 </p>
 </div>
 </div>
-<div id="outline-container-sec-3-32-7" class="outline-4">
-<h4 id="sec-3-32-7">possible to <code>up-list</code></h4>
-<div class="outline-text-4" id="text-3-32-7">
+
+<div id="outline-container-unnumbered-67" class="outline-4">
+<h4 id="unnumbered-67">possible to <code>up-list</code></h4>
+<div class="outline-text-4" id="text-unnumbered-67">
 <p>
 Delete from point to end of list.
 </p>
 </div>
 </div>
-<div id="outline-container-sec-3-32-8" class="outline-4">
-<h4 id="sec-3-32-8">otherwise</h4>
-<div class="outline-text-4" id="text-3-32-8">
+
+<div id="outline-container-unnumbered-68" class="outline-4">
+<h4 id="unnumbered-68">otherwise</h4>
+<div class="outline-text-4" id="text-unnumbered-68">
 <p>
 Delete current sexp.
 </p>
@@ -2264,8 +2472,9 @@ Delete current sexp.
 </div>
 </div>
 </div>
+
 <div id="outline-container-lispy-new-copy" class="outline-3">
-<h3 id="lispy-new-copy"><a id="sec-3-33"></a><code>lispy-new-copy</code></h3>
+<h3 id="lispy-new-copy"><a id="unnumbered-69"></a><code>lispy-new-copy</code></h3>
 <div class="outline-text-3" id="text-lispy-new-copy">
 <p>
 Bound to <kbd>n</kbd>.
@@ -2277,8 +2486,9 @@ Copy current sexp or region to kill ring.
 </div>
 </div>
 
+
 <div id="outline-container-lispy-yank" class="outline-3">
-<h3 id="lispy-yank"><a id="sec-3-34"></a><code>lispy-yank</code></h3>
+<h3 id="lispy-yank"><a id="unnumbered-70"></a><code>lispy-yank</code></h3>
 <div class="outline-text-3" id="text-lispy-yank">
 <p>
 Bound to <kbd>C-y</kbd>.
@@ -2319,8 +2529,9 @@ whereas a regular <code>yank</code> would give:
 <hr  />
 </div>
 </div>
+
 <div id="outline-container-lispy-delete" class="outline-3">
-<h3 id="lispy-delete"><a id="sec-3-35"></a><code>lispy-delete</code></h3>
+<h3 id="lispy-delete"><a id="unnumbered-71"></a><code>lispy-delete</code></h3>
 <div class="outline-text-3" id="text-lispy-delete">
 <p>
 Bound to <kbd>C-d</kbd>.
@@ -2334,25 +2545,27 @@ Replaces <code>delete-char</code>, keeping parens consistent.
 The result depends on the following conditions, each tried one by one until one that holds true is found:
 </p>
 </div>
-<div id="outline-container-sec-3-35-1" class="outline-4">
-<h4 id="sec-3-35-1">region active</h4>
-<div class="outline-text-4" id="text-3-35-1">
+<div id="outline-container-unnumbered-72" class="outline-4">
+<h4 id="unnumbered-72">region active</h4>
+<div class="outline-text-4" id="text-unnumbered-72">
 <p>
 Delete region.
 </p>
 </div>
 </div>
-<div id="outline-container-sec-3-35-2" class="outline-4">
-<h4 id="sec-3-35-2">inside a string before \"</h4>
-<div class="outline-text-4" id="text-3-35-2">
+
+<div id="outline-container-unnumbered-73" class="outline-4">
+<h4 id="unnumbered-73">inside a string before \"</h4>
+<div class="outline-text-4" id="text-unnumbered-73">
 <p>
 Delete \".
 </p>
 </div>
 </div>
-<div id="outline-container-sec-3-35-3" class="outline-4">
-<h4 id="sec-3-35-3">at last char of the string</h4>
-<div class="outline-text-4" id="text-3-35-3">
+
+<div id="outline-container-unnumbered-74" class="outline-4">
+<h4 id="unnumbered-74">at last char of the string</h4>
+<div class="outline-text-4" id="text-unnumbered-74">
 <p>
 Move to the beginning of string.
 This allows to delete the whole string with the next <kbd>C-d</kbd>.
@@ -2377,9 +2590,10 @@ This allows to delete the whole string with the next <kbd>C-d</kbd>.
 </td></tr></tbody></table>
 </div>
 </div>
-<div id="outline-container-sec-3-35-4" class="outline-4">
-<h4 id="sec-3-35-4">in string near \\( or \\)</h4>
-<div class="outline-text-4" id="text-3-35-4">
+
+<div id="outline-container-unnumbered-75" class="outline-4">
+<h4 id="unnumbered-75">in string near \\( or \\)</h4>
+<div class="outline-text-4" id="text-unnumbered-75">
 <p>
 Remove \\( and \\).
 </p>
@@ -2421,25 +2635,28 @@ Remove \\( and \\).
 </td></tr></tbody></table>
 </div>
 </div>
-<div id="outline-container-sec-3-35-5" class="outline-4">
-<h4 id="sec-3-35-5">the next char isn't end of string</h4>
-<div class="outline-text-4" id="text-3-35-5">
+
+<div id="outline-container-unnumbered-76" class="outline-4">
+<h4 id="unnumbered-76">the next char isn't end of string</h4>
+<div class="outline-text-4" id="text-unnumbered-76">
 <p>
 Call <code>delete-char</code>.
 </p>
 </div>
 </div>
-<div id="outline-container-sec-3-35-6" class="outline-4">
-<h4 id="sec-3-35-6">inside comment</h4>
-<div class="outline-text-4" id="text-3-35-6">
+
+<div id="outline-container-unnumbered-77" class="outline-4">
+<h4 id="unnumbered-77">inside comment</h4>
+<div class="outline-text-4" id="text-unnumbered-77">
 <p>
 Call <code>delete-char</code>.
 </p>
 </div>
 </div>
-<div id="outline-container-sec-3-35-7" class="outline-4">
-<h4 id="sec-3-35-7">before <code>lispy-left</code></h4>
-<div class="outline-text-4" id="text-3-35-7">
+
+<div id="outline-container-unnumbered-78" class="outline-4">
+<h4 id="unnumbered-78">before <code>lispy-left</code></h4>
+<div class="outline-text-4" id="text-unnumbered-78">
 <p>
 Delete <code>arg</code> sexps.
 </p>
@@ -2464,17 +2681,19 @@ Delete <code>arg</code> sexps.
 </td></tr></tbody></table>
 </div>
 </div>
-<div id="outline-container-sec-3-35-8" class="outline-4">
-<h4 id="sec-3-35-8">before "</h4>
-<div class="outline-text-4" id="text-3-35-8">
+
+<div id="outline-container-unnumbered-79" class="outline-4">
+<h4 id="unnumbered-79">before "</h4>
+<div class="outline-text-4" id="text-unnumbered-79">
 <p>
 Delete string.
 </p>
 </div>
 </div>
-<div id="outline-container-sec-3-35-9" class="outline-4">
-<h4 id="sec-3-35-9">before <code>lispy-right</code></h4>
-<div class="outline-text-4" id="text-3-35-9">
+
+<div id="outline-container-unnumbered-80" class="outline-4">
+<h4 id="unnumbered-80">before <code>lispy-right</code></h4>
+<div class="outline-text-4" id="text-unnumbered-80">
 <p>
 Delete containing sexp.
 </p>
@@ -2498,9 +2717,10 @@ Delete containing sexp.
 </td></tr></tbody></table>
 </div>
 </div>
-<div id="outline-container-sec-3-35-10" class="outline-4">
-<h4 id="sec-3-35-10">otherwise</h4>
-<div class="outline-text-4" id="text-3-35-10">
+
+<div id="outline-container-unnumbered-81" class="outline-4">
+<h4 id="unnumbered-81">otherwise</h4>
+<div class="outline-text-4" id="text-unnumbered-81">
 <p>
 Call <code>delete-char</code>.
 </p>
@@ -2508,8 +2728,9 @@ Call <code>delete-char</code>.
 </div>
 </div>
 </div>
+
 <div id="outline-container-lispy-delete-backward" class="outline-3">
-<h3 id="lispy-delete-backward"><a id="sec-3-36"></a><code>lispy-delete-backward</code></h3>
+<h3 id="lispy-delete-backward"><a id="unnumbered-82"></a><code>lispy-delete-backward</code></h3>
 <div class="outline-text-3" id="text-lispy-delete-backward">
 <p>
 Bound to <kbd>DEL</kbd>.
@@ -2523,17 +2744,18 @@ Replaces <code>backward-delete-char</code>, keeping parens consistent.
 The result depends on the following conditions, each tried one by one until one that holds true is found:
 </p>
 </div>
-<div id="outline-container-sec-3-36-1" class="outline-4">
-<h4 id="sec-3-36-1">region active</h4>
-<div class="outline-text-4" id="text-3-36-1">
+<div id="outline-container-unnumbered-83" class="outline-4">
+<h4 id="unnumbered-83">region active</h4>
+<div class="outline-text-4" id="text-unnumbered-83">
 <p>
 Delete region.
 </p>
 </div>
 </div>
-<div id="outline-container-sec-3-36-2" class="outline-4">
-<h4 id="sec-3-36-2">at first char of the string</h4>
-<div class="outline-text-4" id="text-3-36-2">
+
+<div id="outline-container-unnumbered-84" class="outline-4">
+<h4 id="unnumbered-84">at first char of the string</h4>
+<div class="outline-text-4" id="text-unnumbered-84">
 <p>
 Move to the end of the string.
 This allows to delete the whole string with the next <kbd>DEL</kbd>.
@@ -2558,9 +2780,10 @@ This allows to delete the whole string with the next <kbd>DEL</kbd>.
 </td></tr></tbody></table>
 </div>
 </div>
-<div id="outline-container-sec-3-36-3" class="outline-4">
-<h4 id="sec-3-36-3">in string near \\( or \\)</h4>
-<div class="outline-text-4" id="text-3-36-3">
+
+<div id="outline-container-unnumbered-85" class="outline-4">
+<h4 id="unnumbered-85">in string near \\( or \\)</h4>
+<div class="outline-text-4" id="text-unnumbered-85">
 <p>
 Remove \\( and \\).
 </p>
@@ -2602,17 +2825,19 @@ Remove \\( and \\).
 </td></tr></tbody></table>
 </div>
 </div>
-<div id="outline-container-sec-3-36-4" class="outline-4">
-<h4 id="sec-3-36-4">in string or comment</h4>
-<div class="outline-text-4" id="text-3-36-4">
+
+<div id="outline-container-unnumbered-86" class="outline-4">
+<h4 id="unnumbered-86">in string or comment</h4>
+<div class="outline-text-4" id="text-unnumbered-86">
 <p>
 Call <code>backward-delete-char</code>.
 </p>
 </div>
 </div>
-<div id="outline-container-sec-3-36-5" class="outline-4">
-<h4 id="sec-3-36-5">after <code>lispy-right</code></h4>
-<div class="outline-text-4" id="text-3-36-5">
+
+<div id="outline-container-unnumbered-87" class="outline-4">
+<h4 id="unnumbered-87">after <code>lispy-right</code></h4>
+<div class="outline-text-4" id="text-unnumbered-87">
 <p>
 Delete <code>arg</code> sexps.
 </p>
@@ -2636,9 +2861,10 @@ Delete <code>arg</code> sexps.
 </td></tr></tbody></table>
 </div>
 </div>
-<div id="outline-container-sec-3-36-6" class="outline-4">
-<h4 id="sec-3-36-6">before <code>lispy-left</code></h4>
-<div class="outline-text-4" id="text-3-36-6">
+
+<div id="outline-container-unnumbered-88" class="outline-4">
+<h4 id="unnumbered-88">before <code>lispy-left</code></h4>
+<div class="outline-text-4" id="text-unnumbered-88">
 <p>
 Delete containing sexp.
 </p>
@@ -2662,9 +2888,10 @@ Delete containing sexp.
 </td></tr></tbody></table>
 </div>
 </div>
-<div id="outline-container-sec-3-36-7" class="outline-4">
-<h4 id="sec-3-36-7">after a string</h4>
-<div class="outline-text-4" id="text-3-36-7">
+
+<div id="outline-container-unnumbered-89" class="outline-4">
+<h4 id="unnumbered-89">after a string</h4>
+<div class="outline-text-4" id="text-unnumbered-89">
 <p>
 Delete string.
 </p>
@@ -2688,9 +2915,10 @@ Delete string.
 </td></tr></tbody></table>
 </div>
 </div>
-<div id="outline-container-sec-3-36-8" class="outline-4">
-<h4 id="sec-3-36-8">otherwise</h4>
-<div class="outline-text-4" id="text-3-36-8">
+
+<div id="outline-container-unnumbered-90" class="outline-4">
+<h4 id="unnumbered-90">otherwise</h4>
+<div class="outline-text-4" id="text-unnumbered-90">
 <p>
 Call <code>backward-delete-char</code>.
 </p>
@@ -2698,11 +2926,12 @@ Call <code>backward-delete-char</code>.
 </div>
 </div>
 </div>
+
 <div id="outline-container-lispy-mark" class="outline-3">
-<h3 id="lispy-mark"><a id="sec-3-37"></a><code>lispy-mark</code></h3>
+<h3 id="lispy-mark"><a id="unnumbered-91"></a><code>lispy-mark</code></h3>
 <div class="outline-text-3" id="text-lispy-mark">
 <p>
-Bound to ~C-M-,~.
+Bound to <kbd>C-M-,</kbd>.
 </p>
 
 <p>
@@ -2714,11 +2943,12 @@ This command will expand region when repeated.
 </p>
 </div>
 </div>
+
 <div id="outline-container-lispy-kill-at-point" class="outline-3">
-<h3 id="lispy-kill-at-point"><a id="sec-3-38"></a><code>lispy-kill-at-point</code></h3>
+<h3 id="lispy-kill-at-point"><a id="unnumbered-92"></a><code>lispy-kill-at-point</code></h3>
 <div class="outline-text-3" id="text-lispy-kill-at-point">
 <p>
-Bound to ~C-,~.
+Bound to <kbd>C-,</kbd>.
 </p>
 
 <p>
@@ -2726,8 +2956,9 @@ Kill the smallest comment or string or list that includes point.
 </p>
 </div>
 </div>
+
 <div id="outline-container-lispy-mark-symbol" class="outline-3">
-<h3 id="lispy-mark-symbol"><a id="sec-3-39"></a><code>lispy-mark-symbol</code></h3>
+<h3 id="lispy-mark-symbol"><a id="unnumbered-93"></a><code>lispy-mark-symbol</code></h3>
 <div class="outline-text-3" id="text-lispy-mark-symbol">
 <p>
 Bound to <kbd>M-m</kbd>.
@@ -2737,41 +2968,45 @@ Bound to <kbd>M-m</kbd>.
 The result depends on the following conditions, each tried one by one until one that holds true is found:
 </p>
 </div>
-<div id="outline-container-sec-3-39-1" class="outline-4">
-<h4 id="sec-3-39-1">in comment</h4>
-<div class="outline-text-4" id="text-3-39-1">
+<div id="outline-container-unnumbered-94" class="outline-4">
+<h4 id="unnumbered-94">in comment</h4>
+<div class="outline-text-4" id="text-unnumbered-94">
 <p>
 Mark comment.
 </p>
 </div>
 </div>
-<div id="outline-container-sec-3-39-2" class="outline-4">
-<h4 id="sec-3-39-2">looking at space or parens</h4>
-<div class="outline-text-4" id="text-3-39-2">
+
+<div id="outline-container-unnumbered-95" class="outline-4">
+<h4 id="unnumbered-95">looking at space or parens</h4>
+<div class="outline-text-4" id="text-unnumbered-95">
 <p>
 Skip space and parens and mark the next thing between them.
 </p>
 </div>
 </div>
-<div id="outline-container-sec-3-39-3" class="outline-4">
-<h4 id="sec-3-39-3">looking back <code>lispy-right</code></h4>
-<div class="outline-text-4" id="text-3-39-3">
+
+<div id="outline-container-unnumbered-96" class="outline-4">
+<h4 id="unnumbered-96">looking back <code>lispy-right</code></h4>
+<div class="outline-text-4" id="text-unnumbered-96">
 <p>
 Mark last symbol in previous list.
 </p>
 </div>
 </div>
-<div id="outline-container-sec-3-39-4" class="outline-4">
-<h4 id="sec-3-39-4">region is active</h4>
-<div class="outline-text-4" id="text-3-39-4">
+
+<div id="outline-container-unnumbered-97" class="outline-4">
+<h4 id="unnumbered-97">region is active</h4>
+<div class="outline-text-4" id="text-unnumbered-97">
 <p>
 Call <code>forward-sexp</code>.
 </p>
 </div>
 </div>
-<div id="outline-container-sec-3-39-5" class="outline-4">
-<h4 id="sec-3-39-5">otherwise</h4>
-<div class="outline-text-4" id="text-3-39-5">
+
+<div id="outline-container-unnumbered-98" class="outline-4">
+<h4 id="unnumbered-98">otherwise</h4>
+<div class="outline-text-4" id="text-unnumbered-98">
 <p>
 Forward to <code>lispy-mark</code>.
 </p>
@@ -2779,9 +3014,8 @@ Forward to <code>lispy-mark</code>.
 </div>
 </div>
 </div>
-
 <div id="outline-container-lispy-string-oneline" class="outline-3">
-<h3 id="lispy-string-oneline"><a id="sec-3-40"></a><code>lispy-string-oneline</code></h3>
+<h3 id="lispy-string-oneline"><a id="unnumbered-99"></a><code>lispy-string-oneline</code></h3>
 <div class="outline-text-3" id="text-lispy-string-oneline">
 <p>
 Bound to <kbd>M-o</kbd>.
@@ -2814,8 +3048,9 @@ pressing <kbd>M-o</kbd> will give:
 <hr  />
 </div>
 </div>
+
 <div id="outline-container-lispy-outline-next" class="outline-3">
-<h3 id="lispy-outline-next"><a id="sec-3-41"></a><code>lispy-outline-next</code></h3>
+<h3 id="lispy-outline-next"><a id="unnumbered-100"></a><code>lispy-outline-next</code></h3>
 <div class="outline-text-3" id="text-lispy-outline-next">
 <p>
 Bound to <kbd>J</kbd>.
@@ -2833,8 +3068,9 @@ See <a href="#lispy-shifttab"><code>lispy-shifttab</code></a> for more info.
 <hr  />
 </div>
 </div>
+
 <div id="outline-container-lispy-outline-prev" class="outline-3">
-<h3 id="lispy-outline-prev"><a id="sec-3-42"></a><code>lispy-outline-prev</code></h3>
+<h3 id="lispy-outline-prev"><a id="unnumbered-101"></a><code>lispy-outline-prev</code></h3>
 <div class="outline-text-3" id="text-lispy-outline-prev">
 <p>
 Bound to <kbd>K</kbd>.
@@ -2852,8 +3088,9 @@ See <a href="#lispy-shifttab"><code>lispy-shifttab</code></a> for more info.
 <hr  />
 </div>
 </div>
+
 <div id="outline-container-lispy-shifttab" class="outline-3">
-<h3 id="lispy-shifttab"><a id="sec-3-43"></a><code>lispy-shifttab</code></h3>
+<h3 id="lispy-shifttab"><a id="unnumbered-102"></a><code>lispy-shifttab</code></h3>
 <div class="outline-text-3" id="text-lispy-shifttab">
 <p>
 Bound to <kbd>I</kbd>.
@@ -2937,8 +3174,9 @@ Useful together with
 <hr  />
 </div>
 </div>
+
 <div id="outline-container-lispy-tab" class="outline-3">
-<h3 id="lispy-tab"><a id="sec-3-44"></a><code>lispy-tab</code></h3>
+<h3 id="lispy-tab"><a id="unnumbered-103"></a><code>lispy-tab</code></h3>
 <div class="outline-text-3" id="text-lispy-tab">
 <p>
 Bound to <kbd>i</kbd>.
@@ -2957,8 +3195,9 @@ When region is active, go to car of the region.
 <hr  />
 </div>
 </div>
+
 <div id="outline-container-lispy-edebug-stop" class="outline-3">
-<h3 id="lispy-edebug-stop"><a id="sec-3-45"></a><code>lispy-edebug-stop</code></h3>
+<h3 id="lispy-edebug-stop"><a id="unnumbered-104"></a><code>lispy-edebug-stop</code></h3>
 <div class="outline-text-3" id="text-lispy-edebug-stop">
 <p>
 Bound to <kbd>Z</kbd>.
@@ -2981,8 +3220,9 @@ puts your code in read-only mode.
 <hr  />
 </div>
 </div>
+
 <div id="outline-container-lispy-flatten" class="outline-3">
-<h3 id="lispy-flatten"><a id="sec-3-46"></a><code>lispy-flatten</code></h3>
+<h3 id="lispy-flatten"><a id="unnumbered-105"></a><code>lispy-flatten</code></h3>
 <div class="outline-text-3" id="text-lispy-flatten">
 <p>
 Bound to <kbd>xf</kbd>.
@@ -3016,8 +3256,9 @@ body stored with <a href="#lispy-store-region-and-buffer"><code>lispy-store-regi
 <hr  />
 </div>
 </div>
+
 <div id="outline-container-lispy-to-ifs" class="outline-3">
-<h3 id="lispy-to-ifs"><a id="sec-3-47"></a><code>lispy-to-ifs</code></h3>
+<h3 id="lispy-to-ifs"><a id="unnumbered-107"></a><code>lispy-to-ifs</code></h3>
 <div class="outline-text-3" id="text-lispy-to-ifs">
 <p>
 Bound to <kbd>xi</kbd>.
@@ -3098,8 +3339,9 @@ The reverse is <a href="#lispy-to-cond"><code>lispy-to-cond</code></a>.
 <hr  />
 </div>
 </div>
+
 <div id="outline-container-lispy-to-cond" class="outline-3">
-<h3 id="lispy-to-cond"><a id="sec-3-48"></a><code>lispy-to-cond</code></h3>
+<h3 id="lispy-to-cond"><a id="unnumbered-108"></a><code>lispy-to-cond</code></h3>
 <div class="outline-text-3" id="text-lispy-to-cond">
 <p>
 Bound to <kbd>xc</kbd>.
@@ -3180,8 +3422,9 @@ The reverse is <a href="#lispy-to-ifs"><code>lispy-to-ifs</code></a>.
 <hr  />
 </div>
 </div>
+
 <div id="outline-container-lispy-visit" class="outline-3">
-<h3 id="lispy-visit"><a id="sec-3-49"></a><code>lispy-visit</code></h3>
+<h3 id="lispy-visit"><a id="unnumbered-109"></a><code>lispy-visit</code></h3>
 <div class="outline-text-3" id="text-lispy-visit">
 <p>
 Visit another file within this project using Projectile.
@@ -3194,8 +3437,9 @@ Use <kbd>2V</kbd> to call <code>projectile-find-file-other-window</code>.
 <hr  />
 </div>
 </div>
+
 <div id="outline-container-lispy-narrow" class="outline-3">
-<h3 id="lispy-narrow"><a id="sec-3-50"></a><code>lispy-narrow</code></h3>
+<h3 id="lispy-narrow"><a id="unnumbered-110"></a><code>lispy-narrow</code></h3>
 <div class="outline-text-3" id="text-lispy-narrow">
 <p>
 Bound to <kbd>N</kbd>.
@@ -3207,8 +3451,9 @@ Narrow to current sexp or region.
 <hr  />
 </div>
 </div>
+
 <div id="outline-container-lispy-widen" class="outline-3">
-<h3 id="lispy-widen"><a id="sec-3-51"></a><code>lispy-widen</code></h3>
+<h3 id="lispy-widen"><a id="unnumbered-111"></a><code>lispy-widen</code></h3>
 <div class="outline-text-3" id="text-lispy-widen">
 <p>
 Bound to <kbd>W</kbd>.
@@ -3220,8 +3465,9 @@ Forward to <code>widen</code>.
 <hr  />
 </div>
 </div>
+
 <div id="outline-container-lispy-oneline" class="outline-3">
-<h3 id="lispy-oneline"><a id="sec-3-52"></a><code>lispy-oneline</code></h3>
+<h3 id="lispy-oneline"><a id="unnumbered-112"></a><code>lispy-oneline</code></h3>
 <div class="outline-text-3" id="text-lispy-oneline">
 <p>
 Bound to <kbd>O</kbd>.
@@ -3233,8 +3479,9 @@ Turn current sexp into one line.
 <hr  />
 </div>
 </div>
+
 <div id="outline-container-lispy-multiline" class="outline-3">
-<h3 id="lispy-multiline"><a id="sec-3-53"></a><code>lispy-multiline</code></h3>
+<h3 id="lispy-multiline"><a id="unnumbered-113"></a><code>lispy-multiline</code></h3>
 <div class="outline-text-3" id="text-lispy-multiline">
 <p>
 Bound to <kbd>M</kbd>.
@@ -3247,8 +3494,9 @@ Especially useful on results of <code>macroexpand</code>.
 <hr  />
 </div>
 </div>
+
 <div id="outline-container-lispy-view" class="outline-3">
-<h3 id="lispy-view"><a id="sec-3-54"></a><code>lispy-view</code></h3>
+<h3 id="lispy-view"><a id="unnumbered-114"></a><code>lispy-view</code></h3>
 <div class="outline-text-3" id="text-lispy-view">
 <p>
 Bound to <kbd>v</kbd>.
@@ -3261,8 +3509,9 @@ When called twice in a row, recenter back to the original position.
 <hr  />
 </div>
 </div>
+
 <div id="outline-container-lispy-slurp" class="outline-3">
-<h3 id="lispy-slurp"><a id="sec-3-55"></a><code>lispy-slurp</code></h3>
+<h3 id="lispy-slurp"><a id="unnumbered-115"></a><code>lispy-slurp</code></h3>
 <div class="outline-text-3" id="text-lispy-slurp">
 <p>
 Bound to <kbd>&gt;</kbd>.
@@ -3317,8 +3566,9 @@ Example 2:
 <hr  />
 </div>
 </div>
+
 <div id="outline-container-lispy-barf" class="outline-3">
-<h3 id="lispy-barf"><a id="sec-3-56"></a><code>lispy-barf</code></h3>
+<h3 id="lispy-barf"><a id="unnumbered-116"></a><code>lispy-barf</code></h3>
 <div class="outline-text-3" id="text-lispy-barf">
 <p>
 Bound to <kbd>&lt;</kbd>.
@@ -3373,8 +3623,9 @@ Example 2:
 <hr  />
 </div>
 </div>
+
 <div id="outline-container-lispy-other-mode" class="outline-3">
-<h3 id="lispy-other-mode"><a id="sec-3-57"></a><code>lispy-other-mode</code></h3>
+<h3 id="lispy-other-mode"><a id="unnumbered-117"></a><code>lispy-other-mode</code></h3>
 <div class="outline-text-3" id="text-lispy-other-mode">
 <p>
 Bound to <kbd>o</kbd>.
@@ -3432,8 +3683,9 @@ mind about calling the modified <kbd>hjkl</kbd>.
 <hr  />
 </div>
 </div>
+
 <div id="outline-container-lispy-move-left" class="outline-3">
-<h3 id="lispy-move-left"><a id="sec-3-58"></a><code>lispy-move-left</code></h3>
+<h3 id="lispy-move-left"><a id="unnumbered-118"></a><code>lispy-move-left</code></h3>
 <div class="outline-text-3" id="text-lispy-move-left">
 <p>
 Move current expression to the left, outside the current list.
@@ -3441,8 +3693,9 @@ Move current expression to the left, outside the current list.
 <hr  />
 </div>
 </div>
+
 <div id="outline-container-lispy-down-slurp" class="outline-3">
-<h3 id="lispy-down-slurp"><a id="sec-3-59"></a><code>lispy-down-slurp</code></h3>
+<h3 id="lispy-down-slurp"><a id="unnumbered-119"></a><code>lispy-down-slurp</code></h3>
 <div class="outline-text-3" id="text-lispy-down-slurp">
 <p>
 Move current expression to become the first element of the first list below.
@@ -3450,8 +3703,9 @@ Move current expression to become the first element of the first list below.
 <hr  />
 </div>
 </div>
+
 <div id="outline-container-lispy-up-slurp" class="outline-3">
-<h3 id="lispy-up-slurp"><a id="sec-3-60"></a><code>lispy-up-slurp</code></h3>
+<h3 id="lispy-up-slurp"><a id="unnumbered-120"></a><code>lispy-up-slurp</code></h3>
 <div class="outline-text-3" id="text-lispy-up-slurp">
 <p>
 Move current expression to become the last element of the first list above.
@@ -3459,9 +3713,8 @@ Move current expression to become the last element of the first list above.
 <hr  />
 </div>
 </div>
-
 <div id="outline-container-lispy-move-right" class="outline-3">
-<h3 id="lispy-move-right"><a id="sec-3-61"></a><code>lispy-move-right</code></h3>
+<h3 id="lispy-move-right"><a id="unnumbered-121"></a><code>lispy-move-right</code></h3>
 <div class="outline-text-3" id="text-lispy-move-right">
 <p>
 Move current expression to the right, outside the current list.
@@ -3469,9 +3722,8 @@ Move current expression to the right, outside the current list.
 <hr  />
 </div>
 </div>
-
 <div id="outline-container-lispy-amend" class="outline-3">
-<h3 id="lispy-amend"><a id="sec-3-62"></a><code>lispy-amend</code></h3>
+<h3 id="lispy-amend"><a id="unnumbered-122"></a><code>lispy-amend</code></h3>
 <div class="outline-text-3" id="text-lispy-amend">
 <p>
 Break out of special position for amending.
@@ -3482,9 +3734,8 @@ and additional space inserted after the last element of the list.
 <hr  />
 </div>
 </div>
-
 <div id="outline-container-lispy-comment" class="outline-3">
-<h3 id="lispy-comment"><a id="sec-3-63"></a><code>lispy-comment</code></h3>
+<h3 id="lispy-comment"><a id="unnumbered-123"></a><code>lispy-comment</code></h3>
 <div class="outline-text-3" id="text-lispy-comment">
 <p>
 Bound to <kbd>;</kbd>.
@@ -3496,6 +3747,182 @@ With a prefix arg, comment many expressions.
 With a prefix arg and already inside comment, uncomment instead.
 </p>
 <hr  />
+</div>
+</div>
+<div id="outline-container-lispy-clone" class="outline-3">
+<h3 id="lispy-clone"><a id="unnumbered-124"></a><code>lispy-clone</code></h3>
+<div class="outline-text-3" id="text-lispy-clone">
+<p>
+Bound to <kbd>c</kbd>.
+</p>
+
+<p>
+Copy current list or region and paste it below, without changing point
+or mark.
+</p>
+
+<p>
+With a prefix arg, copy that many times.
+</p>
+<hr  />
+</div>
+</div>
+<div id="outline-container-lispy-goto" class="outline-3">
+<h3 id="lispy-goto"><a id="unnumbered-125"></a><code>lispy-goto</code></h3>
+<div class="outline-text-3" id="text-lispy-goto">
+<p>
+Bound to <kbd>g</kbd>.
+</p>
+
+<p>
+Collect the tags (e.g. functions, variables &#x2026;) in current directory
+and offer a helm completion list to jump to a selected tag.
+</p>
+<hr  />
+</div>
+</div>
+<div id="outline-container-lispy-mark-list" class="outline-3">
+<h3 id="lispy-mark-list"><a id="unnumbered-126"></a><code>lispy-mark-list</code></h3>
+<div class="outline-text-3" id="text-lispy-mark-list">
+<p>
+Bound to <kbd>m</kbd>.
+</p>
+
+<p>
+Mark the current sexp.
+When the mark is already active, deactivate it instead.
+</p>
+<hr  />
+</div>
+</div>
+<div id="outline-container-=lispy-raise=" class="outline-3">
+<h3 id="=lispy-raise="><a id="unnumbered-127"></a><code>lispy-raise</code></h3>
+<div class="outline-text-3" id="text-=lispy-raise=">
+<p>
+Bound to <kbd>r</kbd>.
+</p>
+
+<p>
+Use current sexp or region as replacement for its parent.
+</p>
+
+<p>
+Starting with
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">(<span style="color: #7F0055; font-weight: bold;">let</span> ((foo 1))
+  <cursor>(</cursor>+ bar baz))
+</pre>
+</div>
+<p>
+by pressing <kbd>r</kbd>, you get:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp"><cursor>(</cursor>+ bar baz)
+</pre>
+</div>
+<hr  />
+</div>
+</div>
+<div id="outline-container-lispy-move-down" class="outline-3">
+<h3 id="lispy-move-down"><a id="unnumbered-128"></a><code>lispy-move-down</code></h3>
+<div class="outline-text-3" id="text-lispy-move-down">
+<p>
+Bound to <kbd>s</kbd>.
+</p>
+
+<p>
+Move current sexp or region down arg times. Don't exit the parent
+list.
+</p>
+
+<p>
+Starting with
+</p>
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">(<span style="color: #7F0055; font-weight: bold;">progn</span>
+  <cursor>(</cursor>foo)
+  (bar)
+  (baz))
+</pre>
+</div>
+<p>
+by pressing <kbd>s</kbd>, you get:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">(<span style="color: #7F0055; font-weight: bold;">progn</span>
+  (bar)
+  <cursor>(</cursor>foo)
+  (baz))
+</pre>
+</div>
+<hr  />
+</div>
+</div>
+<div id="outline-container-lispy-move-up" class="outline-3">
+<h3 id="lispy-move-up"><a id="unnumbered-129"></a><code>lispy-move-up</code></h3>
+<div class="outline-text-3" id="text-lispy-move-up">
+<p>
+Bound to <kbd>w</kbd>.
+</p>
+
+<p>
+Move current sexp or region up arg times. Don't exit the parent list.
+</p>
+
+<p>
+It's the reciprocal of <a href="#lispy-move-down"><code>lispy-move-down</code></a>.
+</p>
+<hr  />
+</div>
+</div>
+
+
+<div id="outline-container-lispy-teleport" class="outline-3">
+<h3 id="lispy-teleport"><a id="unnumbered-130"></a><code>lispy-teleport</code></h3>
+<div class="outline-text-3" id="text-lispy-teleport">
+<p>
+Bound to <kbd>t</kbd>.
+</p>
+<hr  />
+</div>
+</div>
+
+<div id="outline-container-lispy-undo" class="outline-3">
+<h3 id="lispy-undo"><a id="unnumbered-131"></a><code>lispy-undo</code></h3>
+<div class="outline-text-3" id="text-lispy-undo">
+<p>
+Bound to <kbd>u</kbd>.
+</p>
+
+<p>
+Forward to <code>undo</code>. If the mark is active, deactivate it first.
+</p>
+<hr  />
+</div>
+</div>
+
+<div id="outline-container-=lispy-ace-symbol-replace=" class="outline-3">
+<h3 id="=lispy-ace-symbol-replace="><a id="unnumbered-132"></a><code>lispy-ace-symbol-replace</code></h3>
+<div class="outline-text-3" id="text-=lispy-ace-symbol-replace=">
+<p>
+Bound to <kbd>H</kbd>.
+</p>
+
+<p>
+Calls <a href="#lispy-ace-symbol"><code>lispy-ace-symbol</code></a>, in addition deleting only the selected
+symbol.
+</p>
+<hr  />
+
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
 </div>
 </div>
 </div>
