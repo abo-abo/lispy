@@ -355,7 +355,7 @@ Synopsis for
 find a function and make it echo its doc-string.
 
 1. Use `lispy-goto` "g" to find the function.
-2. Use `lispy-ace-symbol` "h" to mark its doc-string.
+2. Use `lispy-ace-symbol` "a" to mark its doc-string.
 3. Use `lispy-clone` "c" to clone region. Note that the region doesn't disappear.
 4. Use `lispy-parens` "(" to wrap region.
 5. Insert "message " and use `lispy-forward` "]" to exit the list and move into special.
