@@ -976,6 +976,9 @@ otherwise the whole string is unquoted."
         (arg
          (lispy-stringify))
 
+        ((looking-back "?\\\\")
+         (self-insert-command 1))
+
         (t
          (lispy--space-unless "^\\|\\s-\\|\\s(\\|[#]")
          (insert "\"\"")
