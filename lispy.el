@@ -962,8 +962,17 @@ When inside string, if ARG is nil quotes are quoted,
 otherwise the whole string is unquoted."
   (interactive "P")
   (cond ((region-active-p)
-         (lispy--surround-region "\"" "\""))
-
+         (let ((str (lispy--string-dwim)))
+           (if (and arg
+                    (= (aref str 0) ?\")
+                    (= (aref str (1- (length str))) ?\"))
+               (let* ((bnd (cons (region-beginning)
+                                 (region-end)))
+                      (str (lispy--string-dwim bnd)))
+                 (deactivate-mark)
+                 (delete-region (car bnd) (cdr bnd))
+                 (insert (read str)))
+             (lispy--surround-region "\"" "\""))))
         ((lispy--in-string-p)
          (if arg
              (let* ((bnd (lispy--bounds-string))
