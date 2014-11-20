@@ -166,9 +166,9 @@ some of the dedicated commands:
 
 Key Binding     | Description
 ----------------|-----------------------------------------------------------
-`］`            | `lispy-forward` - move to the end of the closest list
-`［`            | `lispy-backward` - move to the start of the closest list
-`C-3`           | `lispy-out-forward` - move exit current list forwards
+`］`            | `lispy-forward` - move to the end of the closest list, analogous to `C-M-n` (`forward-list`)
+`［`            | `lispy-backward` - move to the start of the closest list, analogous to `C-M-p` (`backward-list`)
+`C-3`           | `lispy-out-forward` - exit current list forwards, analogous to `up-list`
 `)`             | `lispy-out-forward-nostring` exit current list forwards, but self-insert in strings and comments
 
 These are the few Lispy commands that don't care whether the point is
