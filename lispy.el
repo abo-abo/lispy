@@ -3958,6 +3958,37 @@ In case 'setq isn't present, add it."
     (eval-expression (read str))
     (other-window -1)))
 
+(lispy-defverb
+ "other"
+ (("h" lispy-move-left)
+  ("j" lispy-down-slurp)
+  ("k" lispy-up-slurp)
+  ("l" lispy-move-right)
+  ("SPC" lispy-other-space)))
+
+(lispy-defverb
+ "goto"
+ (("d" lispy-goto)
+  ("f" lispy-goto-local)
+  ("r" lispy-goto-recursive)
+  ("c" lispy-follow)
+  ("b" pop-global-mark)
+  ("q" lispy-quit)
+  ("j" lispy-goto-def-down)
+  ("a" lispy-goto-def-ace)))
+
+(lispy-defverb
+ "transform"
+ (("o" lispy-oneline)
+  ("m" lispy-multiline)
+  ("s" lispy-stringify)
+  ("d" lispy-to-defun)
+  ("l" lispy-to-lambda)
+  ("i" lispy-to-ifs)
+  ("c" lispy-to-cond)
+  ("f" lispy-flatten)
+  ("a" lispy-teleport)))
+
 (let ((map lispy-mode-map))
   ;; ——— globals: navigation ——————————————————
   (define-key map (kbd "]") 'lispy-forward)
@@ -4059,37 +4090,6 @@ In case 'setq isn't present, add it."
   ;; ——— locals: digit argument ———————————————
   (mapc (lambda (x) (lispy-define-key map (format "%d" x) 'digit-argument))
         (number-sequence 0 9)))
-
-(lispy-defverb
- "other"
- (("h" lispy-move-left)
-  ("j" lispy-down-slurp)
-  ("k" lispy-up-slurp)
-  ("l" lispy-move-right)
-  ("SPC" lispy-other-space)))
-
-(lispy-defverb
- "goto"
- (("d" lispy-goto)
-  ("f" lispy-goto-local)
-  ("r" lispy-goto-recursive)
-  ("c" lispy-follow)
-  ("b" pop-global-mark)
-  ("q" lispy-quit)
-  ("j" lispy-goto-def-down)
-  ("a" lispy-goto-def-ace)))
-
-(lispy-defverb
- "transform"
- (("o" lispy-oneline)
-  ("m" lispy-multiline)
-  ("s" lispy-stringify)
-  ("d" lispy-to-defun)
-  ("l" lispy-to-lambda)
-  ("i" lispy-to-ifs)
-  ("c" lispy-to-cond)
-  ("f" lispy-flatten)
-  ("a" lispy-teleport)))
 
 (defun lispy-setup-new-bindings ()
   "Change to new-style bindings.
