@@ -191,6 +191,7 @@
 (require 'newcomment)
 (require 'lispy-inline)
 (require 'iedit)
+(require 'delsel)
 
 ;; ——— Customization ———————————————————————————————————————————————————————————
 (defgroup lispy nil
@@ -1616,7 +1617,7 @@ Comments will be moved ahead of sexp."
        (delete-region (car bnd) (cdr bnd))
        (lispy--insert-1
         (butlast
-         (mapcan (lambda (y) (list y '(ly-raw newline)))
+         (cl-mapcan (lambda (y) (list y '(ly-raw newline)))
                  (lispy--read str))))))))
 
 (defun lispy-comment (&optional arg)
@@ -1768,7 +1769,8 @@ Sexp is obtained by exiting list ARG times."
    (lambda () (or (not (lispy--in-string-or-comment-p)) (looking-back ".\"")))
    (lambda () (forward-char 1) (call-interactively 'lispy-goto-symbol))))
 
-(declare-function cider-jump-to-def "ext:cider")
+(declare-function cider--jump-to-loc-from-info "ext:cider")
+(declare-function cider-var-info "ext:cider")
 (declare-function slime-edit-definition "ext:slime")
 (declare-function lispy--clojure-resolve "ext:lispy")
 (declare-function View-quit "view")
@@ -2161,7 +2163,7 @@ If already there, return it to previous position."
                               (cons x!
                                     (let ((expr x!))
                                       (edebug-eval expr))))
-                            (delq '&optional (delq '&rest (preceding-sexp)))))
+                            (delq '&optional (delq '&rest (lispy--preceding-sexp)))))
                     (wnd (current-window-configuration))
                     (pt (point)))
                 (run-with-timer
@@ -2207,6 +2209,10 @@ ARG is 4: `eval-defun' on the function from this sexp."
       (when (consp def)
         (or (eq 'macro (car def))
             (and (autoloadp def) (memq (nth 4 def) '(macro t))))))))
+
+(if (version< emacs-version "25.1")
+    (defalias 'lispy--preceding-sexp 'preceding-sexp)
+  (defalias 'lispy--preceding-sexp 'elisp--preceding-sexp))
 
 (defun lispy-flatten (arg)
   "Inline a function at the point of its call.
@@ -3881,7 +3887,7 @@ return the corresponding `setq' expression."
       (if (looking-at lispy-left)
           (forward-list)
         (up-list))
-      (let ((tsexp (preceding-sexp)))
+      (let ((tsexp (lispy--preceding-sexp)))
         (backward-list 1)
         (cond
           ((looking-back "(\\(?:let\\|lexical-let\\)\\*?[ \t]*")

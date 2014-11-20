@@ -23,6 +23,7 @@
 ;;; Code:
 
 (require 'slime)
+(require 'slime-repl)
 
 (defun lispy--eval-lisp (str)
   "Eval STR as Common Lisp code."
