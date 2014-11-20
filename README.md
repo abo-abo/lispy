@@ -1,3 +1,36 @@
+<!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc/generate-toc again -->
+**Table of Contents**
+
+- [Introduction](#introduction)
+    - [Relation to vi](#relation-to-vi)
+    - [Features](#features)
+    - [Function reference](#function-reference)
+- [Getting Started](#getting-started)
+    - [Installation instructions](#installation-instructions)
+    - [Operating on lists](#operating-on-lists)
+        - [How to get into list-editing mode (special)](#how-to-get-into-list-editing-mode-special)
+        - [Digit keys in special](#digit-keys-in-special)
+        - [How to get out of special](#how-to-get-out-of-special)
+        - [List commands overview](#list-commands-overview)
+        - [Navigating within a top-level list with `ace-jump`](#navigating-within-a-top-level-list-with-ace-jump)
+    - [Operating on regions](#operating-on-regions)
+        - [Ways to activate region](#ways-to-activate-region)
+        - [Move region around](#move-region-around)
+        - [Switch to other side of the region](#switch-to-other-side-of-the-region)
+        - [Grow/shrink region](#growshrink-region)
+        - [Commands that operate on region](#commands-that-operate-on-region)
+    - [IDE-like features](#ide-like-features)
+        - [`lispy-describe-inline`](#lispy-describe-inline)
+        - [`lispy-arglist-inline`](#lispy-arglist-inline)
+        - [`lispy-eval`](#lispy-eval)
+        - [`lispy-eval-and-insert`](#lispy-eval-and-insert)
+        - [`lispy-follow`](#lispy-follow)
+        - [`lispy-goto`](#lispy-goto)
+        - [`lispy-goto-local`](#lispy-goto-local)
+- [Screencasts](#screencasts)
+
+<!-- markdown-toc end -->
+
 # Introduction
 
 This package implements a special key binding method and various commands that are
@@ -20,12 +53,12 @@ Here's a quote from Wikipedia on how vi works, in case you don't know:
 Here's an illustration of Emacs, vi and lispy bindings for inserting a
 char and calling a command:
 
-    |                   | insert "j" | forward-list |
-    |-------------------+------------+--------------|
-    | Emacs             | j          | C-M-n        |
-    | vi in insert mode | j          | impossible   |
-    | vi in normal mode | impossible | j            |
-    | lispy             | j          | j            |
+                  | insert "j" | forward-list
+------------------|------------|--------------
+Emacs             | j          | C-M-n
+vi in insert mode | j          | impossible
+vi in normal mode | impossible | j
+lispy             | j          | j
 
 Advantages/disadvantages:
 
@@ -43,12 +76,17 @@ position or the region state:
   region is active
 - otherwise it's in insert mode
 
-But if you ask: "what if I want to insert when the point is
-before/after paren or the region is active?". The answer is that you
-don't want to because of how LISP code is structured, i.e you don't want to write this:
+But if you ask:
+
+> What if I want to insert when the point is before/after paren or the region is active?
+
+The answer is that because of the LISP syntax you don't want to write this:
 
     j(progn
        (forward-char 1))k
+
+Also, Emacs does nothing special by default when the region is active
+and you press a normal key, so new commands can be called in that situation.
 
 ## Features
 
@@ -81,9 +119,9 @@ don't want to because of how LISP code is structured, i.e you don't want to writ
     - `edebug` (`x e`)
 
 ## Function reference
-Available at http://abo-abo.github.io/lispy/.
+Most functions are cataloged and described at http://abo-abo.github.io/lispy/.
 
-
+# Getting Started
 ## Installation instructions
 It's easiest to install this from [MELPA](http://melpa.milkbox.net/).
 Here's a minimal MELPA configuration for your `~/.emacs`:
@@ -97,65 +135,76 @@ To have `lispy-mode` activated automatically, use something like this:
 
     (add-hook 'emacs-lisp-mode-hook (lambda () (lispy-mode 1)))
 
-## Special positions and key bindings
+## Operating on lists
 
-Due to the structure of Lisp syntax it's very rare for the
-programmer to want to insert characters right before "(" or right
-after ")". Thus unprefixed printable characters can be used to call
-commands when the point is at one of these locations, which are
-further referred to as special. See also [Regions are special too](#regions-are-special-too).
+### How to get into list-editing mode (special)
 
-Conveniently, when located at special position it's very clear to
-which sexp the list-manipulating command will be applied to, what
-the result be and where the point should end up afterwards.  You
-can enhance this effect with `show-paren-mode` or similar.
+The plain keys will call commands when is positioned before paren,
+after paren, or the region is active. When one of the first two are
+true, I say that the point is special.
 
-Here's an illustration to this effect, with `lispy-clone` ("*"
+When the point is special, it's very clear to which sexp the
+list-manipulating command will be applied to, what the result be and
+where the point should end up afterwards.  You can enhance this effect
+with `show-paren-mode` or similar.
+
+Here's an illustration to this effect, with `lispy-clone` (`|`
 represents the point):
 
-    |--------------------+-----+--------------------|
-    | before             | key | after              |
-    |--------------------+-----+--------------------|
-    |  (looking-at "(")* |  c  |  (looking-at "(")  |
-    |                    |     |  (looking-at "(")* |
-    |--------------------+-----+--------------------|
-    | *(looking-at "(")  |  c  | *(looking-at "(")  |
-    |                    |     |  (looking-at "(")  |
-    |--------------------+-----+--------------------|
+before              | key | after
+--------------------|-----|------------------------
+`(looking-at "(")|` |  c  |  `(looking-at "(")`
+                    |     |  `(looking-at "(")|`
 
-## Digit keys
+before              | key | after
+--------------------|-----|------------------------
+`|(looking-at "(")` |  c  |  `|(looking-at "(")`
+                    |     |   ` (looking-at "(")`
+
+You can use plain Emacs navigation commands to get into special, or you can use
+some of the dedicated commands:
+
+Key Binding     | Description
+----------------|-----------------------------------------------------------
+`］`            | `lispy-forward` - move to the end of the closest list
+`［`            | `lispy-backward` - move to the start of the closest list
+`C-3`           | `lispy-out-forward` - move exit current list forwards
+`)`             | `lispy-out-forward-nostring` exit current list forwards, but self-insert in strings and comments
+
+These are the few Lispy commands that don't care whether the point is
+special or not. Other such bindings are `DEL`, `C-d`, `C-k`.
+
+You want to get into special for manipulating/navigating lists.
+If you want to manipulate symbols, use region selection instead.
+
+### Digit keys in special
 
 When special, the digit keys call `digit-argument` which is very
 useful since most Lispy commands accept a numeric argument.
-For instance, "3c" is equivalent to "ccc" (clone sexp 3 times), and
-"4j" is equivalent to "jjjj" (move point 4 sexps down).  Some useful
-applications are "9l" and "9a" - they exit list forwards and
-backwards respectively at most 9 times which makes them effectively
-equivalent to `end-of-defun` and `beginning-of-defun`.
+For instance, `3c` is equivalent to `ccc` (clone sexp 3 times), and
+`4j` is equivalent to `jjjj` (move point 4 sexps down).
 
-## How to get into special
+Some useful applications are `9l` and `9h` - they exit list forwards
+and backwards respectively at most 9 times which makes them
+effectively equivalent to `end-of-defun` and `beginning-of-defun`.  Or
+you can move to the last sexp of the file with `999j`.
 
-To move the point into a special position, use:
-
-    "]" - calls `lispy-forward`
-    "[" - calls `lispy-backward`
-    "C-3" - calls `lispy-out-forward` (exit current list forwards)
-    ")" - calls `lispy-out-forward-nostring` (exit current list
-          forwards, but self-insert in strings and comments)
-
-These are the few Lispy commands that don't care whether the point
-is special or not. Other such bindings are "DEL", "C-d", "C-k".
-
-## How to get out of special
+### How to get out of special
 
 To get out of the special position, you can use any of the good-old
-navigational commands such as "C-f" or "C-n".
-Additionally "SPC" will break out of special to get around the
-situation when you have the point between open parens like this
-"(|(" and want to start inserting. "SPC" will change the code to
-this: "(| (".
+navigational commands such as `C-f` or `C-n`.
+Additionally `SPC` will break out of special to get around the
+situation when you have the point between the open parens like this
 
-## Command reference
+    (|(
+
+and want to start inserting; `SPC` will change the code to
+this:
+
+    (| (
+
+### List commands overview
+The full reference is [here](http://abo-abo.github.io/lispy/).
 
 A lot of Lispy commands come in pairs: one reverses the other.
 Some examples are:
@@ -216,20 +265,20 @@ Here's a list of IDE-like commands ([details here](#ide-like-features)):
 Most special commands will leave the point special after they're
 done.  This allows to chain them as well as apply them
 continuously by holding the key.  Some useful hold-able keys are
-"jkf<>cws;".
-Not so useful, but fun is "/": start it from "|(" position and hold
+`jkf<>cws;`.
+Not so useful, but fun is `/`: start it from `|(` position and hold
 until all your Lisp code is turned into Python :).
 
-## Navigating within a top-level list with `ace-jump`
+### Navigating within a top-level list with `ace-jump`
 
-If you have `ace-jump-mode` installed, you can use "q" to jump
+If you have `ace-jump-mode` installed, you can use `q` to jump
 around a top-level list (usually a `defun`).
 You can usually get away with typing just one lower case char to navigate
 and the position remains special.
-And since the ordering always starts from `a`, "qa" is another synonym
+And since the ordering always starts from "a", `qa` is another synonym
 for `beginning-of-defun`.
 
-## Regions are special too
+## Operating on regions
 Sometimes the expression that you want to operate on isn't bounded by parens.
 In that case you can mark it with a region and operate on that.
 
@@ -344,7 +393,7 @@ Works out of the box for Elisp, Scheme and Common Lisp.
 [clojure-semantic](https://github.com/kototama/clojure-semantic)
 is required for Clojure.
 
-## `lispy-goto-local`
+### `lispy-goto-local`
 Bound to `G` while in special. Like `lispy-goto`, but works only on current file.
 
 # Screencasts
