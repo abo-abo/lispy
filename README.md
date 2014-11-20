@@ -243,15 +243,15 @@ While not in special:
 - Mark a symbol at point with `lispy-mark-symbol` "M-m".
 - Mark containing expression (list or string or comment) with `lispy-mark` "C-M-,".
 
-## Move region around
+### Move region around
 The arrow keys "j"/"k" will move the region up/down within the current list.
 The actual code will not be changed.
 
-## Switch to other side of the region
+### Switch to other side of the region
 Use `lispy-different` "d" to switch between different sides of the region. The side is important since
 the grow/shrink operations apply to current side of the region.
 
-## Grow/shrink region
+### Grow/shrink region
 
 Use a combination of:
 - `lispy-slurp` ">"- extend by one sexp from the current side. Use digit
