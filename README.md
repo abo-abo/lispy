@@ -129,8 +129,8 @@ Here's a minimal MELPA configuration for your `~/.emacs`:
     (package-initialize)
     (add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/"))
 
-Afterwards, do M-x `package-install`, type in `lispy` and RET.
-You can now call M-x `lispy-mode` for any buffer with a Lisp dialect source.
+Afterwards, do `M-x` `package-install`, type in `lispy` and `RET`.
+You can now call `M-x` `lispy-mode` for any buffer with a Lisp dialect source.
 To have `lispy-mode` activated automatically, use something like this:
 
     (add-hook 'emacs-lisp-mode-hook (lambda () (lispy-mode 1)))
@@ -330,8 +330,7 @@ child of marked list, use `i` (`lispy-tab`).
 - `C` (`lispy-convolute`) - exchange the order of application of two
   sexps that contain point.
 - `n` (`lispy-new-copy`) - copy region as kill without deactivating
-the region.  Useful to search for currently marked symbol with "n g
-C-y".
+the region.  Useful to search for currently marked symbol with `n g C-y`.
 
 
 ## IDE-like features
