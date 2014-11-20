@@ -27,7 +27,7 @@
 (defun lispy--eval-clojure (str)
   "Eval STR as Clojure code."
   (nrepl-dict-get
-   (nrepl-send-string-sync str)
+   (nrepl-sync-request:eval str)
    "value"))
 
 (defun lispy--clojure-resolve (symbol)
