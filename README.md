@@ -284,57 +284,54 @@ In that case you can mark it with a region and operate on that.
 
 ### Ways to activate region
 While in special:
-- Mark a sexp with `lispy-mark-list` "m".
-- Mark a symbol within sexp with `lispy-ace-symbol` "a".
+- Mark a sexp with `m` (`lispy-mark-list`)
+- Mark a symbol within sexp `a`(`lispy-ace-symbol`).
 
 While not in special:
-- `set-mark-command` "C-SPC".
-- Mark a symbol at point with `lispy-mark-symbol` "M-m".
-- Mark containing expression (list or string or comment) with `lispy-mark` "C-M-,".
+- `C-SPC` (`set-mark-command`)
+- mark a symbol at point with `M-m` (`lispy-mark-symbol`)
+- mark containing expression (list or string or comment) with `C-M-,` (`lispy-mark`)
 
 ### Move region around
-The arrow keys "j"/"k" will move the region up/down within the current list.
-The actual code will not be changed.
+
+The arrow keys `j`/`k` will move the region up/down within the current
+list.  The actual code will not be changed.
 
 ### Switch to other side of the region
-Use `lispy-different` "d" to switch between different sides of the region. The side is important since
-the grow/shrink operations apply to current side of the region.
+
+Use `d` (`lispy-different`) to switch between different sides of the
+region. The side is important since the grow/shrink operations apply
+to current side of the region.
 
 ### Grow/shrink region
 
 Use a combination of:
-- `lispy-slurp` ">"- extend by one sexp from the current side. Use digit
+- `>` (`lispy-slurp`) - extend by one sexp from the current side. Use digit
   argument to extend by several sexps.
-- `lispy-barf` "<" - shrink by one sexp from the current side. Use digit
+- `<` (`lispy-barf`) - shrink by one sexp from the current side. Use digit
   argument to shrink by several sexps.
 
 The other two arrow keys will mark the parent list of the current region:
 
-- `lispy-out-backward` "h" - mark the parent list with the point on the left
-- `lispy-out-forward` "l" - mark the parent list with the point on the right
+- `h` (`lispy-out-backward`) - mark the parent list with the point on the left
+- `l` (`lispy-out-forward`) - mark the parent list with the point on the right
 
-To do the reverse of the previous operation, i.e. to mark the first child of marked list, use:
-
-- `lispy-tab` "i"
+To do the reverse of the previous operation, i.e. to mark the first
+child of marked list, use `i` (`lispy-tab`).
 
 ### Commands that operate on region
-- `lispy-mark-list` "m"
-  Deactivate region.
-- `lispy-clone` "c"
-  Clone region and keep it active.
-- `lispy-move-down` "s"
-  Move region one sexp down.
-- `lispy-move-up` "w".
-  Move region one sexp up.
-- `lispy-undo` "u"
-  Deactivate region and undo.
-- `lispy-teleport` "t"
-  Move region inside the sexp you select with `lispy-ace-paren`.
-- `lispy-convolute` "C"
-Exchange the order of application of two sexps that contain point.
-- `lispy-new-copy` "n"
-Copy region as kill without deactivating the region.
-Useful to search for currently marked symbol with "n g C-y".
+- `m` (`lispy-mark-list`) - deactivate region
+- `c` (`lispy-clone`) - clone region and keep it active
+- `s` (`lispy-move-down`) - move region one sexp down
+- `w` (`lispy-move-up`) - move region one sexp up
+- `u` (`lispy-undo`) - deactivate region and undo
+- `t` (`lispy-teleport`) - move region inside the sexp you select with
+  `lispy-ace-paren`.
+- `C` (`lispy-convolute`) - exchange the order of application of two
+  sexps that contain point.
+- `n` (`lispy-new-copy`) - copy region as kill without deactivating
+the region.  Useful to search for currently marked symbol with "n g
+C-y".
 
 
 ## IDE-like features
