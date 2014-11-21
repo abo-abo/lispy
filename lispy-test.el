@@ -749,6 +749,8 @@ Insert KEY if there's no command."
 
 (ert-deftest lispy-parens ()
   (should (string= (lispy-with "'|(foo bar)" "2(")
+                   "'(| (foo bar))"))
+  (should (string= (lispy-with "'(foo bar)|" "2(")
                    "'(| (foo bar))")))
 
 (ert-deftest lispy-to-ifs ()

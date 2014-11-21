@@ -935,6 +935,8 @@ When this function is called:
               (backward-char))
             (backward-char))
            (t
+            (when (looking-back lispy-right)
+              (backward-list))
             (insert ,left)
             (unless (looking-at " ")
               (insert " "))
