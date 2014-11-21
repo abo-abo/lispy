@@ -2289,8 +2289,10 @@ With ARG, use the contents of `lispy-store-region-and-buffer' instead."
 If the region is active, replace instead of yanking."
   (interactive)
   (if (region-active-p)
-      (progn
-        (delete-active-region)
+      (let ((bnd (lispy--bounds-dwim)))
+        (deactivate-mark)
+        (delete-region (car bnd)
+                       (cdr bnd))
         (yank)
         (lispy-out-forward 1))
     (yank)))
