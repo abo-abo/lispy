@@ -209,24 +209,25 @@ this:
 ### List commands overview
 The full reference is [here](http://abo-abo.github.io/lispy/).
 
-A lot of Lispy commands come in pairs: one reverses the other.
-Some examples are:
+#### Reversible commands
 
-    |-----+--------------------------+------------+-------------------|
-    | key | command                  | key        | command           |
-    |-----+--------------------------+------------+-------------------|
-    | j   | `lispy-down'             | k          | `lispy-up'        |
-    | s   | `lispy-move-down'        | w          | `lispy-move-up'   |
-    | >   | `lispy-slurp'            | <          | `lispy-barf'      |
-    | c   | `lispy-clone'            | C-d or DEL |                   |
-    | C   | `lispy-convolute'        | C          | reverses itself   |
-    | d   | `lispy-different'        | d          | reverses itself   |
-    | M-j | `lispy-split'            | +          | `lispy-join'      |
-    | O   | `lispy-oneline'          | M          | `lispy-multiline' |
-    | S   | `lispy-stringify'        | C-u "      | `lispy-quotes'    |
-    | ;   | `lispy-comment'          | C-u ;      | `lispy-comment'   |
-    | xi  | `lispy-to-ifs'           | xc         | `lispy-to-cond'   |
-    |-----+--------------------------+------------+-------------------|
+A lot of Lispy commands come in pairs - one reverses the other:
+
+ key   | command                  | key            | command
+-------|--------------------------|----------------|-----------------a
+ `j`   | `lispy-down`             | `k`            | `lispy-up`
+ `s`   | `lispy-move-down`        | `w`            | `lispy-move-up`
+ `>`   | `lispy-slurp`            | `<`            | `lispy-barf`
+ `c`   | `lispy-clone`            | `C-d` or `DEL` |
+ `C`   | `lispy-convolute`        | `C`            | reverses itself
+ `d`   | `lispy-different`        | `d`            | reverses itself
+ `M-j` | `lispy-split`            | `+`            | `lispy-join`
+ `O`   | `lispy-oneline`          | `M`            | `lispy-multiline`
+ `S`   | `lispy-stringify`        | `C-u "`        | `lispy-quotes`
+ `;`   | `lispy-comment`          | `C-u ;`        | `lispy-comment`
+ `xi`  | `lispy-to-ifs`           | `xc`           | `lispy-to-cond`
+
+#### Inserting pairs
 
 Here's a list of commands for inserting [pairs](http://abo-abo.github.io/lispy/#lispy-pair):
 
@@ -247,18 +248,20 @@ in addition to self-inserting:
   `^`  | `lispy-hat`
  `C-m` | `lispy-newline-and-indent`
 
-Here's a list of IDE-like commands ([details here](#ide-like-features)):
+#### List of IDE-like commands ([details here](#ide-like-features))
 
-    |-----+------------------------------------|
-    | C-1 | `lispy-describe-inline`            |
-    | C-2 | `lispy-arglist-inline`             |
-    | e   | `lispy-eval`                       |
-    | E   | `lispy-eval-and-insert`            |
-    | D   | `lispy-describe`                   |
-    | g   | `lispy-goto`                       |
-    | G   | `lispy-goto-local`                 |
-    | F   | `lispy-follow`                     |
-    |-----+------------------------------------|
+ key   | command
+-------|----------------------------------
+ `C-1` | `lispy-describe-inline`
+ `C-2` | `lispy-arglist-inline`
+ `e`   | `lispy-eval`
+ `E`   | `lispy-eval-and-insert`
+ `D`   | `lispy-describe`
+ `g`   | `lispy-goto`
+ `G`   | `lispy-goto-local`
+ `F`   | `lispy-follow`
+
+#### Command chaining
 
 Most special commands will leave the point special after they're
 done.  This allows to chain them as well as apply them
@@ -267,14 +270,41 @@ continuously by holding the key.  Some useful hold-able keys are
 Not so useful, but fun is `/`: start it from `|(` position and hold
 until all your Lisp code is turned into Python :).
 
-### Navigating within a top-level list with `ace-jump`
+#### Navigating with `ace-jump-mode`-related commands
 
-If you have `ace-jump-mode` installed, you can use `q` to jump
-around a top-level list (usually a `defun`).
-You can usually get away with typing just one lower case char to navigate
-and the position remains special.
-And since the ordering always starts from "a", `qa` is another synonym
-for `beginning-of-defun`.
+ key   | command
+-------|----------------------------------
+ `q`   | `lispy-ace-paren`
+ `Q`   | `lispy-ace-char`
+ `a`   | `lispy-ace-symbol`
+ `H`   | `lispy-ace-symbol-replace`
+ `-`   | `lispy-ace-subword`
+
+These functions narrow down the number of jump candidates of of
+`ace-jump-mode`.
+
+For instance, with `q` you don't need to select which char to jump to,
+since it will always be "(". Not only that, but the "(" will also
+belong to the current top-level form. So if you're editing a `defun`,
+you'll be able to jump to any "(" in the current `defun`.
+
+`a` (`lispy-ace-symbol`) will let you select which symbol to mark
+within current top-level form. This can be followed up with e.g.
+eval, describe, follow, raise etc. Or you can simply `m` to deactivate
+the mark and edit from there.
+
+`-` (`lispy-ace-subword`) is a niche command for a neat combo. Start with:
+
+    (buffer-substring-no-properties
+     (region-beginning)|)
+
+Type `c`, `-`, `b` and `C-d` to get:
+
+    (buffer-substring-no-properties
+     (region-beginning)
+     (region-|))
+
+Fill `end` to finish the statement.
 
 ## Operating on regions
 Sometimes the expression that you want to operate on isn't bounded by parens.
