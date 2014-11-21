@@ -214,7 +214,7 @@ The full reference is [here](http://abo-abo.github.io/lispy/).
 A lot of Lispy commands come in pairs - one reverses the other:
 
  key   | command                  | key            | command
--------|--------------------------|----------------|-----------------a
+-------|--------------------------|----------------|-----------------------
  `j`   | `lispy-down`             | `k`            | `lispy-up`
  `s`   | `lispy-move-down`        | `w`            | `lispy-move-up`
  `>`   | `lispy-slurp`            | `<`            | `lispy-barf`
