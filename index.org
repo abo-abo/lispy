@@ -116,7 +116,7 @@
 | M   | [[#lispy-multiline][lispy-multiline]]          |
 | N   | [[#lispy-narrow][lispy-narrow]]             |
 | O   | [[#lispy-oneline][lispy-oneline]]            |
-| P   | unbound                  |
+| P   | [[#lispy-paste][lispy-paste]]              |
 | Q   | ace-char                 |
 | R   | raise-some               |
 | S   | stringify                |
@@ -2388,7 +2388,6 @@ Bound to ~u~.
 
 Forward to =undo=. If the mark is active, deactivate it first.
 -----
-
 ** =lispy-ace-symbol-replace=
 :PROPERTIES:
 :CUSTOM_ID: =lispy-ace-symbol-replace=
@@ -2398,6 +2397,17 @@ Bound to ~H~.
 
 Calls [[#lispy-ace-symbol][=lispy-ace-symbol=]], in addition deleting only the selected
 symbol.
+-----
+
+** =lispy-paste=
+   :PROPERTIES:
+   :CUSTOM_ID: lispy-paste
+   :END:
+
+Bound to ~P~.
+
+When region is active, replace it with current kill.
+Forward to =yank= otherwise.
 -----
 
 #+BEGIN_HTML

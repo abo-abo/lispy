@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
 <title>lispy.el documentation</title>
-<!-- 2014-11-19 Wed 18:19 -->
+<!-- 2014-11-21 Fri 12:17 -->
 <meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta  name="generator" content="Org-mode" />
 <meta  name="author" content="Oleh" />
@@ -449,7 +449,7 @@
 
 <tr>
 <td class="left">P</td>
-<td class="left">unbound</td>
+<td class="left"><a href="#lispy-paste">lispy-paste</a></td>
 </tr>
 
 <tr>
@@ -3906,7 +3906,6 @@ Forward to <code>undo</code>. If the mark is active, deactivate it first.
 <hr  />
 </div>
 </div>
-
 <div id="outline-container-=lispy-ace-symbol-replace=" class="outline-3">
 <h3 id="=lispy-ace-symbol-replace="><a id="unnumbered-132"></a><code>lispy-ace-symbol-replace</code></h3>
 <div class="outline-text-3" id="text-=lispy-ace-symbol-replace=">
@@ -3917,6 +3916,21 @@ Bound to <kbd>H</kbd>.
 <p>
 Calls <a href="#lispy-ace-symbol"><code>lispy-ace-symbol</code></a>, in addition deleting only the selected
 symbol.
+</p>
+<hr  />
+</div>
+</div>
+
+<div id="outline-container-lispy-paste" class="outline-3">
+<h3 id="lispy-paste"><a id="unnumbered-133"></a><code>lispy-paste</code></h3>
+<div class="outline-text-3" id="text-lispy-paste">
+<p>
+Bound to <kbd>P</kbd>.
+</p>
+
+<p>
+When region is active, replace it with current kill.
+Forward to <code>yank</code> otherwise.
 </p>
 <hr  />
 
