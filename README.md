@@ -225,17 +225,14 @@ Some examples are:
     | xi  | `lispy-to-ifs'           | xc         | `lispy-to-cond'   |
     |-----+--------------------------+------------+-------------------|
 
-Here's a list of commands for inserting pairs:
+Here's a list of commands for inserting [pairs](http://abo-abo.github.io/lispy/#lispy-pair):
 
-    |-----+------------------------------------|
-    | key | command                            |
-    |-----+------------------------------------|
-    |  (  | `lispy-parens'                     |
-    |  {  | `lispy-braces'                     |
-    |  }  | `lispy-brackets'                   |
-    |  "  | `lispy-quotes'                     |
-    |-----+------------------------------------|
-
+key      | command
+---------|-----------------------------------------------------------
+  `(`    | [`lispy-parens'](http://abo-abo.github.io/lispy/#lispy-parens)
+  `{`    | [`lispy-braces'](http://abo-abo.github.io/lispy/#lispy-braces)
+  `}`    | [`lispy-brackets'](http://abo-abo.github.io/lispy/#lispy-brackets)
+  `"`    | [`lispy-quotes'](http://abo-abo.github.io/lispy/#lispy-quotes)
 
 Here's a list of modified insertion commands that handle whitespace
 in addition to self-inserting:
