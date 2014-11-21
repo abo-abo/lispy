@@ -182,7 +182,7 @@ to move =arg= times.
 It that case, move as many times as possible.
 
 Return =t= if could move at least once, otherwise
-call =lispy-out-backward= and return =nil=.
+call [[#lispy-out-backward][=lispy-out-backward=]] return =nil=.
 
 Unlike =backward-list=, parens in strings and comments are ignored.
 -----
@@ -238,13 +238,12 @@ When you want to insert a single character from the pair, use ~C-q~.
 
 Bound to ~h~.
 
-
 Takes a numeric prefix =arg= and moves up backward list =arg= times or
 until error. This is a combination of =arg= times [[#lispy-out-forward][=lispy-out-forward=]] and once
 [[#lispy-different][=lispy-different=]].
 
-When the region is active, the region will be moved up backward =arg=
-times:
+When the region is active, the region (not the code) will move up
+backward =arg= times:
 
 #+HTML: <table><tbody><tr><td>
 #+BEGIN_HTML
@@ -252,12 +251,21 @@ times:
 <!-- Created by htmlize-1.47 in css mode. -->
 <html>
   <head>
-    <title>temp</title>
+    <title>temp.el</title>
     <style type="text/css">
     <!--
       body {
         color: #000000;
         background-color: #ffffff;
+      }
+      .doc {
+        /* font-lock-doc-face */
+        color: #2A00FF;
+      }
+      .function-name {
+        /* font-lock-function-name-face */
+        color: #000000;
+        font-weight: bold;
       }
       .keyword {
         /* font-lock-keyword-face */
@@ -268,6 +276,10 @@ times:
         /* region */
         color: #ffffff;
         background-color: #f9b593;
+      }
+      .string {
+        /* font-lock-string-face */
+        color: #2A00FF;
       }
 
       a {
@@ -284,25 +296,39 @@ times:
   </head>
   <body>
     <pre>
-(<span class="keyword">progn</span>
-  <span class="region">(foo)</span>)</pre>
+(<span class="keyword">defun</span> <span class="function-name">lispy-out-forward</span> (arg)
+  <span class="doc">"Move outside list forwards ARG times.
+Return nil on failure, t otherwise."</span>
+  (interactive <span class="string">"p"</span>)
+  (<span class="keyword">if</span> (region-active-p)
+      <span class="region">(lispy-mark-right arg)</span>
+    (lispy--out-forward arg)))</pre>
   </body>
 </html>
 #+END_HTML
 #+HTML: </td><td>
--> ~a~ ->
+-> ~h~ ->
 #+HTML: </td><td>
 #+BEGIN_HTML
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
 <!-- Created by htmlize-1.47 in css mode. -->
 <html>
   <head>
-    <title>temp</title>
+    <title>temp.el</title>
     <style type="text/css">
     <!--
       body {
         color: #000000;
         background-color: #ffffff;
+      }
+      .doc {
+        /* font-lock-doc-face */
+        color: #2A00FF;
+      }
+      .function-name {
+        /* font-lock-function-name-face */
+        color: #000000;
+        font-weight: bold;
       }
       .keyword {
         /* font-lock-keyword-face */
@@ -313,6 +339,10 @@ times:
         /* region */
         color: #ffffff;
         background-color: #f9b593;
+      }
+      .string {
+        /* font-lock-string-face */
+        color: #2A00FF;
       }
 
       a {
@@ -329,16 +359,18 @@ times:
   </head>
   <body>
     <pre>
-<span class="region">(foo)</span>
-(<span class="keyword">progn</span>)</pre>
+(<span class="keyword">defun</span> <span class="function-name">lispy-out-forward</span> (arg)
+  <span class="doc">"Move outside list forwards ARG times.
+Return nil on failure, t otherwise."</span>
+  (interactive <span class="string">"p"</span>)
+  <span class="region">(</span><span class="keyword"><span class="region">if</span></span><span class="region"> (region-active-p)
+      (lispy-mark-right arg)
+    (lispy--out-forward arg))</span>)</pre>
   </body>
 </html>
-
 #+END_HTML
 #+HTML: </td></tr></tbody></table>
-
-
-
+-----
 ** =lispy-down=
 :PROPERTIES:
 :CUSTOM_ID: lispy-down
@@ -353,7 +385,7 @@ Moving down means so literally only if there is a newline after
 each element of current list, otherwise it's down or left.
 
 ~j~ maintains a guarantee that it will not exit the current list, so
-you can use e.g. ~99j~ to move to the last element of current list.
+you can use e.g. ~99j~ to move to the last element of the current list.
 
 When it's not possible to move down any more, ~j~ will
 behave as [[#lispy-different][=lispy-different=]]. This allows to traverse the current
@@ -509,11 +541,8 @@ When it's not possible to move up any more, ~k~ will
 behave as [[#lispy-different][=lispy-different=]]. This allows to traverse the current
 list's elements with just ~j~ and ~k~.
 
-When region is active, ~k~ will call =backward-sexp=.
-This allows to:
-
-- shrink the region when point is at =region-end=
-- grow the region when point is at =region-beginning=
+When region is active, ~k~ will move the region by =backward-sexp=,
+i.e. move the point and the mark by =backward-sexp=.
 -----
 
 ** =lispy-different=
@@ -544,24 +573,21 @@ file.
 *** looking back =lispy-right=
 Find the next =lispy-right= not in comment or string going up the
 file.
-
+-----
 ** =lispy-clockwise=
 :PROPERTIES:
 :CUSTOM_ID: lispy-clockwise
 :END:
 
-Bound to ~p~.
-
 Move clockwise within current list.
-
+-----
 ** =lispy-counterclockwise=
 :PROPERTIES:
 :CUSTOM_ID: lispy-counterclockwise
 :END:
 
-Bound to ~o~.
-
 Move counterclockwise within current list.
+-----
 
 ** =lispy-move-end-of-line=
 :PROPERTIES:
@@ -582,6 +608,7 @@ Move to the end of the string.
 
 *** otherwise
 Return to the starting position.
+-----
 
 ** =lispy-ace-paren=
 :PROPERTIES:
@@ -709,7 +736,7 @@ Starting with this:
     (eldoc-add-command func)
     (define-key keymap (kbd key) func)))
 #+end_src
-by pressing ~h~ you get this:
+by pressing ~a~ you get this:
 
 # (progn
 #   (lispy-ace-symbol)
@@ -1278,7 +1305,7 @@ Call [[#lispy-pair][=lispy-pair=]] specialized with =[]=.
 :CUSTOM_ID: lispy-quotes
 :END:
 
-Bound to ~"~.
+Bound to @@html:<kbd>@@"@@html:</kbd>@@.
 
 Insert a pair of quotes around the point.
 
@@ -1297,7 +1324,7 @@ Starting with
 "we are the knights who say ||"
 #+end_src
 
-pressing ~"~ will give:
+pressing @@html:<kbd>@@"@@html:</kbd>@@ will give:
 #+begin_src elisp
 "we are the knights who say \"||\""
 #+end_src
@@ -1313,7 +1340,7 @@ Starting with
 (message||)
 #+end_src
 
-pressing ~"~ will give:
+pressing @@html:<kbd>@@"@@html:</kbd>@@ will give:
 #+begin_src elisp
 (message "||")
 #+end_src

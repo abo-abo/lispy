@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
 <title>lispy.el documentation</title>
-<!-- 2014-11-21 Fri 12:25 -->
+<!-- 2014-11-21 Fri 13:07 -->
 <meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta  name="generator" content="Org-mode" />
 <meta  name="author" content="Oleh" />
@@ -619,7 +619,7 @@ It that case, move as many times as possible.
 
 <p>
 Return <code>t</code> if could move at least once, otherwise
-call <code>lispy-out-backward</code> and return <code>nil</code>.
+call <a href="#lispy-out-backward"><code>lispy-out-backward</code></a> return <code>nil</code>.
 </p>
 
 <p>
@@ -732,7 +732,6 @@ When you want to insert a single character from the pair, use <kbd>C-q</kbd>.
 Bound to <kbd>h</kbd>.
 </p>
 
-
 <p>
 Takes a numeric prefix <code>arg</code> and moves up backward list <code>arg</code> times or
 until error. This is a combination of <code>arg</code> times <a href="#lispy-out-forward"><code>lispy-out-forward</code></a> and once
@@ -740,8 +739,8 @@ until error. This is a combination of <code>arg</code> times <a href="#lispy-out
 </p>
 
 <p>
-When the region is active, the region will be moved up backward <code>arg</code>
-times:
+When the region is active, the region (not the code) will move up
+backward <code>arg</code> times:
 </p>
 
 <table><tbody><tr><td>
@@ -749,12 +748,21 @@ times:
 <!-- Created by htmlize-1.47 in css mode. -->
 <html>
   <head>
-    <title>temp</title>
+    <title>temp.el</title>
     <style type="text/css">
     <!--
       body {
         color: #000000;
         background-color: #ffffff;
+      }
+      .doc {
+        /* font-lock-doc-face */
+        color: #2A00FF;
+      }
+      .function-name {
+        /* font-lock-function-name-face */
+        color: #000000;
+        font-weight: bold;
       }
       .keyword {
         /* font-lock-keyword-face */
@@ -765,6 +773,10 @@ times:
         /* region */
         color: #ffffff;
         background-color: #f9b593;
+      }
+      .string {
+        /* font-lock-string-face */
+        color: #2A00FF;
       }
 
       a {
@@ -781,25 +793,39 @@ times:
   </head>
   <body>
     <pre>
-(<span class="keyword">progn</span>
-  <span class="region">(foo)</span>)</pre>
+(<span class="keyword">defun</span> <span class="function-name">lispy-out-forward</span> (arg)
+  <span class="doc">"Move outside list forwards ARG times.
+Return nil on failure, t otherwise."</span>
+  (interactive <span class="string">"p"</span>)
+  (<span class="keyword">if</span> (region-active-p)
+      <span class="region">(lispy-mark-right arg)</span>
+    (lispy--out-forward arg)))</pre>
   </body>
 </html>
 </td><td>
 <p>
--&gt; <kbd>a</kbd> -&gt;
+-&gt; <kbd>h</kbd> -&gt;
 </p>
 </td><td>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
 <!-- Created by htmlize-1.47 in css mode. -->
 <html>
   <head>
-    <title>temp</title>
+    <title>temp.el</title>
     <style type="text/css">
     <!--
       body {
         color: #000000;
         background-color: #ffffff;
+      }
+      .doc {
+        /* font-lock-doc-face */
+        color: #2A00FF;
+      }
+      .function-name {
+        /* font-lock-function-name-face */
+        color: #000000;
+        font-weight: bold;
       }
       .keyword {
         /* font-lock-keyword-face */
@@ -810,6 +836,10 @@ times:
         /* region */
         color: #ffffff;
         background-color: #f9b593;
+      }
+      .string {
+        /* font-lock-string-face */
+        color: #2A00FF;
       }
 
       a {
@@ -826,16 +856,19 @@ times:
   </head>
   <body>
     <pre>
-<span class="region">(foo)</span>
-(<span class="keyword">progn</span>)</pre>
+(<span class="keyword">defun</span> <span class="function-name">lispy-out-forward</span> (arg)
+  <span class="doc">"Move outside list forwards ARG times.
+Return nil on failure, t otherwise."</span>
+  (interactive <span class="string">"p"</span>)
+  <span class="region">(</span><span class="keyword"><span class="region">if</span></span><span class="region"> (region-active-p)
+      (lispy-mark-right arg)
+    (lispy--out-forward arg))</span>)</pre>
   </body>
 </html>
 </td></tr></tbody></table>
+<hr  />
 </div>
 </div>
-
-
-
 <div id="outline-container-lispy-down" class="outline-3">
 <h3 id="lispy-down"><a id="unnumbered-13"></a><code>lispy-down</code></h3>
 <div class="outline-text-3" id="text-lispy-down">
@@ -855,7 +888,7 @@ each element of current list, otherwise it's down or left.
 
 <p>
 <kbd>j</kbd> maintains a guarantee that it will not exit the current list, so
-you can use e.g. <kbd>99j</kbd> to move to the last element of current list.
+you can use e.g. <kbd>99j</kbd> to move to the last element of the current list.
 </p>
 
 <p>
@@ -1033,16 +1066,9 @@ list's elements with just <kbd>j</kbd> and <kbd>k</kbd>.
 </p>
 
 <p>
-When region is active, <kbd>k</kbd> will call <code>backward-sexp</code>.
-This allows to:
+When region is active, <kbd>k</kbd> will move the region by <code>backward-sexp</code>,
+i.e. move the point and the mark by <code>backward-sexp</code>.
 </p>
-
-<ul class="org-ul">
-<li>shrink the region when point is at <code>region-end</code>
-</li>
-<li>grow the region when point is at <code>region-beginning</code>
-</li>
-</ul>
 <hr  />
 </div>
 </div>
@@ -1094,33 +1120,26 @@ file.
 Find the next <code>lispy-right</code> not in comment or string going up the
 file.
 </p>
+<hr  />
 </div>
 </div>
 </div>
-
 <div id="outline-container-lispy-clockwise" class="outline-3">
 <h3 id="lispy-clockwise"><a id="unnumbered-19"></a><code>lispy-clockwise</code></h3>
 <div class="outline-text-3" id="text-lispy-clockwise">
 <p>
-Bound to <kbd>p</kbd>.
-</p>
-
-<p>
 Move clockwise within current list.
 </p>
+<hr  />
 </div>
 </div>
-
 <div id="outline-container-lispy-counterclockwise" class="outline-3">
 <h3 id="lispy-counterclockwise"><a id="unnumbered-20"></a><code>lispy-counterclockwise</code></h3>
 <div class="outline-text-3" id="text-lispy-counterclockwise">
 <p>
-Bound to <kbd>o</kbd>.
-</p>
-
-<p>
 Move counterclockwise within current list.
 </p>
+<hr  />
 </div>
 </div>
 
@@ -1160,6 +1179,7 @@ Move to the end of the string.
 <p>
 Return to the starting position.
 </p>
+<hr  />
 </div>
 </div>
 </div>
@@ -1299,7 +1319,7 @@ Starting with this:
 </pre>
 </div>
 <p>
-by pressing <kbd>h</kbd> you get this:
+by pressing <kbd>a</kbd> you get this:
 </p>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
@@ -2030,7 +2050,7 @@ Call <a href="#lispy-pair"><code>lispy-pair</code></a> specialized with <code>[]
 <h3 id="lispy-quotes"><a id="unnumbered-44"></a><code>lispy-quotes</code></h3>
 <div class="outline-text-3" id="text-lispy-quotes">
 <p>
-Bound to ~"~.
+Bound to <kbd>"</kbd>.
 </p>
 
 <p>
@@ -2078,7 +2098,7 @@ Starting with
 </div>
 
 <p>
-pressing ~"~ will give:
+pressing <kbd>"</kbd> will give:
 </p>
 <div class="org-src-container">
 
@@ -2114,7 +2134,7 @@ Starting with
 </div>
 
 <p>
-pressing ~"~ will give:
+pressing <kbd>"</kbd> will give:
 </p>
 <div class="org-src-container">
 
