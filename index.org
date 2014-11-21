@@ -51,20 +51,20 @@
 | "     | [[#lispy-quotes][lispy-quotes]]               |
 | )     | [[#lispy-out-forward-nostring][lispy-out-forward-nostring]] |
 | ;     | [[#lispy-comment][lispy-comment]]              |
+| DEL   | [[#lispy-delete-backward][lispy-delete-backward]]      |
+| C-d   | [[#lispy-delete][lispy-delete]]               |
+| C-k   | [[#lispy-kill][lispy-kill]]                 |
+| C-y   | [[#lispy-yank][lispy-yank]]                 |
+| C-e   | [[#lispy-move-end-of-line][lispy-move-end-of-line]]     |
+| C-,   | [[#lispy-kill-at-point][lispy-kill-at-point]]        |
+| C-M-, | [[#lispy-mark][lispy-mark]]                 |
+| M-m   | [[#lispy-mark-symbol][lispy-mark-symbol]]          |
+| M-o   | [[#lispy-string-oneline][lispy-string-oneline]]       |
 | C-1   | [[#lispy-describe-inline][lispy-describe-inline]]      |
 | C-2   | [[#lispy-arglist-inline][lispy-arglist-inline]]       |
 | C-3   | [[#lispy-out-forward][lispy-out-forward]]          |
 | C-4   | [[#lispy-x][lispy-x]]                    |
 | C-8   | [[#lispy-parens-down][lispy-parens-down]]          |
-| C-k   | [[#lispy-kill][lispy-kill]]                 |
-| C-y   | [[#lispy-yank][lispy-yank]]                 |
-| C-d   | [[#lispy-delete][lispy-delete]]               |
-| DEL   | [[#lispy-delete-backward][lispy-delete-backward]]      |
-| C-e   | [[#lispy-move-end-of-line][lispy-move-end-of-line]]     |
-| M-m   | [[#lispy-mark-symbol][lispy-mark-symbol]]          |
-| M-o   | [[#lispy-string-oneline][lispy-string-oneline]]       |
-| C-,   | [[#lispy-kill-at-point][lispy-kill-at-point]]        |
-| C-M-, | [[#lispy-mark][lispy-mark]]                 |
 |-------+----------------------------|
 * [a-z] local bindings
 | key | function name                 |

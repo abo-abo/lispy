@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
 <title>lispy.el function reference</title>
-<!-- 2014-11-21 Fri 16:28 -->
+<!-- 2014-11-21 Fri 16:31 -->
 <meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta  name="generator" content="Org-mode" />
 <meta  name="author" content="Oleh" />
@@ -121,6 +121,51 @@
 </tr>
 
 <tr>
+<td class="left">DEL</td>
+<td class="left"><a href="#lispy-delete-backward">lispy-delete-backward</a></td>
+</tr>
+
+<tr>
+<td class="left">C-d</td>
+<td class="left"><a href="#lispy-delete">lispy-delete</a></td>
+</tr>
+
+<tr>
+<td class="left">C-k</td>
+<td class="left"><a href="#lispy-kill">lispy-kill</a></td>
+</tr>
+
+<tr>
+<td class="left">C-y</td>
+<td class="left"><a href="#lispy-yank">lispy-yank</a></td>
+</tr>
+
+<tr>
+<td class="left">C-e</td>
+<td class="left"><a href="#lispy-move-end-of-line">lispy-move-end-of-line</a></td>
+</tr>
+
+<tr>
+<td class="left">C-,</td>
+<td class="left"><a href="#lispy-kill-at-point">lispy-kill-at-point</a></td>
+</tr>
+
+<tr>
+<td class="left">C-M-,</td>
+<td class="left"><a href="#lispy-mark">lispy-mark</a></td>
+</tr>
+
+<tr>
+<td class="left">M-m</td>
+<td class="left"><a href="#lispy-mark-symbol">lispy-mark-symbol</a></td>
+</tr>
+
+<tr>
+<td class="left">M-o</td>
+<td class="left"><a href="#lispy-string-oneline">lispy-string-oneline</a></td>
+</tr>
+
+<tr>
 <td class="left">C-1</td>
 <td class="left"><a href="#lispy-describe-inline">lispy-describe-inline</a></td>
 </tr>
@@ -143,51 +188,6 @@
 <tr>
 <td class="left">C-8</td>
 <td class="left"><a href="#lispy-parens-down">lispy-parens-down</a></td>
-</tr>
-
-<tr>
-<td class="left">C-k</td>
-<td class="left"><a href="#lispy-kill">lispy-kill</a></td>
-</tr>
-
-<tr>
-<td class="left">C-y</td>
-<td class="left"><a href="#lispy-yank">lispy-yank</a></td>
-</tr>
-
-<tr>
-<td class="left">C-d</td>
-<td class="left"><a href="#lispy-delete">lispy-delete</a></td>
-</tr>
-
-<tr>
-<td class="left">DEL</td>
-<td class="left"><a href="#lispy-delete-backward">lispy-delete-backward</a></td>
-</tr>
-
-<tr>
-<td class="left">C-e</td>
-<td class="left"><a href="#lispy-move-end-of-line">lispy-move-end-of-line</a></td>
-</tr>
-
-<tr>
-<td class="left">M-m</td>
-<td class="left"><a href="#lispy-mark-symbol">lispy-mark-symbol</a></td>
-</tr>
-
-<tr>
-<td class="left">M-o</td>
-<td class="left"><a href="#lispy-string-oneline">lispy-string-oneline</a></td>
-</tr>
-
-<tr>
-<td class="left">C-,</td>
-<td class="left"><a href="#lispy-kill-at-point">lispy-kill-at-point</a></td>
-</tr>
-
-<tr>
-<td class="left">C-M-,</td>
-<td class="left"><a href="#lispy-mark">lispy-mark</a></td>
 </tr>
 </tbody>
 </table>
@@ -4249,7 +4249,7 @@ Bound to <kbd>p</kbd>.
 
 <p>
 Eval the current sexp in the context of the other window.
-This is useful for debugging interactive Elisp functions: 
+This is useful for debugging interactive Elisp functions:
 </p>
 
 <ul class="org-ul">
