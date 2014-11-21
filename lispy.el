@@ -2223,7 +2223,12 @@ ARG is 4: `eval-defun' on the function from this sexp."
 The function body is obtained from `find-function-noselect'.
 With ARG, use the contents of `lispy-store-region-and-buffer' instead."
   (interactive "P")
-  (let* ((begp (looking-at lispy-left))
+  (let* ((begp (if (looking-at lispy-left)
+                   t
+                 (if (looking-back lispy-right)
+                     (progn (backward-list)
+                            nil)
+                   (lispy-out-backward 1))))
          (bnd (lispy--bounds-list))
          (str (lispy--string-dwim bnd))
          (expr (lispy--read str))
