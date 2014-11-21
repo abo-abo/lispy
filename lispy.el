@@ -229,6 +229,13 @@ These messages are similar to \"Beginning of buffer\" error for
   :type 'boolean
   :group 'lispy)
 
+(defcustom lispy-verbose-verbs t
+  "If t, when calling a verb produced by `lispy-defverb',
+the nouns that apply to that verb will be displayed in the echo
+area."
+  :type 'boolean
+  :group 'lispy)
+
 (defvar lispy-mode-map (make-sparse-keymap))
 
 ;;;###autoload
@@ -327,21 +334,39 @@ Otherwise return t."
 (defmacro lispy-defverb (name grammar)
   "Define the verb NAME.
 GRAMMAR is a list of nouns that work with this verb."
-  (let ((sym (intern (format "lispy-%s-mode" name)))
-        (keymap (intern (format "lispy-%s-mode-map" name)))
-        (doc (format "%s verb." (capitalize name)))
-        (lighter (format " [%s]" name))
-        (verb (intern (format "lispy-%s-verb" name))))
+  (let* ((sym (intern (format "lispy-%s-mode" name)))
+         (keymap (intern (format "lispy-%s-mode-map" name)))
+         (doc (format "%s verb." (capitalize name)))
+         (lighter (format " [%s]" name))
+         (verb (intern (format "lispy-%s-verb" name)))
+         (msg (format "[%s]: %s" name
+                      (mapconcat #'car grammar " "))))
     `(progn
+       (defvar ,sym nil
+         ,(format "Non-nil if Lispy-%s mode is enabled.
+Use the command `%s' to change this variable."
+                  (capitalize name)
+                  sym))
+       (make-variable-buffer-local ',sym)
        (defvar ,keymap (make-sparse-keymap))
-       (define-minor-mode ,sym
-           ,doc
-         :keymap ,keymap
-         :group 'lispy
-         :lighter ,lighter
-         (cond (,sym
-                (lispy-disable-verbs-except ',sym))
-               (t nil)))
+       (defun ,sym (&optional arg)
+         ,doc
+         (interactive (list (or current-prefix-arg 'toggle)))
+         (let ((last-message (current-message)))
+           (setq ,sym (if (eq arg 'toggle)
+                          (not ,sym)
+                        (> (prefix-numeric-value arg)
+                           0)))
+           (cond (,sym (lispy-disable-verbs-except ',sym))
+                 (t nil))
+           (if (called-interactively-p 'any)
+               (unless (and (current-message)
+                            (not (equal last-message (current-message))))
+                 (if ,sym
+                     (when lispy-verbose-verbs
+                       (message ,msg))
+                   (message "")))))
+         (force-mode-line-update))
        (mapc (lambda (x)
                (lispy-define-key
                    ,keymap
@@ -354,7 +379,9 @@ GRAMMAR is a list of nouns that work with this verb."
          (interactive)
          (if (bound-and-true-p ,sym)
              (,sym -1)
-           (,sym 1))))))
+           (,sym 1)))
+       (with-no-warnings
+         (add-minor-mode ',sym ,lighter ,keymap nil nil)))))
 
 ;; ——— Globals: navigation —————————————————————————————————————————————————————
 (defun lispy-forward (arg)
