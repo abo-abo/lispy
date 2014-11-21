@@ -1852,6 +1852,17 @@ Sexp is obtained by exiting list ARG times."
      (delete-region (car bnd) (cdr bnd))
      (insert (lispy--eval str)))))
 
+(defun lispy-eval-other-window ()
+  "Eval current expression in the context of other window.
+Expression has to be of type (setq X BODY)
+In case 'setq isn't present, add it."
+  (interactive)
+  (lexical-let ((str (save-match-data
+                       (lispy--string-dwim))))
+    (other-window 1)
+    (eval-expression (read str))
+    (other-window -1)))
+
 (defun lispy-follow ()
   "Follow to `lispy--current-function'."
   (interactive)
@@ -3983,17 +3994,6 @@ FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)"
     (eldoc-add-command func)
     (define-key keymap (kbd key) func)))
 
-(defun lispy-eval-other-window ()
-  "Eval current expression in the context of other window.
-Expression has to be of type (setq X BODY)
-In case 'setq isn't present, add it."
-  (interactive)
-  (lexical-let ((str (save-match-data
-                       (lispy--string-dwim))))
-    (other-window 1)
-    (eval-expression (read str))
-    (other-window -1)))
-
 (lispy-defverb
  "other"
  (("h" lispy-move-left)
@@ -4134,8 +4134,7 @@ They may become the defaults in the future."
     (lispy-define-key map "G" 'lispy-goto-mode)
     (lispy-define-key map "t" 'lispy-transform-mode)
     (define-key map (kbd "M-.") 'lispy-goto-symbol)
-    (lispy-define-key map "." 'pop-tag-mark)
-    (lispy-define-key map "y" 'lispy-eval-other-window))
+    (lispy-define-key map "." 'pop-tag-mark))
   (let ((map lispy-mode-x-map))
     (define-key map "d" nil)
     (define-key map "l" nil)
