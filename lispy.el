@@ -2621,7 +2621,9 @@ Move to the end of line."
      ;; org-mode specific
      (org-defkey . 3)
      ;; use-package specific
-     (use-package . 1)))
+     (use-package . 1)
+     ;; lispy-specific
+     (lispy-defverb . 1)))
   "Alist of tag arities for supported modes.")
 
 (defun lispy--tag-regexp (&optional mode)
