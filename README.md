@@ -238,8 +238,10 @@ key      | command
   `}`    | [`lispy-brackets'](http://abo-abo.github.io/lispy/#lispy-brackets)
   `"`    | [`lispy-quotes'](http://abo-abo.github.io/lispy/#lispy-quotes)
 
-Here's a list of modified insertion commands that handle whitespace
-in addition to self-inserting:
+#### Keys that modify whitespace
+
+These commands handle whitespace in addition to inserting the expected
+thing.
 
  key   | command
 -------|----------------------------------
@@ -280,13 +282,10 @@ until all your Lisp code is turned into Python :).
  `H`   | `lispy-ace-symbol-replace`
  `-`   | `lispy-ace-subword`
 
-These functions narrow down the number of jump candidates of of
-`ace-jump-mode`.
-
-For instance, with `q` you don't need to select which char to jump to,
-since it will always be "(". Not only that, but the "(" will also
-belong to the current top-level form. So if you're editing a `defun`,
-you'll be able to jump to any "(" in the current `defun`.
+`q` (`lispy-ace-paren`) jumps to a "(" character within current
+top-level form (e.g. `defun`). It's much faster than typing in the
+`ace-jump-mode` binding + selecting "(", and there's less candidates,
+since they're limited to current top-level form.
 
 `a` (`lispy-ace-symbol`) will let you select which symbol to mark
 within current top-level form. This can be followed up with e.g.
