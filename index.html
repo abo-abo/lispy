@@ -3,8 +3,8 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<title>lispy.el documentation</title>
-<!-- 2014-11-21 Fri 14:13 -->
+<title>lispy.el function reference</title>
+<!-- 2014-11-21 Fri 15:37 -->
 <meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta  name="generator" content="Org-mode" />
 <meta  name="author" content="Oleh" />
@@ -57,7 +57,7 @@
 <link rel="icon" type="image/x-icon" href="https://github.com/favicon.ico"/>
 </div>
 <div id="content">
-<h1 class="title">lispy.el documentation</h1>
+<h1 class="title">lispy.el function reference</h1>
 <p>
 <a href="https://github.com/abo-abo/lispy">Back to github.</a>
 </p>
@@ -3256,7 +3256,7 @@ Bound to <kbd>Z</kbd>.
 </p>
 
 <p>
-Does the same as <kbd>q</kbd> in <code>edebug</code>, except current function's variables
+Does the same as <kbd>q</kbd> in <code>edebug</code>, except current function's arguments
 will be saved to their current values.
 </p>
 
@@ -3318,7 +3318,8 @@ Bound to <kbd>xi</kbd>.
 
 <p>
 Transform current <code>cond</code> expression to equivalent nested <code>if</code>
-expressions.
+expressions. The whitespace, such as comments and newlines, is
+preserved as much as possible.
 </p>
 
 <p>
@@ -3401,7 +3402,8 @@ Bound to <kbd>xc</kbd>.
 
 <p>
 Transform current nested <code>if</code> expressions to an equivalent <code>cond</code>
-expression.
+expression. The whitespace, such as comments and newlines, is
+preserved as much as possible.
 </p>
 
 <p>
@@ -3528,6 +3530,25 @@ Bound to <kbd>O</kbd>.
 <p>
 Turn current sexp into one line.
 </p>
+<table><tbody><tr><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp"><cursor>(</cursor><span style="color: #7F0055; font-weight: bold;">progn</span>
+    (foo)
+    (bar))
+</pre>
+</div>
+</td><td>
+<p>
+-&gt; <kbd>O</kbd> -&gt;
+</p>
+</td><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp"><cursor>(</cursor><span style="color: #7F0055; font-weight: bold;">progn</span> (foo) (bar))
+</pre>
+</div>
+</td></tr></tbody></table>
 <hr  />
 </div>
 </div>
@@ -3543,6 +3564,29 @@ Bound to <kbd>M</kbd>.
 Extend current sexp into multiple lines.
 Especially useful on results of <code>macroexpand</code>.
 </p>
+
+<p>
+Turn current sexp into one line.
+</p>
+<table><tbody><tr><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp"><cursor>(</cursor><span style="color: #7F0055; font-weight: bold;">progn</span> (foo) (bar) (baz))
+</pre>
+</div>
+</td><td>
+<p>
+-&gt; <kbd>M</kbd> -&gt;
+</p>
+</td><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp"><cursor>(</cursor><span style="color: #7F0055; font-weight: bold;">progn</span> (foo)
+       (bar)
+       (baz))
+</pre>
+</div>
+</td></tr></tbody></table>
 <hr  />
 </div>
 </div>
@@ -3557,6 +3601,10 @@ Bound to <kbd>v</kbd>.
 <p>
 Recenter current sexp to be on the first line of the window.
 When called twice in a row, recenter back to the original position.
+</p>
+
+<p>
+It's just a slightly modified shorthand for the standard <kbd>C-l</kbd> (<code>recenter-top-bottom</code>).
 </p>
 <hr  />
 </div>
@@ -3615,6 +3663,85 @@ Example 2:
 </pre>
 </div>
 </td></tr></tbody></table>
+
+<p>
+Example 3:
+</p>
+<table><tbody><tr><td>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<!-- Created by htmlize-1.47 in css mode. -->
+<html>
+  <head>
+    <title>test.el</title>
+    <style type="text/css">
+    <!--
+      body {
+        color: #000000;
+        background-color: #ffffff;
+      }
+      .region {
+        /* region */
+        color: #ffffff;
+        background-color: #f9b593;
+      }
+
+      a {
+        color: inherit;
+        background-color: inherit;
+        font: inherit;
+        text-decoration: inherit;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+    -->
+    </style>
+  </head>
+  <body>
+    <pre>
+(foo <span class="region">bar</span><cursor> </cursor> baz)</pre>
+  </body>
+</html>
+</td><td>
+<p>
+-&gt; <kbd>&gt;</kbd> -&gt;
+</p>
+</td><td>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<!-- Created by htmlize-1.47 in css mode. -->
+<html>
+  <head>
+    <title>test.el</title>
+    <style type="text/css">
+    <!--
+      body {
+        color: #000000;
+        background-color: #ffffff;
+      }
+      .region {
+        /* region */
+        color: #ffffff;
+        background-color: #f9b593;
+      }
+
+      a {
+        color: inherit;
+        background-color: inherit;
+        font: inherit;
+        text-decoration: inherit;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+    -->
+    </style>
+  </head>
+  <body>
+    <pre>
+(foo <span class="region">bar baz</span><cursor>)</cursor></pre>
+  </body>
+</html>
+</td></tr></tbody></table>
 <hr  />
 </div>
 </div>
@@ -3671,6 +3798,85 @@ Example 2:
 <pre class="src src-elisp"><span style="color: #2A00FF;">"foo"</span> <cursor>(</cursor>bar)
 </pre>
 </div>
+</td></tr></tbody></table>
+
+<p>
+Example 3:
+</p>
+<table><tbody><tr><td>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<!-- Created by htmlize-1.47 in css mode. -->
+<html>
+  <head>
+    <title>test.el</title>
+    <style type="text/css">
+    <!--
+      body {
+        color: #000000;
+        background-color: #ffffff;
+      }
+      .region {
+        /* region */
+        color: #ffffff;
+        background-color: #f9b593;
+      }
+
+      a {
+        color: inherit;
+        background-color: inherit;
+        font: inherit;
+        text-decoration: inherit;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+    -->
+    </style>
+  </head>
+  <body>
+    <pre>
+(foo <span class="region">bar baz</span><cursor>)</cursor></pre>
+  </body>
+</html>
+</td><td>
+<p>
+-&gt; <kbd>&lt;</kbd> -&gt;
+</p>
+</td><td>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<!-- Created by htmlize-1.47 in css mode. -->
+<html>
+  <head>
+    <title>test.el</title>
+    <style type="text/css">
+    <!--
+      body {
+        color: #000000;
+        background-color: #ffffff;
+      }
+      .region {
+        /* region */
+        color: #ffffff;
+        background-color: #f9b593;
+      }
+
+      a {
+        color: inherit;
+        background-color: inherit;
+        font: inherit;
+        text-decoration: inherit;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+    -->
+    </style>
+  </head>
+  <body>
+    <pre>
+(foo <span class="region">bar</span><cursor> </cursor> baz)</pre>
+  </body>
+</html>
 </td></tr></tbody></table>
 <hr  />
 </div>
@@ -3798,6 +4004,28 @@ Comment current expression or region.
 With a prefix arg, comment many expressions.
 With a prefix arg and already inside comment, uncomment instead.
 </p>
+
+<table><tbody><tr><td>
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">(<span style="color: #7F0055; font-weight: bold;">require</span> '<span style="color: #110099;">ob-python</span>)
+<cursor>(</cursor><span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">cheeseshop</span> (kind)
+  (message <span style="color: #2A00FF;">"Do you have any %s?"</span> kind))
+</pre>
+</div>
+</td><td>
+<p>
+-&gt; <kbd>;</kbd> -&gt;
+</p>
+</td><td>
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp"><cursor>(</cursor><span style="color: #7F0055; font-weight: bold;">require</span> '<span style="color: #110099;">ob-python</span>)
+<span style="color: #3F7F5F;">;; </span><span style="color: #3F7F5F;">(defun cheeseshop (kind)</span>
+<span style="color: #3F7F5F;">;;   </span><span style="color: #3F7F5F;">(message "Do you have any %s?" kind))</span>
+</pre>
+</div>
+</td></tr></tbody></table>
 <hr  />
 </div>
 </div>
@@ -3816,6 +4044,27 @@ or mark.
 <p>
 With a prefix arg, copy that many times.
 </p>
+
+<table><tbody><tr><td>
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp"><cursor>(</cursor>message <span style="color: #2A00FF;">"A witch!"</span>)
+</pre>
+</div>
+</td><td>
+<p>
+-&gt; <kbd>3c</kbd> -&gt;
+</p>
+</td><td>
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp"><cursor>(</cursor>message <span style="color: #2A00FF;">"A witch!"</span>)
+(message <span style="color: #2A00FF;">"A witch!"</span>)
+(message <span style="color: #2A00FF;">"A witch!"</span>)
+(message <span style="color: #2A00FF;">"A witch!"</span>)
+</pre>
+</div>
+</td></tr></tbody></table>
 <hr  />
 </div>
 </div>
@@ -3891,9 +4140,7 @@ Move current sexp or region down arg times. Don't exit the parent
 list.
 </p>
 
-<p>
-Starting with
-</p>
+<table><tbody><tr><td>
 <div class="org-src-container">
 
 <pre class="src src-emacs-lisp">(<span style="color: #7F0055; font-weight: bold;">progn</span>
@@ -3902,9 +4149,11 @@ Starting with
   (baz))
 </pre>
 </div>
+</td><td>
 <p>
-by pressing <kbd>s</kbd>, you get:
+-&gt; <kbd>s</kbd> -&gt;
 </p>
+</td><td>
 <div class="org-src-container">
 
 <pre class="src src-emacs-lisp">(<span style="color: #7F0055; font-weight: bold;">progn</span>
@@ -3913,6 +4162,7 @@ by pressing <kbd>s</kbd>, you get:
   (baz))
 </pre>
 </div>
+</td></tr></tbody></table>
 <hr  />
 </div>
 </div>

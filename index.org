@@ -1,4 +1,4 @@
-#+TITLE:     lispy.el documentation
+#+TITLE:     lispy.el function reference
 #+LANGUAGE:  en
 #+OPTIONS:   H:3 num:nil toc:nil
 #+HTML_HEAD: <link rel="stylesheet" type="text/css" href="style.css"/>
@@ -1934,7 +1934,7 @@ and to add space where it's needed, e.g. =(lambda (x))= instead of =(lambda(x))=
 
 Bound to ~Z~.
 
-Does the same as ~q~ in =edebug=, except current function's variables
+Does the same as ~q~ in =edebug=, except current function's arguments
 will be saved to their current values.
 
 This allows to continue debugging with [[#lispy-eval][=lispy-eval=]] (~e~) from
@@ -1980,7 +1980,8 @@ body stored with [[#lispy-store-region-and-buffer][=lispy-store-region-and-buffe
 Bound to ~xi~.
 
 Transform current =cond= expression to equivalent nested =if=
-expressions.
+expressions. The whitespace, such as comments and newlines, is
+preserved as much as possible.
 
 The reverse is [[#lispy-to-cond][=lispy-to-cond=]].
 
@@ -2051,7 +2052,8 @@ The reverse is [[#lispy-to-cond][=lispy-to-cond=]].
 Bound to ~xc~.
 
 Transform current nested =if= expressions to an equivalent =cond=
-expression.
+expression. The whitespace, such as comments and newlines, is
+preserved as much as possible.
 
 The reverse is [[#lispy-to-ifs][=lispy-to-ifs=]].
 
@@ -2151,6 +2153,19 @@ Forward to =widen=.
 Bound to ~O~.
 
 Turn current sexp into one line.
+#+HTML: <table><tbody><tr><td>
+#+begin_src elisp
+||(progn
+    (foo)
+    (bar))
+#+end_src
+#+HTML: </td><td>
+-> ~O~ ->
+#+HTML: </td><td>
+#+begin_src elisp
+||(progn (foo) (bar))
+#+end_src
+#+HTML: </td></tr></tbody></table>
 -----
 
 ** =lispy-multiline=
@@ -2162,6 +2177,21 @@ Bound to ~M~.
 
 Extend current sexp into multiple lines.
 Especially useful on results of =macroexpand=.
+
+Turn current sexp into one line.
+#+HTML: <table><tbody><tr><td>
+#+begin_src elisp
+||(progn (foo) (bar) (baz))
+#+end_src
+#+HTML: </td><td>
+-> ~M~ ->
+#+HTML: </td><td>
+#+begin_src elisp
+||(progn (foo)
+       (bar)
+       (baz))
+#+end_src
+#+HTML: </td></tr></tbody></table>
 -----
 
 ** =lispy-view=
@@ -2173,6 +2203,8 @@ Bound to ~v~.
 
 Recenter current sexp to be on the first line of the window.
 When called twice in a row, recenter back to the original position.
+
+It's just a slightly modified shorthand for the standard ~C-l~ (=recenter-top-bottom=).
 -----
 
 ** =lispy-slurp=
@@ -2210,6 +2242,85 @@ Example 2:
 ||("foo" bar)
 #+end_src
 #+HTML: </td></tr></tbody></table>
+
+Example 3:
+#+HTML: <table><tbody><tr><td>
+#+BEGIN_HTML
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<!-- Created by htmlize-1.47 in css mode. -->
+<html>
+  <head>
+    <title>test.el</title>
+    <style type="text/css">
+    <!--
+      body {
+        color: #000000;
+        background-color: #ffffff;
+      }
+      .region {
+        /* region */
+        color: #ffffff;
+        background-color: #f9b593;
+      }
+
+      a {
+        color: inherit;
+        background-color: inherit;
+        font: inherit;
+        text-decoration: inherit;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+    -->
+    </style>
+  </head>
+  <body>
+    <pre>
+(foo <span class="region">bar</span><cursor> </cursor> baz)</pre>
+  </body>
+</html>
+#+END_HTML
+#+HTML: </td><td>
+-> ~>~ ->
+#+HTML: </td><td>
+#+BEGIN_HTML
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<!-- Created by htmlize-1.47 in css mode. -->
+<html>
+  <head>
+    <title>test.el</title>
+    <style type="text/css">
+    <!--
+      body {
+        color: #000000;
+        background-color: #ffffff;
+      }
+      .region {
+        /* region */
+        color: #ffffff;
+        background-color: #f9b593;
+      }
+
+      a {
+        color: inherit;
+        background-color: inherit;
+        font: inherit;
+        text-decoration: inherit;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+    -->
+    </style>
+  </head>
+  <body>
+    <pre>
+(foo <span class="region">bar baz</span><cursor>)</cursor></pre>
+  </body>
+</html>
+#+END_HTML
+#+HTML: </td></tr></tbody></table>
 -----
 
 ** =lispy-barf=
@@ -2246,6 +2357,85 @@ Example 2:
 #+begin_src elisp
 "foo" ||(bar)
 #+end_src
+#+HTML: </td></tr></tbody></table>
+
+Example 3:
+#+HTML: <table><tbody><tr><td>
+#+BEGIN_HTML
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<!-- Created by htmlize-1.47 in css mode. -->
+<html>
+  <head>
+    <title>test.el</title>
+    <style type="text/css">
+    <!--
+      body {
+        color: #000000;
+        background-color: #ffffff;
+      }
+      .region {
+        /* region */
+        color: #ffffff;
+        background-color: #f9b593;
+      }
+
+      a {
+        color: inherit;
+        background-color: inherit;
+        font: inherit;
+        text-decoration: inherit;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+    -->
+    </style>
+  </head>
+  <body>
+    <pre>
+(foo <span class="region">bar baz</span><cursor>)</cursor></pre>
+  </body>
+</html>
+#+END_HTML
+#+HTML: </td><td>
+-> ~<~ ->
+#+HTML: </td><td>
+#+BEGIN_HTML
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<!-- Created by htmlize-1.47 in css mode. -->
+<html>
+  <head>
+    <title>test.el</title>
+    <style type="text/css">
+    <!--
+      body {
+        color: #000000;
+        background-color: #ffffff;
+      }
+      .region {
+        /* region */
+        color: #ffffff;
+        background-color: #f9b593;
+      }
+
+      a {
+        color: inherit;
+        background-color: inherit;
+        font: inherit;
+        text-decoration: inherit;
+      }
+      a:hover {
+        text-decoration: underline;
+      }
+    -->
+    </style>
+  </head>
+  <body>
+    <pre>
+(foo <span class="region">bar</span><cursor> </cursor> baz)</pre>
+  </body>
+</html>
+#+END_HTML
 #+HTML: </td></tr></tbody></table>
 -----
 
@@ -2316,6 +2506,22 @@ Bound to ~;~.
 Comment current expression or region.
 With a prefix arg, comment many expressions.
 With a prefix arg and already inside comment, uncomment instead.
+
+#+HTML: <table><tbody><tr><td>
+#+begin_src emacs-lisp
+(require 'ob-python)
+||(defun cheeseshop (kind)
+  (message "Do you have any %s?" kind))
+#+end_src
+#+HTML: </td><td>
+-> ~;~ ->
+#+HTML: </td><td>
+#+begin_src emacs-lisp
+||(require 'ob-python)
+;; (defun cheeseshop (kind)
+;;   (message "Do you have any %s?" kind))
+#+end_src
+#+HTML: </td></tr></tbody></table>
 -----
 ** =lispy-clone=
 :PROPERTIES:
@@ -2328,6 +2534,21 @@ Copy current list or region and paste it below, without changing point
 or mark.
 
 With a prefix arg, copy that many times.
+
+#+HTML: <table><tbody><tr><td>
+#+begin_src emacs-lisp
+||(message "A witch!")
+#+end_src
+#+HTML: </td><td>
+-> ~3c~ ->
+#+HTML: </td><td>
+#+begin_src emacs-lisp
+||(message "A witch!")
+(message "A witch!")
+(message "A witch!")
+(message "A witch!")
+#+end_src
+#+HTML: </td></tr></tbody></table>
 -----
 ** =lispy-goto=
 :PROPERTIES:
@@ -2379,20 +2600,23 @@ Bound to ~s~.
 Move current sexp or region down arg times. Don't exit the parent
 list.
 
-Starting with
+#+HTML: <table><tbody><tr><td>
 #+begin_src emacs-lisp
 (progn
   ||(foo)
   (bar)
   (baz))
 #+end_src
-by pressing ~s~, you get:
+#+HTML: </td><td>
+-> ~s~ ->
+#+HTML: </td><td>
 #+begin_src emacs-lisp
 (progn
   (bar)
   ||(foo)
   (baz))
 #+end_src
+#+HTML: </td></tr></tbody></table>
 -----
 ** =lispy-move-up=
 :PROPERTIES:
