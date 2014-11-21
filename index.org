@@ -820,7 +820,7 @@ by pressing ~a~ you get this:
 
 Now you can mark a symbol by pressing a letter, or cancel with ~C-g~.
 
-Here's the end result of ~hd~:
+Here's the end result of ~ad~:
 
 #+BEGIN_HTML
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
@@ -1180,9 +1180,10 @@ Comparable to =ediff-regions-linewise=, except the region and
 buffer selection is done differently:
 
 - first buffer and region are defined by [[#lispy-store-region-and-buffer][=lispy-store-region-and-buffer=]].
-- second buffer and region are the current buffer and region
+- second buffer and region are the current buffer and region (or
+  current sexp bounds if the region isn't active)
 
-Buffers can of course be the same.
+The buffers can of course be the same.
 
 A useful scenario for this function is ~C-x v ~~
 (=vc-revision-other-window=) ~RET~ and then follow up by selecting one
@@ -1423,14 +1424,16 @@ and pressing ~}~ will give:
 *** inside string or comment
 Insert =left=, =right= and put the point between them.
 
-Starting with
+Starting with:
 #+begin_src text
 "a string || "
 #+end_src
-pressing ~(~ will give:
-#+begin_src text
-"a string (||)"
-#+end_src
+| key | result        |
+|-----+---------------|
+| (   | "a string ("  |
+| )   | "a string )"  |
+| {   | "a string {}" |
+| }   | "a string []" |
 
 *** elisp character expression
 Starting with
@@ -1476,13 +1479,7 @@ pressing ~2(~ will give:
 
 Bound to ~x~ (locally) or ~C-4~ (globally).
 
-Just a prefix to calling other commands, like
-
-| key | function name   |
-|-----+-----------------|
-| l   | [[#lispy-to-lambda][lispy-to-lambda]] |
-| d   | [[#lispy-to-defun][lispy-to-defun]]  |
-|-----+-----------------|
+Just a prefix to calling other commands,  [[#x-bindings][see]].
 -----
 
 ** =lispy-kill=
@@ -1502,7 +1499,7 @@ Call =kill-line=.
 Call =kill-line=.
 
 *** inside string that ends on this line
-Delete up to =line-end-position=.
+Delete up to the end of the string.
 
 *** on a line of whitespace
 Delete whole line, moving to the next one, and re-indent.
@@ -1528,8 +1525,7 @@ Delete current sexp.
 Bound to ~n~.
 
 Copy current sexp or region to kill ring.
-
-
+-----
 ** =lispy-yank=
 :PROPERTIES:
 :CUSTOM_ID: lispy-yank
@@ -1546,7 +1542,7 @@ Starting with:
 ||(message "test")
 #+end_src
 
-pressing ~C-k~ ~"~ ~C-y~ will give:
+pressing ~C-k~ @@html:<kbd>@@"@@html:</kbd>@@ ~C-y~ will give:
 #+begin_src elisp
 "(message \"test\")||"
 #+end_src
@@ -1572,6 +1568,18 @@ Delete region.
 
 *** inside a string before \"
 Delete \".
+
+#+HTML: <table><tbody><tr><td>
+#+begin_src emacs-lisp
+"say ||\"hi\""
+#+end_src
+#+HTML: </td><td>
+-> ~C-d~ ->
+#+HTML: </td><td>
+#+begin_src emacs-lisp
+"say ||hi\""
+#+end_src
+#+HTML: </td></tr></tbody></table>
 
 *** at last char of the string
 Move to the beginning of string.
@@ -1778,7 +1786,7 @@ Bound to ~C-M-,~.
 Mark the smallest comment or string or list that includes point.
 
 This command will expand region when repeated.
-
+-----
 ** =lispy-kill-at-point=
 :PROPERTIES:
 :CUSTOM_ID: lispy-kill-at-point
@@ -1787,7 +1795,7 @@ This command will expand region when repeated.
 Bound to ~C-,~.
 
 Kill the smallest comment or string or list that includes point.
-
+-----
 ** =lispy-mark-symbol=
 :PROPERTIES:
 :CUSTOM_ID: lispy-mark-symbol
@@ -1832,6 +1840,11 @@ pressing ~M-o~ will give:
 #+begin_src text
 (message "foo\nbar\nbaz"||)
 #+end_src
+
+This can be useful when debugging a macro-generated function (i.e. it
+doesn't have a body). First produce the body with =symbol-function=,
+then prettify the body with ~M~ and ~M-o~, then =edebug= with ~x e~.
+For instance, =(symbol-function 'lispy-parens)= ~E~ ~M~ ~a p~ ~M-o~.
 -----
 
 ** =lispy-outline-next=
@@ -1876,25 +1889,18 @@ Toggles on/off an =org-mode=-like outline (actually calls
 To see how to set it locally for each file, see
 [[https://github.com/abo-abo/lispy/blob/master/lispy.el][the last lines of lispy.el]].
 
-I'm using this [[https://github.com/capitaomorte/yasnippet][yasnippet]] to insert outline comments
-(also needs [[https://github.com/abo-abo/auto-yasnippet][auto-yasnippet]] to make use of =aya-tab-position=):
+I'm using this [[https://github.com/capitaomorte/yasnippet][yasnippet]] to insert the outline comments:
 
 #+begin_src text
 # -*- mode: snippet -*-
-# name: long_comment
+# name: long comment
 # key: cc
+# type: command
 # --
-;; --- $1 ${1:$(make-string (- 74 aya-tab-position (length yas-text)) ?-)}$0
-#+end_src
-
-And here's the short comment:
-
-#+begin_src text
-# -*- mode: snippet -*-
-# name: comment
-# key: c
-# --
-;; --- $1 ${1:$(make-string (- 40 aya-tab-position (length yas-text)) ?-)}$0
+(yas-expand-snippet
+ (format
+  ";; ——— $1 ${1:$(repeat-char (- 72 %d (length yas-text)) \"—\")}$0"
+  (current-column)))
 #+end_src
 
 Useful together with
@@ -1917,8 +1923,8 @@ Indent and prettify code.
 Prettify means to remove hanging closing parens, extra spaces,
 and to add space where it's needed, e.g. =(lambda (x))= instead of =(lambda(x))=.
 
-When in outline, hide/show outline.
-When region is active, go to car of the region.
+- When in outline, hide/show outline.
+- When region is active, go to car of the region.
 -----
 
 ** =lispy-edebug-stop=

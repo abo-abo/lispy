@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
 <title>lispy.el documentation</title>
-<!-- 2014-11-21 Fri 13:07 -->
+<!-- 2014-11-21 Fri 14:13 -->
 <meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta  name="generator" content="Org-mode" />
 <meta  name="author" content="Oleh" />
@@ -1401,7 +1401,7 @@ Now you can mark a symbol by pressing a letter, or cancel with <kbd>C-g</kbd>.
 </p>
 
 <p>
-Here's the end result of <kbd>hd</kbd>:
+Here's the end result of <kbd>ad</kbd>:
 </p>
 
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
@@ -1869,12 +1869,13 @@ buffer selection is done differently:
 <ul class="org-ul">
 <li>first buffer and region are defined by <a href="#lispy-store-region-and-buffer"><code>lispy-store-region-and-buffer</code></a>.
 </li>
-<li>second buffer and region are the current buffer and region
+<li>second buffer and region are the current buffer and region (or
+current sexp bounds if the region isn't active)
 </li>
 </ul>
 
 <p>
-Buffers can of course be the same.
+The buffers can of course be the same.
 </p>
 
 <p>
@@ -2281,21 +2282,49 @@ Insert <code>left</code>, <code>right</code> and put the point between them.
 </p>
 
 <p>
-Starting with
+Starting with:
 </p>
 <div class="org-src-container">
 
 <pre class="src src-text">"a string <cursor> </cursor>"
 </pre>
 </div>
-<p>
-pressing <kbd>(</kbd> will give:
-</p>
-<div class="org-src-container">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
-<pre class="src src-text">"a string (<cursor>)</cursor>"
-</pre>
-</div>
+
+<colgroup>
+<col  class="left" />
+
+<col  class="left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="left">key</th>
+<th scope="col" class="left">result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="left">(</td>
+<td class="left">"a string ("</td>
+</tr>
+
+<tr>
+<td class="left">)</td>
+<td class="left">"a string )"</td>
+</tr>
+
+<tr>
+<td class="left">{</td>
+<td class="left">"a string {}"</td>
+</tr>
+
+<tr>
+<td class="left">}</td>
+<td class="left">"a string []"</td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 
@@ -2386,35 +2415,8 @@ Bound to <kbd>x</kbd> (locally) or <kbd>C-4</kbd> (globally).
 </p>
 
 <p>
-Just a prefix to calling other commands, like
+Just a prefix to calling other commands,  <a href="#x-bindings">see</a>.
 </p>
-
-<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
-
-
-<colgroup>
-<col  class="left" />
-
-<col  class="left" />
-</colgroup>
-<thead>
-<tr>
-<th scope="col" class="left">key</th>
-<th scope="col" class="left">function name</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td class="left">l</td>
-<td class="left"><a href="#lispy-to-lambda">lispy-to-lambda</a></td>
-</tr>
-
-<tr>
-<td class="left">d</td>
-<td class="left"><a href="#lispy-to-defun">lispy-to-defun</a></td>
-</tr>
-</tbody>
-</table>
 <hr  />
 </div>
 </div>
@@ -2456,7 +2458,7 @@ Call <code>kill-line</code>.
 <h4 id="unnumbered-63">inside string that ends on this line</h4>
 <div class="outline-text-4" id="text-unnumbered-63">
 <p>
-Delete up to <code>line-end-position</code>.
+Delete up to the end of the string.
 </p>
 </div>
 </div>
@@ -2518,10 +2520,9 @@ Bound to <kbd>n</kbd>.
 <p>
 Copy current sexp or region to kill ring.
 </p>
+<hr  />
 </div>
 </div>
-
-
 <div id="outline-container-lispy-yank" class="outline-3">
 <h3 id="lispy-yank"><a id="unnumbered-70"></a><code>lispy-yank</code></h3>
 <div class="outline-text-3" id="text-lispy-yank">
@@ -2545,7 +2546,7 @@ Starting with:
 </div>
 
 <p>
-pressing <kbd>C-k</kbd> ~"~ <kbd>C-y</kbd> will give:
+pressing <kbd>C-k</kbd> <kbd>"</kbd> <kbd>C-y</kbd> will give:
 </p>
 <div class="org-src-container">
 
@@ -2595,6 +2596,24 @@ Delete region.
 <p>
 Delete \".
 </p>
+
+<table><tbody><tr><td>
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp"><span style="color: #2A00FF;">"say <cursor>\</cursor>"hi\""</span>
+</pre>
+</div>
+</td><td>
+<p>
+-&gt; <kbd>C-d</kbd> -&gt;
+</p>
+</td><td>
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp"><span style="color: #2A00FF;">"say <cursor>h</cursor>i\""</span>
+</pre>
+</div>
+</td></tr></tbody></table>
 </div>
 </div>
 
@@ -2976,9 +2995,9 @@ Mark the smallest comment or string or list that includes point.
 <p>
 This command will expand region when repeated.
 </p>
+<hr  />
 </div>
 </div>
-
 <div id="outline-container-lispy-kill-at-point" class="outline-3">
 <h3 id="lispy-kill-at-point"><a id="unnumbered-92"></a><code>lispy-kill-at-point</code></h3>
 <div class="outline-text-3" id="text-lispy-kill-at-point">
@@ -2989,9 +3008,9 @@ Bound to <kbd>C-,</kbd>.
 <p>
 Kill the smallest comment or string or list that includes point.
 </p>
+<hr  />
 </div>
 </div>
-
 <div id="outline-container-lispy-mark-symbol" class="outline-3">
 <h3 id="lispy-mark-symbol"><a id="unnumbered-93"></a><code>lispy-mark-symbol</code></h3>
 <div class="outline-text-3" id="text-lispy-mark-symbol">
@@ -3080,6 +3099,13 @@ pressing <kbd>M-o</kbd> will give:
 <pre class="src src-text">(message "foo\nbar\nbaz"<cursor>)</cursor>
 </pre>
 </div>
+
+<p>
+This can be useful when debugging a macro-generated function (i.e. it
+doesn't have a body). First produce the body with <code>symbol-function</code>,
+then prettify the body with <kbd>M</kbd> and <kbd>M-o</kbd>, then <code>edebug</code> with <kbd>x e</kbd>.
+For instance, <code>(symbol-function 'lispy-parens)</code> <kbd>E</kbd> <kbd>M</kbd> <kbd>a p</kbd> <kbd>M-o</kbd>.
+</p>
 <hr  />
 </div>
 </div>
@@ -3143,31 +3169,20 @@ To see how to set it locally for each file, see
 </p>
 
 <p>
-I'm using this <a href="https://github.com/capitaomorte/yasnippet">yasnippet</a> to insert outline comments
-(also needs <a href="https://github.com/abo-abo/auto-yasnippet">auto-yasnippet</a> to make use of <code>aya-tab-position</code>):
+I'm using this <a href="https://github.com/capitaomorte/yasnippet">yasnippet</a> to insert the outline comments:
 </p>
 
 <div class="org-src-container">
 
 <pre class="src src-text"># -*- mode: snippet -*-
-# name: long_comment
+# name: long comment
 # key: cc
+# type: command
 # --
-;; --- $1 ${1:$(make-string (- 74 aya-tab-position (length yas-text)) ?-)}$0
-</pre>
-</div>
-
-<p>
-And here's the short comment:
-</p>
-
-<div class="org-src-container">
-
-<pre class="src src-text"># -*- mode: snippet -*-
-# name: comment
-# key: c
-# --
-;; --- $1 ${1:$(make-string (- 40 aya-tab-position (length yas-text)) ?-)}$0
+(yas-expand-snippet
+ (format
+  ";; &#8212;&#8212;&#8212; $1 ${1:$(repeat-char (- 72 %d (length yas-text)) \"&#8212;\")}$0"
+  (current-column)))
 </pre>
 </div>
 
@@ -3223,10 +3238,12 @@ Prettify means to remove hanging closing parens, extra spaces,
 and to add space where it's needed, e.g. <code>(lambda (x))</code> instead of <code>(lambda(x))</code>.
 </p>
 
-<p>
-When in outline, hide/show outline.
-When region is active, go to car of the region.
-</p>
+<ul class="org-ul">
+<li>When in outline, hide/show outline.
+</li>
+<li>When region is active, go to car of the region.
+</li>
+</ul>
 <hr  />
 </div>
 </div>
