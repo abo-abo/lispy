@@ -2252,9 +2252,10 @@ ARG is 4: `eval-defun' on the function from this sexp."
         (or (eq 'macro (car def))
             (and (autoloadp def) (memq (nth 4 def) '(macro t))))))))
 
-(if (version< emacs-version "25.1")
-    (defalias 'lispy--preceding-sexp 'preceding-sexp)
-  (defalias 'lispy--preceding-sexp 'elisp--preceding-sexp))
+(defalias 'lispy--preceding-sexp
+    (if (version< emacs-version "25.1")
+        'preceding-sexp
+      'elisp--preceding-sexp))
 
 (defun lispy-flatten (arg)
   "Inline a function at the point of its call.
