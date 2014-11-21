@@ -1668,7 +1668,7 @@ Comments will be moved ahead of sexp."
                (self-insert-command 1))
               ((looking-at lispy-left)
                (setq bnd (lispy--bounds-dwim))
-               (lispy-counterclockwise)
+               (lispy-down 1)
                (comment-region (car bnd) (cdr bnd))
                (when (lispy--in-string-or-comment-p)
                  (lispy--out-backward 1)))
