@@ -86,7 +86,7 @@
 | o   | [[#lispy-other-mode][lispy-other-mode]]              |
 | p   | [[#lispy-clockwise][lispy-clockwise]]               |
 | q   | [[#lispy-ace-paren][lispy-ace-paren]]               |
-| r   | [[#=lispy-raise=][lispy-raise]]                   |
+| r   | [[#lispy-raise][lispy-raise]]                   |
 | s   | [[#lispy-move-down][lispy-move-down]]               |
 | t   | [[#lispy-teleport][lispy-teleport]]                |
 | u   | [[#lispy-undo][lispy-undo]]                    |
@@ -874,6 +874,9 @@ Now you can follow up with
 | F   | [[#lispy-follow][lispy-follow]]          |
 | C-1 | [[#lispy-describe-inline][lispy-describe-inline]] |
 | e   | [[#lispy-eval][lispy-eval]]            |
+| E   | [[#lispy-eval-and-insert][lispy-eval-and-insert]] |
+| P   | [[#lispy-paste][lispy-paste]]           |
+| r   | [[#lispy-raise][lispy-raise]]           |
 |-----+-----------------------|
 ------
 
@@ -2315,7 +2318,7 @@ When the mark is already active, deactivate it instead.
 -----
 ** =lispy-raise=
 :PROPERTIES:
-:CUSTOM_ID: =lispy-raise=
+:CUSTOM_ID: lispy-raise
 :END:
 
 Bound to ~r~.
