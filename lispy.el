@@ -2820,7 +2820,7 @@ For example, a `setq' statement is amended with variable name that it uses."
 (defun lispy--fetch-tags (&optional path)
   "Get a list of tags for PATH."
   (lispy--fetch-this-file-tags)
-  (setq path (or path default-directory))
+  (setq path (or path (expand-file-name default-directory)))
   (unless (string-match "/$" path)
     (setq path (concat path "/")))
   (let* ((this-file (buffer-file-name))
