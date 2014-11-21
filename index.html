@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
 <title>lispy.el function reference</title>
-<!-- 2014-11-21 Fri 15:37 -->
+<!-- 2014-11-21 Fri 16:28 -->
 <meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta  name="generator" content="Org-mode" />
 <meta  name="author" content="Oleh" />
@@ -288,7 +288,7 @@
 
 <tr>
 <td class="left">p</td>
-<td class="left"><a href="#lispy-clockwise">lispy-clockwise</a></td>
+<td class="left"><a href="#lispy-eval-other-window">lispy-eval-other-window</a></td>
 </tr>
 
 <tr>
@@ -333,7 +333,7 @@
 
 <tr>
 <td class="left">y</td>
-<td class="left">debug eval</td>
+<td class="left">unbound</td>
 </tr>
 
 <tr>
@@ -374,7 +374,7 @@
 <tbody>
 <tr>
 <td class="left">A</td>
-<td class="left">arglist</td>
+<td class="left"><a href="#lispy-arglist">lispy-arglist</a></td>
 </tr>
 
 <tr>
@@ -384,12 +384,12 @@
 
 <tr>
 <td class="left">C</td>
-<td class="left">convolute</td>
+<td class="left"><a href="#lispy-convolute">lispy-convolute</a></td>
 </tr>
 
 <tr>
 <td class="left">D</td>
-<td class="left">describe</td>
+<td class="left"><a href="#lispy-describe">lispy-describe</a></td>
 </tr>
 
 <tr>
@@ -404,7 +404,7 @@
 
 <tr>
 <td class="left">G</td>
-<td class="left">goto</td>
+<td class="left"><a href="#lispy-goto-local">lispy-goto-local</a></td>
 </tr>
 
 <tr>
@@ -454,22 +454,22 @@
 
 <tr>
 <td class="left">Q</td>
-<td class="left">ace-char</td>
+<td class="left"><a href="#lispy-ace-char">lispy-ace-char</a></td>
 </tr>
 
 <tr>
 <td class="left">R</td>
-<td class="left">raise-some</td>
+<td class="left"><a href="#lispy-raise-some">lispy-raise-some</a></td>
 </tr>
 
 <tr>
 <td class="left">S</td>
-<td class="left">stringify</td>
+<td class="left"><a href="#lispy-stringify">lispy-stringify</a></td>
 </tr>
 
 <tr>
 <td class="left">T</td>
-<td class="left">ert</td>
+<td class="left"><a href="#lispy-ert">lispy-ert</a></td>
 </tr>
 
 <tr>
@@ -4082,8 +4082,23 @@ and offer a helm completion list to jump to a selected tag.
 <hr  />
 </div>
 </div>
+<div id="outline-container-lispy-goto-local" class="outline-3">
+<h3 id="lispy-goto-local"><a id="unnumbered-126"></a><code>lispy-goto-local</code></h3>
+<div class="outline-text-3" id="text-lispy-goto-local">
+<p>
+Bound to <kbd>G</kbd>.
+</p>
+
+<p>
+Similar to <a href="#lispy-goto"><code>lispy-goto</code></a>, but only current file's tags are used instead
+of whole directory's tags.
+</p>
+<hr  />
+</div>
+</div>
+
 <div id="outline-container-lispy-mark-list" class="outline-3">
-<h3 id="lispy-mark-list"><a id="unnumbered-126"></a><code>lispy-mark-list</code></h3>
+<h3 id="lispy-mark-list"><a id="unnumbered-127"></a><code>lispy-mark-list</code></h3>
 <div class="outline-text-3" id="text-lispy-mark-list">
 <p>
 Bound to <kbd>m</kbd>.
@@ -4097,7 +4112,7 @@ When the mark is already active, deactivate it instead.
 </div>
 </div>
 <div id="outline-container-lispy-raise" class="outline-3">
-<h3 id="lispy-raise"><a id="unnumbered-127"></a><code>lispy-raise</code></h3>
+<h3 id="lispy-raise"><a id="unnumbered-128"></a><code>lispy-raise</code></h3>
 <div class="outline-text-3" id="text-lispy-raise">
 <p>
 Bound to <kbd>r</kbd>.
@@ -4107,29 +4122,29 @@ Bound to <kbd>r</kbd>.
 Use current sexp or region as replacement for its parent.
 </p>
 
-<p>
-Starting with
-</p>
-
+<table><tbody><tr><td>
 <div class="org-src-container">
 
 <pre class="src src-emacs-lisp">(<span style="color: #7F0055; font-weight: bold;">let</span> ((foo 1))
   <cursor>(</cursor>+ bar baz))
 </pre>
 </div>
+</td><td>
 <p>
-by pressing <kbd>r</kbd>, you get:
+-&gt; <kbd>r</kbd> -&gt;
 </p>
+</td><td>
 <div class="org-src-container">
 
 <pre class="src src-emacs-lisp"><cursor>(</cursor>+ bar baz)
 </pre>
 </div>
+</td></tr></tbody></table>
 <hr  />
 </div>
 </div>
 <div id="outline-container-lispy-move-down" class="outline-3">
-<h3 id="lispy-move-down"><a id="unnumbered-128"></a><code>lispy-move-down</code></h3>
+<h3 id="lispy-move-down"><a id="unnumbered-129"></a><code>lispy-move-down</code></h3>
 <div class="outline-text-3" id="text-lispy-move-down">
 <p>
 Bound to <kbd>s</kbd>.
@@ -4167,7 +4182,7 @@ list.
 </div>
 </div>
 <div id="outline-container-lispy-move-up" class="outline-3">
-<h3 id="lispy-move-up"><a id="unnumbered-129"></a><code>lispy-move-up</code></h3>
+<h3 id="lispy-move-up"><a id="unnumbered-130"></a><code>lispy-move-up</code></h3>
 <div class="outline-text-3" id="text-lispy-move-up">
 <p>
 Bound to <kbd>w</kbd>.
@@ -4186,17 +4201,21 @@ It's the reciprocal of <a href="#lispy-move-down"><code>lispy-move-down</code></
 
 
 <div id="outline-container-lispy-teleport" class="outline-3">
-<h3 id="lispy-teleport"><a id="unnumbered-130"></a><code>lispy-teleport</code></h3>
+<h3 id="lispy-teleport"><a id="unnumbered-131"></a><code>lispy-teleport</code></h3>
 <div class="outline-text-3" id="text-lispy-teleport">
 <p>
 Bound to <kbd>t</kbd>.
+</p>
+
+<p>
+Move the current sexp or region to a location specified by <a href="#lispy-ace-paren"><code>lispy-ace-paren</code></a>.
 </p>
 <hr  />
 </div>
 </div>
 
 <div id="outline-container-lispy-undo" class="outline-3">
-<h3 id="lispy-undo"><a id="unnumbered-131"></a><code>lispy-undo</code></h3>
+<h3 id="lispy-undo"><a id="unnumbered-132"></a><code>lispy-undo</code></h3>
 <div class="outline-text-3" id="text-lispy-undo">
 <p>
 Bound to <kbd>u</kbd>.
@@ -4209,22 +4228,235 @@ Forward to <code>undo</code>. If the mark is active, deactivate it first.
 </div>
 </div>
 <div id="outline-container-=lispy-ace-symbol-replace=" class="outline-3">
-<h3 id="=lispy-ace-symbol-replace="><a id="unnumbered-132"></a><code>lispy-ace-symbol-replace</code></h3>
+<h3 id="=lispy-ace-symbol-replace="><a id="unnumbered-133"></a><code>lispy-ace-symbol-replace</code></h3>
 <div class="outline-text-3" id="text-=lispy-ace-symbol-replace=">
 <p>
 Bound to <kbd>H</kbd>.
 </p>
 
 <p>
-Calls <a href="#lispy-ace-symbol"><code>lispy-ace-symbol</code></a>, in addition deleting only the selected
-symbol.
+Calls <a href="#lispy-ace-symbol"><code>lispy-ace-symbol</code></a> and deletes the selected symbol.
 </p>
+<hr  />
+</div>
+</div>
+<div id="outline-container-lispy-eval-other-window" class="outline-3">
+<h3 id="lispy-eval-other-window"><a id="unnumbered-134"></a><code>lispy-eval-other-window</code></h3>
+<div class="outline-text-3" id="text-lispy-eval-other-window">
+<p>
+Bound to <kbd>p</kbd>.
+</p>
+
+<p>
+Eval the current sexp in the context of the other window.
+This is useful for debugging interactive Elisp functions: 
+</p>
+
+<ul class="org-ul">
+<li>in one window keep the code of the function being debugged
+</li>
+<li>in the other window, keep the buffer on which the debugged function
+is supposed to work
+</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-lispy-describe" class="outline-3">
+<h3 id="lispy-describe"><a id="unnumbered-135"></a><code>lispy-describe</code></h3>
+<div class="outline-text-3" id="text-lispy-describe">
+<p>
+Bound to <kbd>D</kbd>.
+</p>
+
+<p>
+Just a shorthand for <code>describe-function</code>.
+</p>
+<hr  />
+</div>
+</div>
+<div id="outline-container-lispy-arglist" class="outline-3">
+<h3 id="lispy-arglist"><a id="unnumbered-136"></a><code>lispy-arglist</code></h3>
+<div class="outline-text-3" id="text-lispy-arglist">
+<p>
+Bound to <kbd>A</kbd>.
+</p>
+
+<p>
+Echo the arglist for current function.
+</p>
+<hr  />
+</div>
+</div>
+<div id="outline-container-lispy-convolute" class="outline-3">
+<h3 id="lispy-convolute"><a id="unnumbered-137"></a><code>lispy-convolute</code></h3>
+<div class="outline-text-3" id="text-lispy-convolute">
+<p>
+Bound to <kbd>C</kbd>.
+</p>
+
+<p>
+Exchange the order of application of two closest outer forms, relative
+to current expression or region.
+</p>
+
+<table><tbody><tr><td>
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">(<span style="color: #7F0055; font-weight: bold;">if</span> (= (weight person) standard-duck-weight)
+    (<span style="color: #7F0055; font-weight: bold;">unless</span> (sinks-in-water person)
+      <cursor>(</cursor>message <span style="color: #2A00FF;">"Burn her!"</span>)))
+</pre>
+</div>
+</td><td>
+<p>
+-&gt; <kbd>C</kbd> -&gt;
+</p>
+</td><td>
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">(<span style="color: #7F0055; font-weight: bold;">unless</span> (sinks-in-water person)
+  (<span style="color: #7F0055; font-weight: bold;">if</span> (= (weight person) standard-duck-weight)
+      <cursor>(</cursor>message <span style="color: #2A00FF;">"Burn her!"</span>)))
+</pre>
+</div>
+</td></tr></tbody></table>
+
+<p>
+This operation reverses itself.
+</p>
+<hr  />
+</div>
+</div>
+<div id="outline-container-lispy-ace-char" class="outline-3">
+<h3 id="lispy-ace-char"><a id="unnumbered-138"></a><code>lispy-ace-char</code></h3>
+<div class="outline-text-3" id="text-lispy-ace-char">
+<p>
+Bound to <kbd>Q</kbd>.
+Call <code>ace-jump-mode</code>, while narrowed to current list.
+</p>
+<hr  />
+</div>
+</div>
+<div id="outline-container-lispy-raise-some" class="outline-3">
+<h3 id="lispy-raise-some"><a id="unnumbered-139"></a><code>lispy-raise-some</code></h3>
+<div class="outline-text-3" id="text-lispy-raise-some">
+<p>
+Bound to <kbd>R</kbd>.
+</p>
+
+<p>
+Use current sexp and the following (if called from the left), or the
+preceeding (if called from the right) sexps, or the active region
+as replacement for their parent.
+</p>
+
+<p>
+Example 1:
+</p>
+
+<table><tbody><tr><td>
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">(<span style="color: #7F0055; font-weight: bold;">progn</span>
+  (message <span style="color: #2A00FF;">"one"</span>)
+  <cursor>(</cursor>message <span style="color: #2A00FF;">"two"</span>)
+  (message <span style="color: #2A00FF;">"three"</span>))
+</pre>
+</div>
+</td><td>
+<p>
+-&gt; <kbd>R</kbd> -&gt;
+</p>
+</td><td>
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp"><cursor>(</cursor>message <span style="color: #2A00FF;">"two"</span>)
+(message <span style="color: #2A00FF;">"three"</span>)
+</pre>
+</div>
+</td></tr></tbody></table>
+
+<p>
+Example 2:
+</p>
+
+<table><tbody><tr><td>
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">(<span style="color: #7F0055; font-weight: bold;">progn</span>
+  (message <span style="color: #2A00FF;">"one"</span>)
+  (message <span style="color: #2A00FF;">"two"</span>)<cursor> </cursor>
+  (message <span style="color: #2A00FF;">"three"</span>))
+</pre>
+</div>
+</td><td>
+<p>
+-&gt; <kbd>R</kbd> -&gt;
+</p>
+</td><td>
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">progn
+(message <span style="color: #2A00FF;">"one"</span>)
+(message <span style="color: #2A00FF;">"two"</span>)
+</pre>
+</div>
+</td></tr></tbody></table>
+<hr  />
+</div>
+</div>
+<div id="outline-container-lispy-ert" class="outline-3">
+<h3 id="lispy-ert"><a id="unnumbered-140"></a><code>lispy-ert</code></h3>
+<div class="outline-text-3" id="text-lispy-ert">
+<p>
+Bound to <kbd>T</kbd>.
+</p>
+
+<p>
+Forward to <code>ert</code>.
+</p>
+<hr  />
+</div>
+</div>
+<div id="outline-container-lispy-stringify" class="outline-3">
+<h3 id="lispy-stringify"><a id="unnumbered-141"></a><code>lispy-stringify</code></h3>
+<div class="outline-text-3" id="text-lispy-stringify">
+<p>
+Bound to <kbd>S</kbd>.
+</p>
+
+<p>
+Transform current sexp into a string.  Quote newlines if <code>arg</code>
+isn't 1.
+</p>
+
+<table><tbody><tr><td>
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">(<span style="color: #7F0055; font-weight: bold;">progn</span>
+  (message <span style="color: #2A00FF;">"one"</span>)
+  <cursor>(</cursor>message <span style="color: #2A00FF;">"two"</span>)
+  (message <span style="color: #2A00FF;">"three"</span>))
+</pre>
+</div>
+</td><td>
+<p>
+-&gt; <kbd>R</kbd> -&gt;
+</p>
+</td><td>
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp"><cursor>(</cursor>message <span style="color: #2A00FF;">"two"</span>)
+(message <span style="color: #2A00FF;">"three"</span>)
+</pre>
+</div>
+</td></tr></tbody></table>
 <hr  />
 </div>
 </div>
 
 <div id="outline-container-lispy-paste" class="outline-3">
-<h3 id="lispy-paste"><a id="unnumbered-133"></a><code>lispy-paste</code></h3>
+<h3 id="lispy-paste"><a id="unnumbered-142"></a><code>lispy-paste</code></h3>
 <div class="outline-text-3" id="text-lispy-paste">
 <p>
 Bound to <kbd>P</kbd>.

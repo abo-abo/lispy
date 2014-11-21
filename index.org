@@ -84,7 +84,7 @@
 | m   | [[#lispy-mark-list][lispy-mark-list]]               |
 | n   | [[#lispy-new-copy][lispy-new-copy]]                |
 | o   | [[#lispy-other-mode][lispy-other-mode]]              |
-| p   | [[#lispy-clockwise][lispy-clockwise]]               |
+| p   | [[#lispy-eval-other-window][lispy-eval-other-window]]       |
 | q   | [[#lispy-ace-paren][lispy-ace-paren]]               |
 | r   | [[#lispy-raise][lispy-raise]]                   |
 | s   | [[#lispy-move-down][lispy-move-down]]               |
@@ -93,7 +93,7 @@
 | v   | [[#lispy-view][lispy-view]]                    |
 | w   | [[#lispy-move-up][lispy-move-up]]                 |
 | x   | [[#x-bindings][see]]                           |
-| y   | debug eval                    |
+| y   | unbound                       |
 | z   | unbound                       |
 | >   | [[#lispy-slurp][lispy-slurp]]                   |
 | <   | [[#lispy-barf][lispy-barf]]                    |
@@ -101,13 +101,13 @@
 * [A-Z] local bindings
 | key | function name            |
 |-----+--------------------------|
-| A   | arglist                  |
+| A   | [[#lispy-arglist][lispy-arglist]]            |
 | B   | [[#lispy-ediff-regions][lispy-ediff-regions]]      |
-| C   | convolute                |
-| D   | describe                 |
+| C   | [[#lispy-convolute][lispy-convolute]]          |
+| D   | [[#lispy-describe][lispy-describe]]           |
 | E   | [[#lispy-eval-and-insert][lispy-eval-and-insert]]    |
 | F   | [[#lispy-follow][lispy-follow]]             |
-| G   | goto                     |
+| G   | [[#lispy-goto-local][lispy-goto-local]]         |
 | H   | [[#=lispy-ace-symbol-replace=][lispy-ace-symbol-replace]] |
 | I   | [[#lispy-shifttab][lispy-shifttab]]           |
 | J   | [[#lispy-outline-next][lispy-outline-next]]       |
@@ -117,10 +117,10 @@
 | N   | [[#lispy-narrow][lispy-narrow]]             |
 | O   | [[#lispy-oneline][lispy-oneline]]            |
 | P   | [[#lispy-paste][lispy-paste]]              |
-| Q   | ace-char                 |
-| R   | raise-some               |
-| S   | stringify                |
-| T   | ert                      |
+| Q   | [[#lispy-ace-char][lispy-ace-char]]           |
+| R   | [[#lispy-raise-some][lispy-raise-some]]         |
+| S   | [[#lispy-stringify][lispy-stringify]]          |
+| T   | [[#lispy-ert][lispy-ert]]                |
 | U   | unbound                  |
 | V   | [[#lispy-visit][lispy-visit]]              |
 | W   | [[#lispy-widen][lispy-widen]]              |
@@ -2560,6 +2560,17 @@ Bound to ~g~.
 Collect the tags (e.g. functions, variables ...) in current directory
 and offer a helm completion list to jump to a selected tag.
 -----
+** =lispy-goto-local=
+:PROPERTIES:
+:CUSTOM_ID: lispy-goto-local
+:END:
+
+Bound to ~G~.
+
+Similar to [[#lispy-goto][=lispy-goto=]], but only current file's tags are used instead
+of whole directory's tags.
+-----
+
 ** =lispy-mark-list=
 :PROPERTIES:
 :CUSTOM_ID: lispy-mark-list
@@ -2579,16 +2590,18 @@ Bound to ~r~.
 
 Use current sexp or region as replacement for its parent.
 
-Starting with
-
+#+HTML: <table><tbody><tr><td>
 #+begin_src emacs-lisp
 (let ((foo 1))
   ||(+ bar baz))
 #+end_src
-by pressing ~r~, you get:
+#+HTML: </td><td>
+-> ~r~ ->
+#+HTML: </td><td>
 #+begin_src emacs-lisp
 ||(+ bar baz)
 #+end_src
+#+HTML: </td></tr></tbody></table>
 -----
 ** =lispy-move-down=
 :PROPERTIES:
@@ -2637,6 +2650,8 @@ It's the reciprocal of [[#lispy-move-down][=lispy-move-down=]].
 :END:
 
 Bound to ~t~.
+
+Move the current sexp or region to a location specified by [[#lispy-ace-paren][=lispy-ace-paren=]].
 -----
 
 ** =lispy-undo=
@@ -2655,14 +2670,163 @@ Forward to =undo=. If the mark is active, deactivate it first.
 
 Bound to ~H~.
 
-Calls [[#lispy-ace-symbol][=lispy-ace-symbol=]], in addition deleting only the selected
-symbol.
+Calls [[#lispy-ace-symbol][=lispy-ace-symbol=]] and deletes the selected symbol.
 -----
+** =lispy-eval-other-window=
+:PROPERTIES:
+:CUSTOM_ID: lispy-eval-other-window
+:END:
+
+Bound to ~p~.
+
+Eval the current sexp in the context of the other window.
+This is useful for debugging interactive Elisp functions:
+
+- in one window keep the code of the function being debugged
+- in the other window, keep the buffer on which the debugged function
+  is supposed to work
+** =lispy-describe=
+:PROPERTIES:
+:CUSTOM_ID: lispy-describe
+:END:
+
+Bound to ~D~.
+
+Just a shorthand for =describe-function=.
+-----
+** =lispy-arglist=
+:PROPERTIES:
+:CUSTOM_ID: lispy-arglist
+:END:
+
+Bound to ~A~.
+
+Echo the arglist for current function.
+-----
+** =lispy-convolute=
+:PROPERTIES:
+:CUSTOM_ID: lispy-convolute
+:END:
+
+Bound to ~C~.
+
+Exchange the order of application of two closest outer forms, relative
+to current expression or region.
+
+#+HTML: <table><tbody><tr><td>
+#+begin_src emacs-lisp
+(if (= (weight person) standard-duck-weight)
+    (unless (sinks-in-water person)
+      ||(message "Burn her!")))
+#+end_src
+#+HTML: </td><td>
+-> ~C~ ->
+#+HTML: </td><td>
+#+begin_src emacs-lisp
+(unless (sinks-in-water person)
+  (if (= (weight person) standard-duck-weight)
+      ||(message "Burn her!")))
+#+end_src
+#+HTML: </td></tr></tbody></table>
+
+This operation reverses itself.
+-----
+** =lispy-ace-char=
+:PROPERTIES:
+:CUSTOM_ID: lispy-ace-char
+:END:
+
+Bound to ~Q~.
+Call =ace-jump-mode=, while narrowed to current list.
+-----
+** =lispy-raise-some=
+:PROPERTIES:
+:CUSTOM_ID: lispy-raise-some
+:END:
+
+Bound to ~R~.
+
+Use current sexp and the following (if called from the left), or the
+preceeding (if called from the right) sexps, or the active region
+as replacement for their parent.
+
+Example 1:
+
+#+HTML: <table><tbody><tr><td>
+#+begin_src emacs-lisp
+(progn
+  (message "one")
+  ||(message "two")
+  (message "three"))
+#+end_src
+#+HTML: </td><td>
+-> ~R~ ->
+#+HTML: </td><td>
+#+begin_src emacs-lisp
+||(message "two")
+(message "three")
+#+end_src
+#+HTML: </td></tr></tbody></table>
+
+Example 2:
+
+#+HTML: <table><tbody><tr><td>
+#+begin_src emacs-lisp
+(progn
+  (message "one")
+  (message "two")||
+  (message "three"))
+#+end_src
+#+HTML: </td><td>
+-> ~R~ ->
+#+HTML: </td><td>
+#+begin_src emacs-lisp
+progn
+(message "one")
+(message "two")
+#+end_src
+#+HTML: </td></tr></tbody></table>
+-----
+** =lispy-ert=
+:PROPERTIES:
+:CUSTOM_ID: lispy-ert
+:END:
+
+Bound to ~T~.
+
+Forward to =ert=.
+-----
+** =lispy-stringify=
+:PROPERTIES:
+:CUSTOM_ID: lispy-stringify
+:END:
+
+Bound to ~S~.
+
+Transform current sexp into a string.  Quote newlines if =arg=
+isn't 1.
+
+#+HTML: <table><tbody><tr><td>
+#+begin_src emacs-lisp
+(progn
+  (message "one")
+  ||(message "two")
+  (message "three"))
+#+end_src
+#+HTML: </td><td>
+-> ~R~ ->
+#+HTML: </td><td>
+#+begin_src emacs-lisp
+||(message "two")
+(message "three")
+#+end_src
+#+HTML: </td></tr></tbody></table>
+------
 
 ** =lispy-paste=
-   :PROPERTIES:
-   :CUSTOM_ID: lispy-paste
-   :END:
+:PROPERTIES:
+:CUSTOM_ID: lispy-paste
+:END:
 
 Bound to ~P~.
 
