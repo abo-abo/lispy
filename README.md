@@ -176,13 +176,14 @@ Key Binding     | Description
 These are the few Lispy commands that don't care whether the point is
 special or not. Other such bindings are `DEL`, `C-d`, `C-k`.
 
-You want to get into special for manipulating/navigating lists.
-If you want to manipulate symbols, use region selection instead.
+Special is useful for manipulating/navigating lists.  If you want to
+manipulate symbols, use [region selection](#operating-on-regions)
+instead.
 
 ### Digit keys in special
 
 When special, the digit keys call `digit-argument` which is very
-useful since most Lispy commands accept a numeric argument.
+useful since most lispy commands accept a numeric argument.
 For instance, `3c` is equivalent to `ccc` (clone sexp 3 times), and
 `4j` is equivalent to `jjjj` (move point 4 sexps down).
 
@@ -239,14 +240,12 @@ key      | command
 Here's a list of modified insertion commands that handle whitespace
 in addition to self-inserting:
 
-    |-----+------------------------------------|
-    | key | command                            |
-    |-----+------------------------------------|
-    | SPC | `lispy-space'                      |
-    |  :  | `lispy-colon'                      |
-    |  ^  | `lispy-hat'                        |
-    | C-m | `lispy-newline-and-indent'         |
-    |-----+------------------------------------|
+ key   | command
+-------|----------------------------------
+ `SPC` | `lispy-space`
+  `:`  | `lispy-colon`
+  `^`  | `lispy-hat`
+ `C-m` | `lispy-newline-and-indent`
 
 Here's a list of IDE-like commands ([details here](#ide-like-features)):
 
