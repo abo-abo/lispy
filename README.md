@@ -100,6 +100,8 @@ and you press a normal key, so new commands can be called in that situation.
     - `M-.` jumps to symbol, `.` jumps back
     - `C-1` shows documentation in an overlay
     - `C-2` shows arguments in an overlay
+    - [`Z`](http://abo-abo.github.io/lispy/#lispy-edebug-stop) breaks
+      out of `edebug`, while storing current function's arguments
 
 - Code manipulation:
     - `i` prettifies code (remove extra space, hanging parens ...)
