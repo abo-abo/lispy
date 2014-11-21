@@ -3167,9 +3167,14 @@ Ignore the matches in strings and comments."
         args)
     (when (eq (car body) 'lambda)
       (setq body (cons 'defun body)))
-    (if (memq (car body) '(defun defmacro))
-        (setq body (lispy--whitespace-trim (cdr body)))
-      (error "Expected defun, got %s" (car body)))
+    (cond ((memq (car body) '(defun defmacro))
+           (setq body (lispy--whitespace-trim (cdr body))))
+          ((eq (car body) 'defalias)
+           (let ((name (cadr (cadr (read str)))))
+             (setq body
+                   (cons name (cdr (symbol-function name))))))
+          (t
+           (error "Expected defun, defmacro, or defalias got %s" (car body))))
     (if (symbolp (car body))
         (setq body (lispy--whitespace-trim (cdr body)))
       (error "Expected function name, got %s" (car body)))
