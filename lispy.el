@@ -1916,6 +1916,29 @@ In case 'setq isn't present, add it."
            (let ((args (car (help-split-fundoc (documentation sym t) sym))))
              (message "%s" args))))))
 
+(defvar lispy-bof-last-point 1)
+
+(defun lispy-beginning-of-defun (&optional arg)
+  "Forward to `beginning-of-defun'. Deactivate region.
+When called twice in a row, restore point and mark."
+  (interactive "p")
+  (if (and (looking-at "(def")
+           (eq last-command
+               'special-lispy-beginning-of-defun))
+      (if (consp lispy-bof-last-point)
+          (progn
+            (goto-char (car lispy-bof-last-point))
+            (set-mark (cdr lispy-bof-last-point)))
+        (goto-char lispy-bof-last-point))
+    (if (region-active-p)
+        (progn
+          (setq lispy-bof-last-point
+                (cons (region-beginning)
+                      (region-end)))
+          (deactivate-mark))
+      (setq lispy-bof-last-point (point)))
+    (beginning-of-defun arg)))
+
 ;; ——— Locals:  ace-jump-mode  —————————————————————————————————————————————————
 (defun lispy-ace-char ()
   "Call `ace-jump-char-mode' on current defun."
@@ -4148,7 +4171,7 @@ FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)"
   (lispy-define-key map "g" 'lispy-goto)
   (lispy-define-key map "F" 'lispy-follow t)
   (lispy-define-key map "D" 'lispy-describe)
-  (lispy-define-key map "A" 'lispy-arglist)
+  (lispy-define-key map "A" 'lispy-beginning-of-defun)
   ;; ——— locals: miscellanea ——————————————————
   (lispy-define-key map "SPC" 'lispy-space)
   (lispy-define-key map "i" 'lispy-tab)
