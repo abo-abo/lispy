@@ -1923,15 +1923,21 @@ In case 'setq isn't present, add it."
   (let ((bnd (save-excursion
                (lispy--out-backward 50)
                (lispy--bounds-dwim)))
-        (fancy (and lispy-fancy-narrow (package-installed-p 'fancy-narrow))))
+        (fancy (and lispy-fancy-narrow (package-installed-p 'fancy-narrow)))
+        (semantic semantic-mode))
     (save-restriction
       (if fancy
-          (fancy-narrow-to-region (car bnd) (cdr bnd))
+          (progn
+            (semantic-mode 0)
+            (fancy-narrow-to-region (car bnd) (cdr bnd)))
         (narrow-to-region (car bnd) (cdr bnd)))
       (let ((ace-jump-mode-scope 'window))
         (call-interactively 'ace-jump-char-mode))
       (if fancy
-          (fancy-widen)
+          (progn
+            (fancy-widen)
+            (when semantic
+              (semantic-mode 1)))
         (widen)))))
 
 (defun lispy-ace-paren ()
