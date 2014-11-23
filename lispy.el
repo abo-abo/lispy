@@ -236,6 +236,12 @@ area."
   :type 'boolean
   :group 'lispy)
 
+(defcustom lispy-fancy-narrow t
+  "If t, use `lispy-ace-char' will use `fancy-narrow-to-region'
+instead of `narrow-to-region' if `fancy-narrow' is installed."
+  :type 'boolean
+  :group 'lispy)
+
 (defvar lispy-mode-map (make-sparse-keymap))
 
 ;;;###autoload
@@ -1916,12 +1922,17 @@ In case 'setq isn't present, add it."
   (interactive)
   (let ((bnd (save-excursion
                (lispy--out-backward 50)
-               (lispy--bounds-dwim))))
+               (lispy--bounds-dwim)))
+        (fancy (and lispy-fancy-narrow (package-installed-p 'fancy-narrow))))
     (save-restriction
-      (narrow-to-region (car bnd) (cdr bnd))
+      (if fancy
+          (fancy-narrow-to-region (car bnd) (cdr bnd))
+        (narrow-to-region (car bnd) (cdr bnd)))
       (let ((ace-jump-mode-scope 'window))
         (call-interactively 'ace-jump-char-mode))
-      (widen))))
+      (if fancy
+          (fancy-widen)
+        (widen)))))
 
 (defun lispy-ace-paren ()
   "Use `lispy--ace-do' to jump to `lispy-left' within current defun.
