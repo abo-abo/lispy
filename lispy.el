@@ -2043,6 +2043,8 @@ When region is active, call `lispy-mark-car'."
               (ly-raw newline)))
           (backward-char))
       (let ((pt (point)))
+        (when (region-active-p)
+          (deactivate-mark))
         (when (looking-back ")")
           (backward-list))
         (while (and (not (looking-at "(lambda"))
@@ -2054,8 +2056,8 @@ When region is active, call `lispy-mark-car'."
               (insert "defun " name)
               (lispy-kill-at-point)
               (insert "#'" name)
-              (message "defun stored to kill ring"))
-          (goto-char pt)
+              (message "defun stored to kill ring")
+              (lispy-backward 1))
           (error "Not in lambda"))))))
 
 ;; ——— Locals:  multiple cursors ———————————————————————————————————————————————
