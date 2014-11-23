@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/abo-abo/lispy.svg?branch=master)](https://travis-ci.org/abo-abo/lispy)
+
 <!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc/generate-toc again -->
 **Table of Contents**
 
@@ -12,7 +14,12 @@
         - [Digit keys in special](#digit-keys-in-special)
         - [How to get out of special](#how-to-get-out-of-special)
         - [List commands overview](#list-commands-overview)
-        - [Navigating within a top-level list with `ace-jump`](#navigating-within-a-top-level-list-with-ace-jump)
+            - [Reversible commands](#reversible-commands)
+            - [Inserting pairs](#inserting-pairs)
+            - [Keys that modify whitespace](#keys-that-modify-whitespace)
+            - [List of IDE-like commands ([details here](#ide-like-features))](#list-of-ide-like-commands-details-hereide-like-features)
+            - [Command chaining](#command-chaining)
+            - [Navigating with `ace-jump-mode`-related commands](#navigating-with-ace-jump-mode-related-commands)
     - [Operating on regions](#operating-on-regions)
         - [Ways to activate region](#ways-to-activate-region)
         - [Move region around](#move-region-around)
