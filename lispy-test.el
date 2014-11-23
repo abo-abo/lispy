@@ -1,4 +1,6 @@
 (require 'lispy)
+(custom-set-variables
+ '(indent-tabs-mode nil))
 
 ;; ——— Infrastructure ——————————————————————————————————————————————————————————
 (defmacro lispy-with (in &rest body)

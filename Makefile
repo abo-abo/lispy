@@ -7,7 +7,7 @@ CASK = ~/.cask/bin/cask
 CASKEMACS = $(CASK) exec $(EMACS)
 LOAD = -l lispy-inline.el -l lispy.el
 
-.PHONY: emacsq clean
+.PHONY: emacsq clean cask
 
 all: emacsq
 
@@ -36,7 +36,7 @@ compile:
 ert:
 	$(CASKEMACS) -q $(LOAD) -l lispy-test.el  --eval "(ert t)"
 
-test:
+test: cask
 	$(CASKEMACS) -batch $(LOAD) -l lispy-simple-test.el -f ert-run-tests-batch-and-exit
 
 clean:
