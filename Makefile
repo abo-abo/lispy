@@ -2,7 +2,9 @@ EMACS = emacs
 # EMACS = emacs-24.3
 # EMACS = emacs24
 
-CASKEMACS = cask exec $(EMACS)
+CASK = ~/.cask/bin/cask
+
+CASKEMACS = $(CASK) exec $(EMACS)
 LOAD = -l init.el -l lispy-inline.el -l lispy.el
 
 .PHONY: emacsq clean
