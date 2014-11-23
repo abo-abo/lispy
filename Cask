@@ -14,4 +14,5 @@
  (depends-on "cider")
  (depends-on "slime")
  (depends-on "geiser")
- (depends-on "projectile"))
+ (depends-on "projectile")
+ (depends-on "s"))
