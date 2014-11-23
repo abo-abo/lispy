@@ -36,7 +36,7 @@ compile:
 ert:
 	$(CASKEMACS) -q $(LOAD) -l lispy-test.el  --eval "(ert t)"
 
-test: cask
+test:
 	$(CASKEMACS) -batch $(LOAD) -l lispy-simple-test.el -f ert-run-tests-batch-and-exit
 
 clean:
