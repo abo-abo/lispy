@@ -584,23 +584,41 @@ Return nil if can't move."
   (interactive "p")
   (lispy--ensure-visible)
   (cond ((region-active-p)
-         (if (= (point) (region-end))
-             (lispy-dotimes-protect arg
-               (forward-sexp 1)
-               (lispy-different)
-               (forward-sexp 2)
-               (forward-sexp -1)
-               (lispy-different))
-           (lispy-dotimes-protect arg
-             (lispy-different)
-             (if (ignore-errors
+         (let* ((str (lispy--string-dwim))
+                (no-space (not (string-match "[][(){} \"]" str)))
+                delta)
+           (if no-space
+               (if (= (point) (region-end))
+                   (lispy-dotimes arg
+                   (when (lispy-slurp 1)
+                     (lispy-different)
+                     (lispy-barf 1)
+                     (lispy-different)))
+                 (lispy-dotimes arg
+                     (lispy-different)
+                     (if (lispy-slurp 1)
+                         (progn
+                           (lispy-different)
+                           (lispy-barf 1))
+                       (lispy-different))))
+
+             (if (= (point) (region-end))
+                 (lispy-dotimes-protect arg
                    (forward-sexp 1)
-                   t)
-                 (progn
                    (lispy-different)
                    (forward-sexp 2)
-                   (forward-sexp -1))
-               (lispy-different)))))
+                   (forward-sexp -1)
+                   (lispy-different))
+               (lispy-dotimes-protect arg
+                 (lispy-different)
+                 (if (ignore-errors
+                       (forward-sexp 1)
+                       t)
+                     (progn
+                       (lispy-different)
+                       (forward-sexp 2)
+                       (forward-sexp -1))
+                   (lispy-different)))))))
 
         ((looking-at lispy-left)
          (lispy-forward arg)
@@ -625,23 +643,40 @@ Return nil if can't move."
   (interactive "p")
   (lispy--ensure-visible)
   (cond ((region-active-p)
-         (if (= (point) (region-end))
-             (lispy-dotimes-protect arg
-               (lispy-different)
-               (if (ignore-errors
-                     (backward-sexp 1) t)
-                   (progn
+         (let* ((str (lispy--string-dwim))
+                (no-space (not (string-match "[][(){} \"]" str)))
+                delta)
+           (if no-space
+               (if (= (point) (region-end))
+                   (lispy-dotimes arg
                      (lispy-different)
-                     (backward-sexp 2)
-                     (backward-sexp -1))
+                     (if (lispy-slurp 1)
+                         (progn
+                           (lispy-different)
+                           (lispy-barf 1))
+                       (lispy-different)))
+                 (lispy-dotimes arg
+                   (when (lispy-slurp 1)
+                     (lispy-different)
+                     (lispy-barf 1)
+                     (lispy-different))))
+             (if (= (point) (region-end))
+                 (lispy-dotimes-protect arg
+                   (lispy-different)
+                   (if (ignore-errors
+                         (backward-sexp 1) t)
+                       (progn
+                         (lispy-different)
+                         (backward-sexp 2)
+                         (backward-sexp -1))
+                     (lispy-different)
+                     (error "Can't move up")))
+               (lispy-dotimes-protect arg
+                 (backward-sexp 1)
                  (lispy-different)
-                 (error "Can't move up")))
-           (lispy-dotimes-protect arg
-             (backward-sexp 1)
-             (lispy-different)
-             (backward-sexp 2)
-             (backward-sexp -1)
-             (lispy-different))))
+                 (backward-sexp 2)
+                 (backward-sexp -1)
+                 (lispy-different))))))
 
         ((looking-at lispy-left)
          (let ((pt (point)))
@@ -1175,7 +1210,8 @@ Return the amount of successful grow steps, nil instead of zero."
               (lispy--sub-slurp-forward arg)
             (lispy-dotimes-protect arg
               (forward-sexp 1)))
-        (if (looking-back "-")
+        (if (or (looking-back "-")
+                (= ?- (char-after (region-end))))
             (lispy--sub-slurp-backward arg)
           (lispy-dotimes-protect arg
             (forward-sexp -1))))
@@ -1258,7 +1294,7 @@ Return the amount of successful grow steps, nil instead of zero."
   (interactive "p")
   (cond ((region-active-p)
          (let* ((str (lispy--string-dwim))
-                (no-space (not (string-match " " str)))
+                (no-space (not (string-match "[][(){} \"]" str)))
                 delta)
            (if (= (point) (region-end))
                (if no-space
