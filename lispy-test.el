@@ -412,6 +412,30 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "\"\\\\|\"" "}")
                    "\"\\\\[|\\\\]\"")))
 
+(ert-deftest lispy--sub-slurp-forward ()
+  (should (eq (lispy-with-value "(progn\n  ~foo|-bar-baz-flip-flop)"
+                                (lispy--sub-slurp-forward 1)) 1))
+  (should (eq (lispy-with-value "(progn\n  ~foo|-bar-baz-flip-flop)"
+                                (lispy--sub-slurp-forward 4)) 4))
+  (should (eq (lispy-with-value "(progn\n  ~foo|-bar-baz-flip-flop)"
+                                (lispy--sub-slurp-forward 5)) 4))
+  (should (eq (lispy-with-value "(progn\n  ~foo|-bar-baz-flip-flop)"
+                                (lispy--sub-slurp-forward 10)) 4))
+  (should (eq (lispy-with-value "(progn\n  ~foo|-bar-baz-flip-flop)"
+                                (lispy--sub-slurp-forward 5)
+                                (lispy--sub-slurp-forward 1)) nil)))
+
+(ert-deftest lispy--sub-slurp-backward ()
+  (should (eq (lispy-with-value "(progn\n  foo-bar-baz-flip-|flop~)"
+                                (lispy--sub-slurp-backward 1)) 1))
+  (should (eq (lispy-with-value "(progn\n  foo-bar-baz-flip-|flop~)"
+                                (lispy--sub-slurp-backward 4)) 4))
+  (should (eq (lispy-with-value "(progn\n  foo-bar-baz-flip-|flop~)"
+                                (lispy--sub-slurp-backward 5)) 4))
+  (should (eq (lispy-with-value "(progn\n  foo-bar-baz-flip-|flop~)"
+                                (lispy--sub-slurp-backward 5)
+                                (lispy--sub-slurp-backward 1)) nil)))
+
 (ert-deftest lispy-slurp ()
   (should (string= (lispy-with "()|(a) (b) (c)" ">")
                    "((a))| (b) (c)"))
@@ -442,7 +466,7 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "(progn\n  ~foo|-bar-baz-flip-flop)" (lispy-slurp 4))
                    "(progn\n  ~foo-bar-baz-flip-flop|)"))
   (should (string= (lispy-with "(progn\n  ~foo|-bar-baz-flip-flop)" (lispy-slurp 5))
-                   "(progn\n  ~foo-bar-baz-flip-flop)|"))
+                   "(progn\n  ~foo-bar-baz-flip-flop|)"))
   (should (string= (lispy-with "(progn\n  foo-bar-baz-flip-|flop~)" (lispy-slurp 1))
                    "(progn\n  foo-bar-baz-|flip-flop~)"))
   (should (string= (lispy-with "(progn\n  foo-bar-baz-flip-|flop~)" (lispy-slurp 2))
@@ -452,7 +476,7 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "(progn\n  foo-bar-baz-flip-|flop~)" (lispy-slurp 4))
                    "(progn\n  |foo-bar-baz-flip-flop~)"))
   (should (string= (lispy-with "(progn\n  foo-bar-baz-flip-|flop~)" (lispy-slurp 5))
-                   "(|progn\n  foo-bar-baz-flip-flop~)")))
+                   "(progn\n  |foo-bar-baz-flip-flop~)")))
 
 (ert-deftest lispy-barf ()
   (should (string= (lispy-with "((a) (b) (c))|" "<")

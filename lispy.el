@@ -291,6 +291,23 @@ Otherwise return t."
         nil))
      out))
 
+(defmacro lispy-dotimes (n &rest bodyform)
+  "Execute N times the BODYFORM unless an error is signaled.
+Return nil if couldn't execute BODYFORM at least once.
+Otherwise return the amount of times executed."
+  (declare (indent 1))
+  `(let ((i 0))
+     (catch 'result
+       (condition-case e
+           (progn
+             (while (<= (incf i) ,n)
+               ,@bodyform)
+             ,n)
+         (error
+          (when (eq (car e) 'buffer-read-only)
+            (message "Buffer is read-only: %s" (current-buffer)))
+          nil)))))
+
 (defmacro lispy-save-excursion (&rest body)
   "More intuitive (`save-excursion' BODY)."
   (declare (indent 0))
@@ -1123,29 +1140,52 @@ Special case is (|( -> ( |(."
   (iedit-mode 0))
 
 ;; ——— Locals:  Paredit transformations ————————————————————————————————————————
+(defun lispy--sub-slurp-forward (arg)
+  "Grow current marked symbol by ARG words forwards.
+Return the amount of successful grow steps, nil instead of zero."
+  (when (looking-at "-")
+    (let ((end (cdr (bounds-of-thing-at-point 'symbol)))
+          prev)
+      (lispy-dotimes arg
+        (setq prev (point))
+        (forward-word 1)
+        (when (> (point) end)
+          (goto-char prev)
+          (throw 'result (1- i)))))))
+
+(defun lispy--sub-slurp-backward (arg)
+  "Grow current marked symbol by ARG backwards.
+Return the amount of successful grow steps, nil instead of zero."
+  (when (looking-back "-")
+    (let ((beg (car (bounds-of-thing-at-point 'symbol)))
+          prev)
+      (lispy-dotimes arg
+        (setq prev (point))
+        (backward-word 1)
+        (when (< (point) beg)
+          (goto-char prev)
+          (throw 'result (1- i)))))))
+
 (defun lispy-slurp (arg)
   "Grow current sexp by ARG sexps."
   (interactive "p")
-  (cond ((region-active-p)
-         (if (= (point) (region-end))
-             (if (looking-at "-")
-                 (lispy-dotimes-protect arg
-                   (forward-word 1))
-               (lispy-dotimes-protect arg
-                 (forward-sexp 1)))
-           (if (looking-back "-")
-               (lispy-dotimes-protect arg
-                 (forward-word -1))
-             (lispy-dotimes-protect arg
-               (forward-sexp -1)))))
-        ((or (looking-at "()")
-             (and (looking-at lispy-left) (not (looking-back "()"))))
-         (lispy-dotimes-protect arg
-           (lispy--slurp-backward)))
-        ((looking-back lispy-right)
-         (lispy-dotimes-protect arg
-           (lispy--slurp-forward))))
-  (unless (region-active-p)
+  (if (region-active-p)
+      (if (= (point) (region-end))
+          (if (looking-at "-")
+              (lispy--sub-slurp-forward arg)
+            (lispy-dotimes-protect arg
+              (forward-sexp 1)))
+        (if (looking-back "-")
+            (lispy--sub-slurp-backward arg)
+          (lispy-dotimes-protect arg
+            (forward-sexp -1))))
+    (if (or (looking-at "()")
+            (and (looking-at lispy-left) (not (looking-back "()"))))
+        (lispy-dotimes-protect arg
+          (lispy--slurp-backward))
+      (if (looking-back lispy-right)
+          (lispy-dotimes-protect arg
+            (lispy--slurp-forward))))
     (lispy--reindent)))
 
 (defun lispy-down-slurp ()
