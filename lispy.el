@@ -48,7 +48,7 @@
 ;; |--------------------+-----+--------------------|
 ;;
 ;; When special, the digit keys call `digit-argument', since most
-;; Lispy commands accept a numeric argument.  For instance, "3c" is
+;; `lispy' commands accept a numeric argument.  For instance, "3c" is
 ;; equivalent to "ccc" (clone sexp 3 times), and "4j" is equivalent to
 ;; "jjjj" (move point 4 sexps down).  Some useful applications are
 ;; "9l" and "9a" - they exit list forwards and backwards respectively
@@ -131,7 +131,7 @@
 ;; | g     | `lispy-goto'                     |
 ;; | G     | `lispy-goto-local'               |
 ;; | q     | `lispy-ace-paren'                |
-;; | h     | `lispy-ace-symbol'               |
+;; | a     | `lispy-ace-symbol'               |
 ;; | Q     | `lispy-ace-char'                 |
 ;; | D     | `lispy-describe'                 |
 ;; | F     | `lispy-follow'                   |
@@ -158,9 +158,8 @@
 ;; |-------+----------------------------------|
 ;;
 ;; Most special commands will leave the point special after they're
-;; done.  This allows to chain them as well as apply them
-;; continuously by holding the key.  Some useful holdable keys are
-;; "jkopf<>cws;".
+;; done.  This allows to chain them as well as apply them continuously
+;; by holding the key.  Some useful holdable keys are "jkf<>cws;".
 ;; Not so useful, but fun is "/": start it from "|(" position and hold
 ;; until all your Lisp code is turned into Python :).
 ;;
@@ -1948,15 +1947,16 @@ When called twice in a row, restore point and mark."
   "Call `ace-jump-char-mode' on current defun."
   (interactive)
   (let ((bnd (save-excursion
+               ;; `beginning-of-defun' won't work, since it can change sexp
                (lispy--out-backward 50)
                (lispy--bounds-dwim)))
-        (fancy (and lispy-fancy-narrow (package-installed-p 'fancy-narrow))))
+        (fancy (and lispy-fancy-narrow (package-installed-p 'fancy-narrow)))
+        (ace-jump-mode-scope 'window))
     (save-restriction
       (if fancy
           (fancy-narrow-to-region (car bnd) (cdr bnd))
         (narrow-to-region (car bnd) (cdr bnd)))
-      (let ((ace-jump-mode-scope 'window))
-        (call-interactively 'ace-jump-char-mode))
+      (call-interactively 'ace-jump-char-mode)
       (if fancy
           (fancy-widen)
         (widen)))))
