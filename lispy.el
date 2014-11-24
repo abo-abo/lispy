@@ -192,6 +192,7 @@
 (require 'lispy-inline)
 (require 'iedit)
 (require 'delsel)
+(require 'package)
 
 ;; ——— Customization ———————————————————————————————————————————————————————————
 (defgroup lispy nil
@@ -1940,27 +1941,24 @@ When called twice in a row, restore point and mark."
     (beginning-of-defun arg)))
 
 ;; ——— Locals:  ace-jump-mode  —————————————————————————————————————————————————
+(declare-function fancy-narrow-to-region "ext:fancy-narrow")
+(declare-function fancy-widen "ext:fancy-narrow")
+
 (defun lispy-ace-char ()
   "Call `ace-jump-char-mode' on current defun."
   (interactive)
   (let ((bnd (save-excursion
                (lispy--out-backward 50)
                (lispy--bounds-dwim)))
-        (fancy (and lispy-fancy-narrow (package-installed-p 'fancy-narrow)))
-        (semantic semantic-mode))
+        (fancy (and lispy-fancy-narrow (package-installed-p 'fancy-narrow))))
     (save-restriction
       (if fancy
-          (progn
-            (semantic-mode 0)
-            (fancy-narrow-to-region (car bnd) (cdr bnd)))
+          (fancy-narrow-to-region (car bnd) (cdr bnd))
         (narrow-to-region (car bnd) (cdr bnd)))
       (let ((ace-jump-mode-scope 'window))
         (call-interactively 'ace-jump-char-mode))
       (if fancy
-          (progn
-            (fancy-widen)
-            (when semantic
-              (semantic-mode 1)))
+          (fancy-widen)
         (widen)))))
 
 (defun lispy-ace-paren ()
