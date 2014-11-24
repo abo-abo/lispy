@@ -590,10 +590,10 @@ Return nil if can't move."
            (if no-space
                (if (= (point) (region-end))
                    (lispy-dotimes arg
-                   (when (lispy-slurp 1)
-                     (lispy-different)
-                     (lispy-barf 1)
-                     (lispy-different)))
+                     (when (lispy-slurp 1)
+                       (lispy-different)
+                       (lispy-barf 1)
+                       (lispy-different)))
                  (lispy-dotimes arg
                      (lispy-different)
                      (if (lispy-slurp 1)
@@ -1206,7 +1206,8 @@ Return the amount of successful grow steps, nil instead of zero."
   (interactive "p")
   (if (region-active-p)
       (if (= (point) (region-end))
-          (if (looking-at "-")
+          (if (or (looking-at "-")
+                  (eq (char-before (region-beginning)) ?-))
               (lispy--sub-slurp-forward arg)
             (lispy-dotimes-protect arg
               (forward-sexp 1)))
