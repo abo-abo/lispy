@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
 <title>lispy.el function reference</title>
-<!-- 2014-11-21 Fri 16:31 -->
+<!-- 2014-11-24 Mon 12:28 -->
 <meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta  name="generator" content="Org-mode" />
 <meta  name="author" content="Oleh" />
@@ -374,7 +374,7 @@
 <tbody>
 <tr>
 <td class="left">A</td>
-<td class="left"><a href="#lispy-arglist">lispy-arglist</a></td>
+<td class="left"><a href="#lispy-beginning-of-defun">lispy-beginning-of-defun</a></td>
 </tr>
 
 <tr>
@@ -4278,17 +4278,34 @@ Just a shorthand for <code>describe-function</code>.
 <h3 id="lispy-arglist"><a id="unnumbered-136"></a><code>lispy-arglist</code></h3>
 <div class="outline-text-3" id="text-lispy-arglist">
 <p>
-Bound to <kbd>A</kbd>.
-</p>
-
-<p>
 Echo the arglist for current function.
 </p>
 <hr  />
 </div>
 </div>
+<div id="outline-container-lispy-beginning-of-defun" class="outline-3">
+<h3 id="lispy-beginning-of-defun"><a id="unnumbered-137"></a><code>lispy-beginning-of-defun</code></h3>
+<div class="outline-text-3" id="text-lispy-beginning-of-defun">
+<p>
+Bound to <kbd>A</kbd>.
+</p>
+
+<p>
+Forward to <code>beginning-of-defun</code>. When called twice in a row, restore
+the previous point and mark positions.
+</p>
+
+<p>
+A useful combo while debugging is <kbd>Aa</kbd> to select symbol, and <kbd>eA</kbd> to
+look at its value and go back. Repeat when needed.
+</p>
+<hr  />
+</div>
+</div>
+
+
 <div id="outline-container-lispy-convolute" class="outline-3">
-<h3 id="lispy-convolute"><a id="unnumbered-137"></a><code>lispy-convolute</code></h3>
+<h3 id="lispy-convolute"><a id="unnumbered-138"></a><code>lispy-convolute</code></h3>
 <div class="outline-text-3" id="text-lispy-convolute">
 <p>
 Bound to <kbd>C</kbd>.
@@ -4328,7 +4345,7 @@ This operation reverses itself.
 </div>
 </div>
 <div id="outline-container-lispy-ace-char" class="outline-3">
-<h3 id="lispy-ace-char"><a id="unnumbered-138"></a><code>lispy-ace-char</code></h3>
+<h3 id="lispy-ace-char"><a id="unnumbered-139"></a><code>lispy-ace-char</code></h3>
 <div class="outline-text-3" id="text-lispy-ace-char">
 <p>
 Bound to <kbd>Q</kbd>.
@@ -4338,7 +4355,7 @@ Call <code>ace-jump-mode</code>, while narrowed to current list.
 </div>
 </div>
 <div id="outline-container-lispy-raise-some" class="outline-3">
-<h3 id="lispy-raise-some"><a id="unnumbered-139"></a><code>lispy-raise-some</code></h3>
+<h3 id="lispy-raise-some"><a id="unnumbered-140"></a><code>lispy-raise-some</code></h3>
 <div class="outline-text-3" id="text-lispy-raise-some">
 <p>
 Bound to <kbd>R</kbd>.
@@ -4406,7 +4423,7 @@ Example 2:
 </div>
 </div>
 <div id="outline-container-lispy-ert" class="outline-3">
-<h3 id="lispy-ert"><a id="unnumbered-140"></a><code>lispy-ert</code></h3>
+<h3 id="lispy-ert"><a id="unnumbered-141"></a><code>lispy-ert</code></h3>
 <div class="outline-text-3" id="text-lispy-ert">
 <p>
 Bound to <kbd>T</kbd>.
@@ -4419,7 +4436,7 @@ Forward to <code>ert</code>.
 </div>
 </div>
 <div id="outline-container-lispy-stringify" class="outline-3">
-<h3 id="lispy-stringify"><a id="unnumbered-141"></a><code>lispy-stringify</code></h3>
+<h3 id="lispy-stringify"><a id="unnumbered-142"></a><code>lispy-stringify</code></h3>
 <div class="outline-text-3" id="text-lispy-stringify">
 <p>
 Bound to <kbd>S</kbd>.
@@ -4456,7 +4473,7 @@ isn't 1.
 </div>
 
 <div id="outline-container-lispy-paste" class="outline-3">
-<h3 id="lispy-paste"><a id="unnumbered-142"></a><code>lispy-paste</code></h3>
+<h3 id="lispy-paste"><a id="unnumbered-143"></a><code>lispy-paste</code></h3>
 <div class="outline-text-3" id="text-lispy-paste">
 <p>
 Bound to <kbd>P</kbd>.

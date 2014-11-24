@@ -101,7 +101,7 @@
 * [A-Z] local bindings
 | key | function name            |
 |-----+--------------------------|
-| A   | [[#lispy-arglist][lispy-arglist]]            |
+| A   | [[#lispy-beginning-of-defun][lispy-beginning-of-defun]] |
 | B   | [[#lispy-ediff-regions][lispy-ediff-regions]]      |
 | C   | [[#lispy-convolute][lispy-convolute]]          |
 | D   | [[#lispy-describe][lispy-describe]]           |
@@ -2699,10 +2699,23 @@ Just a shorthand for =describe-function=.
 :CUSTOM_ID: lispy-arglist
 :END:
 
-Bound to ~A~.
-
 Echo the arglist for current function.
 -----
+** =lispy-beginning-of-defun=
+:PROPERTIES:
+:CUSTOM_ID: lispy-beginning-of-defun
+:END:
+
+Bound to ~A~.
+
+Forward to =beginning-of-defun=. When called twice in a row, restore
+the previous point and mark positions.
+
+A useful combo while debugging is ~Aa~ to select symbol, and ~eA~ to
+look at its value and go back. Repeat when needed.
+-----
+
+
 ** =lispy-convolute=
 :PROPERTIES:
 :CUSTOM_ID: lispy-convolute
