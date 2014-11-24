@@ -1128,10 +1128,16 @@ Special case is (|( -> ( |(."
   (interactive "p")
   (cond ((region-active-p)
          (if (= (point) (region-end))
+             (if (looking-at "-")
+                 (lispy-dotimes-protect arg
+                   (forward-word 1))
+               (lispy-dotimes-protect arg
+                 (forward-sexp 1)))
+           (if (looking-back "-")
+               (lispy-dotimes-protect arg
+                 (forward-word -1))
              (lispy-dotimes-protect arg
-               (forward-sexp 1))
-           (lispy-dotimes-protect arg
-             (forward-sexp -1))))
+               (forward-sexp -1)))))
         ((or (looking-at "()")
              (and (looking-at lispy-left) (not (looking-back "()"))))
          (lispy-dotimes-protect arg
