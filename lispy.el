@@ -1217,21 +1217,35 @@ Special case is (|( -> ( |(."
   "Shrink current sexp by ARG sexps."
   (interactive "p")
   (cond ((region-active-p)
-         (if (= (point) (region-end))
-             (save-restriction
-               (narrow-to-region (region-beginning)
-                                 (point-max))
-               (lispy-dotimes-protect (1+ arg)
-                 (forward-sexp -1))
-               (forward-sexp 1)
-               (widen))
-           (save-restriction
-             (narrow-to-region (point-min)
-                               (region-end))
-             (lispy-dotimes-protect (1+ arg)
-               (forward-sexp 1))
-             (forward-sexp -1)
-             (widen))))
+         (let* ((str (lispy--string-dwim))
+                (no-space (not (string-match " " str)))
+                delta)
+           (if (= (point) (region-end))
+               (if no-space
+                   (lispy-dotimes-protect arg
+                     (when (setq delta (cl-position ?- str :from-end t))
+                       (backward-char (- (length str)
+                                         delta)))
+                     (setq str (lispy--string-dwim)))
+                 (save-restriction
+                   (narrow-to-region (region-beginning)
+                                     (point-max))
+                   (lispy-dotimes-protect (1+ arg)
+                     (forward-sexp -1))
+                   (forward-sexp 1)
+                   (widen)))
+             (if no-space
+                 (lispy-dotimes-protect arg
+                   (when (setq delta (cl-position ?- str))
+                     (forward-char (1+ delta)))
+                   (setq str (lispy--string-dwim)))
+               (save-restriction
+                 (narrow-to-region (point-min)
+                                   (region-end))
+                 (lispy-dotimes-protect (1+ arg)
+                   (forward-sexp 1))
+                 (forward-sexp -1)
+                 (widen))))))
 
         ((looking-at "()"))
 
