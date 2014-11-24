@@ -2019,8 +2019,9 @@ In case 'setq isn't present, add it."
 When called twice in a row, restore point and mark."
   (interactive "p")
   (if (and (looking-at "(def")
-           (eq last-command
-               'special-lispy-beginning-of-defun))
+           (memq last-command
+                 '(lispy-beginning-of-defun
+                   special-lispy-beginning-of-defun)))
       (if (consp lispy-bof-last-point)
           (progn
             (goto-char (car lispy-bof-last-point))
