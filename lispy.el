@@ -1627,7 +1627,7 @@ The outcome when ahead of sexps is different from when behind."
                (delete-region (match-beginning 1)
                               (match-end 1))))
         (deactivate-mark)
-        (lispy-backward 1)
+        (lispy--out-backward 1)
         (setq pt (point))
         (insert str)
         (newline-and-indent)
