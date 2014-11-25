@@ -36,6 +36,7 @@
         - [`lispy-follow`](#lispy-follow)
         - [`lispy-goto`](#lispy-goto)
         - [`lispy-goto-local`](#lispy-goto-local)
+- [Demos](#demos)
 - [Screencasts](#screencasts)
 
 <!-- markdown-toc end -->
