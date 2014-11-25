@@ -3725,25 +3725,6 @@ the first character of EXPR."
      (+ (point-min) offset)
      (point-max))))
 
-(defun lispy-quote-symbol (symbol)
-  (cond ((not (symbolp symbol))
-         symbol)
-        ((memq symbol '(\` \, \,@))
-         symbol)
-        ((string= (symbol-name symbol)
-                  (prin1-to-string symbol))
-         symbol)
-        (t
-         `(ly-raw symbol ,(symbol-name symbol)))))
-
-(defun lispy-mapcar-tree (function tree)
-  (cond ((and (listp tree)
-              (listp (cdr tree)))
-         (mapcar (lambda (x) (lispy-mapcar-tree function x)) tree))
-
-        (t
-         (funcall function tree))))
-
 (defun lispy--insert-1 (expr)
   "Insert the EXPR read by `lispy--read'."
   (let ((start-pt (point))
