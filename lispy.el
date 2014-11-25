@@ -2180,18 +2180,25 @@ When region is active, call `lispy-mark-car'."
 (declare-function mc/all-fake-cursors "ext:multiple-cursors")
 (declare-function mc/maybe-multiple-cursors-mode "ext:multiple-cursors")
 (declare-function mc/mark-lines "ext:multiple-cursors")
+(declare-function mc/remove-fake-cursors "ext:multiple-cursors")
 
 (defun lispy-cursor-down (arg)
   "Add ARG cursors using `lispy-down'."
   (interactive "p")
   (require 'multiple-cursors)
-  (if (looking-at lispy-left)
-      (lispy-dotimes arg
-        (mc/create-fake-cursor-at-point)
-        (loop do (lispy-down 1)
-           while (mc/all-fake-cursors (point) (1+ (point)))))
-    (mc/mark-lines arg 'forwards))
-  (mc/maybe-multiple-cursors-mode))
+  (if (and (mc/all-fake-cursors)
+           (not (eq last-command
+                    'lispy-cursor-down)))
+      (progn
+        (deactivate-mark)
+        (mc/remove-fake-cursors))
+    (if (looking-at lispy-left)
+        (lispy-dotimes arg
+          (mc/create-fake-cursor-at-point)
+          (loop do (lispy-down 1)
+             while (mc/all-fake-cursors (point) (1+ (point)))))
+      (mc/mark-lines arg 'forwards))
+    (mc/maybe-multiple-cursors-mode)))
 
 (defun lispy-cursor-ace ()
   "Add a cursor using `lispy--ace-do'.
