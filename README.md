@@ -1,4 +1,6 @@
 [![Build Status](https://travis-ci.org/abo-abo/lispy.svg?branch=master)](https://travis-ci.org/abo-abo/lispy)
+[![MELPA](http://melpa.org/packages/lispy-badge.svg)](http://melpa.org/#/lispy)
+[![MELPA Stable](http://stable.melpa.org/packages/lispy-badge.svg)](http://stable.melpa.org/#/lispy)
 
 <!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc/generate-toc again -->
 **Table of Contents**
