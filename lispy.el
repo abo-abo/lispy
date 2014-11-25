@@ -300,17 +300,6 @@ Otherwise return the amount of times executed."
        (back-to-indentation))
      out))
 
-(defmacro lispy-from-left* (&rest body)
-  "Ensure that BODY is executed from start of list."
-  (let ((at-start (cl-gensym "at-start")))
-    `(let ((,at-start (looking-at lispy-left)))
-       (unless ,at-start
-         (lispy-backward 1))
-       (unwind-protect
-            ,@body
-         (unless ,at-start
-           (forward-list 1))))))
-
 (defmacro lispy-from-left (&rest body)
   "Ensure that BODY is executed from start of list."
   (let ((at-start (cl-gensym "at-start")))
