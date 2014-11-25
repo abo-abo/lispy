@@ -2465,27 +2465,108 @@ mind about calling the modified ~hjkl~.
 :PROPERTIES:
 :CUSTOM_ID: lispy-move-left
 :END:
+
+Bound to ~oh~.
+
 Move current expression to the left, outside the current list.
+
+#+HTML: <table><tbody><tr><td>
+#+begin_src emacs-lisp
+(require 'ob-python)
+(let ((color "Blue"))
+  ||(message "What... is your favorite color?")
+  (message "%s. No yel..." color))
+#+end_src
+#+HTML: </td><td>
+-> ~oh~ ->
+#+HTML: </td><td>
+#+begin_src emacs-lisp
+(require 'ob-python)
+||(message "What... is your favorite color?")
+(let ((color "Blue"))
+  (message "%s. No yel..." color))
+#+end_src
+#+HTML: </td></tr></tbody></table>
 -----
 
 ** =lispy-down-slurp=
 :PROPERTIES:
 :CUSTOM_ID: lispy-down-slurp
 :END:
-Move current expression to become the first element of the first list below.
+Bound to ~oj~.
+
+Move current expression to become the first element of the first list
+below.
+
+#+HTML: <table><tbody><tr><td>
+#+begin_src emacs-lisp
+||(first!)
+'(foo bar)
+#+end_src
+#+HTML: </td><td>
+-> ~oj~ ->
+#+HTML: </td><td>
+#+begin_src emacs-lisp
+'(||(first!)
+  foo bar)
+#+end_src
+#+HTML: </td></tr></tbody></table>
 -----
 
 ** =lispy-up-slurp=
 :PROPERTIES:
 :CUSTOM_ID: lispy-up-slurp
 :END:
-Move current expression to become the last element of the first list above.
+
+Bound to ~ok~.
+
+Move current expression to become the last element of the first list
+above.
+
+#+HTML: <table><tbody><tr><td>
+#+begin_src emacs-lisp
+(list 'my-sword
+      'my-bow)
+||(my-axe)
+#+end_src
+#+HTML: </td><td>
+-> ~ok~ ->
+#+HTML: </td><td>
+#+begin_src emacs-lisp
+(list 'my-sword
+      'my-bow
+      ||(my-axe))
+#+end_src
+#+HTML: </td></tr></tbody></table>
 -----
 ** =lispy-move-right=
 :PROPERTIES:
 :CUSTOM_ID: lispy-move-right
 :END:
+
+Bound to ~ol~.
+
 Move current expression to the right, outside the current list.
+
+#+HTML: <table><tbody><tr><td>
+#+begin_src emacs-lisp
+(require 'ob-python)
+(message "What... is your favorite color?")
+(let ((color "Blue"))
+  (message color)
+  ||(message "Go on. Off you go."))
+#+end_src
+#+HTML: </td><td>
+-> ~ol~ ->
+#+HTML: </td><td>
+#+begin_src emacs-lisp
+(require 'ob-python)
+(message "What... is your favorite color?")
+(let ((color "Blue"))
+  (message color))
+||(message "Go on. Off you go.")
+#+end_src
+#+HTML: </td></tr></tbody></table>
 -----
 ** =lispy-amend=
 :PROPERTIES:

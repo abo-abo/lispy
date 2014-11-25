@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
 <title>lispy.el function reference</title>
-<!-- 2014-11-24 Mon 12:28 -->
+<!-- 2014-11-25 Tue 16:25 -->
 <meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta  name="generator" content="Org-mode" />
 <meta  name="author" content="Oleh" />
@@ -3946,8 +3946,36 @@ mind about calling the modified <kbd>hjkl</kbd>.
 <h3 id="lispy-move-left"><a id="unnumbered-118"></a><code>lispy-move-left</code></h3>
 <div class="outline-text-3" id="text-lispy-move-left">
 <p>
+Bound to <kbd>oh</kbd>.
+</p>
+
+<p>
 Move current expression to the left, outside the current list.
 </p>
+
+<table><tbody><tr><td>
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">(<span style="color: #7F0055; font-weight: bold;">require</span> '<span style="color: #110099;">ob-python</span>)
+(<span style="color: #7F0055; font-weight: bold;">let</span> ((color <span style="color: #2A00FF;">"Blue"</span>))
+  <cursor>(</cursor>message <span style="color: #2A00FF;">"What... is your favorite color?"</span>)
+  (message <span style="color: #2A00FF;">"%s. No yel..."</span> color))
+</pre>
+</div>
+</td><td>
+<p>
+-&gt; <kbd>oh</kbd> -&gt;
+</p>
+</td><td>
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">(<span style="color: #7F0055; font-weight: bold;">require</span> '<span style="color: #110099;">ob-python</span>)
+<cursor>(</cursor>message <span style="color: #2A00FF;">"What... is your favorite color?"</span>)
+(<span style="color: #7F0055; font-weight: bold;">let</span> ((color <span style="color: #2A00FF;">"Blue"</span>))
+  (message <span style="color: #2A00FF;">"%s. No yel..."</span> color))
+</pre>
+</div>
+</td></tr></tbody></table>
 <hr  />
 </div>
 </div>
@@ -3956,8 +3984,33 @@ Move current expression to the left, outside the current list.
 <h3 id="lispy-down-slurp"><a id="unnumbered-119"></a><code>lispy-down-slurp</code></h3>
 <div class="outline-text-3" id="text-lispy-down-slurp">
 <p>
-Move current expression to become the first element of the first list below.
+Bound to <kbd>oj</kbd>.
 </p>
+
+<p>
+Move current expression to become the first element of the first list
+below.
+</p>
+
+<table><tbody><tr><td>
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp"><cursor>(</cursor>first!)
+'(foo bar)
+</pre>
+</div>
+</td><td>
+<p>
+-&gt; <kbd>oj</kbd> -&gt;
+</p>
+</td><td>
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">'(<cursor>(</cursor>first!)
+  foo bar)
+</pre>
+</div>
+</td></tr></tbody></table>
 <hr  />
 </div>
 </div>
@@ -3966,8 +4019,35 @@ Move current expression to become the first element of the first list below.
 <h3 id="lispy-up-slurp"><a id="unnumbered-120"></a><code>lispy-up-slurp</code></h3>
 <div class="outline-text-3" id="text-lispy-up-slurp">
 <p>
-Move current expression to become the last element of the first list above.
+Bound to <kbd>ok</kbd>.
 </p>
+
+<p>
+Move current expression to become the last element of the first list
+above.
+</p>
+
+<table><tbody><tr><td>
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">(list 'my-sword
+      'my-bow)
+<cursor>(</cursor>my-axe)
+</pre>
+</div>
+</td><td>
+<p>
+-&gt; <kbd>ok</kbd> -&gt;
+</p>
+</td><td>
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">(list 'my-sword
+      'my-bow
+      <cursor>(</cursor>my-axe))
+</pre>
+</div>
+</td></tr></tbody></table>
 <hr  />
 </div>
 </div>
@@ -3975,8 +4055,38 @@ Move current expression to become the last element of the first list above.
 <h3 id="lispy-move-right"><a id="unnumbered-121"></a><code>lispy-move-right</code></h3>
 <div class="outline-text-3" id="text-lispy-move-right">
 <p>
+Bound to <kbd>ol</kbd>.
+</p>
+
+<p>
 Move current expression to the right, outside the current list.
 </p>
+
+<table><tbody><tr><td>
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">(<span style="color: #7F0055; font-weight: bold;">require</span> '<span style="color: #110099;">ob-python</span>)
+(message <span style="color: #2A00FF;">"What... is your favorite color?"</span>)
+(<span style="color: #7F0055; font-weight: bold;">let</span> ((color <span style="color: #2A00FF;">"Blue"</span>))
+  (message color)
+  <cursor>(</cursor>message <span style="color: #2A00FF;">"Go on. Off you go."</span>))
+</pre>
+</div>
+</td><td>
+<p>
+-&gt; <kbd>ol</kbd> -&gt;
+</p>
+</td><td>
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">(<span style="color: #7F0055; font-weight: bold;">require</span> '<span style="color: #110099;">ob-python</span>)
+(message <span style="color: #2A00FF;">"What... is your favorite color?"</span>)
+(<span style="color: #7F0055; font-weight: bold;">let</span> ((color <span style="color: #2A00FF;">"Blue"</span>))
+  (message color))
+<cursor>(</cursor>message <span style="color: #2A00FF;">"Go on. Off you go."</span>)
+</pre>
+</div>
+</td></tr></tbody></table>
 <hr  />
 </div>
 </div>
