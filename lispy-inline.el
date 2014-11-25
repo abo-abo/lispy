@@ -2,11 +2,6 @@
 
 ;; Copyright (C) 2014 Oleh Krehel
 
-;; Author: Oleh Krehel <ohwoeowho@gmail.com>
-;; URL: https://github.com/abo-abo/lispy
-;; Version: 0.8
-;; Keywords: lisp
-
 ;; This file is not part of GNU Emacs
 
 ;; This file is free software; you can redistribute it and/or modify
