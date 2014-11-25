@@ -4109,7 +4109,8 @@ return the corresponding `setq' expression."
 (defvar company-no-begin-commands '(special-lispy-space))
 (defvar mc/cmds-to-run-for-all nil)
 (defvar mc/cmds-to-run-once nil)
-(add-to-list 'mc/cmds-to-run-once 'lispy-cursor-down)
+(mapc (lambda (x) (add-to-list 'mc/cmds-to-run-once x))
+      '(lispy-cursor-down special-lispy-other-mode))
 (mapc (lambda (x) (add-to-list 'mc/cmds-to-run-for-all x))
       '(lispy-parens lispy-brackets lispy-braces lispy-quotes
         lispy-kill lispy-delete))
