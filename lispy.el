@@ -2101,15 +2101,20 @@ Sexp is obtained by exiting list ARG times."
   "Mark sub-word within a sexp.
 Sexp is obtained by exiting list ARG times."
   (interactive "p")
-  (lispy--out-forward
-   (if (region-active-p)
-       (progn (deactivate-mark) arg)
-     (1- arg)))
-  (lispy--ace-do
-   "[([{ -]\\(?:\\sw\\|\\s_\\|\\s(\\|[\"'`#]\\)"
-   (lispy--bounds-dwim)
-   (lambda () (or (not (lispy--in-string-or-comment-p)) (looking-back ".\"")))
-   (lambda () (skip-chars-forward "-([{ `'#") (mark-word))))
+  (if (and (region-active-p)
+           (string-match "\\`\\(\\sw+\\)\\s_"
+                         (lispy--string-dwim)))
+      (lispy--mark (cons (region-beginning)
+                         (+ (region-beginning) (match-end 1))))
+    (lispy--out-forward
+     (if (region-active-p)
+         (progn (deactivate-mark) arg)
+       (1- arg)))
+    (lispy--ace-do
+     "[([{ -]\\(?:\\sw\\|\\s_\\|\\s(\\|[\"'`#]\\)"
+     (lispy--bounds-dwim)
+     (lambda () (or (not (lispy--in-string-or-comment-p)) (looking-back ".\"")))
+     (lambda () (skip-chars-forward "-([{ `'#") (mark-word)))))
 
 (defun lispy-ace-symbol-replace (arg)
   "Use `ace-jump-char-mode' to jump to a symbol within a sexp and delete it.

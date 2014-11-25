@@ -889,6 +889,10 @@ Insert KEY if there's no command."
             (throw 'break nil))
         (lispy-tab)))))
 
+(ert-deftest lispy-ace-subword ()
+  (should (string= (lispy-with "|foo-bar-baz~" (lispy-ace-subword 1))
+                   "~foo|-bar-baz")))
+
 (provide 'lispy-test)
 
 ;;; Local Variables:
