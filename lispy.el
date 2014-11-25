@@ -359,7 +359,7 @@ Otherwise return the amount of times executed."
 GRAMMAR is a list of nouns that work with this verb."
   (let* ((sym (intern (format "lispy-%s-mode" name)))
          (keymap (intern (format "lispy-%s-mode-map" name)))
-         (doc (format "%s verb." (capitalize name)))
+         (doc (format "%s verb.\n\n \\{lispy-%s-mode-map}" (capitalize name) name))
          (lighter (format " [%s]" name))
          (verb (intern (format "lispy-%s-verb" name)))
          (msg (format "[%s]: %s" name
