@@ -1762,7 +1762,7 @@ Comments will be moved ahead of sexp."
        (lispy--insert-1
         (butlast
          (cl-mapcan (lambda (y) (list y '(ly-raw newline)))
-                 (lispy--read str))))))))
+                    (lispy--read str))))))))
 
 (defun lispy-comment (&optional arg)
   "Comment ARG sexps."
@@ -3211,6 +3211,14 @@ Ignore the matches in strings and comments."
                       (forward-sexp)
                       (insert ")")
                       (replace-match "(ly-raw function "))))
+                ;; ——— # ——————————————————————
+                (goto-char (point-min))
+                (while (re-search-forward "#(" nil t)
+                  (unless (lispy--in-string-or-comment-p)
+                    (backward-char 1)
+                    (backward-delete-char 1)
+                    (forward-char 1)
+                    (insert "ly-raw clojure-lambda ")))
                 ;; ——— ' ——————————————————————
                 (goto-char (point-min))
                 (while (re-search-forward "'" nil t)
@@ -3820,6 +3828,10 @@ the first character of EXPR."
              (delete-region beg (point))
              (insert (format "#'%S" (caddr sxp)))
              (goto-char beg))
+            (clojure-lambda
+             (delete-region beg (point))
+             (insert (format "#%S" (cddr sxp)))
+             (goto-char beg))
             (\`
              (if (> (length sxp) 3)
                  (progn
@@ -3848,6 +3860,10 @@ the first character of EXPR."
       (goto-char (point-min))
       (while (re-search-forward "[a-z-A-Z]\\(\\\\\\?\\)" nil t)
         (replace-match "?" t t nil 1))
+      (goto-char (point-min))
+      (while (re-search-forward "\\\\\\." nil t)
+        (unless (lispy--in-string-p)
+          (replace-match ".")))
       (goto-char (point-max))
       (widen)))
   (backward-list)
@@ -4329,11 +4345,7 @@ They may become the defaults in the future."
   (let ((map lispy-mode-x-map))
     (define-key map "d" nil)
     (define-key map "l" nil)
-    (define-key map "e" 'lispy-edebug)
-    (define-key map "m" 'lispy-cursor-ace)
-    (define-key map "f" nil)
-    (define-key map "r" 'lispy-eval-and-replace)
-    (define-key map "s" 'save-buffer)))
+    (define-key map "f" nil)))
 
 (provide 'lispy)
 
