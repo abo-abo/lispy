@@ -272,27 +272,7 @@ backward through lists, which is useful to move into special.
   :group 'lispy
   :lighter " LY")
 
-(defvar lispy-dotimes-counter 0)
-
 ;; ——— Macros ——————————————————————————————————————————————————————————————————
-(defmacro lispy-dotimes-protect (n &rest bodyform)
-  "Execute N times the BODYFORM unless an error is signaled.
-Return nil couldn't execute BODYFORM at least once.
-Otherwise return t."
-  (declare (indent 1))
-  `(let ((i 0)
-         out)
-     (condition-case e
-         (while (<= (incf i) ,n)
-           ,@bodyform
-           (setq out t)
-           (setq lispy-dotimes-counter i))
-       (error
-        (when (eq (car e) 'buffer-read-only)
-          (message "Buffer is read-only: %s" (current-buffer)))
-        nil))
-     out))
-
 (defmacro lispy-dotimes (n &rest bodyform)
   "Execute N times the BODYFORM unless an error is signaled.
 Return nil if couldn't execute BODYFORM at least once.
@@ -308,7 +288,8 @@ Otherwise return the amount of times executed."
          (error
           (when (eq (car e) 'buffer-read-only)
             (message "Buffer is read-only: %s" (current-buffer)))
-          nil)))))
+          (decf i)
+          (and (> i 0) i))))))
 
 (defmacro lispy-save-excursion (&rest body)
   "More intuitive (`save-excursion' BODY)."
@@ -421,10 +402,10 @@ otherwise call `lispy-out-forward' and return nil."
     (when bnd
       (goto-char (1+ (cdr bnd)))))
   (let ((pt (point))
-        (r (lispy-dotimes-protect arg
-             (when (= (point) (point-max))
+        (r (lispy-dotimes arg
+            (when (= (point) (point-max))
                (error "Reached end of buffer"))
-             (forward-list))))
+            (forward-list))))
     ;; `forward-list' returns true at and of buffer
     (if (or (null r)
             (= pt (point))
@@ -448,7 +429,7 @@ If couldn't move backward at least once, move up backward and return nil."
     (when bnd
       (goto-char (car bnd))))
   (let ((pt (point))
-        (r (lispy-dotimes-protect arg
+        (r (lispy-dotimes arg
              (when (= (point) (point-min))
                (error "Reached beginning of buffer"))
              (backward-list))))
@@ -494,7 +475,7 @@ Return nil on failure, t otherwise."
   "Call `lispy--out-forward', then ARG times `newline-and-indent'."
   (interactive "p")
   (lispy--out-forward 1)
-  (lispy-dotimes-protect arg
+  (lispy-dotimes arg
     (newline-and-indent)))
 
 (defvar lispy-meol-point 1
@@ -525,7 +506,7 @@ Return nil if can't move."
   (interactive "p")
   (let ((pt (point))
         success)
-    (lispy-dotimes-protect arg
+    (lispy-dotimes arg
       (cond ((looking-at lispy-left)
              (forward-char)
              (re-search-forward lispy-left nil t)
@@ -609,13 +590,13 @@ Return nil if can't move."
                      (lispy-different))))
 
              (if (= (point) (region-end))
-                 (lispy-dotimes-protect arg
+                 (lispy-dotimes arg
                    (forward-sexp 1)
                    (lispy-different)
                    (forward-sexp 2)
                    (forward-sexp -1)
                    (lispy-different))
-               (lispy-dotimes-protect arg
+               (lispy-dotimes arg
                  (lispy-different)
                  (if (ignore-errors
                        (forward-sexp 1)
@@ -667,7 +648,7 @@ Return nil if can't move."
                      (lispy-barf 1)
                      (lispy-different))))
              (if (= (point) (region-end))
-                 (lispy-dotimes-protect arg
+                 (lispy-dotimes arg
                    (lispy-different)
                    (if (ignore-errors
                          (backward-sexp 1) t)
@@ -677,7 +658,7 @@ Return nil if can't move."
                          (backward-sexp -1))
                      (lispy-different)
                      (error "Can't move up")))
-               (lispy-dotimes-protect arg
+               (lispy-dotimes arg
                  (backward-sexp 1)
                  (lispy-different)
                  (backward-sexp 2)
@@ -718,7 +699,7 @@ Return nil if can't move."
 (defun lispy-outline-next (arg)
   "Call `outline-next-visible-heading' ARG times."
   (interactive "p")
-  (lispy-dotimes-protect arg
+  (lispy-dotimes arg
     (let ((pt (point)))
       (outline-next-visible-heading 1)
       (unless (looking-at outline-regexp)
@@ -728,7 +709,7 @@ Return nil if can't move."
 (defun lispy-outline-prev (arg)
   "Call `outline-previous-visible-heading' ARG times."
   (interactive "p")
-  (lispy-dotimes-protect arg
+  (lispy-dotimes arg
     (let ((pt (point)))
       (outline-previous-visible-heading 1)
       (unless (looking-at outline-regexp)
@@ -808,7 +789,8 @@ Return nil if can't move."
             (match-beginning 0)
             (match-end 0))
            (insert " "))
-         (lispy-dotimes-protect arg (lispy--delete))
+         (lispy-dotimes arg
+           (lispy--delete))
          (unless (looking-at lispy-left)
            (when (looking-at " +")
              (delete-region (match-beginning 0)
@@ -1217,21 +1199,21 @@ Return the amount of successful grow steps, nil instead of zero."
                     (goto-char (region-beginning))
                     (looking-back "\\s_")))
               (lispy--sub-slurp-forward arg)
-            (lispy-dotimes-protect arg
+            (lispy-dotimes arg
               (forward-sexp 1)))
         (if (or (looking-back "\\s_")
                 (save-excursion
                   (goto-char (region-end))
                   (looking-at "\\s_")))
             (lispy--sub-slurp-backward arg)
-          (lispy-dotimes-protect arg
+          (lispy-dotimes arg
             (forward-sexp -1))))
     (if (or (looking-at "()")
             (and (looking-at lispy-left) (not (looking-back "()"))))
-        (lispy-dotimes-protect arg
+        (lispy-dotimes arg
           (lispy--slurp-backward))
       (if (looking-back lispy-right)
-          (lispy-dotimes-protect arg
+          (lispy-dotimes arg
             (lispy--slurp-forward))))
     (lispy--reindent)))
 
@@ -1317,7 +1299,8 @@ Return the amount of successful grow steps, nil instead of zero."
                  (save-restriction
                    (narrow-to-region (region-beginning)
                                      (point-max))
-                   (lispy-dotimes-protect (1+ arg)
+                   (incf arg)
+                   (lispy-dotimes arg
                      (forward-sexp -1))
                    (forward-sexp 1)
                    (widen)))
@@ -1329,7 +1312,8 @@ Return the amount of successful grow steps, nil instead of zero."
                (save-restriction
                  (narrow-to-region (point-min)
                                    (region-end))
-                 (lispy-dotimes-protect (1+ arg)
+                 (incf arg)
+                 (lispy-dotimes arg
                    (forward-sexp 1))
                  (forward-sexp -1)
                  (widen))))))
@@ -1337,17 +1321,17 @@ Return the amount of successful grow steps, nil instead of zero."
         ((looking-at "()"))
 
         ((looking-back lispy-right)
-         (lispy-dotimes-protect arg
+         (lispy-dotimes arg
            (lispy--barf-backward)))
 
         ((looking-at lispy-left)
-         (lispy-dotimes-protect arg
+         (lispy-dotimes arg
            (lispy--barf-forward)))))
 
 (defun lispy-splice (arg)
   "Splice ARG sexps into containing list."
   (interactive "p")
-  (lispy-dotimes-protect arg
+  (lispy-dotimes arg
     (let ((bnd (lispy--bounds-dwim)))
       (cond ((looking-at lispy-left)
              (save-excursion
@@ -1613,7 +1597,7 @@ The outcome when ahead of sexps is different from when behind."
 (defun lispy-move-left (arg)
   "Move region left ARG times."
   (interactive "p")
-  (lispy-dotimes-protect arg
+  (lispy-dotimes arg
     (when (save-excursion (ignore-errors (up-list) t))
       (let* ((regionp (region-active-p))
              (leftp (lispy--leftp))
@@ -1647,7 +1631,7 @@ The outcome when ahead of sexps is different from when behind."
 (defun lispy-move-right (arg)
   "Move region right ARG times."
   (interactive "p")
-  (lispy-dotimes-protect arg
+  (lispy-dotimes arg
     (when (save-excursion (ignore-errors (up-list) t))
       (let* ((regionp (region-active-p))
              (leftp (lispy--leftp))
@@ -1684,7 +1668,7 @@ The outcome when ahead of sexps is different from when behind."
          (str (lispy--string-dwim bnd))
          (pt (point)))
     (cond ((region-active-p)
-           (lispy-dotimes-protect arg
+           (lispy-dotimes arg
              (cl-labels
                  ((doit ()
                     (let (deactivate-mark)
@@ -1698,12 +1682,12 @@ The outcome when ahead of sexps is different from when behind."
                  (exchange-point-and-mark)))))
           ((looking-at lispy-left)
            (goto-char (car bnd))
-           (lispy-dotimes-protect arg
+           (lispy-dotimes arg
              (insert str)
              (newline-and-indent))
            (goto-char pt))
           ((looking-back lispy-right)
-           (lispy-dotimes-protect arg
+           (lispy-dotimes arg
              (newline-and-indent)
              (insert str)))
           (t
@@ -1773,7 +1757,7 @@ Comments will be moved ahead of sexp."
   (if (and (> arg 1) (lispy--in-comment-p))
       (let ((bnd (lispy--bounds-comment)))
         (uncomment-region (car bnd) (cdr bnd)))
-    (lispy-dotimes-protect arg
+    (lispy-dotimes arg
       (let (bnd)
         (cond ((region-active-p)
                (comment-dwim nil)
@@ -1842,12 +1826,12 @@ Quote newlines if ARG isn't 1."
            (setq regionp t)
            (lispy-different))
           ((looking-at lispy-left)
-           (unless (lispy-dotimes-protect arg
+           (unless (lispy-dotimes arg
                      (forward-list 1))
              (error "Unexpected")))
           ((looking-back lispy-right)
            (setq endp t)
-           (unless (lispy-dotimes-protect arg
+           (unless (lispy-dotimes arg
                      (backward-list arg))
              (error "Unexpected")))
           (t
@@ -2229,7 +2213,7 @@ When region is active, call `lispy-mark-car'."
   (interactive "p")
   (require 'multiple-cursors)
   (if (looking-at lispy-left)
-      (lispy-dotimes-protect arg
+      (lispy-dotimes arg
         (mc/create-fake-cursor-at-point)
         (loop do (lispy-down 1)
            while (mc/all-fake-cursors (point) (1+ (point)))))
