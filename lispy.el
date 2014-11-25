@@ -1057,7 +1057,7 @@ otherwise the whole string is unquoted."
          (lispy--space-unless "^\\|\\s-\\|\\s(\\|[#]")
          (insert "\"\"")
          (unless (or (lispy--in-string-p)
-                     (looking-at "\n\\|)\\|}\\|\\]"))
+                     (looking-at "\n\\|)\\|}\\|\\]\\|$"))
            (just-one-space)
            (backward-char 1))
          (backward-char))))
