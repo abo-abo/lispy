@@ -1613,11 +1613,12 @@ The outcome when ahead of sexps is different from when behind."
   (interactive "p")
   (lispy-dotimes-protect arg
     (when (save-excursion (ignore-errors (up-list) t))
-      (let* ((at-start (= (point) (region-beginning)))
-             (bnd1 (lispy--bounds-dwim))
-             (str1 (lispy--string-dwim bnd1))
+      (let* ((regionp (region-active-p))
+             (leftp (lispy--leftp))
+             (bnd (lispy--bounds-dwim))
+             (str (lispy--string-dwim bnd))
              pt)
-        (delete-region (car bnd1) (cdr bnd1))
+        (delete-region (car bnd) (cdr bnd))
         (cond ((looking-at " *;"))
               ((and (looking-at "\n")
                     (looking-back "^ *"))
@@ -1626,19 +1627,20 @@ The outcome when ahead of sexps is different from when behind."
                (delete-region (match-beginning 1)
                               (match-end 1))))
         (deactivate-mark)
-        (ignore-errors (up-list))
-        (backward-list)
-        (lispy--normalize-1)
-        (lispy--remove-gaps)
+        (lispy-backward 1)
         (setq pt (point))
-        (insert str1)
+        (insert str)
         (newline-and-indent)
         (skip-chars-backward " \n")
         (indent-region pt (point))
-        (setq deactivate-mark)
-        (set-mark pt)
-        (when at-start
-          (exchange-point-and-mark))))))
+        (if regionp
+            (progn
+              (setq deactivate-mark)
+              (set-mark pt)
+              (when leftp
+                (exchange-point-and-mark)))
+          (when leftp
+            (lispy-different)))))))
 
 (defun lispy-move-right (arg)
   "Move region right ARG times."
@@ -2532,6 +2534,12 @@ If the region is active, replace instead of yanking."
        (eq (car expr) 'ly-raw)
        (consp (cdr expr))
        (eq (cadr expr) 'comment)))
+
+(defun lispy--leftp ()
+  "Return t if at region beginning, or at start of the list."
+  (if (region-active-p)
+      (= (point) (region-beginning))
+    (looking-at lispy-left)))
 
 ;; ——— Pure ————————————————————————————————————————————————————————————————————
 (defun lispy--bounds-dwim ()
