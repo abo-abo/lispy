@@ -205,8 +205,10 @@
 (defvar lispy-right "[])}]"
   "Closing delimiter.")
 
-(defvar lispy-no-space nil
-  "If t, don't insert a space before parens/brackets/braces/colons.")
+(defcustom lispy-no-space nil
+  "If t, don't insert a space before parens/brackets/braces/colons."
+  :type 'boolean
+  :group 'lispy)
 (make-variable-buffer-local 'lispy-no-space)
 
 (defcustom lispy-lax-eval t
