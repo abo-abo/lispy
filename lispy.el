@@ -1236,19 +1236,19 @@ Return the amount of successful grow steps, nil instead of zero."
 (defun lispy-down-slurp ()
   "Move current sexp or region into the next sexp."
   (interactive)
-  (when (looking-at lispy-left)
-    (forward-sexp))
   (let ((bnd (lispy--bounds-dwim))
-        (endp (= (point) (region-end)))
+        (leftp (lispy--leftp))
         (regionp (region-active-p))
         deactivate-mark)
+    (when (looking-at lispy-left)
+      (forward-sexp))
     (let ((pt (save-excursion
                 (when (lispy-forward 1)
                   (lispy-backward 1)
                   (point)))))
       (when pt
         (goto-char pt)
-        (lispy--teleport (car bnd) (cdr bnd) endp regionp)))))
+        (lispy--teleport (car bnd) (cdr bnd) (not leftp) regionp)))))
 
 (defun lispy-up-slurp ()
   "Move current sexp or region into the previous sexp."
