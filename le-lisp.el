@@ -23,10 +23,11 @@
 ;;; Code:
 
 (require 'slime)
-(require 'slime-repl)
+(declare-function slime-output-buffer "ext:slime-repl")
 
 (defun lispy--eval-lisp (str)
   "Eval STR as Common Lisp code."
+  (require 'slime-repl)
   (unless (slime-current-connection)
     (let ((wnd (current-window-configuration)))
       (slime)
