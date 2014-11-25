@@ -428,6 +428,10 @@ is required for Clojure.
 ### `lispy-goto-local`
 Bound to `G` while in special. Like `lispy-goto`, but works only on current file.
 
+# Demos
+
+- [Demo 1](http://abo-abo.github.io/lispy/demo-1)
+
 # Screencasts
 
 I've recorded a few gifs that show some features:
