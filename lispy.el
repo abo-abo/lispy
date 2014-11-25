@@ -1569,22 +1569,14 @@ The outcome when ahead of sexps is different from when behind."
                bnd1 (lispy--bounds-dwim))))
             (when at-start
               (exchange-point-and-mark)))))
-    (lispy-from-left*
-     (if (and (looking-at lispy-left)
-              (save-excursion
-                (and (lispy-forward 1)
-                     (lispy-forward 1))))
-         (let (b1 b2 s1 s2)
-           (setq s1 (lispy--string-dwim (setq b1 (lispy--bounds-dwim))))
-           (lispy-counterclockwise)
-           (setq s2 (lispy--string-dwim (setq b2 (lispy--bounds-dwim))))
-           (delete-region (car b2) (cdr b2))
-           (insert s1)
-           (goto-char (car b1))
-           (delete-region (car b1) (cdr b1))
-           (insert s2)
-           (lispy-forward 1)
-           (backward-list))))))
+    (when (lispy-from-left
+           (when (save-excursion
+                   (and (lispy-forward 1)
+                        (lispy-forward 1)))
+             (let ((bnd (lispy--bounds-dwim)))
+               (lispy-down 1)
+               (lispy--swap-regions bnd (lispy--bounds-dwim)))))
+      (lispy-down 1))))
 
 (defun lispy-move-left (arg)
   "Move region left ARG times."
