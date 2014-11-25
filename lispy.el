@@ -232,15 +232,13 @@ These messages are similar to \"Beginning of buffer\" error for
   :group 'lispy)
 
 (defcustom lispy-verbose-verbs t
-  "If t, when calling a verb produced by `lispy-defverb',
-the nouns that apply to that verb will be displayed in the echo
-area."
+  "If t, verbs produced by `lispy-defverb' will have a hint in the echo area.
+The hint will consist of the possible nouns that apply to the verb."
   :type 'boolean
   :group 'lispy)
 
 (defcustom lispy-fancy-narrow t
-  "If t, use `lispy-ace-char' will use `fancy-narrow-to-region'
-instead of `narrow-to-region' if `fancy-narrow' is installed."
+  "If t, `lispy-ace-char' try to use `fancy-narrow-to-region'."
   :type 'boolean
   :group 'lispy)
 
@@ -552,7 +550,7 @@ Return nil if can't move."
                (lispy-backward 1)))))))
 
 (defun lispy--symbolp (str)
-  "Return t if STR matches symbol syntax."
+  "Return t if STR is a symbol."
   (string-match "\\`\\(?:\\sw\\|\\s_\\)+\\'" str))
 
 (defun lispy-down (arg)
@@ -1931,7 +1929,9 @@ Sexp is obtained by exiting list ARG times."
   "Try a pretty-print when this ins't nil.")
 
 (defun lispy-eval-and-insert (&optional arg)
-  "Eval last sexp and insert the result."
+  "Eval last sexp and insert the result.
+
+When ARG isn't nil, try to pretty print the sexp."
   (interactive "P")
   (let ((lispy-do-pprint arg))
     (cl-labels
@@ -1989,7 +1989,7 @@ In case 'setq isn't present, add it."
 (defvar lispy-bof-last-point 1)
 
 (defun lispy-beginning-of-defun (&optional arg)
-  "Forward to `beginning-of-defun'. Deactivate region.
+  "Forward to `beginning-of-defun' with ARG.  Deactivate region.
 When called twice in a row, restore point and mark."
   (interactive "p")
   (if (and (looking-at "(def")
@@ -3244,7 +3244,7 @@ Ignore the matches in strings and comments."
     (\,@ . ",@")))
 
 (defun lispy--insert (expr)
-  "Insert the EXPR read by `lispy--read."
+  "Insert the EXPR read by `lispy--read'."
   (cl-labels ((ensure-space ()
                 (unless (and (looking-back "^\\|[ (`',@]")
                              (not (looking-back "\\\\(")))
@@ -3745,6 +3745,7 @@ the first character of EXPR."
          (funcall function tree))))
 
 (defun lispy--insert-1 (expr)
+  "Insert the EXPR read by `lispy--read'."
   (let ((start-pt (point))
         end)
     (prin1 expr (current-buffer))
@@ -3831,6 +3832,7 @@ the first character of EXPR."
   (forward-list))
 
 (defun lispy--normalize-1 ()
+  "Normalize/prettify current sexp."
   (let* ((bnd (lispy--bounds-dwim))
          (str (lispy--string-dwim bnd))
          (was-mod (buffer-modified-p))
@@ -3853,7 +3855,8 @@ the first character of EXPR."
             (set-buffer-modified-p nil)))))))
 
 (defun lispy--sexp-trim-leading-newlines (expr comment)
-  "Trim leading (ly-raw newline) from EXPR."
+  "Trim leading (ly-raw newline) from EXPR.
+Treat comments differently when COMMENT is t."
   (while (and (consp expr)
               (listp expr)
               (equal (car expr) '(ly-raw newline))
@@ -3874,7 +3877,8 @@ the first character of EXPR."
     expr))
 
 (defun lispy--sexp-trim-trailing-newlines (foo comment)
-  "Trim trailing (ly-raw newline) from EXPR."
+  "Trim trailing (ly-raw newline) from FOO.
+Treat comments differently when COMMENT is t."
   (if (and (consp foo) (consp (cdr foo)))
       (let ((expr (reverse foo)))
         (while (and (consp expr)
@@ -3887,8 +3891,8 @@ the first character of EXPR."
     foo))
 
 (defun lispy--sexp-normalize (foo)
-  "Return a pretty version of SEXP.
-Only `ly-raw' lists within SEXP are manipulated."
+  "Return a pretty version of FOO.
+Only `ly-raw' lists within FOO are manipulated."
   (cond ((null foo)
          nil)
 
@@ -4074,7 +4078,7 @@ PLIST currently accepts:
                 (call-interactively 'self-insert-command)))))))
 
 (defun lispy--setq-expression ()
-  "Return the smallest list that contains point.
+  "Return the smallest list to contain point.
 If inside VARLIST part of `let' form,
 return the corresponding `setq' expression."
   (interactive)
