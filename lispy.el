@@ -1647,11 +1647,12 @@ The outcome when ahead of sexps is different from when behind."
   (interactive "p")
   (lispy-dotimes-protect arg
     (when (save-excursion (ignore-errors (up-list) t))
-      (let* ((at-start (= (point) (region-beginning)))
-             (bnd1 (lispy--bounds-dwim))
-             (str1 (lispy--string-dwim bnd1))
+      (let* ((regionp (region-active-p))
+             (leftp (lispy--leftp))
+             (bnd (lispy--bounds-dwim))
+             (str (lispy--string-dwim bnd))
              pt)
-        (delete-region (car bnd1) (cdr bnd1))
+        (delete-region (car bnd) (cdr bnd))
         (cond ((looking-at " *;"))
               ((and (looking-at "\n")
                     (looking-back "^ *"))
@@ -1659,21 +1660,20 @@ The outcome when ahead of sexps is different from when behind."
               ((looking-at "\\([\n ]+\\)[^\n ;]")
                (delete-region (match-beginning 1)
                               (match-end 1))))
-        (up-list)
-        (lispy--remove-gaps)
-        (if (looking-at " *;")
-            (progn
-              (forward-line 1)
-              (newline-and-indent)
-              (forward-line -1))
-          (newline-and-indent))
+        (lispy--out-backward 1)
+        (lispy-different)
+        (newline-and-indent)
         (setq pt (point))
-        (insert str1)
+        (insert str)
         (indent-region pt (point))
-        (setq deactivate-mark)
-        (set-mark pt)
-        (when at-start
-          (exchange-point-and-mark))))))
+        (if regionp
+            (progn
+              (setq deactivate-mark)
+              (set-mark pt)
+              (when leftp
+                (exchange-point-and-mark)))
+          (when leftp
+            (lispy-different)))))))
 
 (defun lispy-clone (arg)
   "Clone sexp ARG times."
