@@ -1,0 +1,63 @@
+#+TITLE:     lispy.el demo 1
+#+LANGUAGE:  en
+#+OPTIONS:   H:3 num:nil toc:nil
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="demo-style.css"/>
+* Intro
+Comes from [[http://emacs.stackexchange.com/questions/3881/changing-the-role-of-the-underline-and-the-minus-sign-just-in-latex-mode][this emacs.stackexchange question]].
+* Task summary
+For =LaTeX-mode=, swap ~-~ to ~_~, and swap ~6~ to ~^~.
+* Screencast
+The screencast for this demo is here: https://www.youtube.com/watch?v=2w1h48CYOMo
+* Resulting code
+#+begin_src emacs-lisp
+(define-key LaTeX-mode-map "_" (lambda () (interactive) (insert "-")))
+(define-key LaTeX-mode-map "-" (lambda () (interactive) (insert "_")))
+(define-key LaTeX-mode-map "^" (lambda () (interactive) (insert "6")))
+(define-key LaTeX-mode-map "6" (lambda () (interactive) (insert "^")))
+#+end_src
+* How to generate this code:
+** step one
+Write:
+#+begin_src emacs-lisp
+"-" "_"
+"6" "^"
+#+end_src
+- position the point at the start
+- ~C-7~ to add one cursor
+- ~M-m~ to mark the first string
+- ~>~ to extend the region to the second string
+- ~c~ to clone region
+- ~i~ to select the first element of the region
+- ~s~ to move the region down
+- ~C-7~ to cancel =multiple-cursors=.
+You should now have:
+#+begin_src emacs-lisp
+"_" "-"
+"-" "_"
+"^" "6"
+"6" "^"
+#+end_src
+** step two
+Write:
+#+begin_src emacs-lisp
+(define-key LaTeX-mode-map (lambda () (interactive) (insert)))
+#+end_src
+Kill it with ~C-,~ or ~C-k~.
+** step three
+- position the point at the start
+- ~M-3 C-7~ to add three cursors
+- ~C-y~ to paste the code from before
+- add one space
+- ~M-m~ mark
+- ~>~ grow
+- ~ok~ insert up
+- ~iw~ select first and move up
+- ~jj~ go down twice
+- ~okok~ insert up twice
+- ~C-7~ to cancel =multiple-cursors=
+
+#+BEGIN_HTML
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+#+END_HTML
