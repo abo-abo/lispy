@@ -1958,20 +1958,24 @@ Sexp is obtained by exiting list ARG times."
     (message
      (replace-regexp-in-string "%" "%%" (lispy--eval (lispy--string-dwim))))))
 
-(defun lispy-eval-and-insert ()
+(defvar lispy-do-pprint nil
+  "Try a pretty-print when this ins't nil.")
+
+(defun lispy-eval-and-insert (&optional arg)
   "Eval last sexp and insert the result."
-  (interactive)
-  (cl-labels
-      ((doit ()
-         (unless (or (looking-back lispy-right) (region-active-p))
-           (lispy-forward 1))
-         (let ((str (lispy--eval (lispy--string-dwim))))
-           (newline-and-indent)
-           (insert str))))
-    (if (looking-at lispy-left)
-        (save-excursion
-          (doit))
-      (doit))))
+  (interactive "P")
+  (let ((lispy-do-pprint arg))
+    (cl-labels
+        ((doit ()
+           (unless (or (looking-back lispy-right) (region-active-p))
+             (lispy-forward 1))
+           (let ((str (lispy--eval (lispy--string-dwim))))
+             (newline-and-indent)
+             (insert str))))
+      (if (looking-at lispy-left)
+          (save-excursion
+            (doit))
+        (doit)))))
 
 (defun lispy-eval-and-replace ()
   "Eval last sexp and replace it with the result."
