@@ -579,15 +579,19 @@ Return nil if can't move."
                (goto-char pt)
                (lispy-backward 1)))))))
 
+(defun lispy--symbolp (str)
+  "Return t if STR matches symbol syntax."
+  (string-match "\\`\\(?:\\sw\\|\\s_\\)+\\'" str))
+
 (defun lispy-down (arg)
   "Move down ARG times inside current list."
   (interactive "p")
   (lispy--ensure-visible)
   (cond ((region-active-p)
          (let* ((str (lispy--string-dwim))
-                (no-space (not (string-match "[][(){} \"]" str)))
+                (one-symbolp (lispy--symbolp str))
                 delta)
-           (if no-space
+           (if one-symbolp
                (if (= (point) (region-end))
                    (lispy-dotimes arg
                      (when (lispy-slurp 1)
@@ -595,12 +599,12 @@ Return nil if can't move."
                        (lispy-barf 1)
                        (lispy-different)))
                  (lispy-dotimes arg
-                     (lispy-different)
-                     (if (lispy-slurp 1)
-                         (progn
-                           (lispy-different)
-                           (lispy-barf 1))
-                       (lispy-different))))
+                   (lispy-different)
+                   (if (lispy-slurp 1)
+                       (progn
+                         (lispy-different)
+                         (lispy-barf 1))
+                     (lispy-different))))
 
              (if (= (point) (region-end))
                  (lispy-dotimes-protect arg
@@ -644,9 +648,9 @@ Return nil if can't move."
   (lispy--ensure-visible)
   (cond ((region-active-p)
          (let* ((str (lispy--string-dwim))
-                (no-space (not (string-match "[][(){} \"]" str)))
+                (one-symbolp (lispy--symbolp str))
                 delta)
-           (if no-space
+           (if one-symbolp
                (if (= (point) (region-end))
                    (lispy-dotimes arg
                      (lispy-different)
@@ -1178,7 +1182,7 @@ Special case is (|( -> ( |(."
 (defun lispy--sub-slurp-forward (arg)
   "Grow current marked symbol by ARG words forwards.
 Return the amount of successful grow steps, nil instead of zero."
-  (when (looking-at "-")
+  (when (looking-at "\\s_")
     (let ((end (cdr (bounds-of-thing-at-point 'symbol)))
           prev)
       (lispy-dotimes arg
@@ -1191,7 +1195,7 @@ Return the amount of successful grow steps, nil instead of zero."
 (defun lispy--sub-slurp-backward (arg)
   "Grow current marked symbol by ARG backwards.
 Return the amount of successful grow steps, nil instead of zero."
-  (when (looking-back "-")
+  (when (looking-back "\\s_")
     (let ((beg (car (bounds-of-thing-at-point 'symbol)))
           prev)
       (lispy-dotimes arg
@@ -1206,13 +1210,17 @@ Return the amount of successful grow steps, nil instead of zero."
   (interactive "p")
   (if (region-active-p)
       (if (= (point) (region-end))
-          (if (or (looking-at "-")
-                  (eq (char-before (region-beginning)) ?-))
+          (if (or (looking-at "\\s_")
+                  (save-excursion
+                    (goto-char (region-beginning))
+                    (looking-back "\\s_")))
               (lispy--sub-slurp-forward arg)
             (lispy-dotimes-protect arg
               (forward-sexp 1)))
-        (if (or (looking-back "-")
-                (= ?- (char-after (region-end))))
+        (if (or (looking-back "\\s_")
+                (save-excursion
+                  (goto-char (region-end))
+                  (looking-at "\\s_")))
             (lispy--sub-slurp-backward arg)
           (lispy-dotimes-protect arg
             (forward-sexp -1))))
@@ -1295,15 +1303,14 @@ Return the amount of successful grow steps, nil instead of zero."
   (interactive "p")
   (cond ((region-active-p)
          (let* ((str (lispy--string-dwim))
-                (no-space (not (string-match "[][(){} \"]" str)))
+                (one-symbolp (lispy--symbolp str))
                 delta)
            (if (= (point) (region-end))
-               (if no-space
-                   (lispy-dotimes-protect arg
-                     (when (setq delta (cl-position ?- str :from-end t))
-                       (backward-char (- (length str)
-                                         delta)))
-                     (setq str (lispy--string-dwim)))
+               (if one-symbolp
+                   (lispy-dotimes arg
+                     (if (re-search-backward "\\sw\\s_+" (region-beginning) t)
+                         (forward-char 1)
+                       (throw 'result i)))
                  (save-restriction
                    (narrow-to-region (region-beginning)
                                      (point-max))
@@ -1311,11 +1318,11 @@ Return the amount of successful grow steps, nil instead of zero."
                      (forward-sexp -1))
                    (forward-sexp 1)
                    (widen)))
-             (if no-space
-                 (lispy-dotimes-protect arg
-                   (when (setq delta (cl-position ?- str))
-                     (forward-char (1+ delta)))
-                   (setq str (lispy--string-dwim)))
+             (if one-symbolp
+                 (lispy-dotimes arg
+                   (if (re-search-forward "\\s_+\\sw" (region-end) t)
+                       (backward-char 1)
+                     (throw 'result i)))
                (save-restriction
                  (narrow-to-region (point-min)
                                    (region-end))
