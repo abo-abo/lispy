@@ -2213,7 +2213,8 @@ When region is active, call `lispy-mark-car'."
               (insert "#'" name)
               (message "defun stored to kill ring")
               (lispy-backward 1))
-          (error "Not in lambda"))))))
+          (lispy-complain "Not in lambda")
+          (goto-char pt))))))
 
 ;; ——— Locals:  multiple cursors ———————————————————————————————————————————————
 (declare-function mc/create-fake-cursor-at-point "ext:multiple-cursors")
