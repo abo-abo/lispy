@@ -2403,17 +2403,24 @@ With ARG, use the contents of `lispy-store-region-and-buffer' instead."
          (fstr (if arg
                    (with-current-buffer (get 'lispy-store-bounds 'buffer)
                      (lispy--string-dwim (get 'lispy-store-bounds 'region)))
-                 (ignore-errors
-                   (lispy--function-str (car expr)))))
-         (e-args (cl-remove-if #'lispy--whitespacep (cdr expr)))
-         (body (if (macrop (car expr))
-                   (macroexpand (read str))
-                 (lispy--flatten-function fstr e-args))))
-    (goto-char (car bnd))
-    (delete-region (car bnd) (cdr bnd))
-    (lispy--insert-1 body)
-    (when begp
-      (goto-char (car bnd)))))
+                 (condition-case e
+                     (lispy--function-str (car expr))
+                   (unsupported-mode-error
+                    (lispy-complain
+                     (format "Can't flatten: symbol `%s' is defined in `%s'"
+                             (lispy--prin1-fancy (car expr))
+                             (lispy--prin1-fancy (cdr e))))
+                    nil)))))
+    (when fstr
+      (let* ((e-args (cl-remove-if #'lispy--whitespacep (cdr expr)))
+             (body (if (macrop (car expr))
+                       (macroexpand (read str))
+                     (lispy--flatten-function fstr e-args))))
+        (goto-char (car bnd))
+        (delete-region (car bnd) (cdr bnd))
+        (lispy--insert-1 body)
+        (when begp
+          (goto-char (car bnd)))))))
 
 (declare-function projectile-find-file "ext:projectile")
 (declare-function projectile-find-file-other-window "ext:projectile")
@@ -2620,6 +2627,11 @@ First, try to return `lispy--bounds-string'."
       (lispy--back-to-paren)
       (when (looking-at "(\\([^ \n)]+\\)[ )\n]")
         (match-string-no-properties 1)))))
+
+(defun lispy--prin1-fancy (x)
+  "Return a propertized `prin1-to-string'-ed X."
+  (propertize (prin1-to-string x)
+              'face 'font-lock-constant-face))
 
 ;; ——— Utilities: movement —————————————————————————————————————————————————————
 (defvar lispy-ignore-whitespace nil
@@ -3336,18 +3348,29 @@ Ignore the matches in strings and comments."
        (or (eq (cadr x) 'newline)
            (eq (cadr x) 'comment))))
 
+(define-error 'unsupported-mode-error "Unsupported mode")
 (defun lispy--function-str (fun)
   "Return FUN definition as a string."
   (if (fboundp fun)
-      (condition-case nil
+      (condition-case e
           (cl-destructuring-bind (buf . pt)
               (save-window-excursion
                 (save-excursion
                   (find-function-noselect fun)))
             (with-current-buffer buf
-              (goto-char pt)
-              (lispy--string-dwim)))
-        (error (prin1-to-string (symbol-function fun))))
+              (if (derived-mode-p
+                   'emacs-lisp-mode
+                   'clojure-mode
+                   'lisp-mode
+                   'scheme-mode)
+                  (progn
+                    (goto-char pt)
+                    (lispy--string-dwim))
+                (signal 'unsupported-mode-error major-mode))))
+        (unsupported-mode-error
+         (signal (car e) (cdr e)))
+        (error
+         (prin1-to-string (symbol-function fun))))
     (error "%s isn't bound" fun)))
 
 (defun lispy--function-parse (str)
