@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
 <title>lispy.el demo 2</title>
-<!-- 2014-11-26 Wed 18:07 -->
+<!-- 2014-11-26 Wed 23:39 -->
 <meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta  name="generator" content="Org-mode" />
 <meta  name="author" content="Oleh" />
@@ -16,21 +16,36 @@
 </div>
 <div id="content">
 <h1 class="title">lispy.el demo 2</h1>
-<p>
-<a href="https://github.com/abo-abo/lispy">Back to github.</a>
-</p>
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
-<div id="outline-container-unnumbered-2" class="outline-2">
-<h2 id="unnumbered-2">Intro</h2>
-<div class="outline-text-2" id="text-unnumbered-2">
+
+<colgroup>
+<col  class="left" />
+
+<col  class="left" />
+
+<col  class="left" />
+</colgroup>
+<tbody>
+<tr>
+<td class="left"><a href="https://github.com/abo-abo/lispy">Back to github</a></td>
+<td class="left"><a href="https://raw.githubusercontent.com/abo-abo/lispy/gh-pages/demo-2.org">This file in org-mode</a></td>
+<td class="left"><a href="http://abo-abo.github.io/lispy/">Function reference</a></td>
+</tr>
+</tbody>
+</table>
+
+<div id="outline-container-sec-1" class="outline-2">
+<h2 id="sec-1">Intro</h2>
+<div class="outline-text-2" id="text-1">
 <p>
 Comes from <a href="http://emacs.stackexchange.com/questions/3203/how-to-understand-this-recursion-code">this emacs.stackexchange question</a>.
 </p>
 </div>
 </div>
-<div id="outline-container-unnumbered-3" class="outline-2">
-<h2 id="unnumbered-3">Task summary</h2>
-<div class="outline-text-2" id="text-unnumbered-3">
+<div id="outline-container-sec-2" class="outline-2">
+<h2 id="sec-2">Task summary</h2>
+<div class="outline-text-2" id="text-2">
 <p>
 Understand how this code works:
 </p>
@@ -44,24 +59,24 @@ Understand how this code works:
 </pre>
 </div>
 <p>
-I'll use <a href="http://mitpress.mit.edu/sicp/full-text/book/book-Z-H-10.html#%_sec_1.1.5">The Substitution Model for Procedure Application</a> from SICP.
+I'll use <a href="http://mitpress.mit.edu/sicp/full-text/book/book-Z-H-10.html#%25_sec_1.1.5">The Substitution Model for Procedure Application</a> from SICP.
 </p>
 </div>
 </div>
-<div id="outline-container-unnumbered-4" class="outline-2">
-<h2 id="unnumbered-4">Screencast</h2>
-<div class="outline-text-2" id="text-unnumbered-4">
+<div id="outline-container-sec-3" class="outline-2">
+<h2 id="sec-3">Screencast</h2>
+<div class="outline-text-2" id="text-3">
 <p>
 The screencast for this demo is here: <a href="https://www.youtube.com/watch?v=D7mK2q3yve4">https://www.youtube.com/watch?v=D7mK2q3yve4</a>
 </p>
 </div>
 </div>
-<div id="outline-container-unnumbered-5" class="outline-2">
-<h2 id="unnumbered-5">Step-by-step expansion</h2>
-<div class="outline-text-2" id="text-unnumbered-5">
-</div><div id="outline-container-unnumbered-6" class="outline-3">
-<h3 id="unnumbered-6">step 1</h3>
-<div class="outline-text-3" id="text-unnumbered-6">
+<div id="outline-container-sec-4" class="outline-2">
+<h2 id="sec-4">Step-by-step expansion</h2>
+<div class="outline-text-2" id="text-4">
+</div><div id="outline-container-sec-4-1" class="outline-3">
+<h3 id="sec-4-1">step 1</h3>
+<div class="outline-text-3" id="text-4-1">
 <p>
 Start with this code:
 </p>
@@ -82,9 +97,9 @@ get <code>10</code>.
 </p>
 </div>
 </div>
-<div id="outline-container-unnumbered-7" class="outline-3">
-<h3 id="unnumbered-7">step 2</h3>
-<div class="outline-text-3" id="text-unnumbered-7">
+<div id="outline-container-sec-4-2" class="outline-3">
+<h3 id="sec-4-2">step 2</h3>
+<div class="outline-text-3" id="text-4-2">
 <p>
 Press <kbd>xfM</kbd> to get:
 </p>
@@ -103,9 +118,9 @@ With <kbd>e</kbd> check that the result is still <code>10</code>.
 </p>
 </div>
 </div>
-<div id="outline-container-unnumbered-8" class="outline-3">
-<h3 id="unnumbered-8">step 3</h3>
-<div class="outline-text-3" id="text-unnumbered-8">
+<div id="outline-container-sec-4-3" class="outline-3">
+<h3 id="sec-4-3">step 3</h3>
+<div class="outline-text-3" id="text-4-3">
 <p>
 Evaluate the <code>cond</code> branches in your mind and simplify with <kbd>qhrr</kbd>.
 </p>
@@ -125,9 +140,9 @@ Then <kbd>ffxr</kbd>.
 </div>
 </div>
 
-<div id="outline-container-unnumbered-9" class="outline-3">
-<h3 id="unnumbered-9">step 4</h3>
-<div class="outline-text-3" id="text-unnumbered-9">
+<div id="outline-container-sec-4-4" class="outline-3">
+<h3 id="sec-4-4">step 4</h3>
+<div class="outline-text-3" id="text-4-4">
 <p>
 Press <kbd>xfM</kbd> again:
 </p>
@@ -160,9 +175,9 @@ Simplify further with <kbd>ffxr</kbd>.
 </div>
 </div>
 
-<div id="outline-container-unnumbered-10" class="outline-3">
-<h3 id="unnumbered-10">step 5</h3>
-<div class="outline-text-3" id="text-unnumbered-10">
+<div id="outline-container-sec-4-5" class="outline-3">
+<h3 id="sec-4-5">step 5</h3>
+<div class="outline-text-3" id="text-4-5">
 <p>
 Press <kbd>xfM</kbd> again:
 </p>
@@ -195,9 +210,9 @@ Simplify further with <kbd>ffxr</kbd>.
 </div>
 </div>
 
-<div id="outline-container-unnumbered-11" class="outline-3">
-<h3 id="unnumbered-11">step 6</h3>
-<div class="outline-text-3" id="text-unnumbered-11">
+<div id="outline-container-sec-4-6" class="outline-3">
+<h3 id="sec-4-6">step 6</h3>
+<div class="outline-text-3" id="text-4-6">
 <p>
 Press <kbd>xfM</kbd> again:
 </p>

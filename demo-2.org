@@ -3,7 +3,7 @@
 #+OPTIONS:   H:3 num:nil toc:nil
 #+HTML_HEAD: <link rel="stylesheet" type="text/css" href="demo-style.css"/>
 
-[[https://github.com/abo-abo/lispy][Back to github.]]
+| [[https://github.com/abo-abo/lispy][Back to github]] | [[https://raw.githubusercontent.com/abo-abo/lispy/gh-pages/demo-2.org][This file in org-mode]] | [[http://abo-abo.github.io/lispy/][Function reference]] |
 
 * Setup                                                                               :noexport:
 #+begin_src emacs-lisp :exports results :results silent
