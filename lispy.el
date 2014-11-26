@@ -1957,13 +1957,18 @@ When ARG isn't nil, try to pretty print the sexp."
 
 (defun lispy-eval-other-window ()
   "Eval current expression in the context of other window.
-Expression has to be of type (setq X BODY)
-In case 'setq isn't present, add it."
+In case the point is on a let-bound variable, add a `setq'."
   (interactive)
-  (lexical-let ((str (save-match-data
-                       (lispy--string-dwim))))
+  (lexical-let* ((str (save-match-data
+                        (lispy--string-dwim)))
+                 (expr (if (and (looking-at lispy-left)
+                                (save-excursion
+                                  (lispy--out-backward 2)
+                                  (looking-at "(\\(?:lexical-\\)?let\\*?")))
+                           (cons 'setq (read str))
+                         (read str))))
     (other-window 1)
-    (eval-expression (read str))
+    (eval-expression expr)
     (other-window -1)))
 
 (defun lispy-follow ()
