@@ -310,19 +310,20 @@ Otherwise return the amount of times executed."
          (unless ,at-start
            (forward-list 1))))))
 
+;; ——— Verb related ————————————————————————————————————————————————————————————
 (defvar lispy-known-verbs nil
   "List of registered verbs.")
-
-(defun lispy-quit ()
-  "Remove modifiers."
-  (interactive)
-  (mapc (lambda (x) (funcall x -1)) lispy-known-verbs))
 
 (defun lispy-disable-verbs-except (verb)
   "Disable all verbs except VERB."
   (mapc
    (lambda (v) (funcall v -1))
    (remq verb lispy-known-verbs)))
+
+(defun lispy-quit ()
+  "Remove modifiers."
+  (interactive)
+  (lispy-disable-verbs-except nil))
 
 (defmacro lispy-defverb (name grammar)
   "Define the verb NAME.
