@@ -432,6 +432,7 @@ Bound to `G` while in special. Like `lispy-goto`, but works only on current file
 # Demos
 
 - [Demo 1](http://abo-abo.github.io/lispy/demo-1)
+- [Demo 2](http://abo-abo.github.io/lispy/demo-2)
 
 # Screencasts
 
