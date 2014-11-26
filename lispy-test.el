@@ -893,6 +893,20 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "|foo-bar-baz~" (lispy-ace-subword 1))
                    "~foo|-bar-baz")))
 
+(ert-deftest lispy-flatten ()
+  (should (string= (lispy-with
+                    "(defun square (x &optional y &rest z)\n  (if y\n      (cons 200 z)\n    (* x x)))|\n(square 10 1 2 3)"
+                    "ej" (lispy-flatten nil))
+                   "(defun square (x &optional y &rest z)\n  (if y\n      (cons 200 z)\n    (* x x)))\n(if 1 (cons 200 (list 2 3)) (* 10 10))|"))
+  (should (string= (lispy-with
+                    "(defun square (x &optional y &rest z)\n  (if y\n      (cons 200 z)\n    (* x x)))|\n(square 10 1)"
+                    "ej" (lispy-flatten nil))
+                   "(defun square (x &optional y &rest z)\n  (if y\n      (cons 200 z)\n    (* x x)))\n(if 1 (cons 200 (list)) (* 10 10))|"))
+  (should (string= (lispy-with
+                    "(defun square (x &optional y &rest z)\n  (if y\n      (cons 200 z)\n    (* x x)))|\n(square 10)"
+                    "ej" (lispy-flatten nil))
+                   "(defun square (x &optional y &rest z)\n  (if y\n      (cons 200 z)\n    (* x x)))\n(if nil (cons 200 (list)) (* 10 10))|")))
+
 (provide 'lispy-test)
 
 ;;; Local Variables:
