@@ -1953,7 +1953,10 @@ When ARG isn't nil, try to pretty print the sexp."
    (let* ((bnd (lispy--bounds-list))
           (str (lispy--string-dwim bnd)))
      (delete-region (car bnd) (cdr bnd))
-     (insert (lispy--eval str)))))
+     (insert (lispy--eval str))))
+  (unless (or (looking-at lispy-left)
+              (looking-back lispy-right))
+    (lispy--out-backward 1)))
 
 (defun lispy-eval-other-window ()
   "Eval current expression in the context of other window.
