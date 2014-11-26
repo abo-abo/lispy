@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<title>lispy.el demo 2</title>
+<!-- 2014-11-26 Wed 18:07 -->
+<meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta  name="generator" content="Org-mode" />
+<meta  name="author" content="Oleh" />
+<link rel="stylesheet" type="text/css" href="demo-style.css"/>
+</head>
+<body>
+<div id="preamble" class="status">
+<link rel="icon" type="image/x-icon" href="https://github.com/favicon.ico"/>
+</div>
+<div id="content">
+<h1 class="title">lispy.el demo 2</h1>
+<p>
+<a href="https://github.com/abo-abo/lispy">Back to github.</a>
+</p>
+
+<div id="outline-container-unnumbered-2" class="outline-2">
+<h2 id="unnumbered-2">Intro</h2>
+<div class="outline-text-2" id="text-unnumbered-2">
+<p>
+Comes from <a href="http://emacs.stackexchange.com/questions/3203/how-to-understand-this-recursion-code">this emacs.stackexchange question</a>.
+</p>
+</div>
+</div>
+<div id="outline-container-unnumbered-3" class="outline-2">
+<h2 id="unnumbered-3">Task summary</h2>
+<div class="outline-text-2" id="text-unnumbered-3">
+<p>
+Understand how this code works:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">triangle-using-cond</span> (number)
+  (<span style="color: #7F0055; font-weight: bold;">cond</span> ((&lt;= number 0) 0)
+        ((= number 1) 1)
+        ((&gt; number 1)
+         (+ number (triangle-using-cond (1- number))))))
+</pre>
+</div>
+<p>
+I'll use <a href="http://mitpress.mit.edu/sicp/full-text/book/book-Z-H-10.html#%_sec_1.1.5">The Substitution Model for Procedure Application</a> from SICP.
+</p>
+</div>
+</div>
+<div id="outline-container-unnumbered-4" class="outline-2">
+<h2 id="unnumbered-4">Screencast</h2>
+<div class="outline-text-2" id="text-unnumbered-4">
+<p>
+The screencast for this demo is here: <a href="https://www.youtube.com/watch?v=D7mK2q3yve4">https://www.youtube.com/watch?v=D7mK2q3yve4</a>
+</p>
+</div>
+</div>
+<div id="outline-container-unnumbered-5" class="outline-2">
+<h2 id="unnumbered-5">Step-by-step expansion</h2>
+<div class="outline-text-2" id="text-unnumbered-5">
+</div><div id="outline-container-unnumbered-6" class="outline-3">
+<h3 id="unnumbered-6">step 1</h3>
+<div class="outline-text-3" id="text-unnumbered-6">
+<p>
+Start with this code:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp"><cursor>(</cursor><span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">triangle-using-cond</span> (number)
+  (<span style="color: #7F0055; font-weight: bold;">cond</span> ((&lt;= number 0) 0)
+        ((= number 1) 1)
+        ((&gt; number 1)
+         (+ number (triangle-using-cond (1- number))))))
+(triangle-using-cond 4)
+</pre>
+</div>
+
+<p>
+Eval the defun with <kbd>e</kbd>. Then do <kbd>je</kbd> to eval the next expression to
+get <code>10</code>.
+</p>
+</div>
+</div>
+<div id="outline-container-unnumbered-7" class="outline-3">
+<h3 id="unnumbered-7">step 2</h3>
+<div class="outline-text-3" id="text-unnumbered-7">
+<p>
+Press <kbd>xfM</kbd> to get:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp"><cursor>(</cursor><span style="color: #7F0055; font-weight: bold;">cond</span> ((&lt;= 4 0)
+       0)
+      ((= 4 1)
+       1)
+      ((&gt; 4 1)
+       (+ 4 (triangle-using-cond (1- 4)))))
+</pre>
+</div>
+<p>
+With <kbd>e</kbd> check that the result is still <code>10</code>.
+</p>
+</div>
+</div>
+<div id="outline-container-unnumbered-8" class="outline-3">
+<h3 id="unnumbered-8">step 3</h3>
+<div class="outline-text-3" id="text-unnumbered-8">
+<p>
+Evaluate the <code>cond</code> branches in your mind and simplify with <kbd>qhrr</kbd>.
+</p>
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp"><cursor>(</cursor>+ 4 (triangle-using-cond (1- 4)))
+</pre>
+</div>
+<p>
+Then <kbd>ffxr</kbd>.
+</p>
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">(+ 4 <cursor>(</cursor>triangle-using-cond 3))
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-unnumbered-9" class="outline-3">
+<h3 id="unnumbered-9">step 4</h3>
+<div class="outline-text-3" id="text-unnumbered-9">
+<p>
+Press <kbd>xfM</kbd> again:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">(+ 4 <cursor>(</cursor><span style="color: #7F0055; font-weight: bold;">cond</span> ((&lt;= 3 0)
+              0)
+             ((= 3 1)
+              1)
+             ((&gt; 3 1)
+              (+ 3 (triangle-using-cond (1- 3))))))
+</pre>
+</div>
+<p>
+Evaluate the <code>cond</code> branches in your mind and simplify with <kbd>qirr</kbd>.
+</p>
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">(+ 4 <cursor>(</cursor>+ 3 (triangle-using-cond (1- 3))))
+</pre>
+</div>
+<p>
+Simplify further with <kbd>ffxr</kbd>.
+</p>
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">(+ 4 (+ 3 <cursor>(</cursor>triangle-using-cond 2)))
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-unnumbered-10" class="outline-3">
+<h3 id="unnumbered-10">step 5</h3>
+<div class="outline-text-3" id="text-unnumbered-10">
+<p>
+Press <kbd>xfM</kbd> again:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">(+ 4 (+ 3 <cursor>(</cursor><span style="color: #7F0055; font-weight: bold;">cond</span> ((&lt;= 2 0)
+                   0)
+                  ((= 2 1)
+                   1)
+                  ((&gt; 2 1)
+                   (+ 2 (triangle-using-cond (1- 2)))))))
+</pre>
+</div>
+<p>
+Evaluate the <code>cond</code> branches in your mind and simplify with <kbd>qjrr</kbd>.
+</p>
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">(+ 4 (+ 3 <cursor>(</cursor>+ 2 (triangle-using-cond (1- 2)))))
+</pre>
+</div>
+<p>
+Simplify further with <kbd>ffxr</kbd>.
+</p>
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">(+ 4 (+ 3 (+ 2 <cursor>(</cursor>triangle-using-cond 1))))
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-unnumbered-11" class="outline-3">
+<h3 id="unnumbered-11">step 6</h3>
+<div class="outline-text-3" id="text-unnumbered-11">
+<p>
+Press <kbd>xfM</kbd> again:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">(+ 4 (+ 3 (+ 2 <cursor>(</cursor><span style="color: #7F0055; font-weight: bold;">cond</span> ((&lt;= 1 0)
+                        0)
+                       ((= 1 1)
+                        1)
+                       ((&gt; 1 1)
+                        (+ 1 (triangle-using-cond (1- 1))))))))
+</pre>
+</div>
+<p>
+Evaluate the <code>cond</code> branches in your mind and simplify with <kbd>akrr</kbd>.
+</p>
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">(+ 4 (+ 3 (+ 2 <cursor>1</cursor>)))
+</pre>
+</div>
+<p>
+<kbd>C-e</kbd> <kbd>e</kbd> to check that the result is still <code>10</code>. That's it.
+</p>
+
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>

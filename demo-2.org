@@ -1,0 +1,147 @@
+#+TITLE:     lispy.el demo 2
+#+LANGUAGE:  en
+#+OPTIONS:   H:3 num:nil toc:nil
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="demo-style.css"/>
+
+[[https://github.com/abo-abo/lispy][Back to github.]]
+
+* Setup                                                                               :noexport:
+#+begin_src emacs-lisp :exports results :results silent
+(defun make-html-cursor--replace (x)
+  (if (string= "||\n" x)
+      "<cursor> </cursor>\n"
+    (if (string= "||[" x)
+        "<cursor>[</cursor>"
+      (format "<cursor>%s</cursor>"
+              (regexp-quote
+               (substring x 2))))))
+
+(defun make-html-cursor (str x y)
+  (replace-regexp-in-string
+   "||\\(.\\|\n\\)"
+   #'make-html-cursor--replace
+   str))
+
+(setq org-export-filter-src-block-functions '(make-html-cursor))
+(setq org-html-validation-link nil)
+(setq org-html-postamble nil)
+(setq org-html-preamble "<link rel=\"icon\" type=\"image/x-icon\" href=\"https://github.com/favicon.ico\"/>")
+(setq org-html-text-markup-alist
+  '((bold . "<b>%s</b>")
+    (code . "<kbd>%s</kbd>")
+    (italic . "<i>%s</i>")
+    (strike-through . "<del>%s</del>")
+    (underline . "<span class=\"underline\">%s</span>")
+    (verbatim . "<code>%s</code>")))
+(setq org-html-style-default nil)
+(setq org-html-head-include-scripts nil)
+#+end_src
+
+* Intro
+Comes from [[http://emacs.stackexchange.com/questions/3203/how-to-understand-this-recursion-code][this emacs.stackexchange question]].
+* Task summary
+Understand how this code works:
+#+begin_src emacs-lisp
+(defun triangle-using-cond (number)
+  (cond ((<= number 0) 0)
+        ((= number 1) 1)
+        ((> number 1)
+         (+ number (triangle-using-cond (1- number))))))
+#+end_src
+I'll use [[http://mitpress.mit.edu/sicp/full-text/book/book-Z-H-10.html#%25_sec_1.1.5][The Substitution Model for Procedure Application]] from SICP.
+* Screencast
+The screencast for this demo is here: https://www.youtube.com/watch?v=D7mK2q3yve4
+* Step-by-step expansion
+** step 1
+Start with this code:
+#+begin_src emacs-lisp
+||(defun triangle-using-cond (number)
+  (cond ((<= number 0) 0)
+        ((= number 1) 1)
+        ((> number 1)
+         (+ number (triangle-using-cond (1- number))))))
+(triangle-using-cond 4)
+#+end_src
+
+Eval the defun with ~e~. Then do ~je~ to eval the next expression to
+get =10=.
+** step 2
+Press ~xfM~ to get:
+#+begin_src emacs-lisp
+||(cond ((<= 4 0)
+       0)
+      ((= 4 1)
+       1)
+      ((> 4 1)
+       (+ 4 (triangle-using-cond (1- 4)))))
+#+end_src
+With ~e~ check that the result is still =10=.
+** step 3
+Evaluate the =cond= branches in your mind and simplify with ~qhrr~.
+#+begin_src emacs-lisp
+||(+ 4 (triangle-using-cond (1- 4)))
+#+end_src
+Then ~ffxr~.
+#+begin_src emacs-lisp
+(+ 4 ||(triangle-using-cond 3))
+#+end_src
+
+** step 4
+Press ~xfM~ again:
+#+begin_src emacs-lisp
+(+ 4 ||(cond ((<= 3 0)
+              0)
+             ((= 3 1)
+              1)
+             ((> 3 1)
+              (+ 3 (triangle-using-cond (1- 3))))))
+#+end_src
+Evaluate the =cond= branches in your mind and simplify with ~qirr~.
+#+begin_src emacs-lisp
+(+ 4 ||(+ 3 (triangle-using-cond (1- 3))))
+#+end_src
+Simplify further with ~ffxr~.
+#+begin_src emacs-lisp
+(+ 4 (+ 3 ||(triangle-using-cond 2)))
+#+end_src
+
+** step 5
+Press ~xfM~ again:
+#+begin_src emacs-lisp
+(+ 4 (+ 3 ||(cond ((<= 2 0)
+                   0)
+                  ((= 2 1)
+                   1)
+                  ((> 2 1)
+                   (+ 2 (triangle-using-cond (1- 2)))))))
+#+end_src
+Evaluate the =cond= branches in your mind and simplify with ~qjrr~.
+#+begin_src emacs-lisp
+(+ 4 (+ 3 ||(+ 2 (triangle-using-cond (1- 2)))))
+#+end_src
+Simplify further with ~ffxr~.
+#+begin_src emacs-lisp
+(+ 4 (+ 3 (+ 2 ||(triangle-using-cond 1))))
+#+end_src
+
+** step 6
+Press ~xfM~ again:
+#+begin_src emacs-lisp
+(+ 4 (+ 3 (+ 2 ||(cond ((<= 1 0)
+                        0)
+                       ((= 1 1)
+                        1)
+                       ((> 1 1)
+                        (+ 1 (triangle-using-cond (1- 1))))))))
+#+end_src
+Evaluate the =cond= branches in your mind and simplify with ~akrr~.
+#+begin_src emacs-lisp
+(+ 4 (+ 3 (+ 2 ||1)))
+#+end_src
+~C-e~ ~e~ to check that the result is still =10=. That's it.
+
+#+BEGIN_HTML
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+#+END_HTML
