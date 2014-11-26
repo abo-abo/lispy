@@ -4104,7 +4104,7 @@ return the corresponding `setq' expression."
   (interactive)
   (let* ((sxp (lispy--setq-expression))
          (fun (car sxp)))
-    (when (functionp fun)
+    (if (functionp fun)
       (let ((args (delq '&optional (copy-seq (help-function-arglist fun))))
             (vals (cdr sxp)))
         (if vals
@@ -4113,7 +4113,9 @@ return the corresponding `setq' expression."
 
         (cl-mapcar (lambda (x_ y_) (set x_ (eval y_)))
                    args vals)
-        (lispy-goto-symbol fun)))))
+        (lispy-goto-symbol fun))
+      (lispy-complain
+       (format "%S isn't a function" fun)))))
 
 ;; ——— Key definitions —————————————————————————————————————————————————————————
 (defvar ac-trigger-commands '(self-insert-command))
