@@ -2824,6 +2824,7 @@ to current expression or region.
 #+HTML: </td></tr></tbody></table>
 
 This operation reverses itself.
+See [[file:images/lispy-convolute.gif][gif]].
 -----
 ** =lispy-ace-char=
 :PROPERTIES:
