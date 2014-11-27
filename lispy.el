@@ -739,9 +739,10 @@ Return nil if can't move."
                    (lispy--out-forward 1))
                  (progn
                    (backward-char 1)
-                   (kill-region beg (point)))
-               (goto-char beg)
-               (lispy-delete 1)))))))
+                   (if (= beg (point))
+                       (lispy--out-backward 1)
+                     (kill-region beg (point))))
+               (kill-region beg (point))))))))
 
 (defun lispy-yank ()
   "Like regular `yank', but quotes body when called from \"|\"."
