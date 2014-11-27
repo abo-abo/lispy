@@ -4136,9 +4136,11 @@ return the corresponding `setq' expression."
   (interactive)
   (ignore-errors
     (save-excursion
-      (if (looking-at lispy-left)
-          (forward-list)
-        (up-list))
+      (cond ((looking-at lispy-left)
+             (forward-list))
+            ((looking-back lispy-right))
+            (t
+             (up-list)))
       (let ((tsexp (lispy--preceding-sexp)))
         (backward-list 1)
         (cond
