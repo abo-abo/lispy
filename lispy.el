@@ -1969,16 +1969,17 @@ In case the point is on a let-bound variable, add a `setq'."
                         (lispy--string-dwim)))
                  (expr
                   (save-match-data
-                    (cond ((looking-back "(\\(?:lexical-\\)?let\\*?[ \t\n]*")
-                           (cons 'setq
-                                 (cl-mapcan
-                                  (lambda (x) (unless (listp x) (list x nil)))
-                                  (read str))))
-                          ((save-excursion
-                             (lispy--out-backward 1)
-                             (looking-back "(\\(?:lexical-\\)?let\\*?[ \t\n]*"))
-                           (cons 'setq (read str)))
-                          (t (read str))))))
+                    (lispy-from-left
+                     (cond ((looking-back "(\\(?:lexical-\\)?let\\*?[ \t\n]*")
+                            (cons 'setq
+                                  (cl-mapcan
+                                   (lambda (x) (unless (listp x) (list x nil)))
+                                   (read str))))
+                           ((save-excursion
+                              (lispy--out-backward 1)
+                              (looking-back "(\\(?:lexical-\\)?let\\*?[ \t\n]*"))
+                            (cons 'setq (read str)))
+                           (t (read str)))))))
     (other-window 1)
     (eval-expression expr)
     (other-window -1)))
