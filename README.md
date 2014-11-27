@@ -84,7 +84,7 @@ position or the region state:
 
 - you're in normal mode when the point is before/after paren or the
   region is active
-- otherwise it's in insert mode
+- otherwise you're in insert mode
 
 But if you ask:
 
@@ -118,6 +118,7 @@ and you press a normal key, so new commands can be called in that situation.
     - `xi` transforms `cond` expression to equivalent `if` expressions
     - `xc` transforms `if` expressions to an equivalent `cond` expression
     - `xf` flattens function or macro call (extract body and substitute arguments)
+    - `xr` evals and replaces
     - `xl` turns current `defun` into a `lambda`
     - `xd` turns current `lambda` into a `defun`
     - `O` formats the code into one line
@@ -135,7 +136,7 @@ Most functions are cataloged and described at http://abo-abo.github.io/lispy/.
 
 # Getting Started
 ## Installation instructions
-It's easiest to install this from [MELPA](http://melpa.milkbox.net/).
+It's easiest to install this from [MELPA](http://melpa.org/).
 Here's a minimal MELPA configuration for your `~/.emacs`:
 
     (package-initialize)
@@ -431,31 +432,21 @@ Bound to `G` while in special. Like `lispy-goto`, but works only on current file
 
 # Demos
 
-- [Demo 1](http://abo-abo.github.io/lispy/demo-1)
-- [Demo 2](http://abo-abo.github.io/lispy/demo-2)
+## [Demo 1](http://abo-abo.github.io/lispy/demo-1)
+## [Demo 2](http://abo-abo.github.io/lispy/demo-2)
 
 # Screencasts
 
 I've recorded a few gifs that show some features:
 
-- [1-gif](https://raw.github.com/abo-abo/lispy/master/doc/screencast-1.gif),
+- [1-gif](https://raw.github.com/abo-abo/lispy/master/doc/screencast-1.gif)
 - [2-vimeo](https://vimeo.com/85831418),
   [2-ogv](https://raw.github.com/abo-abo/lispy/master/doc/screencast-2.ogv),
   [2-gif](https://raw.github.com/abo-abo/lispy/master/doc/screencast-2.gif)
 - [3-gif](https://raw.github.com/abo-abo/lispy/master/doc/screencast-3.gif)
 - [4-gif](https://raw.github.com/abo-abo/lispy/master/doc/oneline-multiline.gif)
+- [5-gif](https://raw.github.com/abo-abo/lispy/master/doc/screencast-4.gif)
 
-Synopsis for
-[5](https://raw.github.com/abo-abo/lispy/master/doc/screencast-4.gif):
-find a function and make it echo its doc-string.
+The older stuff can be found on [vimeo](http://vimeo.com/user24828177/videos).
 
-1. Use `lispy-goto` "g" to find the function.
-2. Use `lispy-ace-symbol` "a" to mark its doc-string.
-3. Use `lispy-clone` "c" to clone region. Note that the region doesn't disappear.
-4. Use `lispy-parens` "(" to wrap region.
-5. Insert "message " and use `lispy-forward` "]" to exit the list and move into special.
-6. Use `lispy-mark-list` "m" to mark current list so that we can move it later.
-7. Use `lispy-move-down` "s" to move marked sexp all the way down.
-8. Use `lispy-forward` "]" twice to exit defun.
-9. Use `lispy-eval` "e" to eval our changes.
-10. Use `lispy-undo` "u" to see that the change is now in effect.
+The new stuff is on https://www.youtube.com/user/abo5abo/videos.
