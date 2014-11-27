@@ -558,117 +558,119 @@ Return nil if can't move."
   "Move down ARG times inside current list."
   (interactive "p")
   (lispy--ensure-visible)
-  (cond ((region-active-p)
-         (let* ((str (lispy--string-dwim))
-                (one-symbolp (lispy--symbolp str))
-                delta)
-           (if one-symbolp
-               (if (= (point) (region-end))
-                   (lispy-dotimes arg
-                     (when (lispy-slurp 1)
-                       (lispy-different)
-                       (lispy-barf 1)
-                       (lispy-different)))
-                 (lispy-dotimes arg
-                   (lispy-different)
-                   (if (lispy-slurp 1)
-                       (progn
-                         (lispy-different)
-                         (lispy-barf 1))
-                     (lispy-different))))
+  (save-match-data
+   (cond ((region-active-p)
+          (let* ((str (lispy--string-dwim))
+                 (one-symbolp (lispy--symbolp str))
+                 delta)
+            (if one-symbolp
+                (if (= (point) (region-end))
+                    (lispy-dotimes arg
+                      (when (lispy-slurp 1)
+                        (lispy-different)
+                        (lispy-barf 1)
+                        (lispy-different)))
+                  (lispy-dotimes arg
+                    (lispy-different)
+                    (if (lispy-slurp 1)
+                        (progn
+                          (lispy-different)
+                          (lispy-barf 1))
+                      (lispy-different))))
 
-             (if (= (point) (region-end))
-                 (lispy-dotimes arg
-                   (forward-sexp 1)
-                   (lispy-different)
-                   (forward-sexp 2)
-                   (forward-sexp -1)
-                   (lispy-different))
-               (lispy-dotimes arg
-                 (lispy-different)
-                 (if (ignore-errors
-                       (forward-sexp 1)
-                       t)
-                     (progn
-                       (lispy-different)
-                       (forward-sexp 2)
-                       (forward-sexp -1))
-                   (lispy-different)))))))
+              (if (= (point) (region-end))
+                  (lispy-dotimes arg
+                    (forward-sexp 1)
+                    (lispy-different)
+                    (forward-sexp 2)
+                    (forward-sexp -1)
+                    (lispy-different))
+                (lispy-dotimes arg
+                  (lispy-different)
+                  (if (ignore-errors
+                        (forward-sexp 1)
+                        t)
+                      (progn
+                        (lispy-different)
+                        (forward-sexp 2)
+                        (forward-sexp -1))
+                    (lispy-different)))))))
 
-        ((looking-at lispy-left)
-         (lispy-forward arg)
-         (let ((pt (point)))
-           (if (lispy-forward 1)
-               (lispy-backward 1)
-             (goto-char pt))))
+         ((looking-at lispy-left)
+          (lispy-forward arg)
+          (let ((pt (point)))
+            (if (lispy-forward 1)
+                (lispy-backward 1)
+              (goto-char pt))))
 
-        ((looking-back lispy-right)
-         (let ((pt (point)))
-           (unless (lispy-forward arg)
-             (goto-char pt)
-             (lispy-backward 1))))
+         ((looking-back lispy-right)
+          (let ((pt (point)))
+            (unless (lispy-forward arg)
+              (goto-char pt)
+              (lispy-backward 1))))
 
-        (t
-         (lispy-forward 1)
-         (lispy-backward 1)))
+         (t
+          (lispy-forward 1)
+          (lispy-backward 1))))
   (lispy--ensure-visible))
 
 (defun lispy-up (arg)
   "Move up ARG times inside current list."
   (interactive "p")
   (lispy--ensure-visible)
-  (cond ((region-active-p)
-         (let* ((str (lispy--string-dwim))
-                (one-symbolp (lispy--symbolp str))
-                delta)
-           (if one-symbolp
-               (if (= (point) (region-end))
-                   (lispy-dotimes arg
-                     (lispy-different)
-                     (if (lispy-slurp 1)
-                         (progn
-                           (lispy-different)
-                           (lispy-barf 1))
-                       (lispy-different)))
-                 (lispy-dotimes arg
-                   (when (lispy-slurp 1)
-                     (lispy-different)
-                     (lispy-barf 1)
-                     (lispy-different))))
-             (if (= (point) (region-end))
-                 (lispy-dotimes arg
-                   (lispy-different)
-                   (if (ignore-errors
-                         (backward-sexp 1) t)
-                       (progn
-                         (lispy-different)
-                         (backward-sexp 2)
-                         (backward-sexp -1))
-                     (lispy-different)
-                     (error "Can't move up")))
-               (lispy-dotimes arg
-                 (backward-sexp 1)
-                 (lispy-different)
-                 (backward-sexp 2)
-                 (backward-sexp -1)
-                 (lispy-different))))))
+  (save-match-data
+   (cond ((region-active-p)
+          (let* ((str (lispy--string-dwim))
+                 (one-symbolp (lispy--symbolp str))
+                 delta)
+            (if one-symbolp
+                (if (= (point) (region-end))
+                    (lispy-dotimes arg
+                      (lispy-different)
+                      (if (lispy-slurp 1)
+                          (progn
+                            (lispy-different)
+                            (lispy-barf 1))
+                        (lispy-different)))
+                  (lispy-dotimes arg
+                    (when (lispy-slurp 1)
+                      (lispy-different)
+                      (lispy-barf 1)
+                      (lispy-different))))
+              (if (= (point) (region-end))
+                  (lispy-dotimes arg
+                    (lispy-different)
+                    (if (ignore-errors
+                          (backward-sexp 1) t)
+                        (progn
+                          (lispy-different)
+                          (backward-sexp 2)
+                          (backward-sexp -1))
+                      (lispy-different)
+                      (error "Can't move up")))
+                (lispy-dotimes arg
+                  (backward-sexp 1)
+                  (lispy-different)
+                  (backward-sexp 2)
+                  (backward-sexp -1)
+                  (lispy-different))))))
 
-        ((looking-at lispy-left)
-         (let ((pt (point)))
-           (unless (lispy-backward arg)
-             (goto-char pt)
-             (lispy-forward 1))))
+         ((looking-at lispy-left)
+          (let ((pt (point)))
+            (unless (lispy-backward arg)
+              (goto-char pt)
+              (lispy-forward 1))))
 
-        ((looking-back lispy-right)
-         (lispy-backward arg)
-         (let ((pt (point)))
-           (if (lispy-backward 1)
-               (lispy-forward 1)
-             (goto-char pt))))
+         ((looking-back lispy-right)
+          (lispy-backward arg)
+          (let ((pt (point)))
+            (if (lispy-backward 1)
+                (lispy-forward 1)
+              (goto-char pt))))
 
-        (t
-         (lispy-backward 1)
-         (lispy-forward 1)))
+         (t
+          (lispy-backward 1)
+          (lispy-forward 1))))
   (lispy--ensure-visible))
 
 (defun lispy-different ()
@@ -4103,11 +4105,13 @@ PLIST currently accepts:
                ((lispy--in-string-or-comment-p)
                 (call-interactively 'self-insert-command))
 
-               ((or (looking-at lispy-left)
-                    (looking-back lispy-right))
+               ((save-match-data
+                  (or (looking-at lispy-left)
+                      (looking-back lispy-right)))
                 (call-interactively ',def))
 
-               ((and (looking-back "^ *") (looking-at ";"))
+               ((save-match-data
+                  (and (looking-back "^ *") (looking-at ";")))
                 (call-interactively ',def))
 
                (t
