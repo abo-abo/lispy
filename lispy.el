@@ -4173,20 +4173,26 @@ return the corresponding `setq' expression."
 (defun lispy-debug-step-in ()
   "Eval current function arguments and jump to definition."
   (interactive)
-  (let* ((sxp (lispy--setq-expression))
-         (fun (car sxp)))
-    (if (functionp fun)
-        (let ((args (delq '&optional (copy-seq (help-function-arglist fun t))))
-              (vals (cdr sxp)))
-          (if vals
-              (setcdr (last vals) (make-list (- (length args) (length vals)) nil))
-            (setq vals (make-list (- (length args) (length vals)) nil)))
-
-          (cl-mapcar (lambda (x_ y_) (set x_ (eval y_)))
-                     args vals)
-          (lispy-goto-symbol fun))
+  (let* ((ldsi-sxp (lispy--setq-expression))
+         (ldsi-fun (car ldsi-sxp)))
+    (if (functionp ldsi-fun)
+        (let ((ldsi-args (copy-seq (help-function-arglist ldsi-fun t)))
+              (ldsi-vals (cdr ldsi-sxp))
+              ldsi-arg)
+          (catch 'done
+            (while (setq ldsi-arg (pop ldsi-args))
+              (cond ((eq ldsi-arg '&optional)
+                     (setq ldsi-arg (pop ldsi-args))
+                     (set ldsi-arg (eval (pop ldsi-vals))))
+                    ((eq ldsi-arg '&rest)
+                     (setq ldsi-arg (pop ldsi-args))
+                     (set ldsi-arg (mapcar #'eval ldsi-vals))
+                     (throw 'done t))
+                    (t
+                     (set ldsi-arg (eval (pop ldsi-vals)))))))
+          (lispy-goto-symbol ldsi-fun))
       (lispy-complain
-       (format "%S isn't a function" fun)))))
+       (format "%S isn't a function" ldsi-fun)))))
 
 ;; ——— Key definitions —————————————————————————————————————————————————————————
 (defvar ac-trigger-commands '(self-insert-command))
