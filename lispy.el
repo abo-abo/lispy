@@ -1891,6 +1891,10 @@ Sexp is obtained by exiting list ARG times."
                   (find-function symbol))
                  ((boundp symbol)
                   (find-variable symbol))
+                 ((or (featurep symbol)
+                      (locate-library
+                       (prin1-to-string symbol)))
+                  (find-library (prin1-to-string symbol)))
                  (t
                   (error "Couldn't fild definition of %s"
                          symbol))))
@@ -4295,6 +4299,9 @@ FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)"
     (define-key map (kbd "C-7") 'lispy-cursor-down)
     (define-key map (kbd "C-8") 'lispy-parens-down)
     (define-key map (kbd "C-9") 'lispy-out-forward-newline))
+  ;; ——— globals: tags ————————————————————————
+  (define-key map (kbd "M-.") 'lispy-goto-symbol)
+  (define-key map (kbd "M-,") 'pop-tag-mark)
   ;; ——— globals: miscellanea —————————————————
   (define-key map (kbd "M-o") 'lispy-string-oneline)
   (define-key map (kbd "M-i") 'lispy-iedit)
@@ -4367,7 +4374,6 @@ They may become the defaults in the future."
   (let ((map lispy-mode-map))
     (lispy-define-key map "G" 'lispy-goto-mode)
     (lispy-define-key map "t" 'lispy-transform-mode)
-    (define-key map (kbd "M-.") 'lispy-goto-symbol)
     (lispy-define-key map "." 'pop-tag-mark))
   (let ((map lispy-mode-x-map))
     (define-key map "d" nil)
