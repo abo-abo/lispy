@@ -4105,6 +4105,9 @@ PLIST currently accepts:
                                      (assq char global-edebug-map)))))
                 (call-interactively (cdr cmd)))
 
+               ((and (bound-and-true-p god-global-mode))
+                (call-interactively 'god-mode-self-insert))
+
                ((region-active-p)
                 (call-interactively ',def))
 
