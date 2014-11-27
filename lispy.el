@@ -391,9 +391,9 @@ otherwise call `lispy-out-forward' and return nil."
       (goto-char (1+ (cdr bnd)))))
   (let ((pt (point))
         (r (lispy-dotimes arg
-            (when (= (point) (point-max))
+             (when (= (point) (point-max))
                (error "Reached end of buffer"))
-            (forward-list))))
+             (forward-list))))
     ;; `forward-list' returns true at and of buffer
     (if (or (null r)
             (= pt (point))
@@ -559,59 +559,59 @@ Return nil if can't move."
   (interactive "p")
   (lispy--ensure-visible)
   (save-match-data
-   (cond ((region-active-p)
-          (let* ((str (lispy--string-dwim))
-                 (one-symbolp (lispy--symbolp str))
-                 delta)
-            (if one-symbolp
-                (if (= (point) (region-end))
-                    (lispy-dotimes arg
-                      (when (lispy-slurp 1)
-                        (lispy-different)
-                        (lispy-barf 1)
-                        (lispy-different)))
-                  (lispy-dotimes arg
-                    (lispy-different)
-                    (if (lispy-slurp 1)
-                        (progn
-                          (lispy-different)
-                          (lispy-barf 1))
-                      (lispy-different))))
+    (cond ((region-active-p)
+           (let* ((str (lispy--string-dwim))
+                  (one-symbolp (lispy--symbolp str))
+                  delta)
+             (if one-symbolp
+                 (if (= (point) (region-end))
+                     (lispy-dotimes arg
+                       (when (lispy-slurp 1)
+                         (lispy-different)
+                         (lispy-barf 1)
+                         (lispy-different)))
+                   (lispy-dotimes arg
+                     (lispy-different)
+                     (if (lispy-slurp 1)
+                         (progn
+                           (lispy-different)
+                           (lispy-barf 1))
+                       (lispy-different))))
 
-              (if (= (point) (region-end))
-                  (lispy-dotimes arg
-                    (forward-sexp 1)
-                    (lispy-different)
-                    (forward-sexp 2)
-                    (forward-sexp -1)
-                    (lispy-different))
-                (lispy-dotimes arg
-                  (lispy-different)
-                  (if (ignore-errors
-                        (forward-sexp 1)
-                        t)
-                      (progn
-                        (lispy-different)
-                        (forward-sexp 2)
-                        (forward-sexp -1))
-                    (lispy-different)))))))
+               (if (= (point) (region-end))
+                   (lispy-dotimes arg
+                     (forward-sexp 1)
+                     (lispy-different)
+                     (forward-sexp 2)
+                     (forward-sexp -1)
+                     (lispy-different))
+                 (lispy-dotimes arg
+                   (lispy-different)
+                   (if (ignore-errors
+                         (forward-sexp 1)
+                         t)
+                       (progn
+                         (lispy-different)
+                         (forward-sexp 2)
+                         (forward-sexp -1))
+                     (lispy-different)))))))
 
-         ((looking-at lispy-left)
-          (lispy-forward arg)
-          (let ((pt (point)))
-            (if (lispy-forward 1)
-                (lispy-backward 1)
-              (goto-char pt))))
+          ((looking-at lispy-left)
+           (lispy-forward arg)
+           (let ((pt (point)))
+             (if (lispy-forward 1)
+                 (lispy-backward 1)
+               (goto-char pt))))
 
-         ((looking-back lispy-right)
-          (let ((pt (point)))
-            (unless (lispy-forward arg)
-              (goto-char pt)
-              (lispy-backward 1))))
+          ((looking-back lispy-right)
+           (let ((pt (point)))
+             (unless (lispy-forward arg)
+               (goto-char pt)
+               (lispy-backward 1))))
 
-         (t
-          (lispy-forward 1)
-          (lispy-backward 1))))
+          (t
+           (lispy-forward 1)
+           (lispy-backward 1))))
   (lispy--ensure-visible))
 
 (defun lispy-up (arg)
@@ -619,58 +619,58 @@ Return nil if can't move."
   (interactive "p")
   (lispy--ensure-visible)
   (save-match-data
-   (cond ((region-active-p)
-          (let* ((str (lispy--string-dwim))
-                 (one-symbolp (lispy--symbolp str))
-                 delta)
-            (if one-symbolp
-                (if (= (point) (region-end))
-                    (lispy-dotimes arg
-                      (lispy-different)
-                      (if (lispy-slurp 1)
-                          (progn
-                            (lispy-different)
-                            (lispy-barf 1))
-                        (lispy-different)))
-                  (lispy-dotimes arg
-                    (when (lispy-slurp 1)
-                      (lispy-different)
-                      (lispy-barf 1)
-                      (lispy-different))))
-              (if (= (point) (region-end))
-                  (lispy-dotimes arg
-                    (lispy-different)
-                    (if (ignore-errors
-                          (backward-sexp 1) t)
-                        (progn
-                          (lispy-different)
-                          (backward-sexp 2)
-                          (backward-sexp -1))
-                      (lispy-different)
-                      (error "Can't move up")))
-                (lispy-dotimes arg
-                  (backward-sexp 1)
-                  (lispy-different)
-                  (backward-sexp 2)
-                  (backward-sexp -1)
-                  (lispy-different))))))
+    (cond ((region-active-p)
+           (let* ((str (lispy--string-dwim))
+                  (one-symbolp (lispy--symbolp str))
+                  delta)
+             (if one-symbolp
+                 (if (= (point) (region-end))
+                     (lispy-dotimes arg
+                       (lispy-different)
+                       (if (lispy-slurp 1)
+                           (progn
+                             (lispy-different)
+                             (lispy-barf 1))
+                         (lispy-different)))
+                   (lispy-dotimes arg
+                     (when (lispy-slurp 1)
+                       (lispy-different)
+                       (lispy-barf 1)
+                       (lispy-different))))
+               (if (= (point) (region-end))
+                   (lispy-dotimes arg
+                     (lispy-different)
+                     (if (ignore-errors
+                           (backward-sexp 1) t)
+                         (progn
+                           (lispy-different)
+                           (backward-sexp 2)
+                           (backward-sexp -1))
+                       (lispy-different)
+                       (error "Can't move up")))
+                 (lispy-dotimes arg
+                   (backward-sexp 1)
+                   (lispy-different)
+                   (backward-sexp 2)
+                   (backward-sexp -1)
+                   (lispy-different))))))
 
-         ((looking-at lispy-left)
-          (let ((pt (point)))
-            (unless (lispy-backward arg)
-              (goto-char pt)
-              (lispy-forward 1))))
+          ((looking-at lispy-left)
+           (let ((pt (point)))
+             (unless (lispy-backward arg)
+               (goto-char pt)
+               (lispy-forward 1))))
 
-         ((looking-back lispy-right)
-          (lispy-backward arg)
-          (let ((pt (point)))
-            (if (lispy-backward 1)
-                (lispy-forward 1)
-              (goto-char pt))))
+          ((looking-back lispy-right)
+           (lispy-backward arg)
+           (let ((pt (point)))
+             (if (lispy-backward 1)
+                 (lispy-forward 1)
+               (goto-char pt))))
 
-         (t
-          (lispy-backward 1)
-          (lispy-forward 1))))
+          (t
+           (lispy-backward 1)
+           (lispy-forward 1))))
   (lispy--ensure-visible))
 
 (defun lispy-different ()
@@ -3454,9 +3454,9 @@ Defaults to `error'."
              (setq body (lispy--replace body f-arg (pop e-args))))
             (t
              (setq body (lispy--replace body f-arg (pop e-args))))))
-      (if (= (length body) 1)
-          (setq body (car body))
-        (setq body (cons 'progn body)))))
+    (if (= (length body) 1)
+        (setq body (car body))
+      (setq body (cons 'progn body)))))
 
 (defun lispy-to-ifs ()
   "Transform current `cond' expression to equivalent `if' expressions."
@@ -4161,15 +4161,15 @@ return the corresponding `setq' expression."
   (let* ((sxp (lispy--setq-expression))
          (fun (car sxp)))
     (if (functionp fun)
-      (let ((args (delq '&optional (copy-seq (help-function-arglist fun))))
-            (vals (cdr sxp)))
-        (if vals
-            (setcdr (last vals) (make-list (- (length args) (length vals)) nil))
-          (setq vals (make-list (- (length args) (length vals)) nil)))
+        (let ((args (delq '&optional (copy-seq (help-function-arglist fun))))
+              (vals (cdr sxp)))
+          (if vals
+              (setcdr (last vals) (make-list (- (length args) (length vals)) nil))
+            (setq vals (make-list (- (length args) (length vals)) nil)))
 
-        (cl-mapcar (lambda (x_ y_) (set x_ (eval y_)))
-                   args vals)
-        (lispy-goto-symbol fun))
+          (cl-mapcar (lambda (x_ y_) (set x_ (eval y_)))
+                     args vals)
+          (lispy-goto-symbol fun))
       (lispy-complain
        (format "%S isn't a function" fun)))))
 
