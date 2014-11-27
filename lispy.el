@@ -1342,39 +1342,31 @@ Return the amount of successful grow steps, nil instead of zero."
                (lispy-forward 1)
                (lispy-flow 1)))))))
 
-(defun lispy-raise ()
+(defun lispy-raise (arg)
   "Use current sexp or region as replacement for its parent."
-  (interactive)
-  (let* ((regionp (region-active-p))
-         (deactivate-mark nil)
-         (at-end (and regionp
-                      (= (point) (region-end))))
-         (from-right (looking-back lispy-right))
-         bnd1 bnd2)
-    (if regionp
-        (let ((deactivate-mark nil))
-          (when at-end (lispy-different))
-          (save-excursion
-            (lispy--reindent 1)))
-      (when from-right
-        (backward-list))
-      (lispy--reindent 1))
-    (setq bnd1 (lispy--bounds-dwim))
-    (lispy--out-forward 1)
-    (setq bnd2 (lispy--bounds-dwim))
-    (unless regionp
-      (goto-char (car bnd2)))
-    (delete-region (cdr bnd2) (cdr bnd1))
-    (delete-region (car bnd2) (car bnd1))
-    (if regionp
-        (progn
-          (indent-region (car bnd2) (point))
-          (lispy--mark (cons (point) (car bnd2)))
-          (when at-end
-            (exchange-point-and-mark)))
-      (indent-sexp)
-      (when from-right
-        (forward-list)))))
+  (interactive "p")
+  (lispy-dotimes arg
+    (let ((regionp (region-active-p))
+          (leftp (lispy--leftp))
+          (deactivate-mark nil)
+          bnd1 bnd2)
+      ;; re-indent first
+      (lispy-save-excursion (lispy--out-forward 1))
+      (unless leftp
+        (lispy-different))
+      (setq bnd1 (lispy--bounds-dwim))
+      (lispy--out-forward 1)
+      (setq bnd2 (lispy--bounds-dwim))
+      (delete-region (cdr bnd2) (cdr bnd1))
+      (delete-region (car bnd2) (car bnd1))
+      (if regionp
+          (progn
+            (indent-region (car bnd2) (point))
+            (lispy--mark (cons (car bnd2) (point))))
+        (lispy-from-left
+         (indent-sexp)))
+      (unless (eq leftp (lispy--leftp))
+        (lispy-different)))))
 
 (defun lispy-raise-some ()
   "Use current sexps as replacement for their parent.
@@ -1398,7 +1390,7 @@ The outcome when ahead of sexps is different from when behind."
 
           (t
            (error "Unexpected")))
-    (lispy-raise)
+    (lispy-raise 1)
     (deactivate-mark)))
 
 ;; TODO add numeric arg: 1 is equivalent to prev behavior 2 will raise containing list twice.
