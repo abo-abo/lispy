@@ -4167,7 +4167,7 @@ return the corresponding `setq' expression."
   (let* ((sxp (lispy--setq-expression))
          (fun (car sxp)))
     (if (functionp fun)
-        (let ((args (delq '&optional (copy-seq (help-function-arglist fun))))
+        (let ((args (delq '&optional (copy-seq (help-function-arglist fun t))))
               (vals (cdr sxp)))
           (if vals
               (setcdr (last vals) (make-list (- (length args) (length vals)) nil))

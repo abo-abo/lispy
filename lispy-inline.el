@@ -204,7 +204,7 @@ Return t if at least one was deleted."
     (if (setq doc (help-split-fundoc (documentation symbol t) symbol))
         (car doc)
       (prin1-to-string
-       (cons symbol (help-function-arglist symbol))))))
+       (cons symbol (help-function-arglist symbol t))))))
 
 (defun lispy--join-pad (strs width)
   "Join STRS padding each line with WIDTH spaces."
