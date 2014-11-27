@@ -870,11 +870,14 @@ Extend region when it's aleardy active."
       (set-mark (car bounds))
       (goto-char (cdr bounds)))))
 
-(defun lispy-mark-list ()
+(defun lispy-mark-list (arg)
   "Mark list from special position."
-  (interactive)
+  (interactive "p")
   (cond ((region-active-p)
          (deactivate-mark))
+        ((> arg 1)
+         (lispy-mark-car)
+         (lispy-down (1- arg)))
         ((looking-at lispy-left)
          (set-mark (point))
          (forward-list))
