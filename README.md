@@ -39,6 +39,7 @@
 - [Demos](#demos)
     - [[Demo 1: practice generating code](http://abo-abo.github.io/lispy/demo-1)](#demo-1-practice-generating-codehttpabo-abogithubiolispydemo-1)
     - [[Demo 2: the substitution model for procedure application](http://abo-abo.github.io/lispy/demo-2)](#demo-2-the-substitution-model-for-procedure-applicationhttpabo-abogithubiolispydemo-2)
+    - [[Demo 3: down the rabbit hole](http://abo-abo.github.io/lispy/demo-3)](#demo-3-down-the-rabbit-holehttpabo-abogithubiolispydemo-3)
 - [Screencasts](#screencasts)
 
 <!-- markdown-toc end -->
@@ -436,6 +437,7 @@ Bound to `G` while in special. Like `lispy-goto`, but works only on current file
 
 ## [Demo 1: practice generating code](http://abo-abo.github.io/lispy/demo-1)
 ## [Demo 2: the substitution model for procedure application](http://abo-abo.github.io/lispy/demo-2)
+## [Demo 3: down the rabbit hole](http://abo-abo.github.io/lispy/demo-3)
 
 # Screencasts
 
