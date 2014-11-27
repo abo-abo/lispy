@@ -4207,7 +4207,8 @@ return the corresponding `setq' expression."
   (define-key map "c" 'lispy-to-cond)
   (define-key map "f" 'lispy-flatten)
   (define-key map "r" 'lispy-eval-and-replace)
-  (define-key map "s" 'save-buffer))
+  (define-key map "s" 'save-buffer)
+  (define-key map "j" 'lispy-debug-step-in))
 
 (defun lispy-define-key (keymap key def &rest plist)
   "Forward to (`define-key' KEYMAP KEY FUNC).
