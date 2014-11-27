@@ -2648,7 +2648,8 @@ Return nil on failure, (point) otherwise."
   (catch 'break
     (dotimes (i arg)
       (if (ignore-errors (up-list) t)
-          (progn
+          (if buffer-read-only
+              (deactivate-mark)
             (unless lispy-ignore-whitespace
               (lispy--remove-gaps)
               (lispy--indent-for-tab)))
