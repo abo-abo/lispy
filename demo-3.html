@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<title>lispy.el demo 3: down the rabbit hole</title>
+<!-- 2014-11-27 Thu 19:38 -->
+<meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta  name="generator" content="Org-mode" />
+<meta  name="author" content="Oleh" />
+<link rel="stylesheet" type="text/css" href="demo-style.css"/>
+</head>
+<body>
+<div id="preamble" class="status">
+<link rel="icon" type="image/x-icon" href="https://github.com/favicon.ico"/>
+</div>
+<div id="content">
+<h1 class="title">lispy.el demo 3: down the rabbit hole</h1>
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="left" />
+
+<col  class="left" />
+
+<col  class="left" />
+</colgroup>
+<tbody>
+<tr>
+<td class="left"><a href="https://github.com/abo-abo/lispy">Back to github</a></td>
+<td class="left"><a href="https://raw.githubusercontent.com/abo-abo/lispy/gh-pages/demo-3.org">This file in org-mode</a></td>
+<td class="left"><a href="http://abo-abo.github.io/lispy/">Function reference</a></td>
+</tr>
+</tbody>
+</table>
+
+<div id="outline-container-unnumbered-2" class="outline-2">
+<h2 id="unnumbered-2">Intro</h2>
+<div class="outline-text-2" id="text-unnumbered-2">
+<p>
+This demo introduces the concept of <code>edebug</code>-less debugging.  
+</p>
+
+<p>
+While <code>edebug</code> can be great at times, I mostly like to write functions
+as I debug them, and <code>edebug</code> doesn't allow that.
+</p>
+</div>
+</div>
+
+<div id="outline-container-unnumbered-3" class="outline-2">
+<h2 id="unnumbered-3">Task summary</h2>
+<div class="outline-text-2" id="text-unnumbered-3">
+<p>
+Understand how this code works:
+</p>
+
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">(setq today (org-date-to-gregorian
+             (time-to-days (current-time))))
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-unnumbered-4" class="outline-2">
+<h2 id="unnumbered-4">Screencast</h2>
+<div class="outline-text-2" id="text-unnumbered-4">
+<p>
+The screencast for this demo is here: <a href="http://youtu.be/yeIzJs9oChI">http://youtu.be/yeIzJs9oChI</a>
+</p>
+</div>
+</div>
+<div id="outline-container-unnumbered-5" class="outline-2">
+<h2 id="unnumbered-5">Step-by-step expansion</h2>
+<div class="outline-text-2" id="text-unnumbered-5">
+<p>
+Start with this code:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp"><cursor>(</cursor>setq today (org-date-to-gregorian
+             (time-to-days (current-time))))
+</pre>
+</div>
+</div>
+
+<div id="outline-container-unnumbered-6" class="outline-3">
+<h3 id="unnumbered-6">step 1</h3>
+<div class="outline-text-3" id="text-unnumbered-6">
+<p>
+Eval with <kbd>e</kbd> to get today's date.
+</p>
+</div>
+</div>
+
+<div id="outline-container-unnumbered-7" class="outline-3">
+<h3 id="unnumbered-7">step 2</h3>
+<div class="outline-text-3" id="text-unnumbered-7">
+<ul class="org-ul">
+<li><kbd>fff</kbd> or <kbd>3f</kbd> (or <kbd>99f</kbd>) or <kbd>qd</kbd> to navigate to <code>(current-time)</code>
+</li>
+<li>hold <kbd>e</kbd> to see the value change
+</li>
+<li>toggle <kbd>C-1</kbd> to see the documentation for <code>current-time</code>
+</li>
+<li>toggle <kbd>C-1</kbd> off
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-unnumbered-8" class="outline-3">
+<h3 id="unnumbered-8">step 3</h3>
+<div class="outline-text-3" id="text-unnumbered-8">
+<ul class="org-ul">
+<li><kbd>h</kbd> to go left once
+</li>
+<li><kbd>e</kbd> to eval. I got <code>735564</code>, you might get a number larger than this.
+</li>
+<li>toggle <kbd>C-1</kbd> on/off to see what <code>time-to-days</code> does.
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-unnumbered-9" class="outline-3">
+<h3 id="unnumbered-9">step 4</h3>
+<div class="outline-text-3" id="text-unnumbered-9">
+<ul class="org-ul">
+<li><kbd>h</kbd> to go left once
+</li>
+<li><kbd>e</kbd> to eval. I got <code>(11 27 2014)</code>.
+</li>
+<li><kbd>xj</kbd> to jump into <code>org-date-to-gregorian</code> with current state,
+i.e. call it with <code>735564</code>, the result of <code>(time-to-days
+  (current-time))</code>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-unnumbered-10" class="outline-3">
+<h3 id="unnumbered-10">step 5</h3>
+<div class="outline-text-3" id="text-unnumbered-10">
+<p>
+You should now be in <code>org.el</code>.
+</p>
+
+<ul class="org-ul">
+<li>you can check with <kbd>M-:</kbd> that the value of <code>date</code> is <code>735564</code> (or
+something close)
+</li>
+<li>to do the same thing in <code>lispy</code> way, you can <kbd>3mie</kbd>:
+<ul class="org-ul">
+<li><kbd>3m</kbd> - mark third
+</li>
+<li><kbd>i</kbd> - mark inner
+</li>
+<li><kbd>e</kbd> - eval
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-unnumbered-11" class="outline-3">
+<h3 id="unnumbered-11">step 6</h3>
+<div class="outline-text-3" id="text-unnumbered-11">
+<ul class="org-ul">
+<li><kbd>qe</kbd> to navigate to the first condition of the <code>cond</code> statement
+</li>
+<li><kbd>e</kbd> to eval it and get and get <kbd>t</kbd>
+</li>
+<li>which means we can <kbd>fe</kbd> to get the familiar result <code>(11 27 2014)</code>
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-unnumbered-12" class="outline-3">
+<h3 id="unnumbered-12">step 7</h3>
+<div class="outline-text-3" id="text-unnumbered-12">
+<ul class="org-ul">
+<li>step in again with <kbd>xj</kbd> to end up in <code>calendar.el</code>
+</li>
+<li>check if you want that <code>date</code> hasn't changed: <kbd>3mie</kbd>
+</li>
+<li><kbd>qe</kbd> to navigate to <code>(d0 (1- date))</code> statement.
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-unnumbered-13" class="outline-3">
+<h3 id="unnumbered-13">step 8</h3>
+<div class="outline-text-3" id="text-unnumbered-13">
+<ul class="org-ul">
+<li>use <kbd>p</kbd> to eval not <code>(d0 (1- date))</code>, but <code>(setq d0 (1- date))</code>.
+</li>
+<li>use <kbd>j</kbd> to move to the next statement
+</li>
+<li>use <kbd>p</kbd> again
+</li>
+<li>use <kbd>j</kbd> again
+</li>
+<li>&#x2026;
+</li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-unnumbered-14" class="outline-3">
+<h3 id="unnumbered-14">step 9</h3>
+<div class="outline-text-3" id="text-unnumbered-14">
+<p>
+By now you should have set <code>month</code> to <code>1</code>. You need to set
+<code>mdays</code>. This can be done by navigating outward with <kbd>l</kbd> and pressing
+<kbd>p</kbd>. After this, all let-bound variables that should be set to <code>nil</code>
+will be set to <code>nil</code>.
+</p>
+
+<ul class="org-ul">
+<li>navigate to the test clause of <code>if</code> statement with <kbd>djf</kbd> or <kbd>qE</kbd>.
+</li>
+<li>test with <kbd>e</kbd> to get <code>nil</code>. This means that it's not New Year's eve.
+</li>
+<li><kbd>jj</kbd> to move to the else clause of <code>if</code>
+</li>
+<li><kbd>e</kbd> to update <code>year</code>
+</li>
+<li><kbd>e</kbd> to go through the <code>while</code> statement, you can step through it as
+well if you want
+</li>
+<li><kbd>je</kbd> to obtain the final result: <code>(11 27 2014)</code>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>

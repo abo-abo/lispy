@@ -1,0 +1,123 @@
+#+TITLE:     lispy.el demo 3: down the rabbit hole
+#+LANGUAGE:  en
+#+OPTIONS:   H:3 num:nil toc:nil
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="demo-style.css"/>
+
+| [[https://github.com/abo-abo/lispy][Back to github]] | [[https://raw.githubusercontent.com/abo-abo/lispy/gh-pages/demo-3.org][This file in org-mode]] | [[http://abo-abo.github.io/lispy/][Function reference]] |
+
+* Setup                                                                               :noexport:
+#+begin_src emacs-lisp :exports results :results silent
+(defun make-html-cursor--replace (x)
+  (if (string= "||\n" x)
+      "<cursor> </cursor>\n"
+    (if (string= "||[" x)
+        "<cursor>[</cursor>"
+      (format "<cursor>%s</cursor>"
+              (regexp-quote
+               (substring x 2))))))
+
+(defun make-html-cursor (str x y)
+  (replace-regexp-in-string
+   "||\\(.\\|\n\\)"
+   #'make-html-cursor--replace
+   str))
+
+(setq org-export-filter-src-block-functions '(make-html-cursor))
+(setq org-html-validation-link nil)
+(setq org-html-postamble nil)
+(setq org-html-preamble "<link rel=\"icon\" type=\"image/x-icon\" href=\"https://github.com/favicon.ico\"/>")
+(setq org-html-text-markup-alist
+  '((bold . "<b>%s</b>")
+    (code . "<kbd>%s</kbd>")
+    (italic . "<i>%s</i>")
+    (strike-through . "<del>%s</del>")
+    (underline . "<span class=\"underline\">%s</span>")
+    (verbatim . "<code>%s</code>")))
+(setq org-html-style-default nil)
+(setq org-html-head-include-scripts nil)
+#+end_src
+
+* Intro
+This demo introduces the concept of =edebug=-less debugging.
+
+While =edebug= can be great at times, I mostly like to write functions
+as I debug them, and =edebug= doesn't allow that.
+
+* Task summary
+Understand how this code works:
+
+#+begin_src emacs-lisp
+(setq today (org-date-to-gregorian
+             (time-to-days (current-time))))
+#+end_src
+
+* Screencast
+The screencast for this demo is here: http://youtu.be/yeIzJs9oChI
+* Step-by-step expansion
+Start with this code:
+#+begin_src emacs-lisp
+||(setq today (org-date-to-gregorian
+             (time-to-days (current-time))))
+#+end_src
+
+** step 1
+Eval with ~e~ to get today's date.
+
+** step 2
+- ~fff~ or ~3f~ (or ~99f~) or ~qd~ to navigate to =(current-time)=
+- hold ~e~ to see the value change
+- toggle ~C-1~ to see the documentation for =current-time=
+- toggle ~C-1~ off
+
+** step 3
+- ~h~ to go left once
+- ~e~ to eval. I got =735564=, you might get a number larger than this.
+- toggle ~C-1~ on/off to see what =time-to-days= does.
+
+** step 4
+- ~h~ to go left once
+- ~e~ to eval. I got =(11 27 2014)=.
+- ~xj~ to jump into =org-date-to-gregorian= with current state,
+  i.e. call it with =735564=, the result of =(time-to-days
+  (current-time))=
+
+** step 5
+You should now be in =org.el=.
+
+- you can check with ~M-:~ that the value of =date= is =735564= (or
+  something close)
+- to do the same thing in =lispy= way, you can ~3mie~:
+  - ~3m~ - mark third
+  - ~i~ - mark inner
+  - ~e~ - eval
+
+** step 6
+- ~qe~ to navigate to the first condition of the =cond= statement
+- ~e~ to eval it and get and get ~t~
+- which means we can ~fe~ to get the familiar result =(11 27 2014)=
+
+** step 7
+- step in again with ~xj~ to end up in =calendar.el=
+- check if you want that =date= hasn't changed: ~3mie~
+- ~qe~ to navigate to =(d0 (1- date))= statement.
+
+** step 8
+- use ~p~ to eval not =(d0 (1- date))=, but =(setq d0 (1- date))=.
+- use ~j~ to move to the next statement
+- use ~p~ again
+- use ~j~ again
+- ...
+
+** step 9
+By now you should have set =month= to =1=. You need to set
+=mdays=. This can be done by navigating outward with ~l~ and pressing
+~p~. After this, all let-bound variables that should be set to =nil=
+will be set to =nil=.
+
+- navigate to the test clause of =if= statement with ~djf~ or ~qE~.
+- test with ~e~ to get =nil=. This means that it's not New Year's eve.
+- ~jj~ to move to the else clause of =if=
+- ~e~ to update =year=
+- ~e~ to go through the =while= statement, you can step through it as
+  well if you want
+- ~je~ to obtain the final result: =(11 27 2014)=
