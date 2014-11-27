@@ -1,4 +1,4 @@
-#+TITLE:     lispy.el demo 1
+#+TITLE:     lispy.el demo 1: practice generating code
 #+LANGUAGE:  en
 #+OPTIONS:   H:3 num:nil toc:nil
 #+HTML_HEAD: <link rel="stylesheet" type="text/css" href="demo-style.css"/>
