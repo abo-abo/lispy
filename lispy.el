@@ -2808,6 +2808,9 @@ Move to the end of line."
      (define-obsolete-variable-alias . 1)
      (eval-after-load . 1)
      (global-set-key . 2)
+     (if . 1)
+     (when . 1)
+     (unless . 1)
      ;; org-mode specific
      (org-defkey . 3)
      ;; use-package specific
