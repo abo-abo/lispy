@@ -1,0 +1,132 @@
+#+TITLE:     lispy.el demo 4: Project Euler p100 and Clojure
+#+LANGUAGE:  en
+#+OPTIONS:   H:3 num:nil toc:nil
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="demo-style.css"/>
+
+| [[https://github.com/abo-abo/lispy][Back to github]] | [[https://raw.githubusercontent.com/abo-abo/lispy/gh-pages/demo-4.org][This file in org-mode]] | [[http://abo-abo.github.io/lispy/][Function reference]] |
+
+* Setup                                                                               :noexport:
+#+begin_src emacs-lisp :exports results :results silent
+(defun make-html-region--replace-1 (x)
+  (format "<cursor>%c</cursor><span class=\"region\">%s</span>"
+          (aref x 1)
+          (regexp-quote
+           (substring x 2 (- (length x) 1)))))
+
+(defun make-html-region--replace-2 (x)
+  (format "<span class=\"region\">%s</span><cursor>%c</cursor>"
+          (regexp-quote
+           (substring x 1 (- (length x) 2)))
+          (aref x (- (length x) 1))))
+
+(defun make-html-cursor--replace (x)
+  (if (string= "|\n" x)
+      "<cursor> </cursor>\n"
+    (if (string= "|[" x)
+        "<cursor>[</cursor>"
+      (format "<cursor>%s</cursor>"
+              (regexp-quote
+               (substring x 1))))))
+
+(defun make-html-region (str x y)
+  (setq str
+        (replace-regexp-in-string
+         "|[^|~]+~"
+         #'make-html-region--replace-1
+         str))
+  (setq str
+        (replace-regexp-in-string
+         "~[^|~]+|\\(?:.\\|$\\)"
+         #'make-html-region--replace-2
+         str))
+  (replace-regexp-in-string
+   "|\\(.\\|\n\\)"
+   #'make-html-cursor--replace
+   str))
+(setq org-export-filter-src-block-functions '(make-html-region))
+(setq org-html-validation-link nil)
+(setq org-html-postamble nil)
+(setq org-html-preamble "<link rel=\"icon\" type=\"image/x-icon\" href=\"https://github.com/favicon.ico\"/>")
+(setq org-html-text-markup-alist
+  '((bold . "<b>%s</b>")
+    (code . "<kbd>%s</kbd>")
+    (italic . "<i>%s</i>")
+    (strike-through . "<del>%s</del>")
+    (underline . "<span class=\"underline\">%s</span>")
+    (verbatim . "<code>%s</code>")))
+(setq org-html-style-default nil)
+(setq org-html-head-include-scripts nil)
+#+end_src
+
+* Intro
+This demo will showcase expanding Clojure's =iterate= with Emacs macros.
+
+* Task summary
+See a step-by-step solution of https://projecteuler.net/problem=100.
+
+* Screencast
+The screencast for this demo is here: http://youtu.be/tcI4gZ3eHaw
+* Step-by-step
+** step 1
+Start with this code (sorry for spoiling):
+#+begin_src clojure
+;; If a box contains twenty-one coloured discs, composed of fifteen blue
+;; discs and six red discs, and two discs were taken at random, it can be
+;; seen that the probability of taking two blue discs, P(BB) =
+;; (15/21)×(14/20) = 1/2.
+
+;; The next such arrangement, for which there is exactly 50% chance of
+;; taking two blue discs at random, is a box containing eighty-five blue
+;; discs and thirty-five red discs.
+
+;; By finding the first arrangement to contain over 1012 =
+;; 1,000,000,000,000 discs in total, determine the number of blue discs
+;; that the box would contain.
+
+;; 1+4*r+√(8*r^2+1)>2e12=x
+;; 8*r^2+1>(x-1)^2+16*r^2-8*r*(x-1)
+;; 8*r*r-8*r(x-1)+(x-1)^2-1<0
+;; solve=> r> 292893218813
+;; for blue to be integer, the req is 8*r*r+1 is square
+|(defn blue [red]
+  (BigInteger/valueOf (/ (+ 1 (* 2 red) (Math/sqrt (+ 1 (* 8 red red)))) 2)))
+(defn next-red [[a b]]
+  [b (- (* b 6) a)])
+(defn solution []
+  (->> (filter #(> (+ % (blue %)) 1e12)
+               (map first (iterate next-red [6N 35N]))) first blue))
+(solution)
+#+end_src
+** step 2
+Fire up =cider= and eval everything with ~ejeje~.
+** step 3
+- ~k3f~ to jump to the =filter= statement
+- ~2m~ to select the lambda
+- ~n~ to copy
+- ~A~ jump to beginning of defun
+- ~j C-n C-n~ navigate to some empty space
+** step 4
+- ~( C-y C-j~
+- ~(first[6N 35N~
+
+You should now have:
+#+begin_src clojure
+(#(> (+ % (blue %)) 1e12)
+ (first [6N 35N|]))
+#+end_src
+** step 5
+- ~C-f A~ navigate to the start
+- ~e~ eval to get =false=
+** step 6
+- ~<f3>~ to start recording a macro
+- ~fjf~ to navigate to the array
+- ~2(next-red~ to wrap the array
+- ~[xr~ to eval and replace
+- ~A~ to navigate to the start
+- ~E~ to eval and insert
+- ~<f4>~ to finish the macro
+** step 7
+Keep spamming ~<f4>~ until you get =true=.
+** step 8
+- ~fj2(blue[E~ to get the solution
+- ~hkE~ to double-check

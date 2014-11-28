@@ -85,3 +85,8 @@ tr:nth-child(odd) {
 tr:nth-child(even) {
     background-color:#d6d8ec;
 }
+
+.region {
+    color: #ffffff;
+    background-color: #f9b593;
+}

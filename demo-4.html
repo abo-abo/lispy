@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<title>lispy.el demo 4: Project Euler p100 and Clojure</title>
+<!-- 2014-11-28 Fri 22:15 -->
+<meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta  name="generator" content="Org-mode" />
+<meta  name="author" content="Oleh" />
+<link rel="stylesheet" type="text/css" href="demo-style.css"/>
+</head>
+<body>
+<div id="preamble" class="status">
+<link rel="icon" type="image/x-icon" href="https://github.com/favicon.ico"/>
+</div>
+<div id="content">
+<h1 class="title">lispy.el demo 4: Project Euler p100 and Clojure</h1>
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="left" />
+
+<col  class="left" />
+
+<col  class="left" />
+</colgroup>
+<tbody>
+<tr>
+<td class="left"><a href="https://github.com/abo-abo/lispy">Back to github</a></td>
+<td class="left"><a href="https://raw.githubusercontent.com/abo-abo/lispy/gh-pages/demo-4.org">This file in org-mode</a></td>
+<td class="left"><a href="http://abo-abo.github.io/lispy/">Function reference</a></td>
+</tr>
+</tbody>
+</table>
+
+<div id="outline-container-unnumbered-2" class="outline-2">
+<h2 id="unnumbered-2">Intro</h2>
+<div class="outline-text-2" id="text-unnumbered-2">
+<p>
+This demo will showcase expanding Clojure's <code>iterate</code> with Emacs macros.
+</p>
+</div>
+</div>
+
+<div id="outline-container-unnumbered-3" class="outline-2">
+<h2 id="unnumbered-3">Task summary</h2>
+<div class="outline-text-2" id="text-unnumbered-3">
+<p>
+See a step-by-step solution of <a href="https://projecteuler.net/problem=100">https://projecteuler.net/problem=100</a>.
+</p>
+</div>
+</div>
+
+<div id="outline-container-unnumbered-4" class="outline-2">
+<h2 id="unnumbered-4">Screencast</h2>
+<div class="outline-text-2" id="text-unnumbered-4">
+<p>
+The screencast for this demo is here: <a href="http://youtu.be/tcI4gZ3eHaw">http://youtu.be/tcI4gZ3eHaw</a>
+</p>
+</div>
+</div>
+<div id="outline-container-unnumbered-5" class="outline-2">
+<h2 id="unnumbered-5">Step-by-step</h2>
+<div class="outline-text-2" id="text-unnumbered-5">
+</div><div id="outline-container-unnumbered-6" class="outline-3">
+<h3 id="unnumbered-6">step 1</h3>
+<div class="outline-text-3" id="text-unnumbered-6">
+<p>
+Start with this code (sorry for spoiling):
+</p>
+<div class="org-src-container">
+
+<pre class="src src-clojure"><span style="color: #3F7F5F;">;; </span><span style="color: #3F7F5F;">If a box contains twenty-one coloured discs, composed of fifteen blue</span>
+<span style="color: #3F7F5F;">;; </span><span style="color: #3F7F5F;">discs and six red discs, and two discs were taken at random, it can be</span>
+<span style="color: #3F7F5F;">;; </span><span style="color: #3F7F5F;">seen that the probability of taking two blue discs, P(BB) =</span>
+<span style="color: #3F7F5F;">;; </span><span style="color: #3F7F5F;">(15/21)&#215;(14/20) = 1/2.</span>
+
+<span style="color: #3F7F5F;">;; </span><span style="color: #3F7F5F;">The next such arrangement, for which there is exactly 50% chance of</span>
+<span style="color: #3F7F5F;">;; </span><span style="color: #3F7F5F;">taking two blue discs at random, is a box containing eighty-five blue</span>
+<span style="color: #3F7F5F;">;; </span><span style="color: #3F7F5F;">discs and thirty-five red discs.</span>
+
+<span style="color: #3F7F5F;">;; </span><span style="color: #3F7F5F;">By finding the first arrangement to contain over 1012 =</span>
+<span style="color: #3F7F5F;">;; </span><span style="color: #3F7F5F;">1,000,000,000,000 discs in total, determine the number of blue discs</span>
+<span style="color: #3F7F5F;">;; </span><span style="color: #3F7F5F;">that the box would contain.</span>
+
+<span style="color: #3F7F5F;">;; </span><span style="color: #3F7F5F;">1+4*r+&#8730;(8*r^2+1)&gt;2e12=x</span>
+<span style="color: #3F7F5F;">;; </span><span style="color: #3F7F5F;">8*r^2+1&gt;(x-1)^2+16*r^2-8*r*(x-1)</span>
+<span style="color: #3F7F5F;">;; </span><span style="color: #3F7F5F;">8*r*r-8*r(x-1)+(x-1)^2-1&lt;0</span>
+<span style="color: #3F7F5F;">;; </span><span style="color: #3F7F5F;">solve=&gt; r&gt; 292893218813</span>
+<span style="color: #3F7F5F;">;; </span><span style="color: #3F7F5F;">for blue to be integer, the req is 8*r*r+1 is square</span>
+<cursor>(</cursor><span style="color: #7F0055; font-weight: bold;">defn</span> <span style="color: #000000; font-weight: bold;">blue</span> [red]
+  (<span style="color: #000000; font-style: italic; text-decoration: underline;">BigInteger</span>/<span style="color: #7F0055; font-weight: bold;">valueOf</span> (/ (+ 1 (* 2 red) (<span style="color: #000000; font-style: italic; text-decoration: underline;">Math</span>/sqrt (+ 1 (* 8 red red)))) 2)))
+(<span style="color: #7F0055; font-weight: bold;">defn</span> <span style="color: #000000; font-weight: bold;">next-red</span> [[a b]]
+  [b (- (* b 6) a)])
+(<span style="color: #7F0055; font-weight: bold;">defn</span> <span style="color: #000000; font-weight: bold;">solution</span> []
+  (<span style="color: #7F0055; font-weight: bold;">-&gt;&gt;</span> (filter #(&gt; (+ <span style="color: #000000;">%</span> (blue <span style="color: #000000;">%</span>)) 1e12)
+               (map first (iterate next-red [6N 35N]))) first blue))
+(solution)
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-unnumbered-7" class="outline-3">
+<h3 id="unnumbered-7">step 2</h3>
+<div class="outline-text-3" id="text-unnumbered-7">
+<p>
+Fire up <code>cider</code> and eval everything with <kbd>ejeje</kbd>.
+</p>
+</div>
+</div>
+<div id="outline-container-unnumbered-8" class="outline-3">
+<h3 id="unnumbered-8">step 3</h3>
+<div class="outline-text-3" id="text-unnumbered-8">
+<ul class="org-ul">
+<li><kbd>k3f</kbd> to jump to the <code>filter</code> statement
+</li>
+<li><kbd>2m</kbd> to select the lambda
+</li>
+<li><kbd>n</kbd> to copy
+</li>
+<li><kbd>A</kbd> jump to beginning of defun
+</li>
+<li><kbd>j C-n C-n</kbd> navigate to some empty space
+</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-unnumbered-9" class="outline-3">
+<h3 id="unnumbered-9">step 4</h3>
+<div class="outline-text-3" id="text-unnumbered-9">
+<ul class="org-ul">
+<li><kbd>( C-y C-j</kbd>
+</li>
+<li><kbd>(first[6N 35N</kbd>
+</li>
+</ul>
+
+<p>
+You should now have:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-clojure">(#(&gt; (+ <span style="color: #000000;">%</span> (blue <span style="color: #000000;">%</span>)) 1e12)
+ (first [6N 35N<cursor>]</cursor>))
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-unnumbered-10" class="outline-3">
+<h3 id="unnumbered-10">step 5</h3>
+<div class="outline-text-3" id="text-unnumbered-10">
+<ul class="org-ul">
+<li><kbd>C-f A</kbd> navigate to the start
+</li>
+<li><kbd>e</kbd> eval to get <code>false</code>
+</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-unnumbered-11" class="outline-3">
+<h3 id="unnumbered-11">step 6</h3>
+<div class="outline-text-3" id="text-unnumbered-11">
+<ul class="org-ul">
+<li><kbd>&lt;f3&gt;</kbd> to start recording a macro
+</li>
+<li><kbd>fjf</kbd> to navigate to the array
+</li>
+<li><kbd>2(next-red</kbd> to wrap the array
+</li>
+<li><kbd>[xr</kbd> to eval and replace
+</li>
+<li><kbd>A</kbd> to navigate to the start
+</li>
+<li><kbd>E</kbd> to eval and insert
+</li>
+<li><kbd>&lt;f4&gt;</kbd> to finish the macro
+</li>
+</ul>
+</div>
+</div>
+<div id="outline-container-unnumbered-12" class="outline-3">
+<h3 id="unnumbered-12">step 7</h3>
+<div class="outline-text-3" id="text-unnumbered-12">
+<p>
+Keep spamming <kbd>&lt;f4&gt;</kbd> until you get <code>true</code>.
+</p>
+</div>
+</div>
+<div id="outline-container-unnumbered-13" class="outline-3">
+<h3 id="unnumbered-13">step 8</h3>
+<div class="outline-text-3" id="text-unnumbered-13">
+<ul class="org-ul">
+<li><kbd>fj2(blue[E</kbd> to get the solution
+</li>
+<li><kbd>hkE</kbd> to double-check
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>

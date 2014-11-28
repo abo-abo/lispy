@@ -1,6 +1,6 @@
 body {
     color: #333;
-    background-color: #ecffdc;
+    background-color: #ffffff;
     margin-left: 1em;
     margin-right: auto;
     font-family: 'Ubuntu Mono', sans-serif;
@@ -89,4 +89,9 @@ tr:nth-child(odd) {
 }
 tr:nth-child(even) {
     background-color:#d6d8ec;
+}
+
+.region {
+    color: #ffffff;
+    background-color: #f9b593;
 }
