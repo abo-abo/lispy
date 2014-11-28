@@ -644,7 +644,9 @@ Insert KEY if there's no command."
                    "(put :foo 1\n     |:baz '(1 2 3)~\n     :bar 2)"))
   (should (string= (lispy-with "(put :foo 1\n     :bar 2\n     ~:baz '(1 2 3)|)"
                                (lispy-move-up 2))
-                   "(put :foo 1\n     ~:baz '(1 2 3)|\n     :bar 2)")))
+                   "(put :foo 1\n     ~:baz '(1 2 3)|\n     :bar 2)"))
+  (should (string= (lispy-with "(foo baz |(bar))" "w")
+                   "(foo |(bar) baz)")))
 
 (ert-deftest lispy-move-down ()
   (should (string= (lispy-with "(|(a) (b) (c))" "s")
@@ -670,7 +672,9 @@ Insert KEY if there's no command."
                    "(put :foo 1\n     :bar 2\n     ~:baz '(1 2 3)|)"))
   (should (string= (lispy-with "(put :foo 1\n     |:baz '(1 2 3)~\n     :bar 2)"
                                (lispy-move-down 2))
-                   "(put :foo 1\n     :bar 2\n     |:baz '(1 2 3)~)")))
+                   "(put :foo 1\n     :bar 2\n     |:baz '(1 2 3)~)"))
+  (should (string= (lispy-with "(foo |(bar) baz)" "s")
+                   "(foo baz |(bar))")))
 
 (ert-deftest lispy-clone ()
   (should (string= (lispy-with "(foo)|" "c")
