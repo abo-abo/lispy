@@ -1519,50 +1519,72 @@ The outcome when ahead of sexps is different from when behind."
 (defun lispy-move-down (arg)
   "Move current expression down ARG times.  Don't exit parent list."
   (interactive "p")
-  (if (region-active-p)
-      (let ((at-start (= (point) (region-beginning))))
-        (if (= arg 1)
-            (let ((pt (point))
-                  (bnd0 (save-excursion
-                          (deactivate-mark)
-                          (if (ignore-errors (up-list) t)
-                              (lispy--bounds-dwim)
-                            (cons (point-min) (point-max)))))
-                  (bnd1 (lispy--bounds-dwim))
-                  bnd2)
-              (goto-char (cdr bnd1))
-              (if (re-search-forward "[^ \n]" (1- (cdr bnd0)) t)
-                  (progn
-                    (deactivate-mark)
-                    (if (lispy--in-comment-p)
-                        (setq bnd2 (lispy--bounds-comment))
-                      (when (memq (char-before) '(?\( ?\" ?\[ ?{))
-                        (backward-char))
-                      (setq bnd2 (lispy--bounds-dwim)))
-                    (lispy--swap-regions bnd1 bnd2)
-                    (setq deactivate-mark nil)
-                    (goto-char (cdr bnd2))
-                    (set-mark (point))
-                    (backward-char (- (cdr bnd1) (car bnd1)))
-                    (unless at-start
-                      (exchange-point-and-mark)))
-                (goto-char pt)))
-          (let ((bnd1 (lispy--bounds-dwim)))
-            (lispy-down arg)
-            (lispy--mark
-             (cdr
-              (lispy--swap-regions
-               bnd1 (lispy--bounds-dwim))))
-            (when at-start
-              (exchange-point-and-mark)))))
-    (when (lispy-from-left
-           (when (save-excursion
-                   (and (lispy-forward 1)
-                        (lispy-forward 1)))
-             (let ((bnd (lispy--bounds-dwim)))
-               (lispy-down 1)
-               (lispy--swap-regions bnd (lispy--bounds-dwim)))))
-      (lispy-down 1))))
+  (let ((at-start (lispy--leftp)))
+    (unless at-start (lispy-different))
+    (cond ((region-active-p)
+           (if (= arg 1)
+               (let ((pt (point))
+                     (bnd0 (save-excursion
+                             (deactivate-mark)
+                             (if (ignore-errors (up-list) t)
+                                 (lispy--bounds-dwim)
+                               (cons (point-min) (point-max)))))
+                     (bnd1 (lispy--bounds-dwim))
+                     bnd2)
+                 (goto-char (cdr bnd1))
+                 (if (re-search-forward "[^ \n]" (1- (cdr bnd0)) t)
+                     (progn
+                       (deactivate-mark)
+                       (if (lispy--in-comment-p)
+                           (setq bnd2 (lispy--bounds-comment))
+                         (when (memq (char-before) '(?\( ?\" ?\[ ?{))
+                           (backward-char))
+                         (setq bnd2 (lispy--bounds-dwim)))
+                       (lispy--swap-regions bnd1 bnd2)
+                       (setq deactivate-mark nil)
+                       (goto-char (cdr bnd2))
+                       (set-mark (point))
+                       (backward-char (- (cdr bnd1) (car bnd1))))
+                   (goto-char pt)))
+             (let ((bnd1 (lispy--bounds-dwim)))
+               (lispy-down arg)
+               (lispy--mark
+                (cdr
+                 (lispy--swap-regions
+                  bnd1 (lispy--bounds-dwim))))
+               (lispy-different))))
+
+          ((save-excursion
+             (and (lispy-forward 1)
+                  (lispy-forward 1)))
+           (let ((bnd (lispy--bounds-dwim)))
+             (lispy-down 1)
+             (lispy--swap-regions bnd (lispy--bounds-dwim))
+             (lispy-down 1)))
+
+          (t
+           (let ((pt (point))
+                 (bnd0 (save-excursion
+                         (deactivate-mark)
+                         (if (ignore-errors (up-list) t)
+                             (lispy--bounds-dwim)
+                           (cons (point-min) (point-max)))))
+                 (bnd1 (lispy--bounds-dwim))
+                 bnd2)
+             (goto-char (cdr bnd1))
+             (if (re-search-forward "[^ \n]" (1- (cdr bnd0)) t)
+                 (progn
+                   (if (lispy--in-comment-p)
+                       (setq bnd2 (lispy--bounds-comment))
+                     (when (memq (char-before) '(?\( ?\" ?\[ ?{))
+                       (backward-char))
+                     (setq bnd2 (lispy--bounds-dwim)))
+                   (lispy--swap-regions bnd1 bnd2)
+                   (goto-char (cdr bnd2))
+                   (lispy-different))
+               (goto-char pt))
+             nil)))
+    (unless at-start (lispy-different))))
 
 (defun lispy-move-left (arg)
   "Move region left ARG times."
