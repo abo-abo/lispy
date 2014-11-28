@@ -1,4 +1,5 @@
 (require 'lispy)
+(require 'clojure-mode)
 (custom-set-variables
  '(indent-tabs-mode nil))
 
@@ -8,6 +9,26 @@
 (defmacro lispy-with (in &rest body)
   `(with-temp-buffer
      (emacs-lisp-mode)
+     (lispy-mode)
+     (insert ,in)
+     (when (search-backward "~" nil t)
+       (delete-char 1)
+       (set-mark (point))
+       (goto-char (point-max)))
+     (search-backward "|")
+     (delete-char 1)
+     ,@(mapcar (lambda (x) (if (stringp x) `(lispy-unalias ,x) x)) body)
+     (insert "|")
+     (when (region-active-p)
+       (exchange-point-and-mark)
+       (insert "~"))
+     (buffer-substring-no-properties
+      (point-min)
+      (point-max))))
+
+(defmacro lispy-with-clojure (in &rest body)
+  `(with-temp-buffer
+     (clojure-mode)
      (lispy-mode)
      (insert ,in)
      (when (search-backward "~" nil t)
@@ -352,7 +373,12 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "(a b c)\n(|)" "\C-k")
                    "(a b c)\n|"))
   (should (string= (lispy-with "(foo\nbar | baz  )" "\C-k")
-                   "(foo\nbar |)")))
+                   "(foo\nbar |)"))
+  (should (string= (lispy-with "[1 |2 3]" "\C-k")
+                   "[1 |]"))
+  (should (string= (lispy-with-clojure "{:a 1 |:b 2}"
+                                       "\C-k")
+                   "{:a 1 |}")))
 
 (ert-deftest lispy-yank ()
   (should (string= (lispy-with "\"|\"" (kill-new "foo") (lispy-yank))

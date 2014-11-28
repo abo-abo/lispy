@@ -732,8 +732,8 @@ Return nil if can't move."
                 (str (buffer-substring-no-properties
                       beg
                       (line-end-position))))
-           (if (= (cl-count ?\( str)
-                  (cl-count ?\) str))
+           (if (= (s-count-matches lispy-left str)
+                  (s-count-matches lispy-right str))
                (kill-line)
              (if (let ((lispy-ignore-whitespace t))
                    (lispy--out-forward 1))
