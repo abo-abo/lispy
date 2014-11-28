@@ -478,8 +478,8 @@ Insert KEY if there's no command."
 (ert-deftest clojure-thread-macro ()
   ;; changes indentation
   (require 'cider)
-  (should (string= (lispy-with "|(map sqr (filter odd? [1 2 3 4 5]))" "2(->>]<]<]wwlM")
-                   "(->> [1 2 3 4 5]\n  (map sqr)\n  (filter odd?))|")))
+  (should (string= (lispy-with "|(map sqr (filter odd? [1 2 3 4 5]))" "2(->>]<]<]")
+                   "(->> (map sqr) (filter odd?) [1 2 3 4 5]|)")))
 
 (ert-deftest lispy--read ()
   (should (equal (lispy--read "(progn
