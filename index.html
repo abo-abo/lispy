@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
 <title>lispy.el function reference</title>
-<!-- 2014-11-29 Sat 15:17 -->
+<!-- 2014-11-29 Sat 17:26 -->
 <meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta  name="generator" content="Org-mode" />
 <meta  name="author" content="Oleh" />
@@ -758,7 +758,7 @@ backward <code>arg</code> times:
 <table><tbody><tr><td>
 <div class="org-src-container">
 
-<pre class="src src-emacs-lisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">lispy-out-forward</span> (arg)
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">lispy-out-forward</span> (arg)
   <span style="color: #2A00FF;">"Move outside list forwards ARG times.</span>
 <span style="color: #2A00FF;">Return nil on failure, t otherwise."</span>
   (interactive <span style="color: #2A00FF;">"p"</span>)
@@ -774,7 +774,7 @@ backward <code>arg</code> times:
 </td><td>
 <div class="org-src-container">
 
-<pre class="src src-emacs-lisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">lispy-out-forward</span> (arg)
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">lispy-out-forward</span> (arg)
   <span style="color: #2A00FF;">"Move outside list forwards ARG times.</span>
 <span style="color: #2A00FF;">Return nil on failure, t otherwise."</span>
   (interactive <span style="color: #2A00FF;">"p"</span>)
@@ -1153,7 +1153,7 @@ by pressing <kbd>a</kbd> you get this:
 <!-- Created by htmlize-1.47 in css mode. -->
 <html>
   <head>
-    <title>*Org Src oblog-min.org[ emacs-lisp ]*</title>
+    <title>*Org Src oblog-min.org[ elisp ]*</title>
     <style type="text/css">
     <!--
       body {
@@ -1696,7 +1696,7 @@ Starting with this:
 
 <div class="org-src-container">
 
-<pre class="src src-emacs-lisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">helm-owiki-action</span> (x)
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">helm-owiki-action</span> (x)
   (find-file (expand-file-name
               (format <span style="color: #2A00FF;">"%s.org"</span> x)<cursor> </cursor>
               helm-owiki-directory)))
@@ -1709,7 +1709,7 @@ by pressing <kbd>xl</kbd> you will get this:
 
 <div class="org-src-container">
 
-<pre class="src src-emacs-lisp"><cursor>(</cursor><span style="color: #7F0055; font-weight: bold;">lambda</span> (x)
+<pre class="src src-elisp"><cursor>(</cursor><span style="color: #7F0055; font-weight: bold;">lambda</span> (x)
   (find-file (expand-file-name
               (format <span style="color: #2A00FF;">"%s.org"</span> x)
               helm-owiki-directory)))
@@ -2377,7 +2377,7 @@ Delete \".
 <table><tbody><tr><td>
 <div class="org-src-container">
 
-<pre class="src src-emacs-lisp"><span style="color: #2A00FF;">"say <cursor>\</cursor>"hi\""</span>
+<pre class="src src-elisp"><span style="color: #2A00FF;">"say <cursor>\</cursor>"hi\""</span>
 </pre>
 </div>
 </td><td>
@@ -2387,7 +2387,7 @@ Delete \".
 </td><td>
 <div class="org-src-container">
 
-<pre class="src src-emacs-lisp"><span style="color: #2A00FF;">"say <cursor>h</cursor>i\""</span>
+<pre class="src src-elisp"><span style="color: #2A00FF;">"say <cursor>h</cursor>i\""</span>
 </pre>
 </div>
 </td></tr></tbody></table>
@@ -3525,79 +3525,21 @@ Example 2:
 Example 3:
 </p>
 <table><tbody><tr><td>
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
-<!-- Created by htmlize-1.47 in css mode. -->
-<html>
-  <head>
-    <title>test.el</title>
-    <style type="text/css">
-    <!--
-      body {
-        color: #000000;
-        background-color: #ffffff;
-      }
-      .region {
-        /* region */
-        color: #ffffff;
-        background-color: #f9b593;
-      }
+<div class="org-src-container">
 
-      a {
-        color: inherit;
-        background-color: inherit;
-        font: inherit;
-        text-decoration: inherit;
-      }
-      a:hover {
-        text-decoration: underline;
-      }
-    -->
-    </style>
-  </head>
-  <body>
-    <pre>
-(foo <span class="region">bar baz</span><cursor>)</cursor></pre>
-  </body>
-</html>
+<pre class="src src-elisp">(foo <span class="region">bar bar</span><cursor>)</cursor>
+</pre>
+</div>
 </td><td>
 <p>
 -&gt; <kbd>&lt;</kbd> -&gt;
 </p>
 </td><td>
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
-<!-- Created by htmlize-1.47 in css mode. -->
-<html>
-  <head>
-    <title>test.el</title>
-    <style type="text/css">
-    <!--
-      body {
-        color: #000000;
-        background-color: #ffffff;
-      }
-      .region {
-        /* region */
-        color: #ffffff;
-        background-color: #f9b593;
-      }
+<div class="org-src-container">
 
-      a {
-        color: inherit;
-        background-color: inherit;
-        font: inherit;
-        text-decoration: inherit;
-      }
-      a:hover {
-        text-decoration: underline;
-      }
-    -->
-    </style>
-  </head>
-  <body>
-    <pre>
-(foo <span class="region">bar</span><cursor> </cursor> baz)</pre>
-  </body>
-</html>
+<pre class="src src-elisp">(foo <span class="region">bar</span><cursor> </cursor>bar)
+</pre>
+</div>
 </td></tr></tbody></table>
 <hr  />
 </div>
@@ -3652,11 +3594,6 @@ mind about calling the modified <kbd>hjkl</kbd>.
 <td class="left"><kbd>l</kbd></td>
 <td class="left"><a href="#lispy-move-right">lispy-move-right</a></td>
 </tr>
-
-<tr>
-<td class="left"><kbd>i</kbd></td>
-<td class="left"><a href="#lispy-amend">lispy-amend</a></td>
-</tr>
 </tbody>
 </table>
 <hr  />
@@ -3677,7 +3614,7 @@ Move current expression to the left, outside the current list.
 <table><tbody><tr><td>
 <div class="org-src-container">
 
-<pre class="src src-emacs-lisp">(<span style="color: #7F0055; font-weight: bold;">require</span> '<span style="color: #110099;">ob-python</span>)
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">require</span> '<span style="color: #110099;">ob-python</span>)
 (<span style="color: #7F0055; font-weight: bold;">let</span> ((color <span style="color: #2A00FF;">"Blue"</span>))
   <cursor>(</cursor>message <span style="color: #2A00FF;">"What... is your favorite color?"</span>)
   (message <span style="color: #2A00FF;">"%s. No yel..."</span> color))
@@ -3690,7 +3627,7 @@ Move current expression to the left, outside the current list.
 </td><td>
 <div class="org-src-container">
 
-<pre class="src src-emacs-lisp">(<span style="color: #7F0055; font-weight: bold;">require</span> '<span style="color: #110099;">ob-python</span>)
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">require</span> '<span style="color: #110099;">ob-python</span>)
 <cursor>(</cursor>message <span style="color: #2A00FF;">"What... is your favorite color?"</span>)
 (<span style="color: #7F0055; font-weight: bold;">let</span> ((color <span style="color: #2A00FF;">"Blue"</span>))
   (message <span style="color: #2A00FF;">"%s. No yel..."</span> color))
@@ -3716,7 +3653,7 @@ below.
 <table><tbody><tr><td>
 <div class="org-src-container">
 
-<pre class="src src-emacs-lisp"><cursor>(</cursor>first!)
+<pre class="src src-elisp"><cursor>(</cursor>first!)
 '(foo bar)
 </pre>
 </div>
@@ -3727,7 +3664,7 @@ below.
 </td><td>
 <div class="org-src-container">
 
-<pre class="src src-emacs-lisp">'(<cursor>(</cursor>first!)
+<pre class="src src-elisp">'(<cursor>(</cursor>first!)
   foo bar)
 </pre>
 </div>
@@ -3751,7 +3688,7 @@ above.
 <table><tbody><tr><td>
 <div class="org-src-container">
 
-<pre class="src src-emacs-lisp">(list 'my-sword
+<pre class="src src-elisp">(list 'my-sword
       'my-bow)
 <cursor>(</cursor>my-axe)
 </pre>
@@ -3763,7 +3700,7 @@ above.
 </td><td>
 <div class="org-src-container">
 
-<pre class="src src-emacs-lisp">(list 'my-sword
+<pre class="src src-elisp">(list 'my-sword
       'my-bow
       <cursor>(</cursor>my-axe))
 </pre>
@@ -3786,7 +3723,7 @@ Move current expression to the right, outside the current list.
 <table><tbody><tr><td>
 <div class="org-src-container">
 
-<pre class="src src-emacs-lisp">(<span style="color: #7F0055; font-weight: bold;">require</span> '<span style="color: #110099;">ob-python</span>)
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">require</span> '<span style="color: #110099;">ob-python</span>)
 (message <span style="color: #2A00FF;">"What... is your favorite color?"</span>)
 (<span style="color: #7F0055; font-weight: bold;">let</span> ((color <span style="color: #2A00FF;">"Blue"</span>))
   (message color)
@@ -3800,7 +3737,7 @@ Move current expression to the right, outside the current list.
 </td><td>
 <div class="org-src-container">
 
-<pre class="src src-emacs-lisp">(<span style="color: #7F0055; font-weight: bold;">require</span> '<span style="color: #110099;">ob-python</span>)
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">require</span> '<span style="color: #110099;">ob-python</span>)
 (message <span style="color: #2A00FF;">"What... is your favorite color?"</span>)
 (<span style="color: #7F0055; font-weight: bold;">let</span> ((color <span style="color: #2A00FF;">"Blue"</span>))
   (message color))
@@ -3811,20 +3748,8 @@ Move current expression to the right, outside the current list.
 <hr  />
 </div>
 </div>
-<div id="outline-container-lispy-amend" class="outline-3">
-<h3 id="lispy-amend"><a id="unnumbered-122"></a><code>lispy-amend</code></h3>
-<div class="outline-text-3" id="text-lispy-amend">
-<p>
-Break out of special position for amending.
-When called from the start of the list, it's equivalent to <kbd>C-f</kbd>.
-When called from the end of the list, it's equivalent to <kbd>C-b</kbd> with
-and additional space inserted after the last element of the list.
-</p>
-<hr  />
-</div>
-</div>
 <div id="outline-container-lispy-comment" class="outline-3">
-<h3 id="lispy-comment"><a id="unnumbered-123"></a><code>lispy-comment</code></h3>
+<h3 id="lispy-comment"><a id="unnumbered-122"></a><code>lispy-comment</code></h3>
 <div class="outline-text-3" id="text-lispy-comment">
 <p>
 Bound to <kbd>;</kbd>.
@@ -3839,7 +3764,7 @@ With a prefix arg and already inside comment, uncomment instead.
 <table><tbody><tr><td>
 <div class="org-src-container">
 
-<pre class="src src-emacs-lisp">(<span style="color: #7F0055; font-weight: bold;">require</span> '<span style="color: #110099;">ob-python</span>)
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">require</span> '<span style="color: #110099;">ob-python</span>)
 <cursor>(</cursor><span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">cheeseshop</span> (kind)
   (message <span style="color: #2A00FF;">"Do you have any %s?"</span> kind))
 </pre>
@@ -3851,7 +3776,7 @@ With a prefix arg and already inside comment, uncomment instead.
 </td><td>
 <div class="org-src-container">
 
-<pre class="src src-emacs-lisp"><cursor>(</cursor><span style="color: #7F0055; font-weight: bold;">require</span> '<span style="color: #110099;">ob-python</span>)
+<pre class="src src-elisp"><cursor>(</cursor><span style="color: #7F0055; font-weight: bold;">require</span> '<span style="color: #110099;">ob-python</span>)
 <span style="color: #3F7F5F;">;; </span><span style="color: #3F7F5F;">(defun cheeseshop (kind)</span>
 <span style="color: #3F7F5F;">;;   </span><span style="color: #3F7F5F;">(message "Do you have any %s?" kind))</span>
 </pre>
@@ -3861,7 +3786,7 @@ With a prefix arg and already inside comment, uncomment instead.
 </div>
 </div>
 <div id="outline-container-lispy-clone" class="outline-3">
-<h3 id="lispy-clone"><a id="unnumbered-124"></a><code>lispy-clone</code></h3>
+<h3 id="lispy-clone"><a id="unnumbered-123"></a><code>lispy-clone</code></h3>
 <div class="outline-text-3" id="text-lispy-clone">
 <p>
 Bound to <kbd>c</kbd>.
@@ -3879,7 +3804,7 @@ With a prefix arg, copy that many times.
 <table><tbody><tr><td>
 <div class="org-src-container">
 
-<pre class="src src-emacs-lisp"><cursor>(</cursor>message <span style="color: #2A00FF;">"A witch!"</span>)
+<pre class="src src-elisp"><cursor>(</cursor>message <span style="color: #2A00FF;">"A witch!"</span>)
 </pre>
 </div>
 </td><td>
@@ -3889,7 +3814,7 @@ With a prefix arg, copy that many times.
 </td><td>
 <div class="org-src-container">
 
-<pre class="src src-emacs-lisp"><cursor>(</cursor>message <span style="color: #2A00FF;">"A witch!"</span>)
+<pre class="src src-elisp"><cursor>(</cursor>message <span style="color: #2A00FF;">"A witch!"</span>)
 (message <span style="color: #2A00FF;">"A witch!"</span>)
 (message <span style="color: #2A00FF;">"A witch!"</span>)
 (message <span style="color: #2A00FF;">"A witch!"</span>)
@@ -3900,7 +3825,7 @@ With a prefix arg, copy that many times.
 </div>
 </div>
 <div id="outline-container-lispy-goto" class="outline-3">
-<h3 id="lispy-goto"><a id="unnumbered-125"></a><code>lispy-goto</code></h3>
+<h3 id="lispy-goto"><a id="unnumbered-124"></a><code>lispy-goto</code></h3>
 <div class="outline-text-3" id="text-lispy-goto">
 <p>
 Bound to <kbd>g</kbd>.
@@ -3914,7 +3839,7 @@ and offer a helm completion list to jump to a selected tag.
 </div>
 </div>
 <div id="outline-container-lispy-goto-local" class="outline-3">
-<h3 id="lispy-goto-local"><a id="unnumbered-126"></a><code>lispy-goto-local</code></h3>
+<h3 id="lispy-goto-local"><a id="unnumbered-125"></a><code>lispy-goto-local</code></h3>
 <div class="outline-text-3" id="text-lispy-goto-local">
 <p>
 Bound to <kbd>G</kbd>.
@@ -3929,7 +3854,7 @@ of whole directory's tags.
 </div>
 
 <div id="outline-container-lispy-mark-list" class="outline-3">
-<h3 id="lispy-mark-list"><a id="unnumbered-127"></a><code>lispy-mark-list</code></h3>
+<h3 id="lispy-mark-list"><a id="unnumbered-126"></a><code>lispy-mark-list</code></h3>
 <div class="outline-text-3" id="text-lispy-mark-list">
 <p>
 Bound to <kbd>m</kbd>.
@@ -3943,7 +3868,7 @@ When the mark is already active, deactivate it instead.
 </div>
 </div>
 <div id="outline-container-lispy-raise" class="outline-3">
-<h3 id="lispy-raise"><a id="unnumbered-128"></a><code>lispy-raise</code></h3>
+<h3 id="lispy-raise"><a id="unnumbered-127"></a><code>lispy-raise</code></h3>
 <div class="outline-text-3" id="text-lispy-raise">
 <p>
 Bound to <kbd>r</kbd>.
@@ -3956,7 +3881,7 @@ Use current sexp or region as replacement for its parent.
 <table><tbody><tr><td>
 <div class="org-src-container">
 
-<pre class="src src-emacs-lisp">(<span style="color: #7F0055; font-weight: bold;">let</span> ((foo 1))
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">let</span> ((foo 1))
   <cursor>(</cursor>+ bar baz))
 </pre>
 </div>
@@ -3967,7 +3892,7 @@ Use current sexp or region as replacement for its parent.
 </td><td>
 <div class="org-src-container">
 
-<pre class="src src-emacs-lisp"><cursor>(</cursor>+ bar baz)
+<pre class="src src-elisp"><cursor>(</cursor>+ bar baz)
 </pre>
 </div>
 </td></tr></tbody></table>
@@ -3975,7 +3900,7 @@ Use current sexp or region as replacement for its parent.
 </div>
 </div>
 <div id="outline-container-lispy-move-down" class="outline-3">
-<h3 id="lispy-move-down"><a id="unnumbered-129"></a><code>lispy-move-down</code></h3>
+<h3 id="lispy-move-down"><a id="unnumbered-128"></a><code>lispy-move-down</code></h3>
 <div class="outline-text-3" id="text-lispy-move-down">
 <p>
 Bound to <kbd>s</kbd>.
@@ -3989,7 +3914,7 @@ list.
 <table><tbody><tr><td>
 <div class="org-src-container">
 
-<pre class="src src-emacs-lisp">(<span style="color: #7F0055; font-weight: bold;">progn</span>
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">progn</span>
   <cursor>(</cursor>foo)
   (bar)
   (baz))
@@ -4002,7 +3927,7 @@ list.
 </td><td>
 <div class="org-src-container">
 
-<pre class="src src-emacs-lisp">(<span style="color: #7F0055; font-weight: bold;">progn</span>
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">progn</span>
   (bar)
   <cursor>(</cursor>foo)
   (baz))
@@ -4013,7 +3938,7 @@ list.
 </div>
 </div>
 <div id="outline-container-lispy-move-up" class="outline-3">
-<h3 id="lispy-move-up"><a id="unnumbered-130"></a><code>lispy-move-up</code></h3>
+<h3 id="lispy-move-up"><a id="unnumbered-129"></a><code>lispy-move-up</code></h3>
 <div class="outline-text-3" id="text-lispy-move-up">
 <p>
 Bound to <kbd>w</kbd>.
@@ -4032,7 +3957,7 @@ It's the reciprocal of <a href="#lispy-move-down"><code>lispy-move-down</code></
 
 
 <div id="outline-container-lispy-teleport" class="outline-3">
-<h3 id="lispy-teleport"><a id="unnumbered-131"></a><code>lispy-teleport</code></h3>
+<h3 id="lispy-teleport"><a id="unnumbered-130"></a><code>lispy-teleport</code></h3>
 <div class="outline-text-3" id="text-lispy-teleport">
 <p>
 Bound to <kbd>t</kbd>.
@@ -4046,7 +3971,7 @@ Move the current sexp or region to a location specified by <a href="#lispy-ace-p
 </div>
 
 <div id="outline-container-lispy-undo" class="outline-3">
-<h3 id="lispy-undo"><a id="unnumbered-132"></a><code>lispy-undo</code></h3>
+<h3 id="lispy-undo"><a id="unnumbered-131"></a><code>lispy-undo</code></h3>
 <div class="outline-text-3" id="text-lispy-undo">
 <p>
 Bound to <kbd>u</kbd>.
@@ -4059,7 +3984,7 @@ Forward to <code>undo</code>. If the mark is active, deactivate it first.
 </div>
 </div>
 <div id="outline-container-=lispy-ace-symbol-replace=" class="outline-3">
-<h3 id="=lispy-ace-symbol-replace="><a id="unnumbered-133"></a><code>lispy-ace-symbol-replace</code></h3>
+<h3 id="=lispy-ace-symbol-replace="><a id="unnumbered-132"></a><code>lispy-ace-symbol-replace</code></h3>
 <div class="outline-text-3" id="text-=lispy-ace-symbol-replace=">
 <p>
 Bound to <kbd>H</kbd>.
@@ -4072,7 +3997,7 @@ Calls <a href="#lispy-ace-symbol"><code>lispy-ace-symbol</code></a> and deletes 
 </div>
 </div>
 <div id="outline-container-lispy-eval-other-window" class="outline-3">
-<h3 id="lispy-eval-other-window"><a id="unnumbered-134"></a><code>lispy-eval-other-window</code></h3>
+<h3 id="lispy-eval-other-window"><a id="unnumbered-133"></a><code>lispy-eval-other-window</code></h3>
 <div class="outline-text-3" id="text-lispy-eval-other-window">
 <p>
 Bound to <kbd>p</kbd>.
@@ -4090,10 +4015,11 @@ This is useful for debugging interactive Elisp functions:
 is supposed to work
 </li>
 </ul>
+<hr  />
 </div>
 </div>
 <div id="outline-container-lispy-describe" class="outline-3">
-<h3 id="lispy-describe"><a id="unnumbered-135"></a><code>lispy-describe</code></h3>
+<h3 id="lispy-describe"><a id="unnumbered-134"></a><code>lispy-describe</code></h3>
 <div class="outline-text-3" id="text-lispy-describe">
 <p>
 Bound to <kbd>D</kbd>.
@@ -4105,17 +4031,8 @@ Just a shorthand for <code>describe-function</code>.
 <hr  />
 </div>
 </div>
-<div id="outline-container-lispy-arglist" class="outline-3">
-<h3 id="lispy-arglist"><a id="unnumbered-136"></a><code>lispy-arglist</code></h3>
-<div class="outline-text-3" id="text-lispy-arglist">
-<p>
-Echo the arglist for current function.
-</p>
-<hr  />
-</div>
-</div>
 <div id="outline-container-lispy-beginning-of-defun" class="outline-3">
-<h3 id="lispy-beginning-of-defun"><a id="unnumbered-137"></a><code>lispy-beginning-of-defun</code></h3>
+<h3 id="lispy-beginning-of-defun"><a id="unnumbered-135"></a><code>lispy-beginning-of-defun</code></h3>
 <div class="outline-text-3" id="text-lispy-beginning-of-defun">
 <p>
 Bound to <kbd>A</kbd>.
@@ -4136,7 +4053,7 @@ look at its value and go back. Repeat when needed.
 
 
 <div id="outline-container-lispy-convolute" class="outline-3">
-<h3 id="lispy-convolute"><a id="unnumbered-138"></a><code>lispy-convolute</code></h3>
+<h3 id="lispy-convolute"><a id="unnumbered-136"></a><code>lispy-convolute</code></h3>
 <div class="outline-text-3" id="text-lispy-convolute">
 <p>
 Bound to <kbd>C</kbd>.
@@ -4150,7 +4067,7 @@ to current expression or region.
 <table><tbody><tr><td>
 <div class="org-src-container">
 
-<pre class="src src-emacs-lisp">(<span style="color: #7F0055; font-weight: bold;">if</span> (= (weight person) standard-duck-weight)
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">if</span> (= (weight person) standard-duck-weight)
     (<span style="color: #7F0055; font-weight: bold;">unless</span> (sinks-in-water person)
       <cursor>(</cursor>message <span style="color: #2A00FF;">"Burn her!"</span>)))
 </pre>
@@ -4162,7 +4079,7 @@ to current expression or region.
 </td><td>
 <div class="org-src-container">
 
-<pre class="src src-emacs-lisp">(<span style="color: #7F0055; font-weight: bold;">unless</span> (sinks-in-water person)
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">unless</span> (sinks-in-water person)
   (<span style="color: #7F0055; font-weight: bold;">if</span> (= (weight person) standard-duck-weight)
       <cursor>(</cursor>message <span style="color: #2A00FF;">"Burn her!"</span>)))
 </pre>
@@ -4177,7 +4094,7 @@ See <a href="images/lispy-convolute.gif">gif</a>.
 </div>
 </div>
 <div id="outline-container-lispy-ace-char" class="outline-3">
-<h3 id="lispy-ace-char"><a id="unnumbered-139"></a><code>lispy-ace-char</code></h3>
+<h3 id="lispy-ace-char"><a id="unnumbered-137"></a><code>lispy-ace-char</code></h3>
 <div class="outline-text-3" id="text-lispy-ace-char">
 <p>
 Bound to <kbd>Q</kbd>.
@@ -4187,7 +4104,7 @@ Call <code>ace-jump-mode</code>, while narrowed to current list.
 </div>
 </div>
 <div id="outline-container-lispy-raise-some" class="outline-3">
-<h3 id="lispy-raise-some"><a id="unnumbered-140"></a><code>lispy-raise-some</code></h3>
+<h3 id="lispy-raise-some"><a id="unnumbered-138"></a><code>lispy-raise-some</code></h3>
 <div class="outline-text-3" id="text-lispy-raise-some">
 <p>
 Bound to <kbd>R</kbd>.
@@ -4206,7 +4123,7 @@ Example 1:
 <table><tbody><tr><td>
 <div class="org-src-container">
 
-<pre class="src src-emacs-lisp">(<span style="color: #7F0055; font-weight: bold;">progn</span>
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">progn</span>
   (message <span style="color: #2A00FF;">"one"</span>)
   <cursor>(</cursor>message <span style="color: #2A00FF;">"two"</span>)
   (message <span style="color: #2A00FF;">"three"</span>))
@@ -4219,7 +4136,7 @@ Example 1:
 </td><td>
 <div class="org-src-container">
 
-<pre class="src src-emacs-lisp"><cursor>(</cursor>message <span style="color: #2A00FF;">"two"</span>)
+<pre class="src src-elisp"><cursor>(</cursor>message <span style="color: #2A00FF;">"two"</span>)
 (message <span style="color: #2A00FF;">"three"</span>)
 </pre>
 </div>
@@ -4232,7 +4149,7 @@ Example 2:
 <table><tbody><tr><td>
 <div class="org-src-container">
 
-<pre class="src src-emacs-lisp">(<span style="color: #7F0055; font-weight: bold;">progn</span>
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">progn</span>
   (message <span style="color: #2A00FF;">"one"</span>)
   (message <span style="color: #2A00FF;">"two"</span>)<cursor> </cursor>
   (message <span style="color: #2A00FF;">"three"</span>))
@@ -4245,7 +4162,7 @@ Example 2:
 </td><td>
 <div class="org-src-container">
 
-<pre class="src src-emacs-lisp">progn
+<pre class="src src-elisp">progn
 (message <span style="color: #2A00FF;">"one"</span>)
 (message <span style="color: #2A00FF;">"two"</span>)
 </pre>
@@ -4255,7 +4172,7 @@ Example 2:
 </div>
 </div>
 <div id="outline-container-lispy-ert" class="outline-3">
-<h3 id="lispy-ert"><a id="unnumbered-141"></a><code>lispy-ert</code></h3>
+<h3 id="lispy-ert"><a id="unnumbered-139"></a><code>lispy-ert</code></h3>
 <div class="outline-text-3" id="text-lispy-ert">
 <p>
 Bound to <kbd>T</kbd>.
@@ -4268,7 +4185,7 @@ Forward to <code>ert</code>.
 </div>
 </div>
 <div id="outline-container-lispy-stringify" class="outline-3">
-<h3 id="lispy-stringify"><a id="unnumbered-142"></a><code>lispy-stringify</code></h3>
+<h3 id="lispy-stringify"><a id="unnumbered-140"></a><code>lispy-stringify</code></h3>
 <div class="outline-text-3" id="text-lispy-stringify">
 <p>
 Bound to <kbd>S</kbd>.
@@ -4282,7 +4199,7 @@ isn't 1.
 <table><tbody><tr><td>
 <div class="org-src-container">
 
-<pre class="src src-emacs-lisp">(<span style="color: #7F0055; font-weight: bold;">progn</span>
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">progn</span>
   (message <span style="color: #2A00FF;">"one"</span>)
   <cursor>(</cursor>message <span style="color: #2A00FF;">"two"</span>)
   (message <span style="color: #2A00FF;">"three"</span>))
@@ -4295,7 +4212,7 @@ isn't 1.
 </td><td>
 <div class="org-src-container">
 
-<pre class="src src-emacs-lisp">(<span style="color: #7F0055; font-weight: bold;">progn</span>
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">progn</span>
   (message <span style="color: #2A00FF;">"one"</span>)
   <span style="color: #2A00FF;">"(message \"two\")"</span>
   <cursor>(</cursor>message <span style="color: #2A00FF;">"three"</span>))
@@ -4307,7 +4224,7 @@ isn't 1.
 </div>
 
 <div id="outline-container-lispy-paste" class="outline-3">
-<h3 id="lispy-paste"><a id="unnumbered-143"></a><code>lispy-paste</code></h3>
+<h3 id="lispy-paste"><a id="unnumbered-141"></a><code>lispy-paste</code></h3>
 <div class="outline-text-3" id="text-lispy-paste">
 <p>
 Bound to <kbd>P</kbd>.
@@ -4322,7 +4239,7 @@ Forward to <code>yank</code> otherwise.
 </div>
 
 <div id="outline-container-digit-argument" class="outline-3">
-<h3 id="digit-argument"><a id="unnumbered-144"></a><code>digit-argument</code></h3>
+<h3 id="digit-argument"><a id="unnumbered-142"></a><code>digit-argument</code></h3>
 <div class="outline-text-3" id="text-digit-argument">
 <p>
 Bound to <kbd>0</kbd>, <kbd>1</kbd>, <kbd>2</kbd>, <kbd>3</kbd>, <kbd>4</kbd>, <kbd>5</kbd>, <kbd>6</kbd>, <kbd>7</kbd>, <kbd>8</kbd>, <kbd>9</kbd>.

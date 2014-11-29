@@ -299,7 +299,7 @@ When the region is active, the region (not the code) will move up
 backward =arg= times:
 
 #+HTML: <table><tbody><tr><td>
-#+begin_src emacs-lisp
+#+begin_src elisp
 (defun lispy-out-forward (arg)
   "Move outside list forwards ARG times.
 Return nil on failure, t otherwise."
@@ -311,7 +311,7 @@ Return nil on failure, t otherwise."
 #+HTML: </td><td>
 -> ~h~ ->
 #+HTML: </td><td>
-#+begin_src emacs-lisp
+#+begin_src elisp
 (defun lispy-out-forward (arg)
   "Move outside list forwards ARG times.
 Return nil on failure, t otherwise."
@@ -591,7 +591,7 @@ by pressing ~a~ you get this:
 <!-- Created by htmlize-1.47 in css mode. -->
 <html>
   <head>
-    <title>*Org Src oblog-min.org[ emacs-lisp ]*</title>
+    <title>*Org Src oblog-min.org[ elisp ]*</title>
     <style type="text/css">
     <!--
       body {
@@ -1000,7 +1000,7 @@ the function isn't used anywhere else.
 
 Starting with this:
 
-#+begin_src emacs-lisp
+#+begin_src elisp
 (defun helm-owiki-action (x)
   (find-file (expand-file-name
               (format "%s.org" x)|
@@ -1009,7 +1009,7 @@ Starting with this:
 
 by pressing ~xl~ you will get this:
 
-#+begin_src emacs-lisp
+#+begin_src elisp
 |(lambda (x)
   (find-file (expand-file-name
               (format "%s.org" x)
@@ -1358,13 +1358,13 @@ Delete region.
 Delete \".
 
 #+HTML: <table><tbody><tr><td>
-#+begin_src emacs-lisp
+#+begin_src elisp
 "say |\"hi\""
 #+end_src
 #+HTML: </td><td>
 -> ~C-d~ ->
 #+HTML: </td><td>
-#+begin_src emacs-lisp
+#+begin_src elisp
 "say |hi\""
 #+end_src
 #+HTML: </td></tr></tbody></table>
@@ -2085,81 +2085,15 @@ Example 2:
 
 Example 3:
 #+HTML: <table><tbody><tr><td>
-#+BEGIN_HTML
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
-<!-- Created by htmlize-1.47 in css mode. -->
-<html>
-  <head>
-    <title>test.el</title>
-    <style type="text/css">
-    <!--
-      body {
-        color: #000000;
-        background-color: #ffffff;
-      }
-      .region {
-        /* region */
-        color: #ffffff;
-        background-color: #f9b593;
-      }
-
-      a {
-        color: inherit;
-        background-color: inherit;
-        font: inherit;
-        text-decoration: inherit;
-      }
-      a:hover {
-        text-decoration: underline;
-      }
-    -->
-    </style>
-  </head>
-  <body>
-    <pre>
-(foo <span class="region">bar baz</span><cursor>)</cursor></pre>
-  </body>
-</html>
-#+END_HTML
+#+begin_src elisp
+(foo ~bar bar|)
+#+end_src
 #+HTML: </td><td>
 -> ~<~ ->
 #+HTML: </td><td>
-#+BEGIN_HTML
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
-<!-- Created by htmlize-1.47 in css mode. -->
-<html>
-  <head>
-    <title>test.el</title>
-    <style type="text/css">
-    <!--
-      body {
-        color: #000000;
-        background-color: #ffffff;
-      }
-      .region {
-        /* region */
-        color: #ffffff;
-        background-color: #f9b593;
-      }
-
-      a {
-        color: inherit;
-        background-color: inherit;
-        font: inherit;
-        text-decoration: inherit;
-      }
-      a:hover {
-        text-decoration: underline;
-      }
-    -->
-    </style>
-  </head>
-  <body>
-    <pre>
-(foo <span class="region">bar</span><cursor> </cursor> baz)</pre>
-  </body>
-</html>
-#+END_HTML
+#+begin_src elisp
+(foo ~bar| bar)
+#+end_src
 #+HTML: </td></tr></tbody></table>
 -----
 
@@ -2182,7 +2116,6 @@ mind about calling the modified ~hjkl~.
 | ~j~ | [[#lispy-down-slurp][lispy-down-slurp]] |
 | ~k~ | [[#lispy-up-slurp][lispy-up-slurp]]   |
 | ~l~ | [[#lispy-move-right][lispy-move-right]] |
-| ~i~ | [[#lispy-amend][lispy-amend]]      |
 -----
 
 ** =lispy-move-left=
@@ -2195,7 +2128,7 @@ Bound to ~oh~.
 Move current expression to the left, outside the current list.
 
 #+HTML: <table><tbody><tr><td>
-#+begin_src emacs-lisp
+#+begin_src elisp
 (require 'ob-python)
 (let ((color "Blue"))
   |(message "What... is your favorite color?")
@@ -2204,7 +2137,7 @@ Move current expression to the left, outside the current list.
 #+HTML: </td><td>
 -> ~oh~ ->
 #+HTML: </td><td>
-#+begin_src emacs-lisp
+#+begin_src elisp
 (require 'ob-python)
 |(message "What... is your favorite color?")
 (let ((color "Blue"))
@@ -2223,14 +2156,14 @@ Move current expression to become the first element of the first list
 below.
 
 #+HTML: <table><tbody><tr><td>
-#+begin_src emacs-lisp
+#+begin_src elisp
 |(first!)
 '(foo bar)
 #+end_src
 #+HTML: </td><td>
 -> ~oj~ ->
 #+HTML: </td><td>
-#+begin_src emacs-lisp
+#+begin_src elisp
 '(|(first!)
   foo bar)
 #+end_src
@@ -2248,7 +2181,7 @@ Move current expression to become the last element of the first list
 above.
 
 #+HTML: <table><tbody><tr><td>
-#+begin_src emacs-lisp
+#+begin_src elisp
 (list 'my-sword
       'my-bow)
 |(my-axe)
@@ -2256,7 +2189,7 @@ above.
 #+HTML: </td><td>
 -> ~ok~ ->
 #+HTML: </td><td>
-#+begin_src emacs-lisp
+#+begin_src elisp
 (list 'my-sword
       'my-bow
       |(my-axe))
@@ -2273,7 +2206,7 @@ Bound to ~ol~.
 Move current expression to the right, outside the current list.
 
 #+HTML: <table><tbody><tr><td>
-#+begin_src emacs-lisp
+#+begin_src elisp
 (require 'ob-python)
 (message "What... is your favorite color?")
 (let ((color "Blue"))
@@ -2283,7 +2216,7 @@ Move current expression to the right, outside the current list.
 #+HTML: </td><td>
 -> ~ol~ ->
 #+HTML: </td><td>
-#+begin_src emacs-lisp
+#+begin_src elisp
 (require 'ob-python)
 (message "What... is your favorite color?")
 (let ((color "Blue"))
@@ -2291,15 +2224,6 @@ Move current expression to the right, outside the current list.
 |(message "Go on. Off you go.")
 #+end_src
 #+HTML: </td></tr></tbody></table>
------
-** =lispy-amend=
-:PROPERTIES:
-:CUSTOM_ID: lispy-amend
-:END:
-Break out of special position for amending.
-When called from the start of the list, it's equivalent to ~C-f~.
-When called from the end of the list, it's equivalent to ~C-b~ with
-and additional space inserted after the last element of the list.
 -----
 ** =lispy-comment=
 :PROPERTIES:
@@ -2313,7 +2237,7 @@ With a prefix arg, comment many expressions.
 With a prefix arg and already inside comment, uncomment instead.
 
 #+HTML: <table><tbody><tr><td>
-#+begin_src emacs-lisp
+#+begin_src elisp
 (require 'ob-python)
 |(defun cheeseshop (kind)
   (message "Do you have any %s?" kind))
@@ -2321,7 +2245,7 @@ With a prefix arg and already inside comment, uncomment instead.
 #+HTML: </td><td>
 -> ~;~ ->
 #+HTML: </td><td>
-#+begin_src emacs-lisp
+#+begin_src elisp
 |(require 'ob-python)
 ;; (defun cheeseshop (kind)
 ;;   (message "Do you have any %s?" kind))
@@ -2341,13 +2265,13 @@ or mark.
 With a prefix arg, copy that many times.
 
 #+HTML: <table><tbody><tr><td>
-#+begin_src emacs-lisp
+#+begin_src elisp
 |(message "A witch!")
 #+end_src
 #+HTML: </td><td>
 -> ~3c~ ->
 #+HTML: </td><td>
-#+begin_src emacs-lisp
+#+begin_src elisp
 |(message "A witch!")
 (message "A witch!")
 (message "A witch!")
@@ -2396,14 +2320,14 @@ Bound to ~r~.
 Use current sexp or region as replacement for its parent.
 
 #+HTML: <table><tbody><tr><td>
-#+begin_src emacs-lisp
+#+begin_src elisp
 (let ((foo 1))
   |(+ bar baz))
 #+end_src
 #+HTML: </td><td>
 -> ~r~ ->
 #+HTML: </td><td>
-#+begin_src emacs-lisp
+#+begin_src elisp
 |(+ bar baz)
 #+end_src
 #+HTML: </td></tr></tbody></table>
@@ -2419,7 +2343,7 @@ Move current sexp or region down arg times. Don't exit the parent
 list.
 
 #+HTML: <table><tbody><tr><td>
-#+begin_src emacs-lisp
+#+begin_src elisp
 (progn
   |(foo)
   (bar)
@@ -2428,7 +2352,7 @@ list.
 #+HTML: </td><td>
 -> ~s~ ->
 #+HTML: </td><td>
-#+begin_src emacs-lisp
+#+begin_src elisp
 (progn
   (bar)
   |(foo)
@@ -2490,6 +2414,7 @@ This is useful for debugging interactive Elisp functions:
 - in one window keep the code of the function being debugged
 - in the other window, keep the buffer on which the debugged function
   is supposed to work
+-----
 ** =lispy-describe=
 :PROPERTIES:
 :CUSTOM_ID: lispy-describe
@@ -2498,13 +2423,6 @@ This is useful for debugging interactive Elisp functions:
 Bound to ~D~.
 
 Just a shorthand for =describe-function=.
------
-** =lispy-arglist=
-:PROPERTIES:
-:CUSTOM_ID: lispy-arglist
-:END:
-
-Echo the arglist for current function.
 -----
 ** =lispy-beginning-of-defun=
 :PROPERTIES:
@@ -2532,7 +2450,7 @@ Exchange the order of application of two closest outer forms, relative
 to current expression or region.
 
 #+HTML: <table><tbody><tr><td>
-#+begin_src emacs-lisp
+#+begin_src elisp
 (if (= (weight person) standard-duck-weight)
     (unless (sinks-in-water person)
       |(message "Burn her!")))
@@ -2540,7 +2458,7 @@ to current expression or region.
 #+HTML: </td><td>
 -> ~C~ ->
 #+HTML: </td><td>
-#+begin_src emacs-lisp
+#+begin_src elisp
 (unless (sinks-in-water person)
   (if (= (weight person) standard-duck-weight)
       |(message "Burn her!")))
@@ -2572,7 +2490,7 @@ as replacement for their parent.
 Example 1:
 
 #+HTML: <table><tbody><tr><td>
-#+begin_src emacs-lisp
+#+begin_src elisp
 (progn
   (message "one")
   |(message "two")
@@ -2581,7 +2499,7 @@ Example 1:
 #+HTML: </td><td>
 -> ~R~ ->
 #+HTML: </td><td>
-#+begin_src emacs-lisp
+#+begin_src elisp
 |(message "two")
 (message "three")
 #+end_src
@@ -2590,7 +2508,7 @@ Example 1:
 Example 2:
 
 #+HTML: <table><tbody><tr><td>
-#+begin_src emacs-lisp
+#+begin_src elisp
 (progn
   (message "one")
   (message "two")|
@@ -2599,7 +2517,7 @@ Example 2:
 #+HTML: </td><td>
 -> ~R~ ->
 #+HTML: </td><td>
-#+begin_src emacs-lisp
+#+begin_src elisp
 progn
 (message "one")
 (message "two")
@@ -2626,7 +2544,7 @@ Transform current sexp into a string.  Quote newlines if =arg=
 isn't 1.
 
 #+HTML: <table><tbody><tr><td>
-#+begin_src emacs-lisp
+#+begin_src elisp
 (progn
   (message "one")
   |(message "two")
@@ -2635,7 +2553,7 @@ isn't 1.
 #+HTML: </td><td>
 -> ~S~ ->
 #+HTML: </td><td>
-#+begin_src emacs-lisp
+#+begin_src elisp
 (progn
   (message "one")
   "(message \"two\")"
