@@ -447,7 +447,7 @@ Return nil on failure, t otherwise."
 Self-insert otherwise."
   (interactive "p")
   (if (or (lispy--in-string-or-comment-p)
-          (looking-back "?\\\\"))
+	  (looking-back "?\\\\"))
       (self-insert-command arg)
     (lispy--out-forward arg)))
 
@@ -476,13 +476,13 @@ If this point is inside string, move outside string."
   (interactive)
   (let ((pt (point)))
     (if (eq pt (line-end-position))
-        (if (lispy--in-string-p)
-            (goto-char (cdr (lispy--bounds-string)))
-          (when (and (< lispy-meol-point pt)
-                     (>= lispy-meol-point (line-beginning-position)))
-            (goto-char lispy-meol-point)
-            (when (lispy--in-string-p)
-              (goto-char (cdr (lispy--bounds-string))))))
+	(if (lispy--in-string-p)
+	    (goto-char (cdr (lispy--bounds-string)))
+	  (when (and (< lispy-meol-point pt)
+		     (>= lispy-meol-point (line-beginning-position)))
+	    (goto-char lispy-meol-point)
+	    (when (lispy--in-string-p)
+	      (goto-char (cdr (lispy--bounds-string))))))
       (setq lispy-meol-point (point))
       (move-end-of-line 1))))
 
@@ -493,29 +493,29 @@ Don't enter strings or comments.
 Return nil if can't move."
   (interactive "p")
   (let ((pt (point))
-        success)
+	success)
     (lispy-dotimes arg
       (cond ((looking-at lispy-left)
-             (forward-char)
-             (re-search-forward lispy-left nil t)
-             (while (and (lispy--in-string-or-comment-p)
-                         (re-search-forward lispy-left nil t)))
-             (unless (lispy--in-string-or-comment-p)
-               (setq success t))
-             (backward-char))
+	     (forward-char)
+	     (re-search-forward lispy-left nil t)
+	     (while (and (lispy--in-string-or-comment-p)
+			 (re-search-forward lispy-left nil t)))
+	     (unless (lispy--in-string-or-comment-p)
+	       (setq success t))
+	     (backward-char))
 
-            ((looking-back lispy-right)
-             (backward-char)
-             (re-search-backward lispy-right nil t)
-             (while (and (lispy--in-string-or-comment-p)
-                         (re-search-backward lispy-right nil t)))
-             (unless (lispy--in-string-or-comment-p)
-               (setq success t))
-             (forward-char))))
+	    ((looking-back lispy-right)
+	     (backward-char)
+	     (re-search-backward lispy-right nil t)
+	     (while (and (lispy--in-string-or-comment-p)
+			 (re-search-backward lispy-right nil t)))
+	     (unless (lispy--in-string-or-comment-p)
+	       (setq success t))
+	     (forward-char))))
     (and (not (= (point) pt))
-         (or success
-             (prog1 nil
-               (goto-char pt))))))
+	 (or success
+	     (prog1 nil
+	       (goto-char pt))))))
 
 (defun lispy-counterclockwise ()
   "Move counterclockwise inside current list."
@@ -2294,6 +2294,8 @@ Second region and buffer are the current ones."
       (lispy-complain "can't descend further"))))
 
 ;; ——— Locals:  miscellanea ————————————————————————————————————————————————————
+(defvar lispy-mode-x-map (make-sparse-keymap))
+
 (defun lispy-x ()
   "Forward to `lispy-mode-x-map'."
   (interactive)
@@ -2742,34 +2744,6 @@ Move to the end of line."
              (signal (car e) (cdr e)))))))))
 
 ;; ——— Utilities: tags —————————————————————————————————————————————————————————
-(defun lispy-build-semanticdb (&optional dir)
-  "Build and save semanticdb for DIR."
-  (interactive)
-  (setq dir (or dir default-directory))
-  (let ((default-directory dir))
-    (mapc
-     (lambda (f)
-       (let ((buffer (find-file-noselect f))
-             tags)
-         (set-buffer buffer)
-         (setq tags (ignore-errors (semantic-fetch-tags)))
-         ;; modifies tags
-         (when (memq major-mode '(lisp-mode emacs-lisp-mode))
-           (lexical-let ((arity (cdr (assoc major-mode lispy-tag-arity)))
-                         (tag-regex (lispy--tag-regexp)))
-             (mapc (lambda (x) (lispy--modify-tag x tag-regex arity)) tags)))
-         ;; (kill-buffer buffer)
-         ))
-     (lispy--file-list)))
-  (semanticdb-save-all-db))
-
-(defun lispy--file-list ()
-  "Get the list of same type files in current directory."
-  (let ((ext (file-name-extension (buffer-file-name))))
-    (cl-remove-if
-     (lambda (x) (string-match "\\(?:^\\.?#\\|~$\\)" x))
-     (file-expand-wildcards (format "*.%s" ext)))))
-
 (defvar lispy-tag-arity
   '((lisp-mode
      (defclass . 1)
@@ -2824,6 +2798,34 @@ Move to the end of line."
      ;; lispy-specific
      (lispy-defverb . 1)))
   "Alist of tag arities for supported modes.")
+
+(defun lispy-build-semanticdb (&optional dir)
+  "Build and save semanticdb for DIR."
+  (interactive)
+  (setq dir (or dir default-directory))
+  (let ((default-directory dir))
+    (mapc
+     (lambda (f)
+       (let ((buffer (find-file-noselect f))
+             tags)
+         (set-buffer buffer)
+         (setq tags (ignore-errors (semantic-fetch-tags)))
+         ;; modifies tags
+         (when (memq major-mode '(lisp-mode emacs-lisp-mode))
+           (lexical-let ((arity (cdr (assoc major-mode lispy-tag-arity)))
+                         (tag-regex (lispy--tag-regexp)))
+             (mapc (lambda (x) (lispy--modify-tag x tag-regex arity)) tags)))
+         ;; (kill-buffer buffer)
+         ))
+     (lispy--file-list)))
+  (semanticdb-save-all-db))
+
+(defun lispy--file-list ()
+  "Get the list of same type files in current directory."
+  (let ((ext (file-name-extension (buffer-file-name))))
+    (cl-remove-if
+     (lambda (x) (string-match "\\(?:^\\.?#\\|~$\\)" x))
+     (file-expand-wildcards (format "*.%s" ext)))))
 
 (defun lispy--tag-regexp (&optional mode)
   "Return tag regexp based on MODE."
@@ -4228,8 +4230,6 @@ return the corresponding `setq' expression."
   "Don't `auto-complete' when region is active."
   (unless (region-active-p)
     ad-do-it))
-
-(defvar lispy-mode-x-map (make-sparse-keymap))
 
 (let ((map lispy-mode-x-map))
   (define-key map "d" 'lispy-to-defun)

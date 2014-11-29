@@ -25,6 +25,8 @@
 (eval-and-compile
   (ignore-errors (require 'cider)))
 
+(defvar lispy-do-pprint)
+
 (defun lispy--eval-clojure (str)
   "Eval STR as Clojure code."
   (if lispy-do-pprint

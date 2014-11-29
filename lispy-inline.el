@@ -86,6 +86,8 @@ The caller of `lispy--show' might use a substitute e.g. `describe-function'."
 (declare-function lispy--clojure-resolve "ext:lispy")
 (declare-function lispy--describe-clojure-java "ext:lispy")
 (declare-function lispy--lisp-describe "ext:lispy")
+(declare-function lispy--back-to-paren "ext:lispy")
+(declare-function lispy--current-function "ext:lispy")
 
 ;; ——— Commands ————————————————————————————————————————————————————————————————
 (defun lispy-arglist-inline ()
