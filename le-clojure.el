@@ -22,7 +22,8 @@
 
 ;;; Code:
 
-(require 'cider)
+(eval-and-compile
+  (ignore-errors (require 'cider)))
 
 (defun lispy--eval-clojure (str)
   "Eval STR as Clojure code."

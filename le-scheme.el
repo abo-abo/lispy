@@ -22,7 +22,8 @@
 
 ;;; Code:
 
-(require 'geiser-eval)
+(eval-and-compile
+  (ignore-errors (require 'geiser-eval)))
 
 (defun lispy--eval-scheme (str)
   "Eval STR as Scheme code."

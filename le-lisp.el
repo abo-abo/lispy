@@ -22,7 +22,9 @@
 
 ;;; Code:
 
-(require 'slime)
+(eval-and-compile
+  (ignore-errors (require 'slime)))
+
 (declare-function slime-output-buffer "ext:slime-repl")
 
 (defun lispy--eval-lisp (str)
