@@ -784,6 +784,14 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "(+ 2 2)|" "E")
                    "(+ 2 2)\n4|")))
 
+(ert-deftest lispy-eval-and-replace ()
+  (should (string= (lispy-with "|(setq foo 42)\n(list foo foo)" "ej"
+                               (lispy-eval-and-replace))
+                   "(setq foo 42)\n|(42 42)"))
+  (should (string= (lispy-with "|(setq foo 42)\n(list foo foo)" "ej3m"
+                               (lispy-eval-and-replace))
+                   "(setq foo 42)\n|(list foo 42)")))
+
 (ert-deftest lispy-quotes ()
   (should (string= (lispy-with "(frob grovel |full lexical)" "\"")
                    "(frob grovel \"|\" full lexical)"))

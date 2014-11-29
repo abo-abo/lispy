@@ -1946,14 +1946,16 @@ When ARG isn't nil, try to pretty print the sexp."
 (defun lispy-eval-and-replace ()
   "Eval last sexp and replace it with the result."
   (interactive)
-  (lispy-from-left
-   (let* ((bnd (lispy--bounds-list))
-          (str (lispy--string-dwim bnd)))
-     (delete-region (car bnd) (cdr bnd))
-     (insert (lispy--eval str))))
-  (unless (or (looking-at lispy-left)
-              (looking-back lispy-right))
-    (lispy--out-backward 1)))
+  (let* ((leftp (lispy--leftp))
+         (bnd (lispy--bounds-dwim))
+         (str (lispy--string-dwim bnd)))
+    (delete-region (car bnd) (cdr bnd))
+    (insert (lispy--eval str))
+    (unless (or (looking-at lispy-left)
+                (looking-back lispy-right))
+      (lispy--out-backward 1))
+    (when (and leftp (not (lispy--leftp)))
+      (lispy-different))))
 
 (defun lispy-eval-other-window ()
   "Eval current expression in the context of other window.
