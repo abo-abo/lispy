@@ -146,7 +146,10 @@ Here's a minimal MELPA configuration for your `~/.emacs`:
     (package-initialize)
     (add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/"))
 
-Afterwards, do `M-x` `package-install`, type in `lispy` and `RET`.
+Afterwards, do `M-x` `package-install`, type in `lispy` and `RET` (you
+might want to `M-x` `package-refresh-contents` beforehand if you
+haven't done so recently).
+
 You can now call `M-x` `lispy-mode` for any buffer with a Lisp dialect source.
 To have `lispy-mode` activated automatically, use something like this:
 
