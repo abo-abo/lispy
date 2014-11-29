@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
 <title>lispy.el function reference</title>
-<!-- 2014-11-26 Wed 11:31 -->
+<!-- 2014-11-29 Sat 15:14 -->
 <meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta  name="generator" content="Org-mode" />
 <meta  name="author" content="Oleh" />
@@ -744,127 +744,33 @@ backward <code>arg</code> times:
 </p>
 
 <table><tbody><tr><td>
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
-<!-- Created by htmlize-1.47 in css mode. -->
-<html>
-  <head>
-    <title>temp.el</title>
-    <style type="text/css">
-    <!--
-      body {
-        color: #000000;
-        background-color: #ffffff;
-      }
-      .doc {
-        /* font-lock-doc-face */
-        color: #2A00FF;
-      }
-      .function-name {
-        /* font-lock-function-name-face */
-        color: #000000;
-        font-weight: bold;
-      }
-      .keyword {
-        /* font-lock-keyword-face */
-        color: #7F0055;
-        font-weight: bold;
-      }
-      .region {
-        /* region */
-        color: #ffffff;
-        background-color: #f9b593;
-      }
-      .string {
-        /* font-lock-string-face */
-        color: #2A00FF;
-      }
+<div class="org-src-container">
 
-      a {
-        color: inherit;
-        background-color: inherit;
-        font: inherit;
-        text-decoration: inherit;
-      }
-      a:hover {
-        text-decoration: underline;
-      }
-    -->
-    </style>
-  </head>
-  <body>
-    <pre>
-(<span class="keyword">defun</span> <span class="function-name">lispy-out-forward</span> (arg)
-  <span class="doc">"Move outside list forwards ARG times.
-Return nil on failure, t otherwise."</span>
-  (interactive <span class="string">"p"</span>)
-  (<span class="keyword">if</span> (region-active-p)
-      <span class="region">(lispy-mark-right arg)</span>
-    (lispy--out-forward arg)))</pre>
-  </body>
-</html>
+<pre class="src src-emacs-lisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">lispy-out-forward</span> (arg)
+  <span style="color: #2A00FF;">"Move outside list forwards ARG times.</span>
+<span style="color: #2A00FF;">Return nil on failure, t otherwise."</span>
+  (interactive <span style="color: #2A00FF;">"p"</span>)
+  (<span style="color: #7F0055; font-weight: bold;">if</span> (region-active-p)
+      <cursor>(</cursor><span class="region">lispy-mark-right arg)</span>
+    (lispy--out-forward arg)))
+</pre>
+</div>
 </td><td>
 <p>
 -&gt; <kbd>h</kbd> -&gt;
 </p>
 </td><td>
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
-<!-- Created by htmlize-1.47 in css mode. -->
-<html>
-  <head>
-    <title>temp.el</title>
-    <style type="text/css">
-    <!--
-      body {
-        color: #000000;
-        background-color: #ffffff;
-      }
-      .doc {
-        /* font-lock-doc-face */
-        color: #2A00FF;
-      }
-      .function-name {
-        /* font-lock-function-name-face */
-        color: #000000;
-        font-weight: bold;
-      }
-      .keyword {
-        /* font-lock-keyword-face */
-        color: #7F0055;
-        font-weight: bold;
-      }
-      .region {
-        /* region */
-        color: #ffffff;
-        background-color: #f9b593;
-      }
-      .string {
-        /* font-lock-string-face */
-        color: #2A00FF;
-      }
+<div class="org-src-container">
 
-      a {
-        color: inherit;
-        background-color: inherit;
-        font: inherit;
-        text-decoration: inherit;
-      }
-      a:hover {
-        text-decoration: underline;
-      }
-    -->
-    </style>
-  </head>
-  <body>
-    <pre>
-(<span class="keyword">defun</span> <span class="function-name">lispy-out-forward</span> (arg)
-  <span class="doc">"Move outside list forwards ARG times.
-Return nil on failure, t otherwise."</span>
-  (interactive <span class="string">"p"</span>)
-  <span class="region">(</span><span class="keyword"><span class="region">if</span></span><span class="region"> (region-active-p)
+<pre class="src src-emacs-lisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">lispy-out-forward</span> (arg)
+  <span style="color: #2A00FF;">"Move outside list forwards ARG times.</span>
+<span style="color: #2A00FF;">Return nil on failure, t otherwise."</span>
+  (interactive <span style="color: #2A00FF;">"p"</span>)
+  <cursor>(</cursor><span class="region"><span style="color: #7F0055; font-weight: bold;">if</span> (region-active-p)
       (lispy-mark-right arg)
-    (lispy--out-forward arg))</span>)</pre>
-  </body>
-</html>
+    (lispy--out-forward arg))</span>)
+</pre>
+</div>
 </td></tr></tbody></table>
 <hr  />
 </div>
@@ -920,120 +826,29 @@ For example, starting with:
 <p>
 after <kbd>mi</kbd>:
 </p>
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
-<!-- Created by htmlize-1.47 in css mode. -->
-<html>
-  <head>
-    <title>*scratch*</title>
-    <style type="text/css">
-    <!--
-      body {
-        color: #000000;
-        background-color: #ffffff;
-      }
-      .region {
-        /* region */
-        color: #ffffff;
-        background-color: #f9b593;
-      }
+<div class="org-src-container">
 
-      a {
-        color: inherit;
-        background-color: inherit;
-        font: inherit;
-        text-decoration: inherit;
-      }
-      a:hover {
-        text-decoration: underline;
-      }
-    -->
-    </style>
-  </head>
-  <body>
-    <pre>
-(<span class="region">a</span> b c d e f g h i j k l m n o p q r s t u v w x y z)
-
+<pre class="src src-elisp">(<span class="region">a</span><cursor> </cursor>b c d e f g h i j k l m n o p q r s t u v w x y z)
 </pre>
-  </body>
-</html>
+</div>
+
 <p>
 after <kbd>2&gt;</kbd>:
 </p>
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
-<!-- Created by htmlize-1.47 in css mode. -->
-<html>
-  <head>
-    <title>*scratch*</title>
-    <style type="text/css">
-    <!--
-      body {
-        color: #000000;
-        background-color: #ffffff;
-      }
-      .region {
-        /* region */
-        color: #ffffff;
-        background-color: #f9b593;
-      }
+<div class="org-src-container">
 
-      a {
-        color: inherit;
-        background-color: inherit;
-        font: inherit;
-        text-decoration: inherit;
-      }
-      a:hover {
-        text-decoration: underline;
-      }
-    -->
-    </style>
-  </head>
-  <body>
-    <pre>
-(<span class="region">a b c</span> d e f g h i j k l m n o p q r s t u v w x y z)
-
+<pre class="src src-elisp">(<span class="region">a b c</span><cursor> </cursor>d e f g h i j k l m n o p q r s t u v w x y z)
 </pre>
-  </body>
-</html>
+</div>
+
 <p>
 after <kbd>99j</kbd>:
 </p>
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
-<!-- Created by htmlize-1.47 in css mode. -->
-<html>
-  <head>
-    <title>*scratch*</title>
-    <style type="text/css">
-    <!--
-      body {
-        color: #000000;
-        background-color: #ffffff;
-      }
-      .region {
-        /* region */
-        color: #ffffff;
-        background-color: #f9b593;
-      }
+<div class="org-src-container">
 
-      a {
-        color: inherit;
-        background-color: inherit;
-        font: inherit;
-        text-decoration: inherit;
-      }
-      a:hover {
-        text-decoration: underline;
-      }
-    -->
-    </style>
-  </head>
-  <body>
-    <pre>
-(a b c d e f g h i j k l m n o p q r s t u v w <span class="region">x y z</span>)
-
+<pre class="src src-elisp">(a b c d e f g h i j k l m n o p q r s t u v w <span class="region">x y z</span><cursor>)</cursor>
 </pre>
-  </body>
-</html>
+</div>
 <hr  />
 </div>
 </div>
@@ -1404,76 +1219,26 @@ Now you can mark a symbol by pressing a letter, or cancel with <kbd>C-g</kbd>.
 Here's the end result of <kbd>ad</kbd>:
 </p>
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
-<!-- Created by htmlize-1.47 in css mode. -->
-<html>
-  <head>
-    <title>*Org Src oblog-min.org[ emacs-lisp ]*</title>
-    <style type="text/css">
-    <!--
-      body {
-        color: #000000;
-        background-color: #ffffff;
-      }
-      .constant {
-        /* font-lock-constant-face */
-        color: #110099;
-      }
-      .doc {
-        /* font-lock-doc-face */
-        color: #2A00FF;
-      }
-      .function-name {
-        /* font-lock-function-name-face */
-        font-weight: bold;
-      }
-      .keyword {
-        /* font-lock-keyword-face */
-        color: #7F0055;
-        font-weight: bold;
-      }
-      .region {
-        /* region */
-        color: #ffffff;
-        background-color: #f9b593;
-      }
-      .string {
-        /* font-lock-string-face */
-        color: #2A00FF;
-      }
-      .type {
-        /* font-lock-type-face */
-        color: #000000;
-        font-style: italic;
-        text-decoration: underline;
-      }
+<div class="org-src-container">
 
-      a {
-        color: inherit;
-        background-color: inherit;
-        font: inherit;
-        text-decoration: inherit;
-      }
-      a:hover {
-        text-decoration: underline;
-      }
-    -->
-    </style>
-  </head>
-  <body>
-    <pre>
-(<span class="keyword">defun</span> <span class="function-name">lispy-define-key</span> (keymap key def <span class="type">&amp;optional</span> from-start)
-  <span class="doc">"Forward to (`</span><span class="doc"><span class="constant">define-key</span></span><span class="doc">' KEYMAP KEY (`</span><span class="doc"><span class="constant">lispy-defun</span></span><span class="doc">' DEF FROM-START))."</span>
-  (<span class="keyword">let</span> ((func (<span class="keyword">defalias</span> (<span class="function-name">intern</span> (concat <span class="string">"special-"</span> (symbol-name def)))
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">lispy-define-key</span> (keymap key def <span style="color: #000000; font-style: italic; text-decoration: underline;">&amp;optional</span> from-start)
+  <span style="color: #2A00FF;">"Forward to (`</span><span style="color: #110099;">define-key</span><span style="color: #2A00FF;">' KEYMAP KEY (`</span><span style="color: #110099;">lispy-defun</span><span style="color: #2A00FF;">' DEF FROM-START))."</span>
+  (<span style="color: #7F0055; font-weight: bold;">let</span> ((func (<span style="color: #7F0055; font-weight: bold;">defalias</span> (<span style="color: #000000; font-weight: bold;">intern</span> (concat <span style="color: #2A00FF;">"special-"</span> (symbol-name def)))
                   (lispy--insert-or-call def from-start))))
-    (<span class="keyword">unless</span> (member func <span class="region">ac-trigger-commands</span><cursor>)</cursor>
+    (<span style="color: #7F0055; font-weight: bold;">unless</span> (member func <span class="region">ac-trigger-commands</span><cursor>)</cursor>
       (push func ac-trigger-commands))
-    (<span class="keyword">unless</span> (member func company-begin-commands)
+    (<span style="color: #7F0055; font-weight: bold;">unless</span> (member func company-begin-commands)
       (push func company-begin-commands))
     (eldoc-add-command func)
-    (define-key keymap (kbd key) func)))</pre>
-  </body>
-</html>
+    (define-key keymap (kbd key) func)))
+</pre>
+</div>
+
+<p>
+<code>lispy-ace-symbol</code>'s jump scope is the current list by default.
+Calling it with <a href="#digit-argument"><code>digit-argument</code></a> will extend this to the current
+list's parents.
+</p>
 
 <p>
 Now you can follow up with
@@ -1967,7 +1732,7 @@ Starting with this:
 </div>
 
 <p>
-by pressing <kbd>xd</kbd> and entering <code>square</code> and then pressing <kbd>] ] C-m C-y</kbd>
+by pressing <kbd>xd</kbd> and entering <code>square</code> and then pressing <kbd>d C-m C-y</kbd>
 you'll get this:
 </p>
 <div class="org-src-container">
@@ -2112,7 +1877,7 @@ pressing <kbd>"</kbd> will give:
 <h4 id="unnumbered-48"><code>arg</code> isn't <code>nil</code></h4>
 <div class="outline-text-4" id="text-unnumbered-48">
 <p>
-Forward to <code>lispy-stringify</code>.
+Forward to <a href="#lispy-stringify"><code>lispy-stringify</code></a>.
 </p>
 </div>
 </div>
@@ -2197,17 +1962,17 @@ Behave differently in this situation:
 <table><tbody><tr><td>
 <div class="org-src-container">
 
-<pre class="src src-elisp">(|(foo))
+<pre class="src src-elisp">(<cursor>(</cursor>foo))
 </pre>
 </div>
 </td><td>
 <p>
--&gt; <kbd>C-d</kbd> -&gt;
+-&gt; <kbd>SPC</kbd> -&gt;
 </p>
 </td><td>
 <div class="org-src-container">
 
-<pre class="src src-elisp">(| (foo))
+<pre class="src src-elisp">(<cursor> </cursor>(foo))
 </pre>
 </div>
 </td></tr></tbody></table>
@@ -3481,7 +3246,7 @@ The reverse is <a href="#lispy-to-ifs"><code>lispy-to-ifs</code></a>.
 <h3 id="lispy-visit"><a id="unnumbered-109"></a><code>lispy-visit</code></h3>
 <div class="outline-text-3" id="text-lispy-visit">
 <p>
-Visit another file within this project using Projectile.
+Visit another file within this project using <a href="https://github.com/bbatsov/projectile">projectile</a>.
 </p>
 
 <p>
@@ -3500,8 +3265,9 @@ Bound to <kbd>N</kbd>.
 </p>
 
 <p>
-Narrow to current sexp or region.
+<a href="http://www.gnu.org/software/emacs/manual/html_node/emacs/Narrowing.html">Narrow</a> to current sexp or region.
 </p>
+
 <hr  />
 </div>
 </div>
@@ -3534,8 +3300,8 @@ Turn current sexp into one line.
 <div class="org-src-container">
 
 <pre class="src src-elisp"><cursor>(</cursor><span style="color: #7F0055; font-weight: bold;">progn</span>
-    (foo)
-    (bar))
+  (foo)
+  (bar))
 </pre>
 </div>
 </td><td>
@@ -3667,80 +3433,23 @@ Example 2:
 <p>
 Example 3:
 </p>
-<table><tbody><tr><td>
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
-<!-- Created by htmlize-1.47 in css mode. -->
-<html>
-  <head>
-    <title>test.el</title>
-    <style type="text/css">
-    <!--
-      body {
-        color: #000000;
-        background-color: #ffffff;
-      }
-      .region {
-        /* region */
-        color: #ffffff;
-        background-color: #f9b593;
-      }
 
-      a {
-        color: inherit;
-        background-color: inherit;
-        font: inherit;
-        text-decoration: inherit;
-      }
-      a:hover {
-        text-decoration: underline;
-      }
-    -->
-    </style>
-  </head>
-  <body>
-    <pre>
-(foo <span class="region">bar</span><cursor> </cursor> baz)</pre>
-  </body>
-</html>
+<table><tbody><tr><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(foo <span class="region">bar</span><cursor> </cursor>baz)
+</pre>
+</div>
 </td><td>
 <p>
 -&gt; <kbd>&gt;</kbd> -&gt;
 </p>
 </td><td>
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
-<!-- Created by htmlize-1.47 in css mode. -->
-<html>
-  <head>
-    <title>test.el</title>
-    <style type="text/css">
-    <!--
-      body {
-        color: #000000;
-        background-color: #ffffff;
-      }
-      .region {
-        /* region */
-        color: #ffffff;
-        background-color: #f9b593;
-      }
+<div class="org-src-container">
 
-      a {
-        color: inherit;
-        background-color: inherit;
-        font: inherit;
-        text-decoration: inherit;
-      }
-      a:hover {
-        text-decoration: underline;
-      }
-    -->
-    </style>
-  </head>
-  <body>
-    <pre>
-(foo <span class="region">bar baz</span><cursor>)</cursor></pre>
-  </body>
-</html>
+<pre class="src src-elisp">(foo <span class="region">bar baz</span><cursor>)</cursor>
+</pre>
+</div>
 </td></tr></tbody></table>
 <hr  />
 </div>
@@ -4569,13 +4278,15 @@ isn't 1.
 </div>
 </td><td>
 <p>
--&gt; <kbd>R</kbd> -&gt;
+-&gt; <kbd>S</kbd> -&gt;
 </p>
 </td><td>
 <div class="org-src-container">
 
-<pre class="src src-emacs-lisp"><cursor>(</cursor>message <span style="color: #2A00FF;">"two"</span>)
-(message <span style="color: #2A00FF;">"three"</span>)
+<pre class="src src-emacs-lisp">(<span style="color: #7F0055; font-weight: bold;">progn</span>
+  (message <span style="color: #2A00FF;">"one"</span>)
+  <span style="color: #2A00FF;">"(message \"two\")"</span>
+  <cursor>(</cursor>message <span style="color: #2A00FF;">"three"</span>))
 </pre>
 </div>
 </td></tr></tbody></table>
@@ -4595,6 +4306,28 @@ When region is active, replace it with current kill.
 Forward to <code>yank</code> otherwise.
 </p>
 <hr  />
+</div>
+</div>
+
+<div id="outline-container-digit-argument" class="outline-3">
+<h3 id="digit-argument"><a id="unnumbered-144"></a><code>digit-argument</code></h3>
+<div class="outline-text-3" id="text-digit-argument">
+<p>
+Bound to <kbd>0</kbd>, <kbd>1</kbd>, <kbd>2</kbd>, <kbd>3</kbd>, <kbd>4</kbd>, <kbd>5</kbd>, <kbd>6</kbd>, <kbd>7</kbd>, <kbd>8</kbd>, <kbd>9</kbd>.
+</p>
+
+<p>
+This is the <a href="https://www.gnu.org/software/emacs/manual/html_node/emacs/Arguments.html">standard Emacs function</a>. Except instead of calling it
+globally with e.g. <kbd>M-2</kbd>, you can call it locally with just e.g. <kbd>2</kbd>.
+</p>
+
+<p>
+Many lispy commands take a prefix arg, e.g. <kbd>3j</kbd> is equivalent to
+<kbd>jjj</kbd>.
+</p>
+<hr  />
+
+
 
 <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
 <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>

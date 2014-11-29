@@ -7,22 +7,75 @@
 
 * Setup                                                                               :noexport:
 #+begin_src emacs-lisp :exports results :results silent
+(defun make-html-region--replace-1 (x)
+  (format "<cursor>%c</cursor><span class=\"region\">%s</span>"
+          (aref x 1)
+          (regexp-quote
+           (substring x 2 (- (length x) 1)))))
+
+(defun make-html-region--replace-2 (x)
+  (format "<span class=\"region\">%s</span><cursor>%c</cursor>"
+          (regexp-quote
+           (substring x 1 (- (length x) 2)))
+          (aref x (- (length x) 1))))
+
 (defun make-html-cursor--replace (x)
-  (if (string= "||\n" x)
+  (if (string= "|\n" x)
       "<cursor> </cursor>\n"
-    (if (string= "||[" x)
+    (if (string= "|[" x)
         "<cursor>[</cursor>"
       (format "<cursor>%s</cursor>"
               (regexp-quote
-               (substring x 2))))))
+               (substring x 1))))))
 
-(defun make-html-cursor (str x y)
+(defun make-html-region (str x y)
+  (setq str
+        (replace-regexp-in-string
+         "|[^|~]+~"
+         #'make-html-region--replace-1
+         str))
+  (setq str
+        (replace-regexp-in-string
+         "~[^|~]+|\\(?:.\\|$\\)"
+         #'make-html-region--replace-2
+         str))
   (replace-regexp-in-string
-   "||\\(.\\|\n\\)"
+   "|\\(.\\|\n\\)"
    #'make-html-cursor--replace
    str))
 
-(setq org-export-filter-src-block-functions '(make-html-cursor))
+(defun org-src-denote-region (&optional context)
+  (when (and (memq major-mode '(emacs-lisp-mode))
+             (region-active-p))
+    (let ((pt (point))
+          (mk (mark)))
+      (deactivate-mark)
+      (insert "|")
+      (goto-char (if (> pt mk) mk (1+ mk)))
+      (insert "~"))))
+
+(advice-add 'org-edit-src-exit :before #'org-src-denote-region)
+
+(defun org-babel-edit-prep:elisp (info)
+  (when (string-match "[~|][^~|]+[|~]" (cadr info))
+    (let (mk pt deactivate-mark)
+      (goto-char (point-min))
+      (re-search-forward "[|~]")
+      (if (looking-back "~")
+          (progn
+            (backward-delete-char 1)
+            (setq mk (point))
+            (re-search-forward "|")
+            (backward-delete-char 1)
+            (set-mark mk))
+        (backward-delete-char 1)
+        (setq pt (point))
+        (re-search-forward "~")
+        (backward-delete-char 1)
+        (set-mark (point))
+        (goto-char pt)))))
+
+(setq org-export-filter-src-block-functions '(make-html-region))
 (setq org-html-validation-link nil)
 (setq org-html-postamble nil)
 (setq org-html-preamble "<link rel=\"icon\" type=\"image/x-icon\" href=\"https://github.com/favicon.ico\"/>")
@@ -246,129 +299,27 @@ When the region is active, the region (not the code) will move up
 backward =arg= times:
 
 #+HTML: <table><tbody><tr><td>
-#+BEGIN_HTML
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
-<!-- Created by htmlize-1.47 in css mode. -->
-<html>
-  <head>
-    <title>temp.el</title>
-    <style type="text/css">
-    <!--
-      body {
-        color: #000000;
-        background-color: #ffffff;
-      }
-      .doc {
-        /* font-lock-doc-face */
-        color: #2A00FF;
-      }
-      .function-name {
-        /* font-lock-function-name-face */
-        color: #000000;
-        font-weight: bold;
-      }
-      .keyword {
-        /* font-lock-keyword-face */
-        color: #7F0055;
-        font-weight: bold;
-      }
-      .region {
-        /* region */
-        color: #ffffff;
-        background-color: #f9b593;
-      }
-      .string {
-        /* font-lock-string-face */
-        color: #2A00FF;
-      }
-
-      a {
-        color: inherit;
-        background-color: inherit;
-        font: inherit;
-        text-decoration: inherit;
-      }
-      a:hover {
-        text-decoration: underline;
-      }
-    -->
-    </style>
-  </head>
-  <body>
-    <pre>
-(<span class="keyword">defun</span> <span class="function-name">lispy-out-forward</span> (arg)
-  <span class="doc">"Move outside list forwards ARG times.
-Return nil on failure, t otherwise."</span>
-  (interactive <span class="string">"p"</span>)
-  (<span class="keyword">if</span> (region-active-p)
-      <span class="region">(lispy-mark-right arg)</span>
-    (lispy--out-forward arg)))</pre>
-  </body>
-</html>
-#+END_HTML
+#+begin_src emacs-lisp
+(defun lispy-out-forward (arg)
+  "Move outside list forwards ARG times.
+Return nil on failure, t otherwise."
+  (interactive "p")
+  (if (region-active-p)
+      |(lispy-mark-right arg)~
+    (lispy--out-forward arg)))
+#+end_src
 #+HTML: </td><td>
 -> ~h~ ->
 #+HTML: </td><td>
-#+BEGIN_HTML
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
-<!-- Created by htmlize-1.47 in css mode. -->
-<html>
-  <head>
-    <title>temp.el</title>
-    <style type="text/css">
-    <!--
-      body {
-        color: #000000;
-        background-color: #ffffff;
-      }
-      .doc {
-        /* font-lock-doc-face */
-        color: #2A00FF;
-      }
-      .function-name {
-        /* font-lock-function-name-face */
-        color: #000000;
-        font-weight: bold;
-      }
-      .keyword {
-        /* font-lock-keyword-face */
-        color: #7F0055;
-        font-weight: bold;
-      }
-      .region {
-        /* region */
-        color: #ffffff;
-        background-color: #f9b593;
-      }
-      .string {
-        /* font-lock-string-face */
-        color: #2A00FF;
-      }
-
-      a {
-        color: inherit;
-        background-color: inherit;
-        font: inherit;
-        text-decoration: inherit;
-      }
-      a:hover {
-        text-decoration: underline;
-      }
-    -->
-    </style>
-  </head>
-  <body>
-    <pre>
-(<span class="keyword">defun</span> <span class="function-name">lispy-out-forward</span> (arg)
-  <span class="doc">"Move outside list forwards ARG times.
-Return nil on failure, t otherwise."</span>
-  (interactive <span class="string">"p"</span>)
-  <span class="region">(</span><span class="keyword"><span class="region">if</span></span><span class="region"> (region-active-p)
+#+begin_src emacs-lisp
+(defun lispy-out-forward (arg)
+  "Move outside list forwards ARG times.
+Return nil on failure, t otherwise."
+  (interactive "p")
+  |(if (region-active-p)
       (lispy-mark-right arg)
-    (lispy--out-forward arg))</span>)</pre>
-  </body>
-</html>
-#+END_HTML
+    (lispy--out-forward arg))~)
+#+end_src
 #+HTML: </td></tr></tbody></table>
 -----
 ** =lispy-down=
@@ -401,125 +352,22 @@ can mark the first 3 elements of the current list and press ~99j~.
 
 For example, starting with:
 #+begin_src elisp
-||(a b c d e f g h i j k l m n o p q r s t u v w x y z)
+|(a b c d e f g h i j k l m n o p q r s t u v w x y z)
 #+end_src
 after ~mi~:
-#+BEGIN_HTML
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
-<!-- Created by htmlize-1.47 in css mode. -->
-<html>
-  <head>
-    <title>*scratch*</title>
-    <style type="text/css">
-    <!--
-      body {
-        color: #000000;
-        background-color: #ffffff;
-      }
-      .region {
-        /* region */
-        color: #ffffff;
-        background-color: #f9b593;
-      }
+#+begin_src elisp
+(~a| b c d e f g h i j k l m n o p q r s t u v w x y z)
+#+end_src
 
-      a {
-        color: inherit;
-        background-color: inherit;
-        font: inherit;
-        text-decoration: inherit;
-      }
-      a:hover {
-        text-decoration: underline;
-      }
-    -->
-    </style>
-  </head>
-  <body>
-    <pre>
-(<span class="region">a</span> b c d e f g h i j k l m n o p q r s t u v w x y z)
-
-</pre>
-  </body>
-</html>
-#+END_HTML
 after ~2>~:
-#+BEGIN_HTML
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
-<!-- Created by htmlize-1.47 in css mode. -->
-<html>
-  <head>
-    <title>*scratch*</title>
-    <style type="text/css">
-    <!--
-      body {
-        color: #000000;
-        background-color: #ffffff;
-      }
-      .region {
-        /* region */
-        color: #ffffff;
-        background-color: #f9b593;
-      }
+#+begin_src elisp
+(~a b c| d e f g h i j k l m n o p q r s t u v w x y z)
+#+end_src
 
-      a {
-        color: inherit;
-        background-color: inherit;
-        font: inherit;
-        text-decoration: inherit;
-      }
-      a:hover {
-        text-decoration: underline;
-      }
-    -->
-    </style>
-  </head>
-  <body>
-    <pre>
-(<span class="region">a b c</span> d e f g h i j k l m n o p q r s t u v w x y z)
-
-</pre>
-  </body>
-</html>
-#+END_HTML
 after ~99j~:
-#+BEGIN_HTML
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
-<!-- Created by htmlize-1.47 in css mode. -->
-<html>
-  <head>
-    <title>*scratch*</title>
-    <style type="text/css">
-    <!--
-      body {
-        color: #000000;
-        background-color: #ffffff;
-      }
-      .region {
-        /* region */
-        color: #ffffff;
-        background-color: #f9b593;
-      }
-
-      a {
-        color: inherit;
-        background-color: inherit;
-        font: inherit;
-        text-decoration: inherit;
-      }
-      a:hover {
-        text-decoration: underline;
-      }
-    -->
-    </style>
-  </head>
-  <body>
-    <pre>
-(a b c d e f g h i j k l m n o p q r s t u v w <span class="region">x y z</span>)
-
-</pre>
-  </body>
-</html>
-#+END_HTML
+#+begin_src elisp
+(a b c d e f g h i j k l m n o p q r s t u v w ~x y z|)
+#+end_src
 -----
 ** =lispy-up=
 :PROPERTIES:
@@ -623,7 +471,7 @@ Starting with this:
   "Forward to (`define-key' KEYMAP KEY (`lispy-defun' DEF FROM-START))."
   (let ((func (defalias (intern (concat "special-" (symbol-name def)))
                   (lispy--insert-or-call def from-start))))
-    ||(unless (member func ac-trigger-commands)
+    |(unless (member func ac-trigger-commands)
       (push func ac-trigger-commands))
     (unless (member func company-begin-commands)
       (push func company-begin-commands))
@@ -631,10 +479,6 @@ Starting with this:
     (define-key keymap (kbd key) func)))
 #+end_src
 by pressing ~q~ you get this:
-
-# (progn
-#   (lispy-ace-paren)
-#   (htmlize-buffer))
 
 #+BEGIN_HTML
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
@@ -729,7 +573,7 @@ Starting with this:
   "Forward to (`define-key' KEYMAP KEY (`lispy-defun' DEF FROM-START))."
   (let ((func (defalias (intern (concat "special-" (symbol-name def)))
                   (lispy--insert-or-call def from-start))))
-    ||(unless (member func ac-trigger-commands)
+    |(unless (member func ac-trigger-commands)
       (push func ac-trigger-commands))
     (unless (member func company-begin-commands)
       (push func company-begin-commands))
@@ -822,78 +666,22 @@ Now you can mark a symbol by pressing a letter, or cancel with ~C-g~.
 
 Here's the end result of ~ad~:
 
-#+BEGIN_HTML
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
-<!-- Created by htmlize-1.47 in css mode. -->
-<html>
-  <head>
-    <title>*Org Src oblog-min.org[ emacs-lisp ]*</title>
-    <style type="text/css">
-    <!--
-      body {
-        color: #000000;
-        background-color: #ffffff;
-      }
-      .constant {
-        /* font-lock-constant-face */
-        color: #110099;
-      }
-      .doc {
-        /* font-lock-doc-face */
-        color: #2A00FF;
-      }
-      .function-name {
-        /* font-lock-function-name-face */
-        font-weight: bold;
-      }
-      .keyword {
-        /* font-lock-keyword-face */
-        color: #7F0055;
-        font-weight: bold;
-      }
-      .region {
-        /* region */
-        color: #ffffff;
-        background-color: #f9b593;
-      }
-      .string {
-        /* font-lock-string-face */
-        color: #2A00FF;
-      }
-      .type {
-        /* font-lock-type-face */
-        color: #000000;
-        font-style: italic;
-        text-decoration: underline;
-      }
-
-      a {
-        color: inherit;
-        background-color: inherit;
-        font: inherit;
-        text-decoration: inherit;
-      }
-      a:hover {
-        text-decoration: underline;
-      }
-    -->
-    </style>
-  </head>
-  <body>
-    <pre>
-(<span class="keyword">defun</span> <span class="function-name">lispy-define-key</span> (keymap key def <span class="type">&amp;optional</span> from-start)
-  <span class="doc">"Forward to (`</span><span class="doc"><span class="constant">define-key</span></span><span class="doc">' KEYMAP KEY (`</span><span class="doc"><span class="constant">lispy-defun</span></span><span class="doc">' DEF FROM-START))."</span>
-  (<span class="keyword">let</span> ((func (<span class="keyword">defalias</span> (<span class="function-name">intern</span> (concat <span class="string">"special-"</span> (symbol-name def)))
+#+begin_src elisp
+(defun lispy-define-key (keymap key def &optional from-start)
+  "Forward to (`define-key' KEYMAP KEY (`lispy-defun' DEF FROM-START))."
+  (let ((func (defalias (intern (concat "special-" (symbol-name def)))
                   (lispy--insert-or-call def from-start))))
-    (<span class="keyword">unless</span> (member func <span class="region">ac-trigger-commands</span><cursor>)</cursor>
+    (unless (member func ~ac-trigger-commands|)
       (push func ac-trigger-commands))
-    (<span class="keyword">unless</span> (member func company-begin-commands)
+    (unless (member func company-begin-commands)
       (push func company-begin-commands))
     (eldoc-add-command func)
-    (define-key keymap (kbd key) func)))</pre>
-  </body>
-</html>
-#+END_HTML
+    (define-key keymap (kbd key) func)))
+#+end_src
+
+=lispy-ace-symbol='s jump scope is the current list by default.
+Calling it with [[#digit-argument][=digit-argument=]] will extend this to the current
+list's parents.
 
 Now you can follow up with
 | key | function name         |
@@ -1215,14 +1003,14 @@ Starting with this:
 #+begin_src emacs-lisp
 (defun helm-owiki-action (x)
   (find-file (expand-file-name
-              (format "%s.org" x)||
+              (format "%s.org" x)|
               helm-owiki-directory)))
 #+end_src
 
 by pressing ~xl~ you will get this:
 
 #+begin_src emacs-lisp
-||(lambda (x)
+|(lambda (x)
   (find-file (expand-file-name
               (format "%s.org" x)
               helm-owiki-directory)))
@@ -1244,16 +1032,16 @@ name and the new definition will be in the kill ring.
 
 Starting with this:
 #+begin_src elisp
-(mapcar ||(lambda (x) (* x x))
+(mapcar |(lambda (x) (* x x))
         (number-sequence 1 10))
 #+end_src
 
-by pressing ~xd~ and entering =square= and then pressing ~] ] C-m C-y~
+by pressing ~xd~ and entering =square= and then pressing ~d C-m C-y~
 you'll get this:
 #+begin_src elisp
 (mapcar #'square
         (number-sequence 1 10))
-(defun square (x) (* x x))||
+(defun square (x) (* x x))|
 #+end_src
 
 It's also possible to transform a toplevel function call into a defun
@@ -1261,13 +1049,13 @@ with ~xd~:
 
 Starting with this
 #+begin_src elisp
-(foo-delete-region beg end)||
+(foo-delete-region beg end)|
 #+end_src
 
 by pressing ~xd~ you'll get this:
 #+begin_src elisp
 (defun foo-delete-region (beg end)
-  ||)
+  |)
 #+end_src
 -----
 
@@ -1322,15 +1110,15 @@ Insert a pair of quoted quotes around point.
 
 Starting with
 #+begin_src elisp
-"we are the knights who say ||"
+"we are the knights who say |"
 #+end_src
 
 pressing @@html:<kbd>@@"@@html:</kbd>@@ will give:
 #+begin_src elisp
-"we are the knights who say \"||\""
+"we are the knights who say \"|\""
 #+end_src
 *** =arg= isn't =nil=
-Forward to =lispy-stringify=.
+Forward to [[#lispy-stringify][=lispy-stringify=]].
 
 *** otherwise
 Insert quotes, with a single space on either side where appropriate,
@@ -1338,12 +1126,12 @@ and position the point between the quotes.
 
 Starting with
 #+begin_src elisp
-(message||)
+(message|)
 #+end_src
 
 pressing @@html:<kbd>@@"@@html:</kbd>@@ will give:
 #+begin_src elisp
-(message "||")
+(message "|")
 #+end_src
 -----
 
@@ -1358,13 +1146,13 @@ Exit current list and insert a newline and a pair of parens.
 
 Starting with
 #+begin_src elisp
-(foo||)
+(foo|)
 #+end_src
 
 pressing ~C-8~ will give:
 #+begin_src elisp
 (foo)
-(||)
+(|)
 #+end_src
 
 ** =lispy-space=
@@ -1383,7 +1171,7 @@ Behave differently in this situation:
 (|(foo))
 #+end_src
 #+HTML: </td><td>
--> ~C-d~ ->
+-> ~SPC~ ->
 #+HTML: </td><td>
 #+begin_src elisp
 (| (foo))
@@ -1407,26 +1195,26 @@ Wrap the region with =left= and =right=.
 *** inside a string before "\\"
 Starting with
 #+begin_src text
-"a regex \\||"
+"a regex \\|"
 #+end_src
 pressing  ~(~ will give:
 #+begin_src text
-"a regex \\(||\\)"
+"a regex \\(|\\)"
 #+end_src
 and pressing ~{~ will give:
 #+begin_src text
-"a regex \\{||\\}"
+"a regex \\{|\\}"
 #+end_src
 and pressing ~}~ will give:
 #+begin_src text
-"a regex \\[||\\]"
+"a regex \\[|\\]"
 #+end_src
 *** inside string or comment
 Insert =left=, =right= and put the point between them.
 
 Starting with:
 #+begin_src text
-"a string || "
+"a string | "
 #+end_src
 | key | result        |
 |-----+---------------|
@@ -1438,11 +1226,11 @@ Starting with:
 *** elisp character expression
 Starting with
 #+begin_src text
-?\||
+?\|
 #+end_src
 pressing ~(~ will self-insert it to give:
 #+begin_src text
-?\(||
+?\(|
 #+end_src
 This also works for ~)~, ~{~, ~}~.
 
@@ -1459,13 +1247,13 @@ Wrap current sexp with =left= and =right=.
 
 Starting with:
 #+begin_src elisp
-||(do-some-thing)
+|(do-some-thing)
 (do-other-thing)
 #+end_src
 
 pressing ~2(~ will give:
 #+begin_src elisp
-(|| (do-some-thing))
+(| (do-some-thing))
 (do-other-thing)
 #+end_src
 
@@ -1539,17 +1327,17 @@ escape sequences.
 
 Starting with:
 #+begin_src elisp
-||(message "test")
+|(message "test")
 #+end_src
 
 pressing ~C-k~ @@html:<kbd>@@"@@html:</kbd>@@ ~C-y~ will give:
 #+begin_src elisp
-"(message \"test\")||"
+"(message \"test\")|"
 #+end_src
 
 whereas a regular =yank= would give:
 #+begin_src elisp
-"(message "test")||"
+"(message "test")|"
 #+end_src
 -----
 
@@ -1571,13 +1359,13 @@ Delete \".
 
 #+HTML: <table><tbody><tr><td>
 #+begin_src emacs-lisp
-"say ||\"hi\""
+"say |\"hi\""
 #+end_src
 #+HTML: </td><td>
 -> ~C-d~ ->
 #+HTML: </td><td>
 #+begin_src emacs-lisp
-"say ||hi\""
+"say |hi\""
 #+end_src
 #+HTML: </td></tr></tbody></table>
 
@@ -1587,13 +1375,13 @@ This allows to delete the whole string with the next ~C-d~.
 
 #+HTML: <table><tbody><tr><td>
 #+begin_src text
-(message "more gold is required||")
+(message "more gold is required|")
 #+end_src
 #+HTML: </td><td>
 -> ~C-d~ ->
 #+HTML: </td><td>
 #+begin_src text
-(message ||"more gold is required")
+(message |"more gold is required")
 #+end_src
 #+HTML: </td></tr></tbody></table>
 
@@ -1602,25 +1390,25 @@ Remove \\( and \\).
 
 #+HTML: <table><tbody><tr><td>
 #+begin_src text
-(looking-at "\\([a-z]+||\\)")
+(looking-at "\\([a-z]+|\\)")
 #+end_src
 #+HTML: </td><td>
 -> ~C-d~ ->
 #+HTML: </td><td>
 #+begin_src text
-(looking-at "[a-z]+||")
+(looking-at "[a-z]+|")
 #+end_src
 #+HTML: </td></tr></tbody></table>
 
 #+HTML: <table><tbody><tr><td>
 #+begin_src text
-(looking-at "||\\([a-z]+\\)")
+(looking-at "|\\([a-z]+\\)")
 #+end_src
 #+HTML: </td><td>
 -> ~C-d~ ->
 #+HTML: </td><td>
 #+begin_src text
-(looking-at "||[a-z]+")
+(looking-at "|[a-z]+")
 #+end_src
 #+HTML: </td></tr></tbody></table>
 
@@ -1636,13 +1424,13 @@ Delete =arg= sexps.
 
 #+HTML: <table><tbody><tr><td>
 #+begin_src elisp
-(foo ||(bar) (baz))
+(foo |(bar) (baz))
 #+end_src
 #+HTML: </td><td>
 -> ~2~ ~C-d~ ->
 #+HTML: </td><td>
 #+begin_src elisp
-||(foo)
+|(foo)
 #+end_src
 #+HTML: </td></tr></tbody></table>
 
@@ -1654,13 +1442,13 @@ Delete containing sexp.
 
 #+HTML: <table><tbody><tr><td>
 #+begin_src elisp
-(foo (bar) (baz||))
+(foo (bar) (baz|))
 #+end_src
 #+HTML: </td><td>
 -> ~C-d~ ->
 #+HTML: </td><td>
 #+begin_src elisp
-(foo (bar)||)
+(foo (bar)|)
 #+end_src
 #+HTML: </td></tr></tbody></table>
 
@@ -1687,13 +1475,13 @@ This allows to delete the whole string with the next ~DEL~.
 
 #+HTML: <table><tbody><tr><td>
 #+begin_src text
-(message "||more gold is required")
+(message "|more gold is required")
 #+end_src
 #+HTML: </td><td>
 -> ~DEL~ ->
 #+HTML: </td><td>
 #+begin_src text
-(message "more gold is required"||)
+(message "more gold is required"|)
 #+end_src
 #+HTML: </td></tr></tbody></table>
 
@@ -1702,25 +1490,25 @@ Remove \\( and \\).
 
 #+HTML: <table><tbody><tr><td>
 #+begin_src text
-(looking-at "\\([a-z]+\\)||")
+(looking-at "\\([a-z]+\\)|")
 #+end_src
 #+HTML: </td><td>
 -> ~DEL~ ->
 #+HTML: </td><td>
 #+begin_src text
-(looking-at "[a-z]+||")
+(looking-at "[a-z]+|")
 #+end_src
 #+HTML: </td></tr></tbody></table>
 
 #+HTML: <table><tbody><tr><td>
 #+begin_src text
-(looking-at "\\(||[a-z]+\\)")
+(looking-at "\\(|[a-z]+\\)")
 #+end_src
 #+HTML: </td><td>
 -> ~DEL~ ->
 #+HTML: </td><td>
 #+begin_src text
-(looking-at "||[a-z]+")
+(looking-at "|[a-z]+")
 #+end_src
 #+HTML: </td></tr></tbody></table>
 
@@ -1732,13 +1520,13 @@ Delete =arg= sexps.
 
 #+HTML: <table><tbody><tr><td>
 #+begin_src elisp
-(foo (bar) (baz)||)
+(foo (bar) (baz)|)
 #+end_src
 #+HTML: </td><td>
 -> ~2~ ~DEL~ ->
 #+HTML: </td><td>
 #+begin_src elisp
-(foo)||
+(foo)|
 #+end_src
 #+HTML: </td></tr></tbody></table>
 
@@ -1747,13 +1535,13 @@ Delete containing sexp.
 
 #+HTML: <table><tbody><tr><td>
 #+begin_src elisp
-(foo (bar) (||baz))
+(foo (bar) (|baz))
 #+end_src
 #+HTML: </td><td>
 -> ~DEL~ ->
 #+HTML: </td><td>
 #+begin_src elisp
-(foo (bar)||)
+(foo (bar)|)
 #+end_src
 #+HTML: </td></tr></tbody></table>
 
@@ -1762,13 +1550,13 @@ Delete string.
 
 #+HTML: <table><tbody><tr><td>
 #+begin_src text
-(message "more gold is required"||)
+(message "more gold is required"|)
 #+end_src
 #+HTML: </td><td>
 -> ~DEL~ ->
 #+HTML: </td><td>
 #+begin_src text
-(message)||
+(message)|
 #+end_src
 #+HTML: </td></tr></tbody></table>
 
@@ -1830,7 +1618,7 @@ Convert current string to one line.
 
 Starting with
 #+begin_src text
-(message "foo||
+(message "foo|
 bar
 baz")
 #+end_src
@@ -1838,7 +1626,7 @@ baz")
 pressing ~M-o~ will give:
 
 #+begin_src text
-(message "foo\nbar\nbaz"||)
+(message "foo\nbar\nbaz"|)
 #+end_src
 
 This can be useful when debugging a macro-generated function (i.e. it
@@ -1959,13 +1747,13 @@ body stored with [[#lispy-store-region-and-buffer][=lispy-store-region-and-buffe
 
 #+HTML: <table><tbody><tr><td>
 #+begin_src elisp
-||(setq-local foo 10)
+|(setq-local foo 10)
 #+end_src
 #+HTML: </td><td>
 -> ~xf~ ->
 #+HTML: </td><td>
 #+begin_src elisp
-||(set (make-local-variable 'foo) 10)
+|(set (make-local-variable 'foo) 10)
 #+end_src
 #+HTML: </td></tr></tbody></table>
 -----
@@ -1987,7 +1775,7 @@ The reverse is [[#lispy-to-cond][=lispy-to-cond=]].
 
 #+HTML: <table><tbody><tr><td>
 #+begin_src elisp
-||(cond ((region-active-p)
+|(cond ((region-active-p)
        (dotimes-protect arg
          (if (= (point) (region-beginning))
              (progn
@@ -2016,7 +1804,7 @@ The reverse is [[#lispy-to-cond][=lispy-to-cond=]].
 -> ~xi~ ->
 #+HTML: </td><td>
 #+begin_src elisp
-||(if (region-active-p)
+|(if (region-active-p)
     (dotimes-protect arg
       (if (= (point) (region-beginning))
           (progn
@@ -2059,7 +1847,7 @@ The reverse is [[#lispy-to-ifs][=lispy-to-ifs=]].
 
 #+HTML: <table><tbody><tr><td>
 #+begin_src elisp
-||(if (region-active-p)
+|(if (region-active-p)
     (dotimes-protect arg
       (if (= (point) (region-beginning))
           (progn
@@ -2088,7 +1876,7 @@ The reverse is [[#lispy-to-ifs][=lispy-to-ifs=]].
 -> ~xc~ ->
 #+HTML: </td><td>
 #+begin_src elisp
-||(cond ((region-active-p)
+|(cond ((region-active-p)
        (dotimes-protect arg
          (if (= (point) (region-beginning))
              (progn
@@ -2121,7 +1909,7 @@ The reverse is [[#lispy-to-ifs][=lispy-to-ifs=]].
 :CUSTOM_ID: lispy-visit
 :END:
 
-Visit another file within this project using Projectile.
+Visit another file within this project using [[https://github.com/bbatsov/projectile][projectile]].
 
 Use ~V~ to call =projectile-find-file=.
 Use ~2V~ to call =projectile-find-file-other-window=.
@@ -2133,7 +1921,8 @@ Use ~2V~ to call =projectile-find-file-other-window=.
 :END:
 Bound to ~N~.
 
-Narrow to current sexp or region.
+[[http://www.gnu.org/software/emacs/manual/html_node/emacs/Narrowing.html][Narrow]] to current sexp or region.
+
 -----
 
 ** =lispy-widen=
@@ -2155,15 +1944,15 @@ Bound to ~O~.
 Turn current sexp into one line.
 #+HTML: <table><tbody><tr><td>
 #+begin_src elisp
-||(progn
-    (foo)
-    (bar))
+|(progn
+  (foo)
+  (bar))
 #+end_src
 #+HTML: </td><td>
 -> ~O~ ->
 #+HTML: </td><td>
 #+begin_src elisp
-||(progn (foo) (bar))
+|(progn (foo) (bar))
 #+end_src
 #+HTML: </td></tr></tbody></table>
 -----
@@ -2181,13 +1970,13 @@ Especially useful on results of =macroexpand=.
 Turn current sexp into one line.
 #+HTML: <table><tbody><tr><td>
 #+begin_src elisp
-||(progn (foo) (bar) (baz))
+|(progn (foo) (bar) (baz))
 #+end_src
 #+HTML: </td><td>
 -> ~M~ ->
 #+HTML: </td><td>
 #+begin_src elisp
-||(progn (foo)
+|(progn (foo)
        (bar)
        (baz))
 #+end_src
@@ -2220,106 +2009,41 @@ direction. Opposite of [[#lispy-barf][=lispy-barf=]].
 Example 1:
 #+HTML: <table><tbody><tr><td>
 #+begin_src elisp
-(progn)|| (foo) (bar)
+(progn)| (foo) (bar)
 #+end_src
 #+HTML: </td><td>
 -> ~>~ ->
 #+HTML: </td><td>
 #+begin_src elisp
-(progn (foo))|| (bar)
+(progn (foo))| (bar)
 #+end_src
 #+HTML: </td></tr></tbody></table>
 
 Example 2:
 #+HTML: <table><tbody><tr><td>
 #+begin_src elisp
-"foo" ||(bar)
+"foo" |(bar)
 #+end_src
 #+HTML: </td><td>
 -> ~>~ ->
 #+HTML: </td><td>
 #+begin_src elisp
-||("foo" bar)
+|("foo" bar)
 #+end_src
 #+HTML: </td></tr></tbody></table>
 
 Example 3:
-#+HTML: <table><tbody><tr><td>
-#+BEGIN_HTML
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
-<!-- Created by htmlize-1.47 in css mode. -->
-<html>
-  <head>
-    <title>test.el</title>
-    <style type="text/css">
-    <!--
-      body {
-        color: #000000;
-        background-color: #ffffff;
-      }
-      .region {
-        /* region */
-        color: #ffffff;
-        background-color: #f9b593;
-      }
 
-      a {
-        color: inherit;
-        background-color: inherit;
-        font: inherit;
-        text-decoration: inherit;
-      }
-      a:hover {
-        text-decoration: underline;
-      }
-    -->
-    </style>
-  </head>
-  <body>
-    <pre>
-(foo <span class="region">bar</span><cursor> </cursor> baz)</pre>
-  </body>
-</html>
-#+END_HTML
+#+HTML: <table><tbody><tr><td>
+#+begin_src elisp
+(foo ~bar| baz)
+#+end_src
 #+HTML: </td><td>
 -> ~>~ ->
 #+HTML: </td><td>
-#+BEGIN_HTML
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
-<!-- Created by htmlize-1.47 in css mode. -->
-<html>
-  <head>
-    <title>test.el</title>
-    <style type="text/css">
-    <!--
-      body {
-        color: #000000;
-        background-color: #ffffff;
-      }
-      .region {
-        /* region */
-        color: #ffffff;
-        background-color: #f9b593;
-      }
-
-      a {
-        color: inherit;
-        background-color: inherit;
-        font: inherit;
-        text-decoration: inherit;
-      }
-      a:hover {
-        text-decoration: underline;
-      }
-    -->
-    </style>
-  </head>
-  <body>
-    <pre>
-(foo <span class="region">bar baz</span><cursor>)</cursor></pre>
-  </body>
-</html>
-#+END_HTML
+#+begin_src elisp
+(foo ~bar baz|)
+#+end_src
 #+HTML: </td></tr></tbody></table>
 -----
 
@@ -2336,26 +2060,26 @@ direction. Opposite of [[#lispy-slurp][=lispy-slurp=]].
 Example 1:
 #+HTML: <table><tbody><tr><td>
 #+begin_src elisp
-(progn (foo))|| (bar)
+(progn (foo))| (bar)
 #+end_src
 #+HTML: </td><td>
 -> ~<~ ->
 #+HTML: </td><td>
 #+begin_src elisp
-(progn)|| (foo) (bar)
+(progn)| (foo) (bar)
 #+end_src
 #+HTML: </td></tr></tbody></table>
 
 Example 2:
 #+HTML: <table><tbody><tr><td>
 #+begin_src elisp
-||("foo" bar)
+|("foo" bar)
 #+end_src
 #+HTML: </td><td>
 -> ~>~ ->
 #+HTML: </td><td>
 #+begin_src elisp
-"foo" ||(bar)
+"foo" |(bar)
 #+end_src
 #+HTML: </td></tr></tbody></table>
 
@@ -2474,7 +2198,7 @@ Move current expression to the left, outside the current list.
 #+begin_src emacs-lisp
 (require 'ob-python)
 (let ((color "Blue"))
-  ||(message "What... is your favorite color?")
+  |(message "What... is your favorite color?")
   (message "%s. No yel..." color))
 #+end_src
 #+HTML: </td><td>
@@ -2482,7 +2206,7 @@ Move current expression to the left, outside the current list.
 #+HTML: </td><td>
 #+begin_src emacs-lisp
 (require 'ob-python)
-||(message "What... is your favorite color?")
+|(message "What... is your favorite color?")
 (let ((color "Blue"))
   (message "%s. No yel..." color))
 #+end_src
@@ -2500,14 +2224,14 @@ below.
 
 #+HTML: <table><tbody><tr><td>
 #+begin_src emacs-lisp
-||(first!)
+|(first!)
 '(foo bar)
 #+end_src
 #+HTML: </td><td>
 -> ~oj~ ->
 #+HTML: </td><td>
 #+begin_src emacs-lisp
-'(||(first!)
+'(|(first!)
   foo bar)
 #+end_src
 #+HTML: </td></tr></tbody></table>
@@ -2527,7 +2251,7 @@ above.
 #+begin_src emacs-lisp
 (list 'my-sword
       'my-bow)
-||(my-axe)
+|(my-axe)
 #+end_src
 #+HTML: </td><td>
 -> ~ok~ ->
@@ -2535,7 +2259,7 @@ above.
 #+begin_src emacs-lisp
 (list 'my-sword
       'my-bow
-      ||(my-axe))
+      |(my-axe))
 #+end_src
 #+HTML: </td></tr></tbody></table>
 -----
@@ -2554,7 +2278,7 @@ Move current expression to the right, outside the current list.
 (message "What... is your favorite color?")
 (let ((color "Blue"))
   (message color)
-  ||(message "Go on. Off you go."))
+  |(message "Go on. Off you go."))
 #+end_src
 #+HTML: </td><td>
 -> ~ol~ ->
@@ -2564,7 +2288,7 @@ Move current expression to the right, outside the current list.
 (message "What... is your favorite color?")
 (let ((color "Blue"))
   (message color))
-||(message "Go on. Off you go.")
+|(message "Go on. Off you go.")
 #+end_src
 #+HTML: </td></tr></tbody></table>
 -----
@@ -2591,14 +2315,14 @@ With a prefix arg and already inside comment, uncomment instead.
 #+HTML: <table><tbody><tr><td>
 #+begin_src emacs-lisp
 (require 'ob-python)
-||(defun cheeseshop (kind)
+|(defun cheeseshop (kind)
   (message "Do you have any %s?" kind))
 #+end_src
 #+HTML: </td><td>
 -> ~;~ ->
 #+HTML: </td><td>
 #+begin_src emacs-lisp
-||(require 'ob-python)
+|(require 'ob-python)
 ;; (defun cheeseshop (kind)
 ;;   (message "Do you have any %s?" kind))
 #+end_src
@@ -2618,13 +2342,13 @@ With a prefix arg, copy that many times.
 
 #+HTML: <table><tbody><tr><td>
 #+begin_src emacs-lisp
-||(message "A witch!")
+|(message "A witch!")
 #+end_src
 #+HTML: </td><td>
 -> ~3c~ ->
 #+HTML: </td><td>
 #+begin_src emacs-lisp
-||(message "A witch!")
+|(message "A witch!")
 (message "A witch!")
 (message "A witch!")
 (message "A witch!")
@@ -2674,13 +2398,13 @@ Use current sexp or region as replacement for its parent.
 #+HTML: <table><tbody><tr><td>
 #+begin_src emacs-lisp
 (let ((foo 1))
-  ||(+ bar baz))
+  |(+ bar baz))
 #+end_src
 #+HTML: </td><td>
 -> ~r~ ->
 #+HTML: </td><td>
 #+begin_src emacs-lisp
-||(+ bar baz)
+|(+ bar baz)
 #+end_src
 #+HTML: </td></tr></tbody></table>
 -----
@@ -2697,7 +2421,7 @@ list.
 #+HTML: <table><tbody><tr><td>
 #+begin_src emacs-lisp
 (progn
-  ||(foo)
+  |(foo)
   (bar)
   (baz))
 #+end_src
@@ -2707,7 +2431,7 @@ list.
 #+begin_src emacs-lisp
 (progn
   (bar)
-  ||(foo)
+  |(foo)
   (baz))
 #+end_src
 #+HTML: </td></tr></tbody></table>
@@ -2811,7 +2535,7 @@ to current expression or region.
 #+begin_src emacs-lisp
 (if (= (weight person) standard-duck-weight)
     (unless (sinks-in-water person)
-      ||(message "Burn her!")))
+      |(message "Burn her!")))
 #+end_src
 #+HTML: </td><td>
 -> ~C~ ->
@@ -2819,7 +2543,7 @@ to current expression or region.
 #+begin_src emacs-lisp
 (unless (sinks-in-water person)
   (if (= (weight person) standard-duck-weight)
-      ||(message "Burn her!")))
+      |(message "Burn her!")))
 #+end_src
 #+HTML: </td></tr></tbody></table>
 
@@ -2851,14 +2575,14 @@ Example 1:
 #+begin_src emacs-lisp
 (progn
   (message "one")
-  ||(message "two")
+  |(message "two")
   (message "three"))
 #+end_src
 #+HTML: </td><td>
 -> ~R~ ->
 #+HTML: </td><td>
 #+begin_src emacs-lisp
-||(message "two")
+|(message "two")
 (message "three")
 #+end_src
 #+HTML: </td></tr></tbody></table>
@@ -2869,7 +2593,7 @@ Example 2:
 #+begin_src emacs-lisp
 (progn
   (message "one")
-  (message "two")||
+  (message "two")|
   (message "three"))
 #+end_src
 #+HTML: </td><td>
@@ -2905,15 +2629,17 @@ isn't 1.
 #+begin_src emacs-lisp
 (progn
   (message "one")
-  ||(message "two")
+  |(message "two")
   (message "three"))
 #+end_src
 #+HTML: </td><td>
--> ~R~ ->
+-> ~S~ ->
 #+HTML: </td><td>
 #+begin_src emacs-lisp
-||(message "two")
-(message "three")
+(progn
+  (message "one")
+  "(message \"two\")"
+  |(message "three"))
 #+end_src
 #+HTML: </td></tr></tbody></table>
 ------
@@ -2928,6 +2654,22 @@ Bound to ~P~.
 When region is active, replace it with current kill.
 Forward to =yank= otherwise.
 -----
+
+** =digit-argument=
+:PROPERTIES:
+:CUSTOM_ID: digit-argument
+:END:
+
+Bound to ~0~, ~1~, ~2~, ~3~, ~4~, ~5~, ~6~, ~7~, ~8~, ~9~.
+
+This is the [[https://www.gnu.org/software/emacs/manual/html_node/emacs/Arguments.html][standard Emacs function]]. Except instead of calling it
+globally with e.g. ~M-2~, you can call it locally with just e.g. ~2~.
+
+Many lispy commands take a prefix arg, e.g. ~3j~ is equivalent to
+~jjj~.
+-----
+
+
 
 #+BEGIN_HTML
 <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
