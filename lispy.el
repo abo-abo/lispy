@@ -834,7 +834,7 @@ Otherwise (`backward-delete-char-untabify' ARG)."
           ((and (looking-back lispy-right) (not (looking-back "\\\\.")))
            (let ((pt (point)))
              (lispy-backward arg)
-             (skip-chars-backward "`',@")
+             (skip-chars-backward "`',@#")
              (delete-region pt (point))
              (unless (looking-back "^ *")
                (just-one-space))
