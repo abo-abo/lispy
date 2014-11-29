@@ -3208,7 +3208,7 @@ Ignore the matches in strings and comments."
                       (forward-sexp)
                       (insert ")")
                       (replace-match "(ly-raw function "))))
-                ;; ——— # ——————————————————————
+                ;; ——— #( —————————————————————
                 (goto-char (point-min))
                 (while (re-search-forward "#(" nil t)
                   (unless (lispy--in-string-or-comment-p)
@@ -3216,6 +3216,18 @@ Ignore the matches in strings and comments."
                     (backward-delete-char 1)
                     (forward-char 1)
                     (insert "ly-raw clojure-lambda ")))
+                ;; ——— #{ —————————————————————
+                (goto-char (point-min))
+                (while (re-search-forward "#{" nil t)
+                  (unless (lispy--in-string-or-comment-p)
+                    (backward-char 1)
+                    (save-excursion
+                      (forward-list 1)
+                      (backward-delete-char 1)
+                      (insert ")"))
+                    (backward-delete-char 1)
+                    (delete-char 1)
+                    (insert "(ly-raw clojure-map ")))
                 ;; ——— ' ——————————————————————
                 (goto-char (point-min))
                 (while (re-search-forward "'" nil t)
@@ -3846,6 +3858,12 @@ the first character of EXPR."
              (delete-region beg (point))
              (insert (format "#%S" (cddr sxp)))
              (goto-char beg))
+            (clojure-map
+             (delete-region beg (point))
+             (insert (format "#{%s}"
+                             (let ((s (prin1-to-string (cddr sxp))))
+                               (substring s 1 (1- (length s))))))
+             (goto-char beg))
             (\`
              (if (> (length sxp) 3)
                  (progn
@@ -3887,25 +3905,29 @@ the first character of EXPR."
 (defun lispy--normalize-1 ()
   "Normalize/prettify current sexp."
   (let* ((bnd (lispy--bounds-dwim))
-         (str (lispy--string-dwim bnd))
-         (was-mod (buffer-modified-p))
-         (was-left (looking-at lispy-left))
-         (res (lispy--sexp-normalize
-               (lispy--read str)))
-         (offset (save-excursion
-                   (goto-char (car bnd))
-                   (current-column))))
-    (let ((new-str (lispy--prin1-to-string res offset)))
-      (unless (string= str new-str)
-        (delete-region (car bnd)
-                       (cdr bnd))
-        (lispy--insert-1 res)
-        (when was-left
-          (backward-list))
-        (unless was-mod
-          (when (string= (lispy--string-dwim)
-                         str)
-            (set-buffer-modified-p nil)))))))
+         (str (lispy--string-dwim bnd)))
+    (if (and (memq major-mode '(clojure-mode))
+             (string-match ",\\|\\^\\|#[^({]" str))
+        (lispy-from-left
+         (indent-sexp))
+      (let* ((was-mod (buffer-modified-p))
+             (was-left (looking-at lispy-left))
+             (res (lispy--sexp-normalize
+                   (lispy--read str)))
+             (offset (save-excursion
+                       (goto-char (car bnd))
+                       (current-column))))
+        (let ((new-str (lispy--prin1-to-string res offset)))
+          (unless (string= str new-str)
+            (delete-region (car bnd)
+                           (cdr bnd))
+            (lispy--insert-1 res)
+            (when was-left
+              (backward-list))
+            (unless was-mod
+              (when (string= (lispy--string-dwim)
+                             str)
+                (set-buffer-modified-p nil)))))))))
 
 (defun lispy--sexp-trim-leading-newlines (expr comment)
   "Trim leading (ly-raw newline) from EXPR.
