@@ -747,10 +747,16 @@ Return nil if can't move."
 (defun lispy-yank ()
   "Like regular `yank', but quotes body when called from \"|\"."
   (interactive)
-  (if (and (eq (char-after) ?\")
-           (eq (char-before) ?\"))
-      (insert (replace-regexp-in-string "\"" "\\\\\"" (current-kill 0)))
-    (yank)))
+  (cond
+    ((and (region-active-p)
+          (bound-and-true-p delete-selection-mode))
+     (delete-active-region)
+     (yank))
+    ((and (eq (char-after) ?\")
+          (eq (char-before) ?\"))
+     (insert (replace-regexp-in-string "\"" "\\\\\"" (current-kill 0))))
+    (t
+     (yank))))
 
 (defun lispy-delete (arg)
   "Delete ARG sexps."
