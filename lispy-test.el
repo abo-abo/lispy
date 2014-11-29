@@ -886,7 +886,21 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "'|(foo bar)" "2(")
                    "'(| (foo bar))"))
   (should (string= (lispy-with "'(foo bar)|" "2(")
-                   "'(| (foo bar))")))
+                   "'(| (foo bar))"))
+  (should (string= (lispy-with  "\"a regex \\\\|\"" "(")
+                   "\"a regex \\\\(|\\\\)\"")))
+
+(ert-deftest lispy-braces ()
+  (should (string= (lispy-with  "\"a regex \\\\|\"" "{")
+                   "\"a regex \\\\{|\\\\}\""))
+  (should (string= (lispy-with  "\"a string |" "{")
+                   "\"a string {|}")))
+
+(ert-deftest lispy-brackets ()
+  (should (string= (lispy-with  "\"a regex \\\\|\"" "}")
+                   "\"a regex \\\\[|\\\\]\""))
+  (should (string= (lispy-with  "\"a string |" "}")
+                   "\"a string [|]")))
 
 (ert-deftest lispy-to-ifs ()
   (should (string= (lispy-with "|(cond ((looking-at \" *;\"))\n      ((and (looking-at \"\\n\")\n            (looking-back \"^ *\"))\n       (delete-blank-lines))\n      ((looking-at \"\\\\([\\n ]+\\\\)[^\\n ;]\")\n       (delete-region (match-beginning 1)\n                      (match-end 1))))"
