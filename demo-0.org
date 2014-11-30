@@ -1,0 +1,167 @@
+* lispy: a vi-like Paredit
+** minor mode for editing LISP
+*** Works for
+**** Elisp
+**** Clojure
+**** Common Lisp
+**** Scheme
+**** anything else with LISP structure
+*** Uses special key binding method
+Normal keys such as ~a~, ~b~, ~c~, call commands when:
+
+- point is before open paren (one of "(", "[", "{")
+- point is after a close paren (one of ")", "]", "}")
+- region is active
+
+Otherwise these keys self-insert
+*** Basic navigation
+| key | command              |
+|-----+----------------------|
+| h   | `lispy-out-backward' |
+| j   | `lispy-down'         |
+| k   | `lispy-up'           |
+| l   | `lispy-out-forward'  |
+|-----+----------------------|
+| d   | `lispy-different'    |
+| f   | `lispy-flow'         |
+|-----+----------------------|
+| v   | `lispy-view'         |
+
+*** Globals
+| key   | command                          |
+|-------+----------------------------------|
+| [     | `lispy-backward'                 |
+| ]     | `lispy-forward'                  |
+| )     | `lispy-out-forward-nostring'     |
+| C-k   | `lispy-kill'                     |
+| C-y   | `lispy-yank'                     |
+| C-d   | `lispy-delete'                   |
+| DEL   | `lispy-delete-backward'          |
+| C-j   | `lispy-newline-and-indent'       |
+| RET   | `lispy-newline-and-indent-plain' |
+| C-e   | `lispy-move-end-of-line'         |
+|-------+----------------------------------|
+| C-3   | `lispy-out-forward'              |
+|-------+----------------------------------|
+| C-7   | `lispy-cursor-down'              |
+|-------+----------------------------------|
+| ;     | `lispy-comment'                  |
+|-------+----------------------------------|
+| M-m   | `lispy-mark-symbol'              |
+| C-,   | `lispy-kill-at-point'            |
+| C-M-, | `lispy-mark'                     |
+|-------+----------------------------------|
+| (     | `lispy-parens'                   |
+| {     | `lispy-braces'                   |
+| }     | `lispy-brackets'                 |
+| "     | `lispy-quotes'                   |
+
+*** Dialect-specific navigation
+| key | command        |
+|-----+----------------|
+| g   | `lispy-goto'   |
+| F   | `lispy-follow' |
+| .   | `pop-tag-mark' |
+
+*** Outline navigation
+| key | command              |
+|-----+----------------------|
+| J   | `lispy-outline-next' |
+| K   | `lispy-outline-prev' |
+| I   | `lispy-shifttab      |
+
+*** Basic modification
+| key | command            |
+|-----+--------------------|
+| u   | `lispy-undo'       |
+|-----+--------------------|
+| w   | `lispy-move-up'    |
+| s   | `lispy-move-down'  |
+|-----+--------------------|
+| >   | `lispy-slurp'      |
+| <   | `lispy-barf'       |
+|-----+--------------------|
+| O   | `lispy-oneline'    |
+| M   | `lispy-multiline'  |
+|-----+--------------------|
+| c   | `lispy-clone'      |
+| r   | `lispy-raise'      |
+| R   | `lispy-raise-some' |
+| C   | `lispy-convolute'  |
+| i   | `lispy-tab'        |
+| S   | `lispy-stringify'     |
+|-----+--------------------|
+| o   | `lispy-other-mode' |
+
+
+*** region related
+| key | command           |
+|-----+-------------------|
+| m   | `lispy-mark-list' |
+| i   | `lispy-tab'       |
+
+
+*** ace-jump-mode related
+| key | command                    |
+|-----+----------------------------|
+| q   | `lispy-ace-paren'          |
+| a   | `lispy-ace-symbol'         |
+| t   | `lispy-teleport'           |
+| H   | `lispy-ace-symbol-replace' |
+| -   | `lispy-ace-subword'        |
+| Q   | `lispy-ace-char'           |
+
+*** Eval related
+| key | command                   |
+|-----+---------------------------|
+| e   | `lispy-eval'              |
+| E   | `lispy-eval-and-insert'   |
+| p   | `lispy-eval-other-window' |
+| xe  | `lispy-edebug'            |
+| Z   | `lispy-edebug-stop'       |
+
+*** Code manipulation
+| key | command           |
+|-----+-------------------|
+| xc  | `lispy-to-cond'   |
+| xi  | `lispy-to-ifs'    |
+|-----+-------------------|
+| xd  | `lispy-to-defun'  |
+| xl  | `lispy-to-lambda' |
+|-----+-------------------|
+| xf  | `lispy-flatten'   |
+
+*** Narrow/widen
+| key | command        |
+|-----+----------------|
+| N   | `lispy-narrow' |
+| W   | `lispy-widen'  |
+*** Misc
+| key | command           |
+|-----+-------------------|
+| b   | prepare for ediff |
+| B   | do ediff          |
+|-----+-------------------|
+| n   | copy              |
+
+*** inline hints
+| key | command                 |
+|-----+-------------------------|
+| C-1 | `lispy-describe-inline' |
+| C-2 | `lispy-arglist-inline'  |
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
