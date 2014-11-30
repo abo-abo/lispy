@@ -107,7 +107,7 @@ Fire up =cider= and eval everything with ~ejeje~.
 - ~j C-n C-n~ navigate to some empty space
 ** step 4
 - ~( C-y C-j~
-- ~(first[6N 35N~
+- ~(first}6N 35N~
 
 You should now have:
 #+begin_src clojure
