@@ -155,6 +155,18 @@ To have `lispy-mode` activated automatically, use something like this:
 
     (add-hook 'emacs-lisp-mode-hook (lambda () (lispy-mode 1)))
 
+## Customization instructions
+
+If you want to replace some of the `lispy-mode`'s bindings you can do
+it like this:
+
+    (eval-after-load "lispy"
+      `(progn
+         ;; replace with own function
+         (define-key lispy-mode-map (kbd "C-e") 'my-custom-eol)
+         ;; replace with major-mode's default
+         (define-key lispy-mode-map (kbd "C-j") nil)))
+
 ## Operating on lists
 
 ### How to get into list-editing mode (special)
