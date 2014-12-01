@@ -796,17 +796,27 @@ Return nil if can't move."
            (backward-list)))
 
         ((looking-at "\"")
-         (kill-sexp)
-         (lispy--remove-gaps)
-         (when (lispy-forward 1)
-           (backward-list)))
+         (let ((bnd (lispy--bounds-string)))
+           (delete-region (car bnd)
+                          (cdr bnd))
+           (let ((pt (point)))
+             (skip-chars-forward " ")
+             (delete-region pt (point)))))
 
         ((looking-at lispy-right)
          (forward-char 1)
          (lispy-delete-backward 1))
 
+        ((eolp)
+         (delete-char 1)
+         (let ((pt (point)))
+           (skip-chars-forward " ")
+           (delete-region pt (point))))
+
         (t
-         (delete-char arg))))
+         (delete-char arg)))
+  (when (looking-at lispy-right)
+    (lispy-out-backward 1)))
 
 (defun lispy-delete-backward (arg)
   "From \")|\", delete ARG sexps backwards.
@@ -840,32 +850,23 @@ Otherwise (`backward-delete-char-untabify' ARG)."
           ((and (looking-back lispy-right) (not (looking-back "\\\\.")))
            (let ((pt (point)))
              (lispy-backward arg)
-             (skip-chars-backward "`',@#")
-             (delete-region pt (point))
-             (unless (looking-back "^ *")
-               (just-one-space))
-             (lispy--remove-gaps)
-             (unless (looking-back lispy-right)
-               (lispy-backward 1)
-               (forward-list))))
+             (skip-chars-backward "`',@# \t")
+             (delete-region pt (point))))
 
           ((and (looking-back lispy-left) (not (looking-back "\\\\.")))
            (lispy--out-forward 1)
            (lispy-delete-backward 1))
 
           ((looking-back "\"")
-           (backward-sexp 1)
-           (cl-destructuring-bind (beg . end)
-               (bounds-of-thing-at-point 'sexp)
-             (delete-region beg end))
-           (just-one-space)
-           (lispy--remove-gaps)
-           (unless (looking-back lispy-right)
-             (when (lispy-forward 1)
-               (backward-list))))
+           (let ((bnd (lispy--bounds-dwim)))
+             (delete-region (car bnd)
+                            (cdr bnd))))
 
           (t
-           (backward-delete-char-untabify arg)))))
+           (backward-delete-char-untabify arg)))
+    (let ((pt (point)))
+      (skip-chars-backward " ")
+      (delete-region (point) pt))))
 
 (defun lispy-mark ()
   "Mark the quoted string or the list that includes the point.
