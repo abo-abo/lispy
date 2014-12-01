@@ -11,6 +11,9 @@
     - [Function reference](#function-reference)
 - [Getting Started](#getting-started)
     - [Installation instructions](#installation-instructions)
+        - [via [MELPA](http://melpa.org/)](#via-melpahttpmelpaorg)
+        - [via [el-get](https://github.com/dimitri/el-get)](#via-el-gethttpsgithubcomdimitriel-get)
+    - [Configuration instructions](#configuration-instructions)
     - [Customization instructions](#customization-instructions)
     - [Operating on lists](#operating-on-lists)
         - [How to get into list-editing mode (special)](#how-to-get-into-list-editing-mode-special)
@@ -148,21 +151,43 @@ Most functions are cataloged and described at http://abo-abo.github.io/lispy/.
 
 # Getting Started
 ## Installation instructions
-It's easiest to install this from [MELPA](http://melpa.org/).
-Here's a minimal MELPA configuration for your `~/.emacs`:
+### via [MELPA](http://melpa.org/)
+
+It's easiest/recommended to install from MELPA.  Here's a minimal
+MELPA configuration for your `~/.emacs`:
 
     (package-initialize)
-    (add-to-list 'package-archives '("melpa" . "http://melpa.milkbox.net/packages/"))
+    (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
 
 Afterwards, <kbd>M-x package-install RET lispy RET</kbd> (you might
 want to <kbd>M-x package-refresh-contents RET</kbd> beforehand if
 you haven't done so recently).
 
-You can now call <kbd>M-x lispy-mode</kbd> for any buffer with a LISP
-dialect source.  To have `lispy-mode` activated automatically, use
-something like this:
+### via [el-get](https://github.com/dimitri/el-get)
+
+<kbd>M-x el-get-install RET lispy RET</kbd>
+
+## Configuration instructions
+**Enable lispy automatically for certain modes**
+
+After installing, you can call <kbd>M-x lispy-mode</kbd> for any
+buffer with a LISP dialect source.  To have `lispy-mode` activated
+automatically, use something like this:
 
     (add-hook 'emacs-lisp-mode-hook (lambda () (lispy-mode 1)))
+
+**Enable lispy for `eval-expression`**
+
+Although I prefer to eval things in `*scratch*`, sometimes
+<kbd>M-:</kbd> - `eval-expression` is handy.  Here's how to use lispy
+in the minibuffer during `eval-expression`:
+
+    (defun conditionally-enable-lispy ()
+      (when (eq this-command 'eval-expression)
+        (lispy-mode 1)
+        (local-set-key "β" 'helm-lisp-completion-at-point)))
+
+    (add-hook 'minibuffer-setup-hook 'conditionally-enable-lispy)
 
 ## Customization instructions
 
