@@ -107,8 +107,10 @@ But if you ask:
 
 The answer is that because of the LISP syntax you don't want to write this:
 
-    j(progn
-       (forward-char 1))k
+```cl
+j(progn
+   (forward-char 1))k
+```
 
 Also, Emacs does nothing special by default when the region is active
 and you press a normal key, so new commands can be called in that situation.
@@ -163,8 +165,10 @@ Most functions are cataloged and described at http://abo-abo.github.io/lispy/.
 It's easiest/recommended to install from [MELPA](http://melpa.org/).
 Here's a minimal MELPA configuration for your `~/.emacs`:
 
-    (package-initialize)
-    (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
+```cl
+(package-initialize)
+(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
+```
 
 Afterwards, <kbd>M-x package-install RET lispy RET</kbd> (you might
 want to <kbd>M-x package-refresh-contents RET</kbd> beforehand if
@@ -182,7 +186,10 @@ After installing, you can call <kbd>M-x lispy-mode</kbd> for any
 buffer with a LISP dialect source.  To have `lispy-mode` activated
 automatically, use something like this:
 
-    (add-hook 'emacs-lisp-mode-hook (lambda () (lispy-mode 1)))
+
+```cl
+(add-hook 'emacs-lisp-mode-hook (lambda () (lispy-mode 1)))
+```
 
 **Enable lispy for `eval-expression`**
 
@@ -190,24 +197,27 @@ Although I prefer to eval things in `*scratch*`, sometimes
 <kbd>M-:</kbd> - `eval-expression` is handy.  Here's how to use lispy
 in the minibuffer during `eval-expression`:
 
-    (defun conditionally-enable-lispy ()
-      (when (eq this-command 'eval-expression)
-        (lispy-mode 1)
-        (local-set-key "β" 'helm-lisp-completion-at-point)))
-
-    (add-hook 'minibuffer-setup-hook 'conditionally-enable-lispy)
+```cl
+(defun conditionally-enable-lispy ()
+  (when (eq this-command 'eval-expression)
+    (lispy-mode 1)
+    (local-set-key "β" 'helm-lisp-completion-at-point)))
+(add-hook 'minibuffer-setup-hook 'conditionally-enable-lispy)
+```
 
 ## Customization instructions
 
 If you want to replace some of the `lispy-mode`'s bindings you can do
 it like this:
 
-    (eval-after-load "lispy"
-      `(progn
-         ;; replace with own function
-         (define-key lispy-mode-map (kbd "C-e") 'my-custom-eol)
-         ;; replace with major-mode's default
-         (define-key lispy-mode-map (kbd "C-j") nil)))
+```cl
+(eval-after-load "lispy"
+  `(progn
+     ;; replace with own function
+     (define-key lispy-mode-map (kbd "C-e") 'my-custom-eol)
+     ;; replace with major-mode's default
+     (define-key lispy-mode-map (kbd "C-j") nil)))
+```
 
 # Operating on lists
 
