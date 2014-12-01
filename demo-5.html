@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<title>lispy.el demo 5: Drink up me hearties</title>
+<!-- 2014-12-01 Mon 23:14 -->
+<meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta  name="generator" content="Org-mode" />
+<meta  name="author" content="Oleh" />
+<link rel="stylesheet" type="text/css" href="demo-style.css"/>
+</head>
+<body>
+<div id="preamble" class="status">
+<link rel="icon" type="image/x-icon" href="https://github.com/favicon.ico"/>
+</div>
+<div id="content">
+<h1 class="title">lispy.el demo 5: Drink up me hearties</h1>
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="left" />
+
+<col  class="left" />
+
+<col  class="left" />
+</colgroup>
+<tbody>
+<tr>
+<td class="left"><a href="https://github.com/abo-abo/lispy">Back to github</a></td>
+<td class="left"><a href="https://raw.githubusercontent.com/abo-abo/lispy/gh-pages/demo-5.org">This file in org-mode</a></td>
+<td class="left"><a href="http://abo-abo.github.io/lispy/">Function reference</a></td>
+</tr>
+</tbody>
+</table>
+
+<div id="outline-container-sec-1" class="outline-2">
+<h2 id="sec-1">Intro</h2>
+<div class="outline-text-2" id="text-1">
+<p>
+This demo will showcase quickly writing a 100 beer bottles program
+with lispy.
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-2" class="outline-2">
+<h2 id="sec-2">Task summary</h2>
+<div class="outline-text-2" id="text-2">
+<p>
+Generate this source:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(setq b 497)
+(<span style="color: #7F0055; font-weight: bold;">let</span> ((x '(<span style="color: #2A00FF;">"take one down, pass it around ..."</span>
+           <span style="color: #2A00FF;">"%s bottles of beer ..."</span>
+           <span style="color: #2A00FF;">"%s bottles of beer on the wall..."</span>
+           <span style="color: #2A00FF;">"----------------------------------------"</span>
+           <span style="color: #2A00FF;">"%s bottles of beer on the wall."</span>)))
+  (message (nth (% b 5) x) (/ (decf b) 5)))
+</pre>
+</div>
+
+<p>
+Write a program that outputs the 100 bottles of beer thing.
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-3" class="outline-2">
+<h2 id="sec-3">Screencast</h2>
+<div class="outline-text-2" id="text-3">
+<p>
+The screencast for this demo is here: <a href="http://youtu.be/tcI4gZ3eHaw">http://youtu.be/tcI4gZ3eHaw</a>
+</p>
+</div>
+</div>
+<div id="outline-container-sec-4" class="outline-2">
+<h2 id="sec-4">Step-by-step</h2>
+<div class="outline-text-2" id="text-4">
+</div><div id="outline-container-sec-4-1" class="outline-3">
+<h3 id="sec-4-1">step 1</h3>
+<div class="outline-text-3" id="text-4-1">
+<p>
+<kbd>(setq b 497</kbd>
+</p>
+</div>
+</div>
+<div id="outline-container-sec-4-2" class="outline-3">
+<h3 id="sec-4-2">step 2</h3>
+<div class="outline-text-3" id="text-4-2">
+<ul class="org-ul">
+<li><kbd>C-3 C-m(let((x'("</kbd>
+</li>
+<li><kbd>%s bottles of beer on the wall...</kbd>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>
