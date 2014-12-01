@@ -1101,21 +1101,59 @@ Insert a pair of quotes around the point.
 Takes a prefix =arg=.
 
 {{{cond}}}
+*** region is active, contained in string
+Wrap the region with quoted quotes:
+#+HTML: <table><tbody><tr><td>
+#+begin_src elisp
+(message "We are the Knights who say |Ni~")
+#+end_src
+#+HTML: </td><td>
+-> @@html:<kbd>@@"@@html:</kbd>@@ ->
+#+HTML: </td><td>
+#+begin_src elisp
+(message "We are the Knights who say \"|Ni\"")
+#+end_src
+#+HTML: </td></tr></tbody></table>
+
 *** region active
 Wrap the region with quotes.
+#+HTML: <table><tbody><tr><td>
+#+begin_src elisp
+(list 'foo ~bar|)
+#+end_src
+#+HTML: </td><td>
+-> @@html:<kbd>@@"@@html:</kbd>@@ ->
+#+HTML: </td><td>
+#+begin_src elisp
+(list 'foo "|bar")
+#+end_src
+#+HTML: </td></tr></tbody></table>
+
 *** in string and =arg= isn't =nil=
 Unquote current string.
+#+HTML: <table><tbody><tr><td>
+#+begin_src elisp
+(list 'foo "|bar")
+#+end_src
+#+HTML: </td><td>
+-> @@html:<kbd>@@C-u "@@html:</kbd>@@ ->
+#+HTML: </td><td>
+#+begin_src elisp
+(list 'foo bar|)
+#+end_src
+#+HTML: </td></tr></tbody></table>
+
 *** in string and =arg= is =nil=
 Insert a pair of quoted quotes around point.
 
 Starting with
 #+begin_src elisp
-"we are the knights who say |"
+"We are the Knights who say |"
 #+end_src
 
 pressing @@html:<kbd>@@"@@html:</kbd>@@ will give:
 #+begin_src elisp
-"we are the knights who say \"|\""
+"We are the Knights who say \"|\""
 #+end_src
 *** =arg= isn't =nil=
 Forward to [[#lispy-stringify][=lispy-stringify=]].
