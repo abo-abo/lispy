@@ -903,7 +903,9 @@ Otherwise (`backward-delete-char-untabify' ARG)."
               (line-number-at-pos (window-start)))
            5)
     (ignore-errors
-      (recenter -20))))
+      (recenter -20)))
+  (when (looking-at lispy-left)
+    (indent-sexp)))
 
 (defun lispy-mark ()
   "Mark the quoted string or the list that includes the point.
