@@ -1051,7 +1051,9 @@ otherwise the whole string is unquoted."
                  (deactivate-mark)
                  (delete-region (car bnd) (cdr bnd))
                  (insert (read str)))
-             (lispy--surround-region "\"" "\""))))
+             (if (lispy--in-string-p)
+                 (lispy--surround-region "\\\"" "\\\"")
+               (lispy--surround-region "\"" "\"")))))
         ((lispy--in-string-p)
          (if arg
              (let* ((bnd (lispy--bounds-string))

@@ -800,7 +800,9 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "\"(fo|o)\"" (lispy-quotes 1))
                    "(foo)|"))
   (should (string= (lispy-with "\"(foo)\"\n|(bar)" "mk2\"" )
-                   "(foo)|\n(bar)")))
+                   "(foo)|\n(bar)"))
+  (should (string= (lispy-with "(message \"say |hi~\")" "\"")
+                   "(message \"say \\\"|hi\\\"\")")))
 
 (ert-deftest lispy--normalize-1 ()
   (should (string= (lispy-with "|(foo (bar)baz)" (lispy--normalize-1))
