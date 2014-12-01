@@ -15,31 +15,31 @@
         - [via el-get](#via-el-get)
     - [Configuration instructions](#configuration-instructions)
     - [Customization instructions](#customization-instructions)
-    - [Operating on lists](#operating-on-lists)
-        - [How to get into list-editing mode (special)](#how-to-get-into-list-editing-mode-special)
-        - [Digit keys in special](#digit-keys-in-special)
-        - [How to get out of special](#how-to-get-out-of-special)
-        - [List commands overview](#list-commands-overview)
-            - [Reversible commands](#reversible-commands)
-            - [Inserting pairs](#inserting-pairs)
-            - [Keys that modify whitespace](#keys-that-modify-whitespace)
-            - [List of IDE-like commands](#list-of-ide-like-commands)
-            - [Command chaining](#command-chaining)
-            - [Navigating with `ace-jump-mode`-related commands](#navigating-with-ace-jump-mode-related-commands)
-    - [Operating on regions](#operating-on-regions)
-        - [Ways to activate region](#ways-to-activate-region)
-        - [Move region around](#move-region-around)
-        - [Switch to the other side of the region](#switch-to-the-other-side-of-the-region)
-        - [Grow/shrink region](#growshrink-region)
-        - [Commands that operate on region](#commands-that-operate-on-region)
-    - [IDE-like features](#ide-like-features)
-        - [`lispy-describe-inline`](#lispy-describe-inline)
-        - [`lispy-arglist-inline`](#lispy-arglist-inline)
-        - [`lispy-eval`](#lispy-eval)
-        - [`lispy-eval-and-insert`](#lispy-eval-and-insert)
-        - [`lispy-follow`](#lispy-follow)
-        - [`lispy-goto`](#lispy-goto)
-        - [`lispy-goto-local`](#lispy-goto-local)
+- [Operating on lists](#operating-on-lists)
+    - [How to get into list-editing mode (special)](#how-to-get-into-list-editing-mode-special)
+    - [Digit keys in special](#digit-keys-in-special)
+    - [How to get out of special](#how-to-get-out-of-special)
+    - [List commands overview](#list-commands-overview)
+        - [Inserting pairs](#inserting-pairs)
+        - [Reversible commands](#reversible-commands)
+        - [Keys that modify whitespace](#keys-that-modify-whitespace)
+        - [List of IDE-like commands](#list-of-ide-like-commands)
+        - [Command chaining](#command-chaining)
+        - [Navigating with `ace-jump-mode`-related commands](#navigating-with-ace-jump-mode-related-commands)
+- [Operating on regions](#operating-on-regions)
+    - [Ways to activate region](#ways-to-activate-region)
+    - [Move region around](#move-region-around)
+    - [Switch to the other side of the region](#switch-to-the-other-side-of-the-region)
+    - [Grow/shrink region](#growshrink-region)
+    - [Commands that operate on region](#commands-that-operate-on-region)
+- [IDE-like features](#ide-like-features)
+    - [`lispy-describe-inline`](#lispy-describe-inline)
+    - [`lispy-arglist-inline`](#lispy-arglist-inline)
+    - [`lispy-eval`](#lispy-eval)
+    - [`lispy-eval-and-insert`](#lispy-eval-and-insert)
+    - [`lispy-follow`](#lispy-follow)
+    - [`lispy-goto`](#lispy-goto)
+    - [`lispy-goto-local`](#lispy-goto-local)
 - [Demos](#demos)
     - [[Demo 1: Practice generating code](http://abo-abo.github.io/lispy/demo-1)](#demo-1-practice-generating-codehttpabo-abogithubiolispydemo-1)
     - [[Demo 2: The substitution model for procedure application](http://abo-abo.github.io/lispy/demo-2)](#demo-2-the-substitution-model-for-procedure-applicationhttpabo-abogithubiolispydemo-2)
@@ -202,9 +202,9 @@ it like this:
          ;; replace with major-mode's default
          (define-key lispy-mode-map (kbd "C-j") nil)))
 
-## Operating on lists
+# Operating on lists
 
-### How to get into list-editing mode (special)
+## How to get into list-editing mode (special)
 
 The plain keys will call commands when:
 - the point is positioned before paren
@@ -247,7 +247,7 @@ Special is useful for manipulating/navigating lists.  If you want to
 manipulate symbols, use [region selection](#operating-on-regions)
 instead.
 
-### Digit keys in special
+## Digit keys in special
 
 When special, the digit keys call `digit-argument` which is very
 useful since most lispy commands accept a numeric argument.
@@ -259,7 +259,7 @@ and backwards respectively at most 9 times which makes them
 effectively equivalent to `end-of-defun` and `beginning-of-defun`.  Or
 you can move to the last sexp of the file with <kbd>999j</kbd>.
 
-### How to get out of special
+## How to get out of special
 
 To get out of the special position, you can use any of the good-old
 navigational commands such as <kbd>C-f</kbd> or <kbd>C-n</kbd>.
@@ -273,10 +273,21 @@ this:
 
     (| (
 
-### List commands overview
+## List commands overview
 The full reference is [here](http://abo-abo.github.io/lispy/).
 
-#### Reversible commands
+### Inserting pairs
+
+Here's a list of commands for inserting [pairs](http://abo-abo.github.io/lispy/#lispy-pair):
+
+key               | command
+------------------|-------------------------------------------------------------------
+  <kbd>(</kbd>    | [`lispy-parens`](http://abo-abo.github.io/lispy/#lispy-parens)
+  <kbd>{</kbd>    | [`lispy-braces`](http://abo-abo.github.io/lispy/#lispy-braces)
+  <kbd>}</kbd>    | [`lispy-brackets`](http://abo-abo.github.io/lispy/#lispy-brackets)
+  <kbd>"</kbd>    | [`lispy-quotes`](http://abo-abo.github.io/lispy/#lispy-quotes)
+
+### Reversible commands
 
 A lot of Lispy commands come in pairs - one reverses the other:
 
@@ -294,18 +305,7 @@ A lot of Lispy commands come in pairs - one reverses the other:
  <kbd>;</kbd>   | `lispy-comment`          | <kbd>C-u ;</kbd>                 | `lispy-comment`
  <kbd>xi</kbd>  | `lispy-to-ifs`           | <kbd>xc</kbd>                    | `lispy-to-cond`
 
-#### Inserting pairs
-
-Here's a list of commands for inserting [pairs](http://abo-abo.github.io/lispy/#lispy-pair):
-
-key               | command
-------------------|-------------------------------------------------------------------
-  <kbd>(</kbd>    | [`lispy-parens`](http://abo-abo.github.io/lispy/#lispy-parens)
-  <kbd>{</kbd>    | [`lispy-braces`](http://abo-abo.github.io/lispy/#lispy-braces)
-  <kbd>}</kbd>    | [`lispy-brackets`](http://abo-abo.github.io/lispy/#lispy-brackets)
-  <kbd>"</kbd>    | [`lispy-quotes`](http://abo-abo.github.io/lispy/#lispy-quotes)
-
-#### Keys that modify whitespace
+### Keys that modify whitespace
 
 These commands handle whitespace in addition to inserting the expected
 thing.
@@ -317,7 +317,7 @@ thing.
  <kbd>^</kbd>   | `lispy-hat`
  <kbd>C-m</kbd> | `lispy-newline-and-indent`
 
-#### List of IDE-like commands
+### List of IDE-like commands
 
  key            | command
 ----------------|--------------------------
@@ -332,7 +332,7 @@ thing.
 
 Details [here](#ide-like-features).
 
-#### Command chaining
+### Command chaining
 
 Most special commands will leave the point special after they're
 done.  This allows to chain them as well as apply them
@@ -341,7 +341,7 @@ continuously by holding the key.  Some useful hold-able keys are
 Not so useful, but fun is <kbd>/</kbd>: start it from `|(` position and hold
 until all your Lisp code is turned into Python :).
 
-#### Navigating with `ace-jump-mode`-related commands
+### Navigating with `ace-jump-mode`-related commands
 
  key            | command
 ----------------|--------------------------
@@ -374,11 +374,11 @@ Type <kbd>c</kbd>, <kbd>-</kbd>, <kbd>b</kbd> and <kbd>C-d</kbd> to get:
 
 Fill `end` to finish the statement.
 
-## Operating on regions
+# Operating on regions
 Sometimes the expression that you want to operate on isn't bounded by parens.
 In that case you can mark it with a region and operate on that.
 
-### Ways to activate region
+## Ways to activate region
 While in special:
 - Mark a sexp with <kbd>m</kbd> - `lispy-mark-list`
 - Mark a symbol within sexp <kbd>a</kbd> - `lispy-ace-symbol`.
@@ -388,18 +388,18 @@ While not in special:
 - mark a symbol at point with <kbd>M-m</kbd> - `lispy-mark-symbol`
 - mark containing expression (list or string or comment) with <kbd>C-M-,</kbd> - `lispy-mark`
 
-### Move region around
+## Move region around
 
 The arrow keys <kbd>j</kbd>/<kbd>k</kbd> will move the region up/down within the current
 list.  The actual code will not be changed.
 
-### Switch to the other side of the region
+## Switch to the other side of the region
 
 Use <kbd>d</kbd> - `lispy-different` to switch between different sides
 of the region. The side is important since the grow/shrink operations
 apply to current side of the region.
 
-### Grow/shrink region
+## Grow/shrink region
 
 Use a combination of:
 - <kbd>></kbd> - `lispy-slurp` - extend by one sexp from the current side. Use digit
@@ -415,7 +415,7 @@ The other two arrow keys will mark the parent list of the current region:
 To do the reverse of the previous operation, i.e. to mark the first
 child of marked list, use <kbd>i</kbd> - `lispy-tab`.
 
-### Commands that operate on region
+## Commands that operate on region
 - <kbd>m</kbd> - `lispy-mark-list` - deactivate region
 - <kbd>c</kbd> - `lispy-clone` - clone region and keep it active
 - <kbd>s</kbd> - `lispy-move-down` - move region one sexp down
@@ -428,14 +428,14 @@ child of marked list, use <kbd>i</kbd> - `lispy-tab`.
 - <kbd>n</kbd> - `lispy-new-copy` - copy region as kill without deactivating
 the region.  Useful to search for currently marked symbol with <kbd>n g C-y</kbd>.
 
-## IDE-like features
+# IDE-like features
 
 These features are specific to the Lisp dialect used.  Currently Elisp
 and Clojure (via `cider`) are supported.  There's also basic
 evaluation support for Scheme (via `geiser`) and Common lisp (via
 `slime`).
 
-### `lispy-describe-inline`
+## `lispy-describe-inline`
 
 Bound to <kbd>C-1</kbd>. Show the doc for the current function inline.
 
@@ -449,7 +449,7 @@ Here's how it looks for Clojure:
 
 ![screenshot](https://raw.github.com/abo-abo/lispy/master/doc/doc-2.png)
 
-### `lispy-arglist-inline`
+## `lispy-arglist-inline`
 Bound to <kbd>C-2</kbd>. Show arguments for current function inline.
 
 `eldoc-mode` is cool, but it shows you arguments *over there* and
@@ -462,26 +462,26 @@ different face. Here's how it looks for Clojure:
 
 ![screenshot](https://raw.github.com/abo-abo/lispy/master/doc/arglist-3.png)
 
-### `lispy-eval`
+## `lispy-eval`
 
 Bound to <kbd>e</kbd>.
 
 Eval current expression. Works from the beginning of the list as well.
 
-### `lispy-eval-and-insert`
+## `lispy-eval-and-insert`
 Bound to <kbd>E</kbd>.
 
 Eval and insert current expression. Works from the beginning of list
 as well.
 
-### `lispy-follow`
+## `lispy-follow`
 Bound to <kbd>F</kbd>.
 
 Follow to definition of current function.  While in Clojure, if can't
 resolve the symbol in current namespace, searches for it in all loaded
 namespaces.
 
-### `lispy-goto`
+## `lispy-goto`
 
 Bound to <kbd>g</kbd>.
 
@@ -492,7 +492,7 @@ Works out of the box for Elisp, Scheme and Common Lisp.
 [clojure-semantic](https://github.com/kototama/clojure-semantic)
 is required for Clojure.
 
-### `lispy-goto-local`
+## `lispy-goto-local`
 
 Bound to <kbd>G</kbd>.
 
