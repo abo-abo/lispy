@@ -527,9 +527,7 @@ Like `lispy-goto`, but offers only symbols from the current file.
 I've recorded a few gifs that show some features:
 
 - [1-gif](https://raw.github.com/abo-abo/lispy/master/doc/screencast-1.gif)
-- [2-vimeo](https://vimeo.com/85831418),
-  [2-ogv](https://raw.github.com/abo-abo/lispy/master/doc/screencast-2.ogv),
-  [2-gif](https://raw.github.com/abo-abo/lispy/master/doc/screencast-2.gif)
+- [2-gif](https://raw.github.com/abo-abo/lispy/master/doc/screencast-2.gif)
 - [3-gif](https://raw.github.com/abo-abo/lispy/master/doc/screencast-3.gif)
 - [4-gif](https://raw.github.com/abo-abo/lispy/master/doc/oneline-multiline.gif)
 - [5-gif](https://raw.github.com/abo-abo/lispy/master/doc/screencast-4.gif)
