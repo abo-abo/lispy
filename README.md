@@ -11,6 +11,7 @@
     - [Function reference](#function-reference)
 - [Getting Started](#getting-started)
     - [Installation instructions](#installation-instructions)
+    - [Customization instructions](#customization-instructions)
     - [Operating on lists](#operating-on-lists)
         - [How to get into list-editing mode (special)](#how-to-get-into-list-editing-mode-special)
         - [Digit keys in special](#digit-keys-in-special)
