@@ -263,12 +263,12 @@ you can move to the last sexp of the file with <kbd>999j</kbd>.
 
 To get out of the special position, you can use any of the good-old
 navigational commands such as <kbd>C-f</kbd> or <kbd>C-n</kbd>.
-Additionally <KBD>SPC</KBD> will break out of special to get around the
+Additionally <kbd>SPC</kbd> will break out of special to get around the
 situation when you have the point between the open parens like this
 
     (|(
 
-and want to start inserting; <KBD>SPC</KBD> will change the code to
+and want to start inserting; <kbd>SPC</kbd> will change the code to
 this:
 
     (| (
