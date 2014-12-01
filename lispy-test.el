@@ -433,6 +433,8 @@ Insert KEY if there's no command."
                    "(foo \"bar\"|)"))
   (should (string= (lispy-with "(a \"\"| c)" "\C-?")
                    "(a| c)"))
+  (should (string= (lispy-with "(a        \"\"| c)" "\C-?")
+                   "(a| c)"))
   (should (string= (lispy-with ";|" "\C-?")
                    "|"))
   (should (string= (lispy-with "\"\\\\(|foo\\\\)\"" "\C-?")

@@ -818,6 +818,12 @@ Return nil if can't move."
   (when (looking-at lispy-right)
     (lispy-out-backward 1)))
 
+
+(defun lispy--delete-whitespace-backward ()
+  (let ((pt (point)))
+    (skip-chars-backward " ")
+    (delete-region (point) pt)))
+
 (defun lispy-delete-backward (arg)
   "From \")|\", delete ARG sexps backwards.
 Otherwise (`backward-delete-char-untabify' ARG)."
@@ -847,26 +853,52 @@ Otherwise (`backward-delete-char-untabify' ARG)."
           ((lispy--in-comment-p)
            (backward-delete-char-untabify arg))
 
-          ((and (looking-back lispy-right) (not (looking-back "\\\\.")))
+          ((and (looking-back (concat lispy-right " ?")) (not (looking-back "\\\\.")))
            (let ((pt (point)))
              (lispy-backward arg)
              (skip-chars-backward "`',@# \t")
-             (delete-region pt (point))))
+             (delete-region pt (point))
+             (unless (or (looking-at " ")
+                         (looking-back lispy-right)
+                         (looking-back lispy-left))
+               (just-one-space))
+             (indent-for-tab-command)))
 
           ((and (looking-back lispy-left) (not (looking-back "\\\\.")))
            (lispy--out-forward 1)
            (lispy-delete-backward 1))
 
           ((looking-back "\"")
-           (let ((bnd (lispy--bounds-dwim)))
+           (backward-char 1)
+           (let ((bnd (lispy--bounds-string)))
              (delete-region (car bnd)
-                            (cdr bnd))))
+                            (cdr bnd))
+             (lispy--delete-whitespace-backward)
+             (unless (looking-at " ")
+               (insert " "))
+             (indent-for-tab-command)))
+
+          ((looking-back "\" +")
+           (let ((pt (point))
+                 bnd)
+             (goto-char (match-beginning 0))
+             (delete-region (car (lispy--bounds-string)) pt))
+           (lispy--delete-whitespace-backward)
+           (unless (looking-back lispy-left)
+             (just-one-space))
+           (indent-for-tab-command))
+
+          ((looking-back "^ +")
+           (delete-region
+            (1- (line-beginning-position))
+            (point))
+           (unless (or (eolp)
+                       (looking-at lispy-right))
+             (just-one-space))
+           (indent-for-tab-command))
 
           (t
-           (backward-delete-char-untabify arg)))
-    (let ((pt (point)))
-      (skip-chars-backward " ")
-      (delete-region (point) pt))))
+           (backward-delete-char-untabify arg)))))
 
 (defun lispy-mark ()
   "Mark the quoted string or the list that includes the point.
