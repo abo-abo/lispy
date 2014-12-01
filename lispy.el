@@ -898,7 +898,12 @@ Otherwise (`backward-delete-char-untabify' ARG)."
            (indent-for-tab-command))
 
           (t
-           (backward-delete-char-untabify arg)))))
+           (backward-delete-char-untabify arg))))
+  (when (< (- (line-number-at-pos (point))
+              (line-number-at-pos (window-start)))
+           5)
+    (ignore-errors
+      (recenter -20))))
 
 (defun lispy-mark ()
   "Mark the quoted string or the list that includes the point.
