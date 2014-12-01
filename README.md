@@ -11,8 +11,8 @@
     - [Function reference](#function-reference)
 - [Getting Started](#getting-started)
     - [Installation instructions](#installation-instructions)
-        - [via [MELPA](http://melpa.org/)](#via-melpahttpmelpaorg)
-        - [via [el-get](https://github.com/dimitri/el-get)](#via-el-gethttpsgithubcomdimitriel-get)
+        - [via MELPA](#via-melpa)
+        - [via el-get](#via-el-get)
     - [Configuration instructions](#configuration-instructions)
     - [Customization instructions](#customization-instructions)
     - [Operating on lists](#operating-on-lists)
@@ -151,10 +151,10 @@ Most functions are cataloged and described at http://abo-abo.github.io/lispy/.
 
 # Getting Started
 ## Installation instructions
-### via [MELPA](http://melpa.org/)
+### via MELPA
 
-It's easiest/recommended to install from MELPA.  Here's a minimal
-MELPA configuration for your `~/.emacs`:
+It's easiest/recommended to install from [MELPA](http://melpa.org/).
+Here's a minimal MELPA configuration for your `~/.emacs`:
 
     (package-initialize)
     (add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/"))
@@ -163,9 +163,10 @@ Afterwards, <kbd>M-x package-install RET lispy RET</kbd> (you might
 want to <kbd>M-x package-refresh-contents RET</kbd> beforehand if
 you haven't done so recently).
 
-### via [el-get](https://github.com/dimitri/el-get)
+### via el-get
 
-<kbd>M-x el-get-install RET lispy RET</kbd>
+[el-get](https://github.com/dimitri/el-get) also features a lispy recipe.
+Use <kbd>M-x el-get-install RET lispy RET</kbd> to install.
 
 ## Configuration instructions
 **Enable lispy automatically for certain modes**
