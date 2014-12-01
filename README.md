@@ -2,6 +2,13 @@
 [![MELPA](http://melpa.org/packages/lispy-badge.svg)](http://melpa.org/#/lispy)
 [![MELPA Stable](http://stable.melpa.org/packages/lispy-badge.svg)](http://stable.melpa.org/#/lispy)
 
+<p align="center">
+  <img src="https://raw.githubusercontent.com/abo-abo/lispy/readme/doc/lispy-logo.png"
+   alt="lispy logo"/>
+</p>
+
+> short and sweet LISP editing
+
 <!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc/generate-toc again -->
 **Table of Contents**
 
