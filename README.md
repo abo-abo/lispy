@@ -60,10 +60,11 @@
 
 # Introduction
 
-This package implements a special key binding method and various commands that are
-useful for navigating and editing LISP code.
-The key binding method is influenced by vi, although this isn't modal editing *per se*.
-The list manipulation commands are influenced by and are a superset of Paredit.
+This package implements a special key binding method and various
+commands that are useful for navigating and editing LISP code.  The
+key binding method is influenced by vi, although this isn't modal
+editing *per se*.  The list manipulation commands are influenced by
+and are a superset of Paredit.
 
 ## Relation to vi
 
@@ -95,19 +96,26 @@ Advantages/disadvantages:
 - lispy has short command bindings and doesn't need to switch modes
 
 Of course it's not magic, lispy needs to have normal/insert mode to
-perform both functions with <kbd>j</kbd>.  The difference from vi is that the
-mode is *explicit* instead of *implicit* - it's determined by the point
-position or the region state:
+perform both functions with <kbd>j</kbd>.  The difference from vi is
+that the mode is **explicit** instead of **implicit** - it's
+determined by the point position or the region state:
 
 - you're in normal mode when the point is before/after paren or the
   region is active
 - otherwise you're in insert mode
 
+So people who generally like Emacs bindings (like me) can have the
+cake and eat it too (no dedicated insert mode + shorter key bindings).
+While people who like vi can still get an experience that's reasonably
+close to vi for LISP editing (since vi's line-based approach isn't
+very appropriate for LISP anyway).
+
 But if you ask:
 
 > What if I want to insert when the point is before/after paren or the region is active?
 
-The answer is that because of the LISP syntax you don't want to write this:
+The answer is that because of the LISP syntax you don't want to write
+this:
 
 ```cl
 j(progn
@@ -115,7 +123,8 @@ j(progn
 ```
 
 Also, Emacs does nothing special by default when the region is active
-and you press a normal key, so new commands can be called in that situation.
+and you press a normal key, so new commands can be called in that
+situation.
 
 ## Features
 
