@@ -194,7 +194,7 @@
 | xf  | [[#lispy-flatten][lispy-flatten]]   |
 | xi  | [[#lispy-to-ifs][lispy-to-ifs]]    |
 | xl  | [[#lispy-to-lambda][lispy-to-lambda]] |
-
+| xe  | [[#lispy-edebug][lispy-edebug]]    |
 
 * Function reference
 ** =lispy-forward=
@@ -2599,7 +2599,6 @@ isn't 1.
 #+end_src
 #+HTML: </td></tr></tbody></table>
 ------
-
 ** =lispy-paste=
 :PROPERTIES:
 :CUSTOM_ID: lispy-paste
@@ -2609,6 +2608,18 @@ Bound to ~P~.
 
 When region is active, replace it with current kill.
 Forward to =yank= otherwise.
+-----
+
+** =lispy-edebug=
+:PROPERTIES:
+:CUSTOM_ID: lispy-edebug
+:END:
+
+Bound to ~xe~.
+
+[[http://www.gnu.org/software/emacs/manual/html_node/elisp/Using-Edebug.html][=edebug=]] current defun.
+
+~2xe~ will eval current defun instead.
 -----
 
 ** =digit-argument=
