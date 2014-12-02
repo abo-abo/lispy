@@ -1,3 +1,4 @@
+[![License GPL 3][badge-license]](http://www.gnu.org/licenses/gpl-3.0.txt)
 [![Build Status](https://travis-ci.org/abo-abo/lispy.svg?branch=master)](https://travis-ci.org/abo-abo/lispy)
 [![MELPA](http://melpa.org/packages/lispy-badge.svg)](http://melpa.org/#/lispy)
 [![MELPA Stable](http://stable.melpa.org/packages/lispy-badge.svg)](http://stable.melpa.org/#/lispy)
@@ -524,5 +525,8 @@ Like `lispy-goto`, but offers only symbols from the current file.
 
 # Screencasts
 
+
 - The older stuff can be found on [vimeo](http://vimeo.com/user24828177/videos).
 - The newer stuff is on https://www.youtube.com/user/abo5abo/videos.
+
+[badge-license]: https://img.shields.io/badge/license-GPL_3-green.svg
