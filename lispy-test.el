@@ -978,6 +978,12 @@ Insert KEY if there's no command."
                     "ej" (lispy-flatten nil))
                    "(defun square (x &optional y &rest z)\n  (if y\n      (cons 200 z)\n    (* x x)))\n(if nil (cons 200 (list)) (* 10 10))|")))
 
+(ert-deftest lispy-mark-list ()
+  (should (string= (lispy-with "|;; foo\n(bar)" (lispy-mark-list 1))
+                   "~;; foo|\n(bar)"))
+  (should (string= (lispy-with "~;; foo|\n(bar)" (lispy-mark-list 1))
+                   "|;; foo\n(bar)")))
+
 (provide 'lispy-test)
 
 ;;; Local Variables:

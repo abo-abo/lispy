@@ -935,7 +935,10 @@ Extend region when it's aleardy active."
   "Mark list from special position."
   (interactive "p")
   (cond ((region-active-p)
-         (deactivate-mark))
+         (deactivate-mark)
+         (when (lispy--in-comment-p)
+           (beginning-of-line)
+           (skip-chars-forward " ")))
         ((> arg 1)
          (lispy-mark-car)
          (lispy-down (1- arg)))
@@ -944,7 +947,9 @@ Extend region when it's aleardy active."
          (forward-list))
         ((looking-back lispy-right)
          (set-mark (point))
-         (backward-list))))
+         (backward-list))
+        ((and (looking-back "^ *") (looking-at ";"))
+         (lispy--mark (lispy--bounds-comment)))))
 
 (defun lispy-mark-symbol ()
   "Mark current symbol."
