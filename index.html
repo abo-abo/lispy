@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
 <title>lispy.el function reference</title>
-<!-- 2014-12-02 Tue 13:37 -->
+<!-- 2014-12-02 Tue 16:26 -->
 <meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta  name="generator" content="Org-mode" />
 <meta  name="author" content="Oleh" />
@@ -3076,23 +3076,95 @@ Bound to <kbd>i</kbd>.
 </p>
 
 <p>
-Indent and prettify code.
-Prettify means to remove hanging closing parens, extra spaces,
-and to add space where it's needed, e.g. <code>(lambda (x))</code> instead of <code>(lambda(x))</code>.
+The result depends on the following conditions, each tried one by one until one that holds true is found:
+</p>
+</div>
+
+<div id="outline-container-unnumbered-105" class="outline-4">
+<h4 id="unnumbered-105">in outline</h4>
+<div class="outline-text-4" id="text-unnumbered-105">
+<p>
+Hide/show outline.
+</p>
+</div>
+</div>
+
+<div id="outline-container-unnumbered-106" class="outline-4">
+<h4 id="unnumbered-106">region is active</h4>
+<div class="outline-text-4" id="text-unnumbered-106">
+<p>
+Go to the car of the region:
 </p>
 
-<ul class="org-ul">
-<li>When in outline, hide/show outline.
-</li>
-<li>When region is active, go to car of the region.
-</li>
-</ul>
+<table><tbody><tr><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp"><span class="region">(head neck body tail)</span><cursor> </cursor>
+</pre>
+</div>
+</td><td>
+<p>
+-&gt; <kbd>i</kbd> -&gt;
+</p>
+</td><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(<span class="region">head</span><cursor> </cursor>neck body tail)
+</pre>
+</div>
+</td></tr></tbody></table>
+</div>
+</div>
+
+<div id="outline-container-unnumbered-107" class="outline-4">
+<h4 id="unnumbered-107">otherwise</h4>
+<div class="outline-text-4" id="text-unnumbered-107">
+<p>
+Indent and prettify code.
+Prettify means to remove hanging closing parens, extra spaces,
+and to add space where it's needed, e.g. <code>(lambda (x))</code> instead of
+<code>(lambda(x))</code>:
+</p>
+
+<table><tbody><tr><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp"><cursor>(</cursor><span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">test-function</span> ()
+  (message  <span style="color: #2A00FF;">"testing: %s"</span>
+            (mapconcat
+             (<span style="color: #7F0055; font-weight: bold;">lambda</span>(x) (prin1-to-string
+                    (* x x)
+                    ))
+             (list 0 1 2 3 4 5)
+             <span style="color: #2A00FF;">","</span>)
+            )
+  )
+</pre>
+</div>
+</td><td>
+<p>
+-&gt; <kbd>i</kbd> -&gt;
+</p>
+</td><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp"><cursor>(</cursor><span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">test-function</span> ()
+  (message <span style="color: #2A00FF;">"testing: %s"</span>
+           (mapconcat
+            (<span style="color: #7F0055; font-weight: bold;">lambda</span> (x) (prin1-to-string
+                         (* x x)))
+            (list 0 1 2 3 4 5)
+            <span style="color: #2A00FF;">","</span>)))
+</pre>
+</div>
+</td></tr></tbody></table>
 <hr  />
+</div>
 </div>
 </div>
 
 <div id="outline-container-lispy-edebug-stop" class="outline-3">
-<h3 id="lispy-edebug-stop"><a id="unnumbered-105"></a><code>lispy-edebug-stop</code></h3>
+<h3 id="lispy-edebug-stop"><a id="unnumbered-108"></a><code>lispy-edebug-stop</code></h3>
 <div class="outline-text-3" id="text-lispy-edebug-stop">
 <p>
 Bound to <kbd>Z</kbd>.
@@ -3117,7 +3189,7 @@ puts your code in read-only mode.
 </div>
 
 <div id="outline-container-lispy-flatten" class="outline-3">
-<h3 id="lispy-flatten"><a id="unnumbered-106"></a><code>lispy-flatten</code></h3>
+<h3 id="lispy-flatten"><a id="unnumbered-109"></a><code>lispy-flatten</code></h3>
 <div class="outline-text-3" id="text-lispy-flatten">
 <p>
 Bound to <kbd>xf</kbd>.
@@ -3153,7 +3225,7 @@ body stored with <a href="#lispy-store-region-and-buffer"><code>lispy-store-regi
 </div>
 
 <div id="outline-container-lispy-to-ifs" class="outline-3">
-<h3 id="lispy-to-ifs"><a id="unnumbered-108"></a><code>lispy-to-ifs</code></h3>
+<h3 id="lispy-to-ifs"><a id="unnumbered-111"></a><code>lispy-to-ifs</code></h3>
 <div class="outline-text-3" id="text-lispy-to-ifs">
 <p>
 Bound to <kbd>xi</kbd>.
@@ -3237,7 +3309,7 @@ The reverse is <a href="#lispy-to-cond"><code>lispy-to-cond</code></a>.
 </div>
 
 <div id="outline-container-lispy-to-cond" class="outline-3">
-<h3 id="lispy-to-cond"><a id="unnumbered-109"></a><code>lispy-to-cond</code></h3>
+<h3 id="lispy-to-cond"><a id="unnumbered-112"></a><code>lispy-to-cond</code></h3>
 <div class="outline-text-3" id="text-lispy-to-cond">
 <p>
 Bound to <kbd>xc</kbd>.
@@ -3321,10 +3393,10 @@ The reverse is <a href="#lispy-to-ifs"><code>lispy-to-ifs</code></a>.
 </div>
 
 <div id="outline-container-lispy-visit" class="outline-3">
-<h3 id="lispy-visit"><a id="unnumbered-110"></a><code>lispy-visit</code></h3>
+<h3 id="lispy-visit"><a id="unnumbered-113"></a><code>lispy-visit</code></h3>
 <div class="outline-text-3" id="text-lispy-visit">
 <p>
-Visit another file within this project using <a href="https://github.com/bbatsov/projectile">projectile</a>.
+Visit another file within this project using <a href="https://github.com/bbatsov/projectile"><code>projectile</code></a>.
 </p>
 
 <p>
@@ -3336,7 +3408,7 @@ Use <kbd>2V</kbd> to call <code>projectile-find-file-other-window</code>.
 </div>
 
 <div id="outline-container-lispy-narrow" class="outline-3">
-<h3 id="lispy-narrow"><a id="unnumbered-111"></a><code>lispy-narrow</code></h3>
+<h3 id="lispy-narrow"><a id="unnumbered-114"></a><code>lispy-narrow</code></h3>
 <div class="outline-text-3" id="text-lispy-narrow">
 <p>
 Bound to <kbd>N</kbd>.
@@ -3351,7 +3423,7 @@ Bound to <kbd>N</kbd>.
 </div>
 
 <div id="outline-container-lispy-widen" class="outline-3">
-<h3 id="lispy-widen"><a id="unnumbered-112"></a><code>lispy-widen</code></h3>
+<h3 id="lispy-widen"><a id="unnumbered-115"></a><code>lispy-widen</code></h3>
 <div class="outline-text-3" id="text-lispy-widen">
 <p>
 Bound to <kbd>W</kbd>.
@@ -3365,7 +3437,7 @@ Forward to <code>widen</code>.
 </div>
 
 <div id="outline-container-lispy-oneline" class="outline-3">
-<h3 id="lispy-oneline"><a id="unnumbered-113"></a><code>lispy-oneline</code></h3>
+<h3 id="lispy-oneline"><a id="unnumbered-116"></a><code>lispy-oneline</code></h3>
 <div class="outline-text-3" id="text-lispy-oneline">
 <p>
 Bound to <kbd>O</kbd>.
@@ -3398,7 +3470,7 @@ Turn current sexp into one line.
 </div>
 
 <div id="outline-container-lispy-multiline" class="outline-3">
-<h3 id="lispy-multiline"><a id="unnumbered-114"></a><code>lispy-multiline</code></h3>
+<h3 id="lispy-multiline"><a id="unnumbered-117"></a><code>lispy-multiline</code></h3>
 <div class="outline-text-3" id="text-lispy-multiline">
 <p>
 Bound to <kbd>M</kbd>.
@@ -3436,7 +3508,7 @@ Turn current sexp into one line.
 </div>
 
 <div id="outline-container-lispy-view" class="outline-3">
-<h3 id="lispy-view"><a id="unnumbered-115"></a><code>lispy-view</code></h3>
+<h3 id="lispy-view"><a id="unnumbered-118"></a><code>lispy-view</code></h3>
 <div class="outline-text-3" id="text-lispy-view">
 <p>
 Bound to <kbd>v</kbd>.
@@ -3455,7 +3527,7 @@ It's just a slightly modified shorthand for the standard <kbd>C-l</kbd> (<code>r
 </div>
 
 <div id="outline-container-lispy-slurp" class="outline-3">
-<h3 id="lispy-slurp"><a id="unnumbered-116"></a><code>lispy-slurp</code></h3>
+<h3 id="lispy-slurp"><a id="unnumbered-119"></a><code>lispy-slurp</code></h3>
 <div class="outline-text-3" id="text-lispy-slurp">
 <p>
 Bound to <kbd>&gt;</kbd>.
@@ -3534,7 +3606,7 @@ Example 3:
 </div>
 
 <div id="outline-container-lispy-barf" class="outline-3">
-<h3 id="lispy-barf"><a id="unnumbered-117"></a><code>lispy-barf</code></h3>
+<h3 id="lispy-barf"><a id="unnumbered-120"></a><code>lispy-barf</code></h3>
 <div class="outline-text-3" id="text-lispy-barf">
 <p>
 Bound to <kbd>&lt;</kbd>.
@@ -3612,7 +3684,7 @@ Example 3:
 </div>
 
 <div id="outline-container-lispy-other-mode" class="outline-3">
-<h3 id="lispy-other-mode"><a id="unnumbered-118"></a><code>lispy-other-mode</code></h3>
+<h3 id="lispy-other-mode"><a id="unnumbered-121"></a><code>lispy-other-mode</code></h3>
 <div class="outline-text-3" id="text-lispy-other-mode">
 <p>
 Bound to <kbd>o</kbd>.
@@ -3667,7 +3739,7 @@ mind about calling the modified <kbd>hjkl</kbd>.
 </div>
 
 <div id="outline-container-lispy-move-left" class="outline-3">
-<h3 id="lispy-move-left"><a id="unnumbered-119"></a><code>lispy-move-left</code></h3>
+<h3 id="lispy-move-left"><a id="unnumbered-122"></a><code>lispy-move-left</code></h3>
 <div class="outline-text-3" id="text-lispy-move-left">
 <p>
 Bound to <kbd>oh</kbd>.
@@ -3705,7 +3777,7 @@ Move current expression to the left, outside the current list.
 </div>
 
 <div id="outline-container-lispy-down-slurp" class="outline-3">
-<h3 id="lispy-down-slurp"><a id="unnumbered-120"></a><code>lispy-down-slurp</code></h3>
+<h3 id="lispy-down-slurp"><a id="unnumbered-123"></a><code>lispy-down-slurp</code></h3>
 <div class="outline-text-3" id="text-lispy-down-slurp">
 <p>
 Bound to <kbd>oj</kbd>.
@@ -3740,7 +3812,7 @@ below.
 </div>
 
 <div id="outline-container-lispy-up-slurp" class="outline-3">
-<h3 id="lispy-up-slurp"><a id="unnumbered-121"></a><code>lispy-up-slurp</code></h3>
+<h3 id="lispy-up-slurp"><a id="unnumbered-124"></a><code>lispy-up-slurp</code></h3>
 <div class="outline-text-3" id="text-lispy-up-slurp">
 <p>
 Bound to <kbd>ok</kbd>.
@@ -3776,7 +3848,7 @@ above.
 </div>
 </div>
 <div id="outline-container-lispy-move-right" class="outline-3">
-<h3 id="lispy-move-right"><a id="unnumbered-122"></a><code>lispy-move-right</code></h3>
+<h3 id="lispy-move-right"><a id="unnumbered-125"></a><code>lispy-move-right</code></h3>
 <div class="outline-text-3" id="text-lispy-move-right">
 <p>
 Bound to <kbd>ol</kbd>.
@@ -3815,7 +3887,7 @@ Move current expression to the right, outside the current list.
 </div>
 </div>
 <div id="outline-container-lispy-comment" class="outline-3">
-<h3 id="lispy-comment"><a id="unnumbered-123"></a><code>lispy-comment</code></h3>
+<h3 id="lispy-comment"><a id="unnumbered-126"></a><code>lispy-comment</code></h3>
 <div class="outline-text-3" id="text-lispy-comment">
 <p>
 Bound to <kbd>;</kbd>.
@@ -3852,7 +3924,7 @@ With a prefix arg and already inside comment, uncomment instead.
 </div>
 </div>
 <div id="outline-container-lispy-clone" class="outline-3">
-<h3 id="lispy-clone"><a id="unnumbered-124"></a><code>lispy-clone</code></h3>
+<h3 id="lispy-clone"><a id="unnumbered-127"></a><code>lispy-clone</code></h3>
 <div class="outline-text-3" id="text-lispy-clone">
 <p>
 Bound to <kbd>c</kbd>.
@@ -3891,7 +3963,7 @@ With a prefix arg, copy that many times.
 </div>
 </div>
 <div id="outline-container-lispy-goto" class="outline-3">
-<h3 id="lispy-goto"><a id="unnumbered-125"></a><code>lispy-goto</code></h3>
+<h3 id="lispy-goto"><a id="unnumbered-128"></a><code>lispy-goto</code></h3>
 <div class="outline-text-3" id="text-lispy-goto">
 <p>
 Bound to <kbd>g</kbd>.
@@ -3905,7 +3977,7 @@ and offer a helm completion list to jump to a selected tag.
 </div>
 </div>
 <div id="outline-container-lispy-goto-local" class="outline-3">
-<h3 id="lispy-goto-local"><a id="unnumbered-126"></a><code>lispy-goto-local</code></h3>
+<h3 id="lispy-goto-local"><a id="unnumbered-129"></a><code>lispy-goto-local</code></h3>
 <div class="outline-text-3" id="text-lispy-goto-local">
 <p>
 Bound to <kbd>G</kbd>.
@@ -3920,7 +3992,7 @@ of whole directory's tags.
 </div>
 
 <div id="outline-container-lispy-mark-list" class="outline-3">
-<h3 id="lispy-mark-list"><a id="unnumbered-127"></a><code>lispy-mark-list</code></h3>
+<h3 id="lispy-mark-list"><a id="unnumbered-130"></a><code>lispy-mark-list</code></h3>
 <div class="outline-text-3" id="text-lispy-mark-list">
 <p>
 Bound to <kbd>m</kbd>.
@@ -3934,7 +4006,7 @@ When the mark is already active, deactivate it instead.
 </div>
 </div>
 <div id="outline-container-lispy-raise" class="outline-3">
-<h3 id="lispy-raise"><a id="unnumbered-128"></a><code>lispy-raise</code></h3>
+<h3 id="lispy-raise"><a id="unnumbered-131"></a><code>lispy-raise</code></h3>
 <div class="outline-text-3" id="text-lispy-raise">
 <p>
 Bound to <kbd>r</kbd>.
@@ -3966,7 +4038,7 @@ Use current sexp or region as replacement for its parent.
 </div>
 </div>
 <div id="outline-container-lispy-move-down" class="outline-3">
-<h3 id="lispy-move-down"><a id="unnumbered-129"></a><code>lispy-move-down</code></h3>
+<h3 id="lispy-move-down"><a id="unnumbered-132"></a><code>lispy-move-down</code></h3>
 <div class="outline-text-3" id="text-lispy-move-down">
 <p>
 Bound to <kbd>s</kbd>.
@@ -4004,7 +4076,7 @@ list.
 </div>
 </div>
 <div id="outline-container-lispy-move-up" class="outline-3">
-<h3 id="lispy-move-up"><a id="unnumbered-130"></a><code>lispy-move-up</code></h3>
+<h3 id="lispy-move-up"><a id="unnumbered-133"></a><code>lispy-move-up</code></h3>
 <div class="outline-text-3" id="text-lispy-move-up">
 <p>
 Bound to <kbd>w</kbd>.
@@ -4023,7 +4095,7 @@ It's the reciprocal of <a href="#lispy-move-down"><code>lispy-move-down</code></
 
 
 <div id="outline-container-lispy-teleport" class="outline-3">
-<h3 id="lispy-teleport"><a id="unnumbered-131"></a><code>lispy-teleport</code></h3>
+<h3 id="lispy-teleport"><a id="unnumbered-134"></a><code>lispy-teleport</code></h3>
 <div class="outline-text-3" id="text-lispy-teleport">
 <p>
 Bound to <kbd>t</kbd>.
@@ -4037,7 +4109,7 @@ Move the current sexp or region to a location specified by <a href="#lispy-ace-p
 </div>
 
 <div id="outline-container-lispy-undo" class="outline-3">
-<h3 id="lispy-undo"><a id="unnumbered-132"></a><code>lispy-undo</code></h3>
+<h3 id="lispy-undo"><a id="unnumbered-135"></a><code>lispy-undo</code></h3>
 <div class="outline-text-3" id="text-lispy-undo">
 <p>
 Bound to <kbd>u</kbd>.
@@ -4050,7 +4122,7 @@ Forward to <code>undo</code>. If the mark is active, deactivate it first.
 </div>
 </div>
 <div id="outline-container-=lispy-ace-symbol-replace=" class="outline-3">
-<h3 id="=lispy-ace-symbol-replace="><a id="unnumbered-133"></a><code>lispy-ace-symbol-replace</code></h3>
+<h3 id="=lispy-ace-symbol-replace="><a id="unnumbered-136"></a><code>lispy-ace-symbol-replace</code></h3>
 <div class="outline-text-3" id="text-=lispy-ace-symbol-replace=">
 <p>
 Bound to <kbd>H</kbd>.
@@ -4063,7 +4135,7 @@ Calls <a href="#lispy-ace-symbol"><code>lispy-ace-symbol</code></a> and deletes 
 </div>
 </div>
 <div id="outline-container-lispy-eval-other-window" class="outline-3">
-<h3 id="lispy-eval-other-window"><a id="unnumbered-134"></a><code>lispy-eval-other-window</code></h3>
+<h3 id="lispy-eval-other-window"><a id="unnumbered-137"></a><code>lispy-eval-other-window</code></h3>
 <div class="outline-text-3" id="text-lispy-eval-other-window">
 <p>
 Bound to <kbd>p</kbd>.
@@ -4085,7 +4157,7 @@ is supposed to work
 </div>
 </div>
 <div id="outline-container-lispy-describe" class="outline-3">
-<h3 id="lispy-describe"><a id="unnumbered-135"></a><code>lispy-describe</code></h3>
+<h3 id="lispy-describe"><a id="unnumbered-138"></a><code>lispy-describe</code></h3>
 <div class="outline-text-3" id="text-lispy-describe">
 <p>
 Bound to <kbd>D</kbd>.
@@ -4098,7 +4170,7 @@ Just a shorthand for <code>describe-function</code>.
 </div>
 </div>
 <div id="outline-container-lispy-beginning-of-defun" class="outline-3">
-<h3 id="lispy-beginning-of-defun"><a id="unnumbered-136"></a><code>lispy-beginning-of-defun</code></h3>
+<h3 id="lispy-beginning-of-defun"><a id="unnumbered-139"></a><code>lispy-beginning-of-defun</code></h3>
 <div class="outline-text-3" id="text-lispy-beginning-of-defun">
 <p>
 Bound to <kbd>A</kbd>.
@@ -4119,7 +4191,7 @@ look at its value and go back. Repeat when needed.
 
 
 <div id="outline-container-lispy-convolute" class="outline-3">
-<h3 id="lispy-convolute"><a id="unnumbered-137"></a><code>lispy-convolute</code></h3>
+<h3 id="lispy-convolute"><a id="unnumbered-140"></a><code>lispy-convolute</code></h3>
 <div class="outline-text-3" id="text-lispy-convolute">
 <p>
 Bound to <kbd>C</kbd>.
@@ -4160,7 +4232,7 @@ See <a href="images/lispy-convolute.gif">gif</a>.
 </div>
 </div>
 <div id="outline-container-lispy-ace-char" class="outline-3">
-<h3 id="lispy-ace-char"><a id="unnumbered-138"></a><code>lispy-ace-char</code></h3>
+<h3 id="lispy-ace-char"><a id="unnumbered-141"></a><code>lispy-ace-char</code></h3>
 <div class="outline-text-3" id="text-lispy-ace-char">
 <p>
 Bound to <kbd>Q</kbd>.
@@ -4170,7 +4242,7 @@ Call <code>ace-jump-mode</code>, while narrowed to current list.
 </div>
 </div>
 <div id="outline-container-lispy-raise-some" class="outline-3">
-<h3 id="lispy-raise-some"><a id="unnumbered-139"></a><code>lispy-raise-some</code></h3>
+<h3 id="lispy-raise-some"><a id="unnumbered-142"></a><code>lispy-raise-some</code></h3>
 <div class="outline-text-3" id="text-lispy-raise-some">
 <p>
 Bound to <kbd>R</kbd>.
@@ -4238,20 +4310,20 @@ Example 2:
 </div>
 </div>
 <div id="outline-container-lispy-ert" class="outline-3">
-<h3 id="lispy-ert"><a id="unnumbered-140"></a><code>lispy-ert</code></h3>
+<h3 id="lispy-ert"><a id="unnumbered-143"></a><code>lispy-ert</code></h3>
 <div class="outline-text-3" id="text-lispy-ert">
 <p>
 Bound to <kbd>T</kbd>.
 </p>
 
 <p>
-Forward to <code>ert</code>.
+Forward to <a href="https://www.gnu.org/software/emacs/manual/html_node/ert/index.html"><code>ert</code></a>.
 </p>
 <hr  />
 </div>
 </div>
 <div id="outline-container-lispy-stringify" class="outline-3">
-<h3 id="lispy-stringify"><a id="unnumbered-141"></a><code>lispy-stringify</code></h3>
+<h3 id="lispy-stringify"><a id="unnumbered-144"></a><code>lispy-stringify</code></h3>
 <div class="outline-text-3" id="text-lispy-stringify">
 <p>
 Bound to <kbd>S</kbd>.
@@ -4289,7 +4361,7 @@ isn't 1.
 </div>
 </div>
 <div id="outline-container-lispy-paste" class="outline-3">
-<h3 id="lispy-paste"><a id="unnumbered-142"></a><code>lispy-paste</code></h3>
+<h3 id="lispy-paste"><a id="unnumbered-145"></a><code>lispy-paste</code></h3>
 <div class="outline-text-3" id="text-lispy-paste">
 <p>
 Bound to <kbd>P</kbd>.
@@ -4304,7 +4376,7 @@ Forward to <code>yank</code> otherwise.
 </div>
 
 <div id="outline-container-lispy-edebug" class="outline-3">
-<h3 id="lispy-edebug"><a id="unnumbered-143"></a><code>lispy-edebug</code></h3>
+<h3 id="lispy-edebug"><a id="unnumbered-146"></a><code>lispy-edebug</code></h3>
 <div class="outline-text-3" id="text-lispy-edebug">
 <p>
 Bound to <kbd>xe</kbd>.
@@ -4322,7 +4394,7 @@ Bound to <kbd>xe</kbd>.
 </div>
 
 <div id="outline-container-digit-argument" class="outline-3">
-<h3 id="digit-argument"><a id="unnumbered-144"></a><code>digit-argument</code></h3>
+<h3 id="digit-argument"><a id="unnumbered-147"></a><code>digit-argument</code></h3>
 <div class="outline-text-3" id="text-digit-argument">
 <p>
 Bound to <kbd>0</kbd>, <kbd>1</kbd>, <kbd>2</kbd>, <kbd>3</kbd>, <kbd>4</kbd>, <kbd>5</kbd>, <kbd>6</kbd>, <kbd>7</kbd>, <kbd>8</kbd>, <kbd>9</kbd>.

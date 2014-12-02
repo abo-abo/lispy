@@ -14,10 +14,14 @@
            (substring x 2 (- (length x) 1)))))
 
 (defun make-html-region--replace-2 (x)
-  (format "<span class=\"region\">%s</span><cursor>%c</cursor>"
+  (let ((ch (aref x (- (length x) 1))))
+    (if (eq ch ?|)
+        (format "<span class=\"region\">%s</span><cursor> </cursor>"
+                (regexp-quote (substring x 1 (- (length x) 1))))
+      (format "<span class=\"region\">%s</span><cursor>%c</cursor>"
           (regexp-quote
            (substring x 1 (- (length x) 2)))
-          (aref x (- (length x) 1))))
+          ch))))
 
 (defun make-html-cursor--replace (x)
   (if (string= "|\n" x)
@@ -1745,12 +1749,58 @@ Useful together with
 
 Bound to ~i~.
 
+{{{cond}}}
+
+*** in outline
+Hide/show outline.
+
+*** region is active
+Go to the car of the region:
+
+#+HTML: <table><tbody><tr><td>
+#+begin_src elisp
+~(head neck body tail)|
+#+end_src
+#+HTML: </td><td>
+-> ~i~ ->
+#+HTML: </td><td>
+#+begin_src elisp
+(~head| neck body tail)
+#+end_src
+#+HTML: </td></tr></tbody></table>
+
+*** otherwise
 Indent and prettify code.
 Prettify means to remove hanging closing parens, extra spaces,
-and to add space where it's needed, e.g. =(lambda (x))= instead of =(lambda(x))=.
+and to add space where it's needed, e.g. =(lambda (x))= instead of
+=(lambda(x))=:
 
-- When in outline, hide/show outline.
-- When region is active, go to car of the region.
+#+HTML: <table><tbody><tr><td>
+#+begin_src elisp
+|(defun test-function ()
+  (message  "testing: %s"
+            (mapconcat
+             (lambda(x) (prin1-to-string
+                    (* x x)
+                    ))
+             (list 0 1 2 3 4 5)
+             ",")
+            )
+  )
+#+end_src
+#+HTML: </td><td>
+-> ~i~ ->
+#+HTML: </td><td>
+#+begin_src elisp
+|(defun test-function ()
+  (message "testing: %s"
+           (mapconcat
+            (lambda (x) (prin1-to-string
+                         (* x x)))
+            (list 0 1 2 3 4 5)
+            ",")))
+#+end_src
+#+HTML: </td></tr></tbody></table>
 -----
 
 ** =lispy-edebug-stop=
@@ -1947,7 +1997,7 @@ The reverse is [[#lispy-to-ifs][=lispy-to-ifs=]].
 :CUSTOM_ID: lispy-visit
 :END:
 
-Visit another file within this project using [[https://github.com/bbatsov/projectile][projectile]].
+Visit another file within this project using [[https://github.com/bbatsov/projectile][=projectile=]].
 
 Use ~V~ to call =projectile-find-file=.
 Use ~2V~ to call =projectile-find-file-other-window=.
@@ -2569,7 +2619,7 @@ progn
 
 Bound to ~T~.
 
-Forward to =ert=.
+Forward to [[https://www.gnu.org/software/emacs/manual/html_node/ert/index.html][=ert=]].
 -----
 ** =lispy-stringify=
 :PROPERTIES:

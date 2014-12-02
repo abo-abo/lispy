@@ -43,6 +43,8 @@ kbd {
 
 body a code {
     color: black;
+    border: 1px solid Blue;
+    border-radius:3px;
 }
 
 code {
