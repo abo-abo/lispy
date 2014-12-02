@@ -1781,11 +1781,11 @@ Comments will be moved ahead of sexp."
 (defun lispy-multiline ()
   "Spread current sexp over multiple lines."
   (interactive)
-  (let* ((bnd (lispy--bounds-list))
-         (str (lispy--string-dwim bnd))
-         (expr (read str)))
-    (if (cl-some #'listp expr)
-        (lispy-from-left
+  (lispy-from-left
+   (let* ((bnd (lispy--bounds-list))
+          (str (lispy--string-dwim bnd))
+          (expr (lispy--read str)))
+     (if (cl-some #'listp expr)
          (let ((pt (point)))
            (lispy-forward 1)
            (while (and (lispy-flow 1) (> (point) pt))
@@ -1794,8 +1794,7 @@ Comments will be moved ahead of sexp."
                  (replace-match "\n")
                  (backward-char 1))))
            (goto-char pt)
-           (indent-sexp)))
-      (lispy-from-left
+           (indent-sexp))
        (delete-region (car bnd) (cdr bnd))
        (lispy--insert-1
         (butlast
