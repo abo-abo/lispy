@@ -869,16 +869,19 @@ Otherwise (`backward-delete-char-untabify' ARG)."
              (skip-chars-backward "`',@# \t")
              (delete-region pt (point))
              (unless (or (looking-at " ")
+                         (looking-back "^ *")
                          (and (looking-back lispy-right)
                               (not (or (looking-at lispy-left)
                                        (looking-at "\""))))
                          (looking-back lispy-left))
                (just-one-space))
              (setq pt (point))
-             (if (and (not (looking-at lispy-left))
-                      (progn
-                        (skip-chars-backward " \t\n")
-                        (looking-back lispy-right)))
+             (if (and
+                  (not (looking-back "^ *"))
+                  (not (looking-at lispy-left))
+                  (progn
+                    (skip-chars-backward " \t\n")
+                    (looking-back lispy-right)))
                  (delete-region (point) pt)
                (goto-char pt)
                (indent-for-tab-command))))
@@ -907,7 +910,7 @@ Otherwise (`backward-delete-char-untabify' ARG)."
              (just-one-space))
            (indent-for-tab-command))
 
-          ((looking-back "^ +")
+          ((looking-back "^ *")
            (delete-region
             (1- (line-beginning-position))
             (point))

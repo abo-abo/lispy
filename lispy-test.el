@@ -456,7 +456,7 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "(foo bar)\n;; comment\n(foo bar)|" "\C-?")
                    "(foo bar)\n;; comment\n|"))
   (should (string= (lispy-with "(require 'foo)\n\n(require 'bar)|\n\n(require 'baz)" "\C-?")
-                   "(require 'foo)|\n\n(require 'baz)"))
+                   "(require 'foo)\n\n|\n\n(require 'baz)"))
   (should (string= (lispy-with "(list\n (foo)\n |(bar))" "\C-?")
                    "(list\n (foo) |(bar))"))
   (should (string= (lispy-with "(list\n (foo)\n |\"bar\")" "\C-?")
