@@ -832,7 +832,8 @@ Return nil if can't move."
 Otherwise (`backward-delete-char-untabify' ARG)."
   (interactive "p")
   (let (pos)
-    (cond ((region-active-p)
+    (cond ((bobp))
+          ((region-active-p)
            (delete-region (region-beginning)
                           (region-end)))
 
