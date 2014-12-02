@@ -53,6 +53,7 @@
     - [[Demo 2: The substitution model for procedure application](http://abo-abo.github.io/lispy/demo-2)](#demo-2-the-substitution-model-for-procedure-applicationhttpabo-abogithubiolispydemo-2)
     - [[Demo 3: Down the rabbit hole](http://abo-abo.github.io/lispy/demo-3)](#demo-3-down-the-rabbit-holehttpabo-abogithubiolispydemo-3)
     - [[Demo 4: Project Euler p100 and Clojure](http://abo-abo.github.io/lispy/demo-4)](#demo-4-project-euler-p100-and-clojurehttpabo-abogithubiolispydemo-4)
+    - [[Demo 5: ->>ification](http://abo-abo.github.io/lispy/demo-5)](#demo-5--ificationhttpabo-abogithubiolispydemo-5)
 - [Screencasts](#screencasts)
 
 <!-- markdown-toc end -->
@@ -522,6 +523,7 @@ Like `lispy-goto`, but offers only symbols from the current file.
 ## [Demo 2: The substitution model for procedure application](http://abo-abo.github.io/lispy/demo-2)
 ## [Demo 3: Down the rabbit hole](http://abo-abo.github.io/lispy/demo-3)
 ## [Demo 4: Project Euler p100 and Clojure](http://abo-abo.github.io/lispy/demo-4)
+## [Demo 5: ->>ification](http://abo-abo.github.io/lispy/demo-5)
 
 # Screencasts
 
