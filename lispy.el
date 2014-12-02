@@ -582,8 +582,10 @@ Return nil if can't move."
                    (lispy-dotimes arg
                      (forward-sexp 1)
                      (lispy-different)
-                     (forward-sexp 2)
-                     (forward-sexp -1)
+                     (if (lispy--in-comment-p)
+                         (goto-char (1+ (cdr (lispy--bounds-comment))))
+                       (forward-sexp 2)
+                       (forward-sexp -1))
                      (lispy-different))
                  (lispy-dotimes arg
                    (lispy-different)
