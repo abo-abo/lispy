@@ -460,11 +460,11 @@ Bound to <kbd>C-1</kbd>. Show the doc for the current function inline.
 is tiresome. <kbd>C-1</kbd> toggles on/off the inline doc for current function.
 No extra buffer necessary:
 
-![screenshot](https://raw.github.com/abo-abo/lispy/master/doc/doc-1.png)
+![screenshot](https://raw.github.com/abo-abo/lispy/master/images/doc-1.png)
 
 Here's how it looks for Clojure:
 
-![screenshot](https://raw.github.com/abo-abo/lispy/master/doc/doc-2.png)
+![screenshot](https://raw.github.com/abo-abo/lispy/master/images/doc-2.png)
 
 ## `lispy-arglist-inline`
 Bound to <kbd>C-2</kbd>. Show arguments for current function inline.
@@ -472,12 +472,12 @@ Bound to <kbd>C-2</kbd>. Show arguments for current function inline.
 `eldoc-mode` is cool, but it shows you arguments *over there* and
 you're writing *over here*!. No problem, <kbd>C-2</kbd> fixes that:
 
-![screenshot](https://raw.github.com/abo-abo/lispy/master/doc/arglist-2.png)
+![screenshot](https://raw.github.com/abo-abo/lispy/master/images/arglist-elisp.png)
 
 As you see, normal, &optional and &rest arguments have each a
 different face. Here's how it looks for Clojure:
 
-![screenshot](https://raw.github.com/abo-abo/lispy/master/doc/arglist-3.png)
+![screenshot](https://raw.github.com/abo-abo/lispy/master/images/arglist-clojure.png)
 
 ## `lispy-eval`
 
@@ -524,14 +524,5 @@ Like `lispy-goto`, but offers only symbols from the current file.
 
 # Screencasts
 
-I've recorded a few gifs that show some features:
-
-- [1-gif](https://raw.github.com/abo-abo/lispy/master/doc/screencast-1.gif)
-- [2-gif](https://raw.github.com/abo-abo/lispy/master/doc/screencast-2.gif)
-- [3-gif](https://raw.github.com/abo-abo/lispy/master/doc/screencast-3.gif)
-- [4-gif](https://raw.github.com/abo-abo/lispy/master/doc/oneline-multiline.gif)
-- [5-gif](https://raw.github.com/abo-abo/lispy/master/doc/screencast-4.gif)
-
-The older stuff can be found on [vimeo](http://vimeo.com/user24828177/videos).
-
-The new stuff is on https://www.youtube.com/user/abo5abo/videos.
+- The older stuff can be found on [vimeo](http://vimeo.com/user24828177/videos).
+- The newer stuff is on https://www.youtube.com/user/abo5abo/videos.
