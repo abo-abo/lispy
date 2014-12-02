@@ -73,7 +73,8 @@ The screencast for this demo is here: http://youtu.be/N7C3FX4mr_o
 (->> [1 2 3 4 5] (filter odd?) (map #(* % %))|)
 #+end_src
 ** step 6
-- ~C-f~ or ~C-3~ to exit the list
+- ~C-f~ or ~C-3~ to exit the list (~l~ should work as well since the
+  point is still special)
 - ~M~ to multiline
 #+begin_src clojure
 (->> [1 2 3 4 5]
