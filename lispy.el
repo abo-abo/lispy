@@ -853,12 +853,19 @@ Otherwise (`backward-delete-char-untabify' ARG)."
           ((lispy--in-comment-p)
            (backward-delete-char-untabify arg))
 
-          ((and (looking-back (concat lispy-right " ?")) (not (looking-back "\\\\.")))
+          ((looking-back "\\\\.")
+           (backward-delete-char-untabify arg))
+
+          ((and (looking-back (concat lispy-right " "))
+                (looking-at " *$"))
+           (backward-delete-char-untabify arg))
+
+          ((looking-back (concat lispy-right " ?"))
            (let ((pt (point)))
              (lispy-backward arg)
              (skip-chars-backward "`',@# \t")
              (delete-region pt (point))
-             (unless (or (looking-at " \\|$")
+             (unless (or (looking-at " ")
                          (looking-back lispy-right)
                          (looking-back lispy-left))
                (just-one-space))
