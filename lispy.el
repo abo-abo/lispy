@@ -2045,6 +2045,9 @@ When ARG isn't nil, try to pretty print the sexp."
     (when (and leftp (not (lispy--leftp)))
       (lispy-different))))
 
+(defconst lispy--eval-cond-msg #("cond: nil" 0 4 (face font-lock-keyword-face))
+  "Message to echo when the current `cond' branch is nil.")
+
 (defun lispy-eval-other-window ()
   "Eval current expression in the context of other window.
 In case the point is on a let-bound variable, add a `setq'."
@@ -2064,10 +2067,23 @@ In case the point is on a let-bound variable, add a `setq'."
                               (looking-back
                                "(\\(?:lexical-\\)?let\\*?[ \t\n]*"))
                             (cons 'setq (read str)))
-                           (t (read str)))))))
+                           ((save-excursion
+                              (lispy--out-backward 1)
+                              (looking-at
+                               "(cond"))
+                            (let ((re (read str)))
+                              `(if ,(car re)
+                                   (progn
+                                     ,@(cdr re))
+                                 lispy--eval-cond-msg)))
+                           (t (read str))))))
+                 res)
     (other-window 1)
-    (eval-expression expr)
-    (other-window -1)))
+    (setq res (eval expr lexical-binding))
+    (other-window -1)
+    (if (equal res lispy--eval-cond-msg)
+        (message res)
+      (message "%S" res))))
 
 (defun lispy-follow ()
   "Follow to `lispy--current-function'."
