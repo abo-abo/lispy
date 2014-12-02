@@ -3,7 +3,7 @@
 [![MELPA Stable](http://stable.melpa.org/packages/lispy-badge.svg)](http://stable.melpa.org/#/lispy)
 
 <p align="center">
-<img src="https://raw.githubusercontent.com/abo-abo/lispy/master/doc/lispy-logo.png"
+<img src="https://raw.githubusercontent.com/abo-abo/lispy/master/images/lispy-logo.png"
    alt="lispy logo"/>
 </p>
 
