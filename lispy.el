@@ -330,7 +330,8 @@ Otherwise return the amount of times executed."
 GRAMMAR is a list of nouns that work with this verb."
   (let* ((sym (intern (format "lispy-%s-mode" name)))
          (keymap (intern (format "lispy-%s-mode-map" name)))
-         (doc (format "%s verb.\n\n \\{lispy-%s-mode-map}" (capitalize name) name))
+         (doc (format "%s verb.\n\n \\{lispy-%s-mode-map}"
+                      (capitalize name) name))
          (lighter (format " [%s]" name))
          (verb (intern (format "lispy-%s-verb" name)))
          (msg (format "[%s]: %s" name
@@ -447,7 +448,7 @@ Return nil on failure, t otherwise."
 Self-insert otherwise."
   (interactive "p")
   (if (or (lispy--in-string-or-comment-p)
-	  (looking-back "?\\\\"))
+          (looking-back "?\\\\"))
       (self-insert-command arg)
     (lispy--out-forward arg)))
 
@@ -476,13 +477,13 @@ If this point is inside string, move outside string."
   (interactive)
   (let ((pt (point)))
     (if (eq pt (line-end-position))
-	(if (lispy--in-string-p)
-	    (goto-char (cdr (lispy--bounds-string)))
-	  (when (and (< lispy-meol-point pt)
-		     (>= lispy-meol-point (line-beginning-position)))
-	    (goto-char lispy-meol-point)
-	    (when (lispy--in-string-p)
-	      (goto-char (cdr (lispy--bounds-string))))))
+        (if (lispy--in-string-p)
+            (goto-char (cdr (lispy--bounds-string)))
+          (when (and (< lispy-meol-point pt)
+                     (>= lispy-meol-point (line-beginning-position)))
+            (goto-char lispy-meol-point)
+            (when (lispy--in-string-p)
+              (goto-char (cdr (lispy--bounds-string))))))
       (setq lispy-meol-point (point))
       (move-end-of-line 1))))
 
@@ -493,29 +494,29 @@ Don't enter strings or comments.
 Return nil if can't move."
   (interactive "p")
   (let ((pt (point))
-	success)
+        success)
     (lispy-dotimes arg
       (cond ((looking-at lispy-left)
-	     (forward-char)
-	     (re-search-forward lispy-left nil t)
-	     (while (and (lispy--in-string-or-comment-p)
-			 (re-search-forward lispy-left nil t)))
-	     (unless (lispy--in-string-or-comment-p)
-	       (setq success t))
-	     (backward-char))
+             (forward-char)
+             (re-search-forward lispy-left nil t)
+             (while (and (lispy--in-string-or-comment-p)
+                         (re-search-forward lispy-left nil t)))
+             (unless (lispy--in-string-or-comment-p)
+               (setq success t))
+             (backward-char))
 
-	    ((looking-back lispy-right)
-	     (backward-char)
-	     (re-search-backward lispy-right nil t)
-	     (while (and (lispy--in-string-or-comment-p)
-			 (re-search-backward lispy-right nil t)))
-	     (unless (lispy--in-string-or-comment-p)
-	       (setq success t))
-	     (forward-char))))
+            ((looking-back lispy-right)
+             (backward-char)
+             (re-search-backward lispy-right nil t)
+             (while (and (lispy--in-string-or-comment-p)
+                         (re-search-backward lispy-right nil t)))
+             (unless (lispy--in-string-or-comment-p)
+               (setq success t))
+             (forward-char))))
     (and (not (= (point) pt))
-	 (or success
-	     (prog1 nil
-	       (goto-char pt))))))
+         (or success
+             (prog1 nil
+               (goto-char pt))))))
 
 (defun lispy-counterclockwise ()
   "Move counterclockwise inside current list."
@@ -1483,7 +1484,7 @@ The outcome when ahead of sexps is different from when behind."
     (lispy-raise 1)
     (deactivate-mark)))
 
-;; TODO add numeric arg: 1 is equivalent to prev behavior 2 will raise containing list twice.
+
 (defun lispy-convolute ()
   "Replace (...(,,,|( with (,,,(...|( where ... and ,,, is arbitrary code."
   (interactive)
@@ -2057,7 +2058,8 @@ In case the point is on a let-bound variable, add a `setq'."
                                    (read str))))
                            ((save-excursion
                               (lispy--out-backward 1)
-                              (looking-back "(\\(?:lexical-\\)?let\\*?[ \t\n]*"))
+                              (looking-back
+                               "(\\(?:lexical-\\)?let\\*?[ \t\n]*"))
                             (cons 'setq (read str)))
                            (t (read str)))))))
     (other-window 1)
@@ -2419,17 +2421,19 @@ If already there, return it to previous position."
   (if (bound-and-true-p edebug-active)
       (save-excursion
         (lispy-out-backward 99)
-        (if (looking-at "(\\(?:cl\\|\\)def\\(?:un\\|macro\\)\\s-+\\_<[^ ]+\\_>\\s-+(")
+        (if (looking-at
+             "(\\(?:cl\\|\\)def\\(?:un\\|macro\\)\\s-+\\_<[^ ]+\\_>\\s-+(")
             (progn
               (goto-char (match-end 0))
               (backward-char 1)
               (forward-sexp 1)
-              (let ((sexps (mapcar
-                            (lambda (x!)
-                              (cons x!
-                                    (let ((expr x!))
-                                      (edebug-eval expr))))
-                            (delq '&optional (delq '&rest (lispy--preceding-sexp)))))
+              (let ((sexps
+                     (mapcar
+                      (lambda (x!)
+                        (cons x!
+                              (let ((expr x!))
+                                (edebug-eval expr))))
+                      (delq '&optional (delq '&rest (lispy--preceding-sexp)))))
                     (wnd (current-window-configuration))
                     (pt (point)))
                 (run-with-timer
@@ -3470,11 +3474,12 @@ Defaults to `error'."
     (let ((conditions
            (if (consp parent)
                (apply #'nconc
-                      (mapcar (lambda (parent)
-                                (cons parent
-                                      (or (get parent 'error-conditions)
-                                          (error "Unknown signal `%s'" parent))))
-                              parent))
+                      (mapcar
+                       (lambda (parent)
+                         (cons parent
+                               (or (get parent 'error-conditions)
+                                   (error "Unknown signal `%s'" parent))))
+                       parent))
              (cons parent (get parent 'error-conditions)))))
       (put name 'error-conditions
            (delete-dups (copy-sequence (cons name conditions))))
