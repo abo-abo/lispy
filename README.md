@@ -525,7 +525,6 @@ Like `lispy-goto`, but offers only symbols from the current file.
 
 # Screencasts
 
-
 - The older stuff can be found on [vimeo](http://vimeo.com/user24828177/videos).
 - The newer stuff is on https://www.youtube.com/user/abo5abo/videos.
 
