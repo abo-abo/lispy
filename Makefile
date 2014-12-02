@@ -12,7 +12,7 @@ LOAD = -l lispy-inline.el -l lispy.el
 all: emacsq
 
 cask:
-	$(CASK)
+	$(shell EMACS=$(EMACS) $(CASK))
 
 emacsq:
 	$(CASKEMACS) -q $(LOAD) lispy.el
