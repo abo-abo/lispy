@@ -1174,7 +1174,7 @@ Special case is (|( -> ( |(."
 (defun lispy-tick ()
   "Insert '."
   (interactive)
-  (lispy--space-unless "\\s-\\|\\s(\\|[:?]\\\\?")
+  (lispy--space-unless "\\s-\\|\\s(\\|[#:?]\\\\?")
   (insert "'"))
 
 (defun lispy-backtick ()
