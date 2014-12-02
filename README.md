@@ -471,11 +471,11 @@ Bound to <kbd>C-1</kbd>. Show the doc for the current function inline.
 is tiresome. <kbd>C-1</kbd> toggles on/off the inline doc for current function.
 No extra buffer necessary:
 
-![screenshot](https://raw.github.com/abo-abo/lispy/master/images/doc-1.png)
+![screenshot](https://raw.github.com/abo-abo/lispy/master/images/doc-elisp.png)
 
 Here's how it looks for Clojure:
 
-![screenshot](https://raw.github.com/abo-abo/lispy/master/images/doc-2.png)
+![screenshot](https://raw.github.com/abo-abo/lispy/master/images/doc-clojure.png)
 
 ## `lispy-arglist-inline`
 Bound to <kbd>C-2</kbd>. Show arguments for current function inline.
