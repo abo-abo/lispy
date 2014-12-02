@@ -3,8 +3,8 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<title>lispy.el demo 5: Drink up me hearties</title>
-<!-- 2014-12-01 Mon 23:14 -->
+<title>lispy.el demo 5: -&gt;&gt;ification</title>
+<!-- 2014-12-02 Tue 18:52 -->
 <meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta  name="generator" content="Org-mode" />
 <meta  name="author" content="Oleh" />
@@ -15,7 +15,7 @@
 <link rel="icon" type="image/x-icon" href="https://github.com/favicon.ico"/>
 </div>
 <div id="content">
-<h1 class="title">lispy.el demo 5: Drink up me hearties</h1>
+<h1 class="title">lispy.el demo 5: -&gt;&gt;ification</h1>
 <table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
 
@@ -35,68 +35,153 @@
 </tbody>
 </table>
 
-<div id="outline-container-sec-1" class="outline-2">
-<h2 id="sec-1">Intro</h2>
-<div class="outline-text-2" id="text-1">
+<div id="outline-container-unnumbered-2" class="outline-2">
+<h2 id="unnumbered-2">Intro</h2>
+<div class="outline-text-2" id="text-unnumbered-2">
 <p>
-This demo will showcase quickly writing a 100 beer bottles program
-with lispy.
+This demo covers some very basic lispy commands such as:
 </p>
+<ul class="org-ul">
+<li>move code up/down with <kbd>w</kbd> / <kbd>s</kbd>
+</li>
+<li>grow/shrink current list with <kbd>&gt;</kbd> / <kbd>&lt;</kbd>
+</li>
+</ul>
 </div>
 </div>
 
-<div id="outline-container-sec-2" class="outline-2">
-<h2 id="sec-2">Task summary</h2>
-<div class="outline-text-2" id="text-2">
+<div id="outline-container-unnumbered-3" class="outline-2">
+<h2 id="unnumbered-3">Task summary</h2>
+<div class="outline-text-2" id="text-unnumbered-3">
 <p>
-Generate this source:
+Transform from:
 </p>
 <div class="org-src-container">
 
-<pre class="src src-elisp">(setq b 497)
-(<span style="color: #7F0055; font-weight: bold;">let</span> ((x '(<span style="color: #2A00FF;">"take one down, pass it around ..."</span>
-           <span style="color: #2A00FF;">"%s bottles of beer ..."</span>
-           <span style="color: #2A00FF;">"%s bottles of beer on the wall..."</span>
-           <span style="color: #2A00FF;">"----------------------------------------"</span>
-           <span style="color: #2A00FF;">"%s bottles of beer on the wall."</span>)))
-  (message (nth (% b 5) x) (/ (decf b) 5)))
+<pre class="src src-clojure"><cursor>(</cursor>map #(* <span style="color: #000000;">%</span> <span style="color: #000000;">%</span>) (filter odd? [1 2 3 4 5]))
+</pre>
+</div>
+<p>
+to:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-clojure"><cursor>(</cursor><span style="color: #7F0055; font-weight: bold;">-&gt;&gt;</span> [1 2 3 4 5]
+  (filter odd?)
+  (map #(* <span style="color: #000000;">%</span> <span style="color: #000000;">%</span>)))
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-unnumbered-4" class="outline-2">
+<h2 id="unnumbered-4">Screencast</h2>
+<div class="outline-text-2" id="text-unnumbered-4">
+<p>
+The screencast for this demo is here: <a href="http://youtu.be/N7C3FX4mr_o">http://youtu.be/N7C3FX4mr_o</a>
+</p>
+</div>
+</div>
+<div id="outline-container-unnumbered-5" class="outline-2">
+<h2 id="unnumbered-5">Step-by-step expansion</h2>
+<div class="outline-text-2" id="text-unnumbered-5">
+</div><div id="outline-container-unnumbered-6" class="outline-3">
+<h3 id="unnumbered-6">step 1</h3>
+<div class="outline-text-3" id="text-unnumbered-6">
+<p>
+<kbd>2(</kbd> to wrap with parens, enter <code>-&gt;&gt;</code>:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-clojure">(<span style="color: #7F0055; font-weight: bold;">-&gt;&gt;</span><cursor> </cursor>(map #(* <span style="color: #000000;">%</span> <span style="color: #000000;">%</span>) (filter odd? [1 2 3 4 5])))
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-unnumbered-7" class="outline-3">
+<h3 id="unnumbered-7">step 2</h3>
+<div class="outline-text-3" id="text-unnumbered-7">
+<ul class="org-ul">
+<li><kbd>C-f</kbd> to get into special
+</li>
+<li><kbd>d</kbd> to switch to the different side
+</li>
+<li><kbd>&lt;</kbd> to shrink list
+</li>
+</ul>
+
+<div class="org-src-container">
+
+<pre class="src src-clojure">(<span style="color: #7F0055; font-weight: bold;">-&gt;&gt;</span> (map #(* <span style="color: #000000;">%</span> <span style="color: #000000;">%</span>))<cursor> </cursor>(filter odd? [1 2 3 4 5]))
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-unnumbered-8" class="outline-3">
+<h3 id="unnumbered-8">step 3</h3>
+<div class="outline-text-3" id="text-unnumbered-8">
+<ul class="org-ul">
+<li><kbd>j</kbd> to move the cursor down by one sexp
+</li>
+<li><kbd>&lt;</kbd> to shrink again
+</li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-clojure">(<span style="color: #7F0055; font-weight: bold;">-&gt;&gt;</span> (map #(* <span style="color: #000000;">%</span> <span style="color: #000000;">%</span>)) (filter odd?)<cursor> </cursor>[1 2 3 4 5])
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-unnumbered-9" class="outline-3">
+<h3 id="unnumbered-9">step 4</h3>
+<div class="outline-text-3" id="text-unnumbered-9">
+<ul class="org-ul">
+<li><kbd>j</kbd> to move the cursor down
+</li>
+<li><kbd>ww</kbd> to move the expression up twice
+</li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-clojure">(<span style="color: #7F0055; font-weight: bold;">-&gt;&gt;</span> [1 2 3 4 5]<cursor> </cursor>(map #(* <span style="color: #000000;">%</span> <span style="color: #000000;">%</span>)) (filter odd?))
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-unnumbered-10" class="outline-3">
+<h3 id="unnumbered-10">step 5</h3>
+<div class="outline-text-3" id="text-unnumbered-10">
+<ul class="org-ul">
+<li><kbd>js</kbd> to select <code>map</code> and move it down once
+</li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-clojure">(<span style="color: #7F0055; font-weight: bold;">-&gt;&gt;</span> [1 2 3 4 5] (filter odd?) (map #(* <span style="color: #000000;">%</span> <span style="color: #000000;">%</span>))<cursor>)</cursor>
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-unnumbered-11" class="outline-3">
+<h3 id="unnumbered-11">step 6</h3>
+<div class="outline-text-3" id="text-unnumbered-11">
+<ul class="org-ul">
+<li><kbd>C-f</kbd> or <kbd>C-3</kbd> to exit the list
+</li>
+<li><kbd>M</kbd> to multiline
+</li>
+</ul>
+<div class="org-src-container">
+
+<pre class="src src-clojure">(<span style="color: #7F0055; font-weight: bold;">-&gt;&gt;</span> [1 2 3 4 5]
+     (filter odd?)
+     (map #(* <span style="color: #000000;">%</span> <span style="color: #000000;">%</span>)))<cursor> </cursor>
 </pre>
 </div>
 
-<p>
-Write a program that outputs the 100 bottles of beer thing.
-</p>
-</div>
-</div>
-
-<div id="outline-container-sec-3" class="outline-2">
-<h2 id="sec-3">Screencast</h2>
-<div class="outline-text-2" id="text-3">
-<p>
-The screencast for this demo is here: <a href="http://youtu.be/tcI4gZ3eHaw">http://youtu.be/tcI4gZ3eHaw</a>
-</p>
-</div>
-</div>
-<div id="outline-container-sec-4" class="outline-2">
-<h2 id="sec-4">Step-by-step</h2>
-<div class="outline-text-2" id="text-4">
-</div><div id="outline-container-sec-4-1" class="outline-3">
-<h3 id="sec-4-1">step 1</h3>
-<div class="outline-text-3" id="text-4-1">
-<p>
-<kbd>(setq b 497</kbd>
-</p>
-</div>
-</div>
-<div id="outline-container-sec-4-2" class="outline-3">
-<h3 id="sec-4-2">step 2</h3>
-<div class="outline-text-3" id="text-4-2">
-<ul class="org-ul">
-<li><kbd>C-3 C-m(let((x'("</kbd>
-</li>
-<li><kbd>%s bottles of beer on the wall...</kbd>
-</li>
-</ul>
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
 </div>
 </div>
 </div>
