@@ -238,7 +238,7 @@ The hint will consist of the possible nouns that apply to the verb."
   :group 'lispy)
 
 (defcustom lispy-fancy-narrow t
-  "If t, `lispy-ace-char' try to use `fancy-narrow-to-region'."
+  "If t, `lispy-ace-char' will try to use `fancy-narrow-to-region'."
   :type 'boolean
   :group 'lispy)
 
@@ -2045,7 +2045,8 @@ When ARG isn't nil, try to pretty print the sexp."
     (when (and leftp (not (lispy--leftp)))
       (lispy-different))))
 
-(defconst lispy--eval-cond-msg #("cond: nil" 0 4 (face font-lock-keyword-face))
+(defconst lispy--eval-cond-msg
+  (format "%s: nil" (propertize "cond" 'face 'font-lock-keyword-face))
   "Message to echo when the current `cond' branch is nil.")
 
 (defun lispy-eval-other-window ()
