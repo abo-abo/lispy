@@ -1809,8 +1809,11 @@ Comments will be moved ahead of sexp."
 (defun lispy-fill ()
   "Fill current expression."
   (interactive)
-  (let ((lispy-do-fill t))
-    (lispy--normalize-1)))
+  (if (or (looking-at lispy-left)
+          (looking-back lispy-right))
+      (let ((lispy-do-fill t))
+        (lispy--normalize-1))
+    (fill-paragraph)))
 
 (defun lispy-comment (&optional arg)
   "Comment ARG sexps."
