@@ -1802,6 +1802,15 @@ Comments will be moved ahead of sexp."
          (cl-mapcan (lambda (y) (list y '(ly-raw newline)))
                     (lispy--read str))))))))
 
+(defvar lispy-do-fill nil
+  "If t, `lispy-insert-1' will try to fill.")
+
+(defun lispy-fill ()
+  "Fill current expression."
+  (interactive)
+  (let ((lispy-do-fill t))
+    (lispy--normalize-1)))
+
 (defun lispy-comment (&optional arg)
   "Comment ARG sexps."
   (interactive "p")
@@ -3923,83 +3932,88 @@ the first character of EXPR."
 (defun lispy--insert-1 (expr)
   "Insert the EXPR read by `lispy--read'."
   (let ((start-pt (point))
-        end)
+        beg end
+        sxp type)
     (prin1 expr (current-buffer))
     (save-restriction
       (narrow-to-region start-pt (setq end (point)))
       (goto-char (point-min))
-      (while (re-search-forward "(ly-raw" nil t)
-        (let ((beg (match-beginning 0))
-              sxp
-              type)
-          (goto-char beg)
-          (setq sxp (ignore-errors (read (current-buffer))))
-          (setq type (cadr sxp))
-          (cl-case type
-            (newline
+      (while (and (re-search-forward "(ly-raw" nil t)
+                  (setq beg (match-beginning 0)))
+        (goto-char beg)
+        (setq sxp (ignore-errors (read (current-buffer))))
+        (setq type (cadr sxp))
+        (cl-case type
+          (newline
+           (delete-region beg (point))
+           (delete-char
+            (- (skip-chars-backward " ")))
+           (insert "\n"))
+          ((string comment symbol)
+           (delete-region beg (point))
+           (insert (caddr sxp)))
+          (raw
+           (delete-region beg (point))
+           (lispy--insert-1 (cddr sxp))
+           (backward-list)
+           (forward-char)
+           (insert "ly-raw "))
+          (quote
+           (delete-region beg (point))
+           (insert "'")
+           (prin1 (caddr sxp) (current-buffer))
+           (goto-char beg))
+          (empty
+           (delete-region beg (point))
+           (insert "()"))
+          (char
+           (delete-region beg (point))
+           (insert "?" (caddr sxp)))
+          (function
+           (delete-region beg (point))
+           (insert (format "#'%S" (caddr sxp)))
+           (goto-char beg))
+          (clojure-lambda
+           (delete-region beg (point))
+           (insert (format "#%S" (cddr sxp)))
+           (goto-char beg))
+          (clojure-map
+           (delete-region beg (point))
+           (insert (format "#{%s}"
+                           (let ((s (prin1-to-string (cddr sxp))))
+                             (substring s 1 (1- (length s))))))
+           (goto-char beg))
+          (\`
+           (if (> (length sxp) 3)
+               (progn
+                 (goto-char beg)
+                 (insert "`")
+                 (delete-region (+ (point) 1)
+                                (+ (point) 11)))
              (delete-region beg (point))
-             (delete-char
-              (- (skip-chars-backward " ")))
-             (insert "\n"))
-            ((string comment symbol)
-             (delete-region beg (point))
-             (insert (caddr sxp)))
-            (raw
-             (delete-region beg (point))
-             (lispy--insert-1 (cddr sxp))
-             (backward-list)
-             (forward-char)
-             (insert "ly-raw "))
-            (quote
-             (delete-region beg (point))
-             (insert "'")
-             (prin1 (caddr sxp) (current-buffer))
-             (goto-char beg))
-            (empty
-             (delete-region beg (point))
-             (insert "()"))
-            (char
-             (delete-region beg (point))
-             (insert "?" (caddr sxp)))
-            (function
-             (delete-region beg (point))
-             (insert (format "#'%S" (caddr sxp)))
-             (goto-char beg))
-            (clojure-lambda
-             (delete-region beg (point))
-             (insert (format "#%S" (cddr sxp)))
-             (goto-char beg))
-            (clojure-map
-             (delete-region beg (point))
-             (insert (format "#{%s}"
-                             (let ((s (prin1-to-string (cddr sxp))))
-                               (substring s 1 (1- (length s))))))
-             (goto-char beg))
-            (\`
-             (if (> (length sxp) 3)
-                 (progn
-                   (goto-char beg)
-                   (insert "`")
-                   (delete-region (+ (point) 1)
-                                  (+ (point) 11)))
-               (delete-region beg (point))
-               (insert "`")
-               (prin1 (caddr sxp) (current-buffer)))
-             (goto-char beg))
-            (\,
-             (delete-region beg (point))
-             (insert ",")
-             (prin1 (caddr sxp) (current-buffer))
-             (goto-char beg))
-            (\,@
-             (delete-region beg (point))
-             (insert ",@")
-             (prin1 (caddr sxp) (current-buffer))
-             (goto-char beg))
-            (dot
-             (delete-region beg (point))
-             (insert "."))
-            (t (goto-char (1+ beg))))))
+             (insert "`")
+             (prin1 (caddr sxp) (current-buffer)))
+           (goto-char beg))
+          (\,
+           (delete-region beg (point))
+           (insert ",")
+           (prin1 (caddr sxp) (current-buffer))
+           (goto-char beg))
+          (\,@
+           (delete-region beg (point))
+           (insert ",@")
+           (prin1 (caddr sxp) (current-buffer))
+           (goto-char beg))
+          (dot
+           (delete-region beg (point))
+           (insert "."))
+          (t (goto-char (1+ beg))))
+        (when (and lispy-do-fill
+                   (> (current-column)
+                      fill-column))
+          (unless (or (looking-at " +(ly-raw newline")
+                      (looking-at lispy-right))
+            (newline-and-indent))))
       (goto-char (point-min))
       (while (re-search-forward "[a-z-A-Z]\\(\\\\\\?\\)" nil t)
         (replace-match "?" t t nil 1))
@@ -4441,6 +4455,7 @@ FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)"
   ;; ——— globals: miscellanea —————————————————
   (define-key map (kbd "M-o") 'lispy-string-oneline)
   (define-key map (kbd "M-i") 'lispy-iedit)
+  (define-key map (kbd "M-q") 'lispy-fill)
   ;; ——— locals: navigation ———————————————————
   (lispy-define-key map "l" 'lispy-out-forward)
   (lispy-define-key map "h" 'lispy-out-backward)
