@@ -922,9 +922,10 @@ Otherwise (`backward-delete-char-untabify' ARG)."
 
           (t
            (backward-delete-char-untabify arg))))
-  (when (< (- (line-number-at-pos (point))
-              (line-number-at-pos (window-start)))
-           5)
+  (when (and (buffer-file-name)
+             (< (- (line-number-at-pos (point))
+                   (line-number-at-pos (window-start)))
+                5))
     (ignore-errors
       (recenter -20)))
   (when (looking-at lispy-left)

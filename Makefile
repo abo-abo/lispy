@@ -1,6 +1,5 @@
 EMACS = emacs
 # EMACS = emacs-24.3
-# EMACS = emacs24
 
 CASK = ~/.cask/bin/cask
 
