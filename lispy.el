@@ -4011,13 +4011,7 @@ the first character of EXPR."
           (dot
            (delete-region beg (point))
            (insert "."))
-          (t (goto-char (1+ beg))))
-        (when (and lispy-do-fill
-                   (> (current-column)
-                      fill-column))
-          (unless (or (looking-at " +(ly-raw newline")
-                      (looking-at lispy-right))
-            (newline-and-indent))))
+          (t (goto-char (1+ beg)))))
       (goto-char (point-min))
       (while (re-search-forward "[a-z-A-Z]\\(\\\\\\?\\)" nil t)
         (replace-match "?" t t nil 1))
@@ -4025,6 +4019,16 @@ the first character of EXPR."
       (while (re-search-forward "\\\\\\." nil t)
         (unless (lispy--in-string-p)
           (replace-match ".")))
+      (when lispy-do-fill
+        (goto-char (point-min))
+        (while (re-search-forward " " nil t)
+          (cond ((lispy--in-string-p))
+
+                ((lispy--in-comment-p)
+                 (fill-paragraph))
+
+                ((> (current-column) fill-column)
+                 (newline-and-indent)))))
       (goto-char (point-max))
       (widen)))
   (backward-list)
