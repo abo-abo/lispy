@@ -967,6 +967,8 @@ Extend region when it's aleardy active."
   (interactive)
   (cond ((lispy--in-comment-p)
          (lispy--mark (lispy--bounds-comment)))
+        ((looking-at " *)* *$")
+         (lispy--mark (lispy--bounds-dwim)))
         ((or (looking-at "[ ]*[()]")
              (and (region-active-p)
                   (looking-at "[ \n]*[()]")))
