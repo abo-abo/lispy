@@ -4045,6 +4045,8 @@ the first character of EXPR."
          (indent-sexp))
       (let* ((was-mod (buffer-modified-p))
              (was-left (looking-at lispy-left))
+             (max-lisp-eval-depth 10000)
+             (max-specpdl-size 10000)
              (res (lispy--sexp-normalize
                    (lispy--read str)))
              (offset (save-excursion
