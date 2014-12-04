@@ -990,6 +990,10 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "~;; foo|\n(bar)" (lispy-mark-list 1))
                    "|;; foo\n(bar)")))
 
+(ert-deftest lispy-mark-car ()
+  (should (string= (lispy-with "|\"foo\"~" (lispy-mark-car))
+                   "\"~foo|\"")))
+
 (provide 'lispy-test)
 
 ;;; Local Variables:
