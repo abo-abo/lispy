@@ -3403,6 +3403,15 @@ Ignore the matches in strings and comments."
                                  (eq (car sxp) '\,@))
                         (insert ")")
                         (replace-match "(ly-raw \\\\,@ ")))))
+                ;; ——— overlay syntax —————————
+                (goto-char (point-min))
+                (while (re-search-forward "#<overlay" nil t)
+                  (unless (lispy--in-string-or-comment-p)
+                    (backward-delete-char 9)
+                    (insert "(ly-raw overlay ")
+                    (re-search-forward ">")
+                    (backward-delete-char 1)
+                    (insert ")")))
                 ;; ——— cons cell syntax ———————
                 (lispy--replace-regexp-in-code " \\. " " (ly-raw dot) ")
                 ;; ———  ———————————————————————
@@ -3986,6 +3995,12 @@ the first character of EXPR."
           (clojure-map
            (delete-region beg (point))
            (insert (format "#{%s}"
+                           (let ((s (prin1-to-string (cddr sxp))))
+                             (substring s 1 (1- (length s))))))
+           (goto-char beg))
+          (overlay
+           (delete-region beg (point))
+           (insert (format "#<%s>"
                            (let ((s (prin1-to-string (cddr sxp))))
                              (substring s 1 (1- (length s))))))
            (goto-char beg))
