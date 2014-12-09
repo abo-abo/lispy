@@ -864,7 +864,7 @@ Otherwise (`backward-delete-char-untabify' ARG)."
                 (looking-at " *$"))
            (backward-delete-char-untabify arg))
 
-          ((looking-back (concat lispy-right " ?"))
+          ((looking-back lispy-right)
            (let ((pt (point)))
              (lispy-backward arg)
              (skip-chars-backward "`',@# \t")
