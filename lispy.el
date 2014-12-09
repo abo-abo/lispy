@@ -1921,11 +1921,15 @@ Quote newlines if ARG isn't 1."
      t)))
 
 ;; ——— Locals:  tags ———————————————————————————————————————————————————————————
-(defun lispy-goto ()
-  "Jump to symbol within files in current directory."
-  (interactive)
+(defun lispy-goto (&optional arg)
+  "Jump to symbol within files in current directory.
+When ARG isn't nil, call `lispy-goto-projectile' instead."
+  (interactive "P")
   (deactivate-mark)
-  (lispy--goto 'lispy--fetch-tags))
+  (lispy--goto
+   (if arg
+       #'lispy--fetch-tags-projectile
+     #'lispy--fetch-tags)))
 
 (defun lispy-goto-recursive ()
   "Jump to symbol within files in current directory and its subdiretories."
@@ -1936,7 +1940,14 @@ Quote newlines if ARG isn't 1."
 (defun lispy-goto-local ()
   "Jump to symbol within current file."
   (interactive)
+  (deactivate-mark)
   (lispy--goto 'lispy--fetch-this-file-tags))
+
+(defun lispy-goto-projectile ()
+  "Jump to symbol within files in (`projectile-project-root')."
+  (interactive)
+  (deactivate-mark)
+  (lispy--goto 'lispy--fetch-tags-projectile))
 
 (defun lispy-goto-def-down (arg)
   "Jump to definition of ARGth element of current list."
@@ -2564,6 +2575,7 @@ With ARG, use the contents of `lispy-store-region-and-buffer' instead."
 
 (declare-function projectile-find-file "ext:projectile")
 (declare-function projectile-find-file-other-window "ext:projectile")
+(declare-function projectile-project-root "ext:projectile")
 
 (defun lispy-visit (arg)
   "Forward to find file in project depending on ARG."
@@ -3155,11 +3167,16 @@ For example, a `setq' statement is amended with variable name that it uses."
   (let ((dirs
          (split-string
           (shell-command-to-string
-           (format "find %s -type d ! -regex \".*\\.git.*\"" default-directory))
+           (format "find %s -type d ! -regex \".*\\(\\.git\\|\\.cask\\).*\"" default-directory))
           "\n"
           t)))
     (apply #'append
            (mapcar #'lispy--fetch-tags dirs))))
+
+(defun lispy--fetch-tags-projectile ()
+  "Fetch all tags in the projectile directory recursively."
+  (let ((default-directory (projectile-project-root)))
+    (lispy--fetch-tags-recursive)))
 
 (defun lispy--set-file-to-tags (file tags)
   "Put FILE as property of each tag in TAGS."
@@ -3185,7 +3202,7 @@ For example, a `setq' statement is amended with variable name that it uses."
   "Fetch this file tags."
   (let ((tags
          (lispy--set-file-to-tags
-          (file-name-nondirectory (buffer-file-name))
+          (buffer-file-name)
           (semantic-fetch-tags))))
     (when (memq major-mode '(lisp-mode emacs-lisp-mode))
       (lexical-let ((arity (cdr (assoc major-mode lispy-tag-arity)))
@@ -3859,6 +3876,15 @@ Unless inside string or comment, or `looking-back' at CONTEXT."
 
 (declare-function helm "ext:helm")
 
+(defun lispy--current-tag ()
+  "Forward to `semantic-current-tag'.
+Try to refresh if nil is returned."
+  (let ((tag (semantic-current-tag)))
+    (unless tag
+      (semantic-clear-toplevel-cache)
+      (semantic-fetch-tags))
+    (semantic-tag-name tag)))
+
 (defun lispy--select-candidate (candidates action)
   "Select from CANDIDATES list with `helm'.
 ACTION is called for the selected candidate."
@@ -3877,7 +3903,9 @@ ACTION is called for the selected candidate."
                                     (cons (car x) x))
                                 x))
                             candidates))
-            (action . ,action)))))
+            (action . ,action))
+          :preselect (regexp-quote (or (lispy--current-tag)
+                                       "")))))
 
 (defun lispy--action-jump (tag)
   "Jump to TAG."
@@ -3888,8 +3916,8 @@ ACTION is called for the selected candidate."
              (semantic--tag-set-overlay
               tag
               (setq overlay
-                    (make-overlay (aref overlay 0)
-                                  (aref overlay 1)
+                    (make-overlay (or (aref overlay 0) 1)
+                                  (or (aref overlay 1) 1)
                                   (find-file (aref overlay 2))))))
             (t (error "Unexpected")))
       (push-mark)
@@ -4414,23 +4442,25 @@ FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)"
     (define-key keymap (kbd key) func)))
 
 (lispy-defverb
+ "goto"
+ (("d" lispy-goto)
+  ("l" lispy-goto-local)
+  ("r" lispy-goto-recursive)
+  ("p" lispy-goto-projectile)
+  ("f" lispy-follow)
+  ("b" pop-tag-mark)
+  ("q" lispy-quit)
+  ("j" lispy-goto-def-down)
+  ("a" lispy-goto-def-ace)))
+
+(lispy-defverb
  "other"
  (("h" lispy-move-left)
   ("j" lispy-down-slurp)
   ("k" lispy-up-slurp)
   ("l" lispy-move-right)
-  ("SPC" lispy-other-space)))
-
-(lispy-defverb
- "goto"
- (("d" lispy-goto)
-  ("f" lispy-goto-local)
-  ("r" lispy-goto-recursive)
-  ("c" lispy-follow)
-  ("b" pop-global-mark)
-  ("q" lispy-quit)
-  ("j" lispy-goto-def-down)
-  ("a" lispy-goto-def-ace)))
+  ("SPC" lispy-other-space)
+  ("g" lispy-goto-mode)))
 
 (lispy-defverb
  "transform"
