@@ -913,8 +913,10 @@ Otherwise (`backward-delete-char-untabify' ARG)."
 
           ((looking-back "^ *")
            (delete-region
-            (1- (line-beginning-position))
+            (line-beginning-position)
             (point))
+           (unless (bobp)
+             (backward-delete-char 1))
            (unless (or (eolp)
                        (looking-at lispy-right))
              (just-one-space))
