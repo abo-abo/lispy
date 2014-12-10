@@ -3175,6 +3175,7 @@ For example, a `setq' statement is amended with variable name that it uses."
 
 (defun lispy--fetch-tags-projectile ()
   "Fetch all tags in the projectile directory recursively."
+  (require 'projectile)
   (let ((default-directory (projectile-project-root)))
     (lispy--fetch-tags-recursive)))
 
