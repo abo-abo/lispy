@@ -4077,7 +4077,8 @@ the first character of EXPR."
           (cond ((lispy--in-string-p))
 
                 ((lispy--in-comment-p)
-                 (fill-paragraph))
+                 (fill-paragraph)
+                 (goto-char (cdr (lispy--bounds-comment))))
 
                 ((> (current-column) fill-column)
                  (newline-and-indent)))))
