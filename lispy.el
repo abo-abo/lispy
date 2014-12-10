@@ -4584,13 +4584,10 @@ FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)"
   "Change to new-style bindings.
 They may become the defaults in the future."
   (let ((map lispy-mode-map))
-    (lispy-define-key map "G" 'lispy-goto-mode)
     (lispy-define-key map "t" 'lispy-transform-mode)
-    (lispy-define-key map "." 'pop-tag-mark))
+    (lispy-define-key map "D" 'pop-tag-mark))
   (let ((map lispy-mode-x-map))
-    (define-key map "d" nil)
-    (define-key map "l" nil)
-    (define-key map "f" nil)))
+    (define-key map "x" nil)))
 
 (provide 'lispy)
 
