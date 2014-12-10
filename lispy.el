@@ -1603,10 +1603,10 @@ The outcome when ahead of sexps is different from when behind."
               (lispy--swap-regions
                bnd1 (lispy--bounds-dwim))))
             (exchange-point-and-mark)))
-      (lispy-mark-list 1)
-      (lispy-different)
+      (lispy--mark (lispy--bounds-dwim))
       (lispy-move-up arg)
-      (deactivate-mark))
+      (deactivate-mark)
+      (lispy-different))
     (unless at-start (lispy-different))))
 
 (defun lispy-move-down (arg)
@@ -1646,10 +1646,10 @@ The outcome when ahead of sexps is different from when behind."
               (lispy--swap-regions
                bnd1 (lispy--bounds-dwim))))
             (lispy-different)))
-      (lispy-mark-list 1)
-      (lispy-different)
+      (lispy--mark (lispy--bounds-dwim))
       (lispy-move-down arg)
-      (deactivate-mark))
+      (deactivate-mark)
+      (lispy-different))
     (unless at-start (lispy-different))))
 
 (defun lispy-move-left (arg)
