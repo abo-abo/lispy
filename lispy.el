@@ -4096,7 +4096,6 @@ the first character of EXPR."
          (offset (save-excursion
                    (goto-char (car bnd))
                    (current-column)))
-         (was-mod (buffer-modified-p))
          (was-left (looking-at lispy-left)))
     (if (and (memq major-mode '(clojure-mode))
              (string-match ",\\|\\^\\|#[^({]" str))
@@ -4112,11 +4111,7 @@ the first character of EXPR."
                          (cdr bnd))
           (insert new-str)
           (when was-left
-            (backward-list))
-          (unless was-mod
-            (when (string= (lispy--string-dwim)
-                           str)
-              (set-buffer-modified-p nil))))))))
+            (backward-list)))))))
 
 (defun lispy--sexp-trim-leading-newlines (expr comment)
   "Trim leading (ly-raw newline) from EXPR.
