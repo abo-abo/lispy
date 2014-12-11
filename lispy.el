@@ -3928,8 +3928,17 @@ ACTION is called for the selected candidate."
                                 x))
                             candidates))
             (action . ,action))
-          :preselect (regexp-quote (or (lispy--current-tag)
-                                       "")))))
+          :preselect
+          (let ((stag (semantic-current-tag))
+                (tag (lispy--current-tag)))
+            (if tag
+                (if (eq (semantic-tag-class
+                         stag)
+                        'function)
+                    (format "\\_<%s\\_>"
+                            (semantic-tag-name stag))
+                  tag)
+              "")))))
 
 (defun lispy--action-jump (tag)
   "Jump to TAG."
