@@ -3093,23 +3093,28 @@ ARITY-ALIST combines strings that REGEX matches and their arities."
         (t (car x))))
 
 (defun lispy--tag-name (x)
-  "Given a semantic tag X, amend it with additional info.
+  "Given a semantic tag X, return its string representation.
+This is `semantic-tag-name', amended with extra info.
 For example, a `setq' statement is amended with variable name that it uses."
+  (cond ((memq major-mode '(emacs-lisp-mode lisp-interaction-mode))
+         (lispy--tag-name-elisp x))
+        ((eq major-mode 'clojure-mode)
+         (lispy--tag-name-clojure x))
+        ((eq major-mode 'scheme-mode)
+         ;; (lispy--tag-name-scheme x)
+         (car x))
+        ((eq major-mode 'lisp-mode)
+         (lispy--tag-name-lisp x))
+        (t (throw 'break nil))))
+
+(defun lispy--tag-name-and-file (x)
+  "Add file name to (`lispy--tag-name' X)."
   (or
    (catch 'break
      (cons
       (concat
        (lispy--pad-string
-        (cond ((memq major-mode '(emacs-lisp-mode lisp-interaction-mode))
-               (lispy--tag-name-elisp x))
-              ((eq major-mode 'clojure-mode)
-               (lispy--tag-name-clojure x))
-              ((eq major-mode 'scheme-mode)
-               ;; (lispy--tag-name-scheme x)
-               (car x))
-              ((eq major-mode 'lisp-mode)
-               (lispy--tag-name-lisp x))
-              (t (throw 'break nil)))
+        (lispy--tag-name x)
         (nth 1 lispy-helm-columns))
        (make-string (- (nth 2 lispy-helm-columns)
                        (nth 1 lispy-helm-columns))
@@ -3240,7 +3245,7 @@ For example, a `setq' statement is amended with variable name that it uses."
           helm-candidate-number-limit)
       (lispy--select-candidate
        (cond ((null cache)
-              (setq cached-cands (mapcar #'lispy--tag-name candidates))
+              (setq cached-cands (mapcar #'lispy--tag-name-and-file candidates))
               (when (> (length cached-cands) 1000)
                 (push (cons default-directory cached-cands)
                       lispy--goto-cache))
@@ -3250,7 +3255,7 @@ For example, a `setq' statement is amended with variable name that it uses."
                       (length candidates)))
               cached-cands)
              (t
-              (setcdr cache (mapcar #'lispy--tag-name candidates))))
+              (setcdr cache (mapcar #'lispy--tag-name-and-file candidates))))
        #'lispy--action-jump))
     (when (and lispy-no-permanent-semantic
                (not semantic-on))
@@ -3891,11 +3896,18 @@ Unless inside string or comment, or `looking-back' at CONTEXT."
 (defun lispy--current-tag ()
   "Forward to `semantic-current-tag'.
 Try to refresh if nil is returned."
-  (let ((tag (semantic-current-tag)))
-    (unless tag
-      (semantic-clear-toplevel-cache)
-      (semantic-fetch-tags))
-    (semantic-tag-name tag)))
+  (let ((tag (lispy-from-left
+              (semantic-current-tag))))
+    (setq tag
+          (or tag
+              (progn
+                (semantic-clear-toplevel-cache)
+                (semantic-fetch-tags)
+                (semantic-current-tag))))
+    (when tag
+      (or (catch 'break
+            (lispy--tag-name tag))
+          (semantic-tag-name tag)))))
 
 (defun lispy--select-candidate (candidates action)
   "Select from CANDIDATES list with `helm'.
