@@ -301,14 +301,14 @@ Otherwise return the amount of times executed."
 (defmacro lispy-from-left (&rest body)
   "Ensure that BODY is executed from start of list."
   (let ((at-start (cl-gensym "at-start")))
-    `(let ((,at-start (looking-at lispy-left)))
+    `(let ((,at-start (lispy--leftp)))
        (unless ,at-start
-         (lispy-backward 1))
+         (lispy-different))
        (unwind-protect
             (save-excursion
               ,@body)
          (unless ,at-start
-           (forward-list 1))))))
+           (lispy-different))))))
 
 ;; ——— Verb related ————————————————————————————————————————————————————————————
 (defvar lispy-known-verbs nil
@@ -864,7 +864,9 @@ Otherwise (`backward-delete-char-untabify' ARG)."
                 (looking-at " *$"))
            (backward-delete-char-untabify arg))
 
-          ((looking-back lispy-right)
+          ((or (looking-back lispy-right)
+               (and (looking-back (concat lispy-right " "))
+                    (looking-at lispy-left)))
            (let ((pt (point)))
              (lispy-backward arg)
              (skip-chars-backward "`',@# \t")
@@ -916,11 +918,19 @@ Otherwise (`backward-delete-char-untabify' ARG)."
             (line-beginning-position)
             (point))
            (unless (bobp)
-             (backward-delete-char 1))
-           (unless (or (eolp)
-                       (looking-at lispy-right))
-             (just-one-space))
-           (indent-for-tab-command))
+             (if (save-excursion
+                   (backward-char 1)
+                   (lispy--in-comment-p))
+                 (progn
+                   (backward-char 1)
+                   (let ((bnd (lispy--bounds-comment)))
+                     (delete-region (car bnd) (cdr bnd)))
+                   (delete-char 1))
+               (backward-delete-char 1)
+               (unless (or (eolp)
+                           (looking-at lispy-right))
+                 (just-one-space)))
+             (indent-for-tab-command)))
 
           (t
            (backward-delete-char-untabify arg))))
