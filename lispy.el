@@ -536,43 +536,40 @@ Return nil if can't move."
   (lispy--ensure-visible)
   (save-match-data
     (cond ((region-active-p)
-           (let* ((str (lispy--string-dwim))
-                  (one-symbolp (lispy--symbolp str))
-                  delta)
-             (if one-symbolp
-                 (if (= (point) (region-end))
-                     (lispy-dotimes arg
-                       (when (lispy-slurp 1)
-                         (lispy-different)
-                         (lispy-barf 1)
-                         (lispy-different)))
-                   (lispy-dotimes arg
-                     (lispy-different)
-                     (if (lispy-slurp 1)
-                         (progn
-                           (lispy-different)
-                           (lispy-barf 1))
-                       (lispy-different))))
-
+           (if (lispy--symbolp (lispy--string-dwim))
                (if (= (point) (region-end))
                    (lispy-dotimes arg
-                     (forward-sexp 1)
-                     (lispy-different)
-                     (if (lispy--in-comment-p)
-                         (goto-char (1+ (cdr (lispy--bounds-comment))))
-                       (forward-sexp 2)
-                       (forward-sexp -1))
-                     (lispy-different))
+                     (when (lispy-slurp 1)
+                       (lispy-different)
+                       (lispy-barf 1)
+                       (lispy-different)))
                  (lispy-dotimes arg
                    (lispy-different)
-                   (if (ignore-errors
-                         (forward-sexp 1)
-                         t)
+                   (if (lispy-slurp 1)
                        (progn
                          (lispy-different)
-                         (forward-sexp 2)
-                         (forward-sexp -1))
-                     (lispy-different)))))))
+                         (lispy-barf 1))
+                     (lispy-different))))
+
+             (if (= (point) (region-end))
+                 (lispy-dotimes arg
+                   (forward-sexp 1)
+                   (lispy-different)
+                   (if (lispy--in-comment-p)
+                       (goto-char (1+ (cdr (lispy--bounds-comment))))
+                     (forward-sexp 2)
+                     (forward-sexp -1))
+                   (lispy-different))
+               (lispy-dotimes arg
+                 (lispy-different)
+                 (if (ignore-errors
+                       (forward-sexp 1)
+                       t)
+                     (progn
+                       (lispy-different)
+                       (forward-sexp 2)
+                       (forward-sexp -1))
+                   (lispy-different))))))
 
           ((looking-at lispy-left)
            (lispy-forward arg)
