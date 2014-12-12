@@ -3045,6 +3045,7 @@ Move to the end of line."
      (when . 1)
      (unless . 1)
      (advice-add . 1)
+     (cl-defun . 1)
      ;; org-mode specific
      (org-defkey . 3)
      ;; use-package specific
