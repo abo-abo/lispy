@@ -2421,6 +2421,36 @@ With ARG, use the contents of `lispy-store-region-and-buffer' instead."
         (when begp
           (goto-char (car bnd)))))))
 
+(defun lispy-to-ifs ()
+  "Transform current `cond' expression to equivalent `if' expressions."
+  (interactive)
+  (lispy-from-left
+   (let* ((bnd (lispy--bounds-dwim))
+          (expr (lispy--read (lispy--string-dwim bnd))))
+     (unless (eq (car expr) 'cond)
+       (error "%s isn't cond" (car expr)))
+     (delete-region (car bnd) (cdr bnd))
+     (lispy--fast-insert
+      (car
+       (lispy--whitespace-trim
+        (lispy--cases->ifs (cdr expr)))))))
+  (lispy-from-left
+   (indent-sexp)))
+
+(defun lispy-to-cond ()
+  "Reverse of `lispy-to-ifs'."
+  (interactive)
+  (lispy-from-left
+   (let* ((bnd (lispy--bounds-dwim))
+          (expr (lispy--read (lispy--string-dwim bnd))))
+     (unless (eq (car expr) 'if)
+       (error "%s isn't if" (car expr)))
+     (delete-region (car bnd) (cdr bnd))
+     (lispy--fast-insert
+      (cons 'cond (lispy--ifs->cases expr)))))
+  (lispy-from-left
+   (indent-sexp)))
+
 ;; ——— Locals:  multiple cursors ———————————————————————————————————————————————
 (declare-function mc/create-fake-cursor-at-point "ext:multiple-cursors")
 (declare-function mc/all-fake-cursors "ext:multiple-cursors")
@@ -2586,6 +2616,30 @@ ARG is 4: `eval-defun' on the function from this sexp."
                          (t
                           (error "Argument = %s isn't supported" arg)))))
              (error "%s isn't bound" fun))))))
+
+(defun lispy-debug-step-in ()
+  "Eval current function arguments and jump to definition."
+  (interactive)
+  (let* ((ldsi-sxp (lispy--setq-expression))
+         (ldsi-fun (car ldsi-sxp)))
+    (if (functionp ldsi-fun)
+        (let ((ldsi-args (copy-seq (help-function-arglist ldsi-fun t)))
+              (ldsi-vals (cdr ldsi-sxp))
+              ldsi-arg)
+          (catch 'done
+            (while (setq ldsi-arg (pop ldsi-args))
+              (cond ((eq ldsi-arg '&optional)
+                     (setq ldsi-arg (pop ldsi-args))
+                     (set ldsi-arg (eval (pop ldsi-vals))))
+                    ((eq ldsi-arg '&rest)
+                     (setq ldsi-arg (pop ldsi-args))
+                     (set ldsi-arg (mapcar #'eval ldsi-vals))
+                     (throw 'done t))
+                    (t
+                     (set ldsi-arg (eval (pop ldsi-vals)))))))
+          (lispy-goto-symbol ldsi-fun))
+      (lispy-complain
+       (format "%S isn't a function" ldsi-fun)))))
 
 ;; ——— Locals:  miscellanea ————————————————————————————————————————————————————
 (defvar lispy-mode-x-map (make-sparse-keymap))
@@ -3678,22 +3732,6 @@ Defaults to `error'."
         (setq body (car body))
       (setq body (cons 'progn body)))))
 
-(defun lispy-to-ifs ()
-  "Transform current `cond' expression to equivalent `if' expressions."
-  (interactive)
-  (lispy-from-left
-   (let* ((bnd (lispy--bounds-dwim))
-          (expr (lispy--read (lispy--string-dwim bnd))))
-     (unless (eq (car expr) 'cond)
-       (error "%s isn't cond" (car expr)))
-     (delete-region (car bnd) (cdr bnd))
-     (lispy--fast-insert
-      (car
-       (lispy--whitespace-trim
-        (lispy--cases->ifs (cdr expr)))))))
-  (lispy-from-left
-   (indent-sexp)))
-
 (defun lispy--fast-insert (f-expr)
   "`lispy--insert' F-EXPR into a temp buffer and return `buffer-string'."
   (insert
@@ -3701,20 +3739,6 @@ Defaults to `error'."
      (emacs-lisp-mode)
      (lispy--insert f-expr)
      (buffer-string))))
-
-(defun lispy-to-cond ()
-  "Reverse of `lispy-to-ifs'."
-  (interactive)
-  (lispy-from-left
-   (let* ((bnd (lispy--bounds-dwim))
-          (expr (lispy--read (lispy--string-dwim bnd))))
-     (unless (eq (car expr) 'if)
-       (error "%s isn't if" (car expr)))
-     (delete-region (car bnd) (cdr bnd))
-     (lispy--fast-insert
-      (cons 'cond (lispy--ifs->cases expr)))))
-  (lispy-from-left
-   (indent-sexp)))
 
 (defun lispy--case->if (case &optional else)
   "Return an if statement based on  CASE statement and ELSE."
@@ -4401,7 +4425,6 @@ PLIST currently accepts:
   "Return the smallest list to contain point.
 If inside VARLIST part of `let' form,
 return the corresponding `setq' expression."
-  (interactive)
   (ignore-errors
     (save-excursion
       (cond ((looking-at lispy-left)
@@ -4427,30 +4450,6 @@ return the corresponding `setq' expression."
            (cons 'setq tsexp))
           (t
            tsexp))))))
-
-(defun lispy-debug-step-in ()
-  "Eval current function arguments and jump to definition."
-  (interactive)
-  (let* ((ldsi-sxp (lispy--setq-expression))
-         (ldsi-fun (car ldsi-sxp)))
-    (if (functionp ldsi-fun)
-        (let ((ldsi-args (copy-seq (help-function-arglist ldsi-fun t)))
-              (ldsi-vals (cdr ldsi-sxp))
-              ldsi-arg)
-          (catch 'done
-            (while (setq ldsi-arg (pop ldsi-args))
-              (cond ((eq ldsi-arg '&optional)
-                     (setq ldsi-arg (pop ldsi-args))
-                     (set ldsi-arg (eval (pop ldsi-vals))))
-                    ((eq ldsi-arg '&rest)
-                     (setq ldsi-arg (pop ldsi-args))
-                     (set ldsi-arg (mapcar #'eval ldsi-vals))
-                     (throw 'done t))
-                    (t
-                     (set ldsi-arg (eval (pop ldsi-vals)))))))
-          (lispy-goto-symbol ldsi-fun))
-      (lispy-complain
-       (format "%S isn't a function" ldsi-fun)))))
 
 ;; ——— Key definitions —————————————————————————————————————————————————————————
 (defvar ac-trigger-commands '(self-insert-command))
