@@ -595,40 +595,37 @@ Return nil if can't move."
   (lispy--ensure-visible)
   (save-match-data
     (cond ((region-active-p)
-           (let* ((str (lispy--string-dwim))
-                  (one-symbolp (lispy--symbolp str))
-                  delta)
-             (if one-symbolp
-                 (if (= (point) (region-end))
-                     (lispy-dotimes arg
-                       (lispy-different)
-                       (if (lispy-slurp 1)
-                           (progn
-                             (lispy-different)
-                             (lispy-barf 1))
-                         (lispy-different)))
-                   (lispy-dotimes arg
-                     (when (lispy-slurp 1)
-                       (lispy-different)
-                       (lispy-barf 1)
-                       (lispy-different))))
+           (if (lispy--symbolp (lispy--string-dwim))
                (if (= (point) (region-end))
                    (lispy-dotimes arg
                      (lispy-different)
-                     (if (ignore-errors
-                           (backward-sexp 1) t)
+                     (if (lispy-slurp 1)
                          (progn
                            (lispy-different)
-                           (backward-sexp 2)
-                           (backward-sexp -1))
-                       (lispy-different)
-                       (error "Can't move up")))
+                           (lispy-barf 1))
+                       (lispy-different)))
                  (lispy-dotimes arg
-                   (backward-sexp 1)
+                   (when (lispy-slurp 1)
+                     (lispy-different)
+                     (lispy-barf 1)
+                     (lispy-different))))
+             (if (= (point) (region-end))
+                 (lispy-dotimes arg
                    (lispy-different)
-                   (backward-sexp 2)
-                   (backward-sexp -1)
-                   (lispy-different))))))
+                   (if (ignore-errors
+                         (backward-sexp 1) t)
+                       (progn
+                         (lispy-different)
+                         (backward-sexp 2)
+                         (backward-sexp -1))
+                     (lispy-different)
+                     (error "Can't move up")))
+               (lispy-dotimes arg
+                 (backward-sexp 1)
+                 (lispy-different)
+                 (backward-sexp 2)
+                 (backward-sexp -1)
+                 (lispy-different)))))
 
           ((looking-at lispy-left)
            (let ((pt (point)))
