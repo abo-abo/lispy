@@ -4464,7 +4464,8 @@ return the corresponding `setq' expression."
   (define-key map "f" 'lispy-flatten)
   (define-key map "r" 'lispy-eval-and-replace)
   (define-key map "s" 'save-buffer)
-  (define-key map "j" 'lispy-debug-step-in))
+  (define-key map "j" 'lispy-debug-step-in)
+  (define-key map "h" 'lispy-describe))
 
 (defun lispy-define-key (keymap key def &rest plist)
   "Forward to (`define-key' KEYMAP KEY FUNC).
@@ -4594,7 +4595,7 @@ FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)"
   (lispy-define-key map "G" 'lispy-goto-local)
   (lispy-define-key map "g" 'lispy-goto)
   (lispy-define-key map "F" 'lispy-follow t)
-  (lispy-define-key map "D" 'lispy-describe)
+  (lispy-define-key map "D" 'pop-tag-mark)
   (lispy-define-key map "A" 'lispy-beginning-of-defun)
   ;; ——— locals: miscellanea ——————————————————
   (lispy-define-key map "SPC" 'lispy-space)
@@ -4625,8 +4626,7 @@ FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)"
   "Change to new-style bindings.
 They may become the defaults in the future."
   (let ((map lispy-mode-map))
-    (lispy-define-key map "t" 'lispy-transform-mode)
-    (lispy-define-key map "D" 'pop-tag-mark))
+    (lispy-define-key map "t" 'lispy-transform-mode))
   (let ((map lispy-mode-x-map))
     (define-key map "x" nil)))
 
