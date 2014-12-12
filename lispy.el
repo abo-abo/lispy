@@ -192,6 +192,7 @@
 (require 'iedit)
 (require 'delsel)
 (require 'package)
+(require 'highlight)
 
 ;; ——— Customization ———————————————————————————————————————————————————————————
 (defgroup lispy nil
@@ -1261,40 +1262,101 @@ Special case is (|( -> ( |(."
   (iedit-mode 0))
 
 ;; ——— Locals:  Navigation —————————————————————————————————————————————————————
-(defvar lispy--occur-start 1
+(defvar lispy--occur-beg 1
   "Start position of the top-level sexp during `lispy-occur'.")
+(defvar lispy--occur-end 1
+  "End position of the top-level sexp during `lispy-occur'.")
 
 (defun lispy--occur-action (x)
   "Goto line X for `lispy-occur'."
-  (goto-char lispy--occur-start)
+  (goto-char lispy--occur-beg)
   (forward-line (+ x (if (> (length helm-input) 1) -1 0)))
-  (back-to-indentation))
+  (back-to-indentation)
+  (hlt-unhighlight-region
+   lispy--occur-beg
+   lispy--occur-end)
+  (isearch-dehighlight)
+  (remove-hook 'helm-move-selection-after-hook
+               'lispy--occur-update-sel))
+
+(defvar lispy--occur-buffer nil)
 
 (defun lispy-occur ()
   "Select a line within current top-level sexp with `helm'."
   (interactive)
   (helm :sources
-        `((name . "occur in top-level")
+        `((name . "top-occur")
           (init
            . (lambda ()
+               (setq lispy--occur-buffer (current-buffer))
                (let ((bnd (save-excursion
                             (unless (and (looking-at "(")
                                          (looking-back "^"))
                               (beginning-of-defun))
-                            (setq lispy--occur-start (point))
                             (lispy--bounds-dwim))))
+                 (setq lispy--occur-beg (car bnd))
+                 (setq lispy--occur-end (cdr bnd))
                  (helm-init-candidates-in-buffer
                      'global
-                   (buffer-substring (car bnd) (cdr bnd))))))
+                   (buffer-substring
+                    lispy--occur-beg
+                    lispy--occur-end)))
+               (add-hook 'helm-exit-minibuffer-hook
+                         (lambda ()
+                           (with-current-buffer lispy--occur-buffer
+                             (hlt-unhighlight-region
+                              lispy--occur-beg
+                              lispy--occur-end)
+                             (remove-hook 'helm-move-selection-after-hook
+                                          'lispy--occur-update-sel))))
+               (add-hook 'helm-move-selection-after-hook
+                         'lispy--occur-update-sel)))
           (candidates-in-buffer)
-          (get-line . (lambda (s e)
-                        (let ((line (buffer-substring s e)))
-                          (propertize
-                           line
-                           'helm-realvalue
-                           (1- (line-number-at-pos s))))))
+          (get-line . lispy--occur-get-line)
           (regexp . (lambda () helm-input))
           (action . lispy--occur-action))))
+
+(defun lispy--occur-regex ()
+  (mapconcat
+   #'identity
+   (split-string helm-input " +" t)
+   ".*"))
+
+(defun lispy--occur-update-sel ()
+  (with-current-buffer lispy--occur-buffer
+    (let (pt)
+      (save-excursion
+        (goto-char lispy--occur-beg)
+        (helm-candidate-number-at-point)
+        (when (re-search-forward (lispy--occur-regex)
+                                 lispy--occur-end t
+                                 (helm-candidate-number-at-point))
+          (isearch-highlight (match-beginning 0)
+                             (match-end 0))
+          (setq pt (match-beginning 0))))
+      (when pt
+        (with-selected-window
+            (helm-persistent-action-display-window)
+          (goto-char pt))))))
+
+(defun lispy--occur-get-line (s e)
+  (let ((line (buffer-substring s e)))
+    (when (> (length helm-input) 1)
+      (with-current-buffer lispy--occur-buffer
+        (hlt-unhighlight-region
+         lispy--occur-beg
+         lispy--occur-end)
+        (hlt-highlight-regexp-region
+         lispy--occur-beg
+         lispy--occur-end
+         (lispy--occur-regex)
+         'lispy-command-name-face)))
+    (propertize
+     (format "%d %s"
+             (1- (line-number-at-pos s))
+             line)
+     'helm-realvalue
+     (1- (line-number-at-pos s)))))
 
 ;; ——— Locals:  Paredit transformations ————————————————————————————————————————
 (defun lispy--sub-slurp-forward (arg)

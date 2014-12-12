@@ -15,4 +15,5 @@
  (depends-on "slime")
  (depends-on "geiser")
  (depends-on "projectile")
- (depends-on "s"))
+ (depends-on "s")
+ (depends-on "highlight"))

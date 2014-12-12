@@ -5,4 +5,5 @@
     (s "1.4.0")
     (noflet "0.0.10")
     (multiple-cursors "1.3.0")
-    (iedit "0.97")))
+    (iedit "0.97")
+    (highlight "0")))
