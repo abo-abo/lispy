@@ -2973,16 +2973,16 @@ Move to the end of line."
 
 (defun lispy--eval-elisp (e-str)
   "Eval E-STR as Elisp code."
-  (let ((sexp (read e-str))
+  (let ((e-sexp (read e-str))
         val)
-    (when (and (consp sexp)
-               (memq (car sexp) '(defvar defcustom))
-               (consp (cdr sexp))
-               (boundp (cadr sexp)))
-      (set (cadr sexp) (eval (caddr sexp))))
+    (when (and (consp e-sexp)
+               (memq (car e-sexp) '(defvar defcustom))
+               (consp (cdr e-sexp))
+               (boundp (cadr e-sexp)))
+      (set (cadr e-sexp) (eval (caddr e-sexp))))
     (condition-case e
         (prin1-to-string
-         (eval sexp lexical-binding))
+         (eval e-sexp lexical-binding))
       (error
        (progn
          (let ((es (error-message-string e)))
