@@ -571,10 +571,6 @@ Return nil if can't move."
                (goto-char pt)
                (lispy-backward 1)))))))
 
-(defun lispy--symbolp (str)
-  "Return t if STR is a symbol."
-  (string-match "\\`\\(?:\\sw\\|\\s_\\)+\\'" str))
-
 (defun lispy-down (arg)
   "Move down ARG times inside current list."
   (interactive "p")
@@ -2915,6 +2911,10 @@ First, try to return `lispy--bounds-string'."
   "Return a propertized `prin1-to-string'-ed X."
   (propertize (prin1-to-string x)
               'face 'font-lock-constant-face))
+
+(defun lispy--symbolp (str)
+  "Return t if STR is a symbol."
+  (string-match "\\`\\(?:\\sw\\|\\s_\\)+\\'" str))
 
 ;; ——— Utilities: movement —————————————————————————————————————————————————————
 (defvar lispy-ignore-whitespace nil
