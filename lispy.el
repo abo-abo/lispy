@@ -3085,7 +3085,10 @@ ARITY-ALIST combines strings that REGEX matches and their arities."
             (skip-chars-forward " \n")
             (when (setq arity (cdr (assoc (intern tag-head) arity-alist)))
               (setq beg (point))
-              (forward-sexp arity)
+              (condition-case nil
+                  (forward-sexp arity)
+                (error
+                 (forward-sexp 1)))
               (setq str (replace-regexp-in-string
                          "\n" " " (buffer-substring-no-properties beg (point))))
               (setcar x str)
