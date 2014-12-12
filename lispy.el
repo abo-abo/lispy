@@ -2362,7 +2362,7 @@ When region is active, call `lispy-mark-car'."
         (progn
           (delete-region (car bnd)
                          (cdr bnd))
-          (lispy--insert
+          (lispy--insert-1
            `(defun ,(car expr) ,(or (cdr expr) '(ly-raw empty))
               (ly-raw newline)))
           (backward-char))
@@ -3546,63 +3546,6 @@ Ignore the matches in strings and comments."
   '((\` . "`")
     (\, . ",")
     (\,@ . ",@")))
-
-(defun lispy--insert (expr)
-  "Insert the EXPR read by `lispy--read'."
-  (cl-labels ((ensure-space ()
-                (unless (and (looking-back "^\\|[ (`',@]")
-                             (not (looking-back "\\\\(")))
-                  (insert " "))))
-    (let (str)
-      (cond ((null expr)
-             (ensure-space)
-             (insert "nil"))
-            ((listp expr)
-             (if (or (not (listp (cdr expr)))
-                     (and (eq (cadr expr) 'ly-raw)
-                          (> (length expr) 2))
-                     (assoc (cadr expr) lispy--insert-alist))
-                 (progn
-                   (ensure-space)
-                   (insert (format "(%S . )" (car expr)))
-                   (backward-char 1)
-                   (lispy--insert (cdr expr))
-                   (forward-char 1))
-               (cond ((eq (car expr) 'ly-raw)
-                      (cl-case (cadr expr)
-                        ('comment
-                         (insert (caddr expr)))
-                        ('newline
-                         (newline-and-indent))
-                        ('string
-                         (ensure-space)
-                         (insert (caddr expr)))
-                        ('empty
-                         (ensure-space)
-                         (insert "()"))
-                        ('char
-                         (ensure-space)
-                         (insert "?" (caddr expr)))))
-                     ((eq (car expr) 'quote)
-                      (ensure-space)
-                      (insert "'")
-                      (lispy--insert (cadr expr)))
-                     ((setq str (cdr (assoc (car expr) lispy--insert-alist)))
-                      (ensure-space)
-                      (insert str)
-                      (lispy--insert (cadr expr)))
-                     ((eq (car expr) 'function)
-                      (ensure-space)
-                      (insert (format "#'%S" (cadr expr))))
-                     (t
-                      (ensure-space)
-                      (insert "()")
-                      (backward-char 1)
-                      (mapc #'lispy--insert expr)
-                      (forward-char 1)))))
-            (t
-             (ensure-space)
-             (insert (prin1-to-string expr)))))))
 
 (defun lispy-expr-canonical-p (str)
   "Return t if STR is the same when read and re-inserted."
