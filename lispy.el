@@ -824,6 +824,7 @@ Return nil if can't move."
 
 
 (defun lispy--delete-whitespace-backward ()
+  "Delete spaces backward."
   (let ((pt (point)))
     (skip-chars-backward " ")
     (delete-region (point) pt)))
@@ -956,7 +957,8 @@ Extend region when it's aleardy active."
       (goto-char (cdr bounds)))))
 
 (defun lispy-mark-list (arg)
-  "Mark list from special position."
+  "Mark list from special position.
+When ARG is more than 1, mark ARGth element."
   (interactive "p")
   (cond ((region-active-p)
          (deactivate-mark)
@@ -1263,9 +1265,9 @@ Special case is (|( -> ( |(."
 
 ;; ——— Locals:  Navigation —————————————————————————————————————————————————————
 (defvar lispy--occur-beg 1
-  "Start position of the top-level sexp during `lispy-occur'.")
+  "Start position of the top level sexp during `lispy-occur'.")
 (defvar lispy--occur-end 1
-  "End position of the top-level sexp during `lispy-occur'.")
+  "End position of the top level sexp during `lispy-occur'.")
 (defvar lispy--occur-buffer nil
   "Current buffer for `lispy-occur'.")
 
@@ -1276,7 +1278,7 @@ Special case is (|( -> ( |(."
   (back-to-indentation))
 
 (defun lispy-occur ()
-  "Select a line within current top-level sexp with `helm'."
+  "Select a line within current top level sexp with `helm'."
   (interactive)
   (helm :sources
         `((name . "top-occur")
@@ -1311,12 +1313,14 @@ Special case is (|( -> ( |(."
                'lispy--occur-update-sel))
 
 (defun lispy--occur-regex ()
+  "Re-build regex in case it has a space."
   (mapconcat
    #'identity
    (split-string helm-input " +" t)
    ".*"))
 
 (defun lispy--occur-update-sel ()
+  "Update selection for `lispy-occur'."
   (with-current-buffer lispy--occur-buffer
     (let (pt)
       (save-excursion
@@ -1334,6 +1338,7 @@ Special case is (|( -> ( |(."
           (goto-char pt))))))
 
 (defun lispy--occur-get-line (s e)
+  "Highlight between S and E for `lispy-occur'."
   (let ((line (buffer-substring s e)))
     (when (> (length helm-input) 1)
       (with-current-buffer lispy--occur-buffer
@@ -1545,7 +1550,8 @@ Return the amount of successful grow steps, nil instead of zero."
                (lispy-flow 1)))))))
 
 (defun lispy-raise (arg)
-  "Use current sexp or region as replacement for its parent."
+  "Use current sexp or region as replacement for its parent.
+Do so ARG times."
   (interactive "p")
   (lispy-dotimes arg
     (let ((regionp (region-active-p))
