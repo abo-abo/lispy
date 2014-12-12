@@ -243,6 +243,25 @@ The hint will consist of the possible nouns that apply to the verb."
   :type 'boolean
   :group 'lispy)
 
+(defcustom lispy-helm-columns '(1 60 70 80)
+  "Start and end positions of columns when completing with `helm'."
+  :group 'lispy)
+
+(defcustom lispy-no-permanent-semantic nil
+  "When t, `lispy' will not enable function `semantic-mode' when it's off."
+  :type 'boolean
+  :group 'lispy)
+
+(defface lispy-command-name-face
+    '((t (:inherit font-lock-function-name-face)))
+  "Face for Elisp commands."
+  :group 'lispy-faces)
+
+(defface lispy-occur-face
+    '((t (:background "#CECEFF")))
+  "Face for `lispy-occur' matches."
+  :group 'lispy-faces)
+
 (defvar lispy-mode-map (make-sparse-keymap))
 
 ;;;###autoload
@@ -1353,7 +1372,7 @@ Special case is (|( -> ( |(."
          lispy--occur-beg
          lispy--occur-end
          (lispy--occur-regex)
-         'lispy-command-name-face)))
+         'lispy-occur-face)))
     (propertize
      (format "%d %s"
              (1- (line-number-at-pos s))
@@ -3105,15 +3124,6 @@ Move to the end of line."
           "\\_>"))
         (t (error "%s isn't supported" mode))))
 
-(defcustom lispy-helm-columns '(1 60 70 80)
-  "Start and end positions of columns when completing with `helm'."
-  :group 'lispy)
-
-(defface lispy-command-name-face
-    '((t (:inherit font-lock-function-name-face)))
-  "Face for Elisp commands."
-  :group 'lispy-faces)
-
 (defun lispy--propertize-tag (kind x &optional face)
   "Concatenate KIND and the name of tag X.
 KIND is fontified with `font-lock-keyword-face'.
@@ -3368,11 +3378,6 @@ For example, a `setq' statement is amended with variable name that it uses."
     tags))
 
 (defvar lispy--goto-cache nil "Maps directories to pretty tags.")
-
-(defcustom lispy-no-permanent-semantic nil
-  "When t, `lispy' will not enable function `semantic-mode' when it's off."
-  :type 'boolean
-  :group 'lispy)
 
 (defun lispy--goto (fun)
   "Jump to symbol selected from (FUN)."
