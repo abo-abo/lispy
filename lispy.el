@@ -3541,7 +3541,7 @@ Ignore the matches in strings and comments."
                   str
                   (with-temp-buffer
                     (funcall mode)
-                    (lispy--insert (lispy--read str))
+                    (lispy--insert-1 (lispy--read str))
                     (buffer-substring-no-properties
                      (point-min)
                      (point-max))))))
