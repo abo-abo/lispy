@@ -3939,7 +3939,8 @@ ACTION is called for the selected candidate."
             (action . ,action))
           :preselect
           (let ((stag (semantic-current-tag))
-                (tag (lispy--current-tag)))
+                (tag (ignore-errors
+                       (lispy--current-tag))))
             (if tag
                 (if (eq (semantic-tag-class
                          stag)
