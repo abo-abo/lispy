@@ -3176,6 +3176,23 @@ ARITY-ALIST combines strings that REGEX matches and their arities."
          (lispy--propertize-tag (symbol-name (cadr x)) x))
         (t (car x))))
 
+(defun lispy--tag-sexp-elisp (x)
+  "Get the actual sexp from semantic tag X."
+  (let ((ov (nth 4 x))
+        buf end)
+    (if (overlayp ov)
+        (setq buf (overlay-buffer ov)
+              end (overlay-end ov))
+      (if (vectorp ov)
+          (setq buf (find-file-noselect (aref ov 2))
+                end (aref ov 1))
+        (error "Unexpected")))
+    (with-current-buffer buf
+      (save-excursion
+        (goto-char end)
+        (ignore-errors
+          (elisp--preceding-sexp))))))
+
 (defun lispy--tag-name-elisp (x)
   "Build tag name for Elisp tag X."
   (cond ((not (stringp (car x)))
@@ -3194,6 +3211,14 @@ ARITY-ALIST combines strings that REGEX matches and their arities."
          (lispy--propertize-tag "defvar" x))
         ((assq (cadr x) (cdr (assoc 'emacs-lisp-mode lispy-tag-arity)))
          (lispy--propertize-tag (symbol-name (cadr x)) x))
+        ((and (eq (cadr x) 'code)
+              (string= (car x) "define-derived-mode"))
+         (let ((sexp (lispy--tag-sexp-elisp x)))
+           (lispy--propertize-tag
+            "define-derived-mode"
+            (list (format "%s %s"
+                          (cadr sexp)
+                          (caddr sexp))))))
         (t (car x))))
 
 (defun lispy--tag-name-clojure (x)
