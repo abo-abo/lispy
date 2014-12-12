@@ -1029,24 +1029,6 @@ When ARG is more than 1, mark ARGth element."
         (t
          (lispy--mark (lispy--bounds-dwim)))))
 
-(defun lispy-pop-copy (arg)
-  "Pop to mark and copy current list there.
-With ARG not nil, cut instead of copying."
-  (interactive "P")
-  (lispy--out-forward 1)
-  (let* ((beg (point))
-         (end (progn
-                (lispy-backward 1)
-                (point)))
-         (sexp
-          (buffer-substring-no-properties
-           beg end)))
-    (when arg
-      (delete-region beg end)
-      (lispy--remove-gaps))
-    (set-mark-command 4)
-    (insert sexp)))
-
 (defun lispy-kill-at-point ()
   "Kill the quoted string or the list that includes the point."
   (interactive)
