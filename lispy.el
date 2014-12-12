@@ -1321,21 +1321,25 @@ Special case is (|( -> ( |(."
 
 (defun lispy--occur-update-sel ()
   "Update selection for `lispy-occur'."
-  (with-current-buffer lispy--occur-buffer
-    (let (pt)
-      (save-excursion
-        (goto-char lispy--occur-beg)
-        (helm-candidate-number-at-point)
-        (when (re-search-forward (lispy--occur-regex)
-                                 lispy--occur-end t
-                                 (helm-candidate-number-at-point))
-          (isearch-highlight (match-beginning 0)
-                             (match-end 0))
-          (setq pt (match-beginning 0))))
-      (when pt
-        (with-selected-window
-            (helm-persistent-action-display-window)
-          (goto-char pt))))))
+  (let* ((str (buffer-substring-no-properties
+               (point-at-bol)
+               (point-at-eol)))
+         (num (if (string-match "^[0-9]+" str)
+                  (string-to-number (match-string 0 str))
+                0))
+         pt)
+    (with-current-buffer lispy--occur-buffer
+      (goto-char lispy--occur-beg)
+      (forward-line (1- num))
+      (when (re-search-forward (lispy--occur-regex)
+                               lispy--occur-end t)
+        (isearch-highlight (match-beginning 0)
+                           (match-end 0))
+        (setq pt (match-beginning 0))))
+    (when pt
+      (with-selected-window
+          (helm-persistent-action-display-window)
+        (goto-char pt)))))
 
 (defun lispy--occur-get-line (s e)
   "Highlight between S and E for `lispy-occur'."
