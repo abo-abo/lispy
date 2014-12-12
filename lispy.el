@@ -1844,7 +1844,7 @@ Comments will be moved ahead of sexp."
            (goto-char pt)
            (indent-sexp))
        (delete-region (car bnd) (cdr bnd))
-       (lispy--insert-1
+       (lispy--insert
         (butlast
          (cl-mapcan (lambda (y) (list y '(ly-raw newline)))
                     (lispy--read str))))))))
@@ -2362,7 +2362,7 @@ When region is active, call `lispy-mark-car'."
         (progn
           (delete-region (car bnd)
                          (cdr bnd))
-          (lispy--insert-1
+          (lispy--insert
            `(defun ,(car expr) ,(or (cdr expr) '(ly-raw empty))
               (ly-raw newline)))
           (backward-char))
@@ -2417,7 +2417,7 @@ With ARG, use the contents of `lispy-store-region-and-buffer' instead."
                      (lispy--flatten-function fstr e-args))))
         (goto-char (car bnd))
         (delete-region (car bnd) (cdr bnd))
-        (lispy--insert-1 body)
+        (lispy--insert body)
         (when begp
           (goto-char (car bnd)))))))
 
@@ -3556,7 +3556,7 @@ Ignore the matches in strings and comments."
                   str
                   (with-temp-buffer
                     (funcall mode)
-                    (lispy--insert-1 (lispy--read str))
+                    (lispy--insert (lispy--read str))
                     (buffer-substring-no-properties
                      (point-min)
                      (point-max))))))
@@ -3695,11 +3695,11 @@ Defaults to `error'."
    (indent-sexp)))
 
 (defun lispy--fast-insert (f-expr)
-  "`lispy--insert-1' F-EXPR into a temp buffer and return `buffer-string'."
+  "`lispy--insert' F-EXPR into a temp buffer and return `buffer-string'."
   (insert
    (with-temp-buffer
      (emacs-lisp-mode)
-     (lispy--insert-1 f-expr)
+     (lispy--insert f-expr)
      (buffer-string))))
 
 (defun lispy-to-cond ()
@@ -4031,12 +4031,12 @@ the first character of EXPR."
     (emacs-lisp-mode)
     (dotimes (i offset)
       (insert ?\ ))
-    (lispy--insert-1 expr)
+    (lispy--insert expr)
     (buffer-substring-no-properties
      (+ (point-min) offset)
      (point-max))))
 
-(defun lispy--insert-1 (expr)
+(defun lispy--insert (expr)
   "Insert the EXPR read by `lispy--read'."
   (let ((start-pt (point))
         beg end
@@ -4061,7 +4061,7 @@ the first character of EXPR."
            (insert (caddr sxp)))
           (raw
            (delete-region beg (point))
-           (lispy--insert-1 (cddr sxp))
+           (lispy--insert (cddr sxp))
            (backward-list)
            (forward-char)
            (insert "ly-raw "))
