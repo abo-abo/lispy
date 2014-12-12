@@ -1260,6 +1260,42 @@ Special case is (|( -> ( |(."
   (interactive)
   (iedit-mode 0))
 
+;; ——— Locals:  Navigation —————————————————————————————————————————————————————
+(defvar lispy--occur-start 1
+  "Start position of the top-level sexp during `lispy-occur'.")
+
+(defun lispy--occur-action (x)
+  "Goto line X for `lispy-occur'."
+  (goto-char lispy--occur-start)
+  (forward-line (+ x (if (> (length helm-input) 1) -1 0)))
+  (back-to-indentation))
+
+(defun lispy-occur ()
+  "Select a line within current top-level sexp with `helm'."
+  (interactive)
+  (helm :sources
+        `((name . "occur in top-level")
+          (init
+           . (lambda ()
+               (let ((bnd (save-excursion
+                            (unless (and (looking-at "(")
+                                         (looking-back "^"))
+                              (beginning-of-defun))
+                            (setq lispy--occur-start (point))
+                            (lispy--bounds-dwim))))
+                 (helm-init-candidates-in-buffer
+                     'global
+                   (buffer-substring (car bnd) (cdr bnd))))))
+          (candidates-in-buffer)
+          (get-line . (lambda (s e)
+                        (let ((line (buffer-substring s e)))
+                          (propertize
+                           line
+                           'helm-realvalue
+                           (1- (line-number-at-pos s))))))
+          (regexp . (lambda () helm-input))
+          (action . lispy--occur-action))))
+
 ;; ——— Locals:  Paredit transformations ————————————————————————————————————————
 (defun lispy--sub-slurp-forward (arg)
   "Grow current marked symbol by ARG words forwards.
@@ -4571,6 +4607,7 @@ FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)"
   (lispy-define-key map "P" 'lispy-paste)
   (lispy-define-key map "J" 'lispy-outline-next)
   (lispy-define-key map "K" 'lispy-outline-prev)
+  (lispy-define-key map "y" 'lispy-occur)
   ;; ——— locals: Paredit transformations ——————
   (lispy-define-key map ">" 'lispy-slurp)
   (lispy-define-key map "<" 'lispy-barf)
