@@ -2744,8 +2744,7 @@ If the region is active, replace instead of yanking."
         (deactivate-mark)
         (delete-region (car bnd)
                        (cdr bnd))
-        (yank)
-        (lispy-out-forward 1))
+        (yank))
     (yank)))
 
 ;; ——— Predicates ——————————————————————————————————————————————————————————————
