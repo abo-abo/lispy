@@ -968,8 +968,7 @@ Extend region when it's aleardy active."
                     (lispy--bounds-string)
                     (lispy--bounds-list))))
     (when bounds
-      (set-mark (car bounds))
-      (goto-char (cdr bounds)))))
+      (lispy--mark bounds))))
 
 (defun lispy-mark-list (arg)
   "Mark list from special position.
