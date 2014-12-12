@@ -88,6 +88,7 @@
 ;; | S   | `lispy-stringify'        | C-u "      | `lispy-quotes'    |
 ;; | ;   | `lispy-comment'          | C-u ;      | `lispy-comment'   |
 ;; | xi  | `lispy-to-ifs'           | xc         | `lispy-to-cond'   |
+;; | F   | `lispy-follow'           | D          | `pop-tag-mark'    |
 ;; |-----+--------------------------+------------+-------------------|
 ;;
 ;; Here's a list of commands for inserting pairs:
@@ -108,54 +109,12 @@
 ;; | SPC | `lispy-space'                      |
 ;; |  :  | `lispy-colon'                      |
 ;; |  ^  | `lispy-hat'                        |
+;; |  '  | `lispy-tick'                       |
+;; |  `  | `lispy-backtick'                   |
 ;; | C-m | `lispy-newline-and-indent'         |
 ;; |-----+------------------------------------|
 ;;
-;; Among other cool commands are:
-;; |-------+----------------------------------|
-;; | key   | command                          |
-;; |-------+----------------------------------|
-;; | f     | `lispy-flow'                     |
-;; | u     | `lispy-undo'                     |
-;; | e     | `lispy-eval'                     |
-;; | m     | `lispy-mark-list'                |
-;; | l     | `lispy-out-forward'              |
-;; | h     | `lispy-out-backward'             |
-;; | E     | `lispy-eval-and-insert'          |
-;; | /     | `lispy-splice'                   |
-;; | i     | `indent-sexp'                    |
-;; | r     | `lispy-raise'                    |
-;; | R     | `lispy-raise-some'               |
-;; | J     | `lispy-outline-next'             |
-;; | K     | `lispy-outline-prev'             |
-;; | g     | `lispy-goto'                     |
-;; | G     | `lispy-goto-local'               |
-;; | q     | `lispy-ace-paren'                |
-;; | a     | `lispy-ace-symbol'               |
-;; | Q     | `lispy-ace-char'                 |
-;; | D     | `lispy-describe'                 |
-;; | F     | `lispy-follow'                   |
-;; | N     | `lispy-narrow'                   |
-;; | W     | `lispy-widen'                    |
-;; | C-1   | `lispy-describe-inline'          |
-;; | C-2   | `lispy-arglist-inline'           |
-;; | C-7   | `lispy-cursor-down'              |
-;; | C-8   | `lispy-parens-down'              |
-;; | C-e   | `lispy-move-end-of-line'         |
-;; | C-k   | `lispy-kill'                     |
-;; | C-y   | `lispy-yank'                     |
-;; | C-d   | `lispy-delete'                   |
-;; | DEL   | `lispy-delete-backward'          |
-;; | C-,   | `lispy-kill-at-point'            |
-;; | C-M-, | `lispy-mark'                     |
-;; | M-m   | `lispy-mark-symbol'              |
-;; | v     | `lispy-view'                     |
-;; | n     | `lispy-new-copy'                 |
-;; | xd    | `lispy-to-defun'                 |
-;; | xl    | `lispy-to-lambda'                |
-;; | xm    | `lispy-cursor-ace'               |
-;; | xe    | `edebug-defun'                   |
-;; |-------+----------------------------------|
+;; You can see the full list of bound commands with "F1 f lispy-mode".
 ;;
 ;; Most special commands will leave the point special after they're
 ;; done.  This allows to chain them as well as apply them continuously
@@ -704,26 +663,6 @@ Return nil if can't move."
          (backward-list))
         (t
          (user-error "Unexpected"))))
-
-(defun lispy-outline-next (arg)
-  "Call `outline-next-visible-heading' ARG times."
-  (interactive "p")
-  (lispy-dotimes arg
-    (let ((pt (point)))
-      (outline-next-visible-heading 1)
-      (unless (looking-at outline-regexp)
-        (goto-char pt)
-        (error "Past last outline")))))
-
-(defun lispy-outline-prev (arg)
-  "Call `outline-previous-visible-heading' ARG times."
-  (interactive "p")
-  (lispy-dotimes arg
-    (let ((pt (point)))
-      (outline-previous-visible-heading 1)
-      (unless (looking-at outline-regexp)
-        (goto-char pt)
-        (error "Past first outline")))))
 
 ;; ——— Globals: kill, yank, delete, mark, copy —————————————————————————————————
 (defun lispy-kill ()
@@ -2344,6 +2283,26 @@ Sexp is obtained by exiting list ARG times."
    (lambda () (forward-char 1) (lispy-mark-symbol) (lispy-delete 1))))
 
 ;; ——— Locals:  outline ————————————————————————————————————————————————————————
+(defun lispy-outline-next (arg)
+  "Call `outline-next-visible-heading' ARG times."
+  (interactive "p")
+  (lispy-dotimes arg
+    (let ((pt (point)))
+      (outline-next-visible-heading 1)
+      (unless (looking-at outline-regexp)
+        (goto-char pt)
+        (error "Past last outline")))))
+
+(defun lispy-outline-prev (arg)
+  "Call `outline-previous-visible-heading' ARG times."
+  (interactive "p")
+  (lispy-dotimes arg
+    (let ((pt (point)))
+      (outline-previous-visible-heading 1)
+      (unless (looking-at outline-regexp)
+        (goto-char pt)
+        (error "Past first outline")))))
+
 (defun lispy-tab ()
   "Indent code and hide/show outlines.
 When region is active, call `lispy-mark-car'."
@@ -2425,6 +2384,42 @@ When region is active, call `lispy-mark-car'."
               (lispy-backward 1))
           (lispy-complain "Not in lambda")
           (goto-char pt))))))
+
+(defun lispy-flatten (arg)
+  "Inline a function at the point of its call.
+The function body is obtained from `find-function-noselect'.
+With ARG, use the contents of `lispy-store-region-and-buffer' instead."
+  (interactive "P")
+  (let* ((begp (if (looking-at lispy-left)
+                   t
+                 (if (looking-back lispy-right)
+                     (progn (backward-list)
+                            nil)
+                   (lispy-out-backward 1))))
+         (bnd (lispy--bounds-list))
+         (str (lispy--string-dwim bnd))
+         (expr (lispy--read str))
+         (fstr (if arg
+                   (with-current-buffer (get 'lispy-store-bounds 'buffer)
+                     (lispy--string-dwim (get 'lispy-store-bounds 'region)))
+                 (condition-case e
+                     (lispy--function-str (car expr))
+                   (unsupported-mode-error
+                    (lispy-complain
+                     (format "Can't flatten: symbol `%s' is defined in `%s'"
+                             (lispy--prin1-fancy (car expr))
+                             (lispy--prin1-fancy (cdr e))))
+                    nil)))))
+    (when fstr
+      (let* ((e-args (cl-remove-if #'lispy--whitespacep (cdr expr)))
+             (body (if (macrop (car expr))
+                       (macroexpand (read str))
+                     (lispy--flatten-function fstr e-args))))
+        (goto-char (car bnd))
+        (delete-region (car bnd) (cdr bnd))
+        (lispy--insert-1 body)
+        (when begp
+          (goto-char (car bnd)))))))
 
 ;; ——— Locals:  multiple cursors ———————————————————————————————————————————————
 (declare-function mc/create-fake-cursor-at-point "ext:multiple-cursors")
@@ -2534,42 +2529,7 @@ Second region and buffer are the current ones."
           (lispy--mark bnd-2)
         (lispy-complain "can't descend further")))))
 
-;; ——— Locals:  miscellanea ————————————————————————————————————————————————————
-(defvar lispy-mode-x-map (make-sparse-keymap))
-
-(defun lispy-x ()
-  "Forward to `lispy-mode-x-map'."
-  (interactive)
-  (let ((char (read-char))
-        fun)
-    (if (setq fun (cdr (assoc char lispy-mode-x-map)))
-        (call-interactively fun)
-      (error "Nothing bound to %c" char))))
-
-(defun lispy-ert ()
-  "Call (`ert' t)."
-  (interactive)
-  (ert t))
-
-(defun lispy-undo ()
-  "Deactivate region and `undo'."
-  (interactive)
-  (when (region-active-p)
-    (deactivate-mark t))
-  (undo))
-
-(defun lispy-view ()
-  "Recenter current sexp to first screen line.
-If already there, return it to previous position."
-  (interactive)
-  (lispy-from-left
-   (let ((window-line (count-lines (window-start) (point))))
-     (if (or (= window-line 0)
-             (and (not (bolp)) (= window-line 1)))
-         (recenter (or (get 'lispy-recenter :line) 0))
-       (put 'lispy-recenter :line window-line)
-       (recenter 0)))))
-
+;; ——— Locals:  edebug —————————————————————————————————————————————————————————
 (defun lispy-edebug-stop ()
   "Stop edebugging, while saving current function arguments."
   (interactive)
@@ -2627,6 +2587,42 @@ ARG is 4: `eval-defun' on the function from this sexp."
                           (error "Argument = %s isn't supported" arg)))))
              (error "%s isn't bound" fun))))))
 
+;; ——— Locals:  miscellanea ————————————————————————————————————————————————————
+(defvar lispy-mode-x-map (make-sparse-keymap))
+
+(defun lispy-x ()
+  "Forward to `lispy-mode-x-map'."
+  (interactive)
+  (let ((char (read-char))
+        fun)
+    (if (setq fun (cdr (assoc char lispy-mode-x-map)))
+        (call-interactively fun)
+      (error "Nothing bound to %c" char))))
+
+(defun lispy-ert ()
+  "Call (`ert' t)."
+  (interactive)
+  (ert t))
+
+(defun lispy-undo ()
+  "Deactivate region and `undo'."
+  (interactive)
+  (when (region-active-p)
+    (deactivate-mark t))
+  (undo))
+
+(defun lispy-view ()
+  "Recenter current sexp to first screen line.
+If already there, return it to previous position."
+  (interactive)
+  (lispy-from-left
+   (let ((window-line (count-lines (window-start) (point))))
+     (if (or (= window-line 0)
+             (and (not (bolp)) (= window-line 1)))
+         (recenter (or (get 'lispy-recenter :line) 0))
+       (put 'lispy-recenter :line window-line)
+       (recenter 0)))))
+
 (when (version< emacs-version "24.4")
   (defun macrop (object)
     "Non-nil if and only if OBJECT is a macro."
@@ -2639,42 +2635,6 @@ ARG is 4: `eval-defun' on the function from this sexp."
     (if (version< emacs-version "25.1")
         'preceding-sexp
       'elisp--preceding-sexp))
-
-(defun lispy-flatten (arg)
-  "Inline a function at the point of its call.
-The function body is obtained from `find-function-noselect'.
-With ARG, use the contents of `lispy-store-region-and-buffer' instead."
-  (interactive "P")
-  (let* ((begp (if (looking-at lispy-left)
-                   t
-                 (if (looking-back lispy-right)
-                     (progn (backward-list)
-                            nil)
-                   (lispy-out-backward 1))))
-         (bnd (lispy--bounds-list))
-         (str (lispy--string-dwim bnd))
-         (expr (lispy--read str))
-         (fstr (if arg
-                   (with-current-buffer (get 'lispy-store-bounds 'buffer)
-                     (lispy--string-dwim (get 'lispy-store-bounds 'region)))
-                 (condition-case e
-                     (lispy--function-str (car expr))
-                   (unsupported-mode-error
-                    (lispy-complain
-                     (format "Can't flatten: symbol `%s' is defined in `%s'"
-                             (lispy--prin1-fancy (car expr))
-                             (lispy--prin1-fancy (cdr e))))
-                    nil)))))
-    (when fstr
-      (let* ((e-args (cl-remove-if #'lispy--whitespacep (cdr expr)))
-             (body (if (macrop (car expr))
-                       (macroexpand (read str))
-                     (lispy--flatten-function fstr e-args))))
-        (goto-char (car bnd))
-        (delete-region (car bnd) (cdr bnd))
-        (lispy--insert-1 body)
-        (when begp
-          (goto-char (car bnd)))))))
 
 (declare-function projectile-find-file "ext:projectile")
 (declare-function projectile-find-file-other-window "ext:projectile")
@@ -2774,6 +2734,10 @@ If the region is active, replace instead of yanking."
   (if (region-active-p)
       (= (point) (region-beginning))
     (looking-at lispy-left)))
+
+(defun lispy--symbolp (str)
+  "Return t if STR is a symbol."
+  (string-match "\\`\\(?:\\sw\\|\\s_\\)+\\'" str))
 
 ;; ——— Pure ————————————————————————————————————————————————————————————————————
 (defun lispy--bounds-dwim ()
@@ -2887,10 +2851,6 @@ First, try to return `lispy--bounds-string'."
   "Return a propertized `prin1-to-string'-ed X."
   (propertize (prin1-to-string x)
               'face 'font-lock-constant-face))
-
-(defun lispy--symbolp (str)
-  "Return t if STR is a symbol."
-  (string-match "\\`\\(?:\\sw\\|\\s_\\)+\\'" str))
 
 ;; ——— Utilities: movement —————————————————————————————————————————————————————
 (defvar lispy-ignore-whitespace nil
@@ -3792,7 +3752,7 @@ Defaults to `error'."
    (indent-sexp)))
 
 (defun lispy--fast-insert (f-expr)
-  "`lispy--insert' F-EXPR into a temp buffer and return `buffer-string'."
+  "`lispy--insert-1' F-EXPR into a temp buffer and return `buffer-string'."
   (insert
    (with-temp-buffer
      (emacs-lisp-mode)
