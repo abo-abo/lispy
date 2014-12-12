@@ -3006,6 +3006,11 @@ Move to the end of line."
   "Start and end positions of columns when completing with `helm'."
   :group 'lispy)
 
+(defface lispy-command-name-face
+    '((t (:inherit font-lock-function-name-face)))
+  "Face for Elisp commands."
+  :group 'lispy-faces)
+
 (defun lispy--propertize-tag (kind x &optional face)
   "Concatenate KIND and the name of tag X.
 KIND is fontified with `font-lock-keyword-face'.
@@ -3018,6 +3023,7 @@ FACE can be :keyword, :function or :type.  It defaults to 'default."
                  (:keyword 'font-lock-keyword-face)
                  (:type 'font-lock-type-face)
                  (:function 'font-lock-function-name-face)
+                 (:command 'lispy-command-name-face)
                  (t 'default)))))
 
 (defun lispy--modify-tag (x regex arity-alist)
@@ -3075,7 +3081,9 @@ ARITY-ALIST combines strings that REGEX matches and their arities."
         ((eq (cadr x) 'customgroup)
          (lispy--propertize-tag "defgroup" x))
         ((eq (cadr x) 'function)
-         (lispy--propertize-tag nil x :function))
+         (if (semantic-tag-get-attribute x :user-visible-flag)
+             (lispy--propertize-tag nil x :command)
+           (lispy--propertize-tag nil x :function)))
         ((eq (cadr x) 'variable)
          (lispy--propertize-tag "defvar" x))
         ((assq (cadr x) (cdr (assoc 'emacs-lisp-mode lispy-tag-arity)))
