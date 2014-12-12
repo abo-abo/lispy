@@ -1601,7 +1601,6 @@ The outcome when ahead of sexps is different from when behind."
     (lispy-raise 1)
     (deactivate-mark)))
 
-
 (defun lispy-convolute ()
   "Replace (...(,,,|( with (,,,(...|( where ... and ,,, is arbitrary code."
   (interactive)
@@ -1864,7 +1863,12 @@ The outcome when ahead of sexps is different from when behind."
 Comments will be moved ahead of sexp."
   (interactive)
   (if (region-active-p)
-      (lispy-oneline-region)
+      (let* ((beg (region-beginning))
+             (end (region-end))
+             (str (buffer-substring-no-properties
+                   beg end)))
+        (delete-region beg end)
+        (insert (mapconcat #'identity (split-string str "[\n \t]+") " ")))
     (let ((from-left (looking-at lispy-left))
           str bnd)
       (setq str (lispy--string-dwim (setq bnd (lispy--bounds-dwim))))
@@ -1882,15 +1886,6 @@ Comments will be moved ahead of sexp."
         (when from-left
           (backward-list)))
       (lispy--normalize-1))))
-
-(defun lispy-oneline-region ()
-  "Squeeze selected region into one line."
-  (let* ((beg (region-beginning))
-         (end (region-end))
-         (str (buffer-substring-no-properties
-               beg end)))
-    (delete-region beg end)
-    (insert (mapconcat #'identity (split-string str "[\n \t]+") " "))))
 
 (defun lispy-multiline ()
   "Spread current sexp over multiple lines."
