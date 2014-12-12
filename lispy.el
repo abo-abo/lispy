@@ -1266,20 +1266,14 @@ Special case is (|( -> ( |(."
   "Start position of the top-level sexp during `lispy-occur'.")
 (defvar lispy--occur-end 1
   "End position of the top-level sexp during `lispy-occur'.")
+(defvar lispy--occur-buffer nil
+  "Current buffer for `lispy-occur'.")
 
 (defun lispy--occur-action (x)
   "Goto line X for `lispy-occur'."
   (goto-char lispy--occur-beg)
   (forward-line (+ x (if (> (length helm-input) 1) -1 0)))
-  (back-to-indentation)
-  (hlt-unhighlight-region
-   lispy--occur-beg
-   lispy--occur-end)
-  (isearch-dehighlight)
-  (remove-hook 'helm-move-selection-after-hook
-               'lispy--occur-update-sel))
-
-(defvar lispy--occur-buffer nil)
+  (back-to-indentation))
 
 (defun lispy-occur ()
   "Select a line within current top-level sexp with `helm'."
@@ -1301,20 +1295,20 @@ Special case is (|( -> ( |(."
                    (buffer-substring
                     lispy--occur-beg
                     lispy--occur-end)))
-               (add-hook 'helm-exit-minibuffer-hook
-                         (lambda ()
-                           (with-current-buffer lispy--occur-buffer
-                             (hlt-unhighlight-region
-                              lispy--occur-beg
-                              lispy--occur-end)
-                             (remove-hook 'helm-move-selection-after-hook
-                                          'lispy--occur-update-sel))))
                (add-hook 'helm-move-selection-after-hook
                          'lispy--occur-update-sel)))
           (candidates-in-buffer)
           (get-line . lispy--occur-get-line)
           (regexp . (lambda () helm-input))
-          (action . lispy--occur-action))))
+          (action . lispy--occur-action)))
+  ;; cleanup
+  (with-current-buffer lispy--occur-buffer
+    (hlt-unhighlight-region
+     lispy--occur-beg
+     lispy--occur-end)
+    (isearch-dehighlight))
+  (remove-hook 'helm-move-selection-after-hook
+               'lispy--occur-update-sel))
 
 (defun lispy--occur-regex ()
   (mapconcat
