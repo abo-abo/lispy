@@ -2112,7 +2112,7 @@ When ARG isn't nil, try to pretty print the sexp."
     (unless (or (looking-at lispy-left)
                 (looking-back lispy-right))
       (lispy--out-backward 1))
-    (when (and leftp (not (lispy--leftp)))
+    (when (and leftp (looking-back lispy-right))
       (lispy-different))))
 
 (defconst lispy--eval-cond-msg
