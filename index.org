@@ -727,8 +727,8 @@ Similar to [[#lispy-ace-symbol][=lispy-ace-symbol=]], but selects a subword inst
 :END:
 Bound to ~y~.
 
-Do a occur for the current top-level sexp with helm.
-Go the first non-whitespace char of the selected line.
+Do an occur for the current top-level sexp with helm.
+Go back-to-paren afterwards.
 ------
 
 ** =lispy-follow=
