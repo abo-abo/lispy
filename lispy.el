@@ -1190,7 +1190,11 @@ Special case is (|( -> ( |(."
 (defun lispy-iedit ()
   "Wrap around `iedit'."
   (interactive)
-  (iedit-mode 0))
+  (if iedit-mode
+      (iedit-mode nil)
+    (when (looking-at lispy-left)
+      (forward-char 1))
+    (iedit-mode 0)))
 
 ;; ——— Locals:  Navigation —————————————————————————————————————————————————————
 (defvar lispy--occur-beg 1
