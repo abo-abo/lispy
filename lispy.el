@@ -1204,7 +1204,10 @@ Special case is (|( -> ( |(."
   "Goto line X for `lispy-occur'."
   (goto-char lispy--occur-beg)
   (forward-line (+ x (if (> (length helm-input) 1) -1 0)))
-  (back-to-indentation))
+  (re-search-forward (lispy--occur-regex)
+                     (line-end-position)
+                     t)
+  (lispy--out-backward 1))
 
 (defun lispy-occur ()
   "Select a line within current top level sexp with `helm'."
