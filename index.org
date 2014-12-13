@@ -157,7 +157,7 @@
 | v   | [[#lispy-view][lispy-view]]                    |
 | w   | [[#lispy-move-up][lispy-move-up]]                 |
 | x   | [[#x-bindings][see]]                           |
-| y   | unbound                       |
+| y   | [[#lispy-occur][lispy-occur]]                   |
 | z   | unbound                       |
 | >   | [[#lispy-slurp][lispy-slurp]]                   |
 | <   | [[#lispy-barf][lispy-barf]]                    |
@@ -721,6 +721,15 @@ Bound to ~-~.
 
 Similar to [[#lispy-ace-symbol][=lispy-ace-symbol=]], but selects a subword instead.
 -----
+** =lispy-occur=
+:PROPERTIES:
+:CUSTOM_ID: lispy-occur
+:END:
+Bound to ~y~.
+
+Do a occur for the current top-level sexp with helm.
+Go the first non-whitespace char of the selected line.
+------
 
 ** =lispy-follow=
 :PROPERTIES:
@@ -732,8 +741,7 @@ Bound to ~F~.
 When region is active jump to the definition of marked symbol.
 Otherwise jump to the definition of the first symbol in current sexp.
 
-It sets the mark before jumping, so you can use ~C-u C-SPC~ to jump
-back within current file or ~C-x C-SPC~ to jump back to previous file.
+Use ~D~ or ~M-,~ to go back.
 
 Elisp, Clojure and Common Lisp are supported.
 -----
