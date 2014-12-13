@@ -2492,12 +2492,13 @@ With ARG, use the contents of `lispy-store-region-and-buffer' instead."
   "Subsititute let-bound variable."
   (interactive)
   (forward-char 1)
-  (iedit-mode 0)
+  (noflet ((message (&rest)))
+    (iedit-mode 0))
   (lispy-mark-symbol)
   (lispy-move-down 1)
   (iedit-mode)
-  (lispy-out-backward 1)
   (deactivate-mark)
+  (lispy-out-backward 1)
   (lispy-delete 1)
   (save-excursion
     (lispy--out-backward 1)
