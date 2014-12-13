@@ -1207,7 +1207,7 @@ Special case is (|( -> ( |(."
 (defun lispy--occur-action (x)
   "Goto line X for `lispy-occur'."
   (goto-char lispy--occur-beg)
-  (forward-line (+ x (if (> (length helm-input) 1) -1 0)))
+  (forward-line (+ x (if (>= (length helm-input) 1) -1 0)))
   (re-search-forward (lispy--occur-regex)
                      (line-end-position)
                      t)
