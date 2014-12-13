@@ -1968,6 +1968,29 @@ Quote newlines if ARG isn't 1."
         (lispy--teleport ,beg ,end ,endp ,regionp))
      t)))
 
+(defun lispy-replace-symbol ()
+  "Overwrite `lispy-ace-symbol' with current thing."
+  (interactive)
+  (lexical-let ((bnd-defun (save-excursion
+                             (lispy-beginning-of-defun)
+                             (lispy--bounds-dwim)))
+                (bnd-curr (lispy--bounds-dwim)))
+    (lispy--ace-do
+     "[([{ ]\\(?:\\sw\\|\\s_\\|\\s(\\|[\"'`#]\\)"
+     bnd-defun
+     (lambda () (or (not (lispy--in-string-or-comment-p)) (looking-back ".\"")))
+     (lambda ()
+       (let ((str (lispy--string-dwim bnd-curr)))
+         (let ((pt (1+ (point))))
+           (goto-char (car bnd-curr))
+           (save-excursion
+             (goto-char pt)
+             (lispy-mark-symbol)
+             (delete-active-region)
+             (deactivate-mark)
+             (insert str)
+             (lispy--normalize-1))))))))
+
 ;; ——— Locals:  tags ———————————————————————————————————————————————————————————
 (defun lispy-goto (&optional arg)
   "Jump to symbol within files in current directory.
