@@ -2484,6 +2484,21 @@ With ARG, use the contents of `lispy-store-region-and-buffer' instead."
   (lispy-from-left
    (indent-sexp)))
 
+(defun lispy-unbind-variable ()
+  "Subsititute let-bound variable."
+  (interactive)
+  (forward-char 1)
+  (iedit-mode 0)
+  (lispy-mark-symbol)
+  (lispy-move-down 1)
+  (iedit-mode)
+  (lispy-out-backward 1)
+  (deactivate-mark)
+  (lispy-delete 1)
+  (save-excursion
+    (lispy--out-backward 1)
+    (lispy--normalize-1)))
+
 ;; ——— Locals:  multiple cursors ———————————————————————————————————————————————
 (declare-function mc/create-fake-cursor-at-point "ext:multiple-cursors")
 (declare-function mc/all-fake-cursors "ext:multiple-cursors")
@@ -4512,7 +4527,8 @@ return the corresponding `setq' expression."
   (define-key map "r" 'lispy-eval-and-replace)
   (define-key map "s" 'save-buffer)
   (define-key map "j" 'lispy-debug-step-in)
-  (define-key map "h" 'lispy-describe))
+  (define-key map "h" 'lispy-describe)
+  (define-key map "u" 'lispy-unbind-variable))
 
 (defun lispy-define-key (keymap key def &rest plist)
   "Forward to (`define-key' KEYMAP KEY FUNC).

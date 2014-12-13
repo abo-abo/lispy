@@ -1010,6 +1010,58 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "|\"foo\"~" (lispy-mark-car))
                    "\"~foo|\"")))
 
+(ert-deftest lispy-unbind-variable ()
+  (should (string=
+           (noflet ((recenter (&optional))
+                     (message (&rest)))
+             (lispy-with "
+(defun foobar ()
+  (let (|(x 10)
+        (y 20)
+        (z 30))
+    (foo1 x y z)
+    (foo2 x z y)
+    (foo3 y x z)
+    (foo4 y z x)
+    (foo5 z x y)
+    (foo6 z y x)))"
+               (lispy-unbind-variable)))
+           "
+(defun foobar ()
+  (let (|(y 20)
+        (z 30))
+    (foo1 10 y z)
+    (foo2 10 z y)
+    (foo3 y 10 z)
+    (foo4 y z 10)
+    (foo5 z 10 y)
+    (foo6 z y 10)))"))
+  (should (string=
+           (noflet ((recenter (&optional))
+                     (message (&rest)))
+             (lispy-with "
+(defun foobar ()
+  (let (|(x 10)
+        (y 20)
+        (z 30))
+    (foo1 x y z)
+    (foo2 x z y)
+    (foo3 y x z)
+    (foo4 y z x)
+    (foo5 z x y)
+    (foo6 z y x)))"
+               (lispy-unbind-variable)
+               (lispy-unbind-variable)))
+           "
+(defun foobar ()
+  (let (|(z 30))
+    (foo1 10 20 z)
+    (foo2 10 z 20)
+    (foo3 20 10 z)
+    (foo4 20 z 10)
+    (foo5 z 10 20)
+    (foo6 z 20 10)))")))
+
 (provide 'lispy-test)
 
 ;;; Local Variables:
