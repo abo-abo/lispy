@@ -2771,7 +2771,8 @@ If the region is active, replace instead of yanking."
   (let ((beg (nth 8 (syntax-ppss))))
     (and beg
          (or (eq (char-after beg) ?\")
-             (comment-only-p beg (point))))))
+             (comment-only-p beg (point)))
+         beg)))
 
 (defun lispy--buffer-narrowed-p ()
   "Return T if the current buffer is narrowed."
