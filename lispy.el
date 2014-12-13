@@ -3913,7 +3913,8 @@ Defaults to `error'."
   (unless (or (eq major-mode 'minibuffer-inactive-mode)
               (= 0 (buffer-size)))
     (let ((tab-always-indent t))
-      (indent-for-tab-command))))
+      (noflet ((message (&rest)))
+        (indent-for-tab-command)))))
 
 (defun lispy--remove-gaps ()
   "Remove dangling `\\s)'."
