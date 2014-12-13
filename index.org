@@ -4,7 +4,6 @@
 #+HTML_HEAD: <link rel="stylesheet" type="text/css" href="style.css"/>
 
 | [[https://github.com/abo-abo/lispy][Back to github]] | [[https://raw.githubusercontent.com/abo-abo/lispy/gh-pages/index.org][This file in org-mode]] |
-
 * Setup                                                                               :noexport:
 #+begin_src emacs-lisp :exports results :results silent
 (defun make-html-region--replace-1 (x)
@@ -97,7 +96,10 @@
 * Macros                                                                              :noexport:
 #+MACRO: replaces Works as replacement for the standard $1.
 #+MACRO: cond The result depends on the following conditions, each tried one by one until one that holds true is found:
-* Global bindings
+* [[#global-bindings][G]] [[#a-z][az]] [[#A-Z][AZ]] [[#x-bindings][x]] Global bindings
+:PROPERTIES:
+:CUSTOM_ID: global-bindings
+:END:
 | key   | function name              |
 |-------+----------------------------|
 | ]     | [[#lispy-forward][lispy-forward]]              |
@@ -122,8 +124,13 @@
 | C-3   | [[#lispy-out-forward][lispy-out-forward]]          |
 | C-4   | [[#lispy-x][lispy-x]]                    |
 | C-8   | [[#lispy-parens-down][lispy-parens-down]]          |
+| M-.   | [[#lispy-goto-symbol][lispy-goto-symbol]]          |
+| M-,   | [[#pop-tag-mark][pop-tag-mark]]               |
 |-------+----------------------------|
-* [a-z] local bindings
+* [[#global-bindings][G]] [[#a-z][az]] [[#A-Z][AZ]] [[#x-bindings][x]] [a-z] local bindings
+:PROPERTIES:
+:CUSTOM_ID: a-z
+:END:
 | key | function name                 |
 |-----+-------------------------------|
 | a   | [[#lispy-ace-symbol][lispy-ace-symbol]]              |
@@ -154,14 +161,18 @@
 | z   | unbound                       |
 | >   | [[#lispy-slurp][lispy-slurp]]                   |
 | <   | [[#lispy-barf][lispy-barf]]                    |
+| -   | [[#lispy-ace-subword][lispy-ace-subword]]             |
 |-----+-------------------------------|
-* [A-Z] local bindings
+* [[#global-bindings][G]] [[#a-z][az]] [[#A-Z][AZ]] [[#x-bindings][x]] [A-Z] local bindings
+:PROPERTIES:
+:CUSTOM_ID: A-Z
+:END:
 | key | function name            |
 |-----+--------------------------|
 | A   | [[#lispy-beginning-of-defun][lispy-beginning-of-defun]] |
 | B   | [[#lispy-ediff-regions][lispy-ediff-regions]]      |
 | C   | [[#lispy-convolute][lispy-convolute]]          |
-| D   | [[#lispy-describe][lispy-describe]]           |
+| D   | [[#pop-tag-mark][pop-tag-mark]]             |
 | E   | [[#lispy-eval-and-insert][lispy-eval-and-insert]]    |
 | F   | [[#lispy-follow][lispy-follow]]             |
 | G   | [[#lispy-goto-local][lispy-goto-local]]         |
@@ -187,18 +198,21 @@
 | SPC | [[#lispy-space][lispy-space]]              |
 |-----+--------------------------|
 
-* x[a-z] local bindings
+* [[#global-bindings][G]] [[#a-z][az]] [[#A-Z][AZ]] [[#x-bindings][x]] x[a-z] local bindings
 :PROPERTIES:
 :CUSTOM_ID: x-bindings
 :END:
-| key | function name   |
-|-----+-----------------|
-| xc  | [[#lispy-to-cond][lispy-to-cond]]   |
-| xd  | [[#lispy-to-defun][lispy-to-defun]]  |
-| xf  | [[#lispy-flatten][lispy-flatten]]   |
-| xi  | [[#lispy-to-ifs][lispy-to-ifs]]    |
-| xl  | [[#lispy-to-lambda][lispy-to-lambda]] |
-| xe  | [[#lispy-edebug][lispy-edebug]]    |
+| key | function name          |
+|-----+------------------------|
+| xc  | [[#lispy-to-cond][lispy-to-cond]]          |
+| xd  | [[#lispy-to-defun][lispy-to-defun]]         |
+| xf  | [[#lispy-flatten][lispy-flatten]]          |
+| xi  | [[#lispy-to-ifs][lispy-to-ifs]]           |
+| xl  | [[#lispy-to-lambda][lispy-to-lambda]]        |
+| xe  | [[#lispy-edebug][lispy-edebug]]           |
+| xh  | [[#lispy-describe][lispy-describe]]         |
+| xj  | [[#lispy-debug-step-in][lispy-debug-step-in]]    |
+| xr  | [[#lispy-eval-and-replace][lispy-eval-and-replace]] |
 
 * Function reference
 ** =lispy-forward=
@@ -698,6 +712,15 @@ Now you can follow up with
 | r   | [[#lispy-raise][lispy-raise]]           |
 |-----+-----------------------|
 ------
+** =lispy-ace-subword=
+:PROPERTIES:
+:CUSTOM_ID: lispy-ace-subword
+:END:
+
+Bound to ~-~.
+
+Similar to [[#lispy-ace-symbol][=lispy-ace-symbol=]], but selects a subword instead.
+-----
 
 ** =lispy-follow=
 :PROPERTIES:
@@ -718,6 +741,32 @@ Elisp, Clojure and Common Lisp are supported.
 
 *** TODO Add support for Scheme                                                     :noexport:
 *** TODO Add jump to symbol support for Common Lisp                                 :noexport:
+** =lispy-goto-symbol=
+:PROPERTIES:
+:CUSTOM_ID: lispy-goto-symbol
+:END:
+
+Bound to ~M-.~.
+
+Goto definition of symbol at point.
+You can go back with ~M-,~ ([[#pop-tag-mark][=pop-tag-mark=]]).
+-----
+
+** =pop-tag-mark=
+:PROPERTIES:
+:CUSTOM_ID: pop-tag-mark
+:END:
+
+Bound to ~D~ and ~M-,~.
+
+This is a standard Emacs function that reverses:
+
+- ~F~ ([[#lispy-follow][=lispy-follow=]])
+- ~M-.~ ([[#lispy-goto-symbol][=lispy-goto-symbol=]])
+
+It's bound to ~M-*~ in the default Emacs. I like to bind it to ~M-,~
+everywhere.
+-----
 
 ** =lispy-describe-inline=
 :PROPERTIES:
@@ -944,6 +993,28 @@ after the evaluated expression.
   inserted expression.
 - Starting with an active region, the region will be
   deactivated and result will be inserted at point.
+-----
+
+** =lispy-eval-and-replace=
+:PROPERTIES:
+:CUSTOM_ID: lispy-eval-and-replace
+:END:
+
+Bound to ~xr~.
+
+Eval current expression and replace it at point.
+
+#+HTML: <table><tbody><tr><td>
+#+begin_src elisp
+(foo |(+ 2 2))
+#+end_src
+#+HTML: </td><td>
+-> ~xr~ ->
+#+HTML: </td><td>
+#+begin_src elisp
+|(foo 4)
+#+end_src
+#+HTML: </td></tr></tbody></table>
 -----
 
 ** =lispy-store-region-and-buffer=
@@ -2198,12 +2269,14 @@ This mode can is turned off automatically after one of its key
 bindings is used. You can toggle it off with ~o~ if you change your
 mind about calling the modified ~hjkl~.
 
-| key | function name    |
-|-----+------------------|
-| ~h~ | [[#lispy-move-left][lispy-move-left]]  |
-| ~j~ | [[#lispy-down-slurp][lispy-down-slurp]] |
-| ~k~ | [[#lispy-up-slurp][lispy-up-slurp]]   |
-| ~l~ | [[#lispy-move-right][lispy-move-right]] |
+| key   | function name    |
+|-------+------------------|
+| ~h~   | [[#lispy-move-left][lispy-move-left]]  |
+| ~j~   | [[#lispy-down-slurp][lispy-down-slurp]] |
+| ~k~   | [[#lispy-up-slurp][lispy-up-slurp]]   |
+| ~l~   | [[#lispy-move-right][lispy-move-right]] |
+| ~SPC~ |                  |
+| ~g~   |                  |
 -----
 
 ** =lispy-move-left=
@@ -2388,6 +2461,28 @@ Similar to [[#lispy-goto][=lispy-goto=]], but only current file's tags are used 
 of whole directory's tags.
 -----
 
+** =lispy-goto-recursive=
+:PROPERTIES:
+:CUSTOM_ID: lispy-goto-recursive
+:END:
+
+Bound to ~ogr~.
+
+Similar to [[#lispy-goto][=lispy-goto=]], but all sub-directories' tags are used in
+addition to directory's tags.
+-----
+
+** =lispy-goto-projectile=
+:PROPERTIES:
+:CUSTOM_ID: lispy-goto-projectile
+:END:
+
+Bound to ~0g~ and ~ogp~.
+
+Similar to [[#lispy-goto-recursive][=lispy-goto-recursive=]], but =projectile-project-root= is
+used as the base directory.
+-----
+
 ** =lispy-mark-list=
 :PROPERTIES:
 :CUSTOM_ID: lispy-mark-list
@@ -2502,15 +2597,63 @@ This is useful for debugging interactive Elisp functions:
 - in one window keep the code of the function being debugged
 - in the other window, keep the buffer on which the debugged function
   is supposed to work
+
+Special behavior in =let= (what gets evaled is on the right):
+#+HTML: <table><tbody><tr><td>
+#+begin_src elisp
+(let (|(foo 10))
+  (bar))
+#+end_src
+#+HTML: </td><td>
+-> ~p~ ->
+#+HTML: </td><td>
+#+begin_src elisp
+(setq foo 10)
+#+end_src
+#+HTML: </td></tr></tbody></table>
+
+Special behavior in =cond= (what gets evaled is on the right):
+#+HTML: <table><tbody><tr><td>
+#+begin_src elisp
+(cond |((foo-1)
+       (bar-1))
+      ((foo-2)
+       (bar-2)))
+#+end_src
+#+HTML: </td><td>
+-> ~p~ ->
+#+HTML: </td><td>
+#+begin_src elisp
+(if (foo-1)
+    (progn
+      (bar-1))
+  (message "cond: nil"))
+#+end_src
+#+HTML: </td></tr></tbody></table>
+
 -----
 ** =lispy-describe=
 :PROPERTIES:
 :CUSTOM_ID: lispy-describe
 :END:
 
-Bound to ~D~.
+Bound to ~xh~.
 
-Just a shorthand for =describe-function=.
+A shorthand for =describe-function= or =describe-variable=.
+
+If you want to call =describe-variable=, you should mark the symbol
+first. You can do this quickly with:
+
+From special:
+
+- ~2m~, ~3m~, etc. if you want the second or third element of the list
+  accordingly
+- ~a~ to select the symbol with [[#lispy-ace-symbol][=lispy-ace-symbol=]]
+
+Globally:
+
+- ~M-m~ to mark symbol at point with [[#lispy-mark-symbol][=lispy-mark-symbol=]]
+
 -----
 ** =lispy-beginning-of-defun=
 :PROPERTIES:
@@ -2659,7 +2802,6 @@ Bound to ~P~.
 When region is active, replace it with current kill.
 Forward to =yank= otherwise.
 -----
-
 ** =lispy-edebug=
 :PROPERTIES:
 :CUSTOM_ID: lispy-edebug
@@ -2670,6 +2812,37 @@ Bound to ~xe~.
 [[http://www.gnu.org/software/emacs/manual/html_node/elisp/Using-Edebug.html][=edebug=]] current defun.
 
 ~2xe~ will eval current defun instead.
+-----
+** =lispy-debug-step-in=
+:PROPERTIES:
+:CUSTOM_ID: lispy-debug-step-in
+:END:
+
+Bound to ~xj~.
+
+1. Evaluate the arguments at current function's call
+2. Jump to function's definition
+3. Set the result of evaluation to function's arguments
+
+For example, starting with:
+
+#+begin_src elisp
+|(do-stuff 1 (+ 1 1) (+ 2 2))
+#+end_src
+after pressing ~xj~ you'll jump to the definition of =do-stuff=:
+#+begin_src elisp
+|(defun do-stuff (x y z &optional a &rest b)
+  (foo)
+  (bar))
+#+end_src
+At this point:
+| var | val |
+|-----+-----|
+| x   | 1   |
+| y   | 2   |
+| z   | 4   |
+| a   | nil |
+| b   | nil |
 -----
 
 ** =digit-argument=

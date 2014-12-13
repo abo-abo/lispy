@@ -16,8 +16,20 @@ h2 {
     text-indent: 0;
     border-radius: 15px;
     background-color: #d6d8ec;
-    text-align: center;
+    text-align: left;
     padding: 3px 3px 3px 3px;
+}
+
+h2 a[id^="unnumbered"] {
+    background-color: #d6d8ec;
+}
+
+h2 a {
+    color: white;
+    background-color:#777777;
+    font-size:18px;
+    border-radius:3px;
+    padding: 0px 5px 0px 5px; 
 }
 
 kbd {
