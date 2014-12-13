@@ -1214,7 +1214,11 @@ Special case is (|( -> ( |(."
   (let ((str-or-comment (lispy--in-string-or-comment-p)))
     (if str-or-comment
         (goto-char str-or-comment)
-      (lispy--out-backward 1))))
+      (let ((pt (point)))
+        (lispy--out-backward 1)
+        (when (looking-back "^")
+          (goto-char pt)
+          (back-to-indentation))))))
 
 (defun lispy-occur ()
   "Select a line within current top level sexp with `helm'."
