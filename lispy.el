@@ -1227,7 +1227,9 @@ Special case is (|( -> ( |(."
                     lispy--occur-beg
                     lispy--occur-end)))
                (add-hook 'helm-move-selection-after-hook
-                         'lispy--occur-update-sel)))
+                         'lispy--occur-update-sel)
+               (add-hook 'helm-update-hook
+                         'lispy--occur-update-input)))
           (candidates-in-buffer)
           (get-line . lispy--occur-get-line)
           (regexp . (lambda () helm-input))
@@ -1239,7 +1241,9 @@ Special case is (|( -> ( |(."
      lispy--occur-end)
     (isearch-dehighlight))
   (remove-hook 'helm-move-selection-after-hook
-               'lispy--occur-update-sel))
+               'lispy--occur-update-sel)
+  (remove-hook 'helm-move-selection-after-hook
+               'lispy--occur-update-input))
 
 (defun lispy--occur-regex ()
   "Re-build regex in case it has a space."
@@ -1247,6 +1251,18 @@ Special case is (|( -> ( |(."
    #'identity
    (split-string helm-input " +" t)
    ".*"))
+
+(defun lispy--occur-update-input ()
+  (with-current-buffer lispy--occur-buffer
+    (hlt-unhighlight-region
+     lispy--occur-beg
+     lispy--occur-end)
+    (when (> (length helm-input) 1)
+      (hlt-highlight-regexp-region
+       lispy--occur-beg
+       lispy--occur-end
+       (lispy--occur-regex)
+       'lispy-occur-face))))
 
 (defun lispy--occur-update-sel ()
   "Update selection for `lispy-occur'."
@@ -1273,16 +1289,6 @@ Special case is (|( -> ( |(."
 (defun lispy--occur-get-line (s e)
   "Highlight between S and E for `lispy-occur'."
   (let ((line (buffer-substring s e)))
-    (when (> (length helm-input) 1)
-      (with-current-buffer lispy--occur-buffer
-        (hlt-unhighlight-region
-         lispy--occur-beg
-         lispy--occur-end)
-        (hlt-highlight-regexp-region
-         lispy--occur-beg
-         lispy--occur-end
-         (lispy--occur-regex)
-         'lispy-occur-face)))
     (propertize
      (format "%d %s"
              (1- (line-number-at-pos s))
