@@ -927,40 +927,45 @@ When ARG is more than 1, mark ARGth element."
 (defun lispy-mark-symbol ()
   "Mark current symbol."
   (interactive)
-  (cond ((lispy--in-comment-p)
-         (lispy--mark (lispy--bounds-comment)))
-        ((looking-at " *)* *$")
-         (lispy--mark (lispy--bounds-dwim)))
-        ((or (looking-at "[ ]*[()]")
-             (and (region-active-p)
-                  (looking-at "[ \n]*[()]")))
-         (let ((pt (point)))
-           (skip-chars-forward "() \n")
+  (let (bnd)
+    (cond ((lispy--in-comment-p)
+           (lispy--mark (lispy--bounds-comment)))
+          ((and
+            (not (region-active-p))
+            (lispy--in-string-p)
+            (= (1+ (point))
+               (cdr (setq bnd (lispy--bounds-string)))))
+           (lispy--mark bnd))
+          ((or (looking-at "[ ]*[()]")
+               (and (region-active-p)
+                    (looking-at "[ \n]*[()]")))
+           (let ((pt (point)))
+             (skip-chars-forward "() \n")
+             (set-mark-command nil)
+             (condition-case nil
+                 (progn
+                   (re-search-forward "[() \n]")
+                   (while (lispy--in-string-or-comment-p)
+                     (re-search-forward "[() \n]"))
+                   (backward-char 1))
+               (error
+                (message "No further symbols found")
+                (deactivate-mark)
+                (goto-char pt)))))
+
+          ((looking-back lispy-right)
+           (skip-chars-backward "() \n")
            (set-mark-command nil)
-           (condition-case nil
-               (progn
-                 (re-search-forward "[() \n]")
-                 (while (lispy--in-string-or-comment-p)
-                   (re-search-forward "[() \n]"))
-                 (backward-char 1))
-             (error
-              (message "No further symbols found")
-              (deactivate-mark)
-              (goto-char pt)))))
+           (re-search-backward "[() \n]")
+           (while (lispy--in-string-or-comment-p)
+             (re-search-backward "[() \n]"))
+           (forward-char 1))
 
-        ((looking-back lispy-right)
-         (skip-chars-backward "() \n")
-         (set-mark-command nil)
-         (re-search-backward "[() \n]")
-         (while (lispy--in-string-or-comment-p)
-           (re-search-backward "[() \n]"))
-         (forward-char 1))
-
-        ((region-active-p)
-         (ignore-errors
-           (forward-sexp)))
-        (t
-         (lispy--mark (lispy--bounds-dwim)))))
+          ((region-active-p)
+           (ignore-errors
+             (forward-sexp)))
+          (t
+           (lispy--mark (lispy--bounds-dwim))))))
 
 (defun lispy-kill-at-point ()
   "Kill the quoted string or the list that includes the point."
