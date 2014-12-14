@@ -2089,6 +2089,13 @@ Sexp is obtained by exiting list ARG times."
                       (locate-library
                        (prin1-to-string symbol)))
                   (find-library (prin1-to-string symbol)))
+                 ((setq rsymbol
+                        (cl-find-if
+                         `(lambda (x)
+                            (equal (car x)
+                                   ,(symbol-name symbol)))
+                         (lispy--fetch-this-file-tags)))
+                  (goto-char (aref (nth 4 rsymbol) 0)))
                  (t
                   (error "Couldn't fild definition of %s"
                          symbol))))
