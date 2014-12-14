@@ -1228,41 +1228,46 @@ Special case is (|( -> ( |(."
 (defun lispy-occur ()
   "Select a line within current top level sexp with `helm'."
   (interactive)
-  (helm :sources
-        `((name . "top-occur")
-          (init
-           . (lambda ()
-               (setq lispy--occur-buffer (current-buffer))
-               (let ((bnd (save-excursion
-                            (unless (and (looking-at "(")
-                                         (looking-back "^"))
-                              (beginning-of-defun))
-                            (lispy--bounds-dwim))))
-                 (setq lispy--occur-beg (car bnd))
-                 (setq lispy--occur-end (cdr bnd))
-                 (helm-init-candidates-in-buffer
-                     'global
-                   (buffer-substring
-                    lispy--occur-beg
-                    lispy--occur-end)))
-               (add-hook 'helm-move-selection-after-hook
-                         'lispy--occur-update-sel)
-               (add-hook 'helm-update-hook
-                         'lispy--occur-update-input)))
-          (candidates-in-buffer)
-          (get-line . lispy--occur-get-line)
-          (regexp . (lambda () helm-input))
-          (action . lispy--occur-action)))
-  ;; cleanup
-  (with-current-buffer lispy--occur-buffer
-    (hlt-unhighlight-region
-     lispy--occur-beg
-     lispy--occur-end)
-    (isearch-dehighlight))
-  (remove-hook 'helm-move-selection-after-hook
-               'lispy--occur-update-sel)
-  (remove-hook 'helm-move-selection-after-hook
-               'lispy--occur-update-input))
+  (unwind-protect
+       (helm :sources
+             `((name . "top-occur")
+               (init
+                . (lambda ()
+                    (setq lispy--occur-buffer (current-buffer))
+                    (let ((bnd (save-excursion
+                                 (unless (and (looking-at "(")
+                                              (looking-back "^"))
+                                   (beginning-of-defun))
+                                 (lispy--bounds-dwim))))
+                      (setq lispy--occur-beg (car bnd))
+                      (setq lispy--occur-end (cdr bnd))
+                      (helm-init-candidates-in-buffer
+                          'global
+                        (buffer-substring
+                         lispy--occur-beg
+                         lispy--occur-end)))
+                    (add-hook 'helm-move-selection-after-hook
+                              #'lispy--occur-update-sel)
+                    (add-hook 'helm-update-hook
+                              #'lispy--occur-update-input)))
+               (candidates-in-buffer)
+               (get-line . lispy--occur-get-line)
+               (regexp . (lambda () helm-input))
+               (action . lispy--occur-action))
+             :preselect
+             (buffer-substring-no-properties
+              (line-beginning-position)
+              (line-end-position)))
+    ;; cleanup
+    (remove-hook 'helm-move-selection-after-hook
+                 #'lispy--occur-update-sel)
+    (remove-hook 'helm-update-hook
+              #'lispy--occur-update-input)
+    (with-current-buffer lispy--occur-buffer
+      (hlt-unhighlight-region
+       lispy--occur-beg
+       lispy--occur-end)
+      (isearch-dehighlight))))
 
 (defun lispy--occur-regex ()
   "Re-build regex in case it has a space."
