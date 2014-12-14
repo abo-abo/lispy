@@ -213,6 +213,8 @@
 | xh  | [[#lispy-describe][lispy-describe]]         |
 | xj  | [[#lispy-debug-step-in][lispy-debug-step-in]]    |
 | xr  | [[#lispy-eval-and-replace][lispy-eval-and-replace]] |
+| xu  | [[#lispy-unbind-variable][lispy-unbind-variable]]  |
+
 
 * Function reference
 ** =lispy-forward=
@@ -1002,6 +1004,46 @@ after the evaluated expression.
 - Starting with an active region, the region will be
   deactivated and result will be inserted at point.
 -----
+
+** =lispy-unbind-variable=
+:PROPERTIES:
+:CUSTOM_ID: lispy-unbind-variable
+:END:
+
+Bound to ~xu~.
+
+Unbind a let-bound variable.
+
+#+HTML: <table><tbody><tr><td>
+#+begin_src elisp
+(defun foobar ()
+  (let (|(x 10)
+        (y 20)
+        (z 30))
+    (foo1 x y z)
+    (foo2 x z y)
+    (foo3 y x z)
+    (foo4 y z x)
+    (foo5 z x y)
+    (foo6 z y x)))
+#+end_src
+#+HTML: </td><td>
+-> ~xu~ ->
+#+HTML: </td><td>
+#+begin_src elisp
+(defun foobar ()
+  (let (|(y 20)
+        (z 30))
+    (foo1 10 y z)
+    (foo2 10 z y)
+    (foo3 y 10 z)
+    (foo4 y z 10)
+    (foo5 z 10 y)
+    (foo6 z y 10)))
+#+end_src
+#+HTML: </td></tr></tbody></table>
+-----
+
 
 ** =lispy-eval-and-replace=
 :PROPERTIES:
