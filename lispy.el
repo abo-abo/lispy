@@ -1255,14 +1255,21 @@ Special case is (|( -> ( |(."
                (regexp . (lambda () helm-input))
                (action . lispy--occur-action))
              :preselect
-             (buffer-substring-no-properties
-              (line-beginning-position)
-              (line-end-position)))
+             (let ((start-line
+                    (save-excursion
+                      (unless (and (looking-at "(")
+                                   (looking-back "^"))
+                        (beginning-of-defun))
+                      (line-number-at-pos (point)))))
+               (format "^%d"
+                       (-
+                        (line-number-at-pos (point))
+                        start-line))))
     ;; cleanup
     (remove-hook 'helm-move-selection-after-hook
                  #'lispy--occur-update-sel)
     (remove-hook 'helm-update-hook
-              #'lispy--occur-update-input)
+                 #'lispy--occur-update-input)
     (with-current-buffer lispy--occur-buffer
       (hlt-unhighlight-region
        lispy--occur-beg
