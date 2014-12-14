@@ -2208,7 +2208,9 @@ In case the point is on a let-bound variable, add a `setq'."
   (interactive)
   (let ((symbol (intern-soft (lispy--current-function))))
     (cond ((fboundp symbol)
-           (describe-function symbol)))))
+           (describe-function symbol))
+          ((boundp symbol)
+           (describe-variable symbol)))))
 
 (defun lispy-arglist ()
   "Display arglist for `lispy--current-function'."
