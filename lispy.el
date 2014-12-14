@@ -1212,18 +1212,22 @@ Special case is (|( -> ( |(."
 (defun lispy--occur-action (x)
   "Goto line X for `lispy-occur'."
   (goto-char lispy--occur-beg)
-  (forward-line (+ x (if (>= (length helm-input) 1) -1 0)))
-  (re-search-forward (lispy--occur-regex)
-                     (line-end-position)
-                     t)
-  (let ((str-or-comment (lispy--in-string-or-comment-p)))
-    (if str-or-comment
-        (goto-char str-or-comment)
-      (let ((pt (point)))
-        (lispy--out-backward 1)
-        (when (looking-back "^")
-          (goto-char pt)
-          (back-to-indentation))))))
+  (if (string= helm-input "")
+      (progn
+        (forward-line x)
+        (back-to-indentation))
+    (forward-line (1- x))
+    (re-search-forward (lispy--occur-regex)
+                       (line-end-position)
+                       t)
+    (let ((str-or-comment (lispy--in-string-or-comment-p)))
+      (if str-or-comment
+          (goto-char str-or-comment)
+        (let ((pt (point)))
+          (lispy--out-backward 1)
+          (when (looking-back "^")
+            (goto-char pt)
+            (back-to-indentation)))))))
 
 (defun lispy-occur ()
   "Select a line within current top level sexp with `helm'."
