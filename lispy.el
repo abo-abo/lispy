@@ -2030,8 +2030,7 @@ Quote newlines if ARG isn't 1."
           (unless (looking-at "(")
             (forward-sexp)))
         (backward-char)
-        (lispy--teleport ,beg ,end ,endp ,regionp))
-     t)))
+        (lispy--teleport ,beg ,end ,endp ,regionp)))))
 
 (defun lispy-replace-symbol ()
   "Overwrite `lispy-ace-symbol' with current thing."
