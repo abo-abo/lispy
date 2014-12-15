@@ -1238,6 +1238,7 @@ Special case is (|( -> ( |(."
 (defun lispy-occur ()
   "Select a line within current top level sexp with `helm'."
   (interactive)
+  (deactivate-mark)
   (unwind-protect
        (helm :sources
              `((name . "this defun")
