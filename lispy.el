@@ -1217,27 +1217,28 @@ Special case is (|( -> ( |(."
   "Goto line X for `lispy-occur'."
   (goto-char lispy--occur-beg)
   (let (str-or-comment)
-    (if (string= helm-input "")
-        (progn
-          (forward-line x)
-          (back-to-indentation)
-          (when (re-search-forward lispy-left (line-end-position) t)
-            (goto-char (match-beginning 0))))
-      (forward-line (1- x))
-      (re-search-forward (lispy--occur-regex)
-                         (line-end-position)
-                         t)
-      (cond ((setq str-or-comment (lispy--in-string-or-comment-p))
-             (goto-char str-or-comment))
+    (cond ((string= helm-input "")
+           (forward-line x)
+           (back-to-indentation)
+           (when (re-search-forward lispy-left (line-end-position) t)
+             (goto-char (match-beginning 0))))
 
-            ((re-search-backward lispy-left (line-beginning-position) t)
-             (goto-char (match-beginning 0)))
+          ((setq str-or-comment
+                 (progn
+                   (forward-line (1- x))
+                   (re-search-forward
+                    (lispy--occur-regex) (line-end-position) t)
+                   (lispy--in-string-or-comment-p)))
+           (goto-char str-or-comment))
 
-            ((re-search-forward lispy-left (line-end-position) t)
-             (goto-char (match-beginning 0)))
+          ((re-search-backward lispy-left (line-beginning-position) t)
+           (goto-char (match-beginning 0)))
 
-            (t
-             (back-to-indentation))))))
+          ((re-search-forward lispy-left (line-end-position) t)
+           (goto-char (match-beginning 0)))
+
+          (t
+           (back-to-indentation)))))
 
 (defun lispy-occur ()
   "Select a line within current top level sexp with `helm'."
