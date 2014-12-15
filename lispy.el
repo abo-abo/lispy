@@ -1215,10 +1215,10 @@ Special case is (|( -> ( |(."
   (if (string= helm-input "")
       (progn
         (forward-line x)
-        (back-to-indentation))
+        (back-to-indentation)
+        (when (re-search-forward lispy-left (line-end-position) t)
+          (goto-char (match-beginning 0))))
     (forward-line (1- x))
-    (when (equal helm-input "")
-      (forward-line 1))
     (re-search-forward (lispy--occur-regex)
                        (line-end-position)
                        t)
@@ -1226,10 +1226,14 @@ Special case is (|( -> ( |(."
       (if str-or-comment
           (goto-char str-or-comment)
         (let ((pt (point)))
-          (lispy--out-backward 1)
-          (when (looking-back "^")
-            (goto-char pt)
-            (back-to-indentation)))))))
+          (cond ((re-search-backward lispy-left (line-beginning-position) t)
+                 (goto-char (match-beginning 0)))
+
+                ((re-search-forward lispy-left (line-end-position) t)
+                 (goto-char (match-beginning 0)))
+
+                (t
+                 (back-to-indentation))))))))
 
 (defun lispy-occur ()
   "Select a line within current top level sexp with `helm'."
