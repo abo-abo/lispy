@@ -1236,7 +1236,7 @@ Special case is (|( -> ( |(."
   (interactive)
   (unwind-protect
        (helm :sources
-             `((name . "top-occur")
+             `((name . "this defun")
                (init
                 . (lambda ()
                     (setq lispy--occur-buffer (current-buffer))
@@ -1270,7 +1270,8 @@ Special case is (|( -> ( |(."
                (format "^%d"
                        (-
                         (line-number-at-pos (point))
-                        start-line))))
+                        start-line)))
+             :buffer "*lispy-occur*")
     ;; cleanup
     (remove-hook 'helm-move-selection-after-hook
                  #'lispy--occur-update-sel)
