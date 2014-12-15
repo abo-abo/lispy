@@ -1,0 +1,120 @@
+#+TITLE:     lispy.el demo 6: refactoring with cond->if->cond
+#+LANGUAGE:  en
+#+OPTIONS:   H:3 num:nil toc:nil
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="demo-style.css"/>
+
+| [[https://github.com/abo-abo/lispy][Back to github]] | [[https://raw.githubusercontent.com/abo-abo/lispy/gh-pages/demo-6.org][This file in org-mode]] | [[http://abo-abo.github.io/lispy/][Function reference]] |
+
+* Setup                                                                               :noexport:
+#+begin_src emacs-lisp :exports results :results silent
+(load-file "make-html.el")
+(setq org-export-filter-src-block-functions '(make-html-region))
+(setq org-html-validation-link nil)
+(setq org-html-postamble nil)
+(setq org-html-preamble "<link rel=\"icon\" type=\"image/x-icon\" href=\"https://github.com/favicon.ico\"/>")
+(setq org-html-text-markup-alist
+  '((bold . "<b>%s</b>")
+    (code . "<kbd>%s</kbd>")
+    (italic . "<i>%s</i>")
+    (strike-through . "<del>%s</del>")
+    (underline . "<span class=\"underline\">%s</span>")
+    (verbatim . "<code>%s</code>")))
+(setq org-html-style-default nil)
+(setq org-html-head-include-scripts nil)
+#+end_src
+
+* Intro
+This demo covers a little refactoring commit to lispy that I've made
+in [[https://github.com/abo-abo/lispy/commit/9ab05b0043831c801b5a4de5df3ea04a146d5ce9][9ab05b0]].
+
+* Task summary
+Transform from:
+#+begin_src elisp
+|(defun lispy--occur-action (x)
+  "Goto line X for `lispy-occur'."
+  (goto-char lispy--occur-beg)
+  (if (string= helm-input "")
+      (progn
+        (forward-line x)
+        (back-to-indentation)
+        (when (re-search-forward lispy-left (line-end-position) t)
+          (goto-char (match-beginning 0))))
+    (forward-line (1- x))
+    (re-search-forward (lispy--occur-regex)
+                       (line-end-position)
+                       t)
+    (let ((str-or-comment (lispy--in-string-or-comment-p)))
+      (if str-or-comment
+          (goto-char str-or-comment)
+        (let ((pt (point)))
+          (cond ((re-search-backward lispy-left (line-beginning-position) t)
+                 (goto-char (match-beginning 0)))
+
+                ((re-search-forward lispy-left (line-end-position) t)
+                 (goto-char (match-beginning 0)))
+
+                (t
+                 (back-to-indentation))))))))
+#+end_src
+to:
+#+begin_src elisp
+|(defun lispy--occur-action (x)
+  "Goto line X for `lispy-occur'."
+  (goto-char lispy--occur-beg)
+  (let (str-or-comment)
+    (cond ((string= helm-input "")
+           (forward-line x)
+           (back-to-indentation)
+           (when (re-search-forward lispy-left (line-end-position) t)
+             (goto-char (match-beginning 0))))
+
+          ((setq str-or-comment
+                 (progn
+                   (forward-line (1- x))
+                   (re-search-forward (lispy--occur-regex)
+                                      (line-end-position)
+                                      t)
+                   (lispy--in-string-or-comment-p)))
+           (goto-char str-or-comment))
+
+          ((re-search-backward lispy-left (line-beginning-position) t)
+           (goto-char (match-beginning 0)))
+
+          ((re-search-forward lispy-left (line-end-position) t)
+           (goto-char (match-beginning 0)))
+
+          (t
+           (back-to-indentation)))))
+#+end_src
+* Screencast
+The screencast for this demo is here:
+* Step-by-step expansion
+** step 1
+| ~qnm>~                     | mark two expressions before =let=               |
+| ~tu(progn~ ~C-j~ ~h~ ~C-j~ | move them to the binding of    =str-or-comment= |
+| ~d>~                       | add one more expr to the =progn=                |
+
+** step 2
+| ~tx~      | teleport expression to =if= |
+| ~s~       | change order                |
+| ~mk~      | mark =str-or-comment=       |
+| ~(setq~   | wrap in =setq=              |
+| ~C-e~ ~>~ | finalize                    |
+
+** step 3
+| ~ypt~ | see that =pt= isn't used and move there |
+| ~hjr~ | remove the =let=                        |
+| ~xi~  | transform =cond= to =if=                |
+
+** step 4
+| ~hC~        | move =let= binding up              |
+| ~hhff/~     | simplify =let=                     |
+| ~xc~        | transform =if= to =cond=           |
+| ~f~ ~C-RET~ | add empty line after =cond= branch |
+| ~j~ ~C-RET~ | add one more empty line            |
+
+#+BEGIN_HTML
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+#+END_HTML

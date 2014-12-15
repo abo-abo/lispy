@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<title>lispy.el demo 6: refactoring with cond-&gt;if-&gt;cond</title>
+<!-- 2014-12-15 Mon 22:08 -->
+<meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta  name="generator" content="Org-mode" />
+<meta  name="author" content="Oleh" />
+<link rel="stylesheet" type="text/css" href="demo-style.css"/>
+</head>
+<body>
+<div id="preamble" class="status">
+<link rel="icon" type="image/x-icon" href="https://github.com/favicon.ico"/>
+</div>
+<div id="content">
+<h1 class="title">lispy.el demo 6: refactoring with cond-&gt;if-&gt;cond</h1>
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="left" />
+
+<col  class="left" />
+
+<col  class="left" />
+</colgroup>
+<tbody>
+<tr>
+<td class="left"><a href="https://github.com/abo-abo/lispy">Back to github</a></td>
+<td class="left"><a href="https://raw.githubusercontent.com/abo-abo/lispy/gh-pages/demo-6.org">This file in org-mode</a></td>
+<td class="left"><a href="http://abo-abo.github.io/lispy/">Function reference</a></td>
+</tr>
+</tbody>
+</table>
+
+<div id="outline-container-unnumbered-2" class="outline-2">
+<h2 id="unnumbered-2">Intro</h2>
+<div class="outline-text-2" id="text-unnumbered-2">
+<p>
+This demo covers a little refactoring commit to lispy that I've made
+in <a href="https://github.com/abo-abo/lispy/commit/9ab05b0043831c801b5a4de5df3ea04a146d5ce9">9ab05b0</a>.
+</p>
+</div>
+</div>
+
+<div id="outline-container-unnumbered-3" class="outline-2">
+<h2 id="unnumbered-3">Task summary</h2>
+<div class="outline-text-2" id="text-unnumbered-3">
+<p>
+Transform from:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-elisp"><cursor>(</cursor><span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">lispy--occur-action</span> (x)
+  <span style="color: #2A00FF;">"Goto line X for `</span><span style="color: #110099;">lispy-occur</span><span style="color: #2A00FF;">'."</span>
+  (goto-char lispy--occur-beg)
+  (<span style="color: #7F0055; font-weight: bold;">if</span> (string= helm-input <span style="color: #2A00FF;">""</span>)
+      (<span style="color: #7F0055; font-weight: bold;">progn</span>
+        (forward-line x)
+        (back-to-indentation)
+        (<span style="color: #7F0055; font-weight: bold;">when</span> (re-search-forward lispy-left (line-end-position) t)
+          (goto-char (match-beginning 0))))
+    (forward-line (1- x))
+    (re-search-forward (lispy--occur-regex)
+                       (line-end-position)
+                       t)
+    (<span style="color: #7F0055; font-weight: bold;">let</span> ((str-or-comment (lispy--in-string-or-comment-p)))
+      (<span style="color: #7F0055; font-weight: bold;">if</span> str-or-comment
+          (goto-char str-or-comment)
+        (<span style="color: #7F0055; font-weight: bold;">let</span> ((pt (point)))
+          (<span style="color: #7F0055; font-weight: bold;">cond</span> ((re-search-backward lispy-left (line-beginning-position) t)
+                 (goto-char (match-beginning 0)))
+
+                ((re-search-forward lispy-left (line-end-position) t)
+                 (goto-char (match-beginning 0)))
+
+                (t
+                 (back-to-indentation))))))))
+</pre>
+</div>
+<p>
+to:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-elisp"><cursor>(</cursor><span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">lispy--occur-action</span> (x)
+  <span style="color: #2A00FF;">"Goto line X for `</span><span style="color: #110099;">lispy-occur</span><span style="color: #2A00FF;">'."</span>
+  (goto-char lispy--occur-beg)
+  (<span style="color: #7F0055; font-weight: bold;">let</span> (str-or-comment)
+    (<span style="color: #7F0055; font-weight: bold;">cond</span> ((string= helm-input <span style="color: #2A00FF;">""</span>)
+           (forward-line x)
+           (back-to-indentation)
+           (<span style="color: #7F0055; font-weight: bold;">when</span> (re-search-forward lispy-left (line-end-position) t)
+             (goto-char (match-beginning 0))))
+
+          ((setq str-or-comment
+                 (<span style="color: #7F0055; font-weight: bold;">progn</span>
+                   (forward-line (1- x))
+                   (re-search-forward (lispy--occur-regex)
+                                      (line-end-position)
+                                      t)
+                   (lispy--in-string-or-comment-p)))
+           (goto-char str-or-comment))
+
+          ((re-search-backward lispy-left (line-beginning-position) t)
+           (goto-char (match-beginning 0)))
+
+          ((re-search-forward lispy-left (line-end-position) t)
+           (goto-char (match-beginning 0)))
+
+          (t
+           (back-to-indentation)))))
+</pre>
+</div>
+</div>
+</div>
+<div id="outline-container-unnumbered-4" class="outline-2">
+<h2 id="unnumbered-4">Screencast</h2>
+<div class="outline-text-2" id="text-unnumbered-4">
+<p>
+The screencast for this demo is here: 
+</p>
+</div>
+</div>
+<div id="outline-container-unnumbered-5" class="outline-2">
+<h2 id="unnumbered-5">Step-by-step expansion</h2>
+<div class="outline-text-2" id="text-unnumbered-5">
+</div><div id="outline-container-unnumbered-6" class="outline-3">
+<h3 id="unnumbered-6">step 1</h3>
+<div class="outline-text-3" id="text-unnumbered-6">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="left" />
+
+<col  class="left" />
+</colgroup>
+<tbody>
+<tr>
+<td class="left"><kbd>qnm&gt;</kbd></td>
+<td class="left">mark two expressions before <code>let</code></td>
+</tr>
+
+<tr>
+<td class="left"><kbd>tu(progn</kbd> <kbd>C-j</kbd> <kbd>h</kbd> <kbd>C-j</kbd></td>
+<td class="left">move them to the binding of    <code>str-or-comment</code></td>
+</tr>
+
+<tr>
+<td class="left"><kbd>d&gt;</kbd></td>
+<td class="left">add one more expr to the <code>progn</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div id="outline-container-unnumbered-7" class="outline-3">
+<h3 id="unnumbered-7">step 2</h3>
+<div class="outline-text-3" id="text-unnumbered-7">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="left" />
+
+<col  class="left" />
+</colgroup>
+<tbody>
+<tr>
+<td class="left"><kbd>tx</kbd></td>
+<td class="left">teleport expression to <code>if</code></td>
+</tr>
+
+<tr>
+<td class="left"><kbd>s</kbd></td>
+<td class="left">change order</td>
+</tr>
+
+<tr>
+<td class="left"><kbd>mk</kbd></td>
+<td class="left">mark <code>str-or-comment</code></td>
+</tr>
+
+<tr>
+<td class="left"><kbd>(setq</kbd></td>
+<td class="left">wrap in <code>setq</code></td>
+</tr>
+
+<tr>
+<td class="left"><kbd>C-e</kbd> <kbd>&gt;</kbd></td>
+<td class="left">finalize</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div id="outline-container-unnumbered-8" class="outline-3">
+<h3 id="unnumbered-8">step 3</h3>
+<div class="outline-text-3" id="text-unnumbered-8">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="left" />
+
+<col  class="left" />
+</colgroup>
+<tbody>
+<tr>
+<td class="left"><kbd>ypt</kbd></td>
+<td class="left">see that <code>pt</code> isn't used and move there</td>
+</tr>
+
+<tr>
+<td class="left"><kbd>hjr</kbd></td>
+<td class="left">remove the <code>let</code></td>
+</tr>
+
+<tr>
+<td class="left"><kbd>xi</kbd></td>
+<td class="left">transform <code>cond</code> to <code>if</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div id="outline-container-unnumbered-9" class="outline-3">
+<h3 id="unnumbered-9">step 4</h3>
+<div class="outline-text-3" id="text-unnumbered-9">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="left" />
+
+<col  class="left" />
+</colgroup>
+<tbody>
+<tr>
+<td class="left"><kbd>hC</kbd></td>
+<td class="left">move <code>let</code> binding up</td>
+</tr>
+
+<tr>
+<td class="left"><kbd>hhff/</kbd></td>
+<td class="left">simplify <code>let</code></td>
+</tr>
+
+<tr>
+<td class="left"><kbd>xc</kbd></td>
+<td class="left">transform <code>if</code> to <code>cond</code></td>
+</tr>
+
+<tr>
+<td class="left"><kbd>f</kbd> <kbd>C-RET</kbd></td>
+<td class="left">add empty line after <code>cond</code> branch</td>
+</tr>
+
+<tr>
+<td class="left"><kbd>j</kbd> <kbd>C-RET</kbd></td>
+<td class="left">add one more empty line</td>
+</tr>
+</tbody>
+</table>
+
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+<br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>
