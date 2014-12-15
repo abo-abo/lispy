@@ -928,14 +928,22 @@ When ARG is more than 1, mark ARGth element."
   "Mark current symbol."
   (interactive)
   (let (bnd)
-    (cond ((lispy--in-comment-p)
+    (cond ((and lispy-bind-var-in-progress iedit-mode)
+           (iedit-mode)
+           (setq lispy-bind-var-in-progress nil)
+           (set-mark (point))
+           (search-backward (funcall iedit-current-symbol)))
+
+          ((lispy--in-comment-p)
            (lispy--mark (lispy--bounds-comment)))
+
           ((and
             (not (region-active-p))
             (lispy--in-string-p)
             (= (1+ (point))
                (cdr (setq bnd (lispy--bounds-string)))))
            (lispy--mark bnd))
+
           ((or (looking-at "[ ]*[()]")
                (and (region-active-p)
                     (looking-at "[ \n]*[()]")))
@@ -2546,6 +2554,25 @@ With ARG, use the contents of `lispy-store-region-and-buffer' instead."
   (save-excursion
     (lispy--out-backward 1)
     (lispy--normalize-1)))
+
+(defvar lispy-bind-var-in-progress nil
+  "When t, `lispy-mark-symbol' will exit `iedit'.")
+(make-variable-buffer-local 'lispy-bind-var-in-progress)
+
+(defun lispy-bind-variable ()
+  "Bind current expression as variable."
+  (interactive)
+  (let* ((bnd (lispy--bounds-dwim))
+         (str (lispy--string-dwim bnd)))
+    (setq lispy-bind-var-in-progress t)
+    (delete-region (car bnd)
+                   (cdr bnd))
+    (insert (format "(let ((foobar %s)))" str))
+    (backward-char 1)
+    (newline-and-indent)
+    (insert "foobar")
+    (iedit-mode 1)
+    (backward-delete-char 6)))
 
 ;; ——— Locals:  multiple cursors ———————————————————————————————————————————————
 (declare-function mc/create-fake-cursor-at-point "ext:multiple-cursors")
@@ -4578,7 +4605,8 @@ return the corresponding `setq' expression."
   (define-key map "s" 'save-buffer)
   (define-key map "j" 'lispy-debug-step-in)
   (define-key map "h" 'lispy-describe)
-  (define-key map "u" 'lispy-unbind-variable))
+  (define-key map "u" 'lispy-unbind-variable)
+  (define-key map "b" 'lispy-bind-variable))
 
 (defun lispy-define-key (keymap key def &rest plist)
   "Forward to (`define-key' KEYMAP KEY FUNC).
