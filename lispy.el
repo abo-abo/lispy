@@ -1193,6 +1193,20 @@ Special case is (|( -> ( |(."
       (exit-minibuffer)
     (newline-and-indent)))
 
+(defun lispy-open-line ()
+  "Add one line after the current expression."
+  (interactive)
+  (cond ((looking-at lispy-left)
+         (save-excursion
+           (forward-list)
+           (newline)))
+        ((looking-back lispy-right)
+         (save-excursion (newline)))
+        (t
+         (save-excursion
+           (lispy--out-forward 1)
+           (newline)))))
+
 ;; ——— Globals: miscellanea ————————————————————————————————————————————————————
 (defun lispy-string-oneline ()
   "Convert current string to one line."
@@ -1309,6 +1323,7 @@ Special case is (|( -> ( |(."
    ".*"))
 
 (defun lispy--occur-update-input ()
+  "Update selection for `lispy-occur'."
   (with-current-buffer lispy--occur-buffer
     (hlt-unhighlight-region
      lispy--occur-beg
@@ -4684,6 +4699,7 @@ FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)"
   (define-key map (kbd "RET") 'lispy-newline-and-indent-plain)
   (define-key map (kbd ";") 'lispy-comment)
   (define-key map (kbd "C-e") 'lispy-move-end-of-line)
+  (define-key map (kbd "<C-return>") 'lispy-open-line)
   ;; ——— globals: C-1 .. C-9 ——————————————————
   (when lispy-use-ctrl-digits
     (define-key map (kbd "C-1") 'lispy-describe-inline)
