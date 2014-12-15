@@ -1310,7 +1310,7 @@ Special case is (|( -> ( |(."
          pt)
     (with-current-buffer lispy--occur-buffer
       (goto-char lispy--occur-beg)
-      (forward-line num)
+      (forward-line (1- num))
       (when (re-search-forward (lispy--occur-regex)
                                lispy--occur-end t)
         (isearch-highlight (match-beginning 0)
