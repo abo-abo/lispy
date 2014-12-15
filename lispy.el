@@ -4052,7 +4052,7 @@ ACTION is called for the selected candidate."
   (require 'helm-match-plugin)
   (let (helm-update-blacklist-regexps)
     (helm :sources
-          `((name . "Candidates")
+          `((name . "semantic tags")
             (candidates . ,(mapcar
                             (lambda (x)
                               (if (listp x)
@@ -4073,7 +4073,8 @@ ACTION is called for the selected candidate."
                     (format "\\_<%s\\_>"
                             (semantic-tag-name stag))
                   tag)
-              "")))))
+              ""))
+          :buffer "*lispy-goto*")))
 
 (defun lispy--action-jump (tag)
   "Jump to TAG."
