@@ -1217,6 +1217,8 @@ Special case is (|( -> ( |(."
         (forward-line x)
         (back-to-indentation))
     (forward-line (1- x))
+    (when (equal helm-input "")
+      (forward-line 1))
     (re-search-forward (lispy--occur-regex)
                        (line-end-position)
                        t)
