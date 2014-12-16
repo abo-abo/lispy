@@ -648,7 +648,7 @@ Insert KEY if there's no command."
 
 (ert-deftest lispy-convolute ()
   (should (string= (lispy-with "(when (pred)\n  (let ((x 1))\n    |(foo)\n    (bar)))" "C")
-                   "(let ((x 1))\n  (when (pred)\n    |(foo)\n    (bar)))"))
+                   "(let ((x 1))\n  (when (pred)\n    |(foo))\n  (bar))"))
   (should (string= (lispy-with "(when (pred)\n  (let ((x 1))\n    |(foo)\n    (bar)))" "CC")
                    "(when (pred)\n  (let ((x 1))\n    |(foo)\n    (bar)))"))
   (should (string= (lispy-with "(+ 1 (* 2 ~3|))" (lispy-convolute 1))
@@ -657,7 +657,10 @@ Insert KEY if there's no command."
                    "(* 2 (+ 1 |3~))"))
   (should (string= (lispy-with "(asdf\n (when (pred)\n   (let ((x 1))\n     (foo)\n     |(bar))))"
                                (lispy-convolute 2))
-                   "(when (pred)\n  (let ((x 1))\n    (foo)\n    (asdf\n     |(bar))))")))
+                   "(when (pred)\n  (let ((x 1))\n    (foo)\n    (asdf\n     |(bar))))"))
+  (should (string= (lispy-with "(takes-two\n  (takes-three\n   |(takes-four 1 2 3 4)\n   second\n   third)\n  other-second)"
+                               "C")
+                   "(takes-three\n (takes-two\n  |(takes-four 1 2 3 4)\n  other-second)\n second\n third)")))
 
 (ert-deftest lispy-join ()
   (should (string= (lispy-with "(foo) |(bar)" "+")

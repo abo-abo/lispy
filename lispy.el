@@ -1615,8 +1615,10 @@ The outcome when ahead of sexps is different from when behind."
   "Replace (...(,,,|( with (,,,(...|( where ... and ,,, is arbitrary code.
 When ARG is more than 1, pull ARGth expression to enclose current sexp."
   (interactive "p")
-  (if (save-excursion
-        (lispy--out-forward (1+ arg)))
+  (if (and (save-excursion
+             (lispy--out-forward (1+ arg)))
+           (save-excursion
+             (lispy--out-backward (1+ arg))))
       (let (beg end deactivate-mark)
         (lispy-from-left
          (setq beg (point))
@@ -1624,7 +1626,15 @@ When ARG is more than 1, pull ARGth expression to enclose current sexp."
          (lispy--out-backward 1)
          (lispy--swap-regions (cons beg end)
                               (cons (point) (point)))
-         (lispy--reindent 1)))
+         (lispy--reindent arg))
+        (lispy-from-left
+         (lispy-different)
+         (setq beg (point))
+         (setq end (lispy--out-forward arg))
+         (lispy-out-forward 1)
+         (lispy--swap-regions (cons beg end)
+                              (cons (point) (point)))
+         (lispy--reindent (1+ arg))))
     (error "Not enough depth to convolute")))
 
 (defvar lispy-repeat--command nil
