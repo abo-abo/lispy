@@ -3683,6 +3683,17 @@ Ignore the matches in strings and comments."
                       (insert ")"))
                     (backward-delete-char 1)
                     (delete-char 1)
+                    (insert "(ly-raw clojure-set ")))
+                ;; ——— { ——————————————————————
+                (goto-char (point-min))
+                (while (re-search-forward "{" nil t)
+                  (unless (lispy--in-string-or-comment-p)
+                    (backward-char 1)
+                    (save-excursion
+                      (forward-list 1)
+                      (backward-delete-char 1)
+                      (insert ")"))
+                    (delete-char 1)
                     (insert "(ly-raw clojure-map ")))
                 ;; ——— ' ——————————————————————
                 (goto-char (point-min))
@@ -4266,9 +4277,15 @@ the first character of EXPR."
            (delete-region beg (point))
            (insert (format "#%S" (cddr sxp)))
            (goto-char beg))
-          (clojure-map
+          (clojure-set
            (delete-region beg (point))
            (insert (format "#{%s}"
+                           (let ((s (prin1-to-string (cddr sxp))))
+                             (substring s 1 (1- (length s))))))
+           (goto-char beg))
+          (clojure-map
+           (delete-region beg (point))
+           (insert (format "{%s}"
                            (let ((s (prin1-to-string (cddr sxp))))
                              (substring s 1 (1- (length s))))))
            (goto-char beg))
