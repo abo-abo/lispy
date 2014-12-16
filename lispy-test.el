@@ -651,10 +651,13 @@ Insert KEY if there's no command."
                    "(let ((x 1))\n  (when (pred)\n    |(foo)\n    (bar)))"))
   (should (string= (lispy-with "(when (pred)\n  (let ((x 1))\n    |(foo)\n    (bar)))" "CC")
                    "(when (pred)\n  (let ((x 1))\n    |(foo)\n    (bar)))"))
-  (should (string= (lispy-with "(+ 1 (* 2 ~3|))" (lispy-convolute))
+  (should (string= (lispy-with "(+ 1 (* 2 ~3|))" (lispy-convolute 1))
                    "(* 2 (+ 1 ~3|))"))
-  (should (string= (lispy-with "(+ 1 (* 2 |3~))" (lispy-convolute))
-                   "(* 2 (+ 1 |3~))")))
+  (should (string= (lispy-with "(+ 1 (* 2 |3~))" (lispy-convolute 1))
+                   "(* 2 (+ 1 |3~))"))
+  (should (string= (lispy-with "(asdf\n (when (pred)\n   (let ((x 1))\n     (foo)\n     |(bar))))"
+                               (lispy-convolute 2))
+                   "(when (pred)\n  (let ((x 1))\n    (foo)\n    (asdf\n     |(bar))))")))
 
 (ert-deftest lispy-join ()
   (should (string= (lispy-with "(foo) |(bar)" "+")

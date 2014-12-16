@@ -1611,16 +1611,17 @@ The outcome when ahead of sexps is different from when behind."
     (lispy-raise 1)
     (deactivate-mark)))
 
-(defun lispy-convolute ()
-  "Replace (...(,,,|( with (,,,(...|( where ... and ,,, is arbitrary code."
-  (interactive)
+(defun lispy-convolute (arg)
+  "Replace (...(,,,|( with (,,,(...|( where ... and ,,, is arbitrary code.
+When ARG is more than 1, pull ARGth expression to enclose current sexp."
+  (interactive "p")
   (if (save-excursion
-        (lispy--out-forward 2))
+        (lispy--out-forward (1+ arg)))
       (lispy-from-left
        (let (beg end deactivate-mark)
          (lispy-save-excursion
            (setq beg (point))
-           (setq end (lispy--out-backward 1))
+           (setq end (lispy--out-backward arg))
            (lispy--out-backward 1)
            (lispy--swap-regions (cons beg end)
                                 (cons (point) (point)))
