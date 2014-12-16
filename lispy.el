@@ -2650,6 +2650,20 @@ Any amount can be added with a global binding."
   (put 'lispy-store-bounds 'buffer (current-buffer))
   (put 'lispy-store-bounds 'region (lispy--bounds-dwim)))
 
+(defun lispy--vertical-splitp ()
+  "Return nil if the frame isn't two vertical windows.
+In case it is, return the left window."
+  (let ((windows (window-list)))
+    (when (= (length windows) 2)
+      (let ((wnd1 (car windows))
+            (wnd2 (cadr windows)))
+        (when (= (window-pixel-top wnd1)
+                 (window-pixel-top wnd2))
+          (if (< (window-pixel-left wnd1)
+                 (window-pixel-left wnd2))
+              wnd1
+            wnd2))))))
+
 (defun lispy-ediff-regions ()
   "Comparable to `ediff-regions-linewise'.
 First region and buffer come from `lispy-store-region-and-buffer'
@@ -2664,10 +2678,16 @@ Second region and buffer are the current ones."
           (lispy--make-ediff-buffer
            (get 'lispy-store-bounds 'buffer) "-B-"
            (get 'lispy-store-bounds 'region))
-        (ediff-regions-internal
-         buf1 beg1 end1
-         buf2 beg2 end2
-         nil 'ediff-regions-linewise nil nil)))
+        (if (equal (selected-window)
+                   (lispy--vertical-splitp))
+            (ediff-regions-internal
+             buf1 beg1 end1
+             buf2 beg2 end2
+             nil 'ediff-regions-linewise nil nil)
+          (ediff-regions-internal
+           buf2 beg2 end2
+           buf1 beg1 end1
+           nil 'ediff-regions-linewise nil nil))))
     (add-hook 'ediff-after-quit-hook-internal
               `(lambda ()
                  (setq ediff-after-quit-hook-internal)
