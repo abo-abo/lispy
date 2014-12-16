@@ -3758,7 +3758,10 @@ Ignore the matches in strings and comments."
                       (when (and (consp sxp)
                                  (eq (car sxp) '\,@))
                         (insert ")")
-                        (replace-match "(ly-raw \\\\,@ ")))))
+                        (backward-char 1)
+                        (backward-list 1)
+                        (backward-delete-char 2)
+                        (insert "(ly-raw \\,@ ")))))
                 ;; ——— overlay syntax —————————
                 (goto-char (point-min))
                 (while (re-search-forward "#<overlay" nil t)
