@@ -2669,29 +2669,23 @@ In case it is, return the left window."
 First region and buffer come from `lispy-store-region-and-buffer'
 Second region and buffer are the current ones."
   (interactive)
-  (let ((wnd (current-window-configuration)))
-    (multiple-value-bind (buf1 beg1 end1)
-        (lispy--make-ediff-buffer
-         (current-buffer) "-A-"
-         (lispy--bounds-dwim))
-      (multiple-value-bind (buf2 beg2 end2)
-          (lispy--make-ediff-buffer
-           (get 'lispy-store-bounds 'buffer) "-B-"
-           (get 'lispy-store-bounds 'region))
-        (if (equal (selected-window)
-                   (lispy--vertical-splitp))
-            (ediff-regions-internal
-             buf1 beg1 end1
-             buf2 beg2 end2
-             nil 'ediff-regions-linewise nil nil)
-          (ediff-regions-internal
-           buf2 beg2 end2
-           buf1 beg1 end1
-           nil 'ediff-regions-linewise nil nil))))
-    (add-hook 'ediff-after-quit-hook-internal
-              `(lambda ()
-                 (setq ediff-after-quit-hook-internal)
-                 (set-window-configuration ,wnd)))))
+  (let ((wnd (current-window-configuration))
+        (e1 (lispy--make-ediff-buffer
+             (current-buffer) "-A-"
+             (lispy--bounds-dwim)))
+        (e2 (lispy--make-ediff-buffer
+             (get 'lispy-store-bounds 'buffer) "-B-"
+             (get 'lispy-store-bounds 'region))))
+    (apply #'ediff-regions-internal
+           `(,@(if (equal (selected-window)
+                          (lispy--vertical-splitp))
+                   (append e1 e2)
+                   (append e2 e1))
+               nil ediff-regions-linewise nil nil)))
+  (add-hook 'ediff-after-quit-hook-internal
+            `(lambda ()
+               (setq ediff-after-quit-hook-internal)
+               (set-window-configuration ,wnd))))
 
 ;; ——— Locals:  marking ————————————————————————————————————————————————————————
 (defun lispy-mark-right (arg)
