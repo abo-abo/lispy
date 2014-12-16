@@ -2593,6 +2593,7 @@ With ARG, use the contents of `lispy-store-region-and-buffer' instead."
 (defun lispy-bind-variable ()
   "Bind current expression as variable."
   (interactive)
+  (deactivate-mark)
   (let* ((bnd (lispy--bounds-dwim))
          (str (lispy--string-dwim bnd)))
     (setq lispy-bind-var-in-progress t)
