@@ -54,6 +54,7 @@
     - [[Demo 3: Down the rabbit hole](http://abo-abo.github.io/lispy/demo-3)](#demo-3-down-the-rabbit-holehttpabo-abogithubiolispydemo-3)
     - [[Demo 4: Project Euler p100 and Clojure](http://abo-abo.github.io/lispy/demo-4)](#demo-4-project-euler-p100-and-clojurehttpabo-abogithubiolispydemo-4)
     - [[Demo 5: ->>ification](http://abo-abo.github.io/lispy/demo-5)](#demo-5--ificationhttpabo-abogithubiolispydemo-5)
+    - [[Demo 6: cond->if->cond](http://abo-abo.github.io/lispy/demo-6)](#demo-6-cond-if-condhttpabo-abogithubiolispydemo-6)
 - [Screencasts](#screencasts)
 
 <!-- markdown-toc end -->
@@ -533,6 +534,7 @@ Like `lispy-goto`, but offers only symbols from the current file.
 ## [Demo 3: Down the rabbit hole](http://abo-abo.github.io/lispy/demo-3)
 ## [Demo 4: Project Euler p100 and Clojure](http://abo-abo.github.io/lispy/demo-4)
 ## [Demo 5: ->>ification](http://abo-abo.github.io/lispy/demo-5)
+## [Demo 6: cond->if->cond](http://abo-abo.github.io/lispy/demo-6)
 
 # Screencasts
 
