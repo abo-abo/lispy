@@ -1628,6 +1628,23 @@ When ARG is more than 1, pull ARGth expression to enclose current sexp."
            (lispy--reindent 1))))
     (error "Not enough depth to convolute")))
 
+(defvar lispy-repeat--command nil
+  "Command to use with `lispy-repeat'.")
+
+(defvar lispy-repeat--prefix-arg nil
+  "Prefix arg to use with `lispy-repeat'.")
+
+(defun lispy-repeat ()
+  "Repeat last command with last prefix arg."
+  (interactive)
+  (unless (memq last-command
+                '(special-lispy-repeat lispy-repeat))
+    (setq lispy-repeat--command last-command)
+    (setq lispy-repeat--prefix-arg last-prefix-arg))
+  (setq current-prefix-arg lispy-repeat--prefix-arg)
+  (funcall lispy-repeat--command
+           lispy-repeat--prefix-arg))
+
 (defun lispy-join ()
   "Join sexps."
   (interactive)
@@ -4766,6 +4783,7 @@ FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)"
   (lispy-define-key map "Z" 'lispy-edebug-stop)
   (lispy-define-key map "V" 'lispy-visit)
   (lispy-define-key map "-" 'lispy-ace-subword)
+  (lispy-define-key map "." 'lispy-repeat)
   ;; ——— locals: digit argument ———————————————
   (mapc (lambda (x) (lispy-define-key map (format "%d" x) 'digit-argument))
         (number-sequence 0 9)))
