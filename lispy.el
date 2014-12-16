@@ -384,7 +384,7 @@ otherwise call `lispy-out-forward' and return nil."
                    (= pt (point)))))
         (prog1 nil
           (lispy--out-forward 1))
-      t)))
+      (point))))
 
 (defun lispy-backward (arg)
   "Move backward list ARG times or until error.
@@ -412,7 +412,7 @@ If couldn't move backward at least once, move up backward and return nil."
         (prog1 nil
           (lispy--out-forward 1)
           (backward-list))
-      t)))
+      (point))))
 
 (defun lispy-out-forward (arg)
   "Move outside list forwards ARG times.
@@ -1620,14 +1620,11 @@ The outcome when ahead of sexps is different from when behind."
        (let (beg end deactivate-mark)
          (lispy-save-excursion
            (setq beg (point))
-           (lispy--out-forward 1)
-           (setq end (backward-list))
-           (lispy--out-forward 1)
-           (backward-list)
+           (setq end (lispy--out-backward 1))
+           (lispy--out-backward 1)
            (lispy--swap-regions (cons beg end)
                                 (cons (point) (point)))
-           (lispy--out-forward 1)
-           (lispy--reindent))))
+           (lispy--reindent 1))))
     (error "Not enough depth to convolute")))
 
 (defun lispy-join ()
@@ -3062,7 +3059,9 @@ Return nil on failure, t otherwise."
     (lispy--out-forward arg)
     (when (looking-back lispy-right)
       (lispy-backward 1))
-    (not (= pt (point)))))
+    (if (= pt (point))
+        nil
+      (point))))
 
 (defun lispy--back-to-paren ()
   "Move to ( going out backwards."
