@@ -1617,15 +1617,14 @@ When ARG is more than 1, pull ARGth expression to enclose current sexp."
   (interactive "p")
   (if (save-excursion
         (lispy--out-forward (1+ arg)))
-      (lispy-from-left
-       (let (beg end deactivate-mark)
-         (lispy-save-excursion
-           (setq beg (point))
-           (setq end (lispy--out-backward arg))
-           (lispy--out-backward 1)
-           (lispy--swap-regions (cons beg end)
-                                (cons (point) (point)))
-           (lispy--reindent 1))))
+      (let (beg end deactivate-mark)
+        (lispy-from-left
+         (setq beg (point))
+         (setq end (lispy--out-backward arg))
+         (lispy--out-backward 1)
+         (lispy--swap-regions (cons beg end)
+                              (cons (point) (point)))
+         (lispy--reindent 1)))
     (error "Not enough depth to convolute")))
 
 (defvar lispy-repeat--command nil
