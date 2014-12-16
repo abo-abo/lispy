@@ -1683,7 +1683,7 @@ The outcome when ahead of sexps is different from when behind."
                   (bnd1 (lispy--bounds-dwim))
                   bnd2)
               (goto-char (car bnd1))
-              (if (re-search-backward "[^ \n`'#(]" (car bnd0) t)
+              (if (re-search-backward "[^ \t\n`'#(]" (car bnd0) t)
                   (progn
                     (deactivate-mark)
                     (if (lispy--in-comment-p)
@@ -1730,7 +1730,7 @@ The outcome when ahead of sexps is different from when behind."
                   (bnd1 (lispy--bounds-dwim))
                   bnd2)
               (goto-char (cdr bnd1))
-              (if (re-search-forward "[^ \n]" (1- (cdr bnd0)) t)
+              (if (re-search-forward "[^ \t\n]" (1- (cdr bnd0)) t)
                   (progn
                     (deactivate-mark)
                     (if (lispy--in-comment-p)
