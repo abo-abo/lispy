@@ -87,7 +87,7 @@ to:
            (back-to-indentation)))))
 #+end_src
 * Screencast
-The screencast for this demo is here:
+The screencast for this demo is here: https://www.youtube.com/watch?v=Djn6dXzXp_E
 * Step-by-step expansion
 ** step 1
 | ~qnm>~                     | mark two expressions before =let=               |
