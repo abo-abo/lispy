@@ -284,9 +284,9 @@ Otherwise return the amount of times executed."
        (unless ,at-start
          (lispy-different))
        (unwind-protect
-            (save-excursion
+            (lispy-save-excursion
               ,@body)
-         (unless ,at-start
+         (unless (eq ,at-start (lispy--leftp))
            (lispy-different))))))
 
 ;; ——— Verb related ————————————————————————————————————————————————————————————
