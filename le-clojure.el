@@ -29,15 +29,25 @@
 
 (defun lispy--eval-clojure (str)
   "Eval STR as Clojure code."
-  (if lispy-do-pprint
-      (read (nrepl-dict-get
-             (nrepl-sync-request:eval
+  (let* ((str
+          (if lispy-do-pprint
               (format "(clojure.core/let [x %s] (with-out-str (clojure.pprint/pprint x)))"
-                      str))
-             "value"))
-    (nrepl-dict-get
-     (nrepl-sync-request:eval str)
-     "value")))
+                      str)
+            str))
+         (res (nrepl-sync-request:eval str))
+         (val (nrepl-dict-get res "value")))
+    (cond ((null val)
+           (error "eval error: %S"
+                  (nrepl-dict-get res "err")))
+
+          ((string= val "nil")
+           (format "nil: %s" (nrepl-dict-get res "out")))
+
+          (lispy-do-pprint
+           (read res))
+
+          (t
+           val))))
 
 (defun lispy--clojure-resolve (symbol)
   "Return resolved SYMBOL.
