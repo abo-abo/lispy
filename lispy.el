@@ -2234,6 +2234,34 @@ When ARG isn't nil, try to pretty print the sexp."
   (format "%s: nil" (propertize "cond" 'face 'font-lock-keyword-face))
   "Message to echo when the current `cond' branch is nil.")
 
+(defvar lispy-eval--active-window nil
+  "Source window for `lispy-eval-other-window'.")
+(defvar lispy-eval--eval-window nil
+  "Target window for `lispy-eval-other-window'.")
+(defvar lispy-eval--eval-buffer nil
+  "Target buffer for `lispy-eval-other-window'")
+(defvar lispy-eval--expr nil
+  "The expression for`lispy-eval-other-window'.")
+
+(defun lispy--eval-in-window (aj-data)
+  "Eval in the context of AJ-DATA."
+  (let ((frame (aj-position-frame aj-data))
+        (window (aj-position-window aj-data)))
+    (when (and (frame-live-p frame)
+               (not (eq frame (selected-frame))))
+      (select-frame-set-input-focus frame))
+    (select-window window)
+    (setq lispy-eval--eval-window window)
+    (setq lispy-eval--eval-buffer (current-buffer))
+    (let ((res (condition-case e
+                   (eval lispy-eval--expr lexical-binding)
+                 (error
+                  (message "error: %s" (error-message-string e))))))
+      (if (equal res lispy--eval-cond-msg)
+          (message res)
+        (message "%S" res))
+      (select-window lispy-eval--active-window))))
+
 (defun lispy-eval-other-window ()
   "Eval current expression in the context of other window.
 In case the point is on a let-bound variable, add a `setq'."
