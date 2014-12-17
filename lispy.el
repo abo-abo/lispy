@@ -2710,11 +2710,11 @@ Second region and buffer are the current ones."
                           (lispy--vertical-splitp))
                    (append e1 e2)
                    (append e2 e1))
-               nil ediff-regions-linewise nil nil)))
-  (add-hook 'ediff-after-quit-hook-internal
-            `(lambda ()
-               (setq ediff-after-quit-hook-internal)
-               (set-window-configuration ,wnd))))
+               nil ediff-regions-linewise nil nil))
+    (add-hook 'ediff-after-quit-hook-internal
+              `(lambda ()
+                 (setq ediff-after-quit-hook-internal)
+                 (set-window-configuration ,wnd)))))
 
 ;; ——— Locals:  marking ————————————————————————————————————————————————————————
 (defun lispy-mark-right (arg)
