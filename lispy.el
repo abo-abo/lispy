@@ -4674,7 +4674,11 @@ return the corresponding `setq' expression."
   (define-key map "j" 'lispy-debug-step-in)
   (define-key map "h" 'lispy-describe)
   (define-key map "u" 'lispy-unbind-variable)
-  (define-key map "b" 'lispy-bind-variable))
+  (define-key map "b" 'lispy-bind-variable)
+  (define-key map (char-to-string help-char)
+    (lambda ()
+      (interactive)
+      (describe-bindings (kbd "C-4")))))
 
 (defun lispy-define-key (keymap key def &rest plist)
   "Forward to (`define-key' KEYMAP KEY FUNC).
