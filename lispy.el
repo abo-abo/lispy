@@ -4215,7 +4215,9 @@ ACTION is called for the selected candidate."
               (setq overlay
                     (make-overlay (or (aref overlay 0) 1)
                                   (or (aref overlay 1) 1)
-                                  (find-file (aref overlay 2))))))
+                                  (if (>= (length overlay) 3)
+                                      (find-file (aref overlay 2))
+                                    (current-buffer))))))
             (t (error "Unexpected")))
       (push-mark)
       (switch-to-buffer (overlay-buffer overlay))
