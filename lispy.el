@@ -3787,9 +3787,8 @@ Ignore the matches in strings and comments."
                       (when (and (consp sxp)
                                  (eq (car sxp) '\,@))
                         (insert ")")
-                        (backward-char 1)
-                        (backward-list 1)
-                        (backward-delete-char 2)
+                        (goto-char beg)
+                        (delete-char 2)
                         (insert "(ly-raw \\,@ ")))))
                 ;; ——— overlay syntax —————————
                 (goto-char (point-min))
