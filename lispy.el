@@ -4263,12 +4263,13 @@ When NO-NARROW is not nil, don't narrow to BND."
         (unless already-narrowed
           (widen))))))
 
-(defun lispy--prin1-to-string (expr offset)
+(defun lispy--prin1-to-string (expr offset mode)
   "Return the string representation of EXPR.
 EXPR is indented first, with OFFSET being the column position of
-the first character of EXPR."
+the first character of EXPR.
+MODE is the major mode for indenting EXPR."
   (with-temp-buffer
-    (emacs-lisp-mode)
+    (funcall mode)
     (dotimes (i offset)
       (insert ?\ ))
     (lispy--insert expr)
@@ -4407,7 +4408,7 @@ the first character of EXPR."
              (max-specpdl-size 10000)
              (res (lispy--sexp-normalize
                    (lispy--read str)))
-             (new-str (lispy--prin1-to-string res offset)))
+             (new-str (lispy--prin1-to-string res offset major-mode)))
         (unless (string= str new-str)
           (delete-region (car bnd)
                          (cdr bnd))
