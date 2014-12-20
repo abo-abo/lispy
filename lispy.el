@@ -715,8 +715,7 @@ Return nil if can't move."
   (interactive "p")
   (cond ((region-active-p)
          (delete-region
-          (region-beginning)
-          (region-end)))
+          (region-beginning) (region-end)))
 
         ((lispy--in-string-p)
          (cond ((looking-at "\\\\\"")
@@ -732,20 +731,18 @@ Return nil if can't move."
         ((lispy--in-comment-p)
          (delete-char arg))
 
+        ((looking-at lispy-right)
+         (lispy-out-backward 1))
+
         ((looking-at lispy-left)
          (when (looking-back "\\(?:\\s-\\|^\\)[`',@]+")
            (delete-region
             (match-beginning 0)
             (match-end 0))
            (insert " "))
+
          (lispy-dotimes arg
-           (lispy--delete))
-         (unless (looking-at lispy-left)
-           (when (looking-at " +")
-             (delete-region (match-beginning 0)
-                            (match-end 0)))
-           (lispy--out-forward 1)
-           (backward-list)))
+           (lispy--delete)))
 
         ((looking-at "\"")
          (let ((bnd (lispy--bounds-string)))
@@ -755,20 +752,16 @@ Return nil if can't move."
              (skip-chars-forward " ")
              (delete-region pt (point)))))
 
-        ((looking-at lispy-right)
-         (forward-char 1)
-         (lispy-delete-backward 1))
-
         ((eolp)
          (delete-char 1)
          (let ((pt (point)))
            (skip-chars-forward " ")
-           (delete-region pt (point))))
+           (delete-region pt (point))
+           (unless (or (eolp) (looking-back "^ +"))
+             (insert " "))))
 
         (t
-         (delete-char arg)))
-  (when (looking-at lispy-right)
-    (lispy-out-backward 1)))
+         (delete-char arg))))
 
 
 (defun lispy--delete-whitespace-backward ()
@@ -4143,14 +4136,15 @@ Unless inside string or comment, or `looking-back' at CONTEXT."
     (error "Bad position"))
   (let ((bnd (lispy--bounds-list)))
     (delete-region (car bnd) (cdr bnd))
-    (if (looking-at "[\n ]+")
-        (delete-region (match-beginning 0)
-                       (match-end 0))
-      (just-one-space)
-      (when (looking-back "( ")
-        (backward-delete-char 1)))
-    (lispy-forward 1)
-    (backward-list)))
+    (cond ((looking-at "[\n ]+")
+           (delete-region (match-beginning 0)
+                          (match-end 0)))
+          ((looking-at lispy-right))
+
+          (t
+           (just-one-space)
+           (when (looking-back "( ")
+             (backward-delete-char 1))))))
 
 (declare-function helm "ext:helm")
 
