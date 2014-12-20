@@ -41,13 +41,6 @@
     - [Grow/shrink region](#growshrink-region)
     - [Commands that operate on region](#commands-that-operate-on-region)
 - [IDE-like features](#ide-like-features)
-    - [`lispy-describe-inline`](#lispy-describe-inline)
-    - [`lispy-arglist-inline`](#lispy-arglist-inline)
-    - [`lispy-eval`](#lispy-eval)
-    - [`lispy-eval-and-insert`](#lispy-eval-and-insert)
-    - [`lispy-follow`](#lispy-follow)
-    - [`lispy-goto`](#lispy-goto)
-    - [`lispy-goto-local`](#lispy-goto-local)
 - [Demos](#demos)
     - [[Demo 1: Practice generating code](http://abo-abo.github.io/lispy/demo-1)](#demo-1-practice-generating-codehttpabo-abogithubiolispydemo-1)
     - [[Demo 2: The substitution model for procedure application](http://abo-abo.github.io/lispy/demo-2)](#demo-2-the-substitution-model-for-procedure-applicationhttpabo-abogithubiolispydemo-2)
@@ -61,13 +54,54 @@
 
 # Introduction
 
-This package implements a special key binding method and various
-commands that are useful for navigating and editing LISP code.  The
-key binding method is influenced by vi, although this isn't modal
-editing *per se*.  The list manipulation commands are influenced by
-and are a superset of Paredit.
+This package reimagines Paredit - a popular method to navigate and
+edit LISP code in Emacs.
+
+The killer-feature are the short bindings:
+
+       command                |   binding        |  binding     | command
+------------------------------|------------------|--------------|-------------------
+`paredit-forward`             | <kbd>C-M-f</kbd> | <kbd>j</kbd> | `lispy-down`
+`paredit-backward`            | <kbd>C-M-b</kbd> | <kbd>k</kbd> | `lispy-up`
+`paredit-backward-up`         | <kbd>C-M-u</kbd> | <kbd>h</kbd> | `lispy-left`
+`paredit-forward-up`          | <kbd>C-M-n</kbd> | <kbd>l</kbd> | `lispy-right`
+`paredit-raise-sexp`          | <kbd>M-r</kbd>   | <kbd>r</kbd> | `lispy-raise`
+`paredit-convolute-sexp`      | <kbd>M-?</kbd>   | <kbd>C</kbd> | `lispy-convolute`
+`paredit-forward-slurp-sexp`  | <kbd>C-)</kbd>   | <kbd>></kbd> | `lispy-slurp`
+`paredit-forward-barf-sexp`   | <kbd>C-}</kbd>   | <kbd><</kbd> | `lispy-barf`
+`paredit-backward-slurp-sexp` | <kbd>C-(</kbd>   | <kbd>></kbd> | `lispy-slurp`
+`paredit-backward-barf-sexp`  | <kbd>C-{</kbd>   | <kbd><</kbd> | `lispy-barf`
+
+Most of more than 100 interactive commands that `lispy` provides are
+bound to <kbd>a</kbd>-<kbd>z</kbd> and <kbd>A</kbd>-<kbd>Z</kbd> in
+`lispy-mode`. You can see the full command reference
+[here](http://abo-abo.github.io/lispy/).
+
+The price for these short bindings is that they are only active when:
+
+- the point is before an open paren: `(`, `[` or `{`
+- the point is after a close paren: `)`, `]` or `}`
+- the region is active
+
+The advantage of short bindings is that you are more likely to use
+them.  As you use them more, you learn how to combine them, increasing
+your editing efficiency.
+
+To further facilitate building complex commands from smaller commands,
+`lispy-mode` binds `digit-argument` to <kbd>0</kbd>-<kbd>9</kbd>.  For
+example, you can mark the third element of the list with
+<kbd>3m</kbd>.  You can then mark third through fifth element (three
+total) with <kbd>2></kbd> or <kbd>>></kbd>. You can then move the
+selection to the last three elements of the list with <kbd>99j</kbd>.
+
+If you are currently using Paredit, note that `lispy-mode` and
+`paredit-mode` can actually coexist with very few conflicts, although
+there would be some redundancy.
 
 ## Relation to vi
+
+The key binding method is influenced by vi, although this isn't modal
+editing *per se*.
 
 Here's a quote from Wikipedia on how vi works, in case you don't know:
 
@@ -101,9 +135,9 @@ perform both functions with <kbd>j</kbd>.  The difference from vi is
 that the mode is **explicit** instead of **implicit** - it's
 determined by the point position or the region state:
 
-- you're in normal mode when the point is before/after paren or the
+- you are in normal mode when the point is before/after paren or the
   region is active
-- otherwise you're in insert mode
+- otherwise you are in insert mode
 
 So people who generally like Emacs bindings (like me) can have the
 cake and eat it too (no dedicated insert mode + shorter key bindings).
@@ -303,8 +337,6 @@ this:
     (| (
 
 ## List commands overview
-The full reference is [here](http://abo-abo.github.io/lispy/).
-
 ### Inserting pairs
 
 Here's a list of commands for inserting [pairs](http://abo-abo.github.io/lispy/#lispy-pair):
@@ -354,10 +386,10 @@ thing.
  <kbd>C-2</kbd> | `lispy-arglist-inline`
  <kbd>e</kbd>   | `lispy-eval`
  <kbd>E</kbd>   | `lispy-eval-and-insert`
- <kbd>D</kbd>   | `lispy-describe`
  <kbd>g</kbd>   | `lispy-goto`
  <kbd>G</kbd>   | `lispy-goto-local`
  <kbd>F</kbd>   | `lispy-follow`
+ <kbd>D</kbd>   | `pop-tag-mark` (reverses <kbd>F</kbd>)
 
 Details [here](#ide-like-features).
 
@@ -450,12 +482,10 @@ child of marked list, use <kbd>i</kbd> - `lispy-tab`.
 - <kbd>s</kbd> - `lispy-move-down` - move region one sexp down
 - <kbd>w</kbd> - `lispy-move-up` - move region one sexp up
 - <kbd>u</kbd> - `lispy-undo` - deactivate region and undo
-- <kbd>t</kbd> - `lispy-teleport` - move region inside the sexp you select with
-  `lispy-ace-paren`.
-- <kbd>C</kbd> - `lispy-convolute` - exchange the order of application of two
-  sexps that contain point.
-- <kbd>n</kbd> - `lispy-new-copy` - copy region as kill without deactivating
-the region.  Useful to search for currently marked symbol with <kbd>n g C-y</kbd>.
+- <kbd>t</kbd> - `lispy-teleport` - move region inside the sexp you select with `lispy-ace-paren`
+- <kbd>C</kbd> - `lispy-convolute` - exchange the order of application of two sexps that contain region
+- <kbd>n</kbd> - `lispy-new-copy` - copy region as kill without deactivating the mark
+- <kbd>P</kbd> - `lispy-paste` - replace region with current kill
 
 # IDE-like features
 
@@ -464,7 +494,7 @@ and Clojure (via `cider`) are supported.  There's also basic
 evaluation support for Scheme (via `geiser`) and Common lisp (via
 `slime`).
 
-## `lispy-describe-inline`
+**`lispy-describe-inline`**
 
 Bound to <kbd>C-1</kbd>. Show the doc for the current function inline.
 
@@ -478,7 +508,8 @@ Here's how it looks for Clojure:
 
 ![screenshot](https://raw.github.com/abo-abo/lispy/master/images/doc-clojure.png)
 
-## `lispy-arglist-inline`
+**`lispy-arglist-inline`**
+
 Bound to <kbd>C-2</kbd>. Show arguments for current function inline.
 
 `eldoc-mode` is cool, but it shows you arguments *over there* and
@@ -491,26 +522,28 @@ different face. Here's how it looks for Clojure:
 
 ![screenshot](https://raw.github.com/abo-abo/lispy/master/images/arglist-clojure.png)
 
-## `lispy-eval`
+**`lispy-eval`**
 
 Bound to <kbd>e</kbd>.
 
 Eval current expression. Works from the beginning of the list as well.
 
-## `lispy-eval-and-insert`
+**`lispy-eval-and-insert`**
+
 Bound to <kbd>E</kbd>.
 
 Eval and insert current expression. Works from the beginning of list
 as well.
 
-## `lispy-follow`
+**`lispy-follow`**
+
 Bound to <kbd>F</kbd>.
 
 Follow to definition of current function.  While in Clojure, if can't
 resolve the symbol in current namespace, searches for it in all loaded
-namespaces.
+namespaces. Use <kbd>D</kbd> to go back.
 
-## `lispy-goto`
+**`lispy-goto`**
 
 Bound to <kbd>g</kbd>.
 
@@ -521,7 +554,7 @@ Works out of the box for Elisp, Scheme and Common Lisp.
 [clojure-semantic](https://github.com/kototama/clojure-semantic)
 is required for Clojure.
 
-## `lispy-goto-local`
+**`lispy-goto-local`**
 
 Bound to <kbd>G</kbd>.
 
