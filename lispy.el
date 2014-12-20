@@ -2279,7 +2279,7 @@ In case the point is on a let-bound variable, add a `setq'."
                    ((save-excursion
                       (lispy--out-backward 1)
                       (looking-at
-                       "(cond"))
+                       "(cond\\b"))
                     (let ((re (read str)))
                       `(if ,(car re)
                            (progn
