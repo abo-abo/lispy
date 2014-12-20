@@ -31,7 +31,6 @@
         - [Inserting pairs](#inserting-pairs)
         - [Reversible commands](#reversible-commands)
         - [Keys that modify whitespace](#keys-that-modify-whitespace)
-        - [List of IDE-like commands](#list-of-ide-like-commands)
         - [Command chaining](#command-chaining)
         - [Navigating with `ace-jump-mode`-related commands](#navigating-with-ace-jump-mode-related-commands)
 - [Operating on regions](#operating-on-regions)
@@ -74,8 +73,8 @@ The killer-feature are the short bindings:
 
 Most of more than 100 interactive commands that `lispy` provides are
 bound to <kbd>a</kbd>-<kbd>z</kbd> and <kbd>A</kbd>-<kbd>Z</kbd> in
-`lispy-mode`. You can see the full command reference
-[here](http://abo-abo.github.io/lispy/).
+`lispy-mode`.  You can see the full command reference with many
+examples [here](http://abo-abo.github.io/lispy/).
 
 The price for these short bindings is that they are only active when:
 
@@ -173,16 +172,21 @@ situation.
     - <kbd><</kbd> barfs
     - <kbd>r</kbd> raises
     - <kbd>C</kbd> convolutes
-- [IDE-like features](#ide-like-features) for Elisp, Clojure, Scheme and Common Lisp:
+    - <kbd>s</kbd> moves down
+    - <kbd>w</kbd> moves up
+- IDE-like features for Elisp, Clojure, Scheme and Common Lisp:
     - <kbd>e</kbd> evals
     - <kbd>E</kbd> evals and inserts
-    - <kbd>g</kbd> jumps to tag with semantic
+    - <kbd>g</kbd> jumps to any tag in the current directory with semantic
+    - <kbd>G</kbd> jumps to any tag in the current file
     - <kbd>M-.</kbd> jumps to symbol, <kbd>M-,</kbd> jumps back
+    - <kbd>F</kbd> jumps to symbol, <kbd>D</kbd> jumps back
     - <kbd>C-1</kbd> shows documentation in an overlay
     - <kbd>C-2</kbd> shows arguments in an overlay
     - [<kbd>Z</kbd>](http://abo-abo.github.io/lispy/#lispy-edebug-stop) breaks
       out of `edebug`, while storing current function's arguments
 
+Some pictures [here](#ide-like-features).
 - Code manipulation:
     - <kbd>i</kbd> prettifies code (remove extra space, hanging parens ...)
     - <kbd>xi</kbd> transforms `cond` expression to equivalent `if` expressions
@@ -193,7 +197,6 @@ situation.
     - <kbd>xd</kbd> turns current `lambda` into a `defun`
     - <kbd>O</kbd> formats the code into one line
     - <kbd>M</kbd> formats the code into multiple lines
-
 - Misc. bindings:
     - outlines navigation/folding (<kbd>J</kbd>, <kbd>K</kbd>, <kbd>I</kbd>, <kbd>i</kbd>)
     - narrow/widen (<kbd>N</kbd>, <kbd>W</kbd>)
@@ -378,21 +381,6 @@ thing.
  <kbd>^</kbd>   | `lispy-hat`
  <kbd>C-m</kbd> | `lispy-newline-and-indent`
 
-### List of IDE-like commands
-
- key            | command
-----------------|--------------------------
- <kbd>C-1</kbd> | `lispy-describe-inline`
- <kbd>C-2</kbd> | `lispy-arglist-inline`
- <kbd>e</kbd>   | `lispy-eval`
- <kbd>E</kbd>   | `lispy-eval-and-insert`
- <kbd>g</kbd>   | `lispy-goto`
- <kbd>G</kbd>   | `lispy-goto-local`
- <kbd>F</kbd>   | `lispy-follow`
- <kbd>D</kbd>   | `pop-tag-mark` (reverses <kbd>F</kbd>)
-
-Details [here](#ide-like-features).
-
 ### Command chaining
 
 Most special commands will leave the point special after they're
@@ -522,27 +510,6 @@ different face. Here's how it looks for Clojure:
 
 ![screenshot](https://raw.github.com/abo-abo/lispy/master/images/arglist-clojure.png)
 
-**`lispy-eval`**
-
-Bound to <kbd>e</kbd>.
-
-Eval current expression. Works from the beginning of the list as well.
-
-**`lispy-eval-and-insert`**
-
-Bound to <kbd>E</kbd>.
-
-Eval and insert current expression. Works from the beginning of list
-as well.
-
-**`lispy-follow`**
-
-Bound to <kbd>F</kbd>.
-
-Follow to definition of current function.  While in Clojure, if can't
-resolve the symbol in current namespace, searches for it in all loaded
-namespaces. Use <kbd>D</kbd> to go back.
-
 **`lispy-goto`**
 
 Bound to <kbd>g</kbd>.
@@ -551,14 +518,8 @@ Use `helm` to select a symbol to jump to from all top-level symbols in
 the in current directory.
 
 Works out of the box for Elisp, Scheme and Common Lisp.
-[clojure-semantic](https://github.com/kototama/clojure-semantic)
-is required for Clojure.
-
-**`lispy-goto-local`**
-
-Bound to <kbd>G</kbd>.
-
-Like `lispy-goto`, but offers only symbols from the current file.
+[clojure-semantic](https://github.com/kototama/clojure-semantic) is
+required for Clojure.
 
 # Demos
 
