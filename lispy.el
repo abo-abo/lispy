@@ -2935,7 +2935,10 @@ If the region is active, replace instead of yanking."
         (delete-region (car bnd)
                        (cdr bnd))
         (yank))
-    (yank)))
+    (yank)
+    (when (and (looking-back lispy-right)
+               (looking-at lispy-left))
+      (insert " "))))
 
 ;; ——— Predicates ——————————————————————————————————————————————————————————————
 (defun lispy--in-string-p ()
