@@ -2976,6 +2976,13 @@ If the region is active, replace instead of yanking."
        (consp (cdr expr))
        (eq (cadr expr) 'comment)))
 
+(defun lispy--raw-string-p (expr)
+  "Return t if EXPR is a raw comment."
+  (and (listp expr)
+       (eq (car expr) 'ly-raw)
+       (consp (cdr expr))
+       (eq (cadr expr) 'string)))
+
 (defun lispy--leftp ()
   "Return t if at region beginning, or at start of the list."
   (if (region-active-p)
@@ -4297,6 +4304,9 @@ MODE is the major mode for indenting EXPR."
           ((string comment symbol)
            (delete-region beg (point))
            (insert (caddr sxp)))
+          (ignore
+           (delete-region beg (point))
+           (backward-delete-char 1))
           (raw
            (delete-region beg (point))
            (lispy--insert (cddr sxp))
