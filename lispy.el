@@ -4607,6 +4607,18 @@ Use only the part bounded by BND."
       (setq ediff-temp-indirect-buffer t)
       (list (current-buffer) (point-min) (point-max)))))
 
+(defvar lispy--edebug-command nil
+  "Command that corresponds to currently pressed key.")
+
+(defun lispy--edebug-commandp ()
+  "Return true if `this-command-keys' should be forwarded to edebug."
+  (when (and (bound-and-true-p edebug-active)
+             (= 1 (length (this-command-keys))))
+    (let ((char (aref (this-command-keys) 0)))
+      (setq lispy--edebug-command
+            (cdr (or (assq char edebug-mode-map)
+                     (assq char global-edebug-map)))))))
+
 (defun lispy--insert-or-call (def plist)
   "Return a lambda to call DEF if position is special.
 Otherwise call `self-insert-command'.
@@ -4619,37 +4631,33 @@ PLIST currently accepts:
        ,(format "Call `%s' when special, self-insert otherwise.\n\n%s"
                 (symbol-name def) (documentation def))
        ,(interactive-form def)
-       (let (cmd)
-         ,@(when disable `((,disable -1)))
-         (cond ,@(when override `(((,override))))
+       ,@(when disable `((,disable -1)))
+       (cond ,@(when override `(((,override))))
 
-               ((and (bound-and-true-p edebug-active)
-                     (= 1 (length (this-command-keys)))
-                     (let ((char (aref (this-command-keys) 0)))
-                       (setq cmd (or (assq char edebug-mode-map)
-                                     (assq char global-edebug-map)))))
-                (call-interactively (cdr cmd)))
+             ((lispy--edebug-commandp)
+              (call-interactively
+               lispy--edebug-command))
 
-               ((and (bound-and-true-p god-global-mode))
-                (call-interactively 'god-mode-self-insert))
+             ((and (bound-and-true-p god-global-mode))
+              (call-interactively 'god-mode-self-insert))
 
-               ((region-active-p)
-                (call-interactively ',def))
+             ((region-active-p)
+              (call-interactively ',def))
 
-               ((lispy--in-string-or-comment-p)
-                (call-interactively 'self-insert-command))
+             ((lispy--in-string-or-comment-p)
+              (call-interactively 'self-insert-command))
 
-               ((save-match-data
-                  (or (looking-at lispy-left)
-                      (looking-back lispy-right)))
-                (call-interactively ',def))
+             ((save-match-data
+                (or (looking-at lispy-left)
+                    (looking-back lispy-right)))
+              (call-interactively ',def))
 
-               ((save-match-data
-                  (and (looking-back "^ *") (looking-at ";")))
-                (call-interactively ',def))
+             ((save-match-data
+                (and (looking-back "^ *") (looking-at ";")))
+              (call-interactively ',def))
 
-               (t
-                (call-interactively 'self-insert-command)))))))
+             (t
+              (call-interactively 'self-insert-command))))))
 
 (defun lispy--setq-expression ()
   "Return the smallest list to contain point.
