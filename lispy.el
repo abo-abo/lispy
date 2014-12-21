@@ -871,7 +871,8 @@ Otherwise (`backward-delete-char-untabify' ARG)."
                    (delete-char 1))
                (backward-delete-char 1)
                (unless (or (eolp)
-                           (looking-at lispy-right))
+                           (looking-at lispy-right)
+                           (looking-back lispy-left))
                  (just-one-space)))
              (indent-for-tab-command)))
 
