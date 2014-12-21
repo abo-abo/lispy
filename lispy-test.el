@@ -874,7 +874,7 @@ Insert KEY if there's no command."
   ;; changes indentation
   (require 'cider)
   (should (string= (lispy-with "|(map sqr (filter odd? [1 2 3 4 5]))" "2(->>]<]<]wwlM")
-                   "(->> [1 2 3 4 5]\n  (map sqr)\n  (filter odd?))|")))
+                   "(->> [1 2 3 4 5]\n     (map sqr)\n     (filter odd?))|")))
 
 (ert-deftest lispy-mark ()
   (should (string= (lispy-with "|;; abc\n;; def\n;; ghi" (lispy-mark))
