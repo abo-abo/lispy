@@ -3,7 +3,7 @@
 
 (package-file "lispy.el")
 
-(files "*.el" (:exclude "init.el" "lispy-test.el" "lispy-simple-test.el"))
+(files "*.el" (:exclude "init.el" "lispy-test.el"))
 
 (development
  (depends-on "helm")
