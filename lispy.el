@@ -4898,6 +4898,7 @@ They may become the defaults in the future."
 
 ;;; Local Variables:
 ;;; outline-regexp: ";; ———"
+;;; bug-reference-url-format: "https://github.com/abo-abo/lispy/issues/%s"
 ;;; End:
 
 ;;; lispy.el ends here
