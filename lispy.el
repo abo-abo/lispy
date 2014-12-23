@@ -757,7 +757,9 @@ Return nil if can't move."
          (let ((pt (point)))
            (skip-chars-forward " ")
            (delete-region pt (point))
-           (unless (or (eolp) (looking-back "^ +"))
+           (unless (or (eolp)
+                       (bolp)
+                       (looking-back "^ +"))
              (insert " "))))
 
         (t
