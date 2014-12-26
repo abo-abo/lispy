@@ -1208,6 +1208,20 @@ Special case is (|( -> ( |(."
            (lispy--out-forward 1)
            (newline)))))
 
+(defun lispy-alt-line ()
+  "Add a newline and move there."
+  (interactive)
+  (when (bound-and-true-p abbrev-mode)
+    (expand-abbrev))
+  (cond ((looking-at lispy-left)
+         (lispy-different))
+        ((re-search-forward lispy-right (line-end-position) t)
+         (backward-char 1)
+         (lispy-out-forward 1))
+        (t
+         (move-end-of-line 1)))
+  (newline-and-indent))
+
 ;; ——— Globals: miscellanea ————————————————————————————————————————————————————
 (defun lispy-string-oneline ()
   "Convert current string to one line."
@@ -4822,6 +4836,7 @@ FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)"
   (define-key map (kbd ";") 'lispy-comment)
   (define-key map (kbd "C-e") 'lispy-move-end-of-line)
   (define-key map (kbd "<C-return>") 'lispy-open-line)
+  (define-key map (kbd "<M-return>") 'lispy-alt-line)
   ;; ——— globals: C-1 .. C-9 ——————————————————
   (when lispy-use-ctrl-digits
     (define-key map (kbd "C-1") 'lispy-describe-inline)
