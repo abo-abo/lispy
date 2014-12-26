@@ -2816,7 +2816,13 @@ ARG is 4: `eval-defun' on the function from this sexp."
   (let* ((ldsi-sxp (lispy--setq-expression))
          (ldsi-fun (car ldsi-sxp)))
     (if (functionp ldsi-fun)
-        (let ((ldsi-args (copy-seq (help-function-arglist ldsi-fun t)))
+        (let ((ldsi-args
+               (copy-seq
+                (help-function-arglist
+                 (if (ad-is-advised ldsi-fun)
+                     (ad-get-orig-definition ldsi-fun)
+                   ldsi-fun)
+                 t)))
               (ldsi-vals (cdr ldsi-sxp))
               ldsi-arg)
           (catch 'done
