@@ -1645,7 +1645,8 @@ When ARG is more than 1, pull ARGth expression to enclose current sexp."
   (unless (memq last-command
                 '(special-lispy-repeat lispy-repeat))
     (setq lispy-repeat--command last-command)
-    (setq lispy-repeat--prefix-arg last-prefix-arg))
+    (setq lispy-repeat--prefix-arg
+          (or last-prefix-arg 1)))
   (setq current-prefix-arg lispy-repeat--prefix-arg)
   (funcall lispy-repeat--command
            lispy-repeat--prefix-arg))
