@@ -4417,8 +4417,10 @@ MODE is the major mode for indenting EXPR."
                    (goto-char (car bnd))
                    (current-column)))
          (was-left (looking-at lispy-left)))
-    (if (and (memq major-mode '(clojure-mode))
-             (string-match ",\\|\\^\\|#[^({]" str))
+    (if (or (and (memq major-mode '(clojure-mode))
+                 (string-match ",\\|\\^\\|#[^({]" str))
+            (> (length str) 10000))
+
         (lispy-from-left
          (indent-sexp))
       (let* ((max-lisp-eval-depth 10000)
