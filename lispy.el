@@ -2717,8 +2717,10 @@ Second region and buffer are the current ones."
 (defun lispy-mark-right (arg)
   "Go right ARG times and mark."
   (interactive "p")
-  (let ((pt (point))
-        (r (lispy--out-forward arg)))
+  (deactivate-mark)
+  (let* ((pt (point))
+         (lispy-ignore-whitespace t)
+         (r (lispy--out-forward arg)))
     (if (or (= pt (point))
             (and (region-active-p)
                  (= (region-beginning)
