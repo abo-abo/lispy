@@ -903,20 +903,21 @@ Extend region when it's aleardy active."
   "Mark list from special position.
 When ARG is more than 1, mark ARGth element."
   (interactive "p")
-  (cond ((region-active-p)
+  (cond ((> arg 1)
+         (lispy-mark-car)
+         (lispy-down (1- arg)))
+        ((region-active-p)
          (deactivate-mark)
          (when (lispy--in-comment-p)
            (beginning-of-line)
            (skip-chars-forward " ")))
-        ((> arg 1)
-         (lispy-mark-car)
-         (lispy-down (1- arg)))
         ((looking-at lispy-left)
-         (set-mark (point))
-         (forward-list))
+         (lispy--mark
+          (lispy--bounds-dwim)))
         ((looking-back lispy-right)
-         (set-mark (point))
-         (backward-list))
+         (lispy--mark
+          (lispy--bounds-dwim))
+         (lispy-different))
         ((and (looking-back "^ *") (looking-at ";"))
          (lispy--mark (lispy--bounds-comment)))))
 
@@ -2750,7 +2751,8 @@ Second region and buffer are the current ones."
       (goto-char (car bnd-1))
       (while (and (equal bnd-1 (setq bnd-2 (bounds-of-thing-at-point 'sexp)))
                   (< (point) (cdr bnd-1)))
-        (forward-char))
+        (forward-char)
+        (skip-chars-forward " "))
       (if bnd-2
           (lispy--mark bnd-2)
         (lispy-complain "can't descend further")))))

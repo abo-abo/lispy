@@ -1021,7 +1021,11 @@ Insert KEY if there's no command."
 
 (ert-deftest lispy-mark-car ()
   (should (string= (lispy-with "|\"foo\"~" (lispy-mark-car))
-                   "\"~foo|\"")))
+                   "\"~foo|\""))
+  (should (string= (lispy-with "~'(\n  foo)|" (lispy-mark-car))
+                   "'(\n  ~foo|)"))
+  (should (string= (lispy-with "|'(\n  foo)~" (lispy-mark-car))
+                   "'(\n  ~foo|)")))
 
 (ert-deftest lispy-unbind-variable ()
   (should (string=
