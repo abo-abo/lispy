@@ -1179,9 +1179,13 @@ Special case is (|( -> ( |(."
       (progn
         (setq this-command 'eval-last-sexp)
         (eval-print-last-sexp))
-    (newline-and-indent)
-    (when (looking-at lispy-left)
-      (indent-sexp))))
+    (if (looking-at lispy-left)
+        (progn
+          (skip-chars-backward ",@'`#")
+          (newline-and-indent)
+          (skip-chars-forward ",@'`#")
+          (indent-sexp))
+      (newline-and-indent))))
 
 (defun lispy-newline-and-indent-plain ()
   "When in minibuffer, exit it.  Otherwise forward to `newline-and-indent'."
