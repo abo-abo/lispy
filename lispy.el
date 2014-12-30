@@ -1038,8 +1038,10 @@ When this function is called:
               (backward-char))
             (backward-char))
            (t
-            (when (looking-back lispy-right)
-              (backward-list))
+            (if (looking-back lispy-right)
+              (backward-list)
+              (if (looking-at (concat " *" lispy-right))
+                  (backward-sexp)))
             (insert ,left)
             (unless (looking-at " ")
               (insert " "))
