@@ -1596,6 +1596,7 @@ Do so ARG times."
       (unless leftp
         (lispy-different))
       (setq bnd1 (lispy--bounds-dwim))
+      (deactivate-mark)
       (lispy--out-forward 1)
       (setq bnd2 (lispy--bounds-dwim))
       (delete-region (cdr bnd2) (cdr bnd1))
@@ -2494,7 +2495,6 @@ When region is active, call `lispy-mark-car'."
 (defun lispy-shifttab ()
   "Hide/show outline summary."
   (interactive)
-  (require 'noflet)
   (require 'org)
   (outline-minor-mode 1)
   (noflet ((org-unlogged-message (&rest x)))
