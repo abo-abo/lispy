@@ -1083,6 +1083,11 @@ Insert KEY if there's no command."
     (foo5 z 10 20)
     (foo6 z 20 10)))")))
 
+(ert-deftest lispy-other-space ()
+  (should (string= (lispy-with "(foo (bar (baz)|))"
+                               (lispy-other-space))
+                   "(foo (bar (baz |)))")))
+
 (provide 'lispy-test)
 
 ;;; Local Variables:

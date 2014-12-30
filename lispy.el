@@ -2958,12 +2958,12 @@ If already there, return it to previous position."
 (defun lispy-other-space ()
   "Alternative to `lispy-space'."
   (interactive)
-  (cond ((looking-at lispy-left)
-         (insert " ")
-         (backward-char 1))
-        ((looking-back lispy-right)
+  (cond ((looking-back lispy-right)
          (backward-char 1)
-         (insert " "))))
+         (insert " "))
+        ((looking-at lispy-left)
+         (insert " ")
+         (backward-char 1))))
 
 (defun lispy-paste ()
   "Forward to `yank'.
