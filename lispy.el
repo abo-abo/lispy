@@ -1039,7 +1039,7 @@ When this function is called:
             (backward-char))
            (t
             (if (looking-back lispy-right)
-              (backward-list)
+                (backward-list)
               (if (looking-at (concat " *" lispy-right))
                   (backward-sexp)))
             (insert ,left)
@@ -2291,40 +2291,44 @@ When ARG isn't nil, try to pretty print the sexp."
   "Eval current expression in the context of other window.
 In case the point is on a let-bound variable, add a `setq'."
   (interactive)
-  (let ((lispy-ignore-whitespace t))
-    (lexical-let*
-        ((str (save-match-data
-                (lispy--string-dwim)))
-         (expr
-          (save-match-data
-            (lispy-from-left
-             (cond ((looking-back "(\\(?:lexical-\\)?let\\*?[ \t\n]*")
-                    (cons 'setq
-                          (cl-mapcan
-                           (lambda (x) (unless (listp x) (list x nil)))
-                           (read str))))
-                   ((save-excursion
-                      (lispy--out-backward 1)
-                      (looking-back
-                       "(\\(?:lexical-\\)?let\\*?[ \t\n]*"))
-                    (cons 'setq (read str)))
-                   ((save-excursion
-                      (lispy--out-backward 1)
-                      (looking-at
-                       "(cond\\b"))
-                    (let ((re (read str)))
-                      `(if ,(car re)
-                           (progn
-                             ,@(cdr re))
-                         lispy--eval-cond-msg)))
-                   (t (read str))))))
-         res)
-      (other-window 1)
-      (setq res (eval expr lexical-binding))
-      (other-window -1)
-      (if (equal res lispy--eval-cond-msg)
-          (message res)
-        (message "%S" res)))))
+  (lexical-let*
+      ((lispy-ignore-whitespace t)
+       (str (save-match-data
+              (lispy--string-dwim)))
+       (expr (save-match-data
+               (lispy-from-left
+                (cond
+                  ((looking-back "(\\(?:lexical-\\)?let\\*?[ \t\n]*")
+                   (cons 'setq
+                         (cl-mapcan
+                          (lambda (x) (unless (listp x) (list x nil)))
+                          (read str))))
+
+                  ;; point moves
+                  ((progn
+                     (lispy--out-backward 1)
+                     (looking-back
+                      "(\\(?:lexical-\\)?let\\*?[ \t\n]*"))
+                   (cons 'setq (read str)))
+
+                  ((looking-back "(\\(?:cl-\\)?labels[ \t\n]*")
+                   (cons 'defun (read str)))
+
+                  ((looking-at
+                    "(cond\\b")
+                   (let ((re (read str)))
+                     `(if ,(car re)
+                          (progn
+                            ,@(cdr re))
+                        lispy--eval-cond-msg)))
+                  (t (read str))))))
+       res)
+    (other-window 1)
+    (setq res (eval expr lexical-binding))
+    (other-window -1)
+    (if (equal res lispy--eval-cond-msg)
+        (message res)
+      (message "%S" res))))
 
 (defun lispy-follow ()
   "Follow to `lispy--current-function'."
