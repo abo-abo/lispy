@@ -1192,9 +1192,15 @@ Special case is (|( -> ( |(."
 (defun lispy-newline-and-indent-plain ()
   "When in minibuffer, exit it.  Otherwise forward to `newline-and-indent'."
   (interactive)
-  (if (eq major-mode 'minibuffer-inactive-mode)
-      (exit-minibuffer)
-    (newline-and-indent)))
+  (cl-case major-mode
+    (minibuffer-inactive-mode
+     (exit-minibuffer))
+    (cider-repl-mode
+     (cider-repl-return))
+    (slime-repl-mode
+     (slime-repl-return))
+    (t
+     (newline-and-indent))))
 
 (defun lispy-open-line ()
   "Add one line after the current expression."
