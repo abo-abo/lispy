@@ -247,7 +247,17 @@ backward through lists, which is useful to move into special.
 \\{lispy-mode-map}"
   :keymap lispy-mode-map
   :group 'lispy
-  :lighter " LY")
+  :lighter " LY"
+  (when (and lispy-mode (called-interactively-p 'any))
+    (mapc #'lispy-raise-minor-mode
+          (cons 'lispy-mode lispy-known-verbs))))
+
+(defun lispy-raise-minor-mode (mode)
+  "Make MODE the first on `minor-mode-map-alist'."
+  (let ((x (assq mode minor-mode-map-alist)))
+      (when x
+        (setq minor-mode-map-alist
+              (cons x (delq mode minor-mode-map-alist))))))
 
 ;; ——— Macros ——————————————————————————————————————————————————————————————————
 (defmacro lispy-dotimes (n &rest bodyform)
