@@ -3400,7 +3400,7 @@ ARITY-ALIST combines strings that REGEX matches and their arities."
         (error "Unexpected")))
     (with-current-buffer buffer
       (save-excursion
-        (goto-char start)
+        (goto-char (or start (point-min)))
         (when (looking-at regex)
           (goto-char (match-end 0))
           (let ((tag-head (match-string 1))
