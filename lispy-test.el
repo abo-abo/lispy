@@ -915,6 +915,11 @@ Insert KEY if there's no command."
                    (ly-raw newline)
                    (ly-raw function bar)))))
 
+(ert-deftest lispy-tick ()
+  (should (string= (lispy-with "|" "'") "'|"))
+  (should (string= (lispy-with "|" "`") "`|")))
+
+
 (ert-deftest lispy-to-lambda ()
   (should (string= (lispy-with "|(defun foo (x y)\n  (bar))" (lispy-to-lambda))
                    "|(lambda (x y)\n  (bar))"))

@@ -4172,7 +4172,9 @@ Defaults to `error'."
 (defun lispy--space-unless (context)
   "Insert one space.
 Unless inside string or comment, or `looking-back' at CONTEXT."
-  (unless (or lispy-no-space (lispy--in-string-or-comment-p)
+  (unless (or lispy-no-space
+              (lispy--in-string-or-comment-p)
+              (bolp)
               (looking-back context))
     (insert " ")))
 
