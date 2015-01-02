@@ -165,6 +165,9 @@
 (defvar lispy-right "[])}]"
   "Closing delimiter.")
 
+(defvar lispy-outline "^;;\\*+"
+  "Outline delimiter.")
+
 (defcustom lispy-no-space nil
   "If t, don't insert a space before parens/brackets/braces/colons."
   :type 'boolean
@@ -428,9 +431,17 @@ If couldn't move backward at least once, move up backward and return nil."
   "Move outside list forwards ARG times.
 Return nil on failure, t otherwise."
   (interactive "p")
-  (if (region-active-p)
-      (lispy-mark-right arg)
-    (lispy--out-forward arg)))
+  (cond ((region-active-p)
+         (lispy-mark-right arg))
+        ((looking-at lispy-outline)
+         (let ((end (save-excursion
+                      (or (re-search-forward lispy-outline nil t 2)
+                          (point-max)))))
+           (when (re-search-forward lispy-left end t)
+             (backward-char 1))
+           (lispy--ensure-visible)))
+        (t
+         (lispy--out-forward arg))))
 
 (defun lispy-out-forward-nostring (arg)
   "Call `lispy--out-forward' with ARG unless in string or comment.
@@ -594,6 +605,10 @@ Return nil if can't move."
                (goto-char pt)
                (lispy-backward 1))))
 
+          ((looking-at lispy-outline)
+           (re-search-forward lispy-outline nil t 2)
+           (beginning-of-line))
+
           (t
            (lispy-forward 1)
            (lispy-backward 1))))
@@ -649,6 +664,9 @@ Return nil if can't move."
              (if (lispy-backward 1)
                  (lispy-forward 1)
                (goto-char pt))))
+
+          ((looking-at lispy-outline)
+           (re-search-backward lispy-outline nil t))
 
           (t
            (lispy-backward 1)
