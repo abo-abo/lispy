@@ -1261,7 +1261,14 @@ Special case is (|( -> ( |(."
            (goto-char (cdr (lispy--bounds-string))))
           ((looking-back lispy-right))
           ((looking-at lispy-right)
-           (lispy-out-forward 1))
+           (lispy-out-forward 1)
+           (when (save-excursion
+                   (re-search-backward
+                    lispy-left
+                    (line-beginning-position)
+                    t)
+                   (bolp))
+             (backward-char 1)))
           ((looking-at lispy-left)
            (lispy-different))
           ((looking-back "^ +")
@@ -1269,8 +1276,7 @@ Special case is (|( -> ( |(."
                (backward-char 1)
              (move-end-of-line 1)))
           ((re-search-forward lispy-right (line-end-position) t)
-           (backward-char 1)
-           (lispy-out-forward 1))
+           (backward-char 1))
           (t
            (move-end-of-line 1)))
     (newline-and-indent)))
