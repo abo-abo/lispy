@@ -2269,7 +2269,8 @@ Sexp is obtained by exiting list ARG times."
     (unless (or (looking-back lispy-right) (region-active-p))
       (lispy-forward 1))
     (message
-     (replace-regexp-in-string "%" "%%" (lispy--eval (lispy--string-dwim))))))
+     (replace-regexp-in-string
+      "%" "%%" (lispy--eval (lispy--string-dwim) t)))))
 
 (defvar lispy-do-pprint nil
   "Try a pretty-print when this ins't nil.")
@@ -3260,14 +3261,18 @@ Move to the end of line."
     (end-of-line)))
 
 ;; ——— Utilities: evaluation ———————————————————————————————————————————————————
-(defun lispy--eval (e-str)
-  "Eval E-STR according to current `major-mode'."
+(defun lispy--eval (e-str &optional add-output)
+  "Eval E-STR according to current `major-mode'.
+The result is a string.
+
+When ADD-OUTPUT is t, append the output to the result."
   (funcall
    (cond ((memq major-mode '(emacs-lisp-mode lisp-interaction-mode))
           'lispy--eval-elisp)
          ((memq major-mode '(clojure-mode nrepl-repl-mode))
           (require 'le-clojure)
-          'lispy--eval-clojure)
+          (lambda (x)
+            (lispy--eval-clojure x add-output)))
          ((eq major-mode 'scheme-mode)
           (require 'le-scheme)
           'lispy--eval-scheme)
