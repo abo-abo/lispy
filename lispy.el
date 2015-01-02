@@ -916,6 +916,11 @@ When ARG is more than 1, mark ARGth element."
   (cond ((> arg 1)
          (lispy-mark-car)
          (lispy-down (1- arg)))
+        ((= arg 0)
+         (let ((bnd (lispy--bounds-dwim)))
+           (lispy--mark
+            (cons (1+ (car bnd))
+                  (1- (cdr bnd))))))
         ((region-active-p)
          (deactivate-mark)
          (when (lispy--in-comment-p)
