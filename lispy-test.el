@@ -482,7 +482,11 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "\"\\\\|\"" "{")
                    "\"\\\\{|\\\\}\""))
   (should (string= (lispy-with "\"\\\\|\"" "}")
-                   "\"\\\\[|\\\\]\"")))
+                   "\"\\\\[|\\\\]\""))
+  (should (string= (lispy-with "|foo bar~" "(")
+                   "|(foo bar)"))
+  (should (string= (lispy-with "~foo bar|" "(")
+                   "|(foo bar)")))
 
 (ert-deftest lispy--sub-slurp-forward ()
   (should (eq (lispy-with-value "(progn\n  ~foo|-bar-baz-flip-flop)"
@@ -763,8 +767,8 @@ Insert KEY if there's no command."
                    "|(defun abc (x) \"def.\" (+ x x x))"))
   (should (string= (lispy-with "(defun abc (x)\n  \"def.\"\n  (+ x\n     x\n     x))|" "O")
                    "(defun abc (x) \"def.\" (+ x x x))|"))
-  (should (string= (lispy-with "|(defun foo ()\n  ;; comment\n  (bar)\n  (baz))" "O")
-                   ";; comment\n|(defun foo () (bar) (baz))")))
+  (should (string= (lispy-with "|(defun foo ()\n  ;; comment\n  (bar)\n  (baz))" "O") ;
+                                        ";; comment\n|(defun foo () (bar) (baz))")))
 
 (ert-deftest lispy-multiline ()
   (should (string= (lispy-with "|(defun abc (x) \"def.\" (+ x x x) (foo) (bar))" "M")
