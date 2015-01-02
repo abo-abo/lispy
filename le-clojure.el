@@ -27,21 +27,30 @@
 
 (defvar lispy-do-pprint)
 
-(defun lispy--eval-clojure (str)
-  "Eval STR as Clojure code."
+(defun lispy--eval-clojure (str &optional add-output)
+  "Eval STR as Clojure code.
+The result is a string.
+
+When ADD-OUTPUT is t, add the standard output to the result."
   (let* ((str
           (if lispy-do-pprint
               (format "(clojure.core/let [x %s] (with-out-str (clojure.pprint/pprint x)))"
                       str)
             str))
          (res (nrepl-sync-request:eval str))
-         (val (nrepl-dict-get res "value")))
+         (val (nrepl-dict-get res "value"))
+         out)
     (cond ((null val)
            (error "eval error: %S"
                   (nrepl-dict-get res "err")))
 
-          ((string= val "nil")
-           (format "nil: %s" (nrepl-dict-get res "out")))
+          (add-output
+           (if (setq out (nrepl-dict-get res "out"))
+             (format "%s\n%s"
+                     (propertize
+                      out 'face 'font-lock-string-face)
+                     val)
+             val))
 
           (lispy-do-pprint
            (read res))
