@@ -1226,19 +1226,26 @@ Special case is (|( -> ( |(."
            (lispy--out-forward 1)
            (newline)))))
 
-(defun lispy-alt-line ()
+(defun lispy-alt-line (arg)
   "Add a newline and move there."
-  (interactive)
+  (interactive "p")
   (when (bound-and-true-p abbrev-mode)
     (expand-abbrev))
-  (cond ((looking-at lispy-left)
-         (lispy-different))
-        ((re-search-forward lispy-right (line-end-position) t)
-         (backward-char 1)
-         (lispy-out-forward 1))
-        (t
-         (move-end-of-line 1)))
-  (newline-and-indent))
+  (lispy-dotimes arg
+    (cond ((lispy--in-string-p)
+           (goto-char (cdr (lispy--bounds-string))))
+          ((looking-at lispy-left)
+           (lispy-different))
+          ((looking-back "^ +")
+           (if (re-search-forward lispy-right (line-end-position) t)
+               (backward-char 1)
+             (move-end-of-line 1)))
+          ((re-search-forward lispy-right (line-end-position) t)
+           (backward-char 1)
+           (lispy-out-forward 1))
+          (t
+           (move-end-of-line 1)))
+    (newline-and-indent)))
 
 ;; ——— Globals: miscellanea ————————————————————————————————————————————————————
 (defun lispy-string-oneline ()
