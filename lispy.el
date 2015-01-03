@@ -712,39 +712,43 @@ Return nil if can't move."
 (defun lispy-kill ()
   "Kill keeping parens consistent."
   (interactive)
-  (cond ((or (lispy--in-comment-p) (looking-at ";"))
-         (kill-line))
+  (let (bnd)
+   (cond ((or (lispy--in-comment-p) (looking-at ";"))
+          (kill-line))
 
-        ((lispy--in-string-p)
-         (let ((end (cdr (lispy--bounds-string))))
-           (if (> end (line-end-position))
-               (kill-line)
-             (delete-region (point)
-                            (1- end)))))
-        ((looking-at " *\n")
-         (delete-region
-          (match-beginning 0)
-          (match-end 0))
-         (lispy--indent-for-tab))
-        ((and (looking-at lispy-right) (looking-back lispy-left))
-         (delete-char 1)
-         (backward-delete-char 1))
-        (t
-         (let* ((beg (point))
-                (str (buffer-substring-no-properties
-                      beg
-                      (line-end-position))))
-           (if (= (s-count-matches lispy-left str)
-                  (s-count-matches lispy-right str))
-               (kill-line)
-             (if (let ((lispy-ignore-whitespace t))
-                   (lispy--out-forward 1))
-                 (progn
-                   (backward-char 1)
-                   (if (= beg (point))
-                       (lispy--out-backward 1)
-                     (kill-region beg (point))))
-               (kill-region beg (point))))))))
+         ((setq bnd (lispy--bounds-string))
+          (cond ((eq (point) (car bnd))
+                 (delete-region (car bnd) (cdr bnd)))
+
+                ((> (cdr bnd) (line-end-position))
+                 (kill-line))
+
+                (t
+                 (delete-region (point) (1- (cdr bnd))))))
+         ((looking-at " *\n")
+          (delete-region
+           (match-beginning 0)
+           (match-end 0))
+          (lispy--indent-for-tab))
+         ((and (looking-at lispy-right) (looking-back lispy-left))
+          (delete-char 1)
+          (backward-delete-char 1))
+         (t
+          (let* ((beg (point))
+                 (str (buffer-substring-no-properties
+                       beg
+                       (line-end-position))))
+            (if (= (s-count-matches lispy-left str)
+                   (s-count-matches lispy-right str))
+                (kill-line)
+              (if (let ((lispy-ignore-whitespace t))
+                    (lispy--out-forward 1))
+                  (progn
+                    (backward-char 1)
+                    (if (= beg (point))
+                        (lispy--out-backward 1)
+                      (kill-region beg (point))))
+                (kill-region beg (point)))))))))
 
 (defun lispy-yank ()
   "Like regular `yank', but quotes body when called from \"|\"."
