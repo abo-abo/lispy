@@ -1276,9 +1276,26 @@ Special case is (|( -> ( |(."
 (defun lispy-meta-return ()
   "Insert a new heading."
   (interactive)
-  (lispy-beginning-of-defun)
-  (insert ";;* \n")
-  (backward-char 1))
+  (let ((pt (point)))
+    (cond ((lispy--in-comment-p)
+           (end-of-line)
+           (newline))
+          ((and (looking-back "^ *")
+                (looking-at " *$"))
+           (delete-region
+            (line-beginning-position)
+            (line-end-position)))
+          (t
+           (lispy-beginning-of-defun)
+           (if (save-excursion
+                 (forward-list 1)
+                 (= (point) pt))
+               (progn
+                 (forward-list 1)
+                 (newline))
+             (newline)
+             (backward-char 1)))))
+  (insert ";;* "))
 
 (defun lispy-alt-line (arg)
   "Add a newline and move there."
