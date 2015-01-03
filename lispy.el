@@ -3141,7 +3141,8 @@ If the region is active, replace instead of yanking."
   "Return t if at region beginning, or at start of the list."
   (if (region-active-p)
       (= (point) (region-beginning))
-    (looking-at lispy-left)))
+    (or (looking-at lispy-left)
+        (looking-at lispy-outline))))
 
 (defun lispy--symbolp (str)
   "Return t if STR is a symbol."
