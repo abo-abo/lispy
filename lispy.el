@@ -152,6 +152,18 @@
 (require 'delsel)
 (require 'package)
 (require 'highlight)
+(require 'helm)
+
+;;** Declares
+(declare-function cider--jump-to-loc-from-info "ext:cider")
+(declare-function cider-var-info "ext:cider")
+(declare-function cider-repl-return "ext:cider")
+(declare-function slime-edit-definition "ext:slime")
+(declare-function slime-repl-return "ext:slime")
+(declare-function lispy--clojure-resolve "ext:lispy")
+(declare-function lispy--eval-clojure "ext:lispy")
+(declare-function View-quit "view")
+(declare-function org-overview "org")
 
 ;;* Customization
 (defgroup lispy nil
@@ -2274,13 +2286,6 @@ Sexp is obtained by exiting list ARG times."
    (lambda () (or (not (lispy--in-string-or-comment-p)) (looking-back ".\"")))
    (lambda () (forward-char 1) (call-interactively 'lispy-goto-symbol))))
 
-(declare-function cider--jump-to-loc-from-info "ext:cider")
-(declare-function cider-var-info "ext:cider")
-(declare-function slime-edit-definition "ext:slime")
-(declare-function lispy--clojure-resolve "ext:lispy")
-(declare-function View-quit "view")
-(declare-function org-overview "org")
-
 (defun lispy-goto-symbol (symbol)
   "Go to definition of SYMBOL."
   (interactive (list (let ((str (thing-at-point 'symbol)))
@@ -4365,8 +4370,6 @@ Unless inside string or comment, or `looking-back' at CONTEXT."
            (when (looking-back "( ")
              (backward-delete-char 1))))))
 
-(declare-function helm "ext:helm")
-
 (defun lispy--current-tag ()
   "Forward to `semantic-current-tag'.
 Try to refresh if nil is returned."
@@ -4386,7 +4389,6 @@ Try to refresh if nil is returned."
 (defun lispy--select-candidate (candidates action)
   "Select from CANDIDATES list with `helm'.
 ACTION is called for the selected candidate."
-  (require 'helm)
   (require 'helm-help)
   ;; allows restriction with space
   (require 'helm-match-plugin)
