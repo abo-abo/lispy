@@ -2311,7 +2311,9 @@ Sexp is obtained by exiting list ARG times."
            (lispy--back-to-paren))
           ((eq major-mode 'lisp-mode)
            (require 'slime)
-           (slime-edit-definition symbol)))))
+           (slime-edit-definition symbol))))
+  ;; in case it's hidden in an outline
+  (lispy--ensure-visible))
 
 ;;* Locals: dialect-related
 (defun lispy-eval ()
