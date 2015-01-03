@@ -856,7 +856,9 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "\"(foo)\"\n|(bar)" "mk2\"" )
                    "(foo)|\n(bar)"))
   (should (string= (lispy-with "(message \"say |hi~\")" "\"")
-                   "(message \"say \\\"|hi\\\"\")")))
+                   "(message \"say \\\"|hi\\\"\")"))
+  (should (string= (lispy-with "|\"foo\"" "\"")
+                   "\"|\" \"foo\"")))
 
 (ert-deftest lispy--normalize-1 ()
   (should (string= (lispy-with "|(foo (bar)baz)" (lispy--normalize-1))

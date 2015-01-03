@@ -1125,43 +1125,43 @@ When the region is active, wrap it in quotes instead.
 When inside string, if ARG is nil quotes are quoted,
 otherwise the whole string is unquoted."
   (interactive "P")
-  (cond ((region-active-p)
-         (let ((str (lispy--string-dwim)))
-           (if (and arg
-                    (= (aref str 0) ?\")
-                    (= (aref str (1- (length str))) ?\"))
-               (let* ((bnd (cons (region-beginning)
-                                 (region-end)))
-                      (str (lispy--string-dwim bnd)))
-                 (deactivate-mark)
-                 (delete-region (car bnd) (cdr bnd))
-                 (insert (read str)))
-             (if (lispy--in-string-p)
-                 (lispy--surround-region "\\\"" "\\\"")
-               (lispy--surround-region "\"" "\"")))))
-        ((lispy--in-string-p)
-         (if arg
-             (let* ((bnd (lispy--bounds-string))
-                    (str (lispy--string-dwim bnd)))
-               (delete-region (car bnd) (cdr bnd))
-               (insert (read str)))
-           (insert "\\\"\\\"")
-           (backward-char 2)))
+  (let (bnd)
+   (cond ((region-active-p)
+          (let ((str (lispy--string-dwim)))
+            (if (and arg
+                     (= (aref str 0) ?\")
+                     (= (aref str (1- (length str))) ?\"))
+                (let* ((bnd (cons (region-beginning)
+                                  (region-end)))
+                       (str (lispy--string-dwim bnd)))
+                  (deactivate-mark)
+                  (delete-region (car bnd) (cdr bnd))
+                  (insert (read str)))
+              (if (lispy--in-string-p)
+                  (lispy--surround-region "\\\"" "\\\"")
+                (lispy--surround-region "\"" "\"")))))
+         ((and (setq bnd (lispy--bounds-string))
+               (not (= (point) (car bnd))))
+          (if arg
+              (let ((str (lispy--string-dwim bnd)))
+                (delete-region (car bnd) (cdr bnd))
+                (insert (read str)))
+            (insert "\\\"\\\"")
+            (backward-char 2)))
 
-        (arg
-         (lispy-stringify))
+         (arg
+          (lispy-stringify))
 
-        ((looking-back "?\\\\")
-         (self-insert-command 1))
+         ((looking-back "?\\\\")
+          (self-insert-command 1))
 
-        (t
-         (lispy--space-unless "^\\|\\s-\\|\\s(\\|[#]")
-         (insert "\"\"")
-         (unless (or (lispy--in-string-p)
-                     (looking-at "\n\\|)\\|}\\|\\]\\|$"))
-           (just-one-space)
-           (backward-char 1))
-         (backward-char))))
+         (t
+          (lispy--space-unless "^\\|\\s-\\|\\s(\\|[#]")
+          (insert "\"\"")
+          (unless (looking-at "\n\\|)\\|}\\|\\]\\|$")
+            (just-one-space)
+            (backward-char 1))
+          (backward-char)))))
 
 (defun lispy-parens-down ()
   "Exit the current sexp, and start a new sexp below."
