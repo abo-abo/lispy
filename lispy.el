@@ -713,7 +713,7 @@ Return nil if can't move."
   "Kill keeping parens consistent."
   (interactive)
   (let (bnd)
-   (cond ((or (lispy--in-comment-p) (looking-at ";"))
+    (cond ((lispy--in-comment-p)
           (kill-line))
 
          ((setq bnd (lispy--bounds-string))
