@@ -4796,6 +4796,7 @@ PLIST currently accepts:
                 (symbol-name def) (documentation def))
        ,(interactive-form def)
        ,@(when disable `((,disable -1)))
+       (lispy--ensure-visible)
        (cond ,@(when override `(((,override))))
 
              ((lispy--edebug-commandp)
