@@ -711,7 +711,18 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "\"five |is right out\"" (kbd "M-j"))
                    "\"five \"\n|\"is right out\""))
   (should (string= (lispy-with "|\"five is right out\"" (kbd "M-j"))
-                   "\n|\"five is right out\"")))
+                   "\n|\"five is right out\""))
+  (should (string= (lispy-with "|\"five is right out\""
+                               (kbd "M-f") (kbd "M-j")
+                               (kbd "M-f") (kbd "M-j")
+                               (kbd "M-f") (kbd "M-j"))
+                   "\"five\"\n\" is\"\n\" right\"\n|\" out\""))
+  (should (string= (lispy-with "|\"five is right out\""
+                               (kbd "M-f") (kbd "M-j")
+                               (kbd "M-f") (kbd "M-j")
+                               (kbd "M-f") (kbd "M-j")
+                               (kbd "M-J") (kbd "M-J") (kbd "M-J"))
+                   "\"five is right| out\"")))
 
 (ert-deftest lispy-move-up ()
   (should (string= (lispy-with "((a) (b) |(c))" "w")
