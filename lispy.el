@@ -2410,23 +2410,25 @@ In case the point is on a let-bound variable, add a `setq'."
   "Forward to `beginning-of-defun' with ARG.  Deactivate region.
 When called twice in a row, restore point and mark."
   (interactive "p")
-  (if (and (looking-at "(def")
-           (memq last-command
-                 '(lispy-beginning-of-defun
-                   special-lispy-beginning-of-defun)))
-      (if (consp lispy-bof-last-point)
-          (progn
-            (goto-char (car lispy-bof-last-point))
-            (set-mark (cdr lispy-bof-last-point)))
-        (goto-char lispy-bof-last-point))
-    (if (region-active-p)
-        (progn
-          (setq lispy-bof-last-point
-                (cons (region-beginning)
-                      (region-end)))
-          (deactivate-mark))
-      (setq lispy-bof-last-point (point)))
-    (beginning-of-defun arg)))
+  (cond ((and (looking-at "^(")
+              (memq last-command
+                    '(lispy-beginning-of-defun
+                      special-lispy-beginning-of-defun)))
+         (if (consp lispy-bof-last-point)
+             (progn
+               (goto-char (car lispy-bof-last-point))
+               (set-mark (cdr lispy-bof-last-point)))
+           (goto-char lispy-bof-last-point)))
+        ((looking-at "^(")
+         (setq lispy-bof-last-point (point)))
+        (t
+         (if (region-active-p)
+             (progn
+               (setq lispy-bof-last-point
+                     (cons (point) (mark)))
+               (deactivate-mark))
+           (setq lispy-bof-last-point (point)))
+         (beginning-of-defun arg))))
 
 ;; ——— Locals:  ace-jump-mode  —————————————————————————————————————————————————
 (declare-function fancy-narrow-to-region "ext:fancy-narrow")

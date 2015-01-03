@@ -1101,6 +1101,25 @@ Insert KEY if there's no command."
                                (lispy-other-space))
                    "(foo (bar (baz |)))")))
 
+(ert-deftest lispy-beginning-of-defun ()
+  (should (string= (lispy-with "(baz)\n(foo (b|ar))"
+                               (lispy-beginning-of-defun))
+                   "(baz)\n|(foo (bar))"))
+  (should (string= (lispy-with "(baz)\n(foo |(bar))" "A")
+                   "(baz)\n|(foo (bar))"))
+  (should (string= (lispy-with "(baz)\n(foo |(bar))"
+                               "A"
+                               (setq last-command 'lispy-beginning-of-defun)
+                               "A")
+                   "(baz)\n(foo |(bar))"))
+  (should (string= (lispy-with "(baz)\n(foo (|bar~))" "A")
+                   "(baz)\n|(foo (bar))"))
+  (should (string= (lispy-with "(baz)\n(foo (|bar~))"
+                               "A"
+                               (setq last-command 'lispy-beginning-of-defun)
+                               "A")
+                   "(baz)\n(foo (|bar~))")))
+
 (provide 'lispy-test)
 
 ;;; Local Variables:
