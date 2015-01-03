@@ -1761,7 +1761,8 @@ When ARG is more than 1, pull ARGth expression to enclose current sexp."
 (defun lispy-join ()
   "Join sexps."
   (interactive)
-  (let ((pt (point)))
+  (let ((pt (point))
+        bnd)
     (cond ((looking-back lispy-right)
            (when (lispy-forward 1)
              (backward-list)
@@ -1778,7 +1779,22 @@ When ARG is more than 1, pull ARGth expression to enclose current sexp."
              (delete-char 1)
              (lispy--out-forward 1)
              (backward-list)
-             (indent-sexp))))))
+             (indent-sexp)))
+          ((and (setq bnd (lispy--bounds-string))
+                (or (save-excursion
+                      (goto-char (car bnd))
+                      (skip-chars-backward " \t\n")
+                      (when (looking-back "\"")
+                        (delete-region (1- (point))
+                                       (1+ (car bnd)))
+                        t))
+                    (save-excursion
+                      (goto-char (cdr bnd))
+                      (skip-chars-forward " \t\n")
+                      (when (looking-at "\"")
+                        (delete-region (1- (cdr bnd))
+                                       (1+ (point)))
+                        t))))))))
 
 (defun lispy-split ()
   "Split sexps."
