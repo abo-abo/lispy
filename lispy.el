@@ -452,13 +452,23 @@ Self-insert otherwise."
       (self-insert-command arg)
     (lispy--out-forward arg)))
 
+(defvar lispy-pre-outline-pos 1
+  "Point position before moving to outline with `lispy-out-backward'.")
+
 (defun lispy-out-backward (arg)
   "Move outside list forwards ARG times.
 Return nil on failure, t otherwise."
   (interactive "p")
-  (if (region-active-p)
-      (lispy-mark-left arg)
-    (lispy--out-backward arg)))
+  (cond ((region-active-p)
+         (lispy-mark-left arg))
+        ((looking-at lispy-outline)
+         (goto-char lispy-pre-outline-pos)
+         (lispy--ensure-visible))
+        ((looking-back "^")
+         (setq lispy-pre-outline-pos (point))
+         (lispy-outline-prev 1))
+        (t
+         (lispy--out-backward arg))))
 
 (defun lispy-out-forward-newline (arg)
   "Call `lispy--out-forward', then ARG times `newline-and-indent'."
