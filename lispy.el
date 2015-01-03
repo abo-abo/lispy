@@ -131,7 +131,7 @@
 ;;
 ;;; Code:
 
-;; ——— Requires ————————————————————————————————————————————————————————————————
+;;* Requires
 (eval-when-compile
   (require 'cl)
   (require 'noflet)
@@ -153,7 +153,7 @@
 (require 'package)
 (require 'highlight)
 
-;; ——— Customization ———————————————————————————————————————————————————————————
+;;* Customization
 (defgroup lispy nil
   "List navigation and editing for the Lisp family."
   :group 'bindings
@@ -262,7 +262,7 @@ backward through lists, which is useful to move into special.
         (setq minor-mode-map-alist
               (cons x (delq mode minor-mode-map-alist))))))
 
-;; ——— Macros ——————————————————————————————————————————————————————————————————
+;;* Macros
 (defmacro lispy-dotimes (n &rest bodyform)
   "Execute N times the BODYFORM unless an error is signaled.
 Return nil if couldn't execute BODYFORM at least once.
@@ -302,7 +302,7 @@ Otherwise return the amount of times executed."
          (unless (eq ,at-start (lispy--leftp))
            (lispy-different))))))
 
-;; ——— Verb related ————————————————————————————————————————————————————————————
+;;* Verb related
 (defvar lispy-known-verbs nil
   "List of registered verbs.")
 
@@ -370,7 +370,7 @@ Use the command `%s' to change this variable."
        (with-no-warnings
          (add-minor-mode ',sym ,lighter ,keymap nil nil)))))
 
-;; ——— Globals: navigation —————————————————————————————————————————————————————
+;;* Globals: navigation
 (defun lispy-forward (arg)
   "Move forward list ARG times or until error.
 Return t if moved at least once,
@@ -497,7 +497,7 @@ If this point is inside string, move outside string."
       (setq lispy-meol-point (point))
       (move-end-of-line 1))))
 
-;; ——— Locals:  navigation —————————————————————————————————————————————————————
+;;* Locals: navigation
 (defun lispy-flow (arg)
   "Move inside list ARG times.
 Don't enter strings or comments.
@@ -696,7 +696,7 @@ Return nil if can't move."
         (t
          (user-error "Unexpected"))))
 
-;; ——— Globals: kill, yank, delete, mark, copy —————————————————————————————————
+;;* Globals: kill, yank, delete, mark, copy
 (defun lispy-kill ()
   "Kill keeping parens consistent."
   (interactive)
@@ -1051,7 +1051,7 @@ When ARG is more than 1, mark ARGth element."
     (unless (string= str (current-kill 0))
       (kill-new str))))
 
-;; ——— Globals: pairs ——————————————————————————————————————————————————————————
+;;* Globals: pairs
 (defun lispy-pair (left right space-unless)
   "Return (lambda (arg)(interactive \"p\")...) using LEFT RIGHT SPACE-UNLESS.
 When this function is called:
@@ -1184,7 +1184,7 @@ otherwise the whole string is unquoted."
           (backward-char)))
     (error (indent-new-comment-line))))
 
-;; ——— Globals: insertion ——————————————————————————————————————————————————————
+;;* Globals: insertion
 (defun lispy-space ()
   "Insert one space.
 Special case is (|( -> ( |(."
@@ -1312,7 +1312,7 @@ Special case is (|( -> ( |(."
            (move-end-of-line 1)))
     (newline-and-indent)))
 
-;; ——— Globals: miscellanea ————————————————————————————————————————————————————
+;;* Globals: miscellanea
 (defun lispy-string-oneline ()
   "Convert current string to one line."
   (interactive)
@@ -1332,7 +1332,7 @@ Special case is (|( -> ( |(."
       (forward-char 1))
     (iedit-mode 0)))
 
-;; ——— Locals:  Navigation —————————————————————————————————————————————————————
+;;* Locals: navigation
 (defvar lispy--occur-beg 1
   "Start position of the top level sexp during `lispy-occur'.")
 (defvar lispy--occur-end 1
@@ -1472,7 +1472,7 @@ Special case is (|( -> ( |(."
      'helm-realvalue
      (1- (line-number-at-pos s)))))
 
-;; ——— Locals:  Paredit transformations ————————————————————————————————————————
+;;* Locals: Paredit transformations
 (defun lispy--sub-slurp-forward (arg)
   "Grow current marked symbol by ARG words forwards.
 Return the amount of successful grow steps, nil instead of zero."
@@ -1821,7 +1821,7 @@ When ARG is more than 1, pull ARGth expression to enclose current sexp."
            (when (looking-at lispy-left)
              (indent-sexp))))))
 
-;; ——— Locals:  more transformations ———————————————————————————————————————————
+;;* Locals: more transformations
 (defun lispy-move-up (arg)
   "Move current expression up ARG times.  Don't exit parent list."
   (interactive "p")
@@ -2198,7 +2198,7 @@ Quote newlines if ARG isn't 1."
              (insert str)
              (lispy--normalize-1))))))))
 
-;; ——— Locals:  tags ———————————————————————————————————————————————————————————
+;;* Locals: tags
 (defun lispy-goto (&optional arg)
   "Jump to symbol within files in current directory.
 When ARG isn't nil, call `lispy-goto-projectile' instead."
@@ -2313,7 +2313,7 @@ Sexp is obtained by exiting list ARG times."
            (require 'slime)
            (slime-edit-definition symbol)))))
 
-;; ——— Locals:  dialect-related ————————————————————————————————————————————————
+;;* Locals: dialect-related
 (defun lispy-eval ()
   "Eval last sexp."
   (interactive)
@@ -2482,7 +2482,7 @@ When called twice in a row, restore point and mark."
            (setq lispy-bof-last-point (point)))
          (beginning-of-defun arg))))
 
-;; ——— Locals:  ace-jump-mode  —————————————————————————————————————————————————
+;;* Locals: ace-jump-mode
 (declare-function fancy-narrow-to-region "ext:fancy-narrow")
 (declare-function fancy-widen "ext:fancy-narrow")
 
@@ -2564,7 +2564,7 @@ Sexp is obtained by exiting list ARG times."
    (lambda () (or (not (lispy--in-string-or-comment-p)) (looking-back ".\"")))
    (lambda () (forward-char 1) (lispy-mark-symbol) (lispy-delete 1))))
 
-;; ——— Locals:  outline ————————————————————————————————————————————————————————
+;;* Locals: outline
 (defun lispy-outline-next (arg)
   "Call `outline-next-visible-heading' ARG times."
   (interactive "p")
@@ -2615,7 +2615,7 @@ When region is active, call `lispy-mark-car'."
       (org-overview)
       (put 'lispy-shifttab 'state 1))))
 
-;; ——— Locals:  refactoring ————————————————————————————————————————————————————
+;;* Locals: refactoring
 (defun lispy-to-lambda ()
   "Turn the current function definition into a lambda."
   (interactive)
@@ -2768,7 +2768,7 @@ With ARG, use the contents of `lispy-store-region-and-buffer' instead."
     (iedit-mode 1)
     (backward-delete-char 6)))
 
-;; ——— Locals:  multiple cursors ———————————————————————————————————————————————
+;;* Locals: multiple cursors
 (declare-function mc/create-fake-cursor-at-point "ext:multiple-cursors")
 (declare-function mc/all-fake-cursors "ext:multiple-cursors")
 (declare-function mc/maybe-multiple-cursors-mode "ext:multiple-cursors")
@@ -2806,7 +2806,7 @@ Any amount can be added with a global binding."
      (lambda () (not (lispy--in-string-or-comment-p)))
      #'mc/maybe-multiple-cursors-mode)))
 
-;; ——— Locals:  ediff ——————————————————————————————————————————————————————————
+;;* Locals: ediff
 (defun lispy-store-region-and-buffer ()
   "Store current buffer and `lispy--bounds-dwim'."
   (interactive)
@@ -2850,7 +2850,7 @@ Second region and buffer are the current ones."
                  (setq ediff-after-quit-hook-internal)
                  (set-window-configuration ,wnd)))))
 
-;; ——— Locals:  marking ————————————————————————————————————————————————————————
+;;* Locals: marking
 (defun lispy-mark-right (arg)
   "Go right ARG times and mark."
   (interactive "p")
@@ -2893,7 +2893,7 @@ Second region and buffer are the current ones."
           (lispy--mark bnd-2)
         (lispy-complain "can't descend further")))))
 
-;; ——— Locals:  edebug —————————————————————————————————————————————————————————
+;;* Locals: edebug
 (defun lispy-edebug-stop ()
   "Stop edebugging, while saving current function arguments."
   (interactive)
@@ -2981,7 +2981,7 @@ ARG is 4: `eval-defun' on the function from this sexp."
       (lispy-complain
        (format "%S isn't a function" ldsi-fun)))))
 
-;; ——— Locals:  miscellanea ————————————————————————————————————————————————————
+;;* Locals: miscellanea
 (defvar lispy-mode-x-map (make-sparse-keymap))
 
 (defun lispy-x ()
@@ -3090,7 +3090,7 @@ If the region is active, replace instead of yanking."
                (looking-at lispy-left))
       (insert " "))))
 
-;; ——— Predicates ——————————————————————————————————————————————————————————————
+;;* Predicates
 (defun lispy--in-string-p ()
   "Test if point is inside a string."
   (let ((beg (nth 8 (syntax-ppss))))
@@ -3145,7 +3145,7 @@ If the region is active, replace instead of yanking."
   "Return t if STR is a symbol."
   (string-match "\\`\\(?:\\sw\\|\\s_\\)+\\'" str))
 
-;; ——— Pure ————————————————————————————————————————————————————————————————————
+;;* Pure
 (defun lispy--bounds-dwim ()
   "Return a cons of region bounds if it's active.
 Otherwise return cons of current string, symbol or list bounds."
@@ -3260,7 +3260,7 @@ First, try to return `lispy--bounds-string'."
   (propertize (prin1-to-string x)
               'face 'font-lock-constant-face))
 
-;; ——— Utilities: movement —————————————————————————————————————————————————————
+;;* Utilities: movement
 (defvar lispy-ignore-whitespace nil
   "When set to t, `lispy-out-forward' will not clean up whitespace.")
 
@@ -3318,7 +3318,7 @@ Move to the end of line."
     (forward-line dir)
     (end-of-line)))
 
-;; ——— Utilities: evaluation ———————————————————————————————————————————————————
+;;* Utilities: evaluation
 (defun lispy--eval (e-str &optional add-output)
   "Eval E-STR according to current `major-mode'.
 The result is a string.
@@ -3365,7 +3365,7 @@ When ADD-OUTPUT is t, append the output to the result."
                  (message "Caught unbound variable %s, setting it to nil." es))
              (signal (car e) (cdr e)))))))))
 
-;; ——— Utilities: tags —————————————————————————————————————————————————————————
+;;* Utilities: tags
 (defvar lispy-tag-arity
   '((lisp-mode
      (defclass . 1)
@@ -3756,7 +3756,7 @@ For example, a `setq' statement is amended with variable name that it uses."
                (not semantic-on))
       (semantic-mode -1))))
 
-;; ——— Utilities: slurping and barfing —————————————————————————————————————————
+;;* Utilities: slurping and barfing
 (defun lispy--slurp-forward ()
   "Grow current sexp forward by one sexp."
   (unless (or (looking-back "[()])")
@@ -3817,7 +3817,7 @@ Ignore the matches in strings and comments."
     (unless (lispy--in-string-or-comment-p)
       (replace-match to-string))))
 
-;; ——— Utilities: source transformation ————————————————————————————————————————
+;;* Utilities: source transformation
 (defun lispy--read (str)
   "Read STR including comments and newlines."
   (let* ((mode major-mode)
@@ -4204,7 +4204,7 @@ Defaults to `error'."
           (lispy--replace (car lst) from to)
           (lispy--replace (cdr lst) from to)))))
 
-;; ——— Utilities: error reporting ——————————————————————————————————————————————
+;;* Utilities: error reporting
 (defun lispy-complain (msg)
   "Display MSG if `lispy-verbose' is t."
   (when lispy-verbose
@@ -4216,7 +4216,7 @@ Defaults to `error'."
              msg)
     nil))
 
-;; ——— Utilities: rest —————————————————————————————————————————————————————————
+;;* Utilities: rest
 (defun lispy--indent-region (beg end)
   "Indent region BEG END without reporting progress."
   (save-excursion
@@ -4851,7 +4851,7 @@ return the corresponding `setq' expression."
           (t
            tsexp))))))
 
-;; ——— Key definitions —————————————————————————————————————————————————————————
+;;* Key definitions
 (defvar ac-trigger-commands '(self-insert-command))
 (defvar company-begin-commands '(self-insert-command))
 (defvar company-no-begin-commands '(special-lispy-space))
@@ -5057,7 +5057,7 @@ They may become the defaults in the future."
 (provide 'lispy)
 
 ;;; Local Variables:
-;;; outline-regexp: "^;;\\*+"
+;;; outline-regexp: ";;\\*+"
 ;;; End:
 
 ;;; lispy.el ends here
