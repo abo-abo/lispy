@@ -1270,6 +1270,13 @@ Special case is (|( -> ( |(."
            (lispy--out-forward 1)
            (newline)))))
 
+(defun lispy-meta-return ()
+  "Insert a new heading."
+  (interactive)
+  (lispy-beginning-of-defun)
+  (insert ";;* \n")
+  (backward-char 1))
+
 (defun lispy-alt-line (arg)
   "Add a newline and move there."
   (interactive "p")
@@ -4933,7 +4940,7 @@ FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)"
   (define-key map (kbd ";") 'lispy-comment)
   (define-key map (kbd "C-e") 'lispy-move-end-of-line)
   (define-key map (kbd "<C-return>") 'lispy-open-line)
-  (define-key map (kbd "<M-return>") 'lispy-alt-line)
+  (define-key map (kbd "<M-return>") 'lispy-meta-return)
   ;; ——— globals: C-1 .. C-9 ——————————————————
   (when lispy-use-ctrl-digits
     (define-key map (kbd "C-1") 'lispy-describe-inline)
