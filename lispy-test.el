@@ -9,6 +9,7 @@
 (defmacro lispy-with (in &rest body)
   `(with-temp-buffer
      (emacs-lisp-mode)
+     (transient-mark-mode 1)
      (lispy-mode)
      (insert ,in)
      (when (search-backward "~" nil t)
@@ -100,7 +101,8 @@
 Insert KEY if there's no command."
   (let ((cmd (cdr (assoc 'lispy-mode (minor-mode-key-binding key)))))
     (if (or (and cmd (or (looking-at lispy-left)
-                         (looking-back lispy-right)))
+                         (looking-back lispy-right)
+                         (region-active-p)))
             (progn
               (setq cmd (key-binding key))
               (not (cond ((eq cmd 'self-insert-command))
