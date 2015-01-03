@@ -1780,9 +1780,10 @@ When ARG is more than 1, pull ARGth expression to enclose current sexp."
              (backward-delete-char 1)
              (goto-char (1- pt))
              (delete-char 1)
-             (lispy--out-forward 1)
-             (backward-list)
-             (indent-sexp)))
+             (lispy-save-excursion
+               (forward-char 1)
+               (lispy-out-backward 2)
+               (lispy--normalize-1))))
           ((and (setq bnd (lispy--bounds-string))
                 (or (save-excursion
                       (goto-char (car bnd))

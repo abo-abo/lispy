@@ -695,7 +695,7 @@ Insert KEY if there's no command."
 
 (ert-deftest lispy-join ()
   (should (string= (lispy-with "(foo) |(bar)" "+")
-                   "|(foo bar)"))
+                   "(foo |bar)"))
   (should (string= (lispy-with "(foo)| (bar)" "+")
                    "(foo bar)|"))
   (should (string= (lispy-with "\"a series\"\n \" of st|rings\"" (kbd "M-J"))
