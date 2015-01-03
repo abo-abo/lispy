@@ -247,7 +247,9 @@ Insert KEY if there's no command."
                    "|(defun foo ()\n  (let ((a 1))\n    (let ((b 2))\n      (something))))"))
   (should (equal (lispy-with-value "|(foo)" (lispy-backward 1)) nil))
   (should (equal (lispy-with "((foo \"(\"))\n((foo \")\"))\n\"un|expected\"" (lispy-backward 1))
-                 "((foo \"(\"))\n|((foo \")\"))\n\"unexpected\"")))
+                 "((foo \"(\"))\n|((foo \")\"))\n\"unexpected\""))
+  (should (equal (lispy-with "(defun charge! ()\n|(run-away))" "h")
+                 "|(defun charge! ()\n  (run-away))")))
 
 (ert-deftest lispy-flow ()
   (should (string= (lispy-with "(|(a) (b) (c))" "f")

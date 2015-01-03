@@ -464,12 +464,12 @@ Return nil on failure, t otherwise."
         ((looking-at lispy-outline)
          (goto-char lispy-pre-outline-pos)
          (lispy--ensure-visible))
-        ((looking-back "^")
-         (setq lispy-pre-outline-pos (point))
-         (lispy-outline-prev 1))
         (t
-         (lispy--out-backward arg))))
-
+         (let ((pt (point)))
+           (lispy--out-backward arg)
+           (when (= pt (point))
+             (setq lispy-pre-outline-pos (point))
+             (lispy-outline-prev 1))))))
 (defun lispy-out-forward-newline (arg)
   "Call `lispy--out-forward', then ARG times `newline-and-indent'."
   (interactive "p")
