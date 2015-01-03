@@ -706,8 +706,12 @@ Insert KEY if there's no command."
                    "|\"a s|eries| of strings\"")))
 
 (ert-deftest lispy-split ()
-  (should (string= (lispy-with "(foo |bar)" (lispy-split))
-                   "(foo)\n|(bar)")))
+  (should (string= (lispy-with "(foo |bar)" (kbd "M-j"))
+                   "(foo)\n|(bar)"))
+  (should (string= (lispy-with "\"five |is right out\"" (kbd "M-j"))
+                   "\"five \"\n|\"is right out\""))
+  (should (string= (lispy-with "|\"five is right out\"" (kbd "M-j"))
+                   "\n|\"five is right out\"")))
 
 (ert-deftest lispy-move-up ()
   (should (string= (lispy-with "((a) (b) |(c))" "w")
