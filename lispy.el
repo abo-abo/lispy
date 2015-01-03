@@ -3092,6 +3092,35 @@ If the region is active, replace instead of yanking."
                (looking-at lispy-left))
       (insert " "))))
 
+(defun lispy-view-test ()
+  "View better the test at point."
+  (interactive)
+  (cond ((overlayp lispy-overlay)
+         (delete-overlay lispy-overlay)
+         (setq lispy-overlay nil))
+
+        ((or (looking-at "(string=")
+             (looking-at "(should"))
+         (setq lispy-hint-pos (point))
+         (let* ((expr (read (lispy--string-dwim)))
+                (expr (if (eq (car expr) 'should)
+                          (cadr expr)
+                        expr))
+                (str1 (cadr (cadr expr)))
+                (str2 (caddr expr))
+                (keys (cddadr expr))
+                (sep (make-string (- (window-width)
+                                     (current-column)) ?-)))
+           (lispy--show
+            (concat (propertize str1 'face 'lispy-face-hint)
+                    "\n" sep "\n"
+                    (substring (prin1-to-string keys) 1 -1)
+                    "\n" sep "\n"
+                    (propertize str2 'face 'lispy-face-hint)))))
+
+        (t
+         (user-error "Should position point before (string="))))
+
 ;;* Predicates
 (defun lispy--in-string-p ()
   "Test if point is inside a string."
@@ -4886,6 +4915,7 @@ return the corresponding `setq' expression."
   (define-key map "h" 'lispy-describe)
   (define-key map "u" 'lispy-unbind-variable)
   (define-key map "b" 'lispy-bind-variable)
+  (define-key map "v" 'lispy-view-test)
   (define-key map (char-to-string help-char)
     (lambda ()
       (interactive)

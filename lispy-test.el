@@ -5,7 +5,7 @@
 
 (transient-mark-mode 1)
 
-;; ——— Infrastructure ——————————————————————————————————————————————————————————
+;;* Infrastructure
 (defmacro lispy-with (in &rest body)
   `(with-temp-buffer
      (emacs-lisp-mode)
@@ -119,7 +119,7 @@ Insert KEY if there's no command."
           (setq last-command cmd))
       (insert key))))
 
-;; ——— Tests ———————————————————————————————————————————————————————————————————
+;;* Tests
 (ert-deftest lispy-forward ()
   (should (string= (lispy-with "(|(a) (b) (c))" "]")
                    "((a)| (b) (c))"))
