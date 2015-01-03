@@ -2646,7 +2646,8 @@ When region is active, call `lispy-mark-car'."
           (condition-case e
               ;; (outline-toggle-children)
               (noflet ((org-unlogged-message (&rest x)))
-                (org-cycle-internal-local))
+                (let ((org-outline-regexp outline-regexp))
+                  (org-cycle-internal-local)))
             (error
              (if (string= (error-message-string e) "before first heading")
                  (outline-next-visible-heading 1)
@@ -2659,14 +2660,15 @@ When region is active, call `lispy-mark-car'."
   (require 'org)
   (outline-minor-mode 1)
   (noflet ((org-unlogged-message (&rest x)))
-    (org-cycle-internal-global)
-    ;; (if (get 'lispy-shifttab 'state)
-    ;;     (progn
-    ;;       (org-cycle '(64))
-    ;;       (put 'lispy-shifttab 'state nil))
-    ;;   (org-overview)
-    ;;   (put 'lispy-shifttab 'state 1))
-    ))
+    (let ((org-outline-regexp outline-regexp))
+      (org-cycle-internal-global)))
+  ;; (if (get 'lispy-shifttab 'state)
+  ;;     (progn
+  ;;       (org-cycle '(64))
+  ;;       (put 'lispy-shifttab 'state nil))
+  ;;   (org-overview)
+  ;;   (put 'lispy-shifttab 'state 1))
+  )
 
 ;;* Locals: refactoring
 (defun lispy-to-lambda ()
