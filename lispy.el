@@ -1817,7 +1817,9 @@ When ARG is more than 1, pull ARGth expression to enclose current sexp."
              (insert ")(")
              (backward-char 2)
              (lispy-out-forward 1))
-           (newline-and-indent)))))
+           (newline-and-indent)
+           (when (looking-at lispy-left)
+             (indent-sexp))))))
 
 ;; ——— Locals:  more transformations ———————————————————————————————————————————
 (defun lispy-move-up (arg)
