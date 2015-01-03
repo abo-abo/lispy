@@ -107,7 +107,9 @@ Insert KEY if there's no command."
               (setq cmd (key-binding key))
               (not (cond ((eq cmd 'self-insert-command))
                          ((string-match "^special" (symbol-name cmd)))))))
-        (call-interactively cmd)
+        (progn
+          (call-interactively cmd)
+          (setq last-command cmd))
       (insert key))))
 
 ;; ——— Tests ———————————————————————————————————————————————————————————————————
@@ -1107,17 +1109,11 @@ Insert KEY if there's no command."
                    "(baz)\n|(foo (bar))"))
   (should (string= (lispy-with "(baz)\n(foo |(bar))" "A")
                    "(baz)\n|(foo (bar))"))
-  (should (string= (lispy-with "(baz)\n(foo |(bar))"
-                               "A"
-                               (setq last-command 'lispy-beginning-of-defun)
-                               "A")
+  (should (string= (lispy-with "(baz)\n(foo |(bar))" "AA")
                    "(baz)\n(foo |(bar))"))
   (should (string= (lispy-with "(baz)\n(foo (|bar~))" "A")
                    "(baz)\n|(foo (bar))"))
-  (should (string= (lispy-with "(baz)\n(foo (|bar~))"
-                               "A"
-                               (setq last-command 'lispy-beginning-of-defun)
-                               "A")
+  (should (string= (lispy-with "(baz)\n(foo (|bar~))" "AA")
                    "(baz)\n(foo (|bar~))")))
 
 (provide 'lispy-test)
