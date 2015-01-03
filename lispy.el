@@ -751,57 +751,70 @@ Return nil if can't move."
 (defun lispy-delete (arg)
   "Delete ARG sexps."
   (interactive "p")
-  (cond ((region-active-p)
-         (delete-region
-          (region-beginning) (region-end)))
-
-        ((lispy--in-string-p)
-         (cond ((looking-at "\\\\\"")
-                (delete-char 2))
-               ((lispy--delete-pair-in-string "\\\\\\\\(" "\\\\\\\\)"))
-               ((save-excursion
-                  (forward-char 1)
-                  (lispy--in-string-or-comment-p))
-                (delete-char arg))
-               (t
-                (lispy--exit-string))))
-
-        ((lispy--in-comment-p)
-         (delete-char arg))
-
-        ((looking-at lispy-right)
-         (lispy-out-backward 1))
-
-        ((looking-at lispy-left)
-         (when (looking-back "\\(?:\\s-\\|^\\)[`',@]+")
+  (let (bnd)
+    (cond ((region-active-p)
            (delete-region
-            (match-beginning 0)
-            (match-end 0))
-           (insert " "))
+            (region-beginning) (region-end)))
 
-         (lispy-dotimes arg
-           (lispy--delete)))
+          ((setq bnd (lispy--bounds-string))
+           (cond ((eq (1+ (point)) (cdr bnd))
+                  (goto-char (car bnd)))
+                 ((looking-at "\\\\\"")
+                  (if (eq (+ (point) 2) (cdr bnd))
+                      (goto-char (car bnd))
+                    (delete-char 2)))
+                 ((and (looking-at "\"")
+                       (looking-back "\\\\"))
+                  (backward-char 1)
+                  (delete-char 2))
+                 ((lispy--delete-pair-in-string "\\\\\\\\(" "\\\\\\\\)"))
+                 ((looking-at "\\\\\\\\")
+                  (delete-char 2))
+                 ((and (looking-at "\\\\")
+                       (looking-back "\\\\"))
+                  (backward-char 1)
+                  (delete-char 2))
+                 ((eq (point) (car bnd))
+                  (delete-region (car bnd)
+                                 (cdr bnd))
+                  (let ((pt (point)))
+                    (skip-chars-forward " ")
+                    (delete-region pt (point))))
+                 ((save-excursion
+                    (forward-char 1)
+                    (lispy--in-string-or-comment-p))
+                  (delete-char arg))
+                 (t
+                  (lispy--exit-string))))
 
-        ((looking-at "\"")
-         (let ((bnd (lispy--bounds-string)))
-           (delete-region (car bnd)
-                          (cdr bnd))
+          ((lispy--in-comment-p)
+           (delete-char arg))
+
+          ((looking-at lispy-right)
+           (lispy-out-backward 1))
+
+          ((looking-at lispy-left)
+           (when (looking-back "\\(?:\\s-\\|^\\)[`',@]+")
+             (delete-region
+              (match-beginning 0)
+              (match-end 0))
+             (insert " "))
+
+           (lispy-dotimes arg
+             (lispy--delete)))
+
+          ((eolp)
+           (delete-char 1)
            (let ((pt (point)))
              (skip-chars-forward " ")
-             (delete-region pt (point)))))
+             (delete-region pt (point))
+             (unless (or (eolp)
+                         (bolp)
+                         (looking-back "^ +"))
+               (insert " "))))
 
-        ((eolp)
-         (delete-char 1)
-         (let ((pt (point)))
-           (skip-chars-forward " ")
-           (delete-region pt (point))
-           (unless (or (eolp)
-                       (bolp)
-                       (looking-back "^ +"))
-             (insert " "))))
-
-        (t
-         (delete-char arg))))
+          (t
+           (delete-char arg)))))
 
 
 (defun lispy--delete-whitespace-backward ()
@@ -814,18 +827,16 @@ Return nil if can't move."
   "From \")|\", delete ARG sexps backwards.
 Otherwise (`backward-delete-char-untabify' ARG)."
   (interactive "p")
-  (let (pos)
+  (let (pos bnd)
     (cond ((region-active-p)
            (delete-region (region-beginning)
                           (region-end)))
           ((bobp))
 
-          ((lispy--in-string-p)
-           (cond ((save-excursion
-                    (backward-char 1)
-                    (not (lispy--in-string-p)))
-                  (lispy--exit-string)
-                  (forward-sexp))
+          ((and (setq bnd (lispy--bounds-string))
+                (not (eq (point) (car bnd))))
+           (cond ((eq (- (point) (car bnd)) 1)
+                  (goto-char (cdr bnd)))
                  ((or (looking-back "\\\\\\\\(")
                       (looking-back "\\\\\\\\)"))
                   (let ((pt (point)))
@@ -849,7 +860,7 @@ Otherwise (`backward-delete-char-untabify' ARG)."
 
           ((or (looking-back lispy-right)
                (and (looking-back (concat lispy-right " "))
-                    (looking-at lispy-left)))
+                    (or (looking-at lispy-left) (looking-at "\""))))
            (let ((pt (point)))
              (lispy-backward arg)
              (skip-chars-backward "`',@# \t")
@@ -3052,8 +3063,10 @@ If the region is active, replace instead of yanking."
 (defun lispy--in-string-p ()
   "Test if point is inside a string."
   (let ((beg (nth 8 (syntax-ppss))))
-    (and beg
-         (eq (char-after beg) ?\"))))
+    (or (and beg
+             (eq (char-after beg) ?\"))
+        (and (eq (char-after) ?\")
+             (not (looking-back "\\\\"))))))
 
 (defun lispy--in-comment-p ()
   "Test if point is inside a comment."
@@ -3150,15 +3163,17 @@ First, try to return `lispy--bounds-string'."
 
 (defun lispy--bounds-string ()
   "Return bounds of current string."
-  (let ((beg (or (nth 8 (syntax-ppss))
-                 (and (memq (char-after (point))
-                            '(?\" ?\'))
-                      (point)))))
-    (when beg
-      (cons beg (save-excursion
-                  (goto-char beg)
-                  (forward-sexp)
-                  (point))))))
+  (unless (lispy--in-comment-p)
+    (let ((beg (or (nth 8 (syntax-ppss))
+                   (and (memq (char-after (point))
+                              '(?\" ?\'))
+                        (not (looking-back "\\\\"))
+                        (point)))))
+      (when (and beg (not (comment-only-p beg (1+ (point)))))
+        (cons beg (save-excursion
+                    (goto-char beg)
+                    (forward-sexp)
+                    (point)))))))
 
 (defun lispy--bounds-comment ()
   "Return bounds of current comment."
