@@ -263,9 +263,15 @@ backward through lists, which is useful to move into special.
   :keymap lispy-mode-map
   :group 'lispy
   :lighter " LY"
-  (when (and lispy-mode (called-interactively-p 'any))
-    (mapc #'lispy-raise-minor-mode
-          (cons 'lispy-mode lispy-known-verbs))))
+  (if lispy-mode
+      (progn
+        (setq-local outline-level 'lispy-outline-level)
+        (setq-local outline-regexp (substring lispy-outline 1))
+        (when (called-interactively-p 'any)
+          (mapc #'lispy-raise-minor-mode
+                (cons 'lispy-mode lispy-known-verbs))))
+    (setq-local outline-regexp ";;;\\(;* [^ \t\n]\\|###autoload\\)\\|(")
+    (setq-local outline-level 'lisp-outline-level)))
 
 (defun lispy-raise-minor-mode (mode)
   "Make MODE the first on `minor-mode-map-alist'."
@@ -576,7 +582,6 @@ Return nil if can't move."
 (defun lispy-down (arg)
   "Move down ARG times inside current list."
   (interactive "p")
-  (lispy--ensure-visible)
   (save-match-data
     (cond ((region-active-p)
            (if (lispy--symbolp (lispy--string-dwim))
@@ -628,8 +633,13 @@ Return nil if can't move."
                (lispy-backward 1))))
 
           ((looking-at lispy-outline)
-           (re-search-forward lispy-outline nil t 2)
-           (beginning-of-line))
+           (let ((pt (point)))
+             (lispy-dotimes arg
+               (outline-next-visible-heading 1)
+               (if (looking-at lispy-outline)
+                   (setq pt (point))
+                 (goto-char pt)
+                 (error "Last outline reached")))))
 
           (t
            (lispy-forward 1)
@@ -639,7 +649,6 @@ Return nil if can't move."
 (defun lispy-up (arg)
   "Move up ARG times inside current list."
   (interactive "p")
-  (lispy--ensure-visible)
   (save-match-data
     (cond ((region-active-p)
            (if (lispy--symbolp (lispy--string-dwim))
@@ -688,8 +697,13 @@ Return nil if can't move."
                (goto-char pt))))
 
           ((looking-at lispy-outline)
-           (re-search-backward lispy-outline nil t))
-
+           (let ((pt (point)))
+             (lispy-dotimes arg
+               (outline-previous-visible-heading 1)
+               (if (looking-at lispy-outline)
+                   (setq pt (point))
+                 (goto-char pt)
+                 (error "First outline reached")))))
           (t
            (lispy-backward 1)
            (lispy-forward 1))))
@@ -2593,6 +2607,13 @@ Sexp is obtained by exiting list ARG times."
    (lambda () (forward-char 1) (lispy-mark-symbol) (lispy-delete 1))))
 
 ;;* Locals: outline
+(defun lispy-outline-level ()
+  "Compute the outline level of the heading at point."
+  (end-of-line)
+  (if (re-search-backward lispy-outline nil t)
+      (- (match-end 0) (match-beginning 0) 2)
+    0))
+
 (defun lispy-outline-next (arg)
   "Call `outline-next-visible-heading' ARG times."
   (interactive "p")
@@ -2619,11 +2640,13 @@ When region is active, call `lispy-mark-car'."
   (interactive)
   (if (region-active-p)
       (lispy-mark-car)
-    (if (looking-at ";")
+    (if (looking-at lispy-outline)
         (progn
           (outline-minor-mode 1)
           (condition-case e
-              (outline-toggle-children)
+              ;; (outline-toggle-children)
+              (noflet ((org-unlogged-message (&rest x)))
+                (org-cycle-internal-local))
             (error
              (if (string= (error-message-string e) "before first heading")
                  (outline-next-visible-heading 1)
@@ -2636,12 +2659,14 @@ When region is active, call `lispy-mark-car'."
   (require 'org)
   (outline-minor-mode 1)
   (noflet ((org-unlogged-message (&rest x)))
-    (if (get 'lispy-shifttab 'state)
-        (progn
-          (org-cycle '(64))
-          (put 'lispy-shifttab 'state nil))
-      (org-overview)
-      (put 'lispy-shifttab 'state 1))))
+    (org-cycle-internal-global)
+    ;; (if (get 'lispy-shifttab 'state)
+    ;;     (progn
+    ;;       (org-cycle '(64))
+    ;;       (put 'lispy-shifttab 'state nil))
+    ;;   (org-overview)
+    ;;   (put 'lispy-shifttab 'state 1))
+    ))
 
 ;;* Locals: refactoring
 (defun lispy-to-lambda ()
@@ -4849,7 +4874,8 @@ PLIST currently accepts:
                 (symbol-name def) (documentation def))
        ,(interactive-form def)
        ,@(when disable `((,disable -1)))
-       (lispy--ensure-visible)
+       (unless (looking-at lispy-outline)
+         (lispy--ensure-visible))
        (cond ,@(when override `(((,override))))
 
              ((lispy--edebug-commandp)
@@ -5038,6 +5064,7 @@ FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)"
   (define-key map (kbd "M-o") 'lispy-string-oneline)
   (define-key map (kbd "M-i") 'lispy-iedit)
   (define-key map (kbd "M-q") 'lispy-fill)
+  (define-key map (kbd "<backtab>") 'lispy-shifttab)
   ;; ——— locals: navigation ———————————————————
   (lispy-define-key map "l" 'lispy-out-forward)
   (lispy-define-key map "h" 'lispy-out-backward)
