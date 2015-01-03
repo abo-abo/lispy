@@ -1803,21 +1803,20 @@ When ARG is more than 1, pull ARGth expression to enclose current sexp."
   "Split sexps."
   (interactive)
   (let (bnd)
-   (cond ((lispy--in-comment-p)
-          (indent-new-comment-line))
-         ((setq bnd (lispy--bounds-string))
-          (if (= (point) (car bnd))
-              (newline-and-indent)
-            (insert "\"\"")
-            (backward-char)
-            (newline-and-indent)))
-         (t
-          (when (looking-back " +")
-            (delete-region (match-beginning 0)
-                           (match-end 0)))
-          (insert ")(")
-          (backward-char)
-          (newline-and-indent)))))
+    (cond ((lispy--in-comment-p)
+           (indent-new-comment-line))
+          ((and (setq bnd (lispy--bounds-string))
+                (not (= (point) (car bnd))))
+           (insert "\"\"")
+           (backward-char)
+           (newline-and-indent))
+          (t
+           (when (save-excursion
+                   (lispy--out-forward 1))
+             (insert ")(")
+             (backward-char 2)
+             (lispy-out-forward 1))
+           (newline-and-indent)))))
 
 ;; ——— Locals:  more transformations ———————————————————————————————————————————
 (defun lispy-move-up (arg)

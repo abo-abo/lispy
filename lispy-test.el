@@ -724,7 +724,9 @@ Insert KEY if there's no command."
                                (kbd "M-f") (kbd "M-j")
                                (kbd "M-f") (kbd "M-j")
                                (kbd "M-J") (kbd "M-J") (kbd "M-J"))
-                   "\"five is right| out\"")))
+                   "\"five is right| out\""))
+  (should (string= (lispy-with "(defun charge! ()\n  (message \"[mayham]\")\n  |(run-away))" (kbd "M-j"))
+                   "(defun charge! ()\n  (message \"[mayham]\"))\n|((run-away))")))
 
 (ert-deftest lispy-move-up ()
   (should (string= (lispy-with "((a) (b) |(c))" "w")
