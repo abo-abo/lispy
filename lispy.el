@@ -897,7 +897,7 @@ Otherwise (`backward-delete-char-untabify' ARG)."
                (insert " "))
              (indent-for-tab-command)))
 
-          ((looking-back "\" +")
+          ((looking-back "\" ")
            (let ((pt (point))
                  bnd)
              (goto-char (match-beginning 0))
@@ -926,6 +926,9 @@ Otherwise (`backward-delete-char-untabify' ARG)."
                            (looking-back lispy-left))
                  (just-one-space)))
              (indent-for-tab-command)))
+
+          ((looking-back "[^ ]  +")
+           (delete-region (+ (match-beginning 0) 2) (point)))
 
           (t
            (backward-delete-char-untabify arg))))
