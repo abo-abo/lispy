@@ -1325,7 +1325,12 @@ Special case is (|( -> ( |(."
                  (newline))
              (newline)
              (backward-char 1)))))
-  (insert ";;* "))
+  (insert ";;"
+          (make-string (save-excursion
+                         (or (lispy-outline-level)
+                             1))
+                       ?\*)
+          " "))
 
 (defun lispy-alt-line (arg)
   "Add a newline and move there."
