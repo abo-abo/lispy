@@ -2660,6 +2660,7 @@ When region is active, call `lispy-mark-car'."
   (noflet ((org-unlogged-message (&rest x)))
     (let ((org-outline-regexp outline-regexp))
       (org-cycle-internal-global)))
+  (recenter)
   ;; (if (get 'lispy-shifttab 'state)
   ;;     (progn
   ;;       (org-cycle '(64))
