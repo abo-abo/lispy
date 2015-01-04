@@ -109,6 +109,7 @@ Insert KEY if there's no command."
   (let ((cmd (cdr (assoc 'lispy-mode (minor-mode-key-binding key)))))
     (if (or (and cmd (or (looking-at lispy-left)
                          (looking-back lispy-right)
+                         (looking-at lispy-outline)
                          (region-active-p)))
             (progn
               (setq cmd (key-binding key))
@@ -1197,6 +1198,10 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "(progn\n  (take-out |the-holy-pin)\n  (count-to-three))"
                                (lispy-alt-line 2))
                    "(progn\n  (take-out the-holy-pin)\n  |\n  (count-to-three))")))
+
+(ert-deftest lispy-outline-add ()
+  (should (string= (lispy-with "|;;* Intro" "a")
+                   ";;* Intro\n;;* |")))
 
 (provide 'lispy-test)
 

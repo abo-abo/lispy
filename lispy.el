@@ -2661,12 +2661,14 @@ Sexp is obtained by exiting list ARG times."
         (goto-char pt)
         (error "Past first outline")))))
 
-(defun lispy-add-outline ()
+(defun lispy-outline-add ()
   "When at outline, add another one."
   (when (looking-at lispy-outline)
     (outline-next-heading)
     (skip-chars-backward "\n")
-    (forward-char 1)
+    (if (eobp)
+        (newline)
+      (forward-char 1))
     (lispy-meta-return)
     t))
 
@@ -5134,7 +5136,7 @@ FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)"
   (lispy-define-key map "S" 'lispy-stringify)
   ;; ——— locals: marking —————————————————————
   (lispy-define-key map "a" 'lispy-ace-symbol
-    :override #'lispy-add-outline)
+    :override #'lispy-outline-add)
   (lispy-define-key map "H" 'lispy-ace-symbol-replace)
   (lispy-define-key map "m" 'lispy-mark-list)
   ;; ——— locals: dialect-specific —————————————
