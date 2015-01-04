@@ -499,7 +499,9 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "(list (foo) |\"bar\")" "\C-?")
                    "(list |\"bar\")"))
   (should (string= (lispy-with "\"We want...\"         |\"a shrubbery!\"" "\C-?")
-                   "\"We want...\" |\"a shrubbery!\"")))
+                   "\"We want...\" |\"a shrubbery!\""))
+  (should (string= (lispy-with "\"\\C|-j\"" "\C-?")
+                   "\"|-j\"")))
 
 (ert-deftest lispy-pair ()
   (should (string= (lispy-with "\"\\\\|\"" "(")

@@ -875,6 +875,8 @@ Otherwise (`backward-delete-char-untabify' ARG)."
                              "\\\\\\\\(" "\\\\\\\\)")
                       (goto-char pt)
                       (backward-delete-char-untabify arg))))
+                 ((looking-back "\\\\[^\\]")
+                  (backward-delete-char 2))
                  (t
                   (backward-delete-char-untabify arg))))
 
