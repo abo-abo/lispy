@@ -2042,8 +2042,9 @@ When ARG is more than 1, pull ARGth expression to enclose current sexp."
                  ((doit ()
                     (let (deactivate-mark)
                       (save-excursion
-                        (newline-and-indent)
-                        (insert str)))))
+                        (newline)
+                        (insert str)
+                        (indent-for-tab-command)))))
                (if (= (point) (region-end))
                    (doit)
                  (exchange-point-and-mark)
