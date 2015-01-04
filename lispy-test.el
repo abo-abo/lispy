@@ -875,11 +875,9 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "(a\n b\n (foo)\n c)|" "S")
                    "|\"(a\n b\n (foo)\n c)\""))
   (should (string= (lispy-with "(progn |(1 2 3))" "S")
-                   "|(progn \"(1 2 3)\")"))
-  (should (string= (lispy-with "(progn |(1 2 3))" "SS")
-                   "|\"(progn \\\"(1 2 3)\\\")\""))
+                   "(progn |\"(1 2 3)\")"))
   (should (string= (lispy-with "(foo |(bar #\\x \"baz \\\\ quux\") zot)" "S")
-                   "|(foo \"(bar #\\\\x \\\"baz \\\\\\\\ quux\\\")\" zot)")))
+                   "(foo |\"(bar #\\\\x \\\"baz \\\\\\\\ quux\\\")\" zot)")))
 
 (ert-deftest lispy-eval ()
   (should (string= (lispy-with-value "(+ 2 2)|" (lispy-eval)) "4")))

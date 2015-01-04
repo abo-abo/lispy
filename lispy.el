@@ -2210,10 +2210,7 @@ Quote newlines if ARG isn't 1."
       (delete-region (car bnd) (cdr bnd))
       (insert "\""
               str
-              "\""))
-    ;; work around `( and '(
-    (lispy-forward 1)
-    (lispy-backward 1)))
+              "\""))))
 
 (defun lispy-teleport (arg)
   "Move ARG sexps into a sexp determined by ace-jump."
