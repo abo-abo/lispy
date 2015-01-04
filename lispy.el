@@ -1261,6 +1261,12 @@ Special case is (|( -> ( |(."
   (lispy--space-unless "\\s-\\|\\s(\\|[:?`']\\\\?")
   (insert "`"))
 
+(defun lispy-hash ()
+  "Insert #."
+  (interactive)
+  (lispy--space-unless "\\s-\\|\\s(\\|[#:?'`]\\\\?")
+  (insert "#"))
+
 (defun lispy-newline-and-indent ()
   "Insert newline."
   (interactive)
@@ -5050,6 +5056,7 @@ FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)"
   (define-key map (kbd "^") 'lispy-hat)
   (define-key map (kbd "'") 'lispy-tick)
   (define-key map (kbd "`") 'lispy-backtick)
+  (define-key map (kbd "#") 'lispy-hash)
   (define-key map (kbd "C-j") 'lispy-newline-and-indent)
   (define-key map (kbd "M-j") 'lispy-split)
   (define-key map (kbd "M-J") 'lispy-join)
