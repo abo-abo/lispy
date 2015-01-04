@@ -2,7 +2,8 @@
 (require 'clojure-mode)
 (custom-set-variables
  '(indent-tabs-mode nil))
-
+(setq lisp-indent-function 'common-lisp-indent-function)
+(put 'if 'common-lisp-indent-function 2)
 (transient-mark-mode 1)
 
 ;;* Infrastructure
