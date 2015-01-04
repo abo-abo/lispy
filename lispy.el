@@ -1344,14 +1344,7 @@ Special case is (|( -> ( |(."
            (goto-char (cdr (lispy--bounds-string))))
           ((looking-back lispy-right))
           ((looking-at lispy-right)
-           (lispy-out-forward 1)
-           (when (save-excursion
-                   (re-search-backward
-                    lispy-left
-                    (line-beginning-position)
-                    t)
-                   (bolp))
-             (backward-char 1)))
+           (lispy-out-forward 1))
           ((looking-at lispy-left)
            (lispy-different))
           ((looking-back "^ +")
