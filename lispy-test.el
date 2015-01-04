@@ -1170,6 +1170,32 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "(baz)\n(foo (|bar~))" "AA")
                    "(baz)\n(foo (|bar~))")))
 
+(ert-deftest lispy-alt-line ()
+  (should (string= (lispy-with "(invent 'wheel|)"
+                               (lispy-alt-line))
+                   "(invent 'wheel\n        |)"))
+  (should (string= (lispy-with "(invent 'wheel|)"
+                               (lispy-alt-line 2))
+                   "(invent 'wheel)\n|"))
+  (should (string= (lispy-with "(invent \"wheel|\")"
+                               (lispy-alt-line))
+                   "(invent \"wheel\"\n        |)"))
+  (should (string= (lispy-with "(progn\n  (take-out the-holy-pin)|\n  (count-to-three))"
+                               (lispy-alt-line))
+                   "(progn\n  (take-out the-holy-pin)\n  |\n  (count-to-three))"))
+  (should (string= (lispy-with "(progn\n  (take-out the-holy-pin)\n  (count-to-three)|)"
+                               (lispy-alt-line))
+                   "(progn\n  (take-out the-holy-pin)\n  (count-to-three)\n  |)"))
+  (should (string= (lispy-with "(progn\n  |(take-out the-holy-pin)\n  (count-to-three))"
+                               (lispy-alt-line))
+                   "(progn\n  (take-out the-holy-pin)\n  |\n  (count-to-three))"))
+  (should (string= (lispy-with "(progn\n  (take-out |the-holy-pin)\n  (count-to-three))"
+                               (lispy-alt-line))
+                   "(progn\n  (take-out the-holy-pin\n            |)\n  (count-to-three))"))
+  (should (string= (lispy-with "(progn\n  (take-out |the-holy-pin)\n  (count-to-three))"
+                               (lispy-alt-line 2))
+                   "(progn\n  (take-out the-holy-pin)\n  |\n  (count-to-three))")))
+
 (provide 'lispy-test)
 
 ;;; Local Variables:

@@ -1338,19 +1338,39 @@ Special case is (|( -> ( |(."
                        ?\*)
           " "))
 
-(defun lispy-alt-line (arg)
-  "Add a newline and move there."
+(defun lispy-alt-line (&optional N)
+  "Do a context-aware exit, then `newline-and-indent', N times.
+
+Exit branches:
+
+- When in the minibuffer, exit the minibuffer.
+- When in a string, exit the string.
+- When \")|\", do nothing.
+- When \" |)\", exit the list and normalize it.
+- When \"|(\", move to the other side of the list.
+- When there's a \")\" on the current line before the point, move there.
+- Otherwise, move to the end of the line.
+
+This should generally be useful when generating new code.
+If you find yourself with:
+
+    (foo (bar (baz 1 2 \"3|\")))
+
+calling this function consecutively, you will get a chance to add arguments
+to all the functions, while maintaining the parens in a pretty state."
   (interactive "p")
+  (setq N (or N 1))
   (when (bound-and-true-p abbrev-mode)
     (expand-abbrev))
-  (lispy-dotimes arg
+  (lispy-dotimes N
     (cond ((> (minibuffer-depth) 0)
            (exit-minibuffer))
           ((lispy--in-string-p)
            (goto-char (cdr (lispy--bounds-string))))
           ((looking-back lispy-right))
           ((looking-at lispy-right)
-           (lispy-out-forward 1))
+           (when (looking-back " ")
+             (lispy-out-forward 1)))
           ((looking-at lispy-left)
            (lispy-different))
           ((looking-back "^ +")
@@ -5153,7 +5173,8 @@ FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)"
   "Change to new-style bindings.
 They may become the defaults in the future."
   (let ((map lispy-mode-map))
-    (lispy-define-key map "t" 'lispy-transform-mode))
+    (lispy-define-key map "z" 'lispy-transform-mode)
+    (define-key map [return] 'lispy-alt-line))
   (let ((map lispy-mode-x-map))
     (define-key map "x" nil)))
 
