@@ -1,6 +1,6 @@
 ;;; lispy.el --- vi-like Paredit.
 
-;; Copyright (C) 2014 Oleh Krehel
+;; Copyright (C) 2014-2015 Oleh Krehel
 
 ;; Author: Oleh Krehel <ohwoeowho@gmail.com>
 ;; URL: https://github.com/abo-abo/lispy

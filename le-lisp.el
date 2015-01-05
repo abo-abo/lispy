@@ -1,6 +1,6 @@
 ;;; le-lisp.el --- lispy support for Common Lisp.
 
-;; Copyright (C) 2014 Oleh Krehel
+;; Copyright (C) 2014-2015 Oleh Krehel
 
 ;; This file is not part of GNU Emacs
 
