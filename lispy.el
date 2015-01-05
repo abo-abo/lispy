@@ -2207,13 +2207,21 @@ Quote newlines if ARG isn't 1."
   (let* ((bnd (lispy--bounds-dwim))
          (pt (point))
          (str-1 (buffer-substring-no-properties (car bnd) pt))
-         (str-2 (buffer-substring-no-properties pt (cdr bnd))))
-
+         (str-2 (buffer-substring-no-properties pt (cdr bnd)))
+         (regionp (region-active-p))
+         deactivate-mark)
+    (deactivate-mark)
     (setq str-1 (lispy--quote-string str-1 (/= arg 1)))
     (setq str-2 (lispy--quote-string str-2 (/= arg 1)))
     (delete-region (car bnd) (cdr bnd))
     (insert "\"" str-1)
-    (save-excursion (insert str-2 "\""))))
+    (save-excursion (insert str-2 "\""))
+    (when regionp
+      (if (looking-at "\"")
+          (lispy-mark-symbol)
+        (backward-char 1)
+        (lispy-mark-symbol)
+        (lispy-different)))))
 
 (defun lispy-unstringify ()
   "Unquote string at point"

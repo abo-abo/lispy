@@ -880,7 +880,12 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "(progn |(1 2 3))" "S")
                    "(progn \"|(1 2 3)\")"))
   (should (string= (lispy-with "(foo |(bar #\\x \"baz \\\\ quux\") zot)" "S")
-                   "(foo \"|(bar #\\\\x \\\"baz \\\\\\\\ quux\\\")\" zot)")))
+                   "(foo \"|(bar #\\\\x \\\"baz \\\\\\\\ quux\\\")\" zot)"))
+  (should (string= (lispy-with "(list ~one|\n      two\n      five)" "S")
+                   "(list ~\"one\"|\n      two\n      five)"))
+  (should (string= (lispy-with "(list ~one|\n      two\n      five)" "SjSjS")
+                   "(list \"one\"\n      \"two\"\n      ~\"five\"|)")))
+
 (ert-deftest lispy-eval ()
   (should (string= (lispy-with-value "(+ 2 2)|" (lispy-eval)) "4")))
 
