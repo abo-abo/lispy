@@ -3317,8 +3317,7 @@ First, try to return `lispy--bounds-string'."
   "Return bounds of current string."
   (unless (lispy--in-comment-p)
     (let ((beg (or (nth 8 (syntax-ppss))
-                   (and (memq (char-after (point))
-                              '(?\" ?\'))
+                   (and (eq (char-after (point)) ?\")
                         (not (looking-back "\\\\"))
                         (point)))))
       (when (and beg (not (comment-only-p beg (1+ (point)))))
