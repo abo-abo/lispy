@@ -993,8 +993,11 @@ Insert KEY if there's no command."
 
 (ert-deftest lispy-tick ()
   (should (string= (lispy-with "|" "'") "'|"))
-  (should (string= (lispy-with "|" "`") "`|")))
-
+  (should (string= (lispy-with "|" "`") "`|"))
+  (should (string= (lispy-with "~\"right\"|" "'")
+                   "~right|"))
+  (should (string= (lispy-with "|\"right\"~" "'")
+                   "|right~")))
 
 (ert-deftest lispy-to-lambda ()
   (should (string= (lispy-with "|(defun foo (x y)\n  (bar))" (lispy-to-lambda))
