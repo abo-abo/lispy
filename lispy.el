@@ -3238,9 +3238,7 @@ If the region is active, replace instead of yanking."
   (save-excursion
     (unless (eolp)
       (forward-char 1))
-    (let ((beg (nth 8 (syntax-ppss))))
-      (and beg
-           (comment-only-p beg (point))))))
+    (nth 4 (syntax-ppss))))
 
 (defun lispy--in-string-or-comment-p ()
   "Test if point is inside a string or a comment."
