@@ -876,12 +876,11 @@ Insert KEY if there's no command."
 
 (ert-deftest lispy-stringify ()
   (should (string= (lispy-with "(a\n b\n (foo)\n c)|" "S")
-                   "|\"(a\n b\n (foo)\n c)\""))
+                   "\"(a\n b\n (foo)\n c)|\""))
   (should (string= (lispy-with "(progn |(1 2 3))" "S")
-                   "(progn |\"(1 2 3)\")"))
+                   "(progn \"|(1 2 3)\")"))
   (should (string= (lispy-with "(foo |(bar #\\x \"baz \\\\ quux\") zot)" "S")
-                   "(foo |\"(bar #\\\\x \\\"baz \\\\\\\\ quux\\\")\" zot)")))
-
+                   "(foo \"|(bar #\\\\x \\\"baz \\\\\\\\ quux\\\")\" zot)")))
 (ert-deftest lispy-eval ()
   (should (string= (lispy-with-value "(+ 2 2)|" (lispy-eval)) "4")))
 
@@ -903,13 +902,18 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "(foo \"bar |baz\" quux)" "\"")
                    "(foo \"bar \\\"|\\\"baz\" quux)"))
   (should (string= (lispy-with "\"(fo|o)\"" (lispy-quotes 1))
-                   "(foo)|"))
-  (should (string= (lispy-with "\"(foo)\"\n|(bar)" "mk2\"" )
+                   "(fo|o)"))
+  (should (string= (lispy-with "\"(foo)\"\n|(bar)" "mk2\"")
                    "(foo)|\n(bar)"))
   (should (string= (lispy-with "(message \"say |hi~\")" "\"")
                    "(message \"say \\\"|hi\\\"\")"))
   (should (string= (lispy-with "|\"foo\"" "\"")
-                   "\"|\" \"foo\"")))
+                   "\"|\" \"foo\""))
+  (should (string= (lispy-with "(list exp|erts)" (kbd "C-u") (kbd "\""))
+                   "(list \"exp|erts\")"))
+  (should (string= (lispy-with "(list \"exp|erts\")"
+                               (kbd "C-u") (kbd "\""))
+                   "(list exp|erts)")))
 
 (ert-deftest lispy--normalize-1 ()
   (should (string= (lispy-with "|(foo (bar)baz)" (lispy--normalize-1))
@@ -1207,8 +1211,4 @@ Insert KEY if there's no command."
 
 (provide 'lispy-test)
 
-;;; Local Variables:
-;;; outline-regexp: ";; ———"
-;;; End:
-
-;;; lispy.el ends here
+;;; lispy-test.el ends here

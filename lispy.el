@@ -1178,9 +1178,7 @@ otherwise the whole string is unquoted."
          ((and (setq bnd (lispy--bounds-string))
                (not (= (point) (car bnd))))
           (if arg
-              (let ((str (lispy--string-dwim bnd)))
-                (delete-region (car bnd) (cdr bnd))
-                (insert (read str)))
+              (lispy-unstringify)
             (insert "\\\"\\\"")
             (backward-char 2)))
 
@@ -2192,25 +2190,41 @@ Comments will be moved ahead of sexp."
               (t
                (self-insert-command 1)))))))
 
+(defun lispy--quote-string (str &optional quote-newlines)
+  "Quote the quotes and backslashes in STR.
+Quote the newlines if QUOTE-NEWLINES is t."
+  (setq str (replace-regexp-in-string "\\\\" "\\\\\\\\" str))
+  (setq str (replace-regexp-in-string "\"" "\\\\\"" str))
+  (if quote-newlines
+      (replace-regexp-in-string "\n" "\\\\n" str)
+    str))
+
 (defun lispy-stringify (&optional arg)
   "Transform current sexp into a string.
 Quote newlines if ARG isn't 1."
   (interactive "p")
   (setq arg (or arg 1))
-  (let (str bnd)
-    (setq str
-          (replace-regexp-in-string
-           "\"" "\\\\\""
-           (replace-regexp-in-string
-            "\\\\" "\\\\\\\\"
-            (lispy--string-dwim (setq bnd (lispy--bounds-dwim))))))
-    (unless (= arg 1)
-      (setq str (replace-regexp-in-string "\n" "\\\\n" str)))
-    (save-excursion
-      (delete-region (car bnd) (cdr bnd))
-      (insert "\""
-              str
-              "\""))))
+  (let* ((bnd (lispy--bounds-dwim))
+         (pt (point))
+         (str-1 (buffer-substring-no-properties (car bnd) pt))
+         (str-2 (buffer-substring-no-properties pt (cdr bnd))))
+
+    (setq str-1 (lispy--quote-string str-1 (/= arg 1)))
+    (setq str-2 (lispy--quote-string str-2 (/= arg 1)))
+    (delete-region (car bnd) (cdr bnd))
+    (insert "\"" str-1)
+    (save-excursion (insert str-2 "\""))))
+
+(defun lispy-unstringify ()
+  "Unquote string at point"
+  (interactive)
+  (let* ((bnd (lispy--bounds-string))
+         (str (lispy--string-dwim bnd))
+         (str-1 (concat (substring str 0 (- (point) (car bnd))) "\""))
+         (offset (length (read str-1 ))))
+    (delete-region (car bnd) (cdr bnd))
+    (save-excursion (insert (read str)))
+    (forward-char offset)))
 
 (defun lispy-teleport (arg)
   "Move ARG sexps into a sexp determined by ace-jump."
