@@ -134,7 +134,6 @@
 ;;* Requires
 (eval-when-compile
   (require 'cl)
-  (require 'noflet)
   (require 'org))
 (require 'help-fns)
 (require 'edebug)
@@ -320,6 +319,18 @@ Otherwise return the amount of times executed."
          (unless (eq ,at-start (lispy--leftp))
            (lispy-different))))))
 
+(defmacro lispy-flet (binding &rest body)
+  "Temporarily override BINDING and execute BODY."
+  (declare (indent 1))
+  (let* ((name (car binding))
+         (old (cl-gensym (symbol-name name))))
+    `(let ((,old (symbol-function ',name)))
+       (unwind-protect
+            (progn
+              (fset ',name (lambda ,@(cdr binding)))
+              ,@body)
+         (fset ',name ,old)))))
+
 ;;* Verb related
 (defvar lispy-known-verbs nil
   "List of registered verbs.")
@@ -488,6 +499,7 @@ Return nil on failure, t otherwise."
            (when (= pt (point))
              (setq lispy-pre-outline-pos (point))
              (lispy-outline-prev 1))))))
+
 (defun lispy-out-forward-newline (arg)
   "Call `lispy--out-forward', then ARG times `newline-and-indent'."
   (interactive "p")
@@ -2718,7 +2730,7 @@ When region is active, call `lispy-mark-car'."
           (outline-minor-mode 1)
           (condition-case e
               ;; (outline-toggle-children)
-              (noflet ((org-unlogged-message (&rest x)))
+              (lispy-flet (org-unlogged-message (&rest x))
                 (let ((org-outline-regexp outline-regexp))
                   (org-cycle-internal-local)))
             (error
@@ -2732,7 +2744,7 @@ When region is active, call `lispy-mark-car'."
   (interactive)
   (require 'org)
   (outline-minor-mode 1)
-  (noflet ((org-unlogged-message (&rest x)))
+  (lispy-flet (org-unlogged-message (&rest x))
     (let ((org-outline-regexp outline-regexp))
       (org-cycle-internal-global)))
   (recenter)
@@ -2865,7 +2877,7 @@ With ARG, use the contents of `lispy-store-region-and-buffer' instead."
   "Subsititute let-bound variable."
   (interactive)
   (forward-char 1)
-  (noflet ((message (&rest)))
+  (lispy-flet (message (&rest x))
     (iedit-mode 0))
   (lispy-mark-symbol)
   (lispy-move-down 1)
@@ -4395,7 +4407,7 @@ Defaults to `error'."
   (unless (or (eq major-mode 'minibuffer-inactive-mode)
               (= 0 (buffer-size)))
     (let ((tab-always-indent t))
-      (noflet ((message (&rest)))
+      (lispy-flet (message (&rest x))
         (indent-for-tab-command)))))
 
 (defun lispy--remove-gaps ()

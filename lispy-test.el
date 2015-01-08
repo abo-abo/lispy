@@ -1119,8 +1119,7 @@ Insert KEY if there's no command."
 
 (ert-deftest lispy-unbind-variable ()
   (should (string=
-           (noflet ((recenter (&optional))
-                     (message (&rest)))
+           (lispy-flet (recenter (&optional x))
              (lispy-with "
 (defun foobar ()
   (let (|(x 10)
@@ -1144,8 +1143,7 @@ Insert KEY if there's no command."
     (foo5 z 10 y)
     (foo6 z y 10)))"))
   (should (string=
-           (noflet ((recenter (&optional))
-                     (message (&rest)))
+           (lispy-flet (recenter (&optional x))
              (lispy-with "
 (defun foobar ()
   (let (|(x 10)
