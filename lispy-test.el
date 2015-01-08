@@ -1,5 +1,8 @@
 (require 'lispy)
 (require 'clojure-mode)
+(if (version< emacs-version "24.4.1")
+    (load-library "cl-indent")
+  (require 'cl-indent))
 (custom-set-variables
  '(indent-tabs-mode nil))
 (setq lisp-indent-function 'common-lisp-indent-function)
