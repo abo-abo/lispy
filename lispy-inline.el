@@ -24,7 +24,9 @@
 
 ;;; Code:
 
-(require 's)
+(when (version< emacs-version "24.4")
+  (require 's)
+  (defalias 'string-trim-left 's-trim-left))
 
 (defgroup lispy-faces nil
   "Font-lock faces for `lispy'."
@@ -172,7 +174,7 @@ Return t if at least one was deleted."
                   ((memq major-mode '(clojure-mode cider-repl-mode))
                    (require 'le-clojure)
                    (let ((rsymbol (lispy--clojure-resolve sym)))
-                     (s-trim
+                     (string-trim-left
                       (replace-regexp-in-string
                        "^\\(?:-+\n\\|\n*.*$.*@.*\n*\\)" ""
                        (cond ((stringp rsymbol)

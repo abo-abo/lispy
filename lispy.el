@@ -760,12 +760,10 @@ Return nil if can't move."
           (delete-char 1)
           (backward-delete-char 1))
          (t
-          (let* ((beg (point))
-                 (str (buffer-substring-no-properties
-                       beg
-                       (line-end-position))))
-            (if (= (s-count-matches lispy-left str)
-                   (s-count-matches lispy-right str))
+          (let ((beg (point))
+                (end (line-end-position)))
+            (if (= (count-matches lispy-left beg end)
+                   (count-matches lispy-right beg end))
                 (kill-line)
               (if (let ((lispy-ignore-whitespace t))
                     (lispy--out-forward 1))

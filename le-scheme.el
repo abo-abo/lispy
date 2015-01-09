@@ -24,7 +24,10 @@
 
 (eval-and-compile
   (ignore-errors (require 'geiser-eval)))
-(require 's)
+
+(when (version< emacs-version "24.4")
+  (require 's)
+  (defalias 'string-trim 's-trim))
 
 (defun lispy--eval-scheme (str)
   "Eval STR as Scheme code."
@@ -39,7 +42,7 @@
            (ret (geiser-eval--send/wait code))
            (err (geiser-eval--retort-error ret)))
       (if err
-          (format "Error: %s" (s-trim (cdr (assoc 'output ret))))
+          (format "Error: %s" (string-trim (cdr (assoc 'output ret))))
         (format "%s" (cadr (assoc 'result ret)))))))
 
 (provide 'le-scheme)
