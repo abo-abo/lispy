@@ -1018,7 +1018,8 @@ When ARG is more than 1, mark ARGth element."
           (lispy--bounds-dwim))
          (lispy-different))
         ((and (looking-back "^ *") (looking-at ";"))
-         (lispy--mark (lispy--bounds-comment)))))
+         (lispy--mark (lispy--bounds-comment))))
+  (setq this-command 'lispy-mark-list))
 
 (defun lispy-mark-symbol ()
   "Mark current symbol."
