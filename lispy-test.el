@@ -1132,7 +1132,15 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "~'(\n  foo)|" (lispy-mark-car))
                    "'(\n  ~foo|)"))
   (should (string= (lispy-with "|'(\n  foo)~" (lispy-mark-car))
-                   "'(\n  ~foo|)")))
+                   "'(\n  ~foo|)"))
+  (should (string= (lispy-with
+                    "|(add-to-list 'auto-mode-alist '(\"\\\\.cache\\\\'\" . emacs-lisp-mode))"
+                    "mi")
+                   "(~add-to-list| 'auto-mode-alist '(\"\\\\.cache\\\\'\" . emacs-lisp-mode))"))
+  (should (string= (lispy-with
+                    "|(add-to-list 'auto-mode-alist '(\"\\\\.cache\\\\'\" . emacs-lisp-mode))"
+                    "miji")
+                   "(add-to-list '~auto-mode-alist| '(\"\\\\.cache\\\\'\" . emacs-lisp-mode))")))
 
 (ert-deftest lispy-unbind-variable ()
   (should (string=

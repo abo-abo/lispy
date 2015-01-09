@@ -3022,18 +3022,26 @@ Second region and buffer are the current ones."
   (interactive)
   (let ((bnd-1 (lispy--bounds-dwim))
         bnd-2)
-    (if (and (eq (char-after (car bnd-1)) ?\")
-             (eq (char-before (cdr bnd-1)) ?\"))
-        (lispy--mark (cons (1+ (car bnd-1))
-                           (1- (cdr bnd-1))))
-      (goto-char (car bnd-1))
-      (while (and (equal bnd-1 (setq bnd-2 (bounds-of-thing-at-point 'sexp)))
-                  (< (point) (cdr bnd-1)))
-        (forward-char)
-        (skip-chars-forward " "))
-      (if bnd-2
-          (lispy--mark bnd-2)
-        (lispy-complain "can't descend further")))))
+    (cond ((and (eq (char-after (car bnd-1)) ?\")
+                (eq (char-before (cdr bnd-1)) ?\"))
+           (lispy--mark (cons (1+ (car bnd-1))
+                              (1- (cdr bnd-1)))))
+
+          ((save-excursion
+             (goto-char (car bnd-1))
+             (looking-at "\\(['`,@]+\\)\\w"))
+           (set-mark (match-end 1))
+           (goto-char (cdr bnd-1)))
+
+          (t
+           (goto-char (car bnd-1))
+           (while (and (equal bnd-1 (setq bnd-2 (bounds-of-thing-at-point 'sexp)))
+                       (< (point) (cdr bnd-1)))
+             (forward-char)
+             (skip-chars-forward " "))
+           (if bnd-2
+               (lispy--mark bnd-2)
+             (lispy-complain "can't descend further"))))))
 
 ;;* Locals: edebug
 (defun lispy-edebug-stop ()
