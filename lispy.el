@@ -1007,9 +1007,11 @@ When ARG is more than 1, mark ARGth element."
                   (1- (cdr bnd))))))
         ((region-active-p)
          (deactivate-mark)
-         (when (lispy--in-comment-p)
-           (beginning-of-line)
-           (skip-chars-forward " ")))
+         (if (lispy--in-comment-p)
+             (progn
+               (beginning-of-line)
+               (skip-chars-forward " "))
+           (skip-chars-forward ",@'`")))
         ((looking-at lispy-left)
          (lispy--mark
           (lispy--bounds-dwim)))
@@ -3341,6 +3343,8 @@ Otherwise return cons of current string, symbol or list bounds."
            (forward-sexp)))
         (t
          (or
+          (ignore-errors
+            (bounds-of-thing-at-point 'sexp))
           (ignore-errors
             (bounds-of-thing-at-point 'symbol))
           (ignore-errors

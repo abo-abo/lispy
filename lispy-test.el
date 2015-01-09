@@ -975,7 +975,9 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "(foo |\"bar\")" (lispy-mark-symbol))
                    "(foo ~\"bar\"|)"))
   (should (string= (lispy-with "(foo \"bar|\")" (lispy-mark-symbol))
-                   "(foo ~\"bar\"|)")))
+                   "(foo ~\"bar\"|)"))
+  (should (string= (lispy-with "(mapc #'ta|unt knights)" (kbd "M-m"))
+                   "(mapc ~#'taunt| knights)")))
 
 (ert-deftest lispy--read ()
   (should (equal (lispy--read "(progn
@@ -1114,7 +1116,15 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "~;; foo|\n(bar)" (lispy-mark-list 1))
                    "|;; foo\n(bar)"))
   (should (string= (lispy-with "~(foo bar)|" (lispy-mark-list 0))
-                   "(~foo bar|)")))
+                   "(~foo bar|)"))
+  (should (string= (lispy-with "(progn ,@(cdr re)|)" "m")
+                   "(progn |,@(cdr re)~)"))
+  (should (string= (lispy-with "(progn ,@(cdr re)|)" "mm")
+                   "(progn ,@|(cdr re))"))
+  (should (string= (lispy-with "(progn ,@|(cdr re))" "m")
+                   "(progn ~,@(cdr re)|)"))
+  (should (string= (lispy-with "(progn ,@|(cdr re))" "mm")
+                   "(progn ,@(cdr re)|)")))
 
 (ert-deftest lispy-mark-car ()
   (should (string= (lispy-with "|\"foo\"~" (lispy-mark-car))
