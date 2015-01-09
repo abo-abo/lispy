@@ -24,9 +24,11 @@
 
 ;;; Code:
 
-(when (version< emacs-version "24.4")
-  (require 's)
-  (defalias 'string-trim-left 's-trim-left))
+(if (version< emacs-version "24.4")
+    (progn
+      (require 's)
+      (defalias 'string-trim-left 's-trim-left))
+  (require 'subr-x))
 
 (defgroup lispy-faces nil
   "Font-lock faces for `lispy'."

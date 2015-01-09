@@ -25,9 +25,11 @@
 (eval-and-compile
   (ignore-errors (require 'geiser-eval)))
 
-(when (version< emacs-version "24.4")
-  (require 's)
-  (defalias 'string-trim 's-trim))
+(if (version< emacs-version "24.4")
+    (progn
+      (require 's)
+      (defalias 'string-trim 's-trim))
+  (require 'subr-x))
 
 (defun lispy--eval-scheme (str)
   "Eval STR as Scheme code."
