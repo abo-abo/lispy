@@ -921,7 +921,11 @@ Insert KEY if there's no command."
                    "(list \"exp|erts\")"))
   (should (string= (lispy-with "(list \"exp|erts\")"
                                (kbd "C-u") (kbd "\""))
-                   "(list exp|erts)")))
+                   "(list exp|erts)"))
+  (should (string= (lispy-with "(list ~\"experts\"|)" "\"")
+                   "(list ~\"\\\"experts\\\"\"|)"))
+  (should (string= (lispy-with "(list |\"experts\"~)" "\"")
+                   "(list |\"\\\"experts\\\"\"~)")))
 
 (ert-deftest lispy--normalize-1 ()
   (should (string= (lispy-with "|(foo (bar)baz)" (lispy--normalize-1))
