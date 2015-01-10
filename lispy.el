@@ -2123,8 +2123,10 @@ Comments will be moved ahead of sexp."
   (lispy-from-left
    (let* ((bnd (lispy--bounds-list))
           (str (lispy--string-dwim bnd))
+          (plain-expr (read str))
           (expr (lispy--read str)))
-     (if (cl-some #'listp expr)
+     (if (or (cl-some #'listp plain-expr)
+             (member '(ly-raw newline) expr))
          (let ((pt (point)))
            (lispy-forward 1)
            (while (and (lispy-flow 1) (> (point) pt))

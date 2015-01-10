@@ -840,7 +840,9 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "|(defun abc (x) \"def.\" (+ x x x) (foo) (bar))" "M")
                    "|(defun abc (x)\n  \"def.\" (+ x x x)\n  (foo)\n  (bar))"))
   (should (string= (lispy-with "|(defun abc(x)\"def.\"(+ x x x)(foo)(bar))" "M")
-                   "|(defun abc(x)\n  \"def.\"(+ x x x)\n  (foo)\n  (bar))")))
+                   "|(defun abc(x)\n  \"def.\"(+ x x x)\n  (foo)\n  (bar))"))
+  (should (string= (lispy-with "|(\"King Arthur\" \"Sir Lancelot\" \"Sir Robin\")" "M")
+                   "|(\"King Arthur\"\n \"Sir Lancelot\"\n \"Sir Robin\")")))
 
 (ert-deftest lispy-comment ()
   (should (string= (lispy-with "(defun foo ()\n  (let (a b c)\n    (cond ((s1)\n           |(s2)\n           (s3)))))" ";")
