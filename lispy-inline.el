@@ -227,7 +227,8 @@ Return t if at least one was deleted."
 
 (defun lispy--show (str)
   "Show STR hint when `lispy--show-fits-p' is t."
-  (let ((strs (lispy--show-fits-p str)))
+  (let ((last-point (point))
+        (strs (lispy--show-fits-p str)))
     (when strs
       (setq str (lispy--join-pad
                  strs
@@ -249,7 +250,8 @@ Return t if at least one was deleted."
           (setq lispy-overlay (make-overlay (point) (+ (point) 1)))
           (overlay-put lispy-overlay 'priority 9999))
         (overlay-put lispy-overlay 'display str)
-        (overlay-put lispy-overlay 'after-string ""))
+        (overlay-put lispy-overlay 'after-string "")
+        (put 'lispy-overlay 'last-point last-point))
       t)))
 
 (defun lispy--pretty-args (symbol)

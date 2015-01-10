@@ -3245,17 +3245,16 @@ If the region is active, replace instead of yanking."
 (defun lispy-view-test ()
   "View better the test at point."
   (interactive)
-  (cond ((overlayp lispy-overlay)
+  (cond ((and (overlayp lispy-overlay)
+              (eq (point) (get 'lispy-overlay 'last-point)))
          (delete-overlay lispy-overlay)
          (setq lispy-overlay nil))
 
-        ((or (looking-at "(string=")
-             (looking-at "(should"))
+
+
+        ((looking-at "(should (string=")
          (setq lispy-hint-pos (point))
-         (let* ((expr (read (lispy--string-dwim)))
-                (expr (if (eq (car expr) 'should)
-                          (cadr expr)
-                        expr))
+         (let* ((expr (cadr (read (lispy--string-dwim))))
                 (str1 (cadr (cadr expr)))
                 (str2 (caddr expr))
                 (keys (cddadr expr))
@@ -3269,7 +3268,7 @@ If the region is active, replace instead of yanking."
                     (propertize str2 'face 'lispy-face-hint)))))
 
         (t
-         (user-error "Should position point before (string="))))
+         (lispy-complain "should position point before (should (string="))))
 
 ;;* Predicates
 (defun lispy--in-string-p ()
