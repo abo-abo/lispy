@@ -101,19 +101,20 @@
   "Emulate pressing keys decoded from SEQ."
   (if (vectorp seq)
       (lispy--unalias-key seq)
-    (let ((keys (lispy-decode-keysequence seq))
+    (let ((lkeys (lispy-decode-keysequence seq))
           key)
-      (while (setq key (pop keys))
+      (while (setq key (pop lkeys))
         (if (numberp key)
             (let ((current-prefix-arg (list key)))
-              (when keys
-                (lispy--unalias-key (pop keys))))
+              (when lkeys
+                (lispy--unalias-key (pop lkeys))))
           (lispy--unalias-key key))))))
 
 (defun lispy--unalias-key (key)
   "Call command that corresponds to KEY.
 Insert KEY if there's no command."
-  (let ((cmd (cdr (assoc 'lispy-mode (minor-mode-key-binding key)))))
+  (let ((cmd (cdr (or (assoc 'lispy-mode (minor-mode-key-binding key))
+                      (assoc 'lispy-other-mode (minor-mode-key-binding key))))))
     (if (or (and cmd (or (looking-at lispy-left)
                          (looking-back lispy-right)
                          (looking-at lispy-outline)
@@ -718,10 +719,10 @@ Insert KEY if there's no command."
                    "\"a series| of strings\""))
   (should (string= (lispy-with "\"a series|\"\n \" of strings\"" (kbd "M-J"))
                    "\"a series| of strings\""))
-  (should (string= (lispy-with "\"a s|eries|\"\n \" of strings\"" (kbd "M-J"))
-                   "\"a s|eries| of strings\""))
-  (should (string= (lispy-with "|\"a s|eries|\"\n \" of strings\"" (kbd "M-J"))
-                   "|\"a s|eries| of strings\"")))
+  (should (string= (lispy-with "\"a series|\"\n \" of strings\"" (kbd "M-J"))
+                   "\"a series| of strings\""))
+  (should (string= (lispy-with "|\"a series\"\n \" of strings\"" (kbd "M-J"))
+                   "|\"a series of strings\"")))
 
 (ert-deftest lispy-split ()
   (should (string= (lispy-with "(foo |bar)" (kbd "M-j"))
@@ -764,8 +765,8 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "((a) |(b) (c))" "mjw")
                    "((a) ~(c)| (b))"))
   (should (string= (lispy-with "(foo b|ar)"
-                               (lispy-mark-symbol)
-                               (lispy-move-up 1))
+                               (kbd "M-m")
+                               "w")
                    "(~bar| foo)"))
   (should (string= (lispy-with "(put :foo 1\n     :bar 2\n     |:baz '(1 2 3)~)"
                                (lispy-move-up 2))
@@ -796,8 +797,8 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "(|(a) (b) (c))" "m]s")
                    "((c) ~(a) (b)|)"))
   (should (string= (lispy-with "(f|oo bar)"
-                               (lispy-mark-symbol)
-                               (lispy-move-down 1))
+                               (kbd "M-m")
+                               "s")
                    "(bar ~foo|)"))
   (should (string= (lispy-with "(put :foo 1\n     ~:baz '(1 2 3)|\n     :bar 2)"
                                (lispy-move-down 2))
@@ -964,19 +965,19 @@ Insert KEY if there's no command."
                    "(->> [1 2 3 4 5]\n     (map sqr)\n     (filter odd?))|")))
 
 (ert-deftest lispy-mark ()
-  (should (string= (lispy-with "|;; abc\n;; def\n;; ghi" (lispy-mark))
+  (should (string= (lispy-with "|;; abc\n;; def\n;; ghi" (kbd "C-M-,"))
                    "~;; abc\n;; def\n;; ghi|"))
-  (should (string= (lispy-with ";; a|bc\n;; def\n;; ghi" (lispy-mark))
+  (should (string= (lispy-with ";; a|bc\n;; def\n;; ghi" (kbd "C-M-,"))
                    "~;; abc\n;; def\n;; ghi|"))
-  (should (string= (lispy-with ";; abc\n|;; def\n;; ghi" (lispy-mark))
+  (should (string= (lispy-with ";; abc\n|;; def\n;; ghi" (kbd "C-M-,"))
                    "~;; abc\n;; def\n;; ghi|"))
-  (should (string= (lispy-with ";; abc\n;; def\n;; ghi|" (lispy-mark))
+  (should (string= (lispy-with ";; abc\n;; def\n;; ghi|" (kbd "C-M-,"))
                    "~;; abc\n;; def\n;; ghi|")))
 
 (ert-deftest lispy-mark-symbol ()
-  (should (string= (lispy-with "(foo |\"bar\")" (lispy-mark-symbol))
+  (should (string= (lispy-with "(foo |\"bar\")" (kbd "M-m"))
                    "(foo ~\"bar\"|)"))
-  (should (string= (lispy-with "(foo \"bar|\")" (lispy-mark-symbol))
+  (should (string= (lispy-with "(foo \"bar|\")" (kbd "M-m"))
                    "(foo ~\"bar\"|)"))
   (should (string= (lispy-with "(mapc #'ta|unt knights)" (kbd "M-m"))
                    "(mapc ~#'taunt| knights)")))
@@ -1065,17 +1066,17 @@ Insert KEY if there's no command."
                    "(defun foo ()\n  |)")))
 
 (ert-deftest lispy-up-slurp ()
-  (should (string= (lispy-with "(progn\n  (foo))\n|(bar)" (lispy-up-slurp))
+  (should (string= (lispy-with "(progn\n  (foo))\n|(bar)" "ok")
                    "(progn\n  (foo)\n  |(bar))"))
-  (should (string= (lispy-with "(progn\n  (foo))\n(bar)|" (lispy-up-slurp))
+  (should (string= (lispy-with "(progn\n  (foo))\n(bar)|" "ok")
                    "(progn\n  (foo)\n  (bar)|)"))
-  (should (string= (lispy-with "(progn\n  (foo))\n~(bar)|" (lispy-up-slurp))
+  (should (string= (lispy-with "(progn\n  (foo))\n~(bar)|" "ok")
                    "(progn\n  (foo)\n  ~(bar)|)"))
-  (should (string= (lispy-with "(progn\n  (foo))\n|(bar)~" (lispy-up-slurp))
+  (should (string= (lispy-with "(progn\n  (foo))\n|(bar)~" "ok")
                    "(progn\n  (foo)\n  |(bar)~)"))
-  (should (string= (lispy-with "(progn\n  (foo))\n|(bar)\n(baz)~" (lispy-up-slurp))
+  (should (string= (lispy-with "(progn\n  (foo))\n|(bar)\n(baz)~" "ok")
                    "(progn\n  (foo)\n  |(bar)\n  (baz)~)"))
-  (should (string= (lispy-with "(progn\n  (foo))\n~(bar)\n(baz)|" (lispy-up-slurp))
+  (should (string= (lispy-with "(progn\n  (foo))\n~(bar)\n(baz)|" "ok")
                    "(progn\n  (foo)\n  ~(bar)\n  (baz)|)")))
 
 (ert-deftest lispy-tab ()
@@ -1129,11 +1130,11 @@ Insert KEY if there's no command."
                    "(progn ,@(cdr re)|)")))
 
 (ert-deftest lispy-mark-car ()
-  (should (string= (lispy-with "|\"foo\"~" (lispy-mark-car))
+  (should (string= (lispy-with "|\"foo\"~" "i")
                    "\"~foo|\""))
-  (should (string= (lispy-with "~'(\n  foo)|" (lispy-mark-car))
+  (should (string= (lispy-with "~'(\n  foo)|" "i")
                    "'(\n  ~foo|)"))
-  (should (string= (lispy-with "|'(\n  foo)~" (lispy-mark-car))
+  (should (string= (lispy-with "|'(\n  foo)~" "i")
                    "'(\n  ~foo|)"))
   (should (string= (lispy-with
                     "|(add-to-list 'auto-mode-alist '(\"\\\\.cache\\\\'\" . emacs-lisp-mode))"
@@ -1196,7 +1197,7 @@ Insert KEY if there's no command."
 
 (ert-deftest lispy-other-space ()
   (should (string= (lispy-with "(foo (bar (baz)|))"
-                               (lispy-other-space))
+                               "o ")
                    "(foo (bar (baz |)))")))
 
 (ert-deftest lispy-beginning-of-defun ()
