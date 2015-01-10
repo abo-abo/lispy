@@ -230,6 +230,17 @@ The hint will consist of the possible nouns that apply to the verb."
   "Face for Elisp commands."
   :group 'lispy-faces)
 
+(defface lispy-test-face
+    '((t (:background "#f8f2ac")))
+  "Face for `lispy-view-test'."
+  :group 'lispy-faces)
+
+(defface lispy-cursor-face
+    '((t
+       (:background "#000000" :foreground "#ffffff")))
+  "Face for `lispy-view-test'."
+  :group 'lispy-faces)
+
 (defface lispy-occur-face
     '((t (:background "#CECEFF")))
   "Face for `lispy-occur' matches."
@@ -3242,6 +3253,82 @@ If the region is active, replace instead of yanking."
                (looking-at lispy-left))
       (insert " "))))
 
+(defun lispy--fontify (str)
+  "Return STR fontified in `emacs-lisp-mode'"
+  (with-temp-buffer
+    (emacs-lisp-mode)
+    (show-paren-mode)
+    (insert str)
+    (font-lock-fontify-buffer)
+    (let ((color-paren (face-attribute 'show-paren-match :background))
+          (color-cursor-fg (face-attribute 'lispy-cursor-face :foreground))
+          (color-cursor-bg (face-attribute 'lispy-cursor-face :background))
+          pt mk p1 p2)
+      (goto-char (point-min))
+      (when (search-forward "|" nil t)
+        (backward-delete-char 1)
+        (setq pt (point))
+        (when (eolp)
+          (insert " ")))
+      (goto-char (point-min))
+      (when (search-forward "~" nil t)
+        (backward-delete-char 1)
+        (setq mk (point))
+        (when (< mk pt)
+          (decf pt)))
+      (goto-char pt)
+      (cond ((looking-back lispy-right)
+             (setq p2 (1- (point)))
+             (lispy-different)
+             (setq p1 (point)))
+            ((looking-at lispy-left)
+             (setq p1 (point))
+             (lispy-different)
+             (setq p2 (1- (point)))))
+      (setq str (buffer-string))
+      (add-face-text-property 0 (length str) '(face 'lispy-test-face) t str)
+      (when pt
+        (when mk
+          (if (< mk pt)
+              (progn
+                (add-text-properties (1- mk) (1- pt) '(face region) str)
+                (set-text-properties (1- pt) pt '(face lispy-cursor-face) str))
+            (add-text-properties (1- (min pt mk)) (1- (max pt mk)) '(face region) str)
+            (set-text-properties (1- pt) pt '(face lispy-cursor-face) str)))
+        (when p1
+          (add-text-properties
+           (1- p1) p1
+           `(face (:background
+                   ,color-paren
+                   :foreground
+                   ,(if (and mk
+                             (>= p1 (min pt mk))
+                             (<= p1 (max pt mk)))
+                        color-cursor-fg
+                        color-cursor-bg))) str))
+        (when p2
+          (add-text-properties
+           (1- p2) p2
+           `(face (:background
+                   ,color-paren
+                   :foreground
+                   ,(if (and mk
+                             (>= p2 (min pt mk))
+                             (<= p2 (max pt mk)))
+                        color-cursor-fg
+                        color-cursor-bg)))
+           str))
+        (add-text-properties
+         (1- pt) pt
+         `(face (:background
+                 ,color-cursor-bg
+                 :foreground
+                 ,(if (eq pt p1)
+                      color-paren
+                      color-cursor-fg)))
+         str)
+        str))))
+
 (defun lispy-view-test ()
   "View better the test at point."
   (interactive)
@@ -3249,8 +3336,6 @@ If the region is active, replace instead of yanking."
               (eq (point) (get 'lispy-overlay 'last-point)))
          (delete-overlay lispy-overlay)
          (setq lispy-overlay nil))
-
-
 
         ((looking-at "(should (string=")
          (setq lispy-hint-pos (point))
@@ -3261,11 +3346,13 @@ If the region is active, replace instead of yanking."
                 (sep (make-string (- (window-width)
                                      (current-column)) ?-)))
            (lispy--show
-            (concat (propertize str1 'face 'lispy-face-hint)
+            (concat "\n"
+                    (lispy--fontify str1)
                     "\n" sep "\n"
                     (substring (prin1-to-string keys) 1 -1)
                     "\n" sep "\n"
-                    (propertize str2 'face 'lispy-face-hint)))))
+                    (lispy--fontify str2)
+                    "\n"))))
 
         (t
          (lispy-complain "should position point before (should (string="))))
