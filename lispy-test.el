@@ -16,10 +16,11 @@
      (transient-mark-mode 1)
      (lispy-mode)
      (insert ,in)
-     (when (search-backward "~" nil t)
-       (delete-char 1)
-       (set-mark (point))
-       (goto-char (point-max)))
+     (goto-char (point-min))
+     (when (search-forward "~" nil t)
+       (backward-delete-char 1)
+       (set-mark (point)))
+     (goto-char (point-max))
      (search-backward "|")
      (delete-char 1)
      (setq current-prefix-arg)
@@ -1242,6 +1243,12 @@ Insert KEY if there's no command."
 (ert-deftest lispy-outline-add ()
   (should (string= (lispy-with "|;;* Intro" "a")
                    ";;* Intro\n;;* |")))
+
+(ert-deftest lispy-outline-add ()
+  (should (string= (lispy-with "(quote ~foo|)" "~")
+                   "(quote ~~foo|)"))
+  (should (string= (lispy-with "(quote ~~foo|)" "~")
+                   "(quote ~foo|)")))
 
 (provide 'lispy-test)
 

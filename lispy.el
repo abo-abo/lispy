@@ -1277,6 +1277,20 @@ Special case is (|( -> ( |(."
   (lispy--space-unless "\\s-\\|\\s(\\|[:?`']\\\\?")
   (insert "`"))
 
+(defun lispy-tilde (arg)
+  "Insert ~ ARG times.
+When region is active, toggle a ~ at the start of the region."
+  (interactive "p")
+  (if (region-active-p)
+      (let ((bnd (lispy--bounds-dwim))
+            deactivate-mark)
+        (save-excursion
+          (goto-char (car bnd))
+          (if (eq (char-after) ?~)
+              (delete-char 1)
+            (insert "~"))))
+    (self-insert-command 1)))
+
 (defun lispy-hash ()
   "Insert #."
   (interactive)
@@ -5318,6 +5332,7 @@ FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)"
   (lispy-define-key map "V" 'lispy-visit)
   (lispy-define-key map "-" 'lispy-ace-subword)
   (lispy-define-key map "." 'lispy-repeat)
+  (lispy-define-key map "~" 'lispy-tilde)
   ;; ——— locals: digit argument ———————————————
   (mapc (lambda (x) (lispy-define-key map (format "%d" x) 'digit-argument))
         (number-sequence 0 9)))
