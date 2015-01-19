@@ -4,7 +4,7 @@
 
 ;; Author: Oleh Krehel <ohwoeowho@gmail.com>
 ;; URL: https://github.com/abo-abo/lispy
-;; Version: 0.20.0
+;; Version: 0.21.0
 ;; Keywords: lisp
 
 ;; This file is not part of GNU Emacs
@@ -58,8 +58,8 @@
 ;; To move the point into a special position, use:
 ;; "]" - calls `lispy-forward'
 ;; "[" - calls `lispy-backward'
-;; "C-3" - calls `lispy-out-forward' (exit current list forwards)
-;; ")" - calls `lispy-out-forward-nostring' (exit current list
+;; "C-3" - calls `lispy-right' (exit current list forwards)
+;; ")" - calls `lispy-right-nostring' (exit current list
 ;;       forwards, but self-insert in strings and comments)
 ;;
 ;; These are the few Lispy commands that don't care whether the point
@@ -414,7 +414,7 @@ Use the command `%s' to change this variable."
 (defun lispy-forward (arg)
   "Move forward list ARG times or until error.
 Return t if moved at least once,
-otherwise call `lispy-out-forward' and return nil."
+otherwise call `lispy-right' and return nil."
   (interactive "p")
   (when (= arg 0)
     (setq arg 2000))
@@ -467,7 +467,7 @@ If couldn't move backward at least once, move up backward and return nil."
           (backward-list))
       (point))))
 
-(defun lispy-out-forward (arg)
+(defun lispy-right (arg)
   "Move outside list forwards ARG times.
 Return nil on failure, t otherwise."
   (interactive "p")
@@ -483,7 +483,14 @@ Return nil on failure, t otherwise."
         (t
          (lispy--out-forward arg))))
 
-(defun lispy-out-forward-nostring (arg)
+(define-obsolete-function-alias 'lispy-out-forward
+    'lispy-right "0.21.0")
+(define-obsolete-function-alias 'lispy-out-backward
+    'lispy-left "0.21.0")
+(define-obsolete-function-alias 'lispy-out-forward-nostring
+    'lispy-right-nostring "0.21.0")
+
+(defun lispy-right-nostring (arg)
   "Call `lispy--out-forward' with ARG unless in string or comment.
 Self-insert otherwise."
   (interactive "p")
@@ -493,9 +500,9 @@ Self-insert otherwise."
     (lispy--out-forward arg)))
 
 (defvar lispy-pre-outline-pos 1
-  "Point position before moving to outline with `lispy-out-backward'.")
+  "Point position before moving to outline with `lispy-left'.")
 
-(defun lispy-out-backward (arg)
+(defun lispy-left (arg)
   "Move outside list forwards ARG times.
 Return nil on failure, t otherwise."
   (interactive "p")
@@ -842,7 +849,7 @@ Return nil if can't move."
            (delete-char arg))
 
           ((looking-at lispy-right)
-           (lispy-out-backward 1))
+           (lispy-left 1))
 
           ((looking-at lispy-left)
            (when (looking-back "\\(?:\\s-\\|^\\)[`',@]+")
@@ -1400,7 +1407,7 @@ to all the functions, while maintaining the parens in a pretty state."
           ((looking-back lispy-right))
           ((looking-at lispy-right)
            (when (looking-back " ")
-             (lispy-out-forward 1)))
+             (lispy-right 1)))
           ((looking-at lispy-left)
            (lispy-different))
           ((looking-back "^ +")
@@ -1838,7 +1845,7 @@ When ARG is more than 1, pull ARGth expression to enclose current sexp."
          (lispy-different)
          (setq beg (point))
          (setq end (lispy--out-forward arg))
-         (lispy-out-forward 1)
+         (lispy-right 1)
          (lispy--swap-regions (cons beg end)
                               (cons (point) (point)))
          (lispy--reindent (1+ arg))))
@@ -1883,7 +1890,7 @@ When ARG is more than 1, pull ARGth expression to enclose current sexp."
              (delete-char 1)
              (lispy-save-excursion
                (forward-char 1)
-               (lispy-out-backward 2)
+               (lispy-left 2)
                (lispy--normalize-1))))
           ((and (setq bnd (lispy--bounds-string))
                 (or (save-excursion
@@ -1917,7 +1924,7 @@ When ARG is more than 1, pull ARGth expression to enclose current sexp."
                    (lispy--out-forward 1))
              (insert ")(")
              (backward-char 2)
-             (lispy-out-forward 1))
+             (lispy-right 1))
            (newline-and-indent)
            (when (looking-at lispy-left)
              (indent-sexp))))))
@@ -2845,7 +2852,7 @@ With ARG, use the contents of `lispy-store-region-and-buffer' instead."
                  (if (looking-back lispy-right)
                      (progn (backward-list)
                             nil)
-                   (lispy-out-backward 1))))
+                   (lispy-left 1))))
          (bnd (lispy--bounds-list))
          (str (lispy--string-dwim bnd))
          (expr (lispy--read str))
@@ -2911,7 +2918,7 @@ With ARG, use the contents of `lispy-store-region-and-buffer' instead."
   (lispy-move-down 1)
   (iedit-mode)
   (deactivate-mark)
-  (lispy-out-backward 1)
+  (lispy-left 1)
   (lispy-delete 1)
   (save-excursion
     (lispy--out-backward 1)
@@ -3076,7 +3083,7 @@ Second region and buffer are the current ones."
   (interactive)
   (if (bound-and-true-p edebug-active)
       (save-excursion
-        (lispy-out-backward 99)
+        (lispy-left 99)
         (if (looking-at
              "(\\(?:cl\\|\\)def\\(?:un\\|macro\\)\\s-+\\_<[^ ]+\\_>\\s-+(")
             (progn
@@ -3549,7 +3556,7 @@ First, try to return `lispy--bounds-string'."
 
 ;;* Utilities: movement
 (defvar lispy-ignore-whitespace nil
-  "When set to t, `lispy-out-forward' will not clean up whitespace.")
+  "When set to t, `lispy-right' will not clean up whitespace.")
 
 (defun lispy--out-forward (arg)
   "Move outside list forwards ARG times.
@@ -5225,7 +5232,7 @@ FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)"
   ;; ——— globals: navigation ——————————————————
   (define-key map (kbd "]") 'lispy-forward)
   (define-key map (kbd "[") 'lispy-backward)
-  (define-key map (kbd ")") 'lispy-out-forward-nostring)
+  (define-key map (kbd ")") 'lispy-right-nostring)
   ;; ——— globals: kill-related ————————————————
   (define-key map (kbd "C-k") 'lispy-kill)
   (define-key map (kbd "C-y") 'lispy-yank)
@@ -5257,7 +5264,7 @@ FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)"
   (when lispy-use-ctrl-digits
     (define-key map (kbd "C-1") 'lispy-describe-inline)
     (define-key map (kbd "C-2") 'lispy-arglist-inline)
-    (define-key map (kbd "C-3") 'lispy-out-forward)
+    (define-key map (kbd "C-3") 'lispy-right)
     (define-key map (kbd "C-4") lispy-mode-x-map)
     (define-key map (kbd "C-7") 'lispy-cursor-down)
     (define-key map (kbd "C-8") 'lispy-parens-down)
@@ -5271,8 +5278,8 @@ FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)"
   (define-key map (kbd "M-q") 'lispy-fill)
   (define-key map (kbd "<backtab>") 'lispy-shifttab)
   ;; ——— locals: navigation ———————————————————
-  (lispy-define-key map "l" 'lispy-out-forward)
-  (lispy-define-key map "h" 'lispy-out-backward)
+  (lispy-define-key map "l" 'lispy-right)
+  (lispy-define-key map "h" 'lispy-left)
   (lispy-define-key map "f" 'lispy-flow)
   (lispy-define-key map "j" 'lispy-down)
   (lispy-define-key map "k" 'lispy-up)
