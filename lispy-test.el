@@ -1258,7 +1258,9 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "|(foo bar)" "3 ")
                    "(foo bar |)"))
   (should (string= (lispy-with "(foo bar)|" "3 ")
-                   "(| foo bar)")))
+                   "(| foo bar)"))
+  (should (string= (lispy-with "(foo (bar)|)" " ")
+                   "(foo (bar) |)")))
 
 (provide 'lispy-test)
 

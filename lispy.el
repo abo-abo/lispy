@@ -1247,8 +1247,9 @@ If jammed between parens, \"(|(\" unjam: \"( |(\"."
          (deactivate-mark)
          (insert " "))
         ((or (eq arg 2)
-             (prog1 (eq arg 3)
-               (lispy-different)))
+             (when (eq arg 3)
+               (lispy-different)
+               t))
 
          (if (looking-at lispy-left)
              (progn
