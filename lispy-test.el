@@ -80,7 +80,7 @@
          (modify-syntax-entry i "." table))
     (loop for i from ? to ? do
          (modify-syntax-entry i "w" table))
-    (loop for i in '(? ?\( ?\) ?\[ ?\] ?{ ?} ?\" ?\')
+    (loop for i in '(? ?\( ?\) ?\[ ?\] ?{ ?} ?\" ?\' ?\ )
        do (modify-syntax-entry i "w" table))
     (cl-mapcan (lambda (x)
                  (let ((y (ignore-errors (read x))))
@@ -1249,6 +1249,16 @@ Insert KEY if there's no command."
                    "(quote ~~foo|)"))
   (should (string= (lispy-with "(quote ~~foo|)" "~")
                    "(quote ~foo|)")))
+
+(ert-deftest lispy-space ()
+  (should (string= (lispy-with "|(foo bar)" "2 ")
+                   "(| foo bar)"))
+  (should (string= (lispy-with "(foo bar)|" "2 ")
+                   "(foo bar |)"))
+  (should (string= (lispy-with "|(foo bar)" "3 ")
+                   "(foo bar |)"))
+  (should (string= (lispy-with "(foo bar)|" "3 ")
+                   "(| foo bar)")))
 
 (provide 'lispy-test)
 

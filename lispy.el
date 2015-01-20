@@ -1236,19 +1236,32 @@ otherwise the whole string is unquoted."
     (error (indent-new-comment-line))))
 
 ;;* Globals: insertion
-(defun lispy-space ()
-  "Insert one space.
-Special case is (|( -> ( |(."
-  (interactive)
-  (if (region-active-p)
-      (progn
-        (goto-char (region-end))
-        (deactivate-mark)
-        (insert " "))
-    (insert " ")
-    (when (and (looking-at lispy-left)
-               (looking-back "( "))
-      (backward-char))))
+(defun lispy-space (arg)
+  "Insert one space, with position depending on ARG.
+If ARG is 2, amend the current list with a space from current side.
+If ARG is 3, switch to the different side beforehand.
+If jammed between parens, \"(|(\" unjam: \"( |(\"."
+  (interactive "p")
+  (cond ((region-active-p)
+         (goto-char (region-end))
+         (deactivate-mark)
+         (insert " "))
+        ((or (eq arg 2)
+             (prog1 (eq arg 3)
+               (lispy-different)))
+
+         (if (looking-at lispy-left)
+             (progn
+               (forward-char)
+               (insert " ")
+               (backward-char))
+           (backward-char)
+           (insert " ")))
+        (t
+         (insert " ")
+         (when (and (looking-at lispy-left)
+                    (looking-back "( "))
+           (backward-char)))))
 
 (defvar lispy-colon-no-space-regex
   '((lisp-mode . "\\s-\\|[:^?#]\\|\\(?:\\s([[:word:]-]+\\)"))
