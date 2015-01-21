@@ -262,10 +262,12 @@ it like this:
 ```cl
 (eval-after-load "lispy"
   `(progn
-     ;; replace with own function
+     ;; replace a global binding with own function
      (define-key lispy-mode-map (kbd "C-e") 'my-custom-eol)
-     ;; replace with major-mode's default
-     (define-key lispy-mode-map (kbd "C-j") nil)))
+     ;; replace a global binding with major-mode's default
+     (define-key lispy-mode-map (kbd "C-j") nil)
+     ;; replace a local binding
+     (lispy-define-key lispy-mode-map "s" 'lispy-down)))
 ```
 
 # Operating on lists
