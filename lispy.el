@@ -1111,7 +1111,8 @@ When ARG is more than 1, mark ARGth element."
   "Copy marked region or sexp to kill ring."
   (interactive)
   (let ((str (lispy--string-dwim)))
-    (unless (string= str (current-kill 0))
+    (unless (equal str (ignore-errors
+                         (current-kill 0)))
       (kill-new str))))
 
 ;;* Globals: pairs
