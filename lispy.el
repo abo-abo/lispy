@@ -1322,17 +1322,19 @@ When region is active, toggle a ~ at the start of the region."
 (defun lispy-newline-and-indent ()
   "Insert newline."
   (interactive)
-  (if (eq major-mode 'lisp-interaction-mode)
-      (progn
-        (setq this-command 'eval-last-sexp)
-        (eval-print-last-sexp))
-    (if (looking-at lispy-left)
-        (progn
-          (skip-chars-backward ",@'`#")
-          (newline-and-indent)
-          (skip-chars-forward ",@'`#")
-          (indent-sexp))
-      (newline-and-indent))))
+  (cond ((eq major-mode 'lisp-interaction-mode)
+         (setq this-command 'eval-last-sexp)
+         (eval-print-last-sexp))
+        ((eq major-mode 'cider-clojure-interaction-mode)
+         (setq this-command 'cider-eval-print-last-sexp)
+         (cider-eval-print-last-sexp))
+        ((looking-at lispy-left)
+         (skip-chars-backward ",@'`#")
+         (newline-and-indent)
+         (skip-chars-forward ",@'`#")
+         (indent-sexp))
+        (t
+         (newline-and-indent))))
 
 (defun lispy-newline-and-indent-plain ()
   "When in minibuffer, exit it.  Otherwise forward to `newline-and-indent'."
