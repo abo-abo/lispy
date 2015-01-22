@@ -3638,7 +3638,9 @@ When ADD-OUTPUT is t, append the output to the result."
   (funcall
    (cond ((memq major-mode '(emacs-lisp-mode lisp-interaction-mode))
           'lispy--eval-elisp)
-         ((memq major-mode '(clojure-mode nrepl-repl-mode))
+         ((memq major-mode '(clojure-mode
+                             nrepl-repl-mode
+                             cider-clojure-interaction-mode))
           (require 'le-clojure)
           (lambda (x)
             (lispy--eval-clojure x add-output)))
