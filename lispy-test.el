@@ -1262,6 +1262,16 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "(foo (bar)|)" " ")
                    "(foo (bar) |)")))
 
+(ert-deftest lispy-kill-word ()
+  (should (string= (lispy-with "|  (require 'cl)" (kbd "M-d"))
+                   "  (| 'cl)"))
+  (should (string= (lispy-with "|  \"(require 'cl)\"" (kbd "M-d"))
+                   "  \"(| 'cl)\""))
+  (should (string= (lispy-with "\"(require |'cl)\"" (kbd "M-d"))
+                   "\"(require '|)\""))
+  (should (string= (lispy-with "\"(require '|)\"" (kbd "M-d"))
+                   "\"(require ')\"|")))
+
 (provide 'lispy-test)
 
 ;;; lispy-test.el ends here

@@ -754,7 +754,7 @@ Return nil if can't move."
 
 ;;* Globals: kill, yank, delete, mark, copy
 (defun lispy-kill ()
-  "Kill keeping parens consistent."
+  "Kill line, keeping parens consistent."
   (interactive)
   (let (bnd)
     (cond ((lispy--in-comment-p)
@@ -791,6 +791,26 @@ Return nil if can't move."
                         (lispy--out-backward 1)
                       (kill-region beg (point))))
                 (kill-region beg (point)))))))))
+
+(defun lispy-kill-word (arg)
+  "Kill ARG words, keeping parens consistent."
+  (interactive "p")
+  (let (bnd out)
+    (lispy-dotimes arg
+      (while (not (or (eobp)
+                      (memq (char-syntax (char-after))
+                            '(?w ?_))))
+        (forward-char 1))
+      (if (setq bnd (lispy--bounds-string))
+          (progn
+            (save-restriction
+              (narrow-to-region (1+ (car bnd)) (1- (cdr bnd)))
+              (kill-word 1)
+              (setq out (eobp))
+              (widen))
+            (when out
+              (goto-char (1+ (cdr (lispy--bounds-string))))))
+        (kill-word 1)))))
 
 (defun lispy-yank ()
   "Like regular `yank', but quotes body when called from \"|\"."
@@ -5256,6 +5276,7 @@ FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)"
   (define-key map (kbd "C-k") 'lispy-kill)
   (define-key map (kbd "C-y") 'lispy-yank)
   (define-key map (kbd "C-d") 'lispy-delete)
+  (define-key map (kbd "M-d") 'lispy-kill-word)
   (define-key map (kbd "DEL") 'lispy-delete-backward)
   (define-key map (kbd "M-m") 'lispy-mark-symbol)
   (define-key map (kbd "C-,") 'lispy-kill-at-point)
