@@ -829,6 +829,16 @@ Return nil if can't move."
               (widen)))
         (backward-kill-word 1)))))
 
+(defun lispy-kill-sentence ()
+  "Kill until the end of current string or list."
+  (interactive)
+  (if (looking-at lispy-left)
+      (lispy-delete 1)
+    (let ((bnd
+           (or (lispy--bounds-string)
+               (lispy--bounds-list))))
+      (kill-region (point) (1- (cdr bnd))))))
+
 (defun lispy-yank ()
   "Like regular `yank', but quotes body when called from \"|\"."
   (interactive)
@@ -5296,6 +5306,7 @@ FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)"
   (define-key map (kbd "M-d") 'lispy-kill-word)
   (define-key map (kbd "DEL") 'lispy-delete-backward)
   (define-key map (kbd "M-DEL") 'lispy-backward-kill-word)
+  (define-key map (kbd "M-k") 'lispy-kill-sentence)
   (define-key map (kbd "M-m") 'lispy-mark-symbol)
   (define-key map (kbd "C-,") 'lispy-kill-at-point)
   (define-key map (kbd "C-M-,") 'lispy-mark)

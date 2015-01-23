@@ -1280,6 +1280,14 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "(eval-after-load \"|\")" (kbd "M-DEL"))
                    "(eval-after-| \"\")")))
 
+(ert-deftest lispy-kill-sentence ()
+  (should (string= (lispy-with "(progn|\n  (foo)\n  (bar))" (kbd "M-k"))
+                   "(progn|)"))
+  (should (string= (lispy-with "(message \"Then shalt thou count to three|, no more, no less.
+Three shall be the number thou shalt count, and the number of the
+counting shall be three.\")" (kbd "M-k"))
+                   "(message \"Then shalt thou count to three|\")")))
+
 (provide 'lispy-test)
 
 ;;; lispy-test.el ends here
