@@ -1010,7 +1010,11 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "~\"right\"|" "'")
                    "~right|"))
   (should (string= (lispy-with "|\"right\"~" "'")
-                   "|right~")))
+                   "|right~"))
+  (should (string= (lispy-with-clojure "foo|" "'")
+                   "foo '|"))
+  (should (string= (lispy-with-clojure "foo|" " ~'")
+                   "foo ~'|")))
 
 (ert-deftest lispy-to-lambda ()
   (should (string= (lispy-with "|(defun foo (x y)\n  (bar))" (lispy-to-lambda))

@@ -1337,7 +1337,7 @@ If jammed between parens, \"(|(\" unjam: \"( |(\"."
   (interactive)
   (if (lispy--string-markedp)
       (lispy-unstringify)
-    (lispy--space-unless "\\s-\\|\\s(\\|[#:?'`]\\\\?")
+    (lispy--space-unless "\\s-\\|\\s(\\|[~#:?'`]\\\\?")
     (insert "'")))
 
 (defun lispy-backtick ()
