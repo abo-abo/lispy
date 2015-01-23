@@ -1288,6 +1288,12 @@ Three shall be the number thou shalt count, and the number of the
 counting shall be three.\")" (kbd "M-k"))
                    "(message \"Then shalt thou count to three|\")")))
 
+(ert-deftest lispy-hash ()
+  (should (string= (lispy-with-clojure "foo|" "#")
+                   "foo #|"))
+  (should (string= (lispy-with-clojure "foo|" "##")
+                   "foo#|")))
+
 (provide 'lispy-test)
 
 ;;; lispy-test.el ends here

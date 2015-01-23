@@ -1363,8 +1363,15 @@ When region is active, toggle a ~ at the start of the region."
 (defun lispy-hash ()
   "Insert #."
   (interactive)
-  (lispy--space-unless "\\s-\\|\\s(\\|[#:?'`]\\\\?")
-  (insert "#"))
+  (if (and (memq major-mode '(clojure-mode
+                              nrepl-repl-mode
+                              cider-clojure-interaction-mode))
+           (looking-back "\\sw #"))
+      (progn
+        (backward-delete-char 2)
+        (insert "#"))
+    (lispy--space-unless "\\s-\\|\\s(\\|[#:?'`]\\\\?")
+    (insert "#")))
 
 (defun lispy-newline-and-indent ()
   "Insert newline."
