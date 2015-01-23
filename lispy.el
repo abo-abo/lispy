@@ -812,6 +812,23 @@ Return nil if can't move."
               (goto-char (1+ (cdr (lispy--bounds-string))))))
         (kill-word 1)))))
 
+(defun lispy-backward-kill-word (arg)
+  "Kill ARG words backward, keeping parens consistent."
+  (interactive "p")
+  (let (bnd)
+    (lispy-dotimes arg
+      (while (not (or (bobp)
+                      (memq (char-syntax (char-before))
+                            '(?w ?_))))
+        (backward-char 1))
+      (if (setq bnd (lispy--bounds-string))
+          (progn
+            (save-restriction
+              (narrow-to-region (1+ (car bnd)) (1- (cdr bnd)))
+              (backward-kill-word 1)
+              (widen)))
+        (backward-kill-word 1)))))
+
 (defun lispy-yank ()
   "Like regular `yank', but quotes body when called from \"|\"."
   (interactive)
@@ -5278,6 +5295,7 @@ FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)"
   (define-key map (kbd "C-d") 'lispy-delete)
   (define-key map (kbd "M-d") 'lispy-kill-word)
   (define-key map (kbd "DEL") 'lispy-delete-backward)
+  (define-key map (kbd "M-DEL") 'lispy-backward-kill-word)
   (define-key map (kbd "M-m") 'lispy-mark-symbol)
   (define-key map (kbd "C-,") 'lispy-kill-at-point)
   (define-key map (kbd "C-M-,") 'lispy-mark)

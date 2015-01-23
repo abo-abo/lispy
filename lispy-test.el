@@ -1272,6 +1272,14 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "\"(require '|)\"" (kbd "M-d"))
                    "\"(require ')\"|")))
 
+(ert-deftest lispy-backward-kill-word ()
+  (should (string= (lispy-with "(require 'cl)|" (kbd "M-DEL"))
+                   "(require '|)"))
+  (should (string= (lispy-with "(eval-after-load \"foo\")|" (kbd "M-DEL"))
+                   "(eval-after-load \"|\")"))
+  (should (string= (lispy-with "(eval-after-load \"|\")" (kbd "M-DEL"))
+                   "(eval-after-| \"\")")))
+
 (provide 'lispy-test)
 
 ;;; lispy-test.el ends here
