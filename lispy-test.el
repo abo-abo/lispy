@@ -1287,6 +1287,10 @@ Insert KEY if there's no command."
 (ert-deftest lispy-kill-sentence ()
   (should (string= (lispy-with "(progn|\n  (foo)\n  (bar))" (kbd "M-k"))
                    "(progn|)"))
+  (should (string= (lispy-with "(message |\"foo bar baz\")" (kbd "M-k"))
+                   "(message |)"))
+  (should (string= (lispy-with "(progn |(foo bar baz))" (kbd "M-k"))
+                   "(progn |)"))
   (should (string= (lispy-with "(message \"Then shalt thou count to three|, no more, no less.
 Three shall be the number thou shalt count, and the number of the
 counting shall be three.\")" (kbd "M-k"))

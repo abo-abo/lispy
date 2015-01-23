@@ -832,7 +832,7 @@ Return nil if can't move."
 (defun lispy-kill-sentence ()
   "Kill until the end of current string or list."
   (interactive)
-  (if (looking-at lispy-left)
+  (if (or (looking-at lispy-left) (looking-at "\""))
       (lispy-delete 1)
     (let ((bnd
            (or (lispy--bounds-string)
