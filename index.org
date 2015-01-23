@@ -117,13 +117,16 @@
 | C-e   | [[#lispy-move-end-of-line][lispy-move-end-of-line]]     |
 | C-,   | [[#lispy-kill-at-point][lispy-kill-at-point]]        |
 | C-M-, | [[#lispy-mark][lispy-mark]]                 |
-| M-m   | [[#lispy-mark-symbol][lispy-mark-symbol]]          |
-| M-o   | [[#lispy-string-oneline][lispy-string-oneline]]       |
 | C-1   | [[#lispy-describe-inline][lispy-describe-inline]]      |
 | C-2   | [[#lispy-arglist-inline][lispy-arglist-inline]]       |
 | C-3   | [[#lispy-out-forward][lispy-out-forward]]          |
 | C-4   | [[#lispy-x][lispy-x]]                    |
 | C-8   | [[#lispy-parens-down][lispy-parens-down]]          |
+| M-o   | [[#lispy-string-oneline][lispy-string-oneline]]       |
+| M-m   | [[#lispy-mark-symbol][lispy-mark-symbol]]          |
+| M-d   | [[#lispy-kill-word][lispy-kill-word]]            |
+| M-DEL | [[#lispy-backward-kill-word][lispy-backward-kill-word]]   |
+| M-k   | [[#lispy-kill-sentence][lispy-kill-sentence]]        |
 | M-.   | [[#lispy-goto-symbol][lispy-goto-symbol]]          |
 | M-,   | [[#pop-tag-mark][pop-tag-mark]]               |
 |-------+----------------------------|
@@ -2893,6 +2896,52 @@ At this point:
 | z   | 4   |
 | a   | nil |
 | b   | nil |
+-----
+** =lispy-kill-word=
+:PROPERTIES:
+:CUSTOM_ID: lispy-kill-word
+:END:
+
+Bound to ~M-d~.
+
+Kill =arg= words, keeping parens and quotes consistent
+-----
+** =lispy-backward-kill-word=
+:PROPERTIES:
+:CUSTOM_ID: lispy-backward-kill-word
+:END:
+
+Bound to ~M-DEL~.
+
+Kill =arg= words backward, keeping parens and quotes consistent.
+-----
+
+** =lispy-kill-sentence=
+:PROPERTIES:
+:CUSTOM_ID: lispy-kill-sentence
+:END:
+
+Bound to ~M-k~.
+
+Kill until the end of current string of list.
+If located exactly at the beginning of the string of list,
+forward to [[#lispy-delete][=lispy-delete=]].
+
+#+HTML: <table><tbody><tr><td>
+#+begin_src elisp
+(message "Then shalt thou count to three|,
+no more, no less.
+Three shall be the number thou shalt count,
+and the number of the counting shall be three.")
+#+end_src
+#+HTML: </td><td>
+-> ~M-k~ ->
+#+HTML: </td><td>
+#+begin_src elisp
+(message "Then shalt thou count to three|")
+#+end_src
+#+HTML: </td></tr></tbody></table>
+
 -----
 
 ** =digit-argument=

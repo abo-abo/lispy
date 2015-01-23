@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
 <title>lispy.el function reference</title>
-<!-- 2014-12-14 Sun 16:13 -->
+<!-- 2015-01-23 Fri 22:35 -->
 <meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta  name="generator" content="Org-mode" />
 <meta  name="author" content="Oleh" />
@@ -167,16 +167,6 @@
 </tr>
 
 <tr>
-<td class="left">M-m</td>
-<td class="left"><a href="#lispy-mark-symbol">lispy-mark-symbol</a></td>
-</tr>
-
-<tr>
-<td class="left">M-o</td>
-<td class="left"><a href="#lispy-string-oneline">lispy-string-oneline</a></td>
-</tr>
-
-<tr>
 <td class="left">C-1</td>
 <td class="left"><a href="#lispy-describe-inline">lispy-describe-inline</a></td>
 </tr>
@@ -199,6 +189,31 @@
 <tr>
 <td class="left">C-8</td>
 <td class="left"><a href="#lispy-parens-down">lispy-parens-down</a></td>
+</tr>
+
+<tr>
+<td class="left">M-o</td>
+<td class="left"><a href="#lispy-string-oneline">lispy-string-oneline</a></td>
+</tr>
+
+<tr>
+<td class="left">M-m</td>
+<td class="left"><a href="#lispy-mark-symbol">lispy-mark-symbol</a></td>
+</tr>
+
+<tr>
+<td class="left">M-d</td>
+<td class="left"><a href="#lispy-kill-word">lispy-kill-word</a></td>
+</tr>
+
+<tr>
+<td class="left">M-DEL</td>
+<td class="left"><a href="#lispy-backward-kill-word">lispy-backward-kill-word</a></td>
+</tr>
+
+<tr>
+<td class="left">M-k</td>
+<td class="left"><a href="#lispy-kill-sentence">lispy-kill-sentence</a></td>
 </tr>
 
 <tr>
@@ -1420,10 +1435,8 @@ This is a standard Emacs function that reverses:
 </p>
 
 <ul class="org-ul">
-<li><kbd>F</kbd> (<a href="#lispy-follow"><code>lispy-follow</code></a>)
-</li>
-<li><kbd>M-.</kbd> (<a href="#lispy-goto-symbol"><code>lispy-goto-symbol</code></a>)
-</li>
+<li><kbd>F</kbd> (<a href="#lispy-follow"><code>lispy-follow</code></a>)</li>
+<li><kbd>M-.</kbd> (<a href="#lispy-goto-symbol"><code>lispy-goto-symbol</code></a>)</li>
 </ul>
 
 <p>
@@ -1684,14 +1697,11 @@ after the evaluated expression.
 
 <ul class="org-ul">
 <li>Starting with <code>|(</code> the point will not be moved,
-allowing to press <kbd>E</kbd> again.
-</li>
+allowing to press <kbd>E</kbd> again.</li>
 <li>Starting with <code>)|</code> the point will end up after the
-inserted expression.
-</li>
+inserted expression.</li>
 <li>Starting with an active region, the region will be
-deactivated and result will be inserted at point.
-</li>
+deactivated and result will be inserted at point.</li>
 </ul>
 <hr  />
 </div>
@@ -1831,11 +1841,9 @@ buffer selection is done differently:
 </p>
 
 <ul class="org-ul">
-<li>first buffer and region are defined by <a href="#lispy-store-region-and-buffer"><code>lispy-store-region-and-buffer</code></a>.
-</li>
+<li>first buffer and region are defined by <a href="#lispy-store-region-and-buffer"><code>lispy-store-region-and-buffer</code></a>.</li>
 <li>second buffer and region are the current buffer and region (or
-current sexp bounds if the region isn't active)
-</li>
+current sexp bounds if the region isn't active)</li>
 </ul>
 
 <p>
@@ -2388,12 +2396,9 @@ they should be inserted with <kbd>C-q [</kbd> and <kbd>C-q ]</kbd>.
 <h4 id="unnumbered-64"><code>arg</code> is 1</h4>
 <div class="outline-text-4" id="text-unnumbered-64">
 <ol class="org-ol">
-<li>Re-indent and insert space according to <code>lispy--space-unless</code>.
-</li>
-<li>Insert <code>left</code>, <code>right</code> and put the point between them.
-</li>
-<li>Insert a space after <code>right</code> if it's appropriate.
-</li>
+<li>Re-indent and insert space according to <code>lispy--space-unless</code>.</li>
+<li>Insert <code>left</code>, <code>right</code> and put the point between them.</li>
+<li>Insert a space after <code>right</code> if it's appropriate.</li>
 </ol>
 </div>
 </div>
@@ -4370,11 +4375,9 @@ This is useful for debugging interactive Elisp functions:
 </p>
 
 <ul class="org-ul">
-<li>in one window keep the code of the function being debugged
-</li>
+<li>in one window keep the code of the function being debugged</li>
 <li>in the other window, keep the buffer on which the debugged function
-is supposed to work
-</li>
+is supposed to work</li>
 </ul>
 
 <p>
@@ -4451,10 +4454,8 @@ From special:
 
 <ul class="org-ul">
 <li><kbd>2m</kbd>, <kbd>3m</kbd>, etc. if you want the second or third element of the list
-accordingly
-</li>
-<li><kbd>a</kbd> to select the symbol with <a href="#lispy-ace-symbol"><code>lispy-ace-symbol</code></a>
-</li>
+accordingly</li>
+<li><kbd>a</kbd> to select the symbol with <a href="#lispy-ace-symbol"><code>lispy-ace-symbol</code></a></li>
 </ul>
 
 <p>
@@ -4462,8 +4463,7 @@ Globally:
 </p>
 
 <ul class="org-ul">
-<li><kbd>M-m</kbd> to mark symbol at point with <a href="#lispy-mark-symbol"><code>lispy-mark-symbol</code></a>
-</li>
+<li><kbd>M-m</kbd> to mark symbol at point with <a href="#lispy-mark-symbol"><code>lispy-mark-symbol</code></a></li>
 </ul>
 
 <hr  />
@@ -4699,12 +4699,9 @@ Bound to <kbd>xj</kbd>.
 </p>
 
 <ol class="org-ol">
-<li>Evaluate the arguments at current function's call
-</li>
-<li>Jump to function's definition
-</li>
-<li>Set the result of evaluation to function's arguments
-</li>
+<li>Evaluate the arguments at current function's call</li>
+<li>Jump to function's definition</li>
+<li>Set the result of evaluation to function's arguments</li>
 </ol>
 
 <p>
@@ -4773,9 +4770,73 @@ At this point:
 <hr  />
 </div>
 </div>
+<div id="outline-container-lispy-kill-word" class="outline-3">
+<h3 id="lispy-kill-word"><a id="unnumbered-156"></a><code>lispy-kill-word</code></h3>
+<div class="outline-text-3" id="text-lispy-kill-word">
+<p>
+Bound to <kbd>M-d</kbd>.
+</p>
+
+<p>
+Kill <code>arg</code> words, keeping parens and quotes consistent
+</p>
+<hr  />
+</div>
+</div>
+<div id="outline-container-lispy-backward-kill-word" class="outline-3">
+<h3 id="lispy-backward-kill-word"><a id="unnumbered-157"></a><code>lispy-backward-kill-word</code></h3>
+<div class="outline-text-3" id="text-lispy-backward-kill-word">
+<p>
+Bound to <kbd>M-DEL</kbd>.
+</p>
+
+<p>
+Kill <code>arg</code> words backward, keeping parens and quotes consistent.
+</p>
+<hr  />
+</div>
+</div>
+
+<div id="outline-container-lispy-kill-sentence" class="outline-3">
+<h3 id="lispy-kill-sentence"><a id="unnumbered-158"></a><code>lispy-kill-sentence</code></h3>
+<div class="outline-text-3" id="text-lispy-kill-sentence">
+<p>
+Bound to <kbd>M-k</kbd>.
+</p>
+
+<p>
+Kill until the end of current string of list.
+If located exactly at the beginning of the string of list,
+forward to <a href="#lispy-delete"><code>lispy-delete</code></a>.
+</p>
+
+<table><tbody><tr><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(message <span style="color: #2A00FF;">"Then shalt thou count to three<cursor>,</cursor> </span>
+<span style="color: #2A00FF;">no more, no less.</span>
+<span style="color: #2A00FF;">Three shall be the number thou shalt count,</span>
+<span style="color: #2A00FF;">and the number of the counting shall be three."</span>)
+</pre>
+</div>
+</td><td>
+<p>
+-&gt; <kbd>M-k</kbd> -&gt;
+</p>
+</td><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(message <span style="color: #2A00FF;">"Then shalt thou count to three<cursor>"</cursor></span>)
+</pre>
+</div>
+</td></tr></tbody></table>
+
+<hr  />
+</div>
+</div>
 
 <div id="outline-container-digit-argument" class="outline-3">
-<h3 id="digit-argument"><a id="unnumbered-156"></a><code>digit-argument</code></h3>
+<h3 id="digit-argument"><a id="unnumbered-159"></a><code>digit-argument</code></h3>
 <div class="outline-text-3" id="text-digit-argument">
 <p>
 Bound to <kbd>0</kbd>, <kbd>1</kbd>, <kbd>2</kbd>, <kbd>3</kbd>, <kbd>4</kbd>, <kbd>5</kbd>, <kbd>6</kbd>, <kbd>7</kbd>, <kbd>8</kbd>, <kbd>9</kbd>.
