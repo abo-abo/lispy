@@ -119,7 +119,7 @@
 | C-M-, | [[#lispy-mark][lispy-mark]]                 |
 | C-1   | [[#lispy-describe-inline][lispy-describe-inline]]      |
 | C-2   | [[#lispy-arglist-inline][lispy-arglist-inline]]       |
-| C-3   | [[#lispy-out-forward][lispy-out-forward]]          |
+| C-3   | [[#lispy-right][lispy-right]]                |
 | C-4   | [[#lispy-x][lispy-x]]                    |
 | C-8   | [[#lispy-parens-down][lispy-parens-down]]          |
 | M-o   | [[#lispy-string-oneline][lispy-string-oneline]]       |
@@ -143,11 +143,11 @@
 | e   | [[#lispy-eval][lispy-eval]]                    |
 | f   | [[#lispy-flow][lispy-flow]]                    |
 | g   | [[#lispy-goto][lispy-goto]]                    |
-| h   | [[#lispy-out-backward][lispy-out-backward]]            |
+| h   | [[#lispy-left][lispy-left]]                    |
 | i   | [[#lispy-tab][lispy-tab]]                     |
 | j   | [[#lispy-down][lispy-down]]                    |
 | k   | [[#lispy-up][lispy-up]]                      |
-| l   | [[#lispy-out-forward][lispy-out-forward]]             |
+| l   | [[#lispy-right][lispy-right]]                   |
 | m   | [[#lispy-mark-list][lispy-mark-list]]               |
 | n   | [[#lispy-new-copy][lispy-new-copy]]                |
 | o   | [[#lispy-other-mode][lispy-other-mode]]              |
@@ -237,7 +237,7 @@ to move =arg= times.
 It that case, move as many times as possible.
 
 Return =t= if could move at least once, otherwise
-call [[#lispy-out-forward][=lispy-out-forward=]] and return =nil=.
+call [[#lispy-right][=lispy-right=]] and return =nil=.
 
 Unlike =forward-list=, parens in strings and comments are ignored.
 -----
@@ -258,17 +258,17 @@ to move =arg= times.
 It that case, move as many times as possible.
 
 Return =t= if could move at least once, otherwise
-call [[#lispy-out-backward][=lispy-out-backward=]] return =nil=.
+call [[#lispy-left][=lispy-left=]] return =nil=.
 
 Unlike =backward-list=, parens in strings and comments are ignored.
 -----
 
-** =lispy-out-forward=
+** =lispy-right=
 :PROPERTIES:
-:CUSTOM_ID: lispy-out-forward
+:CUSTOM_ID: lispy-right
 :END:
 
-Bound to ~C-3~.
+Bound to ~C-3~ and ~l~.
 
 {{{replaces(=up-list=)}}}
 
@@ -292,7 +292,7 @@ Unlike =up-list=, parens in strings and comments are ignored.
 
 Bound to ~)~.
 
-Works the same ways as [[#lispy-out-forward][=lispy-out-forward=]], except self-inserts in
+Works the same ways as [[#lispy-right][=lispy-right=]], except self-inserts in
 strings and comments.
 
 Self-inserting in strings and comments makes parens different from the
@@ -307,15 +307,15 @@ other pair functions that always insert the whole pair:
 When you want to insert a single character from the pair, use ~C-q~.
 -----
 
-** =lispy-out-backward=
+** =lispy-left=
 :PROPERTIES:
-:CUSTOM_ID: lispy-out-backward
+:CUSTOM_ID: lispy-left
 :END:
 
 Bound to ~h~.
 
 Takes a numeric prefix =arg= and moves up backward list =arg= times or
-until error. This is a combination of =arg= times [[#lispy-out-forward][=lispy-out-forward=]] and once
+until error. This is a combination of =arg= times [[#lispy-right][=lispy-right=]] and once
 [[#lispy-different][=lispy-different=]].
 
 When the region is active, the region (not the code) will move up
@@ -323,7 +323,7 @@ backward =arg= times:
 
 #+HTML: <table><tbody><tr><td>
 #+begin_src elisp
-(defun lispy-out-forward (arg)
+(defun lispy-right (arg)
   "Move outside list forwards ARG times.
 Return nil on failure, t otherwise."
   (interactive "p")
@@ -335,7 +335,7 @@ Return nil on failure, t otherwise."
 -> ~h~ ->
 #+HTML: </td><td>
 #+begin_src elisp
-(defun lispy-out-forward (arg)
+(defun lispy-right (arg)
   "Move outside list forwards ARG times.
 Return nil on failure, t otherwise."
   (interactive "p")
