@@ -2748,7 +2748,7 @@ Sexp is obtained by exiting list ARG times."
        (progn (deactivate-mark) arg)
      (1- arg)))
   (lispy--ace-do
-   "[([{ ]\\(?:\\sw\\|\\s_\\|\\s(\\|[\"'`#]\\)"
+   "[([{ ]\\(?:\\sw\\|\\s_\\|[\"'`#~,@]\\)"
    (lispy--bounds-dwim)
    (lambda () (or (not (lispy--in-string-or-comment-p)) (looking-back ".\"")))
    (lambda () (forward-char 1) (lispy-mark-symbol))))
