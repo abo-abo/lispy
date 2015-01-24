@@ -226,7 +226,11 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "(defun foo ()\n  (let ((a 1))\n    (let ((b 2))\n      |(something))))" "3l")
                    "(defun foo ()\n  (let ((a 1))\n    (let ((b 2))\n      (something))))|"))
   (should (string= (lispy-with "(defun foo ()\n  (let ((a 1))\n    (let ((b 2))\n      |(something))))" "9l")
-                   "(defun foo ()\n  (let ((a 1))\n    (let ((b 2))\n      (something))))|")))
+                   "(defun foo ()\n  (let ((a 1))\n    (let ((b 2))\n      (something))))|"))
+  (should (string= (lispy-with "|(foo)~" "l")
+                   "~(foo)|"))
+  (should (string= (lispy-with "~(foo)|" "l")
+                   "~(foo)|")))
 
 (ert-deftest lispy-left ()
   (should (string= (lispy-with "(|(a) (b) (c))" "h")
@@ -259,7 +263,11 @@ Insert KEY if there's no command."
   (should (equal (lispy-with "((foo \"(\"))\n((foo \")\"))\n\"un|expected\"" (lispy-backward 1))
                  "((foo \"(\"))\n|((foo \")\"))\n\"unexpected\""))
   (should (equal (lispy-with "(defun charge! ()\n|(run-away))" "h")
-                 "|(defun charge! ()\n  (run-away))")))
+                 "|(defun charge! ()\n  (run-away))"))
+  (should (string= (lispy-with "|(foo)~" "h")
+                   "|(foo)~"))
+  (should (string= (lispy-with "~(foo)|" "h")
+                   "|(foo)~")))
 
 (ert-deftest lispy-flow ()
   (should (string= (lispy-with "(|(a) (b) (c))" "f")
@@ -326,7 +334,7 @@ Insert KEY if there's no command."
                    "(progn\n  foo-bar-baz-~flip-flop|)"))
   (should (string= (lispy-with "(eval-when-~compile|\n  (require 'cl))" (lispy-down 1))
                    "(eval-when-~compile|\n  (require 'cl))"))
-  (should (string= (lispy-with "~;; foo|\n(bar)" (lispy-down 1))
+  (should (string= (lispy-with "~;; foo|\n(bar)" (lispy-down 1)) ;
                    ";; foo\n~(bar)|")))
 
 (ert-deftest lispy-up ()

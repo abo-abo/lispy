@@ -3101,17 +3101,22 @@ Second region and buffer are the current ones."
 (defun lispy-mark-right (arg)
   "Go right ARG times and mark."
   (interactive "p")
-  (deactivate-mark)
   (let* ((pt (point))
+         (mk (mark))
          (lispy-ignore-whitespace t)
          (r (lispy--out-forward arg)))
+    (deactivate-mark)
     (if (or (= pt (point))
+            (= mk (point))
             (and (region-active-p)
                  (= (region-beginning)
                     (region-end))))
         (progn
-          (goto-char pt)
-          (lispy-complain "can't go any further"))
+          (lispy-complain "can't go any further")
+          (if (> mk pt)
+              (lispy--mark (cons pt mk))
+            (lispy--mark (cons mk pt)))
+          nil)
       (lispy--mark
        (lispy--bounds-dwim))
       r)))
@@ -3119,8 +3124,10 @@ Second region and buffer are the current ones."
 (defun lispy-mark-left (arg)
   "Go left ARG times and mark."
   (interactive "p")
-  (when (lispy-mark-right arg)
-    (lispy-different)))
+  (if (lispy-mark-right arg)
+      (lispy-different)
+    (when (= (point) (region-end))
+      (exchange-point-and-mark))))
 
 (defun lispy-mark-car ()
   "Mark the car of current thing."
