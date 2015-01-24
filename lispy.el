@@ -1108,15 +1108,15 @@ When ARG is more than 1, mark ARGth element."
                (cdr (setq bnd (lispy--bounds-string)))))
            (lispy--mark bnd))
 
-          ((or (looking-at "[ ]*[()]")
+          ((or (looking-at "[ ]*[](){}[]")
                (and (region-active-p)
                     (looking-at "[ \n]*[()]")))
            (let ((pt (point)))
-             (skip-chars-forward "() \n")
+             (skip-chars-forward "(){}[] \n")
              (set-mark-command nil)
              (condition-case nil
                  (progn
-                   (re-search-forward "[() \n]")
+                   (re-search-forward "[][(){} \n]")
                    (while (lispy--in-string-or-comment-p)
                      (re-search-forward "[() \n]"))
                    (backward-char 1))
