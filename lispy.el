@@ -5317,6 +5317,9 @@ FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)"
   (define-key map (kbd "]") 'lispy-forward)
   (define-key map (kbd "[") 'lispy-backward)
   (define-key map (kbd ")") 'lispy-right-nostring)
+  (define-key map (kbd "C-M-n") 'lispy-forward)
+  (define-key map (kbd "C-M-p") 'lispy-backward)
+
   ;; ——— globals: kill-related ————————————————
   (define-key map (kbd "C-k") 'lispy-kill)
   (define-key map (kbd "C-y") 'lispy-yank)
