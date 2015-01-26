@@ -1320,6 +1320,12 @@ counting shall be three.\")" (kbd "M-k"))
   (should (string= (lispy-with-clojure "foo|" "##")
                    "foo#|")))
 
+(ert-deftest lispy-newline-and-indent-plain ()
+  (should (string= (lispy-with "(mapc #'|say-ni\n      knights)" (kbd "RET"))
+                   "(mapc\n #'|say-ni\n knights)"))
+  (should (string= (lispy-with "(mapc #'|say-ni\n      knights)" (kbd "C-j"))
+                   "(mapc\n #'|say-ni\n knights)")))
+
 (provide 'lispy-test)
 
 ;;; lispy-test.el ends here

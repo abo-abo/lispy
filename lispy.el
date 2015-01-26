@@ -1394,7 +1394,7 @@ When region is active, toggle a ~ at the start of the region."
          (skip-chars-forward ",@'`#")
          (indent-sexp))
         (t
-         (newline-and-indent))))
+         (lispy-newline-and-indent-plain))))
 
 (defun lispy-newline-and-indent-plain ()
   "When in minibuffer, exit it.  Otherwise forward to `newline-and-indent'."
@@ -1407,7 +1407,15 @@ When region is active, toggle a ~ at the start of the region."
     (slime-repl-mode
      (slime-repl-return))
     (t
-     (newline-and-indent))))
+     (if (looking-back "[^#`',@~][#`',@~]+")
+         (save-excursion
+           (goto-char (match-beginning 0))
+           (newline-and-indent))
+       (newline-and-indent))
+     (let ((lispy-ignore-whitespace t))
+       (save-excursion
+         (lispy--out-backward 1)
+         (indent-sexp))))))
 
 (defun lispy-open-line ()
   "Add one line after the current expression."
