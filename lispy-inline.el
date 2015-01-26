@@ -76,6 +76,10 @@ The caller of `lispy--show' might use a substitute e.g. `describe-function'."
   :type 'float
   :group 'lispy)
 
+(defvar lispy-elisp-modes
+  '(emacs-lisp-mode lisp-interaction-mode eltex-mode)
+  "Modes for which `lispy--eval-elisp' and related functions are appropriate.")
+
 (defvar lispy-overlay nil
   "Hint overlay instance.")
 
@@ -104,7 +108,7 @@ The caller of `lispy--show' might use a substitute e.g. `describe-function'."
                    (setq lispy-overlay nil)
                    t)
                  (= lispy-hint-pos (point)))
-      (cond ((memq major-mode '(emacs-lisp-mode lisp-interaction-mode))
+      (cond ((memq major-mode lispy-elisp-modes)
              (let ((sym (intern-soft (lispy--current-function))))
                (cond ((fboundp sym)
                       (setq lispy-hint-pos (point))
@@ -152,7 +156,7 @@ Return t if at least one was deleted."
         (setq lispy-hint-pos (point))
         (let* ((doc
                 (cond
-                  ((memq major-mode '(emacs-lisp-mode lisp-interaction-mode))
+                  ((memq major-mode lispy-elisp-modes)
                    (let (dc)
                      (setq sym (intern-soft sym))
                      (cond ((fboundp sym)

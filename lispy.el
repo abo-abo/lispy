@@ -2497,7 +2497,7 @@ Sexp is obtained by exiting list ARG times."
   (let (rsymbol)
     (deactivate-mark)
     (ring-insert find-tag-marker-ring (point-marker))
-    (cond ((and (memq major-mode '(emacs-lisp-mode lisp-interaction-mode))
+    (cond ((and (memq major-mode lispy-elisp-modes)
                 (setq symbol (intern-soft symbol)))
            (cond ((fboundp symbol)
                   (find-function symbol))
@@ -3701,7 +3701,7 @@ The result is a string.
 
 When ADD-OUTPUT is t, append the output to the result."
   (funcall
-   (cond ((memq major-mode '(emacs-lisp-mode lisp-interaction-mode))
+   (cond ((memq major-mode lispy-elisp-modes)
           'lispy--eval-elisp)
          ((memq major-mode '(clojure-mode
                              nrepl-repl-mode
@@ -3813,7 +3813,7 @@ When ADD-OUTPUT is t, append the output to the result."
          (set-buffer buffer)
          (setq tags (ignore-errors (semantic-fetch-tags)))
          ;; modifies tags
-         (when (memq major-mode '(lisp-mode emacs-lisp-mode))
+         (when (memq major-mode lispy-elisp-modes)
            (lexical-let ((arity (cdr (assoc major-mode lispy-tag-arity)))
                          (tag-regex (lispy--tag-regexp)))
              (mapc (lambda (x) (lispy--modify-tag x tag-regex arity)) tags)))
@@ -3841,7 +3841,7 @@ When ADD-OUTPUT is t, append the output to the result."
                    (cdr (assoc mode lispy-tag-arity))))
           "\\)"
           "\\_>"))
-        ((memq major-mode '(emacs-lisp-mode lisp-interaction-mode))
+        ((memq major-mode lispy-elisp-modes)
          (concat
           "^([ \t\n]*\\_<"
           "\\("
@@ -3974,7 +3974,7 @@ ARITY-ALIST combines strings that REGEX matches and their arities."
   "Given a semantic tag X, return its string representation.
 This is `semantic-tag-name', amended with extra info.
 For example, a `setq' statement is amended with variable name that it uses."
-  (cond ((memq major-mode '(emacs-lisp-mode lisp-interaction-mode))
+  (cond ((memq major-mode lispy-elisp-modes)
          (lispy--tag-name-elisp x))
         ((eq major-mode 'clojure-mode)
          (lispy--tag-name-clojure x))
@@ -4099,7 +4099,7 @@ For example, a `setq' statement is amended with variable name that it uses."
          (lispy--set-file-to-tags
           (buffer-file-name)
           (semantic-fetch-tags))))
-    (when (memq major-mode '(lisp-mode emacs-lisp-mode))
+    (when (memq major-mode lispy-elisp-modes)
       (lexical-let ((arity (cdr (assoc major-mode lispy-tag-arity)))
                     (tag-regex (lispy--tag-regexp)))
         (mapc (lambda (x) (lispy--modify-tag x tag-regex arity)) tags)))
