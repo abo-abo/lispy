@@ -825,7 +825,8 @@ Return nil if can't move."
           (progn
             (save-restriction
               (narrow-to-region (1+ (car bnd)) (1- (cdr bnd)))
-              (backward-kill-word 1)
+              (kill-region (progn (forward-word -1) (point))
+                           (point-max))
               (widen)))
         (backward-kill-word 1)))))
 

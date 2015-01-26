@@ -844,7 +844,7 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "(defun abc (x)\n  \"def.\"\n  (+ x\n     x\n     x))|" "O")
                    "(defun abc (x) \"def.\" (+ x x x))|"))
   (should (string= (lispy-with "|(defun foo ()\n  ;; comment\n  (bar)\n  (baz))" "O") ;
-                                        ";; comment\n|(defun foo () (bar) (baz))")))
+                   ";; comment\n|(defun foo () (bar) (baz))")))
 
 (ert-deftest lispy-multiline ()
   (should (string= (lispy-with "|(defun abc (x) \"def.\" (+ x x x) (foo) (bar))" "M")
@@ -1043,131 +1043,131 @@ Insert KEY if there's no command."
                    "'(| (foo bar))"))
   (should (string= (lispy-with "'(foo bar)|" "2(")
                    "'(| (foo bar))"))
-  (should (string= (lispy-with  "\"a regex \\\\|\"" "(")
+  (should (string= (lispy-with "\"a regex \\\\|\"" "(")
                    "\"a regex \\\\(|\\\\)\""))
-  (should (string= (lispy-with  "~(foo) (bar)|" "(")
+  (should (string= (lispy-with "~(foo) (bar)|" "(")
                    "(| (foo) (bar))"))
-  (should (string= (lispy-with  "(foo bar|)" "2(")
+  (should (string= (lispy-with "(foo bar|)" "2(")
                    "(foo (| bar))"))
-  (should (string= (lispy-with  "(foo bar| )" "2(")
+  (should (string= (lispy-with "(foo bar| )" "2(")
                    "(foo (| bar) )")))
 
 (ert-deftest lispy-braces ()
-  (should (string= (lispy-with  "\"a regex \\\\|\"" "{")
+  (should (string= (lispy-with "\"a regex \\\\|\"" "{")
                    "\"a regex \\\\{|\\\\}\""))
-  (should (string= (lispy-with  "\"a string |" "{")
+  (should (string= (lispy-with "\"a string |" "{")
                    "\"a string {|}")))
 
 (ert-deftest lispy-brackets ()
-  (should (string= (lispy-with  "\"a regex \\\\|\"" "}")
+  (should (string= (lispy-with "\"a regex \\\\|\"" "}")
                    "\"a regex \\\\[|\\\\]\""))
-  (should (string= (lispy-with  "\"a string |" "}")
+  (should (string= (lispy-with "\"a string |" "}")
                    "\"a string [|]")))
 
 (ert-deftest lispy-to-ifs ()
   (should (string= (lispy-with "|(cond ((looking-at \" *;\"))\n      ((and (looking-at \"\\n\")\n            (looking-back \"^ *\"))\n       (delete-blank-lines))\n      ((looking-at \"\\\\([\\n ]+\\\\)[^\\n ;]\")\n       (delete-region (match-beginning 1)\n                      (match-end 1))))" ;
-                                                    (lispy-to-ifs))
-                                        "|(if (looking-at \" *;\")\n    nil\n  (if (and (looking-at \"\\n\")\n           (looking-back \"^ *\"))\n      (delete-blank-lines)\n    (if (looking-at \"\\\\([\\n ]+\\\\)[^\\n ;]\")\n        (delete-region (match-beginning 1)\n                       (match-end 1)))))")))
+                               (lispy-to-ifs))
+                   "|(if (looking-at \" *;\")\n    nil\n  (if (and (looking-at \"\\n\")\n           (looking-back \"^ *\"))\n      (delete-blank-lines)\n    (if (looking-at \"\\\\([\\n ]+\\\\)[^\\n ;]\")\n        (delete-region (match-beginning 1)\n                       (match-end 1)))))")))
 
-  (ert-deftest lispy-to-cond ()
-    (should (string= (lispy-with "|(if (looking-at \" *;\")\n    nil\n  (if (and (looking-at \"\\n\")\n           (looking-back \"^ *\"))\n      (delete-blank-lines)\n    (if (looking-at \"\\\\([\\n ]+\\\\)[^\\n ;]\")\n        (delete-region (match-beginning 1)\n                       (match-end 1)))))"
-                                 (lispy-to-cond))
-                     "|(cond ((looking-at \" *;\"))\n      ((and (looking-at \"\\n\")\n            (looking-back \"^ *\"))\n       (delete-blank-lines))\n      ((looking-at \"\\\\([\\n ]+\\\\)[^\\n ;]\")\n       (delete-region (match-beginning 1)\n                      (match-end 1))))")))
+(ert-deftest lispy-to-cond ()
+  (should (string= (lispy-with "|(if (looking-at \" *;\")\n    nil\n  (if (and (looking-at \"\\n\")\n           (looking-back \"^ *\"))\n      (delete-blank-lines)\n    (if (looking-at \"\\\\([\\n ]+\\\\)[^\\n ;]\")\n        (delete-region (match-beginning 1)\n                       (match-end 1)))))"
+                               (lispy-to-cond))
+                   "|(cond ((looking-at \" *;\"))\n      ((and (looking-at \"\\n\")\n            (looking-back \"^ *\"))\n       (delete-blank-lines))\n      ((looking-at \"\\\\([\\n ]+\\\\)[^\\n ;]\")\n       (delete-region (match-beginning 1)\n                      (match-end 1))))")))
 
-  (ert-deftest lispy-to-defun ()
-    (should (string= (lispy-with "(foo bar)|" (lispy-to-defun))
-                     "(defun foo (bar)\n  |)"))
-    (should (string= (lispy-with "|(foo bar)" (lispy-to-defun))
-                     "(defun foo (bar)\n  |)"))
-    (should (string= (lispy-with "(foo)|" (lispy-to-defun))
-                     "(defun foo ()\n  |)"))
-    (should (string= (lispy-with "|(foo)" (lispy-to-defun))
-                     "(defun foo ()\n  |)")))
+(ert-deftest lispy-to-defun ()
+  (should (string= (lispy-with "(foo bar)|" (lispy-to-defun))
+                   "(defun foo (bar)\n  |)"))
+  (should (string= (lispy-with "|(foo bar)" (lispy-to-defun))
+                   "(defun foo (bar)\n  |)"))
+  (should (string= (lispy-with "(foo)|" (lispy-to-defun))
+                   "(defun foo ()\n  |)"))
+  (should (string= (lispy-with "|(foo)" (lispy-to-defun))
+                   "(defun foo ()\n  |)")))
 
-  (ert-deftest lispy-up-slurp ()
-    (should (string= (lispy-with "(progn\n  (foo))\n|(bar)" "ok")
-                     "(progn\n  (foo)\n  |(bar))"))
-    (should (string= (lispy-with "(progn\n  (foo))\n(bar)|" "ok")
-                     "(progn\n  (foo)\n  (bar)|)"))
-    (should (string= (lispy-with "(progn\n  (foo))\n~(bar)|" "ok")
-                     "(progn\n  (foo)\n  ~(bar)|)"))
-    (should (string= (lispy-with "(progn\n  (foo))\n|(bar)~" "ok")
-                     "(progn\n  (foo)\n  |(bar)~)"))
-    (should (string= (lispy-with "(progn\n  (foo))\n|(bar)\n(baz)~" "ok")
-                     "(progn\n  (foo)\n  |(bar)\n  (baz)~)"))
-    (should (string= (lispy-with "(progn\n  (foo))\n~(bar)\n(baz)|" "ok")
-                     "(progn\n  (foo)\n  ~(bar)\n  (baz)|)")))
+(ert-deftest lispy-up-slurp ()
+  (should (string= (lispy-with "(progn\n  (foo))\n|(bar)" "ok")
+                   "(progn\n  (foo)\n  |(bar))"))
+  (should (string= (lispy-with "(progn\n  (foo))\n(bar)|" "ok")
+                   "(progn\n  (foo)\n  (bar)|)"))
+  (should (string= (lispy-with "(progn\n  (foo))\n~(bar)|" "ok")
+                   "(progn\n  (foo)\n  ~(bar)|)"))
+  (should (string= (lispy-with "(progn\n  (foo))\n|(bar)~" "ok")
+                   "(progn\n  (foo)\n  |(bar)~)"))
+  (should (string= (lispy-with "(progn\n  (foo))\n|(bar)\n(baz)~" "ok")
+                   "(progn\n  (foo)\n  |(bar)\n  (baz)~)"))
+  (should (string= (lispy-with "(progn\n  (foo))\n~(bar)\n(baz)|" "ok")
+                   "(progn\n  (foo)\n  ~(bar)\n  (baz)|)")))
 
-  (ert-deftest lispy-tab ()
-    (should (string= (lispy-with "|(defun test?  (x) x)" "i")
-                     "|(defun test? (x) x)")))
+(ert-deftest lispy-tab ()
+  (should (string= (lispy-with "|(defun test?  (x) x)" "i")
+                   "|(defun test? (x) x)")))
 
-  (defun lispy-test-normalize ()
-    (interactive)
-    (goto-char (point-min))
-    (catch 'break
-      (let ((pt (point)))
-        (while (not (buffer-modified-p))
-          (setq pt (max pt (point)))
-          (lispy-down 1)
-          (if (< (point) pt)
-              (throw 'break nil))
-          (lispy-tab)))))
+(defun lispy-test-normalize ()
+  (interactive)
+  (goto-char (point-min))
+  (catch 'break
+    (let ((pt (point)))
+      (while (not (buffer-modified-p))
+        (setq pt (max pt (point)))
+        (lispy-down 1)
+        (if (< (point) pt)
+            (throw 'break nil))
+        (lispy-tab)))))
 
-  (ert-deftest lispy-ace-subword ()
-    (should (string= (lispy-with "|foo-bar-baz~" (lispy-ace-subword 1))
-                     "~foo|-bar-baz")))
+(ert-deftest lispy-ace-subword ()
+  (should (string= (lispy-with "|foo-bar-baz~" (lispy-ace-subword 1))
+                   "~foo|-bar-baz")))
 
-  (ert-deftest lispy-flatten ()
-    (should (string= (lispy-with
-                      "(defun square (x &optional y &rest z)\n  (if y\n      (cons 200 z)\n    (* x x)))|\n(square 10 1 2 3)"
-                      "ej" (lispy-flatten nil))
-                     "(defun square (x &optional y &rest z)\n  (if y\n      (cons 200 z)\n    (* x x)))\n(if 1 (cons 200 (list 2 3)) (* 10 10))|"))
-    (should (string= (lispy-with
-                      "(defun square (x &optional y &rest z)\n  (if y\n      (cons 200 z)\n    (* x x)))|\n(square 10 1)"
-                      "ej" (lispy-flatten nil))
-                     "(defun square (x &optional y &rest z)\n  (if y\n      (cons 200 z)\n    (* x x)))\n(if 1 (cons 200 (list)) (* 10 10))|"))
-    (should (string= (lispy-with
-                      "(defun square (x &optional y &rest z)\n  (if y\n      (cons 200 z)\n    (* x x)))|\n(square 10)"
-                      "ej" (lispy-flatten nil))
-                     "(defun square (x &optional y &rest z)\n  (if y\n      (cons 200 z)\n    (* x x)))\n(if nil (cons 200 (list)) (* 10 10))|")))
+(ert-deftest lispy-flatten ()
+  (should (string= (lispy-with
+                    "(defun square (x &optional y &rest z)\n  (if y\n      (cons 200 z)\n    (* x x)))|\n(square 10 1 2 3)"
+                    "ej" (lispy-flatten nil))
+                   "(defun square (x &optional y &rest z)\n  (if y\n      (cons 200 z)\n    (* x x)))\n(if 1 (cons 200 (list 2 3)) (* 10 10))|"))
+  (should (string= (lispy-with
+                    "(defun square (x &optional y &rest z)\n  (if y\n      (cons 200 z)\n    (* x x)))|\n(square 10 1)"
+                    "ej" (lispy-flatten nil))
+                   "(defun square (x &optional y &rest z)\n  (if y\n      (cons 200 z)\n    (* x x)))\n(if 1 (cons 200 (list)) (* 10 10))|"))
+  (should (string= (lispy-with
+                    "(defun square (x &optional y &rest z)\n  (if y\n      (cons 200 z)\n    (* x x)))|\n(square 10)"
+                    "ej" (lispy-flatten nil))
+                   "(defun square (x &optional y &rest z)\n  (if y\n      (cons 200 z)\n    (* x x)))\n(if nil (cons 200 (list)) (* 10 10))|")))
 
-  (ert-deftest lispy-mark-list ()
-    (should (string= (lispy-with "|;; foo\n(bar)" (lispy-mark-list 1))
-                     "~;; foo|\n(bar)"))
-    (should (string= (lispy-with "~;; foo|\n(bar)" (lispy-mark-list 1))
-                     "|;; foo\n(bar)"))
-    (should (string= (lispy-with "~(foo bar)|" (lispy-mark-list 0))
-                     "(~foo bar|)"))
-    (should (string= (lispy-with "(progn ,@(cdr re)|)" "m")
-                     "(progn |,@(cdr re)~)"))
-    (should (string= (lispy-with "(progn ,@(cdr re)|)" "mm")
-                     "(progn ,@|(cdr re))"))
-    (should (string= (lispy-with "(progn ,@|(cdr re))" "m")
-                     "(progn ~,@(cdr re)|)"))
-    (should (string= (lispy-with "(progn ,@|(cdr re))" "mm")
-                     "(progn ,@(cdr re)|)")))
+(ert-deftest lispy-mark-list ()
+  (should (string= (lispy-with "|;; foo\n(bar)" (lispy-mark-list 1))
+                   "~;; foo|\n(bar)"))
+  (should (string= (lispy-with "~;; foo|\n(bar)" (lispy-mark-list 1))
+                   "|;; foo\n(bar)"))
+  (should (string= (lispy-with "~(foo bar)|" (lispy-mark-list 0))
+                   "(~foo bar|)"))
+  (should (string= (lispy-with "(progn ,@(cdr re)|)" "m")
+                   "(progn |,@(cdr re)~)"))
+  (should (string= (lispy-with "(progn ,@(cdr re)|)" "mm")
+                   "(progn ,@|(cdr re))"))
+  (should (string= (lispy-with "(progn ,@|(cdr re))" "m")
+                   "(progn ~,@(cdr re)|)"))
+  (should (string= (lispy-with "(progn ,@|(cdr re))" "mm")
+                   "(progn ,@(cdr re)|)")))
 
-  (ert-deftest lispy-mark-car ()
-    (should (string= (lispy-with "|\"foo\"~" "i")
-                     "\"~foo|\""))
-    (should (string= (lispy-with "~'(\n  foo)|" "i")
-                     "'(\n  ~foo|)"))
-    (should (string= (lispy-with "|'(\n  foo)~" "i")
-                     "'(\n  ~foo|)"))
-    (should (string= (lispy-with
-                      "|(add-to-list 'auto-mode-alist '(\"\\\\.cache\\\\'\" . emacs-lisp-mode))"
-                      "mi")
-                     "(~add-to-list| 'auto-mode-alist '(\"\\\\.cache\\\\'\" . emacs-lisp-mode))"))
-    (should (string= (lispy-with
-                      "|(add-to-list 'auto-mode-alist '(\"\\\\.cache\\\\'\" . emacs-lisp-mode))"
-                      "miji")
-                     "(add-to-list '~auto-mode-alist| '(\"\\\\.cache\\\\'\" . emacs-lisp-mode))")))
+(ert-deftest lispy-mark-car ()
+  (should (string= (lispy-with "|\"foo\"~" "i")
+                   "\"~foo|\""))
+  (should (string= (lispy-with "~'(\n  foo)|" "i")
+                   "'(\n  ~foo|)"))
+  (should (string= (lispy-with "|'(\n  foo)~" "i")
+                   "'(\n  ~foo|)"))
+  (should (string= (lispy-with
+                    "|(add-to-list 'auto-mode-alist '(\"\\\\.cache\\\\'\" . emacs-lisp-mode))"
+                    "mi")
+                   "(~add-to-list| 'auto-mode-alist '(\"\\\\.cache\\\\'\" . emacs-lisp-mode))"))
+  (should (string= (lispy-with
+                    "|(add-to-list 'auto-mode-alist '(\"\\\\.cache\\\\'\" . emacs-lisp-mode))"
+                    "miji")
+                   "(add-to-list '~auto-mode-alist| '(\"\\\\.cache\\\\'\" . emacs-lisp-mode))")))
 
-  (ert-deftest lispy-unbind-variable ()
-    (should (string=
-             (lispy-flet (recenter (&optional x))
-               (lispy-with "
+(ert-deftest lispy-unbind-variable ()
+  (should (string=
+           (lispy-flet (recenter (&optional x))
+             (lispy-with "
 (defun foobar ()
   (let (|(x 10)
         (y 20)
@@ -1178,8 +1178,8 @@ Insert KEY if there's no command."
     (foo4 y z x)
     (foo5 z x y)
     (foo6 z y x)))"
-                           (lispy-unbind-variable)))
-             "
+                         (lispy-unbind-variable)))
+           "
 (defun foobar ()
   (let (|(y 20)
         (z 30))
@@ -1189,9 +1189,9 @@ Insert KEY if there's no command."
     (foo4 y z 10)
     (foo5 z 10 y)
     (foo6 z y 10)))"))
-    (should (string=
-             (lispy-flet (recenter (&optional x))
-               (lispy-with "
+  (should (string=
+           (lispy-flet (recenter (&optional x))
+             (lispy-with "
 (defun foobar ()
   (let (|(x 10)
         (y 20)
@@ -1202,9 +1202,9 @@ Insert KEY if there's no command."
     (foo4 y z x)
     (foo5 z x y)
     (foo6 z y x)))"
-                           (lispy-unbind-variable)
-                           (lispy-unbind-variable)))
-             "
+                         (lispy-unbind-variable)
+                         (lispy-unbind-variable)))
+           "
 (defun foobar ()
   (let (|(z 30))
     (foo1 10 20 z)
@@ -1214,108 +1214,110 @@ Insert KEY if there's no command."
     (foo5 z 10 20)
     (foo6 z 20 10)))")))
 
-  (ert-deftest lispy-other-space ()
-    (should (string= (lispy-with "(foo (bar (baz)|))"
-                                 "o ")
-                     "(foo (bar (baz |)))")))
+(ert-deftest lispy-other-space ()
+  (should (string= (lispy-with "(foo (bar (baz)|))"
+                               "o ")
+                   "(foo (bar (baz |)))")))
 
-  (ert-deftest lispy-beginning-of-defun ()
-    (should (string= (lispy-with "(baz)\n(foo (b|ar))"
-                                 (lispy-beginning-of-defun))
-                     "(baz)\n|(foo (bar))"))
-    (should (string= (lispy-with "(baz)\n(foo |(bar))" "A")
-                     "(baz)\n|(foo (bar))"))
-    (should (string= (lispy-with "(baz)\n(foo |(bar))" "AA")
-                     "(baz)\n(foo |(bar))"))
-    (should (string= (lispy-with "(baz)\n(foo (|bar~))" "A")
-                     "(baz)\n|(foo (bar))"))
-    (should (string= (lispy-with "(baz)\n(foo (|bar~))" "AA")
-                     "(baz)\n(foo (|bar~))")))
+(ert-deftest lispy-beginning-of-defun ()
+  (should (string= (lispy-with "(baz)\n(foo (b|ar))"
+                               (lispy-beginning-of-defun))
+                   "(baz)\n|(foo (bar))"))
+  (should (string= (lispy-with "(baz)\n(foo |(bar))" "A")
+                   "(baz)\n|(foo (bar))"))
+  (should (string= (lispy-with "(baz)\n(foo |(bar))" "AA")
+                   "(baz)\n(foo |(bar))"))
+  (should (string= (lispy-with "(baz)\n(foo (|bar~))" "A")
+                   "(baz)\n|(foo (bar))"))
+  (should (string= (lispy-with "(baz)\n(foo (|bar~))" "AA")
+                   "(baz)\n(foo (|bar~))")))
 
-  (ert-deftest lispy-alt-line ()
-    (should (string= (lispy-with "(invent 'wheel|)"
-                                 (lispy-alt-line))
-                     "(invent 'wheel\n        |)"))
-    (should (string= (lispy-with "(invent 'wheel|)"
-                                 (lispy-alt-line 2))
-                     "(invent 'wheel)\n|"))
-    (should (string= (lispy-with "(invent \"wheel|\")"
-                                 (lispy-alt-line))
-                     "(invent \"wheel\"\n        |)"))
-    (should (string= (lispy-with "(progn\n  (take-out the-holy-pin)|\n  (count-to-three))"
-                                 (lispy-alt-line))
-                     "(progn\n  (take-out the-holy-pin)\n  |\n  (count-to-three))"))
-    (should (string= (lispy-with "(progn\n  (take-out the-holy-pin)\n  (count-to-three)|)"
-                                 (lispy-alt-line))
-                     "(progn\n  (take-out the-holy-pin)\n  (count-to-three)\n  |)"))
-    (should (string= (lispy-with "(progn\n  |(take-out the-holy-pin)\n  (count-to-three))"
-                                 (lispy-alt-line))
-                     "(progn\n  (take-out the-holy-pin)\n  |\n  (count-to-three))"))
-    (should (string= (lispy-with "(progn\n  (take-out |the-holy-pin)\n  (count-to-three))"
-                                 (lispy-alt-line))
-                     "(progn\n  (take-out the-holy-pin\n            |)\n  (count-to-three))"))
-    (should (string= (lispy-with "(progn\n  (take-out |the-holy-pin)\n  (count-to-three))"
-                                 (lispy-alt-line 2))
-                     "(progn\n  (take-out the-holy-pin)\n  |\n  (count-to-three))")))
+(ert-deftest lispy-alt-line ()
+  (should (string= (lispy-with "(invent 'wheel|)"
+                               (lispy-alt-line))
+                   "(invent 'wheel\n        |)"))
+  (should (string= (lispy-with "(invent 'wheel|)"
+                               (lispy-alt-line 2))
+                   "(invent 'wheel)\n|"))
+  (should (string= (lispy-with "(invent \"wheel|\")"
+                               (lispy-alt-line))
+                   "(invent \"wheel\"\n        |)"))
+  (should (string= (lispy-with "(progn\n  (take-out the-holy-pin)|\n  (count-to-three))"
+                               (lispy-alt-line))
+                   "(progn\n  (take-out the-holy-pin)\n  |\n  (count-to-three))"))
+  (should (string= (lispy-with "(progn\n  (take-out the-holy-pin)\n  (count-to-three)|)"
+                               (lispy-alt-line))
+                   "(progn\n  (take-out the-holy-pin)\n  (count-to-three)\n  |)"))
+  (should (string= (lispy-with "(progn\n  |(take-out the-holy-pin)\n  (count-to-three))"
+                               (lispy-alt-line))
+                   "(progn\n  (take-out the-holy-pin)\n  |\n  (count-to-three))"))
+  (should (string= (lispy-with "(progn\n  (take-out |the-holy-pin)\n  (count-to-three))"
+                               (lispy-alt-line))
+                   "(progn\n  (take-out the-holy-pin\n            |)\n  (count-to-three))"))
+  (should (string= (lispy-with "(progn\n  (take-out |the-holy-pin)\n  (count-to-three))"
+                               (lispy-alt-line 2))
+                   "(progn\n  (take-out the-holy-pin)\n  |\n  (count-to-three))")))
 
-  (ert-deftest lispy-outline-add ()
-    (should (string= (lispy-with "|;;* Intro" "a")
-                     ";;* Intro\n;;* |")))
+(ert-deftest lispy-outline-add ()
+  (should (string= (lispy-with "|;;* Intro" "a")
+                   ";;* Intro\n;;* |")))
 
-  (ert-deftest lispy-outline-add ()
-    (should (string= (lispy-with "(quote ~foo|)" "~")
-                     "(quote ~~foo|)"))
-    (should (string= (lispy-with "(quote ~~foo|)" "~")
-                     "(quote ~foo|)")))
+(ert-deftest lispy-outline-add ()
+  (should (string= (lispy-with "(quote ~foo|)" "~")
+                   "(quote ~~foo|)"))
+  (should (string= (lispy-with "(quote ~~foo|)" "~")
+                   "(quote ~foo|)")))
 
-  (ert-deftest lispy-space ()
-    (should (string= (lispy-with "|(foo bar)" "2 ")
-                     "(| foo bar)"))
-    (should (string= (lispy-with "(foo bar)|" "2 ")
-                     "(foo bar |)"))
-    (should (string= (lispy-with "|(foo bar)" "3 ")
-                     "(foo bar |)"))
-    (should (string= (lispy-with "(foo bar)|" "3 ")
-                     "(| foo bar)"))
-    (should (string= (lispy-with "(foo (bar)|)" " ")
-                     "(foo (bar) |)")))
+(ert-deftest lispy-space ()
+  (should (string= (lispy-with "|(foo bar)" "2 ")
+                   "(| foo bar)"))
+  (should (string= (lispy-with "(foo bar)|" "2 ")
+                   "(foo bar |)"))
+  (should (string= (lispy-with "|(foo bar)" "3 ")
+                   "(foo bar |)"))
+  (should (string= (lispy-with "(foo bar)|" "3 ")
+                   "(| foo bar)"))
+  (should (string= (lispy-with "(foo (bar)|)" " ")
+                   "(foo (bar) |)")))
 
-  (ert-deftest lispy-kill-word ()
-    (should (string= (lispy-with "|  (require 'cl)" (kbd "M-d"))
-                     "  (| 'cl)"))
-    (should (string= (lispy-with "|  \"(require 'cl)\"" (kbd "M-d"))
-                     "  \"(| 'cl)\""))
-    (should (string= (lispy-with "\"(require |'cl)\"" (kbd "M-d"))
-                     "\"(require '|)\""))
-    (should (string= (lispy-with "\"(require '|)\"" (kbd "M-d"))
-                     "\"(require ')\"|")))
+(ert-deftest lispy-kill-word ()
+  (should (string= (lispy-with "|  (require 'cl)" (kbd "M-d"))
+                   "  (| 'cl)"))
+  (should (string= (lispy-with "|  \"(require 'cl)\"" (kbd "M-d"))
+                   "  \"(| 'cl)\""))
+  (should (string= (lispy-with "\"(require |'cl)\"" (kbd "M-d"))
+                   "\"(require '|)\""))
+  (should (string= (lispy-with "\"(require '|)\"" (kbd "M-d"))
+                   "\"(require ')\"|")))
 
-  (ert-deftest lispy-backward-kill-word ()
-    (should (string= (lispy-with "(require 'cl)|" (kbd "M-DEL"))
-                     "(require '|)"))
-    (should (string= (lispy-with "(eval-after-load \"foo\")|" (kbd "M-DEL"))
-                     "(eval-after-load \"|\")"))
-    (should (string= (lispy-with "(eval-after-load \"|\")" (kbd "M-DEL"))
-                     "(eval-after-| \"\")")))
+(ert-deftest lispy-backward-kill-word ()
+  (should (string= (lispy-with "(require 'cl)|" (kbd "M-DEL"))
+                   "(require '|)"))
+  (should (string= (lispy-with "(eval-after-load \"foo\")|" (kbd "M-DEL"))
+                   "(eval-after-load \"|\")"))
+  (should (string= (lispy-with "(eval-after-load \"|\")" (kbd "M-DEL"))
+                   "(eval-after-| \"\")"))
+  (should (string= (lispy-with "\"foo bar   \"|" (kbd "M-DEL"))
+                   "\"foo |\"")))
 
-  (ert-deftest lispy-kill-sentence ()
-    (should (string= (lispy-with "(progn|\n  (foo)\n  (bar))" (kbd "M-k"))
-                     "(progn|)"))
-    (should (string= (lispy-with "(message |\"foo bar baz\")" (kbd "M-k"))
-                     "(message |)"))
-    (should (string= (lispy-with "(progn |(foo bar baz))" (kbd "M-k"))
-                     "(progn |)"))
-    (should (string= (lispy-with "(message \"Then shalt thou count to three|, no more, no less.
+(ert-deftest lispy-kill-sentence ()
+  (should (string= (lispy-with "(progn|\n  (foo)\n  (bar))" (kbd "M-k"))
+                   "(progn|)"))
+  (should (string= (lispy-with "(message |\"foo bar baz\")" (kbd "M-k"))
+                   "(message |)"))
+  (should (string= (lispy-with "(progn |(foo bar baz))" (kbd "M-k"))
+                   "(progn |)"))
+  (should (string= (lispy-with "(message \"Then shalt thou count to three|, no more, no less.
 Three shall be the number thou shalt count, and the number of the
 counting shall be three.\")" (kbd "M-k"))
-                     "(message \"Then shalt thou count to three|\")")))
+                   "(message \"Then shalt thou count to three|\")")))
 
-  (ert-deftest lispy-hash ()
-    (should (string= (lispy-with-clojure "foo|" "#")
-                     "foo #|"))
-    (should (string= (lispy-with-clojure "foo|" "##")
-                     "foo#|")))
+(ert-deftest lispy-hash ()
+  (should (string= (lispy-with-clojure "foo|" "#")
+                   "foo #|"))
+  (should (string= (lispy-with-clojure "foo|" "##")
+                   "foo#|")))
 
-  (provide 'lispy-test)
+(provide 'lispy-test)
 
 ;;; lispy-test.el ends here
