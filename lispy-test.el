@@ -1298,7 +1298,9 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "(eval-after-load \"|\")" (kbd "M-DEL"))
                    "(eval-after-| \"\")"))
   (should (string= (lispy-with "\"foo bar   \"|" (kbd "M-DEL"))
-                   "\"foo |\"")))
+                   "\"foo |\""))
+  (should (string= (lispy-with "\"\\nfoo\"|" (kbd "M-DEL"))
+                   "\"|\"")))
 
 (ert-deftest lispy-kill-sentence ()
   (should (string= (lispy-with "(progn|\n  (foo)\n  (bar))" (kbd "M-k"))
