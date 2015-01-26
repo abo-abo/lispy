@@ -2484,6 +2484,10 @@ Sexp is obtained by exiting list ARG times."
    (lambda () (or (not (lispy--in-string-or-comment-p)) (looking-back ".\"")))
    (lambda () (forward-char 1) (call-interactively 'lispy-goto-symbol))))
 
+(when (version< emacs-version "25.1")
+  (eval-after-load 'etags
+    '(add-to-list 'byte-compile-not-obsolete-vars 'find-tag-marker-ring)))
+
 (defun lispy-goto-symbol (symbol)
   "Go to definition of SYMBOL."
   (interactive (list (let ((str (thing-at-point 'symbol)))
@@ -3358,7 +3362,7 @@ If the region is active, replace instead of yanking."
     (emacs-lisp-mode)
     (show-paren-mode)
     (insert str)
-    (font-lock-fontify-buffer)
+    (font-lock-ensure)
     (let ((color-paren (face-attribute 'show-paren-match :background))
           (color-cursor-fg (face-attribute 'lispy-cursor-face :foreground))
           (color-cursor-bg (face-attribute 'lispy-cursor-face :background))
