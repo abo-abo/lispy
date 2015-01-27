@@ -2002,6 +2002,8 @@ When ARG is more than 1, pull ARGth expression to enclose current sexp."
           ((and (setq bnd (lispy--bounds-string))
                 (not (= (point) (car bnd))))
            (insert "\"\"")
+           (when (eolp)
+             (delete-char 1))
            (backward-char)
            (newline-and-indent))
           (t

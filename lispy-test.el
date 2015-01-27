@@ -754,7 +754,9 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "(defun charge! ()\n  (message \"[mayham]\")\n  |(run-away))" (kbd "M-j"))
                    "(defun charge! ()\n  (message \"[mayham]\"))\n|((run-away))"))
   (should (string= (lispy-with "(defun charge! ()\n  |(message \"[mayham]\")\n  (run-away))" (kbd "M-j"))
-                   "(defun charge! ())\n|((message \"[mayham]\")\n (run-away))")))
+                   "(defun charge! ())\n|((message \"[mayham]\")\n (run-away))"))
+  (should (string= (lispy-with "\"this|\nand that\"" (kbd "M-j"))
+                   "\"this\"\n|\"and that\"")))
 
 (ert-deftest lispy-move-up ()
   (should (string= (lispy-with "((a) (b) |(c))" "w")
