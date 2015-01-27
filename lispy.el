@@ -414,7 +414,7 @@ Use the command `%s' to change this variable."
 (defun lispy-forward (arg)
   "Move forward list ARG times or until error.
 Return t if moved at least once,
-otherwise call `lispy-right' and return nil."
+otherwise call function `lispy-right' and return nil."
   (interactive "p")
   (when (= arg 0)
     (setq arg 2000))
@@ -500,7 +500,7 @@ Self-insert otherwise."
     (lispy--out-forward arg)))
 
 (defvar lispy-pre-outline-pos 1
-  "Point position before moving to outline with `lispy-left'.")
+  "Point position before moving to outline with function `lispy-left'.")
 
 (defun lispy-left (arg)
   "Move outside list forwards ARG times.
@@ -578,6 +578,8 @@ Return nil if can't move."
 
 (defun lispy-counterclockwise ()
   "Move counterclockwise inside current list."
+  (declare
+   (obsolete "this function will be removed in 0.24.0" "0.23.0"))
   (interactive)
   (let ((pt (point)))
     (cond ((looking-at lispy-left)
@@ -594,6 +596,8 @@ Return nil if can't move."
 
 (defun lispy-clockwise ()
   "Move clockwise inside current list."
+  (declare
+   (obsolete "this function will be removed in 0.24.0" "0.23.0"))
   (interactive)
   (let ((pt (point)))
     (cond ((looking-at lispy-left)
@@ -2363,7 +2367,7 @@ Quote newlines if ARG isn't 1."
             (exchange-point-and-mark))))))
 
 (defun lispy-unstringify ()
-  "Unquote string at point"
+  "Unquote string at point."
   (interactive)
   (if (region-active-p)
       (if (lispy--string-markedp)
@@ -2610,7 +2614,7 @@ When ARG isn't nil, try to pretty print the sexp."
 (defvar lispy-eval--eval-window nil
   "Target window for `lispy-eval-other-window'.")
 (defvar lispy-eval--eval-buffer nil
-  "Target buffer for `lispy-eval-other-window'")
+  "Target buffer for `lispy-eval-other-window'.")
 (defvar lispy-eval--expr nil
   "The expression for`lispy-eval-other-window'.")
 
@@ -2747,7 +2751,7 @@ When called twice in a row, restore point and mark."
         (widen)))))
 
 (defun lispy-ace-paren ()
-  "Use `lispy--ace-do' to jump to `lispy-left' within current defun.
+  "Use `lispy--ace-do' to jump to variable `lispy-left' within current defun.
 When FUNC is not nil, call it after a successful move.
 When NO-NARROW is not nil, don't narrow."
   (interactive)
@@ -3373,7 +3377,7 @@ If the region is active, replace instead of yanking."
       (insert " "))))
 
 (defun lispy--fontify (str)
-  "Return STR fontified in `emacs-lisp-mode'"
+  "Return STR fontified in `emacs-lisp-mode'."
   (with-temp-buffer
     (emacs-lisp-mode)
     (show-paren-mode)
@@ -3654,7 +3658,7 @@ First, try to return `lispy--bounds-string'."
 
 ;;* Utilities: movement
 (defvar lispy-ignore-whitespace nil
-  "When set to t, `lispy-right' will not clean up whitespace.")
+  "When set to t, function `lispy-right' will not clean up whitespace.")
 
 (defun lispy--out-forward (arg)
   "Move outside list forwards ARG times.
