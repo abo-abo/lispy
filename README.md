@@ -304,9 +304,9 @@ some of the dedicated commands:
 Key Binding     | Description
 ----------------|-----------------------------------------------------------
 <kbd>]</kbd>    | `lispy-forward` - move to the end of the closest list, analogous to <kbd>C-M-n</kbd> (`forward-list`)
-`［`            | `lispy-backward` - move to the start of the closest list, analogous to <kbd>C-M-p</kbd> (`backward-list`)
-<kbd>C-3</kbd>  | `lispy-out-forward` - exit current list forwards, analogous to `up-list`
-<kbd>)</kbd>   | `lispy-out-forward-nostring` exit current list forwards, but self-insert in strings and comments
+`&#91;`         | `lispy-backward` - move to the start of the closest list, analogous to <kbd>C-M-p</kbd> (`backward-list`)
+<kbd>C-3</kbd>  | `lispy-right` - exit current list forwards, analogous to `up-list`
+<kbd>)</kbd>    | `lispy-right-nostring` exit current list forwards, but self-insert in strings and comments
 
 These are the few lispy commands that don't care whether the point is
 special or not. Other such bindings are <kbd>DEL</kbd>, <kbd>C-d</kbd>, <kbd>C-k</kbd>.
@@ -460,8 +460,8 @@ Use a combination of:
 
 The other two arrow keys will mark the parent list of the current region:
 
-- <kbd>h</kbd> - `lispy-out-backward` - mark the parent list with the point on the left
-- <kbd>l</kbd> - `lispy-out-forward` - mark the parent list with the point on the right
+- <kbd>h</kbd> - `lispy-left` - mark the parent list with the point on the left
+- <kbd>l</kbd> - `lispy-right` - mark the parent list with the point on the right
 
 To do the reverse of the previous operation, i.e. to mark the first
 child of marked list, use <kbd>i</kbd> - `lispy-tab`.
