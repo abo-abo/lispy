@@ -98,7 +98,7 @@ It that case, move as many times as possible.
 
 <p>
 Return <code>t</code> if could move at least once, otherwise
-call <a href="#lispy-out-forward"><code>lispy-out-forward</code></a> and return <code>nil</code>.
+call <a href="#lispy-right"><code>lispy-right</code></a> and return <code>nil</code>.
 </p>
 
 <p>
@@ -132,7 +132,7 @@ It that case, move as many times as possible.
 
 <p>
 Return <code>t</code> if could move at least once, otherwise
-call <code>lispy-out-backward</code> and return <code>nil</code>.
+call <code>lispy-left</code> and return <code>nil</code>.
 </p>
 
 <p>
@@ -141,9 +141,9 @@ Unlike <code>backward-list</code>, parens in strings and comments are ignored.
 <hr  />
 </div>
 </div>
-<div id="outline-container-lispy-out-forward" class="outline-3">
-<h3 id="lispy-out-forward"><a id="sec-1-3"></a><code>lispy-out-forward</code></h3>
-<div class="outline-text-3" id="text-lispy-out-forward">
+<div id="outline-container-lispy-right" class="outline-3">
+<h3 id="lispy-right"><a id="sec-1-3"></a><code>lispy-right</code></h3>
+<div class="outline-text-3" id="text-lispy-right">
 <p>
 Bound to <kbd>C-3</kbd>.
 </p>
@@ -182,7 +182,7 @@ Bound to <kbd>)</kbd>.
 </p>
 
 <p>
-Works the same ways as <a href="#lispy-out-forward"><code>lispy-out-forward</code></a>, except self-inserts in
+Works the same ways as <a href="#lispy-right"><code>lispy-right</code></a>, except self-inserts in
 strings and comments.
 </p>
 
@@ -235,9 +235,9 @@ When you want to insert a single character from the pair, use <kbd>C-q</kbd>.
 <hr  />
 </div>
 </div>
-<div id="outline-container-lispy-out-backward" class="outline-3">
-<h3 id="lispy-out-backward"><a id="sec-1-5"></a><code>lispy-out-backward</code></h3>
-<div class="outline-text-3" id="text-lispy-out-backward">
+<div id="outline-container-lispy-left" class="outline-3">
+<h3 id="lispy-left"><a id="sec-1-5"></a><code>lispy-left</code></h3>
+<div class="outline-text-3" id="text-lispy-left">
 <p>
 Bound to <kbd>a</kbd>.
 </p>
@@ -245,7 +245,7 @@ Bound to <kbd>a</kbd>.
 
 <p>
 Takes a numeric prefix <code>arg</code> and moves up backward list <code>arg</code> times or
-until error. This is a combination of <code>arg</code> times <a href="#lispy-out-forward"><code>lispy-out-forward</code></a> and once
+until error. This is a combination of <code>arg</code> times <a href="#lispy-right"><code>lispy-right</code></a> and once
 <a href="#lispy-different"><code>lispy-different</code></a>.
 </p>
 

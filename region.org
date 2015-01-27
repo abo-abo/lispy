@@ -45,9 +45,9 @@ To extend the region, use a combination of
   Deactivate region and undo.
 - `lispy-mark-list` "m"
   Deactivate region.
-- `lispy-out-forward` "l"
+- `lispy-right` "l"
   Move region out of current sexp forwards.
-- `lispy-out-backward` "a"
+- `lispy-left` "a"
   Move region out of current sexp backwards.
 - `lispy-teleport` "t"
   Move region inside the sexp you select with `lispy-ace-paren`.
@@ -115,7 +115,7 @@ to move =arg= times.
 It that case, move as many times as possible.
 
 Return =t= if could move at least once, otherwise
-call [[#lispy-out-forward][=lispy-out-forward=]] and return =nil=.
+call [[#lispy-right][=lispy-right=]] and return =nil=.
 
 Unlike =forward-list=, parens in strings and comments are ignored.
 -----
@@ -136,14 +136,14 @@ to move =arg= times.
 It that case, move as many times as possible.
 
 Return =t= if could move at least once, otherwise
-call =lispy-out-backward= and return =nil=.
+call =lispy-left= and return =nil=.
 
 Unlike =backward-list=, parens in strings and comments are ignored.
 -----
 
-** =lispy-out-forward=
+** =lispy-right=
 :PROPERTIES:
-:CUSTOM_ID: lispy-out-forward
+:CUSTOM_ID: lispy-right
 :END:
 
 Bound to ~C-3~.
@@ -170,7 +170,7 @@ Unlike =up-list=, parens in strings and comments are ignored.
 
 Bound to ~)~.
 
-Works the same ways as [[#lispy-out-forward][=lispy-out-forward=]], except self-inserts in
+Works the same ways as [[#lispy-right][=lispy-right=]], except self-inserts in
 strings and comments.
 
 Self-inserting in strings and comments makes parens different from the
@@ -185,16 +185,16 @@ other pair functions that always insert the whole pair:
 When you want to insert a single character from the pair, use ~C-q~.
 -----
 
-** =lispy-out-backward=
+** =lispy-left=
 :PROPERTIES:
-:CUSTOM_ID: lispy-out-backward
+:CUSTOM_ID: lispy-left
 :END:
 
 Bound to ~a~.
 
 
 Takes a numeric prefix =arg= and moves up backward list =arg= times or
-until error. This is a combination of =arg= times [[#lispy-out-forward][=lispy-out-forward=]] and once
+until error. This is a combination of =arg= times [[#lispy-right][=lispy-right=]] and once
 [[#lispy-different][=lispy-different=]].
 
 When the region is active, the region will be moved up backward =arg=

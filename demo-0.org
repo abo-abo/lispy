@@ -17,10 +17,10 @@ Otherwise these keys self-insert
 *** Basic navigation
 | key | command              |
 |-----+----------------------|
-| h   | `lispy-out-backward' |
+| h   | `lispy-left' |
 | j   | `lispy-down'         |
 | k   | `lispy-up'           |
-| l   | `lispy-out-forward'  |
+| l   | `lispy-right'  |
 |-----+----------------------|
 | d   | `lispy-different'    |
 | f   | `lispy-flow'         |
@@ -41,7 +41,7 @@ Otherwise these keys self-insert
 | RET   | `lispy-newline-and-indent-plain' |
 | C-e   | `lispy-move-end-of-line'         |
 |-------+----------------------------------|
-| C-3   | `lispy-out-forward'              |
+| C-3   | `lispy-right'              |
 |-------+----------------------------------|
 | C-7   | `lispy-cursor-down'              |
 |-------+----------------------------------|

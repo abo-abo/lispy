@@ -121,7 +121,7 @@
 | M-o   | [[#lispy-string-oneline][lispy-string-oneline]]   |
 | C-1   | [[#lispy-describe-inline][lispy-describe-inline]]  |
 | C-2   | [[#lispy-arglist-inline][lispy-arglist-inline]]   |
-| C-3   | [[#lispy-out-forward][lispy-out-forward]]      |
+| C-3   | [[#lispy-right][lispy-right]]            |
 | C-4   | [[#lispy-x][lispy-x]]                |
 | C-8   | [[#lispy-parens-down][lispy-parens-down]]      |
 | M-.   | [[#lispy-goto-symbol][lispy-goto-symbol]]      |
