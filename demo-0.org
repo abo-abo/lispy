@@ -32,7 +32,7 @@ Otherwise these keys self-insert
 |-------+----------------------------------|
 | [     | `lispy-backward'                 |
 | ]     | `lispy-forward'                  |
-| )     | `lispy-out-forward-nostring'     |
+| )     | `lispy-right-nostring'     |
 | C-k   | `lispy-kill'                     |
 | C-y   | `lispy-yank'                     |
 | C-d   | `lispy-delete'                   |

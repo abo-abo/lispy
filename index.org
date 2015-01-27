@@ -100,36 +100,33 @@
 :PROPERTIES:
 :CUSTOM_ID: global-bindings
 :END:
-| key   | function name              |
-|-------+----------------------------|
-| ]     | [[#lispy-forward][lispy-forward]]              |
-| [     | [[#lispy-backward][lispy-backward]]             |
-| (     | [[#lispy-parens][lispy-parens]]               |
-| {     | [[#lispy-braces][lispy-braces]]               |
-| }     | [[#lispy-brackets][lispy-brackets]]             |
-| "     | [[#lispy-quotes][lispy-quotes]]               |
-| )     | [[#lispy-out-forward-nostring][lispy-out-forward-nostring]] |
-| ;     | [[#lispy-comment][lispy-comment]]              |
-| DEL   | [[#lispy-delete-backward][lispy-delete-backward]]      |
-| C-d   | [[#lispy-delete][lispy-delete]]               |
-| C-k   | [[#lispy-kill][lispy-kill]]                 |
-| C-y   | [[#lispy-yank][lispy-yank]]                 |
-| C-e   | [[#lispy-move-end-of-line][lispy-move-end-of-line]]     |
-| C-,   | [[#lispy-kill-at-point][lispy-kill-at-point]]        |
-| C-M-, | [[#lispy-mark][lispy-mark]]                 |
-| C-1   | [[#lispy-describe-inline][lispy-describe-inline]]      |
-| C-2   | [[#lispy-arglist-inline][lispy-arglist-inline]]       |
-| C-3   | [[#lispy-right][lispy-right]]                |
-| C-4   | [[#lispy-x][lispy-x]]                    |
-| C-8   | [[#lispy-parens-down][lispy-parens-down]]          |
-| M-o   | [[#lispy-string-oneline][lispy-string-oneline]]       |
-| M-m   | [[#lispy-mark-symbol][lispy-mark-symbol]]          |
-| M-d   | [[#lispy-kill-word][lispy-kill-word]]            |
-| M-DEL | [[#lispy-backward-kill-word][lispy-backward-kill-word]]   |
-| M-k   | [[#lispy-kill-sentence][lispy-kill-sentence]]        |
-| M-.   | [[#lispy-goto-symbol][lispy-goto-symbol]]          |
-| M-,   | [[#pop-tag-mark][pop-tag-mark]]               |
-|-------+----------------------------|
+| key   | function name          |
+|-------+------------------------|
+| ]     | [[#lispy-forward][lispy-forward]]          |
+| [     | [[#lispy-backward][lispy-backward]]         |
+| (     | [[#lispy-parens][lispy-parens]]           |
+| {     | [[#lispy-braces][lispy-braces]]           |
+| }     | [[#lispy-brackets][lispy-brackets]]         |
+| "     | [[#lispy-quotes][lispy-quotes]]           |
+| )     | [[#lispy-right-nostring][lispy-right-nostring]]   |
+| ;     | [[#lispy-comment][lispy-comment]]          |
+| DEL   | [[#lispy-delete-backward][lispy-delete-backward]]  |
+| C-d   | [[#lispy-delete][lispy-delete]]           |
+| C-k   | [[#lispy-kill][lispy-kill]]             |
+| C-y   | [[#lispy-yank][lispy-yank]]             |
+| C-e   | [[#lispy-move-end-of-line][lispy-move-end-of-line]] |
+| C-,   | [[#lispy-kill-at-point][lispy-kill-at-point]]    |
+| C-M-, | [[#lispy-mark][lispy-mark]]             |
+| M-m   | [[#lispy-mark-symbol][lispy-mark-symbol]]      |
+| M-o   | [[#lispy-string-oneline][lispy-string-oneline]]   |
+| C-1   | [[#lispy-describe-inline][lispy-describe-inline]]  |
+| C-2   | [[#lispy-arglist-inline][lispy-arglist-inline]]   |
+| C-3   | [[#lispy-out-forward][lispy-out-forward]]      |
+| C-4   | [[#lispy-x][lispy-x]]                |
+| C-8   | [[#lispy-parens-down][lispy-parens-down]]      |
+| M-.   | [[#lispy-goto-symbol][lispy-goto-symbol]]      |
+| M-,   | [[#pop-tag-mark][pop-tag-mark]]           |
+|-------+------------------------|
 * [[#global-bindings][G]] [[#a-z][az]] [[#A-Z][AZ]] [[#x-bindings][x]] [a-z] local bindings
 :PROPERTIES:
 :CUSTOM_ID: a-z
@@ -285,9 +282,9 @@ do nothing and return =nil=.
 Unlike =up-list=, parens in strings and comments are ignored.
 -----
 
-** =lispy-out-forward-nostring=
+** =lispy-right-nostring=
 :PROPERTIES:
-:CUSTOM_ID: lispy-out-forward-nostring
+:CUSTOM_ID: lispy-right-nostring
 :END:
 
 Bound to ~)~.

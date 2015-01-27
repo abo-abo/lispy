@@ -163,9 +163,9 @@ do nothing and return =nil=.
 Unlike =up-list=, parens in strings and comments are ignored.
 -----
 
-** =lispy-out-forward-nostring=
+** =lispy-right-nostring=
 :PROPERTIES:
-:CUSTOM_ID: lispy-out-forward-nostring
+:CUSTOM_ID: lispy-right-nostring
 :END:
 
 Bound to ~)~.
