@@ -250,7 +250,7 @@ The hint will consist of the possible nouns that apply to the verb."
 
 ;;;###autoload
 (define-minor-mode lispy-mode
-    "Minor mode for navigating and editing LISP dialects.
+  "Minor mode for navigating and editing LISP dialects.
 
 When `lispy-mode' is on, most unprefixed keys,
 i.e. [a-zA-Z+-./<>], conditionally call commands instead of
@@ -4865,7 +4865,10 @@ MODE is the major mode for indenting EXPR."
           (quote
            (delete-region beg (point))
            (insert "'")
-           (prin1 (caddr sxp) (current-buffer))
+           (let ((it (caddr sxp)))
+             (if it
+                 (prin1 it (current-buffer))
+               (insert "()")))
            (goto-char beg))
           (empty
            (delete-region beg (point))
