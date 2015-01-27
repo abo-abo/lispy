@@ -4,7 +4,7 @@
 
 ;; Author: Oleh Krehel <ohwoeowho@gmail.com>
 ;; URL: https://github.com/abo-abo/lispy
-;; Version: 0.21.0
+;; Version: 0.22.0
 ;; Keywords: lisp
 
 ;; This file is not part of GNU Emacs
@@ -482,13 +482,6 @@ Return nil on failure, t otherwise."
            (lispy--ensure-visible)))
         (t
          (lispy--out-forward arg))))
-
-(define-obsolete-function-alias 'lispy-out-forward
-    'lispy-right "0.21.0")
-(define-obsolete-function-alias 'lispy-out-backward
-    'lispy-left "0.21.0")
-(define-obsolete-function-alias 'lispy-out-forward-nostring
-    'lispy-right-nostring "0.21.0")
 
 (defun lispy-right-nostring (arg)
   "Call `lispy--out-forward' with ARG unless in string or comment.

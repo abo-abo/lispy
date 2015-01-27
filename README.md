@@ -304,7 +304,7 @@ some of the dedicated commands:
 Key Binding     | Description
 ----------------|-----------------------------------------------------------
 <kbd>]</kbd>    | `lispy-forward` - move to the end of the closest list, analogous to <kbd>C-M-n</kbd> (`forward-list`)
-`&#91;`         | `lispy-backward` - move to the start of the closest list, analogous to <kbd>C-M-p</kbd> (`backward-list`)
+<kbd>&#91;</kbd>| `lispy-backward` - move to the start of the closest list, analogous to <kbd>C-M-p</kbd> (`backward-list`)
 <kbd>C-3</kbd>  | `lispy-right` - exit current list forwards, analogous to `up-list`
 <kbd>)</kbd>    | `lispy-right-nostring` exit current list forwards, but self-insert in strings and comments
 
