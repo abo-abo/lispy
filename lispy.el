@@ -286,9 +286,9 @@ backward through lists, which is useful to move into special.
 (defun lispy-raise-minor-mode (mode)
   "Make MODE the first on `minor-mode-map-alist'."
   (let ((x (assq mode minor-mode-map-alist)))
-      (when x
-        (setq minor-mode-map-alist
-              (cons x (delq mode minor-mode-map-alist))))))
+    (when x
+      (setq minor-mode-map-alist
+            (cons x (delq mode minor-mode-map-alist))))))
 
 ;;* Macros
 (defmacro lispy-dotimes (n &rest bodyform)
@@ -755,39 +755,39 @@ Return nil if can't move."
   (interactive)
   (let (bnd)
     (cond ((lispy--in-comment-p)
-          (kill-line))
+           (kill-line))
 
-         ((setq bnd (lispy--bounds-string))
-          (cond ((eq (point) (car bnd))
-                 (delete-region (car bnd) (cdr bnd)))
+          ((setq bnd (lispy--bounds-string))
+           (cond ((eq (point) (car bnd))
+                  (delete-region (car bnd) (cdr bnd)))
 
-                ((> (cdr bnd) (line-end-position))
-                 (kill-line))
+                 ((> (cdr bnd) (line-end-position))
+                  (kill-line))
 
-                (t
-                 (delete-region (point) (1- (cdr bnd))))))
-         ((looking-at " *\n")
-          (delete-region
-           (match-beginning 0)
-           (match-end 0))
-          (lispy--indent-for-tab))
-         ((and (looking-at lispy-right) (looking-back lispy-left))
-          (delete-char 1)
-          (backward-delete-char 1))
-         (t
-          (let ((beg (point))
-                (end (line-end-position)))
-            (if (= (count-matches lispy-left beg end)
-                   (count-matches lispy-right beg end))
-                (kill-line)
-              (if (let ((lispy-ignore-whitespace t))
-                    (lispy--out-forward 1))
-                  (progn
-                    (backward-char 1)
-                    (if (= beg (point))
-                        (lispy--out-backward 1)
-                      (kill-region beg (point))))
-                (kill-region beg (point)))))))))
+                 (t
+                  (delete-region (point) (1- (cdr bnd))))))
+          ((looking-at " *\n")
+           (delete-region
+            (match-beginning 0)
+            (match-end 0))
+           (lispy--indent-for-tab))
+          ((and (looking-at lispy-right) (looking-back lispy-left))
+           (delete-char 1)
+           (backward-delete-char 1))
+          (t
+           (let ((beg (point))
+                 (end (line-end-position)))
+             (if (= (count-matches lispy-left beg end)
+                    (count-matches lispy-right beg end))
+                 (kill-line)
+               (if (let ((lispy-ignore-whitespace t))
+                     (lispy--out-forward 1))
+                   (progn
+                     (backward-char 1)
+                     (if (= beg (point))
+                         (lispy--out-backward 1)
+                       (kill-region beg (point))))
+                 (kill-region beg (point)))))))))
 
 (defun lispy-kill-word (arg)
   "Kill ARG words, keeping parens consistent."
@@ -1255,26 +1255,26 @@ otherwise the whole string is unquoted."
            (if arg
                (lispy-unstringify)
              (lispy-stringify)))
-         ((and (setq bnd (lispy--bounds-string))
-               (not (= (point) (car bnd))))
-          (if arg
-              (lispy-unstringify)
-            (insert "\\\"\\\"")
-            (backward-char 2)))
+          ((and (setq bnd (lispy--bounds-string))
+                (not (= (point) (car bnd))))
+           (if arg
+               (lispy-unstringify)
+             (insert "\\\"\\\"")
+             (backward-char 2)))
 
-         (arg
-          (lispy-stringify))
+          (arg
+           (lispy-stringify))
 
-         ((looking-back "?\\\\")
-          (self-insert-command 1))
+          ((looking-back "?\\\\")
+           (self-insert-command 1))
 
-         (t
-          (lispy--space-unless "^\\|\\s-\\|\\s(\\|[#]")
-          (insert "\"\"")
-          (unless (looking-at "\n\\|)\\|}\\|\\]\\|$")
-            (just-one-space)
-            (backward-char 1))
-          (backward-char)))))
+          (t
+           (lispy--space-unless "^\\|\\s-\\|\\s(\\|[#]")
+           (insert "\"\"")
+           (unless (looking-at "\n\\|)\\|}\\|\\]\\|$")
+             (just-one-space)
+             (backward-char 1))
+           (backward-char)))))
 
 (defun lispy-parens-down ()
   "Exit the current sexp, and start a new sexp below."
@@ -4249,7 +4249,10 @@ Ignore the matches in strings and comments."
                 ;; ——— newlines ———————————————
                 (lispy--replace-regexp-in-code "\n" " (ly-raw newline)")
                 ;; ——— () —————————————————————
-                (lispy--replace-regexp-in-code "()" "(ly-raw empty)")
+                (goto-char (point-min))
+                (while (re-search-forward "[^\\]\\(()\\)" nil t)
+                  (unless (lispy--in-string-or-comment-p)
+                    (replace-match "(ly-raw empty)" nil nil nil 1)))
                 ;; ——— ? char syntax ——————————
                 (goto-char (point-min))
                 (while (re-search-forward "\\(?:\\s-\\|\\s(\\)\\?" nil t)

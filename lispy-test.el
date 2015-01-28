@@ -1104,7 +1104,9 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "|(defun test?  (x) x)" "i")
                    "|(defun test? (x) x)"))
   (should (string= (lispy-with "|(setq x '(\n          \n          ))" "i")
-                   "|(setq x '())")))
+                   "|(setq x '())"))
+  (should (string= (lispy-with "|(eq (char-before) ?\\()" "i")
+                   "|(eq (char-before) ?\\()")))
 
 (defun lispy-test-normalize ()
   (interactive)
