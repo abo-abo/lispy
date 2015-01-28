@@ -226,23 +226,23 @@ The hint will consist of the possible nouns that apply to the verb."
   :group 'lispy)
 
 (defface lispy-command-name-face
-    '((t (:inherit font-lock-function-name-face)))
+  '((t (:inherit font-lock-function-name-face)))
   "Face for Elisp commands."
   :group 'lispy-faces)
 
 (defface lispy-test-face
-    '((t (:background "#f8f2ac")))
+  '((t (:background "#f8f2ac")))
   "Face for `lispy-view-test'."
   :group 'lispy-faces)
 
 (defface lispy-cursor-face
-    '((t
-       (:background "#000000" :foreground "#ffffff")))
+  '((t
+     (:background "#000000" :foreground "#ffffff")))
   "Face for `lispy-view-test'."
   :group 'lispy-faces)
 
 (defface lispy-occur-face
-    '((t (:background "#CECEFF")))
+  '((t (:background "#CECEFF")))
   "Face for `lispy-occur' matches."
   :group 'lispy-faces)
 
@@ -821,7 +821,10 @@ Return nil if can't move."
       (if (setq bnd (lispy--bounds-string))
           (progn
             (save-restriction
-              (narrow-to-region (1+ (car bnd)) (1- (cdr bnd)))
+              (when (and (looking-at "\\s-+\"")
+                         (eq (match-end 0) (cdr bnd)))
+                (goto-char (1- (cdr bnd))))
+              (narrow-to-region (1+ (car bnd)) (point))
               (kill-region (progn
                              (forward-word -1)
                              (when (and (not (looking-back "\\\\\\\\"))
