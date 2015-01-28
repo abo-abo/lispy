@@ -812,7 +812,8 @@ Return nil if can't move."
 (defun lispy-backward-kill-word (arg)
   "Kill ARG words backward, keeping parens consistent."
   (interactive "p")
-  (let (bnd)
+  (let (bnd
+        (pt (point)))
     (lispy-dotimes arg
       (while (not (or (bobp)
                       (memq (char-syntax (char-before))
@@ -821,9 +822,13 @@ Return nil if can't move."
       (if (setq bnd (lispy--bounds-string))
           (progn
             (save-restriction
-              (when (and (looking-at "\\s-+\"")
-                         (eq (match-end 0) (cdr bnd)))
-                (goto-char (1- (cdr bnd))))
+              (if (and (looking-at "\\s-+\"")
+                       (eq (match-end 0) (cdr bnd)))
+                  (goto-char (1- (cdr bnd)))
+                (when (save-excursion
+                        (goto-char pt)
+                        (lispy--in-string-p))
+                  (goto-char pt)))
               (narrow-to-region (1+ (car bnd)) (point))
               (kill-region (progn
                              (forward-word -1)

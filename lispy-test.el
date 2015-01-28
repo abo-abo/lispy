@@ -1308,7 +1308,11 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "\"\\nfoo\"|" (kbd "M-DEL"))
                    "\"|\""))
   (should (string= (lispy-with "\"Five is right| out\"" (kbd "M-DEL"))
-                   "\"Five is | out\"")))
+                   "\"Five is | out\""))
+  (should (string= (lispy-with "\"Five is right| out\""
+                               (kbd "M-DEL")
+                               (kbd "M-DEL"))
+                   "\"Five | out\"")))
 
 (ert-deftest lispy-kill-sentence ()
   (should (string= (lispy-with "(progn|\n  (foo)\n  (bar))" (kbd "M-k"))
