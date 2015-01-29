@@ -792,21 +792,17 @@ Return nil if can't move."
 (defun lispy-kill-word (arg)
   "Kill ARG words, keeping parens consistent."
   (interactive "p")
-  (let (bnd out)
+  (let (bnd)
     (lispy-dotimes arg
       (while (not (or (eobp)
                       (memq (char-syntax (char-after))
                             '(?w ?_))))
         (forward-char 1))
       (if (setq bnd (lispy--bounds-string))
-          (progn
-            (save-restriction
-              (narrow-to-region (1+ (car bnd)) (1- (cdr bnd)))
-              (kill-word 1)
-              (setq out (eobp))
-              (widen))
-            (when out
-              (goto-char (1+ (cdr (lispy--bounds-string))))))
+          (save-restriction
+            (narrow-to-region (1+ (car bnd)) (1- (cdr bnd)))
+            (kill-word 1)
+            (widen))
         (kill-word 1)))))
 
 (defun lispy-backward-kill-word (arg)
