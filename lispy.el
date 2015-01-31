@@ -3416,7 +3416,15 @@ If already there, return it to previous position."
          (narrow-to-region (point)
                            (save-excursion
                              (lispy-backward arg)
-                             (point))))))
+                             (point))))
+        ((looking-at lispy-outline)
+         (save-excursion
+           (outline-back-to-heading)
+           (narrow-to-region
+            (point)
+            (progn
+              (outline-next-heading)
+              (1- (point))))))))
 
 (defun lispy-widen ()
   "Forward to `widen'."
