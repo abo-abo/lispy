@@ -493,9 +493,6 @@ Self-insert otherwise."
       (self-insert-command arg)
     (lispy--out-forward arg)))
 
-(defvar lispy-pre-outline-pos 1
-  "Point position before moving to outline with function `lispy-left'.")
-
 (defun lispy-left (arg)
   "Move outside list forwards ARG times.
 Return nil on failure, t otherwise."
@@ -506,11 +503,7 @@ Return nil on failure, t otherwise."
          (goto-char lispy-pre-outline-pos)
          (lispy--ensure-visible))
         (t
-         (let ((pt (point)))
-           (lispy--out-backward arg)
-           (when (= pt (point))
-             (setq lispy-pre-outline-pos (point))
-             (lispy-outline-prev 1))))))
+         (lispy--out-backward arg))))
 
 (defun lispy-out-forward-newline (arg)
   "Call `lispy--out-forward', then ARG times `newline-and-indent'."
@@ -2875,9 +2868,14 @@ Sexp is obtained by exiting list ARG times."
         (goto-char pt)
         (error "Past last outline")))))
 
+(defvar lispy-pre-outline-pos 1
+  "Point position before moving to outline with `lispy-outline-prev'.")
+
 (defun lispy-outline-prev (arg)
   "Call `outline-previous-visible-heading' ARG times."
   (interactive "p")
+  (unless (looking-at lispy-outline)
+    (setq lispy-pre-outline-pos (point)))
   (lispy-dotimes arg
     (let ((pt (point)))
       (outline-previous-visible-heading 1)
