@@ -2905,6 +2905,22 @@ Sexp is obtained by exiting list ARG times."
       (goto-char (match-end 0))
       (insert "*"))))
 
+(defun lispy-outline-left ()
+  "Demote current outline level by one."
+  (interactive)
+  (save-excursion
+    (beginning-of-line)
+    (when (looking-at lispy-outline)
+      (if (<= (- (match-end 0)
+                 (match-beginning 0))
+              3)
+          (progn
+            (setq this-command 'lispy-outline-left)
+            (lispy-complain "Can't demote outline"))
+        (goto-char (match-end 0))
+        (delete-char -1))
+      t)))
+
 (defun lispy-tab ()
   "Indent code and hide/show outlines.
 When region is active, call `lispy-mark-car'."
@@ -5471,6 +5487,8 @@ FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)"
   (lispy-define-key map "J" 'lispy-outline-next)
   (lispy-define-key map "K" 'lispy-outline-prev)
   (lispy-define-key map "L" 'lispy-outline-right)
+  (lispy-define-key map "H" 'lispy-ace-symbol-replace
+    :override #'lispy-outline-left)
   ;; ——— locals: Paredit transformations ——————
   (lispy-define-key map ">" 'lispy-slurp)
   (lispy-define-key map "<" 'lispy-barf)
@@ -5488,7 +5506,6 @@ FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)"
   ;; ——— locals: marking —————————————————————
   (lispy-define-key map "a" 'lispy-ace-symbol
     :override #'lispy-outline-add)
-  (lispy-define-key map "H" 'lispy-ace-symbol-replace)
   (lispy-define-key map "m" 'lispy-mark-list)
   ;; ——— locals: dialect-specific —————————————
   (lispy-define-key map "e" 'lispy-eval)
