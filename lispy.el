@@ -2896,6 +2896,15 @@ Sexp is obtained by exiting list ARG times."
     (lispy-meta-return)
     t))
 
+(defun lispy-outline-right ()
+  "Promote current outline level by one."
+  (interactive)
+  (save-excursion
+    (beginning-of-line)
+    (when (looking-at lispy-outline)
+      (goto-char (match-end 0))
+      (insert "*"))))
+
 (defun lispy-tab ()
   "Indent code and hide/show outlines.
 When region is active, call `lispy-mark-car'."
@@ -5456,10 +5465,12 @@ FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)"
   (lispy-define-key map "o" 'lispy-other-mode)
   (lispy-define-key map "p" 'lispy-eval-other-window)
   (lispy-define-key map "P" 'lispy-paste)
-  (lispy-define-key map "J" 'lispy-outline-next)
-  (lispy-define-key map "K" 'lispy-outline-prev)
   (lispy-define-key map "y" 'lispy-occur)
   (lispy-define-key map "z" 'lispy-knight/body)
+  ;; ——— locals: outline ——————————————————————
+  (lispy-define-key map "J" 'lispy-outline-next)
+  (lispy-define-key map "K" 'lispy-outline-prev)
+  (lispy-define-key map "L" 'lispy-outline-right)
   ;; ——— locals: Paredit transformations ——————
   (lispy-define-key map ">" 'lispy-slurp)
   (lispy-define-key map "<" 'lispy-barf)
