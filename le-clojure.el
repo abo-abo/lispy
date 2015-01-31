@@ -172,6 +172,22 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
                    methods))))"
      sym))))
 
+(defun lispy--clojure-jump (symbol)
+  "Jump to Clojure SYMBOL."
+  (let* ((dict (nrepl-send-sync-request
+                (list
+                 "op" "info"
+                 "session" (nrepl-current-session)
+                 "ns" (cider-current-ns)
+                 "symbol" symbol)))
+         (file (nrepl-dict-get dict "file"))
+         (line (nrepl-dict-get dict "line"))
+         (col (nrepl-dict-get dict "column")))
+    (find-file file)
+    (goto-char (point-min))
+    (forward-line (1- line))
+    (forward-char (1- col))))
+
 (provide 'le-clojure)
 
 ;;; le-clojure.el ends here
