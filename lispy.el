@@ -152,6 +152,7 @@
 (require 'package)
 (require 'highlight)
 (require 'helm)
+(require 'hydra)
 
 ;;** Declares
 (declare-function cider--jump-to-loc-from-info "ext:cider")
@@ -735,6 +736,48 @@ Return nil if can't move."
            (lispy-backward 1)
            (lispy-forward 1))))
   (lispy--ensure-visible))
+
+(defun lispy-knight-down ()
+  "Make a knight-like move: down and right."
+  (interactive)
+  (cond ((looking-back lispy-right)
+         (lispy-different))
+        ((looking-at lispy-left))
+        (t (lispy-backward 1)))
+  (let ((pt (point))
+        (bnd (save-excursion
+               (lispy-beginning-of-defun)
+               (lispy--bounds-list))))
+    (catch 'done
+      (while t
+        (forward-line)
+        (cond ((>= (point) (cdr bnd))
+               (goto-char pt)
+               (throw 'done nil))
+              ((looking-at (concat " *" lispy-left))
+               (goto-char (1- (match-end 0)))
+               (throw 'done t)))))))
+
+(defun lispy-knight-up ()
+  "Make a knight-like move: up and right."
+  (interactive)
+  (cond ((looking-back lispy-right)
+         (lispy-different))
+        ((looking-at lispy-left))
+        (t (lispy-backward 1)))
+  (let ((pt (point))
+        (bnd (save-excursion
+               (lispy-beginning-of-defun)
+               (lispy--bounds-list))))
+    (catch 'done
+      (while t
+        (beginning-of-line 0)
+        (cond ((< (point) (car bnd))
+               (goto-char pt)
+               (throw 'done nil))
+              ((looking-at (concat " *" lispy-left))
+               (goto-char (1- (match-end 0)))
+               (throw 'done t)))))))
 
 (defun lispy-different ()
   "Switch to the different side of current sexp."
@@ -5342,6 +5385,12 @@ FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)"
   ("f" lispy-flatten)
   ("a" lispy-teleport)))
 
+(defhydra lispy-knight ()
+  "knight"
+  ("j" lispy-knight-down)
+  ("k" lispy-knight-up)
+  ("z"))
+
 (let ((map lispy-mode-map))
   ;; ——— globals: navigation ——————————————————
   (define-key map (kbd "]") 'lispy-forward)
@@ -5410,6 +5459,7 @@ FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)"
   (lispy-define-key map "J" 'lispy-outline-next)
   (lispy-define-key map "K" 'lispy-outline-prev)
   (lispy-define-key map "y" 'lispy-occur)
+  (lispy-define-key map "z" 'lispy-knight/body)
   ;; ——— locals: Paredit transformations ——————
   (lispy-define-key map ">" 'lispy-slurp)
   (lispy-define-key map "<" 'lispy-barf)

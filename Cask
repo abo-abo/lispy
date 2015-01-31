@@ -15,4 +15,5 @@
  (depends-on "geiser")
  (depends-on "projectile")
  (depends-on "s")
- (depends-on "highlight"))
+ (depends-on "highlight")
+ (depends-on "hydra"))

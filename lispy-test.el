@@ -1352,6 +1352,16 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "(mapc #'|say-ni\n      knights)" (kbd "C-j"))
                    "(mapc\n #'|say-ni\n knights)")))
 
+(ert-deftest lispy-knight-down ()
+  (should (string= (lispy-with "|(defun foo ()\n  (bar)\n  (baz))"
+                               (lispy-knight-down))
+                   "(defun foo ()\n  |(bar)\n  (baz))")))
+
+(ert-deftest lispy-knight-up ()
+  (should (string= (lispy-with "(defun foo ()\n  |(bar)\n  (baz))"
+                               (lispy-knight-up))
+                   "|(defun foo ()\n  (bar)\n  (baz))")))
+
 (provide 'lispy-test)
 
 ;;; lispy-test.el ends here
