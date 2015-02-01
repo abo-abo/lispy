@@ -1497,9 +1497,7 @@ When region is active, toggle a ~ at the start of the region."
              (newline)
              (backward-char 1)))))
   (insert ";;"
-          (make-string (save-excursion
-                         (or (lispy-outline-level)
-                             1))
+          (make-string (max (lispy-outline-level) 1)
                        ?\*)
           " "))
 
@@ -2855,10 +2853,12 @@ Sexp is obtained by exiting list ARG times."
 ;;* Locals: outline
 (defun lispy-outline-level ()
   "Compute the outline level of the heading at point."
-  (end-of-line)
-  (if (re-search-backward lispy-outline nil t)
-      (- (match-end 0) (match-beginning 0) 2)
-    0))
+  (save-excursion
+    (save-match-data
+      (end-of-line)
+      (if (re-search-backward lispy-outline nil t)
+          (- (match-end 0) (match-beginning 0) 2)
+        0))))
 
 (defun lispy-outline-next (arg)
   "Call `outline-next-visible-heading' ARG times."
