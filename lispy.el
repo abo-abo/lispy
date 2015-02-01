@@ -3818,16 +3818,22 @@ When ADD-OUTPUT is t, append the output to the result."
   "Eval E-STR as Elisp code."
   (let ((e-sexp (read e-str))
         val)
-    (when (and (consp e-sexp)
-               (memq (car e-sexp) '(defvar defcustom))
+    (when (consp e-sexp)
+      (if (and (memq (car e-sexp) '(defvar defcustom))
                (consp (cdr e-sexp))
                (boundp (cadr e-sexp)))
-      (set (cadr e-sexp) (eval (caddr e-sexp))))
+          (set (cadr e-sexp) (eval (caddr e-sexp)))
+        (if (memq (car e-sexp) '(\, \,@))
+            (setq e-sexp (cadr e-sexp)))))
     (condition-case e
-        (prin1-to-string
-         (eval e-sexp lexical-binding))
+        (prog2
+            (fset '\, #'identity)
+            (prin1-to-string
+             (eval e-sexp lexical-binding))
+          (fset '\, nil))
       (error
        (progn
+         (fset '\, nil)
          (let ((es (error-message-string e)))
            (if (and lispy-lax-eval
                     (string-match
