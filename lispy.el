@@ -992,6 +992,13 @@ Otherwise (`backward-delete-char-untabify' ARG)."
                  (t
                   (backward-delete-char-untabify arg))))
 
+          ((looking-at lispy-outline)
+           (if (looking-back (concat lispy-outline ".*\n"))
+               (delete-region
+                (match-beginning 0)
+                (match-end 0))
+             (delete-char -1)))
+
           ((lispy--in-comment-p)
            (backward-delete-char-untabify arg))
 
