@@ -5501,6 +5501,9 @@ FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)"
   (lispy-define-key map "L" 'lispy-outline-right)
   (lispy-define-key map "H" 'lispy-ace-symbol-replace
     :override #'lispy-outline-left)
+  ;; ——— globals: outline —————————————————————
+  (define-key map (kbd "M-<left>") 'lispy-outline-left)
+  (define-key map (kbd "M-<right>") 'lispy-outline-right)
   ;; ——— locals: Paredit transformations ——————
   (lispy-define-key map ">" 'lispy-slurp)
   (lispy-define-key map "<" 'lispy-barf)
