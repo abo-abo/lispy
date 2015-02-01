@@ -475,12 +475,7 @@ Return nil on failure, t otherwise."
   (cond ((region-active-p)
          (lispy-mark-right arg))
         ((looking-at lispy-outline)
-         (let ((end (save-excursion
-                      (or (re-search-forward lispy-outline nil t 2)
-                          (point-max)))))
-           (when (re-search-forward lispy-left end t)
-             (backward-char 1))
-           (lispy--ensure-visible)))
+         (lispy-outline-right))
         (t
          (lispy--out-forward arg))))
 
@@ -500,8 +495,7 @@ Return nil on failure, t otherwise."
   (cond ((region-active-p)
          (lispy-mark-left arg))
         ((looking-at lispy-outline)
-         (goto-char lispy-pre-outline-pos)
-         (lispy--ensure-visible))
+         (lispy-outline-left))
         (t
          (lispy--out-backward arg))))
 
@@ -1499,7 +1493,8 @@ When region is active, toggle a ~ at the start of the region."
   (insert ";;"
           (make-string (max (lispy-outline-level) 1)
                        ?\*)
-          " "))
+          " ")
+  (beginning-of-line))
 
 (defun lispy-alt-line (&optional N)
   "Do a context-aware exit, then `newline-and-indent', N times.
@@ -2888,11 +2883,6 @@ Sexp is obtained by exiting list ARG times."
 (defun lispy-outline-add ()
   "When at outline, add another one."
   (when (looking-at lispy-outline)
-    (outline-next-heading)
-    (skip-chars-backward "\n")
-    (if (eobp)
-        (newline)
-      (forward-char 1))
     (lispy-meta-return)
     t))
 
@@ -2920,6 +2910,18 @@ Sexp is obtained by exiting list ARG times."
         (goto-char (match-end 0))
         (delete-char -1))
       t)))
+
+(defun lispy-outline-goto-child ()
+  "Goto the first `lispy-left' of the current outline."
+  (interactive)
+  (let ((end (save-excursion
+               (or (re-search-forward lispy-outline nil t 2)
+                   (point-max)))))
+    (if (re-search-forward lispy-left end t)
+        (progn
+          (backward-char 1)
+          (lispy--ensure-visible))
+      (lispy-complain "This outline has no children"))))
 
 (defun lispy-tab ()
   "Indent code and hide/show outlines.
@@ -5498,9 +5500,7 @@ FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)"
   ;; ——— locals: outline ——————————————————————
   (lispy-define-key map "J" 'lispy-outline-next)
   (lispy-define-key map "K" 'lispy-outline-prev)
-  (lispy-define-key map "L" 'lispy-outline-right)
-  (lispy-define-key map "H" 'lispy-ace-symbol-replace
-    :override #'lispy-outline-left)
+
   ;; ——— globals: outline —————————————————————
   (define-key map (kbd "M-<left>") 'lispy-outline-left)
   (define-key map (kbd "M-<right>") 'lispy-outline-right)
@@ -5521,6 +5521,7 @@ FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)"
   ;; ——— locals: marking —————————————————————
   (lispy-define-key map "a" 'lispy-ace-symbol
     :override #'lispy-outline-add)
+  (lispy-define-key map "H" 'lispy-ace-symbol-replace)
   (lispy-define-key map "m" 'lispy-mark-list)
   ;; ——— locals: dialect-specific —————————————
   (lispy-define-key map "e" 'lispy-eval)
@@ -5536,14 +5537,17 @@ FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)"
   (lispy-define-key map "I" 'lispy-shifttab)
   (lispy-define-key map "N" 'lispy-narrow)
   (lispy-define-key map "W" 'lispy-widen)
-  (lispy-define-key map "c" 'lispy-clone)
+  (lispy-define-key map "c" 'lispy-clone
+    :override (lambda () (when (looking-at lispy-outline) (lispy-outline-goto-child) t)))
   (lispy-define-key map "u" 'lispy-undo)
   (lispy-define-key map "q" 'lispy-ace-paren
     :override (lambda () (when (bound-and-true-p view-mode) (View-quit) t)))
+
   (lispy-define-key map "Q" 'lispy-ace-char)
   (lispy-define-key map "v" 'lispy-view)
   (lispy-define-key map "T" 'lispy-ert)
-  (lispy-define-key map "t" 'lispy-teleport)
+  (lispy-define-key map "t" 'lispy-teleport
+    :override (lambda () (when (looking-at lispy-outline) (end-of-line) t)))
   (lispy-define-key map "n" 'lispy-new-copy)
   (lispy-define-key map "b" 'lispy-store-region-and-buffer)
   (lispy-define-key map "B" 'lispy-ediff-regions)
