@@ -2880,12 +2880,6 @@ Sexp is obtained by exiting list ARG times."
         (goto-char pt)
         (error "Past first outline")))))
 
-(defun lispy-outline-add ()
-  "When at outline, add another one."
-  (when (looking-at lispy-outline)
-    (lispy-meta-return)
-    t))
-
 (defun lispy-outline-right ()
   "Promote current outline level by one."
   (interactive)
@@ -5283,7 +5277,13 @@ PLIST currently accepts:
        ,@(when disable `((,disable -1)))
        (unless (looking-at lispy-outline)
          (lispy--ensure-visible))
-       (cond ,@(when override `(((,override))))
+       (cond ,@(cond ((null override) nil)
+                     ((functionp override)
+                      `((funcall ,override)))
+                     ((eq (car override) 'cond)
+                      (cdr override))
+                     (t
+                      (error "Unexpected :override %S" override)))
 
              ((lispy--edebug-commandp)
               (call-interactively
@@ -5379,7 +5379,7 @@ return the corresponding `setq' expression."
 
 (defun lispy-define-key (keymap key def &rest plist)
   "Forward to (`define-key' KEYMAP KEY FUNC).
-FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)"
+FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)."
   (declare (indent 3))
   (let ((func (defalias (intern (concat "special-" (symbol-name def)))
                   (lispy--insert-or-call def plist))))
@@ -5437,7 +5437,6 @@ FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)"
   (define-key map (kbd ")") 'lispy-right-nostring)
   (define-key map (kbd "C-M-n") 'lispy-forward)
   (define-key map (kbd "C-M-p") 'lispy-backward)
-
   ;; ——— globals: kill-related ————————————————
   (define-key map (kbd "C-k") 'lispy-kill)
   (define-key map (kbd "C-y") 'lispy-yank)
@@ -5520,7 +5519,8 @@ FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)"
   (lispy-define-key map "S" 'lispy-stringify)
   ;; ——— locals: marking —————————————————————
   (lispy-define-key map "a" 'lispy-ace-symbol
-    :override #'lispy-outline-add)
+    :override '(cond ((looking-at lispy-outline)
+                      (lispy-meta-return))))
   (lispy-define-key map "H" 'lispy-ace-symbol-replace)
   (lispy-define-key map "m" 'lispy-mark-list)
   ;; ——— locals: dialect-specific —————————————
@@ -5538,16 +5538,18 @@ FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)"
   (lispy-define-key map "N" 'lispy-narrow)
   (lispy-define-key map "W" 'lispy-widen)
   (lispy-define-key map "c" 'lispy-clone
-    :override (lambda () (when (looking-at lispy-outline) (lispy-outline-goto-child) t)))
+    :override '(cond ((looking-at lispy-outline)
+                      (lispy-outline-goto-child))))
   (lispy-define-key map "u" 'lispy-undo)
   (lispy-define-key map "q" 'lispy-ace-paren
-    :override (lambda () (when (bound-and-true-p view-mode) (View-quit) t)))
-
+    :override '(cond ((bound-and-true-p view-mode)
+                      (View-quit))))
   (lispy-define-key map "Q" 'lispy-ace-char)
   (lispy-define-key map "v" 'lispy-view)
   (lispy-define-key map "T" 'lispy-ert)
   (lispy-define-key map "t" 'lispy-teleport
-    :override (lambda () (when (looking-at lispy-outline) (end-of-line) t)))
+    :override '(cond ((looking-at lispy-outline)
+                      (end-of-line))))
   (lispy-define-key map "n" 'lispy-new-copy)
   (lispy-define-key map "b" 'lispy-store-region-and-buffer)
   (lispy-define-key map "B" 'lispy-ediff-regions)
