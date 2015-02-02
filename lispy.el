@@ -3657,9 +3657,14 @@ Otherwise return cons of current string, symbol or list bounds."
         ((looking-at "\"")
          (lispy--bounds-string))
         ((looking-back "\"")
-         (backward-sexp)
-         (prog1 (bounds-of-thing-at-point 'sexp)
-           (forward-sexp)))
+         (or (condition-case nil
+                 (progn (backward-sexp)
+                        nil)
+               (error
+                (ignore-errors
+                  (bounds-of-thing-at-point 'sexp))))
+             (prog1 (bounds-of-thing-at-point 'sexp)
+               (forward-sexp))))
         (t
          (or
           (ignore-errors

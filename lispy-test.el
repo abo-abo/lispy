@@ -999,7 +999,9 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "|[foo]" (kbd "M-m"))
                    "[~foo|]"))
   (should (string= (lispy-with "|{foo}" (kbd "M-m"))
-                   "{~foo|}")))
+                   "{~foo|}"))
+  (should (string= (lispy-with "(foo \"|bar\")" (kbd "M-m"))
+                   "(foo \"~bar|\")")))
 
 (ert-deftest lispy--read ()
   (should (equal (lispy--read "(progn
