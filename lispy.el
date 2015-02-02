@@ -526,6 +526,15 @@ If this point is inside string, move outside string."
       (setq lispy-meol-point (point))
       (move-end-of-line 1))))
 
+(defun lispy-move-beginning-of-line ()
+  "Forward to `move-beginning-of-line'.
+Reveal outlines."
+  (interactive)
+  (lispy--ensure-visible)
+  (if (looking-back "^")
+      (back-to-indentation)
+    (move-beginning-of-line 1)))
+
 ;;* Locals: navigation
 (defun lispy-flow (arg)
   "Move inside list ARG times.
@@ -5493,6 +5502,7 @@ FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)."
   (define-key map (kbd "M-J") 'lispy-join)
   (define-key map (kbd "RET") 'lispy-newline-and-indent-plain)
   (define-key map (kbd ";") 'lispy-comment)
+  (define-key map (kbd "C-a") 'lispy-move-beginning-of-line)
   (define-key map (kbd "C-e") 'lispy-move-end-of-line)
   (define-key map (kbd "<C-return>") 'lispy-open-line)
   (define-key map (kbd "<M-return>") 'lispy-meta-return)

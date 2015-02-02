@@ -889,6 +889,14 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "\"foo|\nbar\" baz" "\C-e")
                    "\"foo\nbar\"| baz")))
 
+(ert-deftest lispy-move-beginning-of-line ()
+  (should (string= (lispy-with "(mapc\n (lambda (x) (* |x x))\n '(1 2 3))" (kbd "C-a"))
+                   "(mapc\n| (lambda (x) (* x x))\n '(1 2 3))"))
+  (should (string= (lispy-with "(mapc\n (lambda (x) (* |x x))\n '(1 2 3))"
+                               (kbd "C-a")
+                               (kbd "C-a"))
+                   "(mapc\n |(lambda (x) (* x x))\n '(1 2 3))")))
+
 (ert-deftest lispy-string-oneline ()
   (should (string= (lispy-with "\"foo\nb|ar\n\"" (lispy-string-oneline))
                    "\"foo\\nbar\\n\"|")))
