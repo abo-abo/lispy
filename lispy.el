@@ -3644,41 +3644,35 @@ If the region is active, replace instead of yanking."
 (defun lispy--bounds-dwim ()
   "Return a cons of region bounds if it's active.
 Otherwise return cons of current string, symbol or list bounds."
-  (cond ((region-active-p)
-         (cons (region-beginning)
-               (region-end)))
-        ((looking-back lispy-right)
-         (backward-list)
-         (prog1 (bounds-of-thing-at-point 'sexp)
-           (forward-list)))
-        ((or (looking-at (format "[`'#]*%s" lispy-left))
-             (looking-at "[`'#]"))
-         (bounds-of-thing-at-point 'sexp))
-        ((looking-at "\"")
-         (lispy--bounds-string))
-        ((looking-back "\"")
-         (or (condition-case nil
-                 (progn (backward-sexp)
-                        nil)
-               (error
-                (ignore-errors
-                  (bounds-of-thing-at-point 'sexp))))
-             (prog1 (bounds-of-thing-at-point 'sexp)
-               (forward-sexp))))
-        (t
-         (or
-          (ignore-errors
-            (bounds-of-thing-at-point 'sexp))
-          (ignore-errors
-            (bounds-of-thing-at-point 'symbol))
-          (ignore-errors
-            (bounds-of-thing-at-point 'sentence))
-          (ignore-errors
-            (backward-word 1)
-            (bounds-of-thing-at-point 'symbol))
-          (ignore-errors
-            (forward-word 1)
-            (bounds-of-thing-at-point 'symbol))))))
+  (let (bnd)
+    (cond ((region-active-p)
+           (cons (region-beginning)
+                 (region-end)))
+          ((looking-back lispy-right)
+           (backward-list)
+           (prog1 (bounds-of-thing-at-point 'sexp)
+             (forward-list)))
+          ((or (looking-at (format "[`'#]*%s" lispy-left))
+               (looking-at "[`'#]"))
+           (bounds-of-thing-at-point 'sexp))
+          ((and (setq bnd (lispy--bounds-string))
+                (or (eq (point) (car bnd))
+                    (eq (point) (1- (cdr bnd)))))
+           bnd)
+          (t
+           (or
+            (ignore-errors
+              (bounds-of-thing-at-point 'sexp))
+            (ignore-errors
+              (bounds-of-thing-at-point 'symbol))
+            (ignore-errors
+              (bounds-of-thing-at-point 'sentence))
+            (ignore-errors
+              (backward-word 1)
+              (bounds-of-thing-at-point 'symbol))
+            (ignore-errors
+              (forward-word 1)
+              (bounds-of-thing-at-point 'symbol)))))))
 
 (defun lispy--bounds-list ()
   "Return the bounds of smallest list that includes the point.
