@@ -2715,37 +2715,40 @@ When ARG isn't nil, try to pretty print the sexp."
 In case the point is on a let-bound variable, add a `setq'."
   (interactive)
   (lexical-let*
-      ((lispy-ignore-whitespace t)
+      ((pt (point))
+       (lispy-ignore-whitespace t)
        (str (save-match-data
               (lispy--string-dwim)))
        (expr (save-match-data
-               (lispy-from-left
-                (cond
-                  ((looking-back "(\\(?:lexical-\\)?let\\*?[ \t\n]*")
-                   (cons 'setq
-                         (cl-mapcan
-                          (lambda (x) (unless (listp x) (list x nil)))
-                          (read str))))
+               (unless (lispy--leftp)
+                 (lispy-different))
+               (cond
+                 ((looking-back "(\\(?:lexical-\\)?let\\*?[ \t\n]*")
+                  (cons 'setq
+                        (cl-mapcan
+                         (lambda (x) (unless (listp x) (list x nil)))
+                         (read str))))
 
-                  ;; point moves
-                  ((progn
-                     (lispy--out-backward 1)
-                     (looking-back
-                      "(\\(?:lexical-\\)?let\\*?[ \t\n]*"))
-                   (cons 'setq (read str)))
+                 ;; point moves
+                 ((progn
+                    (lispy--out-backward 1)
+                    (looking-back
+                     "(\\(?:lexical-\\)?let\\*?[ \t\n]*"))
+                  (cons 'setq (read str)))
 
-                  ((looking-back "(\\(?:cl-\\)?labels[ \t\n]*")
-                   (cons 'defun (read str)))
+                 ((looking-back "(\\(?:cl-\\)?labels[ \t\n]*")
+                  (cons 'defun (read str)))
 
-                  ((looking-at
-                    "(cond\\b")
-                   (let ((re (read str)))
-                     `(if ,(car re)
-                          (progn
-                            ,@(cdr re))
-                        lispy--eval-cond-msg)))
-                  (t (read str))))))
+                 ((looking-at
+                   "(cond\\b")
+                  (let ((re (read str)))
+                    `(if ,(car re)
+                         (progn
+                           ,@(cdr re))
+                       lispy--eval-cond-msg)))
+                 (t (read str)))))
        res)
+    (goto-char pt)
     (other-window 1)
     (setq res (eval expr lexical-binding))
     (other-window -1)
