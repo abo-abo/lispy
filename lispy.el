@@ -5546,7 +5546,7 @@ FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)."
   ;; ——— locals: outline ——————————————————————
   (lispy-define-key map "J" 'lispy-outline-next)
   (lispy-define-key map "K" 'lispy-outline-prev)
-
+  (lispy-define-key map "L" 'lispy-outline-goto-child)
   ;; ——— globals: outline —————————————————————
   (define-key map (kbd "M-<left>") 'lispy-outline-left)
   (define-key map (kbd "M-<right>") 'lispy-outline-right)
@@ -5584,9 +5584,7 @@ FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)."
   (lispy-define-key map "I" 'lispy-shifttab)
   (lispy-define-key map "N" 'lispy-narrow)
   (lispy-define-key map "W" 'lispy-widen)
-  (lispy-define-key map "c" 'lispy-clone
-    :override '(cond ((looking-at lispy-outline)
-                      (lispy-outline-goto-child))))
+  (lispy-define-key map "c" 'lispy-clone)
   (lispy-define-key map "u" 'lispy-undo)
   (lispy-define-key map "q" 'lispy-ace-paren
     :override '(cond ((bound-and-true-p view-mode)
