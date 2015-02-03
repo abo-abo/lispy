@@ -1026,7 +1026,12 @@ Otherwise (`backward-delete-char-untabify' ARG)."
              (delete-char -1)))
 
           ((lispy--in-comment-p)
-           (backward-delete-char-untabify arg))
+           (if (looking-back "\n +")
+               (progn
+                 (delete-region (match-beginning 0)
+                                (match-end 0))
+                 (indent-for-tab-command))
+             (backward-delete-char-untabify arg)))
 
           ((looking-back "\\\\.")
            (backward-delete-char-untabify arg))
