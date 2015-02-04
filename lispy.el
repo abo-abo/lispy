@@ -4936,6 +4936,7 @@ When FUNC is not nil, call it after a successful move.
 When NO-NARROW is not nil, don't narrow to BND."
   (require 'ace-jump-mode)
   (lispy--recenter-bounds bnd)
+  (setq ace-jump-mode-end-hook nil)
   (let ((already-narrowed (lispy--buffer-narrowed-p)))
     (unless no-narrow
       (narrow-to-region (car bnd) (cdr bnd)))
