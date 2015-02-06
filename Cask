@@ -16,4 +16,5 @@
  (depends-on "projectile")
  (depends-on "s")
  (depends-on "highlight")
- (depends-on "hydra"))
+ (depends-on "hydra")
+ (depends-on "ace-window"))
