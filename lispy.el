@@ -3780,6 +3780,8 @@ First, try to return `lispy--bounds-string'."
   "Move outside list forwards ARG times.
 Return nil on failure, (point) otherwise."
   (lispy--exit-string)
+  (when (bound-and-true-p abbrev-mode)
+    (ignore-errors (expand-abbrev)))
   (catch 'break
     (dotimes (i arg)
       (if (ignore-errors (up-list) t)
