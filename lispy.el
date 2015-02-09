@@ -226,6 +226,16 @@ The hint will consist of the possible nouns that apply to the verb."
   :type 'boolean
   :group 'lispy)
 
+(defcustom lispy-completion-method 'helm
+  "Method to select a candidate from a list of strings."
+  :type '(choice
+          ;; sensible choice for many tags
+          (const :tag "Helm" helm)
+          ;; `ido-vertical-mode' is highly recommended here
+          (const :tag "Ido" ido)
+          ;; `icomplete-mode' and `icy-mode' will affect this
+          (const :tag "Default" default)))
+
 (defface lispy-command-name-face
   '((t (:inherit font-lock-function-name-face)))
   "Face for Elisp commands."
@@ -4128,25 +4138,28 @@ For example, a `setq' statement is amended with variable name that it uses."
 
 (defun lispy--tag-name-and-file (x)
   "Add file name to (`lispy--tag-name' X)."
-  (or
-   (catch 'break
-     (cons
-      (concat
-       (lispy--pad-string
-        (lispy--tag-name x)
-        (nth 1 lispy-helm-columns))
-       (make-string (- (nth 2 lispy-helm-columns)
-                       (nth 1 lispy-helm-columns))
-                    ?\ )
-       (let ((v (nth 4 x)))
-         (file-name-nondirectory
-          (cond ((overlayp v)
-                 (buffer-file-name (overlay-buffer v)))
-                ((vectorp v)
-                 (aref v 2))
-                (t (error "Unexpected"))))))
-      (cdr x)))
-   x))
+  (if (and (eq lispy-completion-method 'ido)
+           (not (bound-and-true-p ido-vertical-mode)))
+      x
+    (or
+     (catch 'break
+       (cons
+        (concat
+         (lispy--pad-string
+          (lispy--tag-name x)
+          (nth 1 lispy-helm-columns))
+         (make-string (- (nth 2 lispy-helm-columns)
+                         (nth 1 lispy-helm-columns))
+                      ?\ )
+         (let ((v (nth 4 x)))
+           (file-name-nondirectory
+            (cond ((overlayp v)
+                   (buffer-file-name (overlay-buffer v)))
+                  ((vectorp v)
+                   (aref v 2))
+                  (t (error "Unexpected"))))))
+        (cdr x)))
+     x)))
 
 (defun lispy--pad-string (str n)
   "Make STR at most length N."
@@ -4861,34 +4874,43 @@ Try to refresh if nil is returned."
 (defun lispy--select-candidate (candidates action)
   "Select from CANDIDATES list with `helm'.
 ACTION is called for the selected candidate."
-  (require 'helm-help)
-  ;; allows restriction with space
-  (require 'helm-match-plugin)
-  (let (helm-update-blacklist-regexps)
-    (helm :sources
-          `((name . "semantic tags")
-            (candidates . ,(mapcar
-                            (lambda (x)
-                              (if (listp x)
-                                  (if (stringp (cdr x))
-                                      (cons (cdr x) (car x))
-                                    (cons (car x) x))
-                                x))
-                            candidates))
-            (action . ,action))
-          :preselect
-          (let ((stag (semantic-current-tag))
-                (tag (ignore-errors
-                       (lispy--current-tag))))
-            (if tag
-                (if (eq (semantic-tag-class
-                         stag)
-                        'function)
-                    (format "\\_<%s\\_>"
-                            (semantic-tag-name stag))
-                  tag)
-              ""))
-          :buffer "*lispy-goto*")))
+  (if (eq lispy-completion-method 'helm)
+      (progn
+        (require 'helm-help)
+        ;; allows restriction with space
+        (require 'helm-match-plugin)
+        (let (helm-update-blacklist-regexps)
+          (helm :sources
+                `((name . "semantic tags")
+                  (candidates . ,(mapcar
+                                  (lambda (x)
+                                    (if (listp x)
+                                        (if (stringp (cdr x))
+                                            (cons (cdr x) (car x))
+                                          (cons (car x) x))
+                                      x))
+                                  candidates))
+                  (action . ,action))
+                :preselect
+                (let ((stag (semantic-current-tag))
+                      (tag (ignore-errors
+                             (lispy--current-tag))))
+                  (if tag
+                      (if (eq (semantic-tag-class
+                               stag)
+                              'function)
+                          (format "\\_<%s\\_>"
+                                  (semantic-tag-name stag))
+                        tag)
+                    ""))
+                :buffer "*lispy-goto*")))
+    (let ((res
+           (funcall
+            (if (eq lispy-completion-method 'ido)
+                #'ido-completing-read
+              #'completing-read)
+            "tag " (mapcar #'car candidates) nil t)))
+      (funcall action (assoc res candidates)))))
 
 (defun lispy--action-jump (tag)
   "Jump to TAG."
