@@ -158,9 +158,11 @@
 (declare-function cider--jump-to-loc-from-info "ext:cider")
 (declare-function cider-var-info "ext:cider")
 (declare-function cider-repl-return "ext:cider")
+(declare-function cider-eval-print-last-sexp "ext:cider")
 (declare-function slime-edit-definition "ext:slime")
 (declare-function slime-repl-return "ext:slime")
 (declare-function lispy--clojure-resolve "ext:lispy")
+(declare-function lispy--clojure-jump "ext:lispy")
 (declare-function lispy--eval-clojure "ext:lispy")
 (declare-function View-quit "view")
 (declare-function org-overview "org")
@@ -3427,6 +3429,7 @@ If already there, return it to previous position."
         (or (eq 'macro (car def))
             (and (autoloadp def) (memq (nth 4 def) '(macro t))))))))
 
+(declare-function elisp--preceding-sexp "ext:elisp-mode")
 (defalias 'lispy--preceding-sexp
     (if (version< emacs-version "25.1")
         'preceding-sexp
