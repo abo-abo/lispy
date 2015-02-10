@@ -1089,7 +1089,7 @@ Otherwise (`backward-delete-char-untabify' ARG)."
                (insert " "))
              (indent-for-tab-command)))
 
-          ((looking-back "\" ")
+          ((and (looking-back "\" ") (not (looking-at lispy-right)))
            (let ((pt (point))
                  bnd)
              (goto-char (match-beginning 0))

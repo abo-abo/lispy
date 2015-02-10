@@ -523,7 +523,9 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "\"\\C|-j\"" "\C-?")
                    "\"|-j\""))
   (should (string= (lispy-with "(progn\n  (foo)\n\n  |;; upcoming magic\n  (magic))" "\C-?")
-                   "(progn\n  (foo)\n  |;; upcoming magic\n  (magic))")))
+                   "(progn\n  (foo)\n  |;; upcoming magic\n  (magic))"))
+  (should (string= (lispy-with "(list \"foo\" |)" "\C-?")
+                   "(list \"foo\"|)")))
 
 (ert-deftest lispy-pair ()
   (should (string= (lispy-with "\"\\\\|\"" "(")
