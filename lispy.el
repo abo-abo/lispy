@@ -4778,10 +4778,10 @@ Defaults to `error'."
 
 (defun lispy--remove-gaps ()
   "Remove dangling `\\s)'."
-  (when (or (looking-back "[^ \t\n]\\([ \t\n]+\\)\\s)")
-            (and (looking-back "\\s)\\([ \t\n]+\\)")
-                 (not (looking-at lispy-left)))
-            (looking-at "\\([\t\n ]*\\))"))
+  (when (looking-back "[^ \t\n]\\([ \t\n]+\\)\\s)")
+    ;; (or (looking-at "\\(\\s-*\\))")
+    ;;     (and (looking-back "\\s)\\([ \t\n]+\\)")
+    ;;          (not (looking-at lispy-left))))
     (unless (save-excursion
               (save-match-data
                 (goto-char (match-beginning 1))
