@@ -3625,10 +3625,11 @@ If the region is active, replace instead of yanking."
 
 (defun lispy--in-string-or-comment-p ()
   "Test if point is inside a string or a comment."
-  (let ((beg (nth 8 (syntax-ppss))))
+  (let* ((sp (syntax-ppss))
+         (beg (nth 8 sp)))
     (and beg
          (or (eq (char-after beg) ?\")
-             (comment-only-p beg (point)))
+             (nth 4 sp))
          beg)))
 
 (defun lispy--buffer-narrowed-p ()
