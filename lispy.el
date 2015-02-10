@@ -3498,6 +3498,13 @@ If the region is active, replace instead of yanking."
         (delete-region (car bnd)
                        (cdr bnd))
         (yank))
+    (if (and (looking-back lispy-right)
+             (save-excursion
+               (forward-list -1)
+               (bolp)))
+        (newline)
+      (when (bolp)
+        (open-line 1)))
     (yank)
     (when (and (looking-back lispy-right)
                (looking-at lispy-left))
