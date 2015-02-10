@@ -3809,13 +3809,14 @@ Return nil on failure, (point) otherwise."
 (defun lispy--out-backward (arg)
   "Move outside list forwards ARG times.
 Return nil on failure, t otherwise."
-  (let ((pt (point)))
+  (let ((oldpt (point))
+        newpt)
     (lispy--out-forward arg)
     (when (looking-back lispy-right)
-      (lispy-backward 1))
-    (if (= pt (point))
+      (forward-list -1))
+    (if (= oldpt (setq newpt (point)))
         nil
-      (point))))
+      newpt)))
 
 (defun lispy--back-to-paren ()
   "Move to ( going out backwards."
