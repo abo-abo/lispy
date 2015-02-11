@@ -1193,9 +1193,9 @@ When ARG is more than 1, mark ARGth element."
 
           ((and
             (not (region-active-p))
-            (lispy--in-string-p)
+            (setq bnd (lispy--bounds-string))
             (= (1+ (point))
-               (cdr (setq bnd (lispy--bounds-string)))))
+               (cdr bnd)))
            (lispy--mark bnd))
 
           ((or (looking-at "[ ]*[](){}[]")
@@ -3735,10 +3735,11 @@ First, try to return `lispy--bounds-string'."
                         (not (looking-back "\\\\"))
                         (point)))))
       (when (and beg (not (comment-only-p beg (1+ (point)))))
-        (cons beg (save-excursion
-                    (goto-char beg)
-                    (forward-sexp)
-                    (point)))))))
+        (ignore-errors
+          (cons beg (save-excursion
+                      (goto-char beg)
+                      (forward-sexp)
+                      (point))))))))
 
 (defun lispy--bounds-comment ()
   "Return bounds of current comment."
