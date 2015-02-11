@@ -151,7 +151,6 @@
 (require 'delsel)
 (require 'package)
 (require 'highlight)
-(require 'helm)
 (require 'hydra)
 
 ;;** Declares
@@ -1653,6 +1652,7 @@ to all the functions, while maintaining the parens in a pretty state."
 (defun lispy-occur ()
   "Select a line within current top level sexp with `helm'."
   (interactive)
+  (require 'helm)
   (deactivate-mark)
   (unwind-protect
        (helm :sources
