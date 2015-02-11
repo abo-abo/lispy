@@ -3993,7 +3993,7 @@ When ADD-OUTPUT is t, append the output to the result."
   "Get the list of same type files in current directory."
   (let ((ext (file-name-extension (buffer-file-name))))
     (cl-remove-if
-     (lambda (x) (string-match "\\(?:^\\.?#\\|~$\\)" x))
+     (lambda (x) (string-match "\\(?:^\\.?#\\|~$\\|loaddefs.el\\)" x))
      (file-expand-wildcards (format "*.%s" ext)))))
 
 (defun lispy--tag-regexp (&optional mode)
