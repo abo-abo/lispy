@@ -413,6 +413,10 @@ Insert KEY if there's no command."
                    "(looking-at |)"))
   (should (string= (lispy-with "(looking-at \"|;\")" "\C-k")
                    "(looking-at \"|\")"))
+  (should (string= (lispy-with "|#[foo\n  bar]" "\C-k")
+                   "|"))
+  (should (string= (lispy-with "|#(foo\n  bar)" "\C-k")
+                   "|"))
   (should (string= (lispy-with-clojure "{:a 1 |:b 2}"
                                        "\C-k")
                    "{:a 1 |}")))

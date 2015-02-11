@@ -838,7 +838,11 @@ Return nil if can't move."
                      (if (= beg (point))
                          (lispy--out-backward 1)
                        (kill-region beg (point))))
-                 (kill-region beg (point)))))))))
+                 (if (= beg (point))
+                     (progn
+                       (setq bnd (lispy--bounds-dwim))
+                       (kill-region (car bnd) (cdr bnd)))
+                   (kill-region beg (point))))))))))
 
 (defun lispy-kill-word (arg)
   "Kill ARG words, keeping parens consistent."
