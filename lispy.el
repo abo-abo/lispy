@@ -3638,10 +3638,9 @@ If the region is active, replace instead of yanking."
   "Test if point is inside a string or a comment."
   (let* ((sp (syntax-ppss))
          (beg (nth 8 sp)))
-    (and beg
-         (or (eq (char-after beg) ?\")
-             (nth 4 sp))
-         beg)))
+    (when (or (eq (char-after beg) ?\")
+              (nth 4 sp))
+      beg)))
 
 (defun lispy--buffer-narrowed-p ()
   "Return T if the current buffer is narrowed."
