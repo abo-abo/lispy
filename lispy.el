@@ -1398,10 +1398,10 @@ If jammed between parens, \"(|(\" unjam: \"( |(\"."
          (if (looking-at lispy-left)
              (progn
                (forward-char)
-               (insert " ")
+               (just-one-space)
                (backward-char))
            (backward-char)
-           (insert " ")))
+           (just-one-space)))
         (t
          (insert " ")
          (when (and (looking-at lispy-left)

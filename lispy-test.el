@@ -1312,7 +1312,9 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "|(progn\n  (foo)\n  )" "4 ")
                    "(progn\n  (foo)\n  |)"))
   (should (string= (lispy-with "(progn\n  (foo)\n  )|" "4 ")
-                   "(progn\n  (foo)\n  |)")))
+                   "(progn\n  (foo)\n  |)"))
+  (should (string= (lispy-with "|(cdr )" "3 ")
+                   "(cdr |)")))
 
 (ert-deftest lispy-kill-word ()
   (should (string= (lispy-with "|  (require 'cl)" (kbd "M-d"))
