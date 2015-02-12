@@ -3968,7 +3968,9 @@ When ADD-OUTPUT is t, append the output to the result."
      ;; use-package specific
      (use-package . 1)
      ;; lispy-specific
-     (lispy-defverb . 1)))
+     (lispy-defverb . 1)
+     ;; misc
+     (defhydra . 1)))
   "Alist of tag arities for supported modes.")
 
 (defun lispy-build-semanticdb (&optional dir)
