@@ -3621,12 +3621,14 @@ If the region is active, replace instead of yanking."
 
 ;;* Predicates
 (defun lispy--in-string-p ()
-  "Test if point is inside a string."
-  (let ((beg (nth 8 (syntax-ppss))))
-    (or (and beg
-             (eq (char-after beg) ?\"))
+  "Test if point is inside a string.
+Return start of string it is."
+  (let ((syn (syntax-ppss)))
+    (or (and (nth 3 syn)
+             (nth 8 syn))
         (and (eq (char-after) ?\")
-             (not (looking-back "\\\\"))))))
+             (not (looking-back "\\\\"))
+             (point)))))
 
 (defun lispy--in-comment-p ()
   "Test if point is inside a comment."
