@@ -525,15 +525,16 @@ Return nil on failure, t otherwise."
 Then return to the point where it was called last.
 If this point is inside string, move outside string."
   (interactive)
-  (let ((pt (point)))
+  (let ((pt (point))
+        bnd)
     (if (eq pt (line-end-position))
-        (if (lispy--in-string-p)
-            (goto-char (cdr (lispy--bounds-string)))
+        (if (setq bnd (lispy--bounds-string))
+            (goto-char (cdr bnd))
           (when (and (< lispy-meol-point pt)
                      (>= lispy-meol-point (line-beginning-position)))
             (goto-char lispy-meol-point)
-            (when (lispy--in-string-p)
-              (goto-char (cdr (lispy--bounds-string))))))
+            (when (setq bnd (lispy--bounds-string))
+              (goto-char (cdr bnd)))))
       (setq lispy-meol-point (point))
       (move-end-of-line 1))))
 
