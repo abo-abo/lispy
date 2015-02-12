@@ -1467,7 +1467,7 @@ When region is active, toggle a ~ at the start of the region."
       (progn
         (backward-delete-char 2)
         (insert "#"))
-    (lispy--space-unless "\\s-\\|\\s(\\|[#:?'`]\\\\?")
+    (lispy--space-unless "\\s-\\|\\s(\\|[#:?'`,]\\\\?")
     (insert "#")))
 
 (defun lispy-newline-and-indent ()
