@@ -2703,6 +2703,7 @@ When ARG isn't nil, try to pretty print the sexp."
   "Target buffer for `lispy-eval-other-window'.")
 
 (defun lispy-eval--last-live-p ()
+  "Return t if the last eval window is still live with same buffer."
   (and (window-live-p
         lispy-eval-other--window)
        (equal (window-buffer
@@ -2958,7 +2959,7 @@ Sexp is obtained by exiting list ARG times."
       t)))
 
 (defun lispy-outline-goto-child ()
-  "Goto the first `lispy-left' of the current outline."
+  "Goto the first variable `lispy-left' of the current outline."
   (interactive)
   (let ((end (save-excursion
                (or (re-search-forward lispy-outline nil t 2)
