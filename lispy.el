@@ -163,6 +163,8 @@
 (declare-function lispy--eval-clojure "le-clojure")
 (declare-function View-quit "view")
 (declare-function org-overview "org")
+(defvar helm-input)
+(declare-function helm "ext:helm")
 
 ;;* Customization
 (defgroup lispy nil
@@ -1724,6 +1726,7 @@ to all the functions, while maintaining the parens in a pretty state."
        (lispy--occur-regex)
        'lispy-occur-face))))
 
+(declare-function helm-persistent-action-display-window "ext:helm")
 (defun lispy--occur-update-sel ()
   "Update selection for `lispy-occur'."
   (let* ((str (buffer-substring-no-properties
@@ -2710,6 +2713,7 @@ When ARG isn't nil, try to pretty print the sexp."
                lispy-eval-other--window)
               lispy-eval-other--buffer)))
 
+(declare-function aw-select "ext:ace-window")
 (defun lispy-eval-other-window ()
   "Eval current expression in the context of other window.
 In case the point is on a let-bound variable, add a `setq'."
@@ -3513,13 +3517,18 @@ If the region is active, replace instead of yanking."
                (looking-at lispy-left))
       (insert " "))))
 
+(defalias 'lispy-font-lock-ensure
+    (if (fboundp 'font-lock-ensure)
+        'font-lock-ensure
+      'font-lock-fontify-buffer))
+
 (defun lispy--fontify (str)
   "Return STR fontified in `emacs-lisp-mode'."
   (with-temp-buffer
     (emacs-lisp-mode)
     (show-paren-mode)
     (insert str)
-    (font-lock-ensure)
+    (lispy-font-lock-ensure)
     (let ((color-paren (face-attribute 'show-paren-match :background))
           (color-cursor-fg (face-attribute 'lispy-cursor-face :foreground))
           (color-cursor-bg (face-attribute 'lispy-cursor-face :background))

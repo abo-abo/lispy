@@ -13,7 +13,7 @@ cask:
 	$(shell EMACS=$(EMACS) $(CASK))
 
 compile:
-	$(CASKEMACS) -q  $(LOAD) -l lispy-test.el lispy.el --eval "(progn (mapc #'byte-compile-file '(\"lispy.el\" \"lispy-inline.el\" \"le-clojure.el\" \"le-scheme.el\" \"le-lisp.el\")) (switch-to-buffer \"*Compile-Log*\") (ert t))"
+	$(CASKEMACS) -batch $(LOAD) -l lispy-test.el --eval "(progn (mapc #'byte-compile-file '(\"lispy.el\" \"lispy-inline.el\" \"le-clojure.el\" \"le-scheme.el\" \"le-lisp.el\")) (ert t))"
 
 test:
 	$(CASKEMACS) -batch $(LOAD) -l lispy-test.el -f ert-run-tests-batch-and-exit
