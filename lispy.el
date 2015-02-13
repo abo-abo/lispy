@@ -3144,9 +3144,8 @@ With ARG, use the contents of `lispy-store-region-and-buffer' instead."
     (lispy--out-backward 1)
     (lispy--normalize-1)))
 
-(defvar lispy-bind-var-in-progress nil
+(defvar-local lispy-bind-var-in-progress nil
   "When t, `lispy-mark-symbol' will exit `iedit'.")
-(make-variable-buffer-local 'lispy-bind-var-in-progress)
 
 (defun lispy-bind-variable ()
   "Bind current expression as variable."
