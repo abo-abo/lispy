@@ -158,9 +158,9 @@
 (declare-function cider-eval-print-last-sexp "ext:cider-interaction")
 (declare-function slime-edit-definition "ext:slime")
 (declare-function slime-repl-return "ext:slime-repl")
-(declare-function lispy--clojure-resolve "ext:le-clojure")
-(declare-function lispy--clojure-jump "ext:le-clojure")
-(declare-function lispy--eval-clojure "ext:le-clojure")
+(declare-function lispy--clojure-resolve "le-clojure")
+(declare-function lispy--clojure-jump "le-clojure")
+(declare-function lispy--eval-clojure "le-clojure")
 (declare-function View-quit "view")
 (declare-function org-overview "org")
 

@@ -86,16 +86,16 @@ The caller of `lispy--show' might use a substitute e.g. `describe-function'."
 (defvar lispy-hint-pos nil
   "Point position where the hint should be (re-) displayed.")
 
-(declare-function lispy--eval-clojure "ext:le-clojure")
-(declare-function lispy--clojure-args "ext:le-clojure")
-(declare-function lispy--clojure-resolve "ext:le-clojure")
-(declare-function lispy--describe-clojure-java "ext:le-clojure")
-(declare-function lispy--eval-scheme "ext:le-scheme")
-(declare-function lispy--eval-lisp "ext:le-lisp")
-(declare-function lispy--lisp-args "ext:le-lisp")
-(declare-function lispy--lisp-describe "ext:le-lisp")
-(declare-function lispy--back-to-paren "ext:lispy")
-(declare-function lispy--current-function "ext:lispy")
+(declare-function lispy--eval-clojure "le-clojure")
+(declare-function lispy--clojure-args "le-clojure")
+(declare-function lispy--clojure-resolve "le-clojure")
+(declare-function lispy--describe-clojure-java "le-clojure")
+(declare-function lispy--eval-scheme "le-scheme")
+(declare-function lispy--eval-lisp "le-lisp")
+(declare-function lispy--lisp-args "le-lisp")
+(declare-function lispy--lisp-describe "le-lisp")
+(declare-function lispy--back-to-paren "lispy")
+(declare-function lispy--current-function "lispy")
 
 ;; ——— Commands ————————————————————————————————————————————————————————————————
 (defun lispy-arglist-inline ()
