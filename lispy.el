@@ -2228,7 +2228,7 @@ When ARG is more than 1, pull ARGth expression to enclose current sexp."
         (indent-region pt (point))
         (if regionp
             (progn
-              (setq deactivate-mark)
+              (setq deactivate-mark nil)
               (set-mark pt)
               (when leftp
                 (exchange-point-and-mark)))
@@ -2261,7 +2261,7 @@ When ARG is more than 1, pull ARGth expression to enclose current sexp."
         (indent-region pt (point))
         (if regionp
             (progn
-              (setq deactivate-mark)
+              (setq deactivate-mark nil)
               (set-mark pt)
               (when leftp
                 (exchange-point-and-mark)))
@@ -4652,7 +4652,7 @@ Defaults to `error'."
          (body (cadr p))
          f-arg)
     (when (equal f-args '(ly-raw empty))
-      (setq f-args))
+      (setq f-args nil))
     (while (setq f-arg (pop f-args))
       (cond ((eq f-arg '&rest)
              (setq f-arg (pop f-args))
@@ -4753,7 +4753,7 @@ Defaults to `error'."
           (when ifs4
             (setq result (append result
                                  `((t (ly-raw newline) ,@ifs4)))))
-          (setq ifs1))))
+          (setq ifs1 nil))))
     result))
 
 (defun lispy--replace (lst from to)
@@ -5333,6 +5333,7 @@ Return a cons of the new text cordinates."
         (when pos
           (goto-char pos))))))
 
+(defvar ediff-temp-indirect-buffer)
 (defun lispy--make-ediff-buffer (buffer ext bnd)
   "Create a copy of BUFFER with EXT added to the name.
 Use only the part bounded by BND."
