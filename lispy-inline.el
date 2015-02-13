@@ -86,14 +86,14 @@ The caller of `lispy--show' might use a substitute e.g. `describe-function'."
 (defvar lispy-hint-pos nil
   "Point position where the hint should be (re-) displayed.")
 
-(declare-function lispy--eval-clojure "ext:lispy")
-(declare-function lispy--eval-scheme "ext:lispy")
-(declare-function lispy--eval-lisp "ext:lispy")
-(declare-function lispy--clojure-args "ext:lispy")
-(declare-function lispy--lisp-args "ext:lispy")
-(declare-function lispy--clojure-resolve "ext:lispy")
-(declare-function lispy--describe-clojure-java "ext:lispy")
-(declare-function lispy--lisp-describe "ext:lispy")
+(declare-function lispy--eval-clojure "ext:le-clojure")
+(declare-function lispy--clojure-args "ext:le-clojure")
+(declare-function lispy--clojure-resolve "ext:le-clojure")
+(declare-function lispy--describe-clojure-java "ext:le-clojure")
+(declare-function lispy--eval-scheme "ext:le-scheme")
+(declare-function lispy--eval-lisp "ext:le-lisp")
+(declare-function lispy--lisp-args "ext:le-lisp")
+(declare-function lispy--lisp-describe "ext:le-lisp")
 (declare-function lispy--back-to-paren "ext:lispy")
 (declare-function lispy--current-function "ext:lispy")
 

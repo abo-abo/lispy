@@ -154,15 +154,13 @@
 (require 'hydra)
 
 ;;** Declares
-(declare-function cider--jump-to-loc-from-info "ext:cider")
-(declare-function cider-var-info "ext:cider")
-(declare-function cider-repl-return "ext:cider")
-(declare-function cider-eval-print-last-sexp "ext:cider")
+(declare-function cider-repl-return "ext:cider-repl")
+(declare-function cider-eval-print-last-sexp "ext:cider-interaction")
 (declare-function slime-edit-definition "ext:slime")
-(declare-function slime-repl-return "ext:slime")
-(declare-function lispy--clojure-resolve "ext:lispy")
-(declare-function lispy--clojure-jump "ext:lispy")
-(declare-function lispy--eval-clojure "ext:lispy")
+(declare-function slime-repl-return "ext:slime-repl")
+(declare-function lispy--clojure-resolve "ext:le-clojure")
+(declare-function lispy--clojure-jump "ext:le-clojure")
+(declare-function lispy--eval-clojure "ext:le-clojure")
 (declare-function View-quit "view")
 (declare-function org-overview "org")
 
@@ -2631,10 +2629,7 @@ Sexp is obtained by exiting list ARG times."
            (require 'le-clojure)
            (setq rsymbol (lispy--clojure-resolve symbol))
            (cond ((stringp rsymbol)
-                  (lispy--clojure-jump rsymbol)
-                  ;; (cider--jump-to-loc-from-info
-                  ;;  (cider-var-info rsymbol))
-                  )
+                  (lispy--clojure-jump rsymbol))
                  ((eq rsymbol 'special)
                   (error "Can't jump to '%s because it's special" symbol))
                  ((eq rsymbol 'keyword)
@@ -3165,11 +3160,11 @@ With ARG, use the contents of `lispy-store-region-and-buffer' instead."
     (backward-delete-char 6)))
 
 ;;* Locals: multiple cursors
-(declare-function mc/create-fake-cursor-at-point "ext:multiple-cursors")
-(declare-function mc/all-fake-cursors "ext:multiple-cursors")
-(declare-function mc/maybe-multiple-cursors-mode "ext:multiple-cursors")
-(declare-function mc/mark-lines "ext:multiple-cursors")
-(declare-function mc/remove-fake-cursors "ext:multiple-cursors")
+(declare-function mc/create-fake-cursor-at-point "ext:multiple-cursors-core")
+(declare-function mc/all-fake-cursors "ext:multiple-cursors-core")
+(declare-function mc/maybe-multiple-cursors-mode "ext:multiple-cursors-core")
+(declare-function mc/mark-lines "ext:multiple-cursors-more")
+(declare-function mc/remove-fake-cursors "ext:multiple-cursors-core")
 
 (defun lispy-cursor-down (arg)
   "Add ARG cursors using `lispy-down'."
@@ -4162,7 +4157,8 @@ For example, a `setq' statement is amended with variable name that it uses."
 (defun lispy--tag-name-and-file (x)
   "Add file name to (`lispy--tag-name' X)."
   (if (and (eq lispy-completion-method 'ido)
-           (not (bound-and-true-p ido-vertical-mode)))
+           (not (or (bound-and-true-p ido-vertical-mode)
+                    (bound-and-true-p ivy-mode))))
       x
     (or
      (catch 'break
