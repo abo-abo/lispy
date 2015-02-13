@@ -3168,7 +3168,7 @@ With ARG, use the contents of `lispy-store-region-and-buffer' instead."
 (declare-function mc/create-fake-cursor-at-point "ext:multiple-cursors-core")
 (declare-function mc/all-fake-cursors "ext:multiple-cursors-core")
 (declare-function mc/maybe-multiple-cursors-mode "ext:multiple-cursors-core")
-(declare-function mc/mark-lines "ext:multiple-cursors-more")
+(declare-function mc/mark-lines "ext:mc-mark-more")
 (declare-function mc/remove-fake-cursors "ext:multiple-cursors-core")
 
 (defun lispy-cursor-down (arg)
@@ -3436,7 +3436,6 @@ If already there, return it to previous position."
         (or (eq 'macro (car def))
             (and (autoloadp def) (memq (nth 4 def) '(macro t))))))))
 
-(declare-function elisp--preceding-sexp "ext:elisp-mode")
 (defalias 'lispy--preceding-sexp
     (if (version< emacs-version "25.1")
         'preceding-sexp
@@ -4108,7 +4107,7 @@ ARITY-ALIST combines strings that REGEX matches and their arities."
       (save-excursion
         (goto-char end)
         (ignore-errors
-          (elisp--preceding-sexp))))))
+          (lispy--preceding-sexp))))))
 
 (defun lispy--tag-name-elisp (x)
   "Build tag name for Elisp tag X."

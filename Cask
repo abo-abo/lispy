@@ -17,4 +17,5 @@
  (depends-on "s")
  (depends-on "highlight")
  (depends-on "hydra")
- (depends-on "ace-window"))
+ (depends-on "ace-window")
+ (depends-on "fancy-narrow"))
