@@ -218,8 +218,8 @@ The hint will consist of the possible nouns that apply to the verb."
   :type 'boolean
   :group 'lispy)
 
-(defcustom lispy-helm-columns '(1 60 70 80)
-  "Start and end positions of columns when completing with `helm'."
+(defcustom lispy-helm-columns '(60 80)
+  "Max lengths of tag and tag+filename when completing with `helm'."
   :group 'lispy)
 
 (defcustom lispy-no-permanent-semantic nil
@@ -4168,8 +4168,8 @@ For example, a `setq' statement is amended with variable name that it uses."
                    ((eq major-mode 'lisp-mode)
                     (lispy--tag-name-lisp x))
                    (t (throw 'break nil)))))
-    (if (> (length str) 80)
-        (concat (substring str 0 80) " ...")
+    (if (> (length str) (car lispy-helm-columns))
+        (concat (substring str 0 (car lispy-helm-columns)) " ...")
       str)))
 
 (defun lispy--tag-name-and-file (x)
@@ -4181,29 +4181,21 @@ For example, a `setq' statement is amended with variable name that it uses."
     (or
      (catch 'break
        (cons
-        (concat
-         (lispy--pad-string
-          (lispy--tag-name x)
-          (nth 1 lispy-helm-columns))
-         (make-string (- (nth 2 lispy-helm-columns)
-                         (nth 1 lispy-helm-columns))
-                      ?\ )
-         (let ((v (nth 4 x)))
-           (file-name-nondirectory
-            (cond ((overlayp v)
-                   (buffer-file-name (overlay-buffer v)))
-                  ((vectorp v)
-                   (aref v 2))
-                  (t (error "Unexpected"))))))
+        (let* ((width (min (window-width) (cadr lispy-helm-columns)))
+               (s1 (lispy--tag-name x))
+               (v (nth 4 x))
+               (s2 (file-name-nondirectory
+                    (cond ((overlayp v)
+                           (buffer-file-name (overlay-buffer v)))
+                          ((vectorp v)
+                           (aref v 2))
+                          (t (error "Unexpected"))))))
+          (format (format "%%s%% %ds" (- width
+                                         (length s1)))
+                  s1 s2))
+
         (cdr x)))
      x)))
-
-(defun lispy--pad-string (str n)
-  "Make STR at most length N."
-  (setq str (replace-regexp-in-string "\t" "    " str))
-  (if (< (length str) (- n 3))
-      (concat str (make-string (- n (length str)) ?\ ))
-    (concat (substring str 0 (- n 3)) "...")))
 
 (defun lispy--fetch-tags (&optional path)
   "Get a list of tags for PATH."
@@ -4213,7 +4205,7 @@ For example, a `setq' statement is amended with variable name that it uses."
   (let* ((this-file (expand-file-name (buffer-file-name)))
          (default-directory path)
          (db (or (semanticdb-directory-loaded-p path)
-                 (error "semantic not loaded")))
+                 (error "Semantic not loaded")))
          (db-tables (semanticdb-get-database-tables db)
            ;; (aref db 6)
            )
