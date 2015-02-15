@@ -3985,19 +3985,26 @@ When ADD-OUTPUT is t, append the output to the result."
   (let ((default-directory dir))
     (mapc
      (lambda (f)
-       (let ((buffer (find-file-noselect f))
-             tags)
-         (set-buffer buffer)
-         (setq tags (ignore-errors (semantic-fetch-tags)))
-         ;; modifies tags
-         (when (memq major-mode lispy-elisp-modes)
-           (lexical-let ((arity (cdr (assoc major-mode lispy-tag-arity)))
-                         (tag-regex (lispy--tag-regexp)))
-             (mapc (lambda (x) (lispy--modify-tag x tag-regex arity)) tags)))
-         ;; (kill-buffer buffer)
-         ))
+       (let ((buf (get-file-buffer f)))
+         (with-current-buffer (find-file-noselect f)
+           (semantic-mode 1)
+           (lispy--fetch-this-file-tags)
+           (unless buf
+             (kill-buffer)))))
      (lispy--file-list)))
   (semanticdb-save-all-db))
+
+(defun lispy--fetch-this-file-tags ()
+  "Fetch this file tags."
+  (let ((tags
+         (lispy--set-file-to-tags
+          (expand-file-name (buffer-file-name))
+          (semantic-fetch-tags))))
+    (when (memq major-mode (cons 'lisp-mode lispy-elisp-modes))
+      (lexical-let ((arity (cdr (assoc major-mode lispy-tag-arity)))
+                    (tag-regex (lispy--tag-regexp)))
+        (mapc (lambda (x) (lispy--modify-tag x tag-regex arity)) tags)))
+    tags))
 
 (defun lispy--file-list ()
   "Get the list of same type files in current directory."
@@ -4151,16 +4158,19 @@ ARITY-ALIST combines strings that REGEX matches and their arities."
   "Given a semantic tag X, return its string representation.
 This is `semantic-tag-name', amended with extra info.
 For example, a `setq' statement is amended with variable name that it uses."
-  (cond ((memq major-mode lispy-elisp-modes)
-         (lispy--tag-name-elisp x))
-        ((eq major-mode 'clojure-mode)
-         (lispy--tag-name-clojure x))
-        ((eq major-mode 'scheme-mode)
-         ;; (lispy--tag-name-scheme x)
-         (car x))
-        ((eq major-mode 'lisp-mode)
-         (lispy--tag-name-lisp x))
-        (t (throw 'break nil))))
+  (let ((str (cond ((memq major-mode lispy-elisp-modes)
+                    (lispy--tag-name-elisp x))
+                   ((eq major-mode 'clojure-mode)
+                    (lispy--tag-name-clojure x))
+                   ((eq major-mode 'scheme-mode)
+                    ;; (lispy--tag-name-scheme x)
+                    (car x))
+                   ((eq major-mode 'lisp-mode)
+                    (lispy--tag-name-lisp x))
+                   (t (throw 'break nil)))))
+    (if (> (length str) 80)
+        (concat (substring str 0 80) " ...")
+      str)))
 
 (defun lispy--tag-name-and-file (x)
   "Add file name to (`lispy--tag-name' X)."
@@ -4197,45 +4207,53 @@ For example, a `setq' statement is amended with variable name that it uses."
 
 (defun lispy--fetch-tags (&optional path)
   "Get a list of tags for PATH."
-  (unless path
-    (lispy--fetch-this-file-tags))
   (setq path (or path (expand-file-name default-directory)))
   (unless (string-match "/$" path)
     (setq path (concat path "/")))
-  (let* ((this-file (buffer-file-name))
+  (let* ((this-file (expand-file-name (buffer-file-name)))
          (default-directory path)
          (db (or (semanticdb-directory-loaded-p path)
-                 ;; a trick to make sure semantic loads
-                 (let ((files (lispy--file-list)))
-                   (when files
-                     (with-current-buffer
-                         (find-file-noselect
-                          (expand-file-name (car files)))
-                       (unless (equal this-file (buffer-file-name))
-                         (kill-buffer))))
-                   (semanticdb-directory-loaded-p path)))))
+                 (error "semantic not loaded")))
+         (db-tables (semanticdb-get-database-tables db)
+           ;; (aref db 6)
+           )
+         db-tables-with-mode
+         was-updated)
     (unless (lexical-let ((db-files
-                           (mapcar (lambda (x) (aref x 2))
-                                   (and db (aref db 6)))))
+                           (mapcar (lambda (x) (oref x file))
+                                   db-tables)))
               (cl-every (lambda (x) (member x db-files))
                         (let ((default-directory path))
                           (lispy--file-list))))
       (lispy-build-semanticdb path)
-      (setq db (semanticdb-directory-loaded-p path)))
-    (and db
-         (setq db (cl-remove-if-not
-                   (lambda (x) (eq (aref x 4) major-mode))
-                   (aref db 6)))
-         (apply
-          #'append
-          (mapcar
-           (lambda (x)
-             (cl-remove-if-not
-              (lambda (s) (stringp (car s)))
-              (lispy--set-file-to-tags
-               (expand-file-name (aref x 2) path)
-               (aref x 5))))
-           db)))))
+      (setq db (semanticdb-directory-loaded-p path))
+      (setq was-updated t))
+    (if (null db)
+        (error "Could not access semanticdb")
+      (setq db-tables-with-mode
+            (cl-remove-if-not
+             (lambda (x) (eq (oref x major-mode) major-mode))
+             db-tables))
+      (prog1 (apply
+              #'append
+              (mapcar
+               (lambda (x)
+                 (or
+                  (lispy--set-file-to-tags
+                   (expand-file-name (oref x file))
+                   (oref x tags))
+                  (oset x tags
+                        (let ((full-name (expand-file-name (oref x file) path)))
+                          (with-current-buffer
+                              (find-file-noselect full-name)
+                            (semantic-mode 1)
+                            (unless (string= this-file full-name)
+                              (setq was-updated full-name))
+                            (lispy--fetch-this-file-tags))))))
+               db-tables-with-mode))
+        (when was-updated
+          (message "%s was updated, saving db ..." was-updated)
+          (semanticdb-save-db db))))))
 
 (defun lispy--fetch-tags-recursive ()
   "Fetch all tags in current directory recursively."
@@ -4274,42 +4292,15 @@ For example, a `setq' statement is amended with variable name that it uses."
        y))
    tags))
 
-(defun lispy--fetch-this-file-tags ()
-  "Fetch this file tags."
-  (let ((tags
-         (lispy--set-file-to-tags
-          (buffer-file-name)
-          (semantic-fetch-tags))))
-    (when (memq major-mode lispy-elisp-modes)
-      (lexical-let ((arity (cdr (assoc major-mode lispy-tag-arity)))
-                    (tag-regex (lispy--tag-regexp)))
-        (mapc (lambda (x) (lispy--modify-tag x tag-regex arity)) tags)))
-    tags))
-
-(defvar lispy--goto-cache nil "Maps directories to pretty tags.")
-
 (defun lispy--goto (fun)
   "Jump to symbol selected from (FUN)."
   (require 'semantic/bovine/el)
   (let ((semantic-on (bound-and-true-p semantic-mode)))
     (semantic-mode 1)
     (let ((candidates (funcall fun))
-          (cache (assoc default-directory lispy--goto-cache))
-          cached-cands
           helm-candidate-number-limit)
       (lispy--select-candidate
-       (cond ((null cache)
-              (setq cached-cands (mapcar #'lispy--tag-name-and-file candidates))
-              (when (> (length cached-cands) 1000)
-                (push (cons default-directory cached-cands)
-                      lispy--goto-cache))
-              cached-cands)
-             ((and (setq cached-cands (cdr cache))
-                   (= (length cached-cands)
-                      (length candidates)))
-              cached-cands)
-             (t
-              (setcdr cache (mapcar #'lispy--tag-name-and-file candidates))))
+       (mapcar #'lispy--tag-name-and-file candidates)
        #'lispy--action-jump))
     (when (and lispy-no-permanent-semantic
                (not semantic-on))
