@@ -218,7 +218,7 @@ The hint will consist of the possible nouns that apply to the verb."
   :type 'boolean
   :group 'lispy)
 
-(defcustom lispy-helm-columns '(60 80)
+(defcustom lispy-helm-columns '(70 80)
   "Max lengths of tag and tag+filename when completing with `helm'."
   :group 'lispy)
 
@@ -4168,9 +4168,11 @@ For example, a `setq' statement is amended with variable name that it uses."
                    ((eq major-mode 'lisp-mode)
                     (lispy--tag-name-lisp x))
                    (t (throw 'break nil)))))
-    (if (> (length str) (car lispy-helm-columns))
-        (concat (substring str 0 (car lispy-helm-columns)) " ...")
-      str)))
+    (setq str (replace-regexp-in-string "\t" "    " str))
+    (let ((width (car lispy-helm-columns)))
+      (if (> (length str) width)
+          (concat (substring str 0 (- width 4)) " ...")
+        str))))
 
 (defun lispy--tag-name-and-file (x)
   "Add file name to (`lispy--tag-name' X)."
