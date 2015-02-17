@@ -2984,8 +2984,8 @@ When region is active, call `lispy-mark-car'."
         (progn
           (outline-minor-mode 1)
           (condition-case e
-              ;; (outline-toggle-children)
               (lispy-flet (org-unlogged-message (&rest x))
+                (require 'org)
                 (let ((org-outline-regexp outline-regexp))
                   (org-cycle-internal-local)))
             (error
