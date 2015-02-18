@@ -485,6 +485,8 @@ If couldn't move backward at least once, move up backward and return nil."
   "Move outside list forwards ARG times.
 Return nil on failure, t otherwise."
   (interactive "p")
+  (when (bound-and-true-p abbrev-mode)
+    (ignore-errors (expand-abbrev)))
   (cond ((region-active-p)
          (lispy-mark-right arg))
         ((looking-at lispy-outline)
@@ -3810,8 +3812,6 @@ First, try to return `lispy--bounds-string'."
   "Move outside list forwards ARG times.
 Return nil on failure, (point) otherwise."
   (lispy--exit-string)
-  (when (bound-and-true-p abbrev-mode)
-    (ignore-errors (expand-abbrev)))
   (catch 'break
     (dotimes (i arg)
       (if (ignore-errors (up-list) t)
