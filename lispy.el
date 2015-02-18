@@ -3018,22 +3018,19 @@ When region is active, call `lispy-mark-car'."
                (signal (car e) (cdr e))))))
       (lispy--normalize-1))))
 
-(defun lispy-shifttab ()
+(defun lispy-shifttab (arg)
   "Hide/show outline summary."
-  (interactive)
+  (interactive "P")
   (require 'org)
   (outline-minor-mode 1)
-  (lispy-flet (org-unlogged-message (&rest x))
-    (let ((org-outline-regexp outline-regexp))
-      (org-cycle-internal-global)))
-  (recenter)
-  ;; (if (get 'lispy-shifttab 'state)
-  ;;     (progn
-  ;;       (org-cycle '(64))
-  ;;       (put 'lispy-shifttab 'state nil))
-  ;;   (org-overview)
-  ;;   (put 'lispy-shifttab 'state 1))
-  )
+  (let ((org-outline-regexp outline-regexp))
+    (lispy-flet (org-unlogged-message (&rest x))
+      (if arg
+          (org-content)
+        (when (eq org-cycle-global-status 'overview)
+          (setq org-cycle-global-status 'contents))
+        (org-cycle-internal-global))))
+  (recenter))
 
 ;;* Locals: refactoring
 (defun lispy-to-lambda ()
