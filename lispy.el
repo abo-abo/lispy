@@ -178,7 +178,7 @@
 (defvar lispy-right "[])}]"
   "Closing delimiter.")
 
-(defvar lispy-outline "^;;\\*+"
+(defvar lispy-outline "^;;\\(?:;[^#]\\|\\*+\\)"
   "Outline delimiter.")
 
 (defcustom lispy-no-space nil
@@ -2933,7 +2933,7 @@ Sexp is obtained by exiting list ARG times."
     (save-match-data
       (end-of-line)
       (if (re-search-backward lispy-outline nil t)
-          (- (match-end 0) (match-beginning 0) 2)
+          (max (cl-count ?* (match-string 0)) 1)
         0))))
 
 (defun lispy-outline-next (arg)
@@ -5675,9 +5675,5 @@ They may become the defaults in the future."
     (define-key map "x" nil)))
 
 (provide 'lispy)
-
-;;; Local Variables:
-;;; outline-regexp: ";;\\*+"
-;;; End:
 
 ;;; lispy.el ends here
