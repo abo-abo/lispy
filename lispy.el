@@ -672,7 +672,8 @@ Return nil if can't move."
              (unless (lispy-forward arg)
                (goto-char pt))))
 
-          ((looking-at lispy-outline)
+          ((or (looking-at lispy-outline)
+               (and (bolp) (looking-at ";")))
            (let ((pt (point)))
              (lispy-dotimes arg
                (outline-next-visible-heading 1)
@@ -736,7 +737,8 @@ Return nil if can't move."
                (goto-char pt)
                (lispy-different))))
 
-          ((looking-at lispy-outline)
+          ((or (looking-at lispy-outline)
+               (and (bolp) (looking-at ";")))
            (let ((pt (point)))
              (lispy-dotimes arg
                (outline-previous-visible-heading 1)
