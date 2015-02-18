@@ -2718,11 +2718,19 @@ When ARG isn't nil, try to pretty print the sexp."
                lispy-eval-other--window)
               lispy-eval-other--buffer)))
 
+(defvar lispy--eval-sym nil
+  "Last set `dolist' sym.")
+
+(defvar lispy--eval-data nil
+  "List data for a `dolist' sym.")
+
 (declare-function aw-select "ext:ace-window")
+
 (defun lispy-eval-other-window ()
   "Eval current expression in the context of other window.
 In case the point is on a let-bound variable, add a `setq'."
   (interactive)
+  (require 'ace-window)
   (lexical-let*
       ((pt (point))
        (lispy-ignore-whitespace t)
@@ -2737,6 +2745,17 @@ In case the point is on a let-bound variable, add a `setq'."
                         (cl-mapcan
                          (lambda (x) (unless (listp x) (list x nil)))
                          (read str))))
+
+                 ((looking-back "(dolist ")
+                  (let* ((exp (read str))
+                         (sym (car exp)))
+                    (unless (eq sym lispy--eval-sym)
+                      (setq lispy--eval-sym sym)
+                      (setq lispy--eval-data (eval (cadr exp))))
+                    (if lispy--eval-data
+                        `(setq ,sym ,(pop lispy--eval-data))
+                      (setq lispy--eval-data (eval (cadr exp)))
+                      `(setq ,sym nil))))
 
                  ;; point moves
                  ((progn

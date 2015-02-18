@@ -697,8 +697,8 @@ Insert KEY if there's no command."
                    "(foo |(baz)~)"))
   (should (string= (lispy-with "(foo (bar |(baz)~))" "2r")
                    "|(baz)~"))
-  (should (string= (lispy-with "(a (f~oob|ar) c)" (lispy-raise 1)) "(a ~oob| c)"))
-  (should (string= (lispy-with "(a (f|oob~ar) c)" (lispy-raise 1)) "(a |oob~ c)"))
+  (should (string= (lispy-with "(a (f~oob|ar) c)" "r") "(a ~oob| c)"))
+  (should (string= (lispy-with "(a (f|oob~ar) c)" "r") "(a |oob~ c)"))
   (should (string= (lispy-with "(\n     |(foo))" "r") "|(foo)"))
   ;; a bug in `indent-sexp' http://debbugs.gnu.org/cgi/bugreport.cgi?bug=16852
   ;; (should (string= (lispy-with "(|(\n  progn\n  ))" "r") "|(\n progn\n )"))
@@ -1392,6 +1392,19 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "(defun foo ()\n  |(bar)\n  (baz))"
                                (lispy-knight-up))
                    "|(defun foo ()\n  (bar)\n  (baz))")))
+
+(ert-deftest lispy-eval-other-window ()
+  (setq lispy--eval-sym nil)
+  (should (string= (lispy-with-value "(dolist |(s '(1 2 3))\n  (message \"val: %d\" s))"
+                                     (lispy-eval-other-window)) "1"))
+  (should (string= (lispy-with-value "(dolist |(s '(1 2 3))\n  (message \"val: %d\" s))"
+                                     (lispy-eval-other-window)) "2"))
+  (should (string= (lispy-with-value "(dolist |(s '(1 2 3))\n  (message \"val: %d\" s))"
+                                     (lispy-eval-other-window)) "3"))
+  (should (string= (lispy-with-value "(dolist |(s '(1 2 3))\n  (message \"val: %d\" s))"
+                                     (lispy-eval-other-window)) "nil"))
+  (should (string= (lispy-with-value "(dolist |(s '(1 2 3))\n  (message \"val: %d\" s))"
+                                     (lispy-eval-other-window)) "1")))
 
 (provide 'lispy-test)
 
