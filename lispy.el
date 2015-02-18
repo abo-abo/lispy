@@ -560,7 +560,8 @@ Return nil if can't move."
   (let ((pt (point))
         success)
     (lispy-dotimes arg
-      (cond ((looking-at lispy-left)
+      (cond ((or (looking-at lispy-left)
+                 (and (looking-back "^ *") (looking-at ";")))
              (forward-char)
              (re-search-forward lispy-left nil t)
              (while (and (lispy--in-string-or-comment-p)

@@ -119,7 +119,8 @@ Insert KEY if there's no command."
     (if (or (and cmd (or (looking-at lispy-left)
                          (looking-back lispy-right)
                          (looking-at lispy-outline)
-                         (region-active-p)))
+                         (region-active-p)
+                         (and (bolp) (looking-at ";"))))
             (progn
               (setq cmd (key-binding key))
               (not (cond ((eq cmd 'self-insert-command))
@@ -293,7 +294,9 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "(defun foo ()\n  (let ((a 1))\n    (let ((b 2))\n      |(something))))" "ff")
                    "(defun foo ()\n  (let ((a 1))\n    (let ((b 2))\n      |(something))))"))
   (should (string= (lispy-with "(defun foo ()\n  (let ((a 1))\n    (let ((b 2))\n      |(something))))" "3f")
-                   "(defun foo ()\n  (let ((a 1))\n    (let ((b 2))\n      |(something))))")))
+                   "(defun foo ()\n  (let ((a 1))\n    (let ((b 2))\n      |(something))))"))
+  (should (string= (lispy-with "|;; herp\n;; (foo)\n;; \n(derp)" "f")
+                   ";; herp\n;; (foo)\n;; \n|(derp)")))
 
 (ert-deftest lispy-down ()
   (should (string= (lispy-with "(|(a) (b) (c))" "j")
