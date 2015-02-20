@@ -1508,7 +1508,8 @@ When region is active, toggle a ~ at the start of the region."
     (slime-repl-mode
      (slime-repl-return))
     (t
-     (if (looking-back "[^#`',@~][#`',@~]+")
+     (if (and (not (lispy--in-string-or-comment-p))
+              (looking-back "[^#`',@~][#`',@~]+"))
          (save-excursion
            (goto-char (match-beginning 0))
            (newline-and-indent))
