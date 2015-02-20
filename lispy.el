@@ -3004,6 +3004,10 @@ Sexp is obtained by exiting list ARG times."
           (lispy--ensure-visible))
       (lispy-complain "This outline has no children"))))
 
+(declare-function org-cycle-internal-local "org")
+(declare-function org-content "org")
+(declare-function org-cycle-internal-global "org")
+
 (defun lispy-tab ()
   "Indent code and hide/show outlines.
 When region is active, call `lispy-mark-car'."
