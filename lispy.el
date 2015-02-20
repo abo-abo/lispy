@@ -769,7 +769,7 @@ Return nil if can't move."
         (cond ((>= (point) (cdr bnd))
                (goto-char pt)
                (throw 'done nil))
-              ((looking-at (concat " *" lispy-left))
+              ((looking-at (concat "\\s-*" lispy-left))
                (goto-char (1- (match-end 0)))
                (throw 'done t)))))))
 
@@ -790,7 +790,7 @@ Return nil if can't move."
         (cond ((< (point) (car bnd))
                (goto-char pt)
                (throw 'done nil))
-              ((looking-at (concat " *" lispy-left))
+              ((looking-at (concat "\\s-*" lispy-left))
                (goto-char (1- (match-end 0)))
                (throw 'done t)))))))
 
