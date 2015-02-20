@@ -31,6 +31,14 @@
       (defalias 'string-trim 's-trim))
   (require 'subr-x))
 
+(defvar geiser-impl--implementation)
+(declare-function geiser-repl--connection* "geiser-repl")
+(declare-function run-geiser "geiser-repl")
+(declare-function geiser-repl--buffer-name "geiser-repl")
+(declare-function geiser-eval--send/wait "geiser-eval")
+(declare-function geiser-eval--retort-error "geiser-eval")
+(declare-function geiser-mode "geiser-mode")
+
 (defun lispy--eval-scheme (str)
   "Eval STR as Scheme code."
   (unless (geiser-repl--connection*)

@@ -22,8 +22,11 @@
 
 ;;; Code:
 
-(eval-and-compile
-  (ignore-errors (require 'cider)))
+(declare-function nrepl-sync-request:eval "nrepl-client")
+(declare-function nrepl-dict-get "nrepl-client")
+(declare-function nrepl-send-sync-request "nrepl-client")
+(declare-function nrepl-current-session "nrepl-client")
+(declare-function cider-current-ns "cider-interaction")
 
 (defvar lispy-do-pprint)
 
@@ -32,6 +35,7 @@
 The result is a string.
 
 When ADD-OUTPUT is t, add the standard output to the result."
+  (require 'cider)
   (let* ((str
           (if lispy-do-pprint
               (format "(clojure.core/let [x %s] (with-out-str (clojure.pprint/pprint x)))"
@@ -46,10 +50,10 @@ When ADD-OUTPUT is t, add the standard output to the result."
 
           (add-output
            (if (setq out (nrepl-dict-get res "out"))
-             (format "%s\n%s"
-                     (propertize
-                      out 'face 'font-lock-string-face)
-                     val)
+               (format "%s\n%s"
+                       (propertize
+                        out 'face 'font-lock-string-face)
+                       val)
              val))
 
           (lispy-do-pprint

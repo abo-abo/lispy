@@ -260,6 +260,9 @@ The hint will consist of the possible nouns that apply to the verb."
 
 (defvar lispy-mode-map (make-sparse-keymap))
 
+(defvar lispy-known-verbs nil
+  "List of registered verbs.")
+
 ;;;###autoload
 (define-minor-mode lispy-mode
   "Minor mode for navigating and editing LISP dialects.
@@ -357,9 +360,6 @@ Otherwise return the amount of times executed."
          (fset ',name ,old)))))
 
 ;;* Verb related
-(defvar lispy-known-verbs nil
-  "List of registered verbs.")
-
 (defun lispy-disable-verbs-except (verb)
   "Disable all verbs except VERB."
   (mapc
@@ -1185,6 +1185,9 @@ When ARG is more than 1, mark ARGth element."
         ((and (looking-back "^ *") (looking-at ";"))
          (lispy--mark (lispy--bounds-comment))))
   (setq this-command 'lispy-mark-list))
+
+(defvar-local lispy-bind-var-in-progress nil
+  "When t, `lispy-mark-symbol' will exit `iedit'.")
 
 (defun lispy-mark-symbol ()
   "Mark current symbol."
@@ -3164,9 +3167,6 @@ With ARG, use the contents of `lispy-store-region-and-buffer' instead."
   (save-excursion
     (lispy--out-backward 1)
     (lispy--normalize-1)))
-
-(defvar-local lispy-bind-var-in-progress nil
-  "When t, `lispy-mark-symbol' will exit `iedit'.")
 
 (defun lispy-bind-variable ()
   "Bind current expression as variable."
