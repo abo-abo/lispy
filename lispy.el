@@ -2755,10 +2755,12 @@ In case the point is on a let-bound variable, add a `setq'."
                          (sym (car exp)))
                     (unless (eq sym lispy--eval-sym)
                       (setq lispy--eval-sym sym)
-                      (setq lispy--eval-data (eval (cadr exp))))
+                      (setq lispy--eval-data
+                            (lispy--eval-elisp-form (cadr exp) lexical-binding)))
                     (if lispy--eval-data
                         `(setq ,sym ,(pop lispy--eval-data))
-                      (setq lispy--eval-data (eval (cadr exp)))
+                      (setq lispy--eval-data
+                            (lispy--eval-elisp-form (cadr exp) lexical-binding))
                       `(setq ,sym nil))))
 
                  ;; point moves
@@ -2794,7 +2796,7 @@ In case the point is on a let-bound variable, add a `setq'."
                 (setq lispy-eval-other--buffer nil)
                 source-window))))
       (select-window target-window)
-      (setq res (eval expr lexical-binding))
+      (setq res (lispy--eval-elisp-form expr lexical-binding))
       (select-window source-window))
     (if (equal res lispy--eval-cond-msg)
         (message res)
@@ -3907,6 +3909,21 @@ When ADD-OUTPUT is t, append the output to the result."
          (t (error "%s isn't supported currently" major-mode)))
    e-str))
 
+(defvar lispy-eval-match-data nil)
+
+(defun lispy--eval-elisp-form (form lexical)
+  "Eval FORM and return its value.
+If LEXICAL is t, evaluate using lexical scoping.  Restore and
+save `lispy-eval-match-data' appropriately, so that no other
+packages disturb the match data."
+  (let (val)
+    (fset '\, #'identity)
+    (set-match-data lispy-eval-match-data)
+    (setq val (eval form lexical))
+    (setq lispy-eval-match-data (match-data))
+    (fset '\, nil)
+    val))
+
 (defun lispy--eval-elisp (e-str)
   "Eval E-STR as Elisp code."
   (let ((e-sexp (read e-str))
@@ -3919,11 +3936,8 @@ When ADD-OUTPUT is t, append the output to the result."
         (if (memq (car e-sexp) '(\, \,@))
             (setq e-sexp (cadr e-sexp)))))
     (condition-case e
-        (prog2
-            (fset '\, #'identity)
-            (prin1-to-string
-             (eval e-sexp lexical-binding))
-          (fset '\, nil))
+        (prin1-to-string
+         (lispy--eval-elisp-form e-sexp lexical-binding))
       (error
        (progn
          (fset '\, nil)
