@@ -18,4 +18,5 @@
  (depends-on "highlight")
  (depends-on "hydra")
  (depends-on "ace-window")
- (depends-on "fancy-narrow"))
+ (depends-on "fancy-narrow")
+ (depends-on "undercover"))
