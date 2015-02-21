@@ -4341,13 +4341,13 @@ For example, a `setq' statement is amended with variable name that it uses."
 ;;* Utilities: slurping and barfing
 (defun lispy--slurp-forward ()
   "Grow current sexp forward by one sexp."
-  (unless (or (looking-back "[()])")
-              (looking-at "$"))
-    (just-one-space)
-    (backward-char 1))
   (let ((pt (point))
         (char (char-before))
         (beg (save-excursion (backward-list) (point))))
+    (skip-chars-forward " \t")
+    (delete-region pt (point))
+    (unless (or (looking-back "()") (eolp))
+      (insert " "))
     (when (ignore-errors
             (forward-sexp) t)
       (delete-region (1- pt) pt)
