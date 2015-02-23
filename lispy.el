@@ -3917,9 +3917,9 @@ When ADD-OUTPUT is t, append the output to the result."
 
 (defun lispy--eval-elisp-form (form lexical)
   "Eval FORM and return its value.
-If LEXICAL is t, evaluate using lexical scoping.  Restore and
-save `lispy-eval-match-data' appropriately, so that no other
-packages disturb the match data."
+If LEXICAL is t, evaluate using lexical scoping.
+Restore and save `lispy-eval-match-data' appropriately,
+so that no other packages disturb the match data."
   (let (val)
     (fset '\, #'identity)
     (set-match-data lispy-eval-match-data)
@@ -5543,7 +5543,7 @@ FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)."
   ("f" lispy-flatten)
   ("a" lispy-teleport)))
 
-(defhydra lispy-knight ()
+(defhydra lh-knight ()
   "knight"
   ("j" lispy-knight-down)
   ("k" lispy-knight-up)
@@ -5615,7 +5615,7 @@ FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)."
   (lispy-define-key map "p" 'lispy-eval-other-window)
   (lispy-define-key map "P" 'lispy-paste)
   (lispy-define-key map "y" 'lispy-occur)
-  (lispy-define-key map "z" 'lispy-knight/body)
+  (lispy-define-key map "z" 'lh-knight/body)
   ;; ——— locals: outline ——————————————————————
   (lispy-define-key map "J" 'lispy-outline-next)
   (lispy-define-key map "K" 'lispy-outline-prev)
