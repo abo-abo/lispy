@@ -2918,6 +2918,11 @@ Sexp is obtained by exiting list ARG times."
      (lambda () (or (not (lispy--in-string-or-comment-p)) (looking-back ".\"")))
      (lambda () (skip-chars-forward "-([{ `'#") (mark-word)))))
 
+(defhydra lh-delete ()
+  ("H" lispy-delete "delete more")
+  ("h" lispy-delete)
+  ("u" lispy-undo))
+
 (defun lispy-ace-symbol-replace (arg)
   "Use `ace-jump-char-mode' to jump to a symbol within a sexp and delete it.
 Sexp is obtained by exiting list ARG times."
@@ -2930,7 +2935,11 @@ Sexp is obtained by exiting list ARG times."
    "[([{ ]\\(?:\\sw\\|\\s_\\|\\s(\\|[\"'`#]\\)"
    (lispy--bounds-dwim)
    (lambda () (or (not (lispy--in-string-or-comment-p)) (looking-back ".\"")))
-   (lambda () (forward-char 1) (lispy-mark-symbol) (lispy-delete 1))))
+   (lambda ()
+     (forward-char 1)
+     (lispy-mark-symbol)
+     (lispy-delete 1)
+     (lh-delete/body))))
 
 ;;* Locals: outline
 (defun lispy-outline-level ()
