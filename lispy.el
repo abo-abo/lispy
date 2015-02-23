@@ -3930,11 +3930,13 @@ If LEXICAL is t, evaluate using lexical scoping.
 Restore and save `lispy-eval-match-data' appropriately,
 so that no other packages disturb the match data."
   (let (val)
-    (fset '\, #'identity)
-    (set-match-data lispy-eval-match-data)
-    (setq val (eval form lexical))
-    (setq lispy-eval-match-data (match-data))
-    (fset '\, nil)
+    (unwind-protect
+         (progn
+           (fset '\, #'identity)
+           (set-match-data lispy-eval-match-data)
+           (setq val (eval form lexical))
+           (setq lispy-eval-match-data (match-data)))
+      (fset '\, nil))
     val))
 
 (defun lispy--eval-elisp (e-str)
