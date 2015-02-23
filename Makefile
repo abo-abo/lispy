@@ -16,6 +16,9 @@ compile:
 	$(CASKEMACS) -batch $(LOAD) -l lispy-test.el -l compile.elt
 
 test:
+	${MAKE} unit
+
+unit:
 	$(CASKEMACS) -batch $(LOAD) -l lispy-test.el -f ert-run-tests-batch-and-exit
 
 elisp:
