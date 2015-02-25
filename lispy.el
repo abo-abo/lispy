@@ -5563,7 +5563,7 @@ FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)."
   "knight"
   ("j" lispy-knight-down)
   ("k" lispy-knight-up)
-  ("z"))
+  ("z" nil))
 
 (let ((map lispy-mode-map))
   ;; ——— globals: navigation ——————————————————
