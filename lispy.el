@@ -3997,6 +3997,7 @@ so that no other packages disturb the match data."
      (defslimefun . 1))
     (emacs-lisp-mode
      (setq . 2)
+     (csetq . 2)
      (setq-default . 2)
      (add-to-list . 2)
      (add-hook . 2)
