@@ -2758,7 +2758,11 @@ In case the point is on a let-bound variable, add a `setq'."
                       (setq lispy--eval-data
                             (lispy--eval-elisp-form (cadr exp) lexical-binding)))
                     (if lispy--eval-data
-                        `(setq ,sym ,(pop lispy--eval-data))
+                        (let* ((popped (pop lispy--eval-data))
+                               (popped (if (or (symbolp popped) (listp popped))
+                                           `(quote ,popped)
+                                         popped)))
+                          `(setq ,sym ,popped))
                       (setq lispy--eval-data
                             (lispy--eval-elisp-form (cadr exp) lexical-binding))
                       `(setq ,sym nil))))
