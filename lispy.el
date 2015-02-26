@@ -4839,7 +4839,8 @@ Defaults to `error'."
 
 (defun lispy--remove-gaps ()
   "Remove dangling `\\s)'."
-  (when (looking-back "[^ \t\n]\\([ \t\n]+\\)\\s)")
+  (when (and (looking-back "[^ \t\n]\\([ \t\n]+\\)\\s)")
+             (not (eq ?\\ (aref (match-string 0) 0))))
     ;; (or (looking-at "\\(\\s-*\\))")
     ;;     (and (looking-back "\\s)\\([ \t\n]+\\)")
     ;;          (not (looking-at lispy-left))))

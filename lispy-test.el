@@ -234,8 +234,10 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "|(foo)~" "l")
                    "~(foo)|"))
   (should (string= (lispy-with "~(foo)|" "l")
-                   "~(foo)|")))
-
+                   "~(foo)|"))
+  (should (string= (lispy-with "(|asdf ?\\ )"
+                               (lispy-right 1))
+                   "(asdf ?\\ )|")))
 (ert-deftest lispy-left ()
   (should (string= (lispy-with "(|(a) (b) (c))" "h")
                    "|((a) (b) (c))"))
