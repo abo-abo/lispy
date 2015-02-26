@@ -294,9 +294,7 @@ backward through lists, which is useful to move into special.
         (setq-local outline-regexp (substring lispy-outline 1))
         (when (called-interactively-p 'any)
           (mapc #'lispy-raise-minor-mode
-                (cons 'lispy-mode lispy-known-verbs)))
-        (modify-syntax-entry ?\{ "(}")
-        (modify-syntax-entry ?\} "){"))
+                (cons 'lispy-mode lispy-known-verbs))))
     (setq-local outline-regexp ";;;\\(;* [^ \t\n]\\|###autoload\\)\\|(")
     (setq-local outline-level 'lisp-outline-level)))
 
