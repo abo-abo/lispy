@@ -3040,7 +3040,8 @@ When region is active, call `lispy-mark-car'."
       (lispy--normalize-1))))
 
 (defun lispy-shifttab (arg)
-  "Hide/show outline summary."
+  "Hide/show outline summary.
+When ARG isn't nil, show table of contents."
   (interactive "P")
   (require 'org)
   (outline-minor-mode 1)
