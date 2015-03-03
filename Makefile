@@ -2,8 +2,9 @@ EMACS = emacs
 # EMACS = emacs-24.3
 
 CASK = ~/.cask/bin/cask
-CASKEMACS = $(CASK) exec $(EMACS)
+BEMACS = $(EMACS) -batch -l elpa.el
 LOAD = -l lispy-inline.el -l lispy.el
+QEMACS = $(EMACS) -Q -l elpa.el -l targets/base-init.el
 
 .PHONY: all clean cask elisp clojure lisp scheme check-declare
 
@@ -13,35 +14,25 @@ cask:
 	$(shell EMACS=$(EMACS) $(CASK))
 
 compile:
-	$(CASKEMACS) -batch $(LOAD) -l lispy-test.el -l targets/compile.el
+	$(BEMACS) $(LOAD) -l targets/compile.el
 
 check-declare:
-	$(CASKEMACS) -batch $(LOAD) -l targets/check-declare.el
+	$(BEMACS) $(LOAD) -l targets/check-declare.el
 
 test:
-	${MAKE} unit
-
-simpletest:
-	$(EMACS) -batch -l elpa.el -l lispy-test.el $(LOAD) -f ert-run-tests-batch-and-exit
-
-unit:
-	$(EMACS) -batch -l elpa.el -l lispy-test.el $(LOAD) -f ert-run-tests-batch-and-exit
+	$(BEMACS) -l lispy-test.el $(LOAD) -f ert-run-tests-batch-and-exit
 
 elisp:
-	$(CASKEMACS) -q $(LOAD) lispy.el
+	$(QEMACS) lispy.el
 
 clojure:
-	$(CASKEMACS) -q $(LOAD) \
-	~/git/incanter/modules/incanter-core/src/incanter/bayes.clj \
-	--eval "(require 'clojure-mode)" -f clojure-mode
+	$(QEMACS) ~/git/incanter/modules/incanter-core/src/incanter/bayes.clj
 
 scheme:
-	$(CASKEMACS) -q $(LOAD) \
-	~/Dropbox/source/scheme/script3.scm
+	$(QEMACS) ~/Dropbox/source/scheme/script3.scm -f lispy-mode
 
 lisp:
-	$(CASKEMACS) -q $(LOAD) \
-	~/git/slime/metering.lisp
+	$(QEMACS) ~/Dropbox/source/site-lisp/git/slime/metering.lisp
 
 clean:
 	rm -f *.elc
