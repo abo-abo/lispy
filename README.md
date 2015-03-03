@@ -1,5 +1,6 @@
 [![License GPL 3][badge-license]](http://www.gnu.org/licenses/gpl-3.0.txt)
 [![Build Status](https://travis-ci.org/abo-abo/lispy.svg?branch=master)](https://travis-ci.org/abo-abo/lispy)
+[![Coverage Status](https://coveralls.io/repos/abo-abo/lispy/badge.svg?branch=master)](https://coveralls.io/r/abo-abo/lispy?branch=master)
 [![MELPA](http://melpa.org/packages/lispy-badge.svg)](http://melpa.org/#/lispy)
 [![MELPA Stable](http://stable.melpa.org/packages/lispy-badge.svg)](http://stable.melpa.org/#/lispy)
 
