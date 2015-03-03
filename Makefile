@@ -21,8 +21,11 @@ check-declare:
 test:
 	${MAKE} unit
 
+simpletest:
+	$(EMACS) -batch -l elpa.el -l lispy-test.el $(LOAD) -f ert-run-tests-batch-and-exit
+
 unit:
-	$(CASKEMACS) -batch -l lispy-test.el $(LOAD) --eval "(ert t)"
+	$(EMACS) -batch -l elpa.el -l lispy-test.el $(LOAD) --eval "(ert t)"
 
 elisp:
 	$(CASKEMACS) -q $(LOAD) lispy.el
