@@ -27,6 +27,7 @@
 (declare-function nrepl-send-sync-request "nrepl-client")
 (declare-function nrepl-current-session "nrepl-client")
 (declare-function cider-current-ns "cider-interaction")
+(declare-function cider-find-file "cider-interaction")
 
 (defvar lispy-do-pprint)
 
@@ -187,7 +188,7 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
          (file (nrepl-dict-get dict "file"))
          (line (nrepl-dict-get dict "line"))
          (col (nrepl-dict-get dict "column")))
-    (find-file file)
+    (switch-to-buffer (cider-find-file file))
     (goto-char (point-min))
     (forward-line (1- line))
     (forward-char (1- col))))
