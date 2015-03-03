@@ -3389,8 +3389,9 @@ ARG is 4: `eval-defun' on the function from this sexp."
          (let* ((expr (lispy--read (lispy--string-dwim)))
                 (fun (car expr)))
            (if (fboundp fun)
-               (cl-destructuring-bind (buf . pt)
-                   (find-definition-noselect fun nil)
+               (let* ((fnd (find-definition-noselect fun nil))
+                      (buf (car fnd))
+                      (pt (cdr fnd)))
                  (with-current-buffer buf
                    (goto-char pt)
                    (cond ((= arg 3)
@@ -3822,8 +3823,8 @@ First, try to return `lispy--bounds-string'."
 (defun lispy--string-dwim (&optional bounds)
   "Return the string that corresponds to BOUNDS.
 `lispy--bounds-dwim' is used if BOUNDS is nil."
-  (destructuring-bind (beg . end) (or bounds (lispy--bounds-dwim))
-    (buffer-substring-no-properties beg end)))
+  (setq bounds (or bounds (lispy--bounds-dwim)))
+  (buffer-substring-no-properties (car bounds) (cdr bounds)))
 
 (defun lispy--current-function ()
   "Return current function as string."
@@ -4625,10 +4626,12 @@ Defaults to `error'."
   "Return FUN definition as a string."
   (if (fboundp fun)
       (condition-case e
-          (cl-destructuring-bind (buf . pt)
-              (save-window-excursion
-                (save-excursion
-                  (find-function-noselect fun)))
+          (let* ((fnd
+                  (save-window-excursion
+                    (save-excursion
+                      (find-function-noselect fun))))
+                 (buf (car fnd))
+                 (pt (cdr fnd)))
             (with-current-buffer buf
               (if (derived-mode-p
                    'emacs-lisp-mode
@@ -4862,10 +4865,9 @@ Defaults to `error'."
 
 (defun lispy--mark (bnd)
   "Mark BND.  BND is a cons of beginning and end positions."
-  (destructuring-bind (beg . end) bnd
-    (setq deactivate-mark nil)
-    (set-mark beg)
-    (goto-char end)))
+  (setq deactivate-mark nil)
+  (set-mark (car bnd))
+  (goto-char (cdr bnd)))
 
 (defun lispy--space-unless (context)
   "Insert one space.
