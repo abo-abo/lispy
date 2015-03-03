@@ -25,7 +25,7 @@ simpletest:
 	$(EMACS) -batch -l elpa.el -l lispy-test.el $(LOAD) -f ert-run-tests-batch-and-exit
 
 unit:
-	$(EMACS) -batch -l elpa.el -l lispy-test.el $(LOAD) --eval "(ert t)"
+	$(EMACS) -batch -l elpa.el -l lispy-test.el $(LOAD) -f ert-run-tests-batch-and-exit
 
 elisp:
 	$(CASKEMACS) -q $(LOAD) lispy.el
