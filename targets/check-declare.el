@@ -5,6 +5,9 @@
               "le-clojure.el"
               "le-scheme.el"
               "le-lisp.el"))
-(mapc #'byte-compile-file files)
-(ert t)
+(add-to-list 'load-path
+             (concat (file-name-directory
+                      (locate-library "slime"))
+                     "contrib/"))
+(require 'slime-repl)
 (apply #'check-declare-files files)

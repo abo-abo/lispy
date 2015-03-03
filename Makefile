@@ -5,7 +5,7 @@ CASK = ~/.cask/bin/cask
 CASKEMACS = $(CASK) exec $(EMACS)
 LOAD = -l lispy-inline.el -l lispy.el
 
-.PHONY: all clean cask elisp clojure lisp scheme
+.PHONY: all clean cask elisp clojure lisp scheme check-declare
 
 all: test
 
@@ -13,7 +13,10 @@ cask:
 	$(shell EMACS=$(EMACS) $(CASK))
 
 compile:
-	$(CASKEMACS) -batch $(LOAD) -l lispy-test.el -l compile.elt
+	$(CASKEMACS) -batch $(LOAD) -l lispy-test.el -l targets/compile.el
+
+check-declare:
+	$(CASKEMACS) -batch $(LOAD) -l targets/check-declare.el
 
 test:
 	${MAKE} unit
