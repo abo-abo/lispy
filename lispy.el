@@ -3927,8 +3927,8 @@ When ADD-OUTPUT is t, append the output to the result."
 
 (defvar lispy-eval-match-data nil)
 
-(defun lispy--eval-elisp-form (form lexical)
-  "Eval FORM and return its value.
+(defun lispy--eval-elisp-form (lispy-form lexical)
+  "Eval LISPY-FORM and return its value.
 If LEXICAL is t, evaluate using lexical scoping.
 Restore and save `lispy-eval-match-data' appropriately,
 so that no other packages disturb the match data."
@@ -3937,7 +3937,7 @@ so that no other packages disturb the match data."
          (progn
            (fset '\, #'identity)
            (set-match-data lispy-eval-match-data)
-           (setq val (eval form lexical))
+           (setq val (eval lispy-form lexical))
            (setq lispy-eval-match-data (match-data)))
       (fset '\, nil))
     val))
