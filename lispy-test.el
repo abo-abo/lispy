@@ -1,6 +1,6 @@
 (when (require 'undercover nil t)
   (undercover "lispy.el" "lispy-inline.el"))
-(require 'lispy)
+(require 'lispy nil t)
 (require 'clojure-mode)
 (if (version< emacs-version "24.4.1")
     (load-library "cl-indent")

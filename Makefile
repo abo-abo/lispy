@@ -22,7 +22,7 @@ test:
 	${MAKE} unit
 
 unit:
-	$(CASKEMACS) -batch $(LOAD) -l lispy-test.el --eval "(ert t)"
+	$(CASKEMACS) -batch -l lispy-test.el $(LOAD) --eval "(ert t)"
 
 elisp:
 	$(CASKEMACS) -q $(LOAD) lispy.el
