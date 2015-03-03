@@ -213,11 +213,6 @@ The hint will consist of the possible nouns that apply to the verb."
   :type 'boolean
   :group 'lispy)
 
-(defcustom lispy-fancy-narrow t
-  "If t, `lispy-ace-char' will try to use `fancy-narrow-to-region'."
-  :type 'boolean
-  :group 'lispy)
-
 (defcustom lispy-helm-columns '(70 80)
   "Max lengths of tag and tag+filename when completing with `helm'."
   :group 'lispy)
@@ -2853,26 +2848,22 @@ When called twice in a row, restore point and mark."
          (beginning-of-defun arg))))
 
 ;;* Locals: ace-jump-mode
-(declare-function fancy-narrow-to-region "ext:fancy-narrow")
-(declare-function fancy-widen "ext:fancy-narrow")
-
 (defun lispy-ace-char ()
   "Call `ace-jump-char-mode' on current defun."
   (interactive)
-  (let ((bnd (save-excursion
-               ;; `beginning-of-defun' won't work, since it can change sexp
-               (lispy--out-backward 50)
-               (lispy--bounds-dwim)))
-        (fancy (and lispy-fancy-narrow (package-installed-p 'fancy-narrow)))
-        (ace-jump-mode-scope 'window))
-    (save-restriction
-      (if fancy
-          (fancy-narrow-to-region (car bnd) (cdr bnd))
-        (narrow-to-region (car bnd) (cdr bnd)))
-      (call-interactively 'ace-jump-char-mode)
-      (if fancy
-          (fancy-widen)
-        (widen)))))
+  (require 'avy-jump)
+  (let* ((bnd (save-excursion
+                ;; `beginning-of-defun' won't work, since it can change sexp
+                (lispy--out-backward 50)
+                (lispy--bounds-dwim)))
+         (str (string (read-char "Char: ")))
+         (cands (avi--regex-candidates
+                 str
+                 (selected-window)
+                 (car bnd) (cdr bnd))))
+    (avi--goto
+     (avi--process
+      cands #'avi--overlay-post))))
 
 (defun lispy-ace-paren ()
   "Use `lispy--ace-do' to jump to variable `lispy-left' within current defun.

@@ -13,34 +13,40 @@
 
 ;;* Infrastructure
 (defmacro lispy-with (in &rest body)
-  `(with-temp-buffer
-     (emacs-lisp-mode)
-     (transient-mark-mode 1)
-     (lispy-mode)
-     (insert ,in)
-     (goto-char (point-min))
-     (when (search-forward "~" nil t)
-       (backward-delete-char 1)
-       (set-mark (point)))
-     (goto-char (point-max))
-     (search-backward "|")
-     (delete-char 1)
-     (setq current-prefix-arg)
-     ,@(mapcar (lambda (x)
-                 (cond ((equal x '(kbd "C-u"))
-                        `(setq current-prefix-arg (list 4)))
-                       ((or (stringp x)
-                            (and (listp x)
-                                 (eq (car x) 'kbd)))
-                        `(lispy-unalias ,x))
-                       (t x))) body)
-     (insert "|")
-     (when (region-active-p)
-       (exchange-point-and-mark)
-       (insert "~"))
-     (buffer-substring-no-properties
-      (point-min)
-      (point-max))))
+  `(let ((temp-buffer (generate-new-buffer " *temp*")))
+     (save-window-excursion
+       (unwind-protect
+            (progn
+              (switch-to-buffer temp-buffer)
+              (emacs-lisp-mode)
+              (transient-mark-mode 1)
+              (lispy-mode)
+              (insert ,in)
+              (goto-char (point-min))
+              (when (search-forward "~" nil t)
+                (backward-delete-char 1)
+                (set-mark (point)))
+              (goto-char (point-max))
+              (search-backward "|")
+              (delete-char 1)
+              (setq current-prefix-arg)
+              ,@(mapcar (lambda (x)
+                          (cond ((equal x '(kbd "C-u"))
+                                 `(setq current-prefix-arg (list 4)))
+                                ((or (stringp x)
+                                     (and (listp x)
+                                          (eq (car x) 'kbd)))
+                                 `(lispy-unalias ,x))
+                                (t x))) body)
+              (insert "|")
+              (when (region-active-p)
+                (exchange-point-and-mark)
+                (insert "~"))
+              (buffer-substring-no-properties
+               (point-min)
+               (point-max)))
+         (and (buffer-name temp-buffer)
+              (kill-buffer temp-buffer))))))
 
 (defmacro lispy-with-clojure (in &rest body)
   `(with-temp-buffer
@@ -1409,6 +1415,12 @@ Insert KEY if there's no command."
                                      (lispy-eval-other-window)) "nil"))
   (should (string= (lispy-with-value "(dolist |(s '(1 2 3))\n  (message \"val: %d\" s))"
                                      (lispy-eval-other-window)) "1")))
+
+(ert-deftest lispy-ace-char ()
+  (should (string= (lispy-with "|(cons 'norwegian 'blue)"
+                               (execute-kbd-macro (kbd "Qos")))
+                   "(cons 'n|orwegian 'blue)")))
+
 
 (provide 'lispy-test)
 
