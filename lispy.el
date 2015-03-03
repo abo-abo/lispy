@@ -815,15 +815,15 @@ Return nil if can't move."
 
           ((setq bnd (lispy--bounds-string))
            (cond ((eq (point) (car bnd))
-                  (delete-region (car bnd) (cdr bnd)))
+                  (kill-region (car bnd) (cdr bnd)))
 
                  ((> (cdr bnd) (line-end-position))
                   (kill-line))
 
                  (t
-                  (delete-region (point) (1- (cdr bnd))))))
+                  (kill-region (point) (1- (cdr bnd))))))
           ((looking-at " *\n")
-           (delete-region
+           (kill-region
             (match-beginning 0)
             (match-end 0))
            (lispy--indent-for-tab))
