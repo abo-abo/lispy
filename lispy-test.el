@@ -1,6 +1,6 @@
-(require 'lispy)
 (when (require 'undercover nil t)
   (undercover "lispy.el" "lispy-inline.el"))
+(require 'lispy)
 (require 'clojure-mode)
 (if (version< emacs-version "24.4.1")
     (load-library "cl-indent")
@@ -10,7 +10,6 @@
 (setq lisp-indent-function 'common-lisp-indent-function)
 (put 'if 'common-lisp-indent-function 2)
 (transient-mark-mode 1)
-
 
 ;;* Infrastructure
 (defmacro lispy-with (in &rest body)
@@ -537,9 +536,7 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "(progn\n  (foo)\n\n  |;; upcoming magic\n  (magic))" "\C-?")
                    "(progn\n  (foo)\n  |;; upcoming magic\n  (magic))"))
   (should (string= (lispy-with "(list \"foo\" |)" "\C-?")
-                   "(list \"foo\"|)"))
-  (should (string= (lispy-with "(foo {|})" "\C-?")
-                   "(foo |)")))
+                   "(list \"foo\"|)")))
 
 (ert-deftest lispy-pair ()
   (should (string= (lispy-with "\"\\\\|\"" "(")
