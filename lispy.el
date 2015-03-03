@@ -3467,18 +3467,18 @@ If already there, return it to previous position."
        (put 'lispy-recenter :line window-line)
        (recenter 0)))))
 
-(when (version< emacs-version "24.4")
+(unless (fboundp 'macrop)
   (defun macrop (object)
     "Non-nil if and only if OBJECT is a macro."
-    (let ((def (indirect-function object t)))
+    (let ((def (indirect-function object)))
       (when (consp def)
         (or (eq 'macro (car def))
             (and (autoloadp def) (memq (nth 4 def) '(macro t))))))))
 
 (defalias 'lispy--preceding-sexp
-    (if (version< emacs-version "25.1")
-        'preceding-sexp
-      'elisp--preceding-sexp))
+    (if (fboundp 'elisp--preceding-sexp)
+        'elisp--preceding-sexp
+      'preceding-sexp))
 
 (declare-function projectile-find-file "ext:projectile")
 (declare-function projectile-find-file-other-window "ext:projectile")
