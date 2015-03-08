@@ -4042,7 +4042,8 @@ so that no other packages disturb the match data."
            (unless buf
              (kill-buffer)))))
      (lispy--file-list)))
-  (semanticdb-save-all-db))
+  (semanticdb-save-db
+   (semanticdb-directory-loaded-p dir)))
 
 (defun lispy--fetch-this-file-tags ()
   "Fetch this file tags."
@@ -4257,10 +4258,9 @@ For example, a `setq' statement is amended with variable name that it uses."
   (let* ((this-file (expand-file-name (buffer-file-name)))
          (default-directory path)
          (db (or (semanticdb-directory-loaded-p path)
+                 (lispy-build-semanticdb path)
                  (error "Semantic not loaded")))
-         (db-tables (semanticdb-get-database-tables db)
-           ;; (aref db 6)
-           )
+         (db-tables (semanticdb-get-database-tables db))
          db-tables-with-mode
          was-updated)
     (unless (lexical-let ((db-files
