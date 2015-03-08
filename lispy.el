@@ -2848,6 +2848,11 @@ When called twice in a row, restore point and mark."
          (beginning-of-defun arg))))
 
 ;;* Locals: ace-jump-mode
+(declare-function avi--regex-candidates "avy-jump")
+(declare-function avi--goto "avy-jump")
+(declare-function avi--process "avy-jump")
+(declare-function avi--overlay-post "avy-jump")
+
 (defun lispy-ace-char ()
   "Call `ace-jump-char-mode' on current defun."
   (interactive)
