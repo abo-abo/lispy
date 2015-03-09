@@ -478,6 +478,7 @@ If couldn't move backward at least once, move up backward and return nil."
   "Move outside list forwards ARG times.
 Return nil on failure, t otherwise."
   (interactive "p")
+  (lispy--remember)
   (when (bound-and-true-p abbrev-mode)
     (ignore-errors (expand-abbrev)))
   (cond ((region-active-p)
@@ -500,6 +501,7 @@ Self-insert otherwise."
   "Move outside list forwards ARG times.
 Return nil on failure, t otherwise."
   (interactive "p")
+  (lispy--remember)
   (cond ((region-active-p)
          (lispy-mark-left arg))
         ((looking-at lispy-outline)
@@ -550,6 +552,7 @@ Reveal outlines."
 Don't enter strings or comments.
 Return nil if can't move."
   (interactive "p")
+  (lispy--remember)
   (let ((pt (point))
         success)
     (lispy-dotimes arg
@@ -616,6 +619,7 @@ Return nil if can't move."
 (defun lispy-down (arg)
   "Move down ARG times inside current list."
   (interactive "p")
+  (lispy--remember)
   (save-match-data
     (cond ((region-active-p)
            (if (lispy--symbolp (lispy--string-dwim))
@@ -684,6 +688,7 @@ Return nil if can't move."
 (defun lispy-up (arg)
   "Move up ARG times inside current list."
   (interactive "p")
+  (lispy--remember)
   (save-match-data
     (cond ((region-active-p)
            (if (lispy--symbolp (lispy--string-dwim))
@@ -744,6 +749,29 @@ Return nil if can't move."
            (lispy-backward 1)
            (lispy-forward 1))))
   (lispy--ensure-visible))
+
+(defvar lispy-pos-ring (make-ring 200)
+  "Ring for point and mark position history.")
+(ring-insert lispy-pos-ring 1)
+
+(defun lispy--remember ()
+  "Store the current point and mark in history."
+  (if (region-active-p)
+      (let ((bnd (lispy--bounds-dwim)))
+        (unless (equal bnd (ring-ref lispy-pos-ring 0))
+          (ring-insert lispy-pos-ring bnd)))
+    (unless (eq (point) (ring-ref lispy-pos-ring 0))
+      (ring-insert lispy-pos-ring (point)))))
+
+(defun lispy-back ()
+  "Move point to a previous position"
+  (interactive)
+  (if (zerop (ring-length lispy-pos-ring))
+      (user-error "At beginning of point history")
+    (let ((pt (ring-remove lispy-pos-ring 0)))
+      (if (consp pt)
+          (lispy--mark pt)
+        (goto-char pt)))))
 
 (defun lispy-knight-down ()
   "Make a knight-like move: down and right."
@@ -2875,6 +2903,7 @@ When called twice in a row, restore point and mark."
 When FUNC is not nil, call it after a successful move.
 When NO-NARROW is not nil, don't narrow."
   (interactive)
+  (lispy--remember)
   (deactivate-mark)
   (lispy--ace-do
    lispy-left
@@ -3316,6 +3345,7 @@ Second region and buffer are the current ones."
 (defun lispy-mark-car ()
   "Mark the car of current thing."
   (interactive)
+  (lispy--remember)
   (let ((bnd-1 (lispy--bounds-dwim))
         bnd-2)
     (cond ((and (eq (char-after (car bnd-1)) ?\")
@@ -5505,6 +5535,7 @@ return the corresponding `setq' expression."
   (define-key map "u" 'lispy-unbind-variable)
   (define-key map "b" 'lispy-bind-variable)
   (define-key map "v" 'lispy-view-test)
+  (define-key map "B" 'lispy-store-region-and-buffer)
   (define-key map (char-to-string help-char)
     (lambda ()
       (interactive)
@@ -5683,7 +5714,7 @@ FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)."
     :override '(cond ((looking-at lispy-outline)
                       (end-of-line))))
   (lispy-define-key map "n" 'lispy-new-copy)
-  (lispy-define-key map "b" 'lispy-store-region-and-buffer)
+  (lispy-define-key map "b" 'lispy-back)
   (lispy-define-key map "B" 'lispy-ediff-regions)
   (lispy-define-key map "x" 'lispy-x)
   (lispy-define-key map "Z" 'lispy-edebug-stop)
