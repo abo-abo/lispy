@@ -478,7 +478,8 @@ If couldn't move backward at least once, move up backward and return nil."
   "Move outside list forwards ARG times.
 Return nil on failure, t otherwise."
   (interactive "p")
-  (lispy--remember)
+  (when (called-interactively-p 'interactive)
+    (lispy--remember))
   (when (bound-and-true-p abbrev-mode)
     (ignore-errors (expand-abbrev)))
   (cond ((region-active-p)
@@ -501,7 +502,8 @@ Self-insert otherwise."
   "Move outside list forwards ARG times.
 Return nil on failure, t otherwise."
   (interactive "p")
-  (lispy--remember)
+  (when (called-interactively-p 'interactive)
+    (lispy--remember))
   (cond ((region-active-p)
          (lispy-mark-left arg))
         ((looking-at lispy-outline)
@@ -552,7 +554,8 @@ Reveal outlines."
 Don't enter strings or comments.
 Return nil if can't move."
   (interactive "p")
-  (lispy--remember)
+  (when (called-interactively-p 'interactive)
+    (lispy--remember))
   (let ((pt (point))
         success)
     (lispy-dotimes arg
@@ -619,7 +622,8 @@ Return nil if can't move."
 (defun lispy-down (arg)
   "Move down ARG times inside current list."
   (interactive "p")
-  (lispy--remember)
+  (when (called-interactively-p 'interactive)
+    (lispy--remember))
   (save-match-data
     (cond ((region-active-p)
            (if (lispy--symbolp (lispy--string-dwim))
@@ -688,7 +692,8 @@ Return nil if can't move."
 (defun lispy-up (arg)
   "Move up ARG times inside current list."
   (interactive "p")
-  (lispy--remember)
+  (when (called-interactively-p 'interactive)
+    (lispy--remember))
   (save-match-data
     (cond ((region-active-p)
            (if (lispy--symbolp (lispy--string-dwim))
@@ -763,15 +768,17 @@ Return nil if can't move."
     (unless (eq (point) (ring-ref lispy-pos-ring 0))
       (ring-insert lispy-pos-ring (point)))))
 
-(defun lispy-back ()
+(defun lispy-back (arg)
   "Move point to a previous position"
-  (interactive)
-  (if (zerop (ring-length lispy-pos-ring))
-      (user-error "At beginning of point history")
-    (let ((pt (ring-remove lispy-pos-ring 0)))
-      (if (consp pt)
-          (lispy--mark pt)
-        (goto-char pt)))))
+  (interactive "p")
+  (lispy-dotimes arg
+    (if (zerop (ring-length lispy-pos-ring))
+        (user-error "At beginning of point history")
+      (let ((pt (ring-remove lispy-pos-ring 0)))
+        (if (consp pt)
+            (lispy--mark pt)
+          (deactivate-mark)
+          (goto-char pt))))))
 
 (defun lispy-knight-down ()
   "Make a knight-like move: down and right."
@@ -1181,6 +1188,8 @@ Extend region when it's aleardy active."
   "Mark list from special position.
 When ARG is more than 1, mark ARGth element."
   (interactive "p")
+  (when (called-interactively-p 'interactive)
+    (lispy--remember))
   (cond ((> arg 1)
          (lispy-mark-car)
          (lispy-down (1- arg)))
@@ -3345,7 +3354,8 @@ Second region and buffer are the current ones."
 (defun lispy-mark-car ()
   "Mark the car of current thing."
   (interactive)
-  (lispy--remember)
+  (when (called-interactively-p 'interactive)
+    (lispy--remember))
   (let ((bnd-1 (lispy--bounds-dwim))
         bnd-2)
     (cond ((and (eq (char-after (car bnd-1)) ?\")
