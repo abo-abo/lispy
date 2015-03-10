@@ -1676,7 +1676,7 @@ to all the functions, while maintaining the parens in a pretty state."
 
           ((setq str-or-comment
                  (progn
-                   (forward-line (1- x))
+                   (forward-line x)
                    (re-search-forward
                     (lispy--occur-regex) (line-end-position) t)
                    (lispy--in-string-or-comment-p)))
