@@ -480,7 +480,11 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "\"\\|\"\"" "\C-d")
                    "\"|\""))
   (should (string= (lispy-with "|(require 'foo)\n\n;; comment" "\C-d")
-                   "|\n\n;; comment")))
+                   "|\n\n;; comment"))
+  (should (string= (lispy-with "(progn\n  |;; a comment\n  (test))" "\C-d")
+                   "(progn\n  |\n  (test))"))
+  (should (string= (lispy-with "|;; a comment\n(test))" "\C-d")
+                   "|\n(test))")))
 
 (ert-deftest lispy-delete-backward ()
   (should (string= (lispy-with "((a) (b) (c)|)" "\C-?")

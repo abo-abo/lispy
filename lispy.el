@@ -1007,7 +1007,10 @@ Return nil if can't move."
                   (lispy--exit-string))))
 
           ((lispy--in-comment-p)
-           (delete-char arg))
+           (if (looking-back "^ *")
+               (let ((bnd (lispy--bounds-comment)))
+                 (delete-region (car bnd) (cdr bnd)))
+             (delete-char arg)))
 
           ((looking-at lispy-right)
            (lispy-left 1))
