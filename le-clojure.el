@@ -40,14 +40,15 @@
         (setq str (format "(do (def %s) %s)" str str))
       str)))
 
-(defun lispy--eval-clojure (str &optional add-output)
+(defun lispy--eval-clojure (str &optional add-output lax)
   "Eval STR as Clojure code.
 The result is a string.
 
 When ADD-OUTPUT is t, add the standard output to the result."
   (require 'cider)
-  (let* ((str (lispy--clojure-lax str))
-         (str
+  (when lax
+    (setq str (lispy--clojure-lax str)))
+  (let* ((str
           (if lispy-do-pprint
               (format "(clojure.core/let [x %s] (with-out-str (clojure.pprint/pprint x)))"
                       str)
