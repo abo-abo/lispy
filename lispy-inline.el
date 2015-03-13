@@ -77,7 +77,7 @@ The caller of `lispy--show' might use a substitute e.g. `describe-function'."
   :group 'lispy)
 
 (defvar lispy-elisp-modes
-  '(emacs-lisp-mode lisp-interaction-mode eltex-mode)
+  '(emacs-lisp-mode lisp-interaction-mode eltex-mode minibuffer-inactive-mode)
   "Modes for which `lispy--eval-elisp' and related functions are appropriate.")
 
 (defvar lispy-overlay nil
