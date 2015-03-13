@@ -193,6 +193,25 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
     (forward-line (1- line))
     (forward-char (1- col))))
 
+(defun lispy-flatten--clojure (arg)
+  "Inline a Clojure function at the point of its call."
+  (let* ((begp (if (looking-at lispy-left)
+                   t
+                 (if (looking-back lispy-right)
+                     (progn (backward-list)
+                            nil)
+                   (lispy-left 1))))
+         (bnd (lispy--bounds-list))
+         (str (lispy--string-dwim bnd))
+         (result
+          (lispy--eval-clojure
+           (format "(macroexpand '%s)" str))))
+    (goto-char (car bnd))
+    (delete-region (car bnd) (cdr bnd))
+    (insert result)
+    (when begp
+      (goto-char (car bnd)))))
+
 (provide 'le-clojure)
 
 ;;; le-clojure.el ends here

@@ -3144,9 +3144,25 @@ When ARG isn't nil, show table of contents."
 
 (defun lispy-flatten (arg)
   "Inline a function at the point of its call.
+Pass the ARG along."
+  (interactive "P")
+  (cond ((memq major-mode lispy-elisp-modes)
+         (lispy-flatten--elisp arg))
+
+        ((memq major-mode '(clojure-mode
+                            nrepl-repl-mode
+                            cider-clojure-interaction-mode))
+         (require 'le-clojure)
+         (lispy-flatten--clojure arg))
+
+        (t
+         (lispy-complain
+          (format "%S isn't currently supported" major-mode)))))
+
+(defun lispy-flatten--elisp (arg)
+  "Inline an Elisp function at the point of its call.
 The function body is obtained from `find-function-noselect'.
 With ARG, use the contents of `lispy-store-region-and-buffer' instead."
-  (interactive "P")
   (let* ((begp (if (looking-at lispy-left)
                    t
                  (if (looking-back lispy-right)
