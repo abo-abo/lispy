@@ -193,6 +193,12 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
     (forward-line (1- line))
     (forward-char (1- col))))
 
+(defun lispy--clojure-macrop (symbol)
+  "Test if SYMBOL is a macro."
+  (equal (lispy--eval-clojure
+          (format "(:macro (meta #'%s))" symbol))
+         "true"))
+
 (defun lispy-flatten--clojure (arg)
   "Inline a Clojure function at the point of its call."
   (let* ((begp (if (looking-at lispy-left)
