@@ -31,13 +31,23 @@
 
 (defvar lispy-do-pprint)
 
+(defun lispy--clojure-lax (str)
+  "Possibly transform STR into a more convenient Clojure expression."
+  (let ((expr (read str)))
+    (if (and (symbolp expr)
+             (< (length (symbol-name expr))
+                (- (length str) 3)))
+        (setq str (format "(do (def %s) %s)" str str))
+      str)))
+
 (defun lispy--eval-clojure (str &optional add-output)
   "Eval STR as Clojure code.
 The result is a string.
 
 When ADD-OUTPUT is t, add the standard output to the result."
   (require 'cider)
-  (let* ((str
+  (let* ((str (lispy--clojure-lax str))
+         (str
           (if lispy-do-pprint
               (format "(clojure.core/let [x %s] (with-out-str (clojure.pprint/pprint x)))"
                       str)
