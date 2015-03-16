@@ -49,12 +49,13 @@ The result is a string.
 When ADD-OUTPUT is t, add the standard output to the result."
   (require 'cider)
   (if (null (nrepl-current-connection-buffer t))
-      (progn
-        (setq nrepl-server-ready-function
-              `(lambda ()
-                 (set-window-configuration
-                  ,(current-window-configuration))
-                 (lispy--eval-clojure ,str ,add-output ,lax)))
+      (let ((old-hook nrepl-connected-hook))
+        (setq nrepl-connected-hook
+              `((lambda ()
+                  (setq nrepl-connected-hook ,old-hook)
+                  (set-window-configuration
+                   ,(current-window-configuration))
+                  (lispy--eval-clojure ,str ,add-output ,lax))))
         (cider-jack-in))
     (when lax
       (setq str (lispy--clojure-lax str)))
