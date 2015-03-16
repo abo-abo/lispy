@@ -33,9 +33,14 @@
   (let [func (first expr)
         args (rest expr)
         func-def (symbol-function func)
-        func-body (nth func-def 4)
-        func-args (first func-body)
-        func-impl (rest func-body)]
+        docp (string? (nth func-def 2))
+        func-body (nth func-def (if docp 4 3))
+        func-args (if docp
+                    (first func-body)
+                    (nth func-def 2))
+        func-impl (if docp
+                    (rest func-body)
+                    (list func-body))]
     (cons 'let
           (cons (vec (interleave func-args args))
                 func-impl))))
