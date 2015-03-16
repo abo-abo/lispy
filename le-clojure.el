@@ -221,16 +221,21 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
           (format "(:macro (meta #'%s))" symbol))
          "true"))
 
-(defvar lispy-flatten--clojure-loaded nil
-  "Nil if the custom Clojure code wasn't loaded yet.")
+(defvar lispy--clojure-middleware-loaded-p nil
+  "Nil if the Clojure middleware in \"lispy-clojure.clj\" wasn't loaded yet.")
 
-(defun lispy-flatten--clojure-load ()
-  "Load the custom Clojure flattening code."
-  (unless lispy-flatten--clojure-loaded
+(defun lispy--clojure-middleware-unload ()
+  "Mark the Clojure middleware in \"lispy-clojure.clj\" as not loaded."
+  (setq lispy--clojure-middleware-loaded-p nil))
+
+(defun lispy--clojure-middleware-load ()
+  "Load the custom Clojure code in \"lispy-clojure.clj\"."
+  (unless lispy--clojure-middleware-loaded-p
     (lispy--eval-clojure
      (format "(load-file \"%s\")"
              (expand-file-name "lispy-clojure.clj" lispy-site-directory)))
-    (setq lispy-flatten--clojure-loaded t)))
+    (setq lispy--clojure-middleware-loaded-p t)
+    (add-hook 'nrepl-disconnected-hook #'lispy--clojure-middleware-unload)))
 
 (defun lispy-flatten--clojure (_arg)
   "Inline a Clojure function at the point of its call."
@@ -248,14 +253,15 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
                    (lispy--clojure-macrop (symbol-name (car expr))))
               (lispy--eval-clojure
                (format "(macroexpand '%s)" str))
-            (lispy-flatten--clojure-load)
+            (lispy--clojure-middleware-load)
             (lispy--eval-clojure
              (format "(lispy-clojure/flatten-expr '%s)" str)))))
     (goto-char (car bnd))
     (delete-region (car bnd) (cdr bnd))
     (insert result)
     (when begp
-      (goto-char (car bnd)))))
+      (goto-char (car bnd))))
+  (lispy-multiline))
 
 (provide 'le-clojure)
 
