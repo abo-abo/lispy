@@ -2387,7 +2387,7 @@ Comments will be moved ahead of sexp."
          (let ((pt (point)))
            (lispy-forward 1)
            (while (and (lispy-flow 1) (> (point) pt))
-             (unless (looking-at ")\\|\n")
+             (unless (looking-at "\]\\|)\\|\n")
                (when (looking-at " *")
                  (replace-match "\n")
                  (backward-char 1))))
