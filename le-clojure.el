@@ -26,10 +26,12 @@
 (declare-function nrepl-dict-get "nrepl-client")
 (declare-function nrepl-send-sync-request "nrepl-client")
 (declare-function nrepl-current-session "nrepl-client")
+(declare-function nrepl-current-connection-buffer "nrepl-client")
 (declare-function cider-current-ns "cider-interaction")
 (declare-function cider-find-file "cider-interaction")
 
 (defvar lispy-do-pprint)
+(defvar nrepl-server-ready-function)
 
 (defun lispy--clojure-lax (str)
   "Possibly transform STR into a more convenient Clojure expression."
@@ -46,33 +48,41 @@ The result is a string.
 
 When ADD-OUTPUT is t, add the standard output to the result."
   (require 'cider)
-  (when lax
-    (setq str (lispy--clojure-lax str)))
-  (let* ((str
-          (if lispy-do-pprint
-              (format "(clojure.core/let [x %s] (with-out-str (clojure.pprint/pprint x)))"
-                      str)
-            str))
-         (res (nrepl-sync-request:eval str))
-         (val (nrepl-dict-get res "value"))
-         out)
-    (cond ((null val)
-           (error "eval error: %S"
-                  (nrepl-dict-get res "err")))
+  (if (null (nrepl-current-connection-buffer t))
+      (progn
+        (setq nrepl-server-ready-function
+              `(lambda ()
+                 (set-window-configuration
+                  ,(current-window-configuration))
+                 (lispy--eval-clojure ,str ,add-output ,lax)))
+        (cider-jack-in))
+    (when lax
+      (setq str (lispy--clojure-lax str)))
+    (let* ((str
+            (if lispy-do-pprint
+                (format "(clojure.core/let [x %s] (with-out-str (clojure.pprint/pprint x)))"
+                        str)
+              str))
+           (res (nrepl-sync-request:eval str))
+           (val (nrepl-dict-get res "value"))
+           out)
+      (cond ((null val)
+             (error "eval error: %S"
+                    (nrepl-dict-get res "err")))
 
-          (add-output
-           (if (setq out (nrepl-dict-get res "out"))
-               (format "%s\n%s"
-                       (propertize
-                        out 'face 'font-lock-string-face)
-                       val)
-             val))
+            (add-output
+             (if (setq out (nrepl-dict-get res "out"))
+                 (format "%s\n%s"
+                         (propertize
+                          out 'face 'font-lock-string-face)
+                         val)
+               val))
 
-          (lispy-do-pprint
-           (read res))
+            (lispy-do-pprint
+             (read res))
 
-          (t
-           val))))
+            (t
+             val)))))
 
 (defun lispy--clojure-resolve (symbol)
   "Return resolved SYMBOL.
