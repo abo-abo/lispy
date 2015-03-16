@@ -3541,10 +3541,13 @@ If already there, return it to previous position."
 (declare-function projectile-find-file "ext:projectile")
 (declare-function projectile-find-file-other-window "ext:projectile")
 (declare-function projectile-project-root "ext:projectile")
+(defvar projectile-mode)
 
 (defun lispy-visit (arg)
   "Forward to find file in project depending on ARG."
   (interactive "p")
+  (unless projectile-mode
+    (projectile-global-mode 1))
   (cond ((= arg 1)
          (projectile-find-file nil))
         ((= arg 2)
