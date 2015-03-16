@@ -221,7 +221,7 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
              (expand-file-name "lispy-clojure.clj" lispy-site-directory)))
     (setq lispy-flatten--clojure-loaded t)))
 
-(defun lispy-flatten--clojure (arg)
+(defun lispy-flatten--clojure (_arg)
   "Inline a Clojure function at the point of its call."
   (let* ((begp (if (looking-at lispy-left)
                    t
