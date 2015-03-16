@@ -1,4 +1,4 @@
-;;; le-clojure.el --- lispy support for Clojure.
+;;; le-clojure.el --- lispy support for Clojure. -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2014-2015 Oleh Krehel
 
@@ -165,7 +165,7 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
          (mapconcat
           #'identity
           (mapcar (lambda (x) (propertize (downcase x)
-                                          'face 'lispy-face-req-nosel))
+                                     'face 'lispy-face-req-nosel))
                   args)
           (concat "\n"
                   (make-string (+ 2 (length symbol)) ?\ ))))

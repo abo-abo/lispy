@@ -1,4 +1,4 @@
-;;; le-lisp.el --- lispy support for Common Lisp.
+;;; le-lisp.el --- lispy support for Common Lisp. -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2014-2015 Oleh Krehel
 

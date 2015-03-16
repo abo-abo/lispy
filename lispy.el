@@ -1,4 +1,4 @@
-;;; lispy.el --- vi-like Paredit.
+;;; lispy.el --- vi-like Paredit. -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2014-2015 Oleh Krehel
 
@@ -1049,7 +1049,7 @@ Return nil if can't move."
   "From \")|\", delete ARG sexps backwards.
 Otherwise (`backward-delete-char-untabify' ARG)."
   (interactive "p")
-  (let (pos bnd)
+  (let (bnd)
     (cond ((region-active-p)
            (delete-region (region-beginning)
                           (region-end)))
@@ -1134,8 +1134,7 @@ Otherwise (`backward-delete-char-untabify' ARG)."
              (indent-for-tab-command)))
 
           ((and (looking-back "\" ") (not (looking-at lispy-right)))
-           (let ((pt (point))
-                 bnd)
+           (let ((pt (point)))
              (goto-char (match-beginning 0))
              (delete-region (car (lispy--bounds-string)) pt))
            (lispy--delete-whitespace-backward)
@@ -1498,7 +1497,7 @@ When region is active, toggle a ~ at the start of the region."
           (if (eq (char-after) ?~)
               (delete-char 1)
             (insert "~"))))
-    (self-insert-command 1)))
+    (self-insert-command arg)))
 
 (defun lispy-hash ()
   "Insert #."
@@ -1881,7 +1880,6 @@ Return the amount of successful grow steps, nil instead of zero."
         (endp (or (looking-back lispy-right)
                   (and (region-active-p) (= (point) (region-end)))))
         p-beg p-end
-        (pt (point))
         (deactivate-mark nil)
         bsize)
     (deactivate-mark)
@@ -1927,8 +1925,7 @@ Return the amount of successful grow steps, nil instead of zero."
   (interactive "p")
   (cond ((region-active-p)
          (let* ((str (lispy--string-dwim))
-                (one-symbolp (lispy--symbolp str))
-                delta)
+                (one-symbolp (lispy--symbolp str)))
            (if (= (point) (region-end))
                (if one-symbolp
                    (lispy-dotimes arg
@@ -3066,7 +3063,7 @@ When region is active, call `lispy-mark-car'."
         (progn
           (outline-minor-mode 1)
           (condition-case e
-              (lispy-flet (org-unlogged-message (&rest x))
+              (lispy-flet (org-unlogged-message (&rest _x))
                 (require 'org)
                 (let ((org-outline-regexp outline-regexp))
                   (org-cycle-internal-local)))
@@ -3083,7 +3080,7 @@ When ARG isn't nil, show table of contents."
   (require 'org)
   (outline-minor-mode 1)
   (let ((org-outline-regexp outline-regexp))
-    (lispy-flet (org-unlogged-message (&rest x))
+    (lispy-flet (org-unlogged-message (&rest _x))
       (if arg
           (org-content)
         (when (eq org-cycle-global-status 'overview)
@@ -3228,7 +3225,7 @@ With ARG, use the contents of `lispy-store-region-and-buffer' instead."
   "Subsititute let-bound variable."
   (interactive)
   (forward-char 1)
-  (lispy-flet (message (&rest x))
+  (lispy-flet (message (&rest _x))
     (iedit-mode 0))
   (lispy-mark-symbol)
   (lispy-move-down 1)
@@ -3907,7 +3904,7 @@ First, try to return `lispy--bounds-string'."
 Return nil on failure, (point) otherwise."
   (lispy--exit-string)
   (catch 'break
-    (dotimes (i arg)
+    (dotimes (_i arg)
       (if (ignore-errors (up-list) t)
           (if buffer-read-only
               (deactivate-mark)
@@ -4000,8 +3997,7 @@ so that no other packages disturb the match data."
 
 (defun lispy--eval-elisp (e-str)
   "Eval E-STR as Elisp code."
-  (let ((e-sexp (read e-str))
-        val)
+  (let ((e-sexp (read e-str)))
     (when (consp e-sexp)
       (if (and (memq (car e-sexp) '(defvar defcustom))
                (consp (cdr e-sexp))
@@ -4413,8 +4409,7 @@ For example, a `setq' statement is amended with variable name that it uses."
 (defun lispy--slurp-forward ()
   "Grow current sexp forward by one sexp."
   (let ((pt (point))
-        (char (char-before))
-        (beg (save-excursion (backward-list) (point))))
+        (char (char-before)))
     (skip-chars-forward " \t")
     (delete-region pt (point))
     (unless (or (looking-back "()") (eolp))
@@ -4520,10 +4515,9 @@ Ignore the matches in strings and comments."
                 (goto-char (point-min))
                 (while (re-search-forward "#'" nil t)
                   (unless (lispy--in-string-or-comment-p)
-                    (let ((beg (point)))
-                      (forward-sexp)
-                      (insert ")")
-                      (replace-match "(ly-raw function "))))
+                    (forward-sexp)
+                    (insert ")")
+                    (replace-match "(ly-raw function ")))
                 ;; ——— #( —————————————————————
                 (goto-char (point-min))
                 (while (re-search-forward "#(" nil t)
@@ -4891,7 +4885,7 @@ Defaults to `error'."
   (unless (or (eq major-mode 'minibuffer-inactive-mode)
               (= 0 (buffer-size)))
     (let ((tab-always-indent t))
-      (lispy-flet (message (&rest x))
+      (lispy-flet (message (&rest _x))
         (indent-for-tab-command)))))
 
 (defun lispy--remove-gaps ()
@@ -5103,7 +5097,7 @@ the first character of EXPR.
 MODE is the major mode for indenting EXPR."
   (with-temp-buffer
     (funcall mode)
-    (dotimes (i offset)
+    (dotimes (_i offset)
       (insert ?\ ))
     (lispy--insert expr)
     (buffer-substring-no-properties
@@ -5113,11 +5107,11 @@ MODE is the major mode for indenting EXPR."
 (defun lispy--insert (expr)
   "Insert the EXPR read by `lispy--read'."
   (let ((start-pt (point))
-        beg end
+        beg
         sxp type)
     (prin1 expr (current-buffer))
     (save-restriction
-      (narrow-to-region start-pt (setq end (point)))
+      (narrow-to-region start-pt (point))
       (goto-char (point-min))
       (while (and (re-search-forward "(ly-raw" nil t)
                   (setq beg (match-beginning 0)))
@@ -5330,7 +5324,6 @@ Leave point at the beginning or end of text depending on ENDP.
 Make text marked if REGIONP is t."
   (let ((str (buffer-substring-no-properties beg end))
         (beg1 (1+ (point)))
-        end1
         (size (buffer-size))
         (deactivate-mark nil))
     (if (and (>= (point) beg)
@@ -5393,7 +5386,7 @@ Return a cons of the new text cordinates."
 (defun lispy--ensure-visible ()
   "Remove overlays hiding point."
   (let ((overlays (overlays-at (point)))
-        ov invis-prop expose)
+        ov expose)
     (while (setq ov (pop overlays))
       (if (and (invisible-p (overlay-get ov 'invisible))
                (setq expose (overlay-get ov 'isearch-open-invisible)))

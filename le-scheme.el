@@ -1,4 +1,4 @@
-;;; le-scheme.el --- lispy support for Scheme.
+;;; le-scheme.el --- lispy support for Scheme. -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2014-2015 Oleh Krehel
 

@@ -1,4 +1,4 @@
-;;; lispy-inline.el --- inline arglist and documentation.
+;;; lispy-inline.el --- inline arglist and documentation. -*- lexical-binding: t -*-
 
 ;; Copyright (C) 2014-2015 Oleh Krehel
 
