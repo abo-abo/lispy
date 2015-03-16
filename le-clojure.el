@@ -217,26 +217,9 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
   "Load the custom Clojure flattening code."
   (unless lispy-flatten--clojure-loaded
     (lispy--eval-clojure
-     "
-(require 'clojure.repl)
-
-(defn le-symbol-function [sym]
-  (read-string
-   (clojure.repl/source-fn
-    sym)))
-
-(defn le-flatten [expr]
-  (let [func (first expr)
-        args (rest expr)
-        func-def (symbol-function func)
-        func-body (nth func-def 4)
-        func-args (first func-body)
-        func-impl (rest func-body)]
-    (cons 'let
-          (cons (vec (interleave func-args args))
-                func-impl))))")
+     (format "(load-file \"%s\")"
+             (expand-file-name "lispy-clojure.clj" lispy-site-directory)))
     (setq lispy-flatten--clojure-loaded t)))
-
 
 (defun lispy-flatten--clojure (arg)
   "Inline a Clojure function at the point of its call."
@@ -256,7 +239,7 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
                (format "(macroexpand '%s)" str))
             (lispy-flatten--clojure-load)
             (lispy--eval-clojure
-             (format "(le-flatten '%s)" str)))))
+             (format "(lispy-clojure/flatten-expr '%s)" str)))))
     (goto-char (car bnd))
     (delete-region (car bnd) (cdr bnd))
     (insert result)

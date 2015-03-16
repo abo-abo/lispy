@@ -352,6 +352,10 @@ Otherwise return the amount of times executed."
               ,@body)
          (fset ',name ,old)))))
 
+(defvar lispy-site-directory
+  (file-name-directory load-file-name)
+  "The directory where all of the lispy files are located.")
+
 ;;* Verb related
 (defun lispy-disable-verbs-except (verb)
   "Disable all verbs except VERB."
