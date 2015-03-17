@@ -848,15 +848,11 @@ Return nil if can't move."
     (cond ((lispy--in-comment-p)
            (kill-line))
 
-          ((setq bnd (lispy--bounds-string))
-           (cond ((eq (point) (car bnd))
-                  (kill-region (car bnd) (cdr bnd)))
-
-                 ((> (cdr bnd) (line-end-position))
-                  (kill-line))
-
-                 (t
-                  (kill-region (point) (1- (cdr bnd))))))
+          ((and (setq bnd (lispy--bounds-string))
+                (not (eq (point) (car bnd))))
+           (if (> (cdr bnd) (line-end-position))
+               (kill-line)
+             (kill-region (point) (1- (cdr bnd)))))
           ((looking-at " *\n")
            (kill-region
             (match-beginning 0)
