@@ -2692,15 +2692,17 @@ Sexp is obtained by exiting list ARG times."
   (lispy--ensure-visible))
 
 ;;* Locals: dialect-related
-(defun lispy-eval ()
+(defun lispy-eval (arg)
   "Eval last sexp."
-  (interactive)
-  (save-excursion
-    (unless (or (looking-back lispy-right) (region-active-p))
-      (lispy-forward 1))
-    (message
-     (replace-regexp-in-string
-      "%" "%%" (lispy--eval (lispy--string-dwim) t)))))
+  (interactive "p")
+  (if (eq arg 2)
+      (lispy-eval-and-comment)
+    (save-excursion
+      (unless (or (looking-back lispy-right) (region-active-p))
+        (lispy-forward 1))
+      (message
+       (replace-regexp-in-string
+        "%" "%%" (lispy--eval (lispy--string-dwim) t))))))
 
 (defvar lispy-do-pprint nil
   "Try a pretty-print when this ins't nil.")
@@ -2722,6 +2724,31 @@ When ARG isn't nil, try to pretty print the sexp."
           (save-excursion
             (doit))
         (doit)))))
+
+(defun lispy-eval-and-comment ()
+  "Eval last sexp and insert the result as a comment."
+  (interactive)
+  (let ((str (lispy--eval (lispy--string-dwim)))
+        bnd)
+    (save-excursion
+      (when (looking-at lispy-left)
+        (lispy-different))
+      (if (not (looking-at "\n;+ ?=>"))
+          (newline)
+        (goto-char (1+ (match-beginning 0)))
+        (setq bnd (lispy--bounds-comment))
+        (delete-region (car bnd) (cdr bnd)))
+      (let ((pt (point)))
+        (insert str)
+        (if (looking-back lispy-right)
+            (save-excursion
+              (lispy-multiline)
+              (goto-char pt)
+              (insert "=>\n"))
+          (goto-char pt)
+          (insert "=> ")
+          (move-end-of-line 1))
+        (comment-region pt (point))))))
 
 (defun lispy-eval-and-replace ()
   "Eval last sexp and replace it with the result."
