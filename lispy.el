@@ -2378,6 +2378,8 @@ Comments will be moved ahead of sexp."
           (str (lispy--string-dwim bnd))
           (plain-expr (read str))
           (expr (lispy--read str)))
+     (unless (listp plain-expr)
+       (setq plain-expr nil))
      (if (or (cl-some #'listp plain-expr)
              (member '(ly-raw newline) expr))
          (let ((pt (point)))
@@ -2392,7 +2394,10 @@ Comments will be moved ahead of sexp."
        (delete-region (car bnd) (cdr bnd))
        (lispy--insert
         (butlast
-         (cl-mapcan (lambda (y) (list y '(ly-raw newline)))
+         (cl-mapcan (lambda (y)
+                      (if (memq y '(ly-raw clojure-map clojure-set))
+                          (list y)
+                        (list y '(ly-raw newline))))
                     (lispy--read str))))))))
 
 (defvar lispy-do-fill nil
