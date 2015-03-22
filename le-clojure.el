@@ -42,6 +42,17 @@
         (setq str (format "(do (def %s) %s)" str str))
       str)))
 
+(defvar lispy--clojure-hook-lambda nil
+  "Store a lambda to call.")
+
+(defun lispy--clojure-eval-hook-lambda ()
+  "Call `lispy--clojure-hook-lambda'."
+  (when lispy--clojure-hook-lambda
+    (funcall lispy--clojure-hook-lambda)
+    (setq lispy--clojure-hook-lambda nil))
+  (remove-hook 'nrepl-connected-hook
+               'lispy--clojure-eval-hook-lambda))
+
 (defun lispy--eval-clojure (str &optional add-output lax)
   "Eval STR as Clojure code.
 The result is a string.
@@ -49,14 +60,17 @@ The result is a string.
 When ADD-OUTPUT is t, add the standard output to the result."
   (require 'cider)
   (if (null (nrepl-current-connection-buffer t))
-      (let ((old-hook nrepl-connected-hook))
-        (setq nrepl-connected-hook
-              `((lambda ()
-                  (setq nrepl-connected-hook ,old-hook)
-                  (set-window-configuration
-                   ,(current-window-configuration))
+      (progn
+        (setq lispy--clojure-hook-lambda
+              `(lambda ()
+                 (set-window-configuration
+                  ,(current-window-configuration))
+                 (message
                   (lispy--eval-clojure ,str ,add-output ,lax))))
-        (cider-jack-in))
+        (add-hook 'nrepl-connected-hook
+                  'lispy--clojure-eval-hook-lambda t)
+        (cider-jack-in)
+        "Starting CIDER...")
     (when lax
       (setq str (lispy--clojure-lax str)))
     (let* ((str
