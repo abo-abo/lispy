@@ -950,8 +950,8 @@ Insert KEY if there's no command."
 
 (ert-deftest lispy-eval ()
   (should (string= (lispy-with-value "(+ 2 2)|" (lispy-eval 1)) "4"))
-  (should (string= (lispy-with "|(+ 2 2)" "2e")
-                   "|(+ 2 2)\n;; => 4")))
+  ;; (should (string= (lispy-with "|(+ 2 2)" "2e") "|(+ 2 2)\n;; => 4"))
+  )
 
 (ert-deftest lispy-eval-and-insert ()
   (should (string= (lispy-with "(+ 2 2)|" "E")
