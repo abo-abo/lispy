@@ -2743,17 +2743,17 @@ When ARG isn't nil, try to pretty print the sexp."
         (goto-char (1+ (match-beginning 0)))
         (setq bnd (lispy--bounds-comment))
         (delete-region (car bnd) (cdr bnd)))
-      (let ((pt (point)))
+      (save-restriction
+        (narrow-to-region (point) (point))
         (insert str)
         (if (looking-back lispy-right)
-            (save-excursion
+            (progn
               (lispy-multiline)
-              (goto-char pt)
+              (goto-char (point-min))
               (insert "=>\n"))
-          (goto-char pt)
-          (insert "=> ")
-          (move-end-of-line 1))
-        (comment-region pt (point))))))
+          (goto-char (point-min))
+          (insert "=> "))
+        (comment-region (point-min) (point-max))))))
 
 (defun lispy-eval-and-replace ()
   "Eval last sexp and replace it with the result."
