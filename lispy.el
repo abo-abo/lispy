@@ -2377,7 +2377,8 @@ Comments will be moved ahead of sexp."
    (let* ((bnd (lispy--bounds-list))
           (str (lispy--string-dwim bnd))
           (plain-expr (read str))
-          (expr (lispy--read str)))
+          (expr (lispy--read str))
+          res)
      (unless (listp plain-expr)
        (setq plain-expr nil))
      (if (or (cl-some #'listp plain-expr)
@@ -2392,13 +2393,16 @@ Comments will be moved ahead of sexp."
            (goto-char pt)
            (indent-sexp))
        (delete-region (car bnd) (cdr bnd))
-       (lispy--insert
-        (butlast
-         (cl-mapcan (lambda (y)
-                      (if (memq y '(ly-raw clojure-map clojure-set))
-                          (list y)
-                        (list y '(ly-raw newline))))
-                    (lispy--read str))))))))
+       (setq res
+             (butlast
+              (cl-mapcan (lambda (y)
+                           (if (memq y '(ly-raw clojure-map clojure-set))
+                               (list y)
+                             (list y '(ly-raw newline))))
+                         (lispy--read str))))
+       (when (vectorp expr)
+         (setq res (apply #'vector res)))
+       (lispy--insert res)))))
 
 (defvar lispy-do-fill nil
   "If t, `lispy-insert-1' will try to fill.")
