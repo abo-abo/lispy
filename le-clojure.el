@@ -36,7 +36,8 @@
 (defun lispy--clojure-lax (str)
   "Possibly transform STR into a more convenient Clojure expression."
   (let ((expr (lispy--read str)))
-    (if (and (symbolp expr)
+    (if (and expr
+             (symbolp expr)
              (< (length (symbol-name expr))
                 (- (length str) 3)))
         (setq str (format "(do (def %s) %s)" str str))
