@@ -4515,7 +4515,8 @@ Ignore the matches in strings and comments."
 ;;* Utilities: source transformation
 (defun lispy--read (str)
   "Read STR including comments and newlines."
-  (let* ((mode major-mode)
+  (let* ((deactivate-mark nil)
+         (mode major-mode)
          cbnd
          (str (with-temp-buffer
                 (funcall mode)
