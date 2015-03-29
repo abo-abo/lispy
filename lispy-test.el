@@ -1435,6 +1435,14 @@ Insert KEY if there's no command."
                                (execute-kbd-macro (kbd "Qos")))
                    "(cons 'n|orwegian 'blue)")))
 
+(ert-deftest lispy-paredit-open-round ()
+  (should (string= (lispy-with "(a b |c d)"
+                               "(")
+                   "(a b (|) c d)"))
+  (should (string= (lispy-with "(foo \"bar |baz\" quux)"
+                               "(")
+                   "(foo \"bar (|baz\" quux)")))
+
 
 (provide 'lispy-test)
 
