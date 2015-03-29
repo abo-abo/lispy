@@ -134,6 +134,7 @@ Insert KEY if there's no command."
               (not (cond ((eq cmd 'self-insert-command))
                          ((string-match "^special" (symbol-name cmd)))))))
         (progn
+          (setq last-command-event (aref key 0))
           (call-interactively cmd)
           (setq last-command cmd))
       (insert key))))
@@ -1443,6 +1444,13 @@ Insert KEY if there's no command."
                                "(")
                    "(foo \"bar (|baz\" quux)")))
 
+(ert-deftest lispy-paredit-close-round ()
+  (should (string= (lispy-with "(a b |c   )"
+                               ")")
+                   "(a b c)|"))
+  (should (string= (lispy-with "; Hello,| world!"
+                               ")")
+                   "; Hello,)| world!")))
 
 (provide 'lispy-test)
 
