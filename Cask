@@ -14,7 +14,6 @@
  (depends-on "slime")
  (depends-on "geiser")
  (depends-on "projectile")
- (depends-on "s")
  (depends-on "swiper")
  (depends-on "hydra")
  (depends-on "ace-window")

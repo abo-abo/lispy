@@ -5,8 +5,6 @@ BEMACS = $(EMACS) -batch -l elpa.el
 LOAD = -l lispy-inline.el -l lispy.el
 QEMACS = $(EMACS) -Q -l elpa.el -l targets/base-init.el
 
-.PHONY: all clean cask elisp clojure lisp scheme check-declare
-
 all: test
 
 cask:
@@ -35,3 +33,5 @@ lisp:
 
 clean:
 	rm -f *.elc
+
+.PHONY: all clean cask elisp clojure lisp scheme check-declare
