@@ -778,7 +778,7 @@ Return nil if can't move."
       (ring-insert lispy-pos-ring (point)))))
 
 (defun lispy-back (arg)
-  "Move point to a previous position"
+  "Move point to ARGth previous position."
   (interactive "p")
   (lispy-dotimes arg
     (if (zerop (ring-length lispy-pos-ring))
@@ -2725,7 +2725,8 @@ Sexp is obtained by exiting list ARG times."
 
 ;;* Locals: dialect-related
 (defun lispy-eval (arg)
-  "Eval last sexp."
+  "Eval last sexp.
+When ARG is 2, insert the result as a comment."
   (interactive "p")
   (if (eq arg 2)
       (lispy-eval-and-comment)
