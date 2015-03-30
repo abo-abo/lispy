@@ -1,14 +1,13 @@
-EMACS ?= emacs
-
+emacs ?= emacs
 CASK = ~/.cask/bin/cask
-BEMACS = $(EMACS) -batch -l elpa.el
+BEMACS = $(emacs) -batch -l elpa.el
 LOAD = -l lispy-inline.el -l lispy.el
-QEMACS = $(EMACS) -Q -l elpa.el -l targets/base-init.el
+QEMACS = $(emacs) -Q -l elpa.el -l targets/base-init.el
 
 all: test
 
 cask:
-	$(shell EMACS=$(EMACS) $(CASK))
+	$(shell EMACS=$(emacs) $(CASK))
 
 compile:
 	$(BEMACS) $(LOAD) -l targets/compile.el
@@ -17,6 +16,7 @@ check-declare:
 	$(BEMACS) $(LOAD) -l targets/check-declare.el
 
 test:
+	@echo "Using $(shell which $(emacs))..."
 	$(BEMACS) -l lispy-test.el $(LOAD) -f ert-run-tests-batch-and-exit
 
 elisp:
