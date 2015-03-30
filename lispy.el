@@ -4155,8 +4155,8 @@ so that no other packages disturb the match data."
            (unless buf
              (kill-buffer)))))
      (lispy--file-list)))
-  (semanticdb-save-db
-   (semanticdb-directory-loaded-p dir)))
+  (let ((db (semanticdb-directory-loaded-p dir)))
+    (or (semanticdb-save-db db) db)))
 
 (defun lispy--fetch-this-file-tags ()
   "Fetch this file tags."
