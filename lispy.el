@@ -150,8 +150,8 @@
 (require 'iedit)
 (require 'delsel)
 (require 'package)
-(require 'highlight)
 (require 'hydra)
+(require 'swiper)
 
 ;;** Declares
 (declare-function cider-repl-return "ext:cider-repl")
@@ -1661,18 +1661,58 @@ to all the functions, while maintaining the parens in a pretty state."
     (iedit-mode 0)))
 
 ;;* Locals: navigation
+;;** Occur
+(defcustom lispy-occur-backend 'ivy
+  "Method to navigate to a line with `lispy-occur'."
+  :type '(choice
+          (const :tag "Ivy" ivy)
+          (const :tag "Helm" helm)))
+
 (defvar lispy--occur-beg 1
   "Start position of the top level sexp during `lispy-occur'.")
+
 (defvar lispy--occur-end 1
   "End position of the top level sexp during `lispy-occur'.")
-(defvar lispy--occur-buffer nil
-  "Current buffer for `lispy-occur'.")
+
+(defun lispy--occur-candidates ()
+  "Return the candidates for `lispy-occur'."
+  (let ((bnd (save-excursion
+               (unless (and (looking-at "(")
+                            (looking-back "^"))
+                 (beginning-of-defun))
+               (lispy--bounds-dwim)))
+        (line-number -1)
+        candidates)
+    (setq lispy--occur-beg (car bnd))
+    (setq lispy--occur-end (cdr bnd))
+    (save-excursion
+      (goto-char lispy--occur-beg)
+      (while (< (point) lispy--occur-end)
+        (push (format "%-3d %s"
+                      (cl-incf line-number)
+                      (buffer-substring
+                       (line-beginning-position)
+                       (line-end-position)))
+              candidates)
+        (forward-line 1)))
+    (nreverse candidates)))
+
+(defun lispy--occur-preselect ()
+  "Initial candidate regex for `lispy-occur'."
+  (format "^%d"
+          (-
+           (line-number-at-pos (point))
+           (line-number-at-pos lispy--occur-beg))))
 
 (defun lispy--occur-action (x)
   "Goto line X for `lispy-occur'."
+  (setq x (read x))
   (goto-char lispy--occur-beg)
-  (let (str-or-comment)
-    (cond ((string= helm-input "")
+  (let ((input (if (eq lispy-occur-backend 'helm)
+                   helm-input
+                 ivy-text))
+        str-or-comment)
+    (cond ((string= input "")
            (forward-line x)
            (back-to-indentation)
            (when (re-search-forward lispy-left (line-end-position) t)
@@ -1681,8 +1721,8 @@ to all the functions, while maintaining the parens in a pretty state."
           ((setq str-or-comment
                  (progn
                    (forward-line x)
-                   (re-search-forward
-                    (lispy--occur-regex) (line-end-position) t)
+                   (re-search-forward (ivy--regex input)
+                                      (line-end-position) t)
                    (lispy--in-string-or-comment-p)))
            (goto-char str-or-comment))
 
@@ -1696,111 +1736,83 @@ to all the functions, while maintaining the parens in a pretty state."
            (back-to-indentation)))))
 
 (defun lispy-occur ()
-  "Select a line within current top level sexp with `helm'."
+  "Select a line within current top level sexp.
+See `lispy-occur-backend' for the selection back end."
   (interactive)
-  (require 'helm)
-  (deactivate-mark)
-  (unwind-protect
-       (helm :sources
-             `((name . "this defun")
-               (init
-                . (lambda ()
-                    (setq lispy--occur-buffer (current-buffer))
-                    (let ((bnd (save-excursion
-                                 (unless (and (looking-at "(")
-                                              (looking-back "^"))
-                                   (beginning-of-defun))
-                                 (lispy--bounds-dwim))))
-                      (setq lispy--occur-beg (car bnd))
-                      (setq lispy--occur-end (cdr bnd))
-                      (helm-init-candidates-in-buffer
-                          'global
-                        (buffer-substring
-                         lispy--occur-beg
-                         lispy--occur-end)))
-                    (add-hook 'helm-move-selection-after-hook
-                              #'lispy--occur-update-sel)
-                    (add-hook 'helm-update-hook
-                              #'lispy--occur-update-input)))
-               (candidates-in-buffer)
-               (get-line . lispy--occur-get-line)
-               (regexp . (lambda () helm-input))
-               (action . lispy--occur-action))
-             :preselect
-             (let ((start-line
-                    (save-excursion
-                      (unless (and (looking-at "(")
-                                   (looking-back "^"))
-                        (beginning-of-defun))
-                      (line-number-at-pos (point)))))
-               (format "^%d"
-                       (-
-                        (line-number-at-pos (point))
-                        start-line)))
-             :buffer "*lispy-occur*")
-    ;; cleanup
-    (remove-hook 'helm-move-selection-after-hook
-                 #'lispy--occur-update-sel)
-    (remove-hook 'helm-update-hook
-                 #'lispy--occur-update-input)
-    (with-current-buffer lispy--occur-buffer
-      (hlt-unhighlight-region
-       lispy--occur-beg
-       lispy--occur-end)
-      (isearch-dehighlight))))
+  (swiper--init)
+  (cond ((eq lispy-occur-backend 'helm)
+         (require 'helm)
+         (add-hook 'helm-move-selection-after-hook
+                   #'lispy--occur-update-input-helm)
+         (add-hook 'helm-update-hook
+                   #'lispy--occur-update-input-helm)
+         (unwind-protect
+              (helm :sources
+                    `((name . "this defun")
+                      (candidates . ,(lispy--occur-candidates))
+                      (action . lispy--occur-action)
+                      (match-strict .
+                                    (lambda (x)
+                                      (ignore-errors
+                                        (string-match
+                                         (ivy--regex helm-input) x)))))
+                    :preselect (lispy--occur-preselect)
+                    :buffer "*lispy-occur*")
+           (swiper--cleanup)
+           (remove-hook 'helm-move-selection-after-hook
+                        #'lispy--occur-update-input-helm)
+           (remove-hook 'helm-update-hook
+                        #'lispy--occur-update-input-helm)))
+        ((eq lispy-occur-backend 'ivy)
+         (let (res)
+           (unwind-protect
+                (setq res
+                      (ivy-read "pattern: "
+                                (lispy--occur-candidates)
+                                nil nil
+                                (lispy--occur-preselect)
+                                (lambda ()
+                                  (lispy--occur-update-input
+                                   ivy-text ivy--current))))
+             (swiper--cleanup)
+             (if (null ivy-exit)
+                 (goto-char swiper--opoint)
+               (lispy--occur-action res)))))
+        (t
+         (error "Bad `lispy-occur-backend': %S" lispy-occur-backend))))
 
-(defun lispy--occur-regex ()
-  "Re-build regex in case it has a space."
-  (mapconcat
-   #'identity
-   (split-string helm-input " +" t)
-   ".*"))
+(defun lispy--occur-update-input-helm ()
+  "Update selection for `lispy-occur' using `helm' back end."
+  (lispy--occur-update-input
+   helm-input
+   (buffer-substring-no-properties
+    (line-beginning-position)
+    (line-end-position))))
 
-(defun lispy--occur-update-input ()
-  "Update selection for `lispy-occur'."
-  (with-current-buffer lispy--occur-buffer
-    (hlt-unhighlight-region
-     lispy--occur-beg
-     lispy--occur-end)
-    (when (> (length helm-input) 1)
-      (hlt-highlight-regexp-region
-       lispy--occur-beg
-       lispy--occur-end
-       (lispy--occur-regex)
-       'lispy-occur-face))))
-
-(declare-function helm-persistent-action-display-window "ext:helm")
-(defun lispy--occur-update-sel ()
-  "Update selection for `lispy-occur'."
-  (let* ((str (buffer-substring-no-properties
-               (point-at-bol)
-               (point-at-eol)))
-         (num (if (string-match "^[0-9]+" str)
-                  (string-to-number (match-string 0 str))
-                0))
-         pt)
-    (with-current-buffer lispy--occur-buffer
+(defun lispy--occur-update-input (input str)
+  "Update selection for `ivy-occur'.
+INPUT is the current input text.
+STR is the full current candidate."
+  (swiper--cleanup)
+  (let ((re (ivy--regex input))
+        (num (if (string-match "^[0-9]+" str)
+                 (string-to-number (match-string 0 str))
+               0)))
+    (with-selected-window swiper--window
       (goto-char lispy--occur-beg)
-      (forward-line (1- num))
-      (when (re-search-forward (lispy--occur-regex)
-                               lispy--occur-end t)
-        (isearch-highlight (match-beginning 0)
-                           (match-end 0))
-        (setq pt (match-beginning 0))))
-    (when pt
-      (with-selected-window
-          (helm-persistent-action-display-window)
-        (goto-char pt)))))
-
-(defun lispy--occur-get-line (s e)
-  "Highlight between S and E for `lispy-occur'."
-  (let ((line (buffer-substring s e)))
-    (propertize
-     (format "%d %s"
-             (1- (line-number-at-pos s))
-             line)
-     'helm-realvalue
-     (1- (line-number-at-pos s)))))
+      (when (cl-plusp num)
+        (forward-line num)
+        (unless (<= (point) lispy--occur-end)
+          (recenter)))
+      (let ((ov (make-overlay (line-beginning-position)
+                              (1+ (line-end-position)))))
+        (overlay-put ov 'face 'swiper-line-face)
+        (overlay-put ov 'window swiper--window)
+        (push ov swiper--overlays))
+      (swiper--add-overlays
+       re
+       lispy--occur-beg
+       lispy--occur-end))))
 
 ;;* Locals: Paredit transformations
 (defun lispy--sub-slurp-forward (arg)
