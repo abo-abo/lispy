@@ -1,4 +1,4 @@
-EMACS = emacs24
+EMACS ?= emacs
 
 CASK = ~/.cask/bin/cask
 BEMACS = $(EMACS) -batch -l elpa.el
