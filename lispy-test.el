@@ -1068,7 +1068,27 @@ Insert KEY if there's no command."
                    (ly-raw newline)
                    (ly-raw string "\"(ly-raw)\"")
                    (ly-raw newline)
-                   (ly-raw function bar)))))
+                   (ly-raw function bar))))
+  (should (equal (lispy--read "(helm :sources
+                                     `((name . \"this defun\")
+                                       (match-strict .
+                                                     (lambda (x)))))")
+                 '(helm :sources (ly-raw newline)
+                   (ly-raw \` ((name (ly-raw dot)
+                                     (ly-raw string "\"this defun\""))
+                               (ly-raw newline)
+                               (match-strict (ly-raw dot)
+                                             (ly-raw newline)
+                                             (lambda (x))))))))
+  (let ((str "'(helm :sources (ly-raw newline)
+               (ly-raw \\` (name (ly-raw dot) (ly-raw string \"\\\"this defun\\\"\"))
+                (ly-raw newline)
+                (match-strict (ly-raw dot)
+                 (ly-raw newline)
+                 (lambda (x)))))"))
+    (should (equal
+             (lispy--prin1-to-string (lispy--read str) 13 'emacs-lisp-mode)
+             str))))
 
 (ert-deftest lispy-tick ()
   (should (string= (lispy-with "|" "'") "'|"))
@@ -1117,7 +1137,7 @@ Insert KEY if there's no command."
                    "\"a string [|]")))
 
 (ert-deftest lispy-to-ifs ()
-  (should (string= (lispy-with "|(cond ((looking-at \" *;\"))\n      ((and (looking-at \"\\n\")\n            (looking-back \"^ *\"))\n       (delete-blank-lines))\n      ((looking-at \"\\\\([\\n ]+\\\\)[^\\n ;]\")\n       (delete-region (match-beginning 1)\n                      (match-end 1))))" ;
+  (should (string= (lispy-with "|(cond ((looking-at \" *;\"))\n      ((and (looking-at \"\\n\")\n            (looking-back \"^ *\"))\n       (delete-blank-lines))\n      ((looking-at \"\\\\([\\n ]+\\\\)[^\\n ;]\")\n       (delete-region (match-beginning 1)\n                      (match-end 1))))"
                                (lispy-to-ifs))
                    "|(if (looking-at \" *;\")\n    nil\n  (if (and (looking-at \"\\n\")\n           (looking-back \"^ *\"))\n      (delete-blank-lines)\n    (if (looking-at \"\\\\([\\n ]+\\\\)[^\\n ;]\")\n        (delete-region (match-beginning 1)\n                       (match-end 1)))))")))
 
@@ -1226,8 +1246,8 @@ Insert KEY if there's no command."
              (lispy-with "
 (defun foobar ()
   (let (|(x 10)
-        (y 20)
-        (z 30))
+         (y 20)
+         (z 30))
     (foo1 x y z)
     (foo2 x z y)
     (foo3 y x z)
@@ -1250,8 +1270,8 @@ Insert KEY if there's no command."
              (lispy-with "
 (defun foobar ()
   (let (|(x 10)
-        (y 20)
-        (z 30))
+         (y 20)
+         (z 30))
     (foo1 x y z)
     (foo2 x z y)
     (foo3 y x z)
@@ -1269,6 +1289,7 @@ Insert KEY if there's no command."
     (foo4 20 z 10)
     (foo5 z 10 20)
     (foo6 z 20 10)))")))
+
 
 (ert-deftest lispy-other-space ()
   (should (string= (lispy-with "(foo (bar (baz)|))"
