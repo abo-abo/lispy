@@ -4760,8 +4760,10 @@ Defaults to `error'."
   "Extract the function body and args from it's expression STR."
   (let ((body (lispy--read str))
         args)
-    (when (eq (car body) 'lambda)
-      (setq body (cons 'defun body)))
+    (cond ((eq (car body) 'lambda)
+           (setq body (cons 'defun body)))
+          ((eq (car body) 'closure)
+           (setq body `(defun noname ,@(cddr body)))))
     (cond ((memq (car body) '(defun defmacro))
            (setq body (lispy--whitespace-trim (cdr body))))
           ((eq (car body) 'defalias)
