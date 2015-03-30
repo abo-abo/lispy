@@ -223,9 +223,10 @@ The hint will consist of the possible nouns that apply to the verb."
   :type 'boolean
   :group 'lispy)
 
-(defcustom lispy-completion-method 'helm
+(defcustom lispy-completion-method 'ivy
   "Method to select a candidate from a list of strings."
   :type '(choice
+          (const :tag "Ivy" ivy)
           ;; sensible choice for many tags
           (const :tag "Helm" helm)
           ;; `ido-vertical-mode' is highly recommended here
@@ -236,6 +237,11 @@ The hint will consist of the possible nouns that apply to the verb."
 (defface lispy-command-name-face
   '((t (:inherit font-lock-function-name-face)))
   "Face for Elisp commands."
+  :group 'lispy-faces)
+
+(defface lispy-variable-name-face
+    '((t (:inherit font-lock-variable-name-face)))
+  "Face for Elisp variables and other tags."
   :group 'lispy-faces)
 
 (defface lispy-test-face
@@ -4213,7 +4219,7 @@ FACE can be :keyword, :function or :type.  It defaults to 'default."
                  (:type 'font-lock-type-face)
                  (:function 'font-lock-function-name-face)
                  (:command 'lispy-command-name-face)
-                 (t 'default)))))
+                 (t 'lispy-variable-name-face)))))
 
 (defun lispy--modify-tag (x regex arity-alist)
   "Re-parse X and modify it accordingly.
@@ -5084,12 +5090,15 @@ ACTION is called for the selected candidate."
                         tag)
                     ""))
                 :buffer "*lispy-goto*")))
-    (let ((res
-           (funcall
-            (if (eq lispy-completion-method 'ido)
-                #'ido-completing-read
-              #'completing-read)
-            "tag " (mapcar #'car candidates) nil t)))
+    (let* ((strs (mapcar #'car candidates))
+           (res
+            (cl-case lispy-completion-method
+              (ido
+               (ido-completing-read "tag: " strs))
+              (ivy
+               (ivy-read "tag: " strs))
+              (t
+               (completing-read "tag: " strs)))))
       (funcall action (assoc res candidates)))))
 
 (defun lispy--action-jump (tag)
