@@ -164,8 +164,6 @@
 (declare-function lispy-flatten--clojure "le-clojure")
 (declare-function View-quit "view")
 (declare-function org-overview "org")
-(defvar helm-input)
-(declare-function helm "ext:helm")
 
 ;;* Customization
 (defgroup lispy nil
@@ -1709,6 +1707,9 @@ to all the functions, while maintaining the parens in a pretty state."
           (-
            (line-number-at-pos (point))
            (line-number-at-pos lispy--occur-beg))))
+
+(defvar helm-input)
+(declare-function helm "ext:helm")
 
 (defun lispy--occur-action (x)
   "Goto line X for `lispy-occur'."
