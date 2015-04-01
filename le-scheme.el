@@ -34,6 +34,18 @@
 (declare-function geiser-eval--send/wait "geiser-eval")
 (declare-function geiser-eval--retort-error "geiser-eval")
 (declare-function geiser-mode "geiser-mode")
+(declare-function geiser-edit--try-edit "geiser-edit")
+
+(defun lispy--scheme-goto-symbol (symbol)
+  "Opens a new window visiting the definition of SYMBOL."
+  (let* ((symbol (make-symbol symbol))
+         (cmd `(:eval (:ge symbol-location ',symbol)))
+         (marker (point-marker)))
+    (condition-case err
+        (progn (geiser-edit--try-edit symbol (geiser-eval--send/wait cmd))
+               (when marker (ring-insert find-tag-marker-ring marker)))
+      (error
+       (error (error-message-string err))))))
 
 (defun lispy--eval-scheme (str)
   "Eval STR as Scheme code."

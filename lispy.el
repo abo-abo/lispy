@@ -2659,12 +2659,12 @@ Sexp is obtained by exiting list ARG times."
 (declare-function slime-edit-definition "ext:slime")
 (declare-function lispy--clojure-resolve "le-clojure")
 (declare-function lispy--clojure-jump "le-clojure")
+(declare-function lispy--scheme-goto-symbol "le-scheme")
 (defun lispy-goto-symbol (symbol)
-  "Go to definition of SYMBOL."
-  (interactive (list (let ((str (thing-at-point 'symbol)))
-                       (if str
-                           (intern str)
-                         (lispy--current-function)))))
+  "Go to definition of SYMBOL.
+SYMBOL is a string."
+  (interactive (list (or (thing-at-point 'symbol)
+                         (lispy--current-function))))
   (let (rsymbol)
     (deactivate-mark)
     (ring-insert find-tag-marker-ring (point-marker))
@@ -2707,7 +2707,10 @@ Sexp is obtained by exiting list ARG times."
            (lispy--back-to-paren))
           ((eq major-mode 'lisp-mode)
            (require 'slime)
-           (slime-edit-definition symbol))))
+           (slime-edit-definition symbol))
+          ((eq major-mode 'scheme-mode)
+           (require 'geiser)
+           (lispy--scheme-goto-symbol symbol))))
   ;; in case it's hidden in an outline
   (lispy--ensure-visible))
 
