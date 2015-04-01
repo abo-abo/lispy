@@ -169,13 +169,13 @@
   "Outline delimiter.")
 
 (defcustom lispy-no-space nil
-  "If t, don't insert a space before parens/brackets/braces/colons."
+  "When non-nil, don't insert a space before parens/brackets/braces/colons."
   :type 'boolean
   :group 'lispy)
 (make-variable-buffer-local 'lispy-no-space)
 
 (defcustom lispy-lax-eval t
-  "If t, fix \"unbound variable\" error by setting the unbound variable to nil.
+  "When non-nil, fix \"unbound variable\" error by setting the unbound variable to nil.
 This is useful when hacking functions with &optional arguments.
 So evaling (setq mode (or mode major-mode)) will set mode to nil on
 the first eval, and to major-mode on the second eval."
@@ -265,15 +265,19 @@ The hint will consist of the possible nouns that apply to the verb."
   "Face for `lispy-view-test'."
   :group 'lispy-faces)
 
-(defface lispy-occur-face
-  '((t (:background "#CECEFF")))
-  "Face for `lispy-occur' matches."
-  :group 'lispy-faces)
-
 (defvar lispy-mode-map (make-sparse-keymap))
 
 (defvar lispy-known-verbs nil
   "List of registered verbs.")
+
+(defcustom lispy-compat '(edebug)
+  "List of package compatibility options.
+Enabling them adds overhead, so make sure that you are actually
+using those packages."
+  :type '(repeat
+          (choice
+           (const :tag "god-mode" god-mode)
+           (const :tag "edebug" edebug))))
 
 ;;;###autoload
 (define-minor-mode lispy-mode
@@ -5511,12 +5515,14 @@ PLIST currently accepts:
                      (t
                       (error "Unexpected :override %S" override)))
 
-             ((lispy--edebug-commandp)
-              (call-interactively
-               lispy--edebug-command))
+             ,@(when (memq 'edebug lispy-compat)
+                     '(((lispy--edebug-commandp)
+                        (call-interactively
+                         lispy--edebug-command))))
 
-             ((and (bound-and-true-p god-global-mode))
-              (call-interactively 'god-mode-self-insert))
+             ,@(when (memq 'god-mode lispy-compat)
+                     '(((and (bound-and-true-p god-global-mode))
+                        (call-interactively 'god-mode-self-insert))))
 
              ((region-active-p)
               (call-interactively ',def))
@@ -5524,13 +5530,10 @@ PLIST currently accepts:
              ((lispy--in-string-or-comment-p)
               (call-interactively 'self-insert-command))
 
-             ((save-match-data
-                (or (looking-at lispy-left)
-                    (looking-back lispy-right)))
-              (call-interactively ',def))
-
-             ((save-match-data
-                (and (looking-back "^ *") (looking-at ";")))
+             ((or (looking-at lispy-left)
+                  (looking-back lispy-right)
+                  (and (looking-back "^ *")
+                       (looking-at ";")))
               (call-interactively ',def))
 
              (t
