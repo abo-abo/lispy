@@ -2949,7 +2949,7 @@ When called twice in a row, restore point and mark."
    lispy-avy-style-char))
 
 (defun lispy-ace-paren ()
-  "Jump to `lispy-left' within the current defun."
+  "Jump to an open paren within the current defun."
   (interactive)
   (lispy--remember)
   (deactivate-mark)
@@ -3000,8 +3000,8 @@ Sexp is obtained by exiting list ARG times."
     (skip-chars-forward "-([{ `'#") (mark-word)))
 
 (defun lispy--avy-do (regex bnd filter style)
-  "Visually select among the matches to REGEX within BND.
-Filter out the matches in strings and comments.
+  "Visually select a match to REGEX within BND.
+Filter out the matches that don't match FILTER.
 Use STYLE function to update the overlays."
   (require 'avy-jump)
   (lispy--recenter-bounds bnd)
