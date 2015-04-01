@@ -153,18 +153,6 @@
 (require 'hydra)
 (require 'swiper)
 
-;;** Declares
-(declare-function cider-repl-return "ext:cider-repl")
-(declare-function cider-eval-print-last-sexp "ext:cider-interaction")
-(declare-function slime-edit-definition "ext:slime")
-(declare-function slime-repl-return "ext:slime-repl")
-(declare-function lispy--clojure-resolve "le-clojure")
-(declare-function lispy--clojure-jump "le-clojure")
-(declare-function lispy--eval-clojure "le-clojure")
-(declare-function lispy-flatten--clojure "le-clojure")
-(declare-function View-quit "view")
-(declare-function org-overview "org")
-
 ;;* Customization
 (defgroup lispy nil
   "List navigation and editing for the Lisp family."
@@ -1542,6 +1530,7 @@ When region is active, toggle a ~ at the start of the region."
     (lispy--space-unless "\\s-\\|\\s(\\|[#:?'`,]\\\\?")
     (insert "#")))
 
+(declare-function cider-eval-print-last-sexp "ext:cider-interaction")
 (defun lispy-newline-and-indent ()
   "Insert newline."
   (interactive)
@@ -1559,6 +1548,8 @@ When region is active, toggle a ~ at the start of the region."
         (t
          (lispy-newline-and-indent-plain))))
 
+(declare-function cider-repl-return "ext:cider-repl")
+(declare-function slime-repl-return "ext:slime-repl")
 (defun lispy-newline-and-indent-plain ()
   "When in minibuffer, exit it.  Otherwise forward to `newline-and-indent'."
   (interactive)
@@ -2661,6 +2652,9 @@ Sexp is obtained by exiting list ARG times."
   (eval-after-load 'etags
     '(add-to-list 'byte-compile-not-obsolete-vars 'find-tag-marker-ring)))
 
+(declare-function slime-edit-definition "ext:slime")
+(declare-function lispy--clojure-resolve "le-clojure")
+(declare-function lispy--clojure-jump "le-clojure")
 (defun lispy-goto-symbol (symbol)
   "Go to definition of SYMBOL."
   (interactive (list (let ((str (thing-at-point 'symbol)))
@@ -3194,6 +3188,7 @@ When ARG isn't nil, show table of contents."
           (lispy-complain "Not in lambda")
           (goto-char pt))))))
 
+(declare-function lispy-flatten--clojure "le-clojure")
 (defun lispy-flatten (arg)
   "Inline a function at the point of its call.
 Pass the ARG along."
@@ -4014,6 +4009,7 @@ Move to the end of line."
     (end-of-line)))
 
 ;;* Utilities: evaluation
+(declare-function lispy--eval-clojure "le-clojure")
 (defun lispy--eval (e-str &optional add-output)
   "Eval E-STR according to current `major-mode'.
 The result is a string.
@@ -5661,6 +5657,7 @@ FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)."
   ("k" lispy-knight-up)
   ("z" nil))
 
+(declare-function View-quit "view")
 (let ((map lispy-mode-map))
   ;; ——— globals: navigation ——————————————————
   (define-key map (kbd "]") 'lispy-forward)
