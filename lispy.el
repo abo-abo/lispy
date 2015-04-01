@@ -144,7 +144,7 @@
 (require 'outline)
 (require 'semantic)
 (require 'semantic/db)
-(require 'ace-jump-mode)
+(require 'avy-jump)
 (require 'newcomment)
 (require 'lispy-inline)
 (require 'iedit)
@@ -231,6 +231,30 @@ The hint will consist of the possible nouns that apply to the verb."
           (const :tag "Ido" ido)
           ;; `icomplete-mode' and `icy-mode' will affect this
           (const :tag "Default" default)))
+
+(defcustom lispy-avy-style-char 'pre
+  "Method of displaying the overlays for a char during visual selection."
+  :type '(choice
+          (const :tag "Pre" pre)
+          (const :tag "At" at)
+          (const :tag "Post" post)))
+
+(defcustom lispy-avy-style-paren 'at
+  "Method of displaying the overlays for a paren during visual selection."
+  :type '(choice
+          (const :tag "Pre" pre)
+          (const :tag "At" at)
+          (const :tag "Post" post)))
+
+(defcustom lispy-avy-style-symbol 'pre
+  "Method of displaying the overlays for a symbol during visual selection."
+  :type '(choice
+          (const :tag "Pre" pre)
+          (const :tag "At" at)
+          (const :tag "Post" post)))
+
+(defcustom lispy-avy-keys (number-sequence ?a ?z)
+  "Keys for jumping.")
 
 (defface lispy-command-name-face
   '((t (:inherit font-lock-function-name-face)))
@@ -2552,7 +2576,7 @@ Quote newlines if ARG isn't 1."
       (forward-char offset))))
 
 (defun lispy-teleport (arg)
-  "Move ARG sexps into a sexp determined by ace-jump."
+  "Move ARG sexps into a sexp determined by `lispy-ace-paren'."
   (interactive "p")
   (let ((beg (point))
         end endp regionp)
@@ -2573,40 +2597,13 @@ Quote newlines if ARG isn't 1."
            (error "Unexpected")))
     (setq end (point))
     (goto-char beg)
-    (lispy--ace-do
-     lispy-left
-     (save-excursion (lispy--out-backward 50) (lispy--bounds-dwim))
-     (lambda () (not (lispy--in-string-or-comment-p)))
-     `(lambda ()
-        (forward-char)
-        (ignore-errors
-          (unless (looking-at "(")
-            (forward-sexp)))
-        (backward-char)
-        (lispy--teleport ,beg ,end ,endp ,regionp)))))
-
-(defun lispy-replace-symbol ()
-  "Overwrite `lispy-ace-symbol' with current thing."
-  (interactive)
-  (lexical-let ((bnd-defun (save-excursion
-                             (lispy-beginning-of-defun)
-                             (lispy--bounds-dwim)))
-                (bnd-curr (lispy--bounds-dwim)))
-    (lispy--ace-do
-     "[([{ ]\\(?:\\sw\\|\\s_\\|\\s(\\|[\"'`#]\\)"
-     bnd-defun
-     (lambda () (or (not (lispy--in-string-or-comment-p)) (looking-back ".\"")))
-     (lambda ()
-       (let ((str (lispy--string-dwim bnd-curr)))
-         (let ((pt (1+ (point))))
-           (goto-char (car bnd-curr))
-           (save-excursion
-             (goto-char pt)
-             (lispy-mark-symbol)
-             (delete-active-region)
-             (deactivate-mark)
-             (insert str)
-             (lispy--normalize-1))))))))
+    (lispy-ace-paren)
+    (forward-char 1)
+    (unless (looking-at "(")
+      (ignore-errors
+        (forward-sexp)))
+    (backward-char 1)
+    (lispy--teleport beg end endp regionp)))
 
 ;;* Locals: tags
 (defun lispy-goto (&optional arg)
@@ -2657,15 +2654,8 @@ When ARG isn't nil, call `lispy-goto-projectile' instead."
   "Jump to definition of selected element of current sexp.
 Sexp is obtained by exiting list ARG times."
   (interactive "p")
-  (lispy--out-forward
-   (if (region-active-p)
-       (progn (deactivate-mark) arg)
-     (1- arg)))
-  (lispy--ace-do
-   "[([{ ]\\(?:\\sw\\|\\s_\\|\\s(\\|[\"'`#]\\)"
-   (lispy--bounds-dwim)
-   (lambda () (or (not (lispy--in-string-or-comment-p)) (looking-back ".\"")))
-   (lambda () (forward-char 1) (call-interactively 'lispy-goto-symbol))))
+  (lispy-ace-symbol arg)
+  (call-interactively 'lispy-goto-symbol))
 
 (when (version< emacs-version "25.1")
   (eval-after-load 'etags
@@ -2828,57 +2818,56 @@ When ARG isn't nil, try to pretty print the sexp."
 In case the point is on a let-bound variable, add a `setq'."
   (interactive)
   (require 'ace-window)
-  (lexical-let*
-      ((pt (point))
-       (lispy-ignore-whitespace t)
-       (str (save-match-data
-              (lispy--string-dwim)))
-       (expr (save-match-data
-               (unless (lispy--leftp)
-                 (lispy-different))
-               (cond
-                 ((looking-back "(\\(?:lexical-\\)?let\\*?[ \t\n]*")
-                  (cons 'setq
-                        (cl-mapcan
-                         (lambda (x) (unless (listp x) (list x nil)))
-                         (read str))))
+  (let* ((pt (point))
+         (lispy-ignore-whitespace t)
+         (str (save-match-data
+                (lispy--string-dwim)))
+         (expr (save-match-data
+                 (unless (lispy--leftp)
+                   (lispy-different))
+                 (cond
+                   ((looking-back "(\\(?:lexical-\\)?let\\*?[ \t\n]*")
+                    (cons 'setq
+                          (cl-mapcan
+                           (lambda (x) (unless (listp x) (list x nil)))
+                           (read str))))
 
-                 ((looking-back "(dolist ")
-                  (let* ((exp (read str))
-                         (sym (car exp)))
-                    (unless (eq sym lispy--eval-sym)
-                      (setq lispy--eval-sym sym)
-                      (setq lispy--eval-data
-                            (lispy--eval-elisp-form (cadr exp) lexical-binding)))
-                    (if lispy--eval-data
-                        (let* ((popped (pop lispy--eval-data))
-                               (popped (if (or (symbolp popped) (listp popped))
-                                           `(quote ,popped)
-                                         popped)))
-                          `(setq ,sym ,popped))
-                      (setq lispy--eval-data
-                            (lispy--eval-elisp-form (cadr exp) lexical-binding))
-                      `(setq ,sym nil))))
+                   ((looking-back "(dolist ")
+                    (let* ((exp (read str))
+                           (sym (car exp)))
+                      (unless (eq sym lispy--eval-sym)
+                        (setq lispy--eval-sym sym)
+                        (setq lispy--eval-data
+                              (lispy--eval-elisp-form (cadr exp) lexical-binding)))
+                      (if lispy--eval-data
+                          (let* ((popped (pop lispy--eval-data))
+                                 (popped (if (or (symbolp popped) (listp popped))
+                                             `(quote ,popped)
+                                           popped)))
+                            `(setq ,sym ,popped))
+                        (setq lispy--eval-data
+                              (lispy--eval-elisp-form (cadr exp) lexical-binding))
+                        `(setq ,sym nil))))
 
-                 ;; point moves
-                 ((progn
-                    (lispy--out-backward 1)
-                    (looking-back
-                     "(\\(?:lexical-\\)?let\\*?[ \t\n]*"))
-                  (cons 'setq (read str)))
+                   ;; point moves
+                   ((progn
+                      (lispy--out-backward 1)
+                      (looking-back
+                       "(\\(?:lexical-\\)?let\\*?[ \t\n]*"))
+                    (cons 'setq (read str)))
 
-                 ((looking-back "(\\(?:cl-\\)?labels[ \t\n]*")
-                  (cons 'defun (read str)))
+                   ((looking-back "(\\(?:cl-\\)?labels[ \t\n]*")
+                    (cons 'defun (read str)))
 
-                 ((looking-at
-                   "(cond\\b")
-                  (let ((re (read str)))
-                    `(if ,(car re)
-                         (progn
-                           ,@(cdr re))
-                       lispy--eval-cond-msg)))
-                 (t (read str)))))
-       res)
+                   ((looking-at
+                     "(cond\\b")
+                    (let ((re (read str)))
+                      `(if ,(car re)
+                           (progn
+                             ,@(cdr re))
+                         lispy--eval-cond-msg)))
+                   (t (read str)))))
+         res)
     (goto-char pt)
     (let* ((source-window (selected-window))
            (target-window
@@ -2947,56 +2936,53 @@ When called twice in a row, restore point and mark."
            (setq lispy-bof-last-point (point)))
          (beginning-of-defun arg))))
 
-;;* Locals: ace-jump-mode
+;;* Locals: avy-jump
 (declare-function avi--regex-candidates "avy-jump")
 (declare-function avi--goto "avy-jump")
 (declare-function avi--process "avy-jump")
 (declare-function avi--overlay-post "avy-jump")
 
 (defun lispy-ace-char ()
-  "Call `ace-jump-char-mode' on current defun."
+  "Visually select a char within the current defun."
   (interactive)
-  (require 'avy-jump)
-  (let* ((bnd (save-excursion
-                ;; `beginning-of-defun' won't work, since it can change sexp
-                (lispy--out-backward 50)
-                (lispy--bounds-dwim)))
-         (str (string (read-char "Char: ")))
-         (cands (avi--regex-candidates
-                 str
-                 (selected-window)
-                 (car bnd) (cdr bnd))))
-    (avi--goto
-     (avi--process
-      cands #'avi--overlay-post))))
+  (lispy--avy-do
+   (string (read-char "Char: "))
+   (save-excursion
+     ;; `beginning-of-defun' won't work, since it can change sexp
+     (lispy--out-backward 50)
+     (lispy--bounds-dwim))
+   (lambda () t)
+   lispy-avy-style-char))
 
 (defun lispy-ace-paren ()
-  "Use `lispy--ace-do' to jump to variable `lispy-left' within current defun.
-When FUNC is not nil, call it after a successful move.
-When NO-NARROW is not nil, don't narrow."
+  "Jump to `lispy-left' within the current defun."
   (interactive)
   (lispy--remember)
   (deactivate-mark)
-  (lispy--ace-do
+  (lispy--avy-do
    lispy-left
-   (save-excursion (lispy--out-backward 50) (lispy--bounds-dwim))
+   (save-excursion
+     (lispy--out-backward 50)
+     (lispy--bounds-dwim))
    (lambda () (not (lispy--in-string-or-comment-p)))
-   nil
-   nil))
+   lispy-avy-style-paren))
 
 (defun lispy-ace-symbol (arg)
-  "Use `lispy--ace-do' to mark to a symbol within a sexp.
-Sexp is obtained by exiting list ARG times."
+  "Jump to a symbol withing the current sexp and mark it.
+Sexp is obtained by exiting the list ARG times."
   (interactive "p")
   (lispy--out-forward
    (if (region-active-p)
        (progn (deactivate-mark) arg)
      (1- arg)))
-  (lispy--ace-do
-   "[([{ ]\\(?:\\sw\\|\\s_\\|[\"'`#~,@]\\)"
-   (lispy--bounds-dwim)
-   (lambda () (or (not (lispy--in-string-or-comment-p)) (looking-back ".\"")))
-   (lambda () (forward-char 1) (lispy-mark-symbol))))
+  (let ((avi--overlay-offset (if (eq lispy-avy-style-symbol 'at) 0 1)))
+    (lispy--avy-do
+     "[([{ ]\\(?:\\sw\\|\\s_\\|[\"'`#~,@]\\)"
+     (lispy--bounds-dwim)
+     (lambda () (or (not (lispy--in-string-or-comment-p)) (looking-back ".\"")))
+     lispy-avy-style-symbol))
+  (forward-char 1)
+  (lispy-mark-symbol))
 
 (defun lispy-ace-subword (arg)
   "Mark sub-word within a sexp.
@@ -3011,34 +2997,40 @@ Sexp is obtained by exiting list ARG times."
      (if (region-active-p)
          (progn (deactivate-mark) arg)
        (1- arg)))
-    (lispy--ace-do
-     "[([{ -]\\(?:\\sw\\|\\s_\\|\\s(\\|[\"'`#]\\)"
-     (lispy--bounds-dwim)
-     (lambda () (or (not (lispy--in-string-or-comment-p)) (looking-back ".\"")))
-     (lambda () (skip-chars-forward "-([{ `'#") (mark-word)))))
+    (let ((avi--overlay-offset (if (eq lispy-avy-style-symbol 'at) 0 1)))
+      (lispy--avy-do
+       "[([{ -]\\(?:\\sw\\|\\s_\\|\\s(\\|[\"'`#]\\)"
+       (lispy--bounds-dwim)
+       (lambda () (or (not (lispy--in-string-or-comment-p)) (looking-back ".\"")))
+       lispy-avy-style-symbol))
+    (skip-chars-forward "-([{ `'#") (mark-word)))
 
-(defhydra lh-delete ()
-  ("H" lispy-delete "delete more")
-  ("h" lispy-delete)
-  ("u" lispy-undo))
+(defun lispy--avy-do (regex bnd filter style)
+  "Visually select among the matches to REGEX within BND.
+Filter out the matches in strings and comments.
+Use STYLE function to update the overlays."
+  (require 'avy-jump)
+  (lispy--recenter-bounds bnd)
+  (let* ((avi-keys lispy-avy-keys)
+         (cands (avi--regex-candidates
+                 regex
+                 (selected-window)
+                 (car bnd) (cdr bnd)
+                 filter)))
+    (avi--goto
+     (avi--process
+      cands
+      (cl-case style
+        (pre #'avi--overlay-pre)
+        (at #'avi--overlay-at)
+        (post #'avi--overlay-post))))))
 
 (defun lispy-ace-symbol-replace (arg)
-  "Use `ace-jump-char-mode' to jump to a symbol within a sexp and delete it.
-Sexp is obtained by exiting list ARG times."
+  "Jump to a symbol withing the current sexp and delete it.
+Sexp is obtained by exiting the list ARG times."
   (interactive "p")
-  (lispy--out-forward
-   (if (region-active-p)
-       (progn (deactivate-mark) arg)
-     (1- arg)))
-  (lispy--ace-do
-   "[([{ ]\\(?:\\sw\\|\\s_\\|\\s(\\|[\"'`#]\\)"
-   (lispy--bounds-dwim)
-   (lambda () (or (not (lispy--in-string-or-comment-p)) (looking-back ".\"")))
-   (lambda ()
-     (forward-char 1)
-     (lispy-mark-symbol)
-     (lispy-delete 1)
-     (lh-delete/body))))
+  (lispy-ace-symbol arg)
+  (lispy-delete 1))
 
 ;;* Locals: outline
 (defun lispy-outline-level ()
@@ -3342,17 +3334,18 @@ With ARG, use the contents of `lispy-store-region-and-buffer' instead."
     (mc/maybe-multiple-cursors-mode)))
 
 (defun lispy-cursor-ace ()
-  "Add a cursor using `lispy--ace-do'.
+  "Add a cursor at a visually selected paren.
 Currently, only one cursor can be added with local binding.
 Any amount can be added with a global binding."
   (interactive)
   (require 'multiple-cursors)
   (mc/create-fake-cursor-at-point)
-  (lexical-let ((pt (point)))
-    (lispy--ace-do
-     "(" (cons (window-start) (window-end))
-     (lambda () (not (lispy--in-string-or-comment-p)))
-     #'mc/maybe-multiple-cursors-mode)))
+  (lispy--avy-do
+   "("
+   (cons (window-start) (window-end))
+   (lambda () (not (lispy--in-string-or-comment-p)))
+   lispy-avy-style-paren)
+  (mc/maybe-multiple-cursors-mode))
 
 ;;* Locals: ediff
 (defun lispy-store-region-and-buffer ()
@@ -5141,28 +5134,6 @@ BND is a cons of start and end points."
          (save-excursion
            (goto-char (cdr bnd))
            (recenter -1)))))
-
-(defun lispy--ace-do (x bnd &optional filter func no-narrow)
-  "Use `ace-jump-do' to X within BND when FILTER return t.
-When FUNC is not nil, call it after a successful move.
-When NO-NARROW is not nil, don't narrow to BND."
-  (require 'ace-jump-mode)
-  (lispy--recenter-bounds bnd)
-  (setq ace-jump-mode-end-hook nil)
-  (let ((already-narrowed (lispy--buffer-narrowed-p)))
-    (unless no-narrow
-      (narrow-to-region (car bnd) (cdr bnd)))
-    (when func
-      (setq ace-jump-mode-end-hook
-            (list `(lambda ()
-                     (setq ace-jump-mode-end-hook)
-                     (,func)))))
-    (let ((ace-jump-mode-scope 'window)
-          (ace-jump-search-filter filter))
-      (unwind-protect
-           (ace-jump-do x)
-        (unless already-narrowed
-          (widen))))))
 
 (defun lispy--prin1-to-string (expr offset mode)
   "Return the string representation of EXPR.

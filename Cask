@@ -7,7 +7,6 @@
 
 (development
  (depends-on "helm")
- (depends-on "ace-jump-mode")
  (depends-on "iedit")
  (depends-on "multiple-cursors")
  (depends-on "cider")

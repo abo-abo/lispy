@@ -1454,8 +1454,46 @@ Insert KEY if there's no command."
 
 (ert-deftest lispy-ace-char ()
   (should (string= (lispy-with "|(cons 'norwegian 'blue)"
-                               (execute-kbd-macro (kbd "Qos")))
+                               (execute-kbd-macro (kbd "Qob")))
                    "(cons 'n|orwegian 'blue)")))
+
+(ert-deftest lispy-ace-paren ()
+  (should (string= (lispy-with "|(progn (setq type 'norwegian-blue)\n       (setq plumage-type 'lovely))"
+                               (execute-kbd-macro (kbd "qb")))
+                   "(progn |(setq type 'norwegian-blue)\n       (setq plumage-type 'lovely))"))
+  (should (string= (lispy-with "|(progn (setq type 'norwegian-blue)\n       (setq plumage-type 'lovely))"
+                               (execute-kbd-macro (kbd "qc")))
+                   "(progn (setq type 'norwegian-blue)\n       |(setq plumage-type 'lovely))"))
+  (should (string= (lispy-with "(progn (setq type 'norwegian-blue)\n       |(setq plumage-type 'lovely))"
+                               (execute-kbd-macro (kbd "qa")))
+                   "|(progn (setq type 'norwegian-blue)\n       (setq plumage-type 'lovely))")))
+
+(ert-deftest lispy-ace-symbol ()
+  (should (string= (lispy-with "|(progn (setq type 'norwegian-blue)\n       (setq plumage-type 'lovely))"
+                               (execute-kbd-macro (kbd "ab")))
+                   "(progn (~setq| type 'norwegian-blue)\n       (setq plumage-type 'lovely))"))
+  (should (string= (lispy-with "|(progn (setq type 'norwegian-blue)\n       (setq plumage-type 'lovely))"
+                               (execute-kbd-macro (kbd "ac")))
+                   "(progn (setq ~type| 'norwegian-blue)\n       (setq plumage-type 'lovely))"))
+  (should (string= (lispy-with "(progn (setq type 'norwegian-blue)\n       |(setq plumage-type 'lovely))"
+                               (execute-kbd-macro (kbd "aa")))
+                   "(progn (setq type 'norwegian-blue)\n       (~setq| plumage-type 'lovely))")))
+
+(ert-deftest lispy-ace-subword ()
+  (should (string= (lispy-with "|(progn (setq type 'norwegian-blue)\n       (setq plumage-type 'lovely))"
+                               (execute-kbd-macro (kbd "-g")))
+                   "(progn (setq type 'norwegian-blue)\n       (setq |plumage~-type 'lovely))"))
+  (should (string= (lispy-with "|(progn (setq type 'norwegian-blue)\n       (setq plumage-type 'lovely))"
+                               (execute-kbd-macro (kbd "-e")))
+                   "(progn (setq type 'norwegian-|blue~)\n       (setq plumage-type 'lovely))")))
+
+(ert-deftest lispy-ace-symbol-replace ()
+  (should (string= (lispy-with "|(progn (setq type 'norwegian-blue)\n       (setq plumage-type 'lovely))"
+                               (execute-kbd-macro (kbd "Hd")))
+                   "(progn (setq type |)\n       (setq plumage-type 'lovely))"))
+  (should (string= (lispy-with "|(progn (setq type 'norwegian-blue)\n       (setq plumage-type 'lovely))"
+                               (execute-kbd-macro (kbd "Hg")))
+                   "(progn (setq type 'norwegian-blue)\n       (setq plumage-type |))")))
 
 (ert-deftest lispy-paredit-open-round ()
   (should (string= (lispy-with "(a b |c d)"
@@ -1469,7 +1507,7 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "(a b |c   )"
                                ")")
                    "(a b c)|"))
-  (should (string= (lispy-with "; Hello,| world!"
+  (should (string= (lispy-with "; Hello,| world!" ;
                                ")")
                    "; Hello,)| world!")))
 
