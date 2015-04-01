@@ -2660,6 +2660,7 @@ Sexp is obtained by exiting list ARG times."
 (declare-function lispy--clojure-resolve "le-clojure")
 (declare-function lispy--clojure-jump "le-clojure")
 (declare-function lispy--scheme-goto-symbol "le-scheme")
+(declare-function geiser-edit-symbol "geiser-edit")
 (defun lispy-goto-symbol (symbol)
   "Go to definition of SYMBOL.
 SYMBOL is a string."
@@ -2710,7 +2711,7 @@ SYMBOL is a string."
            (slime-edit-definition symbol))
           ((eq major-mode 'scheme-mode)
            (require 'geiser)
-           (lispy--scheme-goto-symbol symbol))))
+           (geiser-edit-symbol (make-symbol symbol)))))
   ;; in case it's hidden in an outline
   (lispy--ensure-visible))
 
