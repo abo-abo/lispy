@@ -1631,6 +1631,25 @@ Insert KEY if there's no command."
                    "(foo \"|\"\n     quux)"))
   (lispy-set-key-theme '(special lispy c-digits oleh)))
 
+(ert-deftest lispy-paredit-forward-kill-word ()
+  (lispy-set-key-theme '(special paredit))
+  (should (string= (lispy-with "|(foo bar)    ; baz"
+                               (kbd "M-d"))
+                   "(| bar)    ; baz"))
+  (should (string= (lispy-with "(| bar)    ; baz"
+                               (kbd "M-d"))
+                   "(|)    ; baz"))
+  (should (string= (lispy-with "(|)    ; baz"
+                               (kbd "M-d"))
+                   "()    ;|"))
+  (should (string= (lispy-with ";;;| Frobnicate\n(defun frobnicate ...)"
+                               (kbd "M-d"))
+                   ";;;|\n(defun frobnicate ...)"))
+  (should (string= (lispy-with ";;;|\n(defun frobnicate ...)"
+                               (kbd "M-d"))
+                   ";;;\n(| frobnicate ...)"))
+  (lispy-set-key-theme '(special lispy c-digits oleh)))
+
 (provide 'lispy-test)
 
 ;;; lispy-test.el ends here

@@ -911,6 +911,7 @@ Return nil if can't move."
                       (memq (char-syntax (char-after))
                             '(?w ?_))))
         (forward-char 1))
+      (delete-horizontal-space)
       (if (setq bnd (lispy--bounds-string))
           (save-restriction
             (narrow-to-region (1+ (car bnd)) (1- (cdr bnd)))
@@ -5848,6 +5849,7 @@ Insert \"]\" in strings and comments."
     (define-key map (kbd "C-d") 'lispy-forward-delete)
     (define-key map (kbd "DEL") 'lispy-backward-delete)
     (define-key map (kbd "C-k") 'lispy-kill)
+    (define-key map (kbd "M-d") 'lispy-kill-word)
     map))
 
 (defvar lispy-mode-map-c-digits
