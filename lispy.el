@@ -5797,6 +5797,16 @@ Insert \"]\" in strings and comments."
              (backward-char 1))
            (backward-char)))))
 
+(defun lispy-meta-doublequote (arg)
+  "Exit the current string."
+  (interactive "P")
+  (let ((bnd (lispy--bounds-string)))
+    (if bnd
+        (goto-char (cdr bnd))
+      (if (looking-at lispy-left)
+          (lispy-stringify)
+        (lispy-doublequote arg)))))
+
 (defvar lispy-mode-map-paredit
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "M-)") 'lispy-close-round-and-newline)
@@ -5805,6 +5815,7 @@ Insert \"]\" in strings and comments."
     (define-key map (kbd "[") 'lispy-open-square)
     (define-key map (kbd "]") 'lispy-close-square)
     (define-key map (kbd "\"") 'lispy-doublequote)
+    (define-key map (kbd "M-\"") 'lispy-meta-doublequote)
     map))
 
 (defvar lispy-mode-map-c-digits
