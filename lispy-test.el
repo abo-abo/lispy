@@ -1693,6 +1693,13 @@ Insert KEY if there's no command."
                    "(foo (| bar) baz)"))
   (lispy-set-key-theme '(special lispy c-digits oleh)))
 
+(ert-deftest lispy-paredit-splice-sexp ()
+  (lispy-set-key-theme '(special paredit))
+  (should (string= (lispy-with "(foo (bar| baz) quux)"
+                               (kbd "M-s"))
+                   "(foo bar| baz quux)"))
+  (lispy-set-key-theme '(special lispy c-digits oleh)))
+
 (provide 'lispy-test)
 
 ;;; lispy-test.el ends here

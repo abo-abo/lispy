@@ -2011,12 +2011,11 @@ Return the amount of successful grow steps, nil instead of zero."
   "Splice ARG sexps into containing list."
   (interactive "p")
   (lispy-dotimes arg
-    (let ((bnd (lispy--bounds-dwim)))
+    (let ((bnd (lispy--bounds-list)))
       (cond ((looking-at lispy-left)
              (save-excursion
                (goto-char (cdr bnd))
-               (lispy--remove-gaps)
-               (backward-delete-char 1))
+               (delete-char -1))
              (delete-char 1)
              (if (lispy-forward 1)
                  (lispy-backward 1)
@@ -2024,14 +2023,22 @@ Return the amount of successful grow steps, nil instead of zero."
                (lispy-flow 1)))
 
             ((looking-back lispy-right)
-             (lispy--remove-gaps)
-             (backward-delete-char 1)
+             (setq bnd (lispy--bounds-dwim))
+             (delete-char -1)
              (goto-char (car bnd))
              (delete-char 1)
              (if (lispy-backward 1)
                  (lispy-forward 1)
                (lispy-forward 1)
-               (lispy-flow 1)))))))
+               (lispy-flow 1)))
+
+            (t
+             (save-excursion
+               (goto-char (cdr bnd))
+               (delete-char -1))
+             (save-excursion
+               (goto-char (car bnd))
+               (delete-char 1)))))))
 
 (defun lispy-raise (arg)
   "Use current sexp or region as replacement for its parent.
@@ -5859,6 +5866,7 @@ Insert \"]\" in strings and comments."
     (define-key map (kbd "C-M-f") 'lispy-forward)
     (define-key map (kbd "C-M-b") 'lispy-backward)
     (define-key map (kbd "M-(") 'lispy-wrap-round)
+    (define-key map (kbd "M-s") 'lispy-splice)
     map))
 
 (defvar lispy-mode-map-c-digits
