@@ -3242,15 +3242,21 @@ With ARG, use the contents of `lispy-store-region-and-buffer' instead."
                              (lispy--prin1-fancy (cdr e))))
                     nil)))))
     (when fstr
-      (let* ((e-args (cl-remove-if #'lispy--whitespacep (cdr expr)))
-             (body (if (macrop (car expr))
-                       (macroexpand (read str))
-                     (lispy--flatten-function fstr e-args))))
-        (goto-char (car bnd))
-        (delete-region (car bnd) (cdr bnd))
-        (lispy--insert body)
-        (when begp
-          (goto-char (car bnd)))))))
+      (goto-char (car bnd))
+      (delete-region (car bnd) (cdr bnd))
+      (if (macrop (car expr))
+          (progn
+            (save-excursion
+              (insert (pp-to-string (macroexpand (read str))))
+              (when (looking-back "\n")
+                (delete-char -1)))
+            (indent-sexp))
+        (let* ((e-args (cl-remove-if #'lispy--whitespacep (cdr expr)))
+               (body (lispy--flatten-function fstr e-args))
+               (print-quoted t))
+          (lispy--insert body)))
+      (when begp
+        (goto-char (car bnd))))))
 
 (defun lispy-to-ifs ()
   "Transform current `cond' expression to equivalent `if' expressions."
