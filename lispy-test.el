@@ -1779,6 +1779,22 @@ Insert KEY if there's no command."
                    "\"Hello, |world!\""))
   (lispy-set-key-theme '(special lispy c-digits oleh)))
 
+(ert-deftest lispy-paredit-semicolon ()
+  (lispy-set-key-theme '(special paredit))
+  (should (string= (lispy-with "|(frob grovel)"
+                               ";")
+                   "|;; (frob grovel)"))
+  (should (string= (lispy-with "(frob |grovel)"
+                               ";")
+                   "|(frob ;; grovel\n )"))
+  (should (string= (lispy-with "(frob |grovel (bloit\n               zargh))"
+                               ";")
+                   "|(frob ;; grovel (bloit\n      ;;         zargh)\n )"))
+  (should (string= (lispy-with "(frob grovel)          |"
+                               ";")
+                   "(frob grovel)                           ;|"))
+  (lispy-set-key-theme '(special lispy c-digits oleh)))
+
 (provide 'lispy-test)
 
 ;;; lispy-test.el ends here
