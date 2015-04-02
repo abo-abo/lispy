@@ -1724,6 +1724,13 @@ Insert KEY if there's no command."
                    "|body"))
   (lispy-set-key-theme '(special lispy c-digits oleh)))
 
+(ert-deftest lispy-paredit-convolute-sexp ()
+  (lispy-set-key-theme '(special paredit))
+  (should (string= (lispy-with "(let ((x 5) (y 3)) (frob |(zwonk)) (wibblethwop))"
+                               (kbd "M-?"))
+                   "(frob |(let ((x 5) (y 3)) (zwonk) (wibblethwop)))"))
+  (lispy-set-key-theme '(special lispy c-digits oleh)))
+
 (provide 'lispy-test)
 
 ;;; lispy-test.el ends here
