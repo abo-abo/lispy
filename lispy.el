@@ -5951,6 +5951,8 @@ Insert \"]\" in strings and comments."
     (define-key map (kbd "M-S") 'lispy-split)
     (define-key map (kbd "M-J") 'lispy-join)
     (define-key map (kbd ";") 'lispy-comment)
+    (define-key map (kbd "C-M-u") 'lispy-left)
+    (define-key map (kbd "C-M-n") 'lispy-right)
     map))
 
 (defvar lispy-mode-map-c-digits
