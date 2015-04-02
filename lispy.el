@@ -4495,7 +4495,7 @@ For example, a `setq' statement is amended with variable name that it uses."
                               file)))
              (t (error "Unexpected")))
        y))
-   tags))
+   (delq nil tags)))
 
 (defvar helm-candidate-number-limit)
 
