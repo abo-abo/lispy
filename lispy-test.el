@@ -1734,8 +1734,15 @@ Insert KEY if there's no command."
 (ert-deftest lispy-paredit-forward-slurp-sexp ()
   (lispy-set-key-theme '(special paredit))
   (should (string= (lispy-with "(foo (bar |baz) quux zot)"
-                               (kbd "C-)"))
+                               (kbd "C-<right>"))
                    "(foo (bar |baz quux) zot)"))
+  (lispy-set-key-theme '(special lispy c-digits oleh)))
+
+(ert-deftest lispy-paredit-forward-barf-sexp ()
+  (lispy-set-key-theme '(special paredit))
+  (should (string= (lispy-with "(foo (bar |baz quux) zot)"
+                               (kbd "C-<left>"))
+                   "(foo (bar |baz) quux zot)"))
   (lispy-set-key-theme '(special lispy c-digits oleh)))
 
 (provide 'lispy-test)
