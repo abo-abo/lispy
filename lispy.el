@@ -5847,6 +5847,7 @@ Insert \"]\" in strings and comments."
     (define-key map (kbd "C-j") 'lispy-newline-and-indent)
     (define-key map (kbd "C-d") 'lispy-forward-delete)
     (define-key map (kbd "DEL") 'lispy-backward-delete)
+    (define-key map (kbd "C-k") 'lispy-kill)
     map))
 
 (defvar lispy-mode-map-c-digits
