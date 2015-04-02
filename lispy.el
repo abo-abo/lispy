@@ -5763,6 +5763,40 @@ Insert \"]\" in strings and comments."
       (insert "]")
     (lispy-right arg)))
 
+(defun lispy-doublequote (arg)
+  "Insert a pair of quotes around the point."
+  (interactive "P")
+  (let (bnd)
+    (cond ((region-active-p)
+           (if arg
+               (lispy-unstringify)
+             (lispy-stringify)))
+
+          ((and (setq bnd (lispy--bounds-string))
+                (not (= (point) (car bnd))))
+           (if (= (point) (1- (cdr bnd)))
+               (forward-char 1)
+             (if arg
+                 (lispy-unstringify)
+               (insert "\\\""))))
+
+          (arg
+           (lispy-stringify))
+
+          ((looking-back "?\\\\")
+           (self-insert-command 1))
+
+          ((lispy--in-comment-p)
+           (insert "\""))
+
+          (t
+           (lispy--space-unless "^\\|\\s-\\|\\s(\\|[#]")
+           (insert "\"\"")
+           (unless (looking-at "\n\\|)\\|}\\|\\]\\|$")
+             (just-one-space)
+             (backward-char 1))
+           (backward-char)))))
+
 (defvar lispy-mode-map-paredit
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "M-)") 'lispy-close-round-and-newline)
@@ -5770,6 +5804,7 @@ Insert \"]\" in strings and comments."
     (define-key map (kbd "C-M-p") 'lispy-backward)
     (define-key map (kbd "[") 'lispy-open-square)
     (define-key map (kbd "]") 'lispy-close-square)
+    (define-key map (kbd "\"") 'lispy-doublequote)
     map))
 
 (defvar lispy-mode-map-c-digits

@@ -1544,6 +1544,22 @@ Insert KEY if there's no command."
                    "; [Bar.]|"))
   (lispy-set-key-theme '(special lispy c-digits oleh)))
 
+(ert-deftest lispy-paredit-doublequote ()
+  (lispy-set-key-theme '(special paredit))
+  (should (string= (lispy-with "(frob grovel |full lexical)"
+                               "\"")
+                   "(frob grovel \"|\" full lexical)"))
+  (should (string= (lispy-with "(frob grovel \"|\" full lexical)"
+                               "\"")
+                   "(frob grovel \"\"| full lexical)"))
+  (should (string= (lispy-with "(foo \"bar |baz\" quux)"
+                               "\"")
+                   "(foo \"bar \\\"|baz\" quux)"))
+  (should (string= (lispy-with "(frob grovel)   ; full |lexical"
+                               "\"")
+                   "(frob grovel)   ; full \"|lexical"))
+  (lispy-set-key-theme '(special lispy c-digits oleh)))
+
 (provide 'lispy-test)
 
 ;;; lispy-test.el ends here
