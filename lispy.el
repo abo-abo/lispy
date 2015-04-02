@@ -5761,9 +5761,17 @@ Insert \")\" in strings and comments."
   "Forward to `lispy-brackets'.
 Insert \"[\" in strings and comments."
   (interactive "p")
-  (if (or (lispy--in-string-or-comment-p))
+  (if (lispy--in-string-or-comment-p)
       (insert "[")
     (lispy-brackets arg)))
+
+(defun lispy-close-square (arg)
+  "Forward to `lispy-right'.
+Insert \"]\" in strings and comments."
+  (interactive "p")
+  (if (lispy--in-string-or-comment-p)
+      (insert "]")
+    (lispy-right arg)))
 
 (defvar lispy-mode-map-paredit
   (let ((map (make-sparse-keymap)))
@@ -5771,6 +5779,7 @@ Insert \"[\" in strings and comments."
     (define-key map (kbd "C-M-n") 'lispy-forward)
     (define-key map (kbd "C-M-p") 'lispy-backward)
     (define-key map (kbd "[") 'lispy-open-square)
+    (define-key map (kbd "]") 'lispy-close-square)
     map))
 
 (defvar lispy-mode-map-c-digits
