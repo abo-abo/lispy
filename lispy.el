@@ -5816,6 +5816,7 @@ Insert \"]\" in strings and comments."
     (define-key map (kbd "]") 'lispy-close-square)
     (define-key map (kbd "\"") 'lispy-doublequote)
     (define-key map (kbd "M-\"") 'lispy-meta-doublequote)
+    (define-key map (kbd "C-j") 'lispy-newline-and-indent)
     map))
 
 (defvar lispy-mode-map-c-digits

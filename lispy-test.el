@@ -1570,6 +1570,13 @@ Insert KEY if there's no command."
                    "(foo \"|(bar #\\\\x \\\"baz \\\\\\\\ quux\\\")\" zot)"))
   (lispy-set-key-theme '(special lispy c-digits oleh)))
 
+(ert-deftest lispy-paredit-newline ()
+  (lispy-set-key-theme '(special paredit))
+  (should (string= (lispy-with "(let ((n (frobbotz))) |(display (+ n 1)\nport))"
+                               (kbd "C-j"))
+                   "(let ((n (frobbotz)))\n  |(display (+ n 1)\n           port))"))
+  (lispy-set-key-theme '(special lispy c-digits oleh)))
+
 (provide 'lispy-test)
 
 ;;; lispy-test.el ends here
