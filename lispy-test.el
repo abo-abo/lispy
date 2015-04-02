@@ -1731,6 +1731,13 @@ Insert KEY if there's no command."
                    "(frob |(let ((x 5) (y 3)) (zwonk) (wibblethwop)))"))
   (lispy-set-key-theme '(special lispy c-digits oleh)))
 
+(ert-deftest lispy-paredit-forward-slurp-sexp ()
+  (lispy-set-key-theme '(special paredit))
+  (should (string= (lispy-with "(foo (bar |baz) quux zot)"
+                               (kbd "C-)"))
+                   "(foo (bar |baz quux) zot)"))
+  (lispy-set-key-theme '(special lispy c-digits oleh)))
+
 (provide 'lispy-test)
 
 ;;; lispy-test.el ends here

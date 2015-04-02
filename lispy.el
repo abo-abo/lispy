@@ -5876,6 +5876,14 @@ Insert \"]\" in strings and comments."
   (lispy-convolute 1)
   (lispy--out-backward 1))
 
+(defun lispy-forward-slurp-sexp (arg)
+  "Forward to `lispy-slurp'."
+  (interactive "p")
+  (save-excursion
+    (unless (looking-back lispy-right)
+      (lispy--out-forward 1))
+    (lispy-slurp arg)))
+
 (defvar lispy-mode-map-paredit
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "M-)") 'lispy-close-round-and-newline)
@@ -5899,6 +5907,8 @@ Insert \"]\" in strings and comments."
     (define-key map (kbd "M-<down>") 'lispy-splice-sexp-killing-backward)
     (define-key map (kbd "M-r") 'lispy-raise-sexp)
     (define-key map (kbd "M-?") 'lispy-convolute-sexp)
+    (define-key map (kbd "C-)") 'lispy-forward-slurp-sexp)
+    (define-key map (kbd "C-<right>") 'lispy-forward-slurp-sexp)
     map))
 
 (defvar lispy-mode-map-c-digits
