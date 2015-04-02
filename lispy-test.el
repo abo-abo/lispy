@@ -1524,6 +1524,16 @@ Insert KEY if there's no command."
                    "; (Foo.)|"))
   (lispy-set-key-theme '(special lispy c-digits oleh)))
 
+(ert-deftest lispy-paredit-open-square ()
+  (lispy-set-key-theme '(special paredit))
+  (should (string= (lispy-with "(a b |c d)"
+                               "[")
+                   "(a b [|] c d)"))
+  (should (string= (lispy-with "(foo \"bar |baz\" quux)"
+                               "[")
+                   "(foo \"bar [|baz\" quux)"))
+  (lispy-set-key-theme '(special lispy c-digits oleh)))
+
 (provide 'lispy-test)
 
 ;;; lispy-test.el ends here

@@ -541,15 +541,6 @@ Return nil on failure, t otherwise."
   (lispy-dotimes arg
     (newline-and-indent)))
 
-(defun lispy-close-round-and-newline (arg)
-  "Forward to `lispy-out-forward-newline'.
-Insert \")\" in strings and comments."
-  (interactive "p")
-  (if (or (lispy--in-string-or-comment-p)
-          (looking-back "?\\\\"))
-      (insert ")")
-    (lispy-out-forward-newline arg)))
-
 (defvar lispy-meol-point 1
   "Point where `lispy-move-end-of-line' should go when already at eol.")
 
@@ -5755,11 +5746,31 @@ FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)."
           (number-sequence 0 9))
     map))
 
+;;* Paredit compat
+
+(defun lispy-close-round-and-newline (arg)
+  "Forward to `lispy-out-forward-newline'.
+Insert \")\" in strings and comments."
+  (interactive "p")
+  (if (or (lispy--in-string-or-comment-p)
+          (looking-back "?\\\\"))
+      (insert ")")
+    (lispy-out-forward-newline arg)))
+
+(defun lispy-open-square (arg)
+  "Forward to `lispy-brackets'.
+Insert \"[\" in strings and comments."
+  (interactive "p")
+  (if (or (lispy--in-string-or-comment-p))
+      (insert "[")
+    (lispy-brackets arg)))
+
 (defvar lispy-mode-map-paredit
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "M-)") 'lispy-close-round-and-newline)
     (define-key map (kbd "C-M-n") 'lispy-forward)
     (define-key map (kbd "C-M-p") 'lispy-backward)
+    (define-key map (kbd "[") 'lispy-open-square)
     map))
 
 (defvar lispy-mode-map-c-digits
