@@ -1700,6 +1700,13 @@ Insert KEY if there's no command."
                    "(foo bar| baz quux)"))
   (lispy-set-key-theme '(special lispy c-digits oleh)))
 
+(ert-deftest lispy-paredit-splice-sexp-killing-backward ()
+  (lispy-set-key-theme '(special paredit))
+  (should (string= (lispy-with "(foo (let ((x 5)) |(sqrt n)) bar)"
+                               (kbd "M-<up>"))
+                   "(foo |(sqrt n) bar)"))
+  (lispy-set-key-theme '(special lispy c-digits oleh)))
+
 (provide 'lispy-test)
 
 ;;; lispy-test.el ends here
