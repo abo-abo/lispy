@@ -5858,6 +5858,16 @@ Insert \"]\" in strings and comments."
       (lispy-raise 1)
       (deactivate-mark))))
 
+(defun lispy-raise-sexp ()
+  "Forward to `lispy-raise'."
+  (interactive)
+  (if (looking-at lispy-left)
+      (lispy-raise 1)
+    (lispy-mark-symbol)
+    (lispy-different)
+    (lispy-raise 1)
+    (deactivate-mark)))
+
 (defvar lispy-mode-map-paredit
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "M-)") 'lispy-close-round-and-newline)
@@ -5879,6 +5889,7 @@ Insert \"]\" in strings and comments."
     (define-key map (kbd "M-s") 'lispy-splice)
     (define-key map (kbd "M-<up>") 'lispy-splice-sexp-killing-backward)
     (define-key map (kbd "M-<down>") 'lispy-splice-sexp-killing-backward)
+    (define-key map (kbd "M-r") 'lispy-raise-sexp)
     map))
 
 (defvar lispy-mode-map-c-digits

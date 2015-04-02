@@ -1714,6 +1714,16 @@ Insert KEY if there's no command."
                    "(a b c| f)"))
   (lispy-set-key-theme '(special lispy c-digits oleh)))
 
+(ert-deftest lispy-paredit-raise-sexp ()
+  (lispy-set-key-theme '(special paredit))
+  (should (string= (lispy-with "(dynamic-wind in (lambda () |body) out)"
+                               (kbd "M-r"))
+                   "(dynamic-wind in |body out)"))
+  (should (string= (lispy-with "(dynamic-wind in |body out)"
+                               (kbd "M-r"))
+                   "|body"))
+  (lispy-set-key-theme '(special lispy c-digits oleh)))
+
 (provide 'lispy-test)
 
 ;;; lispy-test.el ends here
