@@ -1759,6 +1759,16 @@ Insert KEY if there's no command."
                    "(foo bar (baz |quux) zot)"))
   (lispy-set-key-theme '(special lispy c-digits oleh)))
 
+(ert-deftest lispy-paredit-split-sexp ()
+  (lispy-set-key-theme '(special paredit))
+  (should (string= (lispy-with "(hello| world)"
+                               (kbd "M-S"))
+                   "(hello)\n|( world)"))
+  (should (string= (lispy-with "\"Hello, |world!\""
+                               (kbd "M-S"))
+                   "\"Hello, \"\n|\"world!\""))
+  (lispy-set-key-theme '(special lispy c-digits oleh)))
+
 (provide 'lispy-test)
 
 ;;; lispy-test.el ends here
