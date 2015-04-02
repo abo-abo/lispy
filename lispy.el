@@ -5771,12 +5771,28 @@ Insert \"[\" in strings and comments."
       (insert "[")
     (lispy-brackets arg)))
 
+(defun lispy-open-curly (arg)
+  "Forward to `lispy-braces'.
+Insert \"{\" in strings and comments."
+  (interactive "p")
+  (if (lispy--in-string-or-comment-p)
+      (insert "{")
+    (lispy-braces arg)))
+
 (defun lispy-close-square (arg)
   "Forward to `lispy-right'.
 Insert \"]\" in strings and comments."
   (interactive "p")
   (if (lispy--in-string-or-comment-p)
       (insert "]")
+    (lispy-right arg)))
+
+(defun lispy-close-curly (arg)
+  "Forward to `lispy-right'.
+Insert \"}\" in strings and comments."
+  (interactive "p")
+  (if (lispy--in-string-or-comment-p)
+      (insert "}")
     (lispy-right arg)))
 
 (defun lispy-doublequote (arg)
@@ -5917,21 +5933,40 @@ Insert \"]\" in strings and comments."
       (lispy--out-backward 1))
     (lispy-barf arg)))
 
-(defvar lispy-mode-map-paredit
+(defvar lispy-mode-map-base
   (let ((map (make-sparse-keymap)))
+    ;; navigation
+    (define-key map (kbd "C-a") 'lispy-move-beginning-of-line)
+    (define-key map (kbd "C-e") 'lispy-move-end-of-line)
+    ;; killing
+    (define-key map (kbd "C-k") 'lispy-kill)
+    (define-key map (kbd "M-d") 'lispy-kill-word)
+    (define-key map (kbd "M-DEL") 'lispy-backward-kill-word)
+    ;; misc
+    (define-key map (kbd "(") 'lispy-parens)
+    (define-key map (kbd ";") 'lispy-comment)
+    (define-key map (kbd "M-q") 'lispy-fill)
+    (define-key map (kbd "C-j") 'lispy-newline-and-indent)
+    (define-key map (kbd "RET") 'lispy-newline-and-indent-plain)
+    ;; tags
+    (define-key map (kbd "M-.") 'lispy-goto-symbol)
+    (define-key map (kbd "M-,") 'pop-tag-mark)
+    map))
+
+(defvar lispy-mode-map-paredit
+  (let ((map (copy-keymap lispy-mode-map-base)))
     (define-key map (kbd "M-)") 'lispy-close-round-and-newline)
     (define-key map (kbd "C-M-n") 'lispy-forward)
     (define-key map (kbd "C-M-p") 'lispy-backward)
     (define-key map (kbd "[") 'lispy-open-square)
     (define-key map (kbd "]") 'lispy-close-square)
+    (define-key map (kbd "{") 'lispy-open-curly)
+    (define-key map (kbd "}") 'lispy-close-curly)
+    (define-key map (kbd ")") 'lispy-right-nostring)
     (define-key map (kbd "\"") 'lispy-doublequote)
     (define-key map (kbd "M-\"") 'lispy-meta-doublequote)
-    (define-key map (kbd "C-j") 'lispy-newline-and-indent)
     (define-key map (kbd "C-d") 'lispy-forward-delete)
     (define-key map (kbd "DEL") 'lispy-backward-delete)
-    (define-key map (kbd "C-k") 'lispy-kill)
-    (define-key map (kbd "M-d") 'lispy-kill-word)
-    (define-key map (kbd "M-DEL") 'lispy-backward-kill-word)
     (define-key map (kbd "C-M-f") 'lispy-forward)
     (define-key map (kbd "C-M-b") 'lispy-backward)
     (define-key map (kbd "M-(") 'lispy-wrap-round)
@@ -5950,7 +5985,6 @@ Insert \"]\" in strings and comments."
     (define-key map (kbd "C-{") 'lispy-backward-barf-sexp)
     (define-key map (kbd "M-S") 'lispy-split)
     (define-key map (kbd "M-J") 'lispy-join)
-    (define-key map (kbd ";") 'lispy-comment)
     (define-key map (kbd "C-M-u") 'lispy-left)
     (define-key map (kbd "C-M-n") 'lispy-right)
     map))
@@ -5968,51 +6002,38 @@ Insert \"]\" in strings and comments."
 
 (declare-function View-quit "view")
 (defvar lispy-mode-map-lispy
-  (let ((map (make-sparse-keymap)))
-    ;; ——— globals: navigation ——————————————————
+  (let ((map (copy-keymap lispy-mode-map-base)))
+    ;; navigation
     (define-key map (kbd "]") 'lispy-forward)
     (define-key map (kbd "[") 'lispy-backward)
     (define-key map (kbd ")") 'lispy-right-nostring)
-    ;; ——— globals: kill-related ————————————————
-    (define-key map (kbd "C-k") 'lispy-kill)
+    ;; kill-related
     (define-key map (kbd "C-y") 'lispy-yank)
     (define-key map (kbd "C-d") 'lispy-delete)
-    (define-key map (kbd "M-d") 'lispy-kill-word)
     (define-key map (kbd "DEL") 'lispy-delete-backward)
-    (define-key map (kbd "M-DEL") 'lispy-backward-kill-word)
     (define-key map (kbd "M-k") 'lispy-kill-sentence)
     (define-key map (kbd "M-m") 'lispy-mark-symbol)
     (define-key map (kbd "C-,") 'lispy-kill-at-point)
     (define-key map (kbd "C-M-,") 'lispy-mark)
-    ;; ——— globals: pairs ———————————————————————
-    (define-key map (kbd "(") 'lispy-parens)
+    ;; pairs
     (define-key map (kbd "{") 'lispy-braces)
     (define-key map (kbd "}") 'lispy-brackets)
     (define-key map (kbd "\"") 'lispy-quotes)
-    ;; ——— globals: insertion ———————————————————
+    ;; insert
     (define-key map (kbd ":") 'lispy-colon)
     (define-key map (kbd "^") 'lispy-hat)
     (define-key map (kbd "'") 'lispy-tick)
     (define-key map (kbd "`") 'lispy-backtick)
     (define-key map (kbd "#") 'lispy-hash)
-    (define-key map (kbd "C-j") 'lispy-newline-and-indent)
     (define-key map (kbd "M-j") 'lispy-split)
     (define-key map (kbd "M-J") 'lispy-join)
-    (define-key map (kbd "RET") 'lispy-newline-and-indent-plain)
-    (define-key map (kbd ";") 'lispy-comment)
-    (define-key map (kbd "C-a") 'lispy-move-beginning-of-line)
-    (define-key map (kbd "C-e") 'lispy-move-end-of-line)
     (define-key map (kbd "<C-return>") 'lispy-open-line)
     (define-key map (kbd "<M-return>") 'lispy-meta-return)
-    ;; ——— globals: tags ————————————————————————
-    (define-key map (kbd "M-.") 'lispy-goto-symbol)
-    (define-key map (kbd "M-,") 'pop-tag-mark)
-    ;; ——— globals: miscellanea —————————————————
+    ;; misc
     (define-key map (kbd "M-o") 'lispy-string-oneline)
     (define-key map (kbd "M-i") 'lispy-iedit)
-    (define-key map (kbd "M-q") 'lispy-fill)
     (define-key map (kbd "<backtab>") 'lispy-shifttab)
-    ;; ——— globals: outline —————————————————————
+    ;; outline
     (define-key map (kbd "M-<left>") 'lispy-outline-left)
     (define-key map (kbd "M-<right>") 'lispy-outline-right)
     map))
