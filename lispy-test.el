@@ -437,7 +437,9 @@ Insert KEY if there's no command."
                    "|"))
   (should (string= (lispy-with-clojure "{:a 1 |:b 2}"
                                        "\C-k")
-                   "{:a 1 |}")))
+                   "{:a 1 |}"))
+  (should (string= (lispy-with "|\"multiline\nstring\"\n(expr)" "\C-k")
+                   "|\n(expr)")))
 
 (ert-deftest lispy-yank ()
   (should (string= (lispy-with "\"|\"" (kill-new "foo") (lispy-yank))
