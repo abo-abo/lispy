@@ -5836,6 +5836,11 @@ Insert \"]\" in strings and comments."
          (backward-char 1))
         (t (lispy-delete-backward arg))))
 
+(defun lispy-wrap-round ()
+  "Forward to `lispy-parens'."
+  (interactive)
+  (lispy-parens 2))
+
 (defvar lispy-mode-map-paredit
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "M-)") 'lispy-close-round-and-newline)
@@ -5853,6 +5858,7 @@ Insert \"]\" in strings and comments."
     (define-key map (kbd "M-DEL") 'lispy-backward-kill-word)
     (define-key map (kbd "C-M-f") 'lispy-forward)
     (define-key map (kbd "C-M-b") 'lispy-backward)
+    (define-key map (kbd "M-(") 'lispy-wrap-round)
     map))
 
 (defvar lispy-mode-map-c-digits
