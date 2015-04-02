@@ -1650,6 +1650,22 @@ Insert KEY if there's no command."
                    ";;;\n(| frobnicate ...)"))
   (lispy-set-key-theme '(special lispy c-digits oleh)))
 
+(ert-deftest lispy-paredit-backward-kill-word ()
+  (lispy-set-key-theme '(special paredit))
+  (should (string= (lispy-with "(foo bar)    ; baz\n(quux)|"
+                               (kbd "M-DEL"))
+                   "(foo bar)    ; baz\n(|)"))
+  (should (string= (lispy-with "(foo bar)    ; baz\n(|)"
+                               (kbd "M-DEL"))
+                   "(foo bar)    ; |\n()"))
+  (should (string= (lispy-with "(foo bar)    ; |\n()"
+                               (kbd "M-DEL"))
+                   "(foo |)    ;\n()"))
+  (should (string= (lispy-with "(foo |)    ; \n()"
+                               (kbd "M-DEL"))
+                   "(|)    ; \n()"))
+  (lispy-set-key-theme '(special lispy c-digits oleh)))
+
 (provide 'lispy-test)
 
 ;;; lispy-test.el ends here
