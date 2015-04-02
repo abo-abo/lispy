@@ -270,6 +270,9 @@ The hint will consist of the possible nouns that apply to the verb."
 (defvar lispy-known-verbs nil
   "List of registered verbs.")
 
+(defvar lispy-ignore-whitespace nil
+  "When set to t, function `lispy-right' will not clean up whitespace.")
+
 (defcustom lispy-compat '(edebug)
   "List of package compatibility options.
 Enabling them adds overhead, so make sure that you are actually
@@ -3958,9 +3961,6 @@ First, try to return `lispy--bounds-string'."
               'face 'font-lock-constant-face))
 
 ;;* Utilities: movement
-(defvar lispy-ignore-whitespace nil
-  "When set to t, function `lispy-right' will not clean up whitespace.")
-
 (defun lispy--out-forward (arg)
   "Move outside list forwards ARG times.
 Return nil on failure, (point) otherwise."
