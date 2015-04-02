@@ -175,7 +175,7 @@
 (make-variable-buffer-local 'lispy-no-space)
 
 (defcustom lispy-lax-eval t
-  "When non-nil, fix \"unbound variable\" error by setting the unbound variable to nil.
+  "When non-nil, fix \"unbound variable\" error by setting the it to nil.
 This is useful when hacking functions with &optional arguments.
 So evaling (setq mode (or mode major-mode)) will set mode to nil on
 the first eval, and to major-mode on the second eval."

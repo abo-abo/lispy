@@ -22,6 +22,7 @@
 
 ;;; Code:
 
+(require 'lispy)
 (declare-function nrepl-sync-request:eval "nrepl-client")
 (declare-function nrepl-dict-get "nrepl-client")
 (declare-function nrepl-send-sync-request "nrepl-client")
@@ -29,9 +30,6 @@
 (declare-function nrepl-current-connection-buffer "nrepl-client")
 (declare-function cider-current-ns "cider-interaction")
 (declare-function cider-find-file "cider-interaction")
-
-(defvar lispy-do-pprint)
-(defvar nrepl-server-ready-function)
 
 (defun lispy--clojure-lax (str)
   "Possibly transform STR into a more convenient Clojure expression."
