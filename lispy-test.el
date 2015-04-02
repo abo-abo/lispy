@@ -1596,6 +1596,25 @@ Insert KEY if there's no command."
                    "(quux \"|ot\")"))
   (lispy-set-key-theme '(special lispy c-digits oleh)))
 
+(ert-deftest lispy-paredit-backward-delete ()
+  (lispy-set-key-theme '(special paredit))
+  (should (string= (lispy-with "(\"zot\" q|uux)"
+                               (kbd "DEL"))
+                   "(\"zot\" |uux)"))
+  (should (string= (lispy-with "(\"zot\"| quux)"
+                               (kbd "DEL"))
+                   "(\"zot|\" quux)"))
+  (should (string= (lispy-with "(\"zot|\" quux)"
+                               (kbd "DEL"))
+                   "(\"zo|\" quux)"))
+  (should (string= (lispy-with "(foo (|) bar)"
+                               (kbd "DEL"))
+                   "(foo | bar)"))
+  (should (string= (lispy-with "(foo bar)|"
+                               (kbd "DEL"))
+                   "(foo bar|)"))
+  (lispy-set-key-theme '(special lispy c-digits oleh)))
+
 (provide 'lispy-test)
 
 ;;; lispy-test.el ends here

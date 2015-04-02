@@ -5822,6 +5822,19 @@ Insert \"]\" in strings and comments."
           (t
            (lispy-delete arg)))))
 
+(defun lispy-backward-delete (arg)
+  "Delete ARG sexps backward."
+  (interactive "p")
+  (cond ((and (looking-back "\"")
+              (null (lispy--bounds-string)))
+         (backward-char 1))
+        ((looking-back lispy-left)
+         (lispy-delete-backward arg)
+         (insert " "))
+        ((looking-back lispy-right)
+         (backward-char 1))
+        (t (lispy-delete-backward arg))))
+
 (defvar lispy-mode-map-paredit
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "M-)") 'lispy-close-round-and-newline)
@@ -5833,6 +5846,7 @@ Insert \"]\" in strings and comments."
     (define-key map (kbd "M-\"") 'lispy-meta-doublequote)
     (define-key map (kbd "C-j") 'lispy-newline-and-indent)
     (define-key map (kbd "C-d") 'lispy-forward-delete)
+    (define-key map (kbd "DEL") 'lispy-backward-delete)
     map))
 
 (defvar lispy-mode-map-c-digits
