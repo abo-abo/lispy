@@ -5940,6 +5940,7 @@ Insert \"]\" in strings and comments."
     (define-key map (kbd "C-M-<right>") 'lispy-backward-barf-sexp)
     (define-key map (kbd "C-{") 'lispy-backward-barf-sexp)
     (define-key map (kbd "M-S") 'lispy-split)
+    (define-key map (kbd "M-J") 'lispy-join)
     map))
 
 (defvar lispy-mode-map-c-digits
