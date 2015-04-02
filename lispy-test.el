@@ -1577,6 +1577,25 @@ Insert KEY if there's no command."
                    "(let ((n (frobbotz)))\n  |(display (+ n 1)\n           port))"))
   (lispy-set-key-theme '(special lispy c-digits oleh)))
 
+(ert-deftest lispy-paredit-forward-delete ()
+  (lispy-set-key-theme '(special paredit))
+  (should (string= (lispy-with "(quu|x \"zot\")"
+                               (kbd "C-d"))
+                   "(quu| \"zot\")"))
+  (should (string= (lispy-with "(foo (|) bar)"
+                               (kbd "C-d"))
+                   "(foo | bar)"))
+  (should (string= (lispy-with "|(foo bar)"
+                               (kbd "C-d"))
+                   "(|foo bar)"))
+  (should (string= (lispy-with "(quux |\"zot\")"
+                               (kbd "C-d"))
+                   "(quux \"|zot\")"))
+  (should (string= (lispy-with "(quux \"|zot\")"
+                               (kbd "C-d"))
+                   "(quux \"|ot\")"))
+  (lispy-set-key-theme '(special lispy c-digits oleh)))
+
 (provide 'lispy-test)
 
 ;;; lispy-test.el ends here

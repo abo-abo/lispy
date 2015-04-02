@@ -5737,7 +5737,6 @@ FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)."
     map))
 
 ;;* Paredit compat
-
 (defun lispy-close-round-and-newline (arg)
   "Forward to `lispy-out-forward-newline'.
 Insert \")\" in strings and comments."
@@ -5807,6 +5806,22 @@ Insert \"]\" in strings and comments."
           (lispy-stringify)
         (lispy-doublequote arg)))))
 
+(defun lispy-forward-delete (arg)
+  "Delete ARG sexps."
+  (interactive "p")
+  (let (bnd)
+    (cond ((looking-at lispy-left)
+           (forward-char 1))
+          ((looking-at lispy-right)
+           (forward-char 1)
+           (setq bnd (lispy--bounds-dwim))
+           (delete-region (car bnd) (cdr bnd)))
+          ((and (setq bnd (lispy--bounds-string))
+                (eq (point) (car bnd)))
+           (forward-char 1))
+          (t
+           (lispy-delete arg)))))
+
 (defvar lispy-mode-map-paredit
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "M-)") 'lispy-close-round-and-newline)
@@ -5817,6 +5832,7 @@ Insert \"]\" in strings and comments."
     (define-key map (kbd "\"") 'lispy-doublequote)
     (define-key map (kbd "M-\"") 'lispy-meta-doublequote)
     (define-key map (kbd "C-j") 'lispy-newline-and-indent)
+    (define-key map (kbd "C-d") 'lispy-forward-delete)
     map))
 
 (defvar lispy-mode-map-c-digits
