@@ -5102,18 +5102,7 @@ ACTION is called for the selected candidate."
                                       x))
                                   candidates))
                   (action . ,action))
-                :preselect
-                (let ((stag (semantic-current-tag))
-                      (tag (ignore-errors
-                             (lispy--current-tag))))
-                  (if tag
-                      (if (eq (semantic-tag-class
-                               stag)
-                              'function)
-                          (format "\\_<%s\\_>"
-                                  (semantic-tag-name stag))
-                        tag)
-                    ""))
+                :preselect (lispy--current-tag)
                 :buffer "*lispy-goto*")))
     (let* ((strs (mapcar #'car candidates))
            (res
@@ -5121,7 +5110,8 @@ ACTION is called for the selected candidate."
               (ido
                (ido-completing-read "tag: " strs))
               (ivy
-               (ivy-read "tag: " strs))
+               (ivy-read "tag: " strs
+                         nil nil (lispy--current-tag)))
               (t
                (completing-read "tag: " strs)))))
       (funcall action (assoc res candidates)))))
