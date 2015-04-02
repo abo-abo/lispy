@@ -1676,6 +1676,16 @@ Insert KEY if there's no command."
                    "(foo (bar))|"))
   (lispy-set-key-theme '(special lispy c-digits oleh)))
 
+(ert-deftest lispy-paredit-backward ()
+  (lispy-set-key-theme '(special paredit))
+  (should (string= (lispy-with "(foo (bar baz)| quux)"
+                               (kbd "C-M-b"))
+                   "(foo |(bar baz) quux)"))
+  (should (string= (lispy-with "(|(foo) bar)"
+                               (kbd "C-M-b"))
+                   "|((foo) bar)"))
+  (lispy-set-key-theme '(special lispy c-digits oleh)))
+
 (provide 'lispy-test)
 
 ;;; lispy-test.el ends here
