@@ -182,11 +182,6 @@ the first eval, and to major-mode on the second eval."
   :type 'boolean
   :group 'lispy)
 
-(defcustom lispy-use-ctrl-digits t
-  "If t, lispy will bind C-1 .. C-9."
-  :type 'boolean
-  :group 'lispy)
-
 (defcustom lispy-verbose t
   "If t, lispy will display some messages on error state.
 These messages are similar to \"Beginning of buffer\" error for
@@ -545,6 +540,15 @@ Return nil on failure, t otherwise."
   (lispy--out-forward 1)
   (lispy-dotimes arg
     (newline-and-indent)))
+
+(defun lispy-close-round-and-newline (arg)
+  "Forward to `lispy-out-forward-newline'.
+Insert \")\" in strings and comments."
+  (interactive "p")
+  (if (or (lispy--in-string-or-comment-p)
+          (looking-back "?\\\\"))
+      (insert ")")
+    (lispy-out-forward-newline arg)))
 
 (defvar lispy-meol-point 1
   "Point where `lispy-move-end-of-line' should go when already at eol.")
@@ -3557,14 +3561,35 @@ ARG is 4: `eval-defun' on the function from this sexp."
        (format "%S isn't a function" ldsi-fun)))))
 
 ;;* Locals: miscellanea
-(defvar lispy-mode-x-map (make-sparse-keymap))
+(defvar lispy-mode-map-x
+  (let ((map (make-sparse-keymap)))
+    (define-key map "d" 'lispy-to-defun)
+    (define-key map "l" 'lispy-to-lambda)
+    (define-key map "e" 'lispy-edebug)
+    (define-key map "m" 'lispy-cursor-ace)
+    (define-key map "i" 'lispy-to-ifs)
+    (define-key map "c" 'lispy-to-cond)
+    (define-key map "f" 'lispy-flatten)
+    (define-key map "r" 'lispy-eval-and-replace)
+    (define-key map "s" 'save-buffer)
+    (define-key map "j" 'lispy-debug-step-in)
+    (define-key map "h" 'lispy-describe)
+    (define-key map "u" 'lispy-unbind-variable)
+    (define-key map "b" 'lispy-bind-variable)
+    (define-key map "v" 'lispy-view-test)
+    (define-key map "B" 'lispy-store-region-and-buffer)
+    (define-key map (char-to-string help-char)
+      (lambda ()
+        (interactive)
+        (describe-bindings (kbd "C-4"))))
+    map))
 
 (defun lispy-x ()
-  "Forward to `lispy-mode-x-map'."
+  "Forward to `lispy-mode-map-x'."
   (interactive)
   (let ((char (read-char))
         fun)
-    (if (setq fun (cdr (assoc char lispy-mode-x-map)))
+    (if (setq fun (cdr (assoc char lispy-mode-map-x)))
         (call-interactively fun)
       (error "Nothing bound to %c" char))))
 
@@ -5600,27 +5625,6 @@ return the corresponding `setq' expression."
   (unless (region-active-p)
     ad-do-it))
 
-(let ((map lispy-mode-x-map))
-  (define-key map "d" 'lispy-to-defun)
-  (define-key map "l" 'lispy-to-lambda)
-  (define-key map "e" 'lispy-edebug)
-  (define-key map "m" 'lispy-cursor-ace)
-  (define-key map "i" 'lispy-to-ifs)
-  (define-key map "c" 'lispy-to-cond)
-  (define-key map "f" 'lispy-flatten)
-  (define-key map "r" 'lispy-eval-and-replace)
-  (define-key map "s" 'save-buffer)
-  (define-key map "j" 'lispy-debug-step-in)
-  (define-key map "h" 'lispy-describe)
-  (define-key map "u" 'lispy-unbind-variable)
-  (define-key map "b" 'lispy-bind-variable)
-  (define-key map "v" 'lispy-view-test)
-  (define-key map "B" 'lispy-store-region-and-buffer)
-  (define-key map (char-to-string help-char)
-    (lambda ()
-      (interactive)
-      (describe-bindings (kbd "C-4")))))
-
 (defun lispy-define-key (keymap key def &rest plist)
   "Forward to (`define-key' KEYMAP KEY FUNC).
 FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)."
@@ -5674,147 +5678,184 @@ FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)."
   ("k" lispy-knight-up)
   ("z" nil))
 
-(declare-function View-quit "view")
-(let ((map lispy-mode-map))
-  ;; ——— globals: navigation ——————————————————
-  (define-key map (kbd "]") 'lispy-forward)
-  (define-key map (kbd "[") 'lispy-backward)
-  (define-key map (kbd ")") 'lispy-right-nostring)
-  (define-key map (kbd "C-M-n") 'lispy-forward)
-  (define-key map (kbd "C-M-p") 'lispy-backward)
-  ;; ——— globals: kill-related ————————————————
-  (define-key map (kbd "C-k") 'lispy-kill)
-  (define-key map (kbd "C-y") 'lispy-yank)
-  (define-key map (kbd "C-d") 'lispy-delete)
-  (define-key map (kbd "M-d") 'lispy-kill-word)
-  (define-key map (kbd "DEL") 'lispy-delete-backward)
-  (define-key map (kbd "M-DEL") 'lispy-backward-kill-word)
-  (define-key map (kbd "M-k") 'lispy-kill-sentence)
-  (define-key map (kbd "M-m") 'lispy-mark-symbol)
-  (define-key map (kbd "C-,") 'lispy-kill-at-point)
-  (define-key map (kbd "C-M-,") 'lispy-mark)
-  ;; ——— globals: pairs ———————————————————————
-  (define-key map (kbd "(") 'lispy-parens)
-  (define-key map (kbd "{") 'lispy-braces)
-  (define-key map (kbd "}") 'lispy-brackets)
-  (define-key map (kbd "\"") 'lispy-quotes)
-  ;; ——— globals: insertion ———————————————————
-  (define-key map (kbd ":") 'lispy-colon)
-  (define-key map (kbd "^") 'lispy-hat)
-  (define-key map (kbd "'") 'lispy-tick)
-  (define-key map (kbd "`") 'lispy-backtick)
-  (define-key map (kbd "#") 'lispy-hash)
-  (define-key map (kbd "C-j") 'lispy-newline-and-indent)
-  (define-key map (kbd "M-j") 'lispy-split)
-  (define-key map (kbd "M-J") 'lispy-join)
-  (define-key map (kbd "RET") 'lispy-newline-and-indent-plain)
-  (define-key map (kbd ";") 'lispy-comment)
-  (define-key map (kbd "C-a") 'lispy-move-beginning-of-line)
-  (define-key map (kbd "C-e") 'lispy-move-end-of-line)
-  (define-key map (kbd "<C-return>") 'lispy-open-line)
-  (define-key map (kbd "<M-return>") 'lispy-meta-return)
-  ;; ——— globals: C-1 .. C-9 ——————————————————
-  (when lispy-use-ctrl-digits
+(defvar lispy-mode-map-special
+  (let ((map (make-sparse-keymap)))
+    ;; navigation
+    (lispy-define-key map "l" 'lispy-right)
+    (lispy-define-key map "h" 'lispy-left)
+    (lispy-define-key map "f" 'lispy-flow)
+    (lispy-define-key map "j" 'lispy-down)
+    (lispy-define-key map "k" 'lispy-up)
+    (lispy-define-key map "d" 'lispy-different)
+    (lispy-define-key map "o" 'lispy-other-mode)
+    (lispy-define-key map "p" 'lispy-eval-other-window)
+    (lispy-define-key map "P" 'lispy-paste)
+    (lispy-define-key map "y" 'lispy-occur)
+    (lispy-define-key map "z" 'lh-knight/body)
+    ;; outline
+    (lispy-define-key map "J" 'lispy-outline-next)
+    (lispy-define-key map "K" 'lispy-outline-prev)
+    (lispy-define-key map "L" 'lispy-outline-goto-child)
+    ;; Paredit transformations
+    (lispy-define-key map ">" 'lispy-slurp)
+    (lispy-define-key map "<" 'lispy-barf)
+    (lispy-define-key map "/" 'lispy-splice)
+    (lispy-define-key map "r" 'lispy-raise)
+    (lispy-define-key map "R" 'lispy-raise-some)
+    (lispy-define-key map "+" 'lispy-join)
+    ;; more transformations
+    (lispy-define-key map "C" 'lispy-convolute)
+    (lispy-define-key map "w" 'lispy-move-up)
+    (lispy-define-key map "s" 'lispy-move-down)
+    (lispy-define-key map "O" 'lispy-oneline)
+    (lispy-define-key map "M" 'lispy-multiline)
+    (lispy-define-key map "S" 'lispy-stringify)
+    ;; marking
+    (lispy-define-key map "a" 'lispy-ace-symbol
+      :override '(cond ((looking-at lispy-outline)
+                        (lispy-meta-return))))
+    (lispy-define-key map "H" 'lispy-ace-symbol-replace)
+    (lispy-define-key map "m" 'lispy-mark-list)
+    ;; dialect-specific
+    (lispy-define-key map "e" 'lispy-eval)
+    (lispy-define-key map "E" 'lispy-eval-and-insert)
+    (lispy-define-key map "G" 'lispy-goto-local)
+    (lispy-define-key map "g" 'lispy-goto)
+    (lispy-define-key map "F" 'lispy-follow t)
+    (lispy-define-key map "D" 'pop-tag-mark)
+    (lispy-define-key map "A" 'lispy-beginning-of-defun)
+    ;; miscellanea
+    (lispy-define-key map "SPC" 'lispy-space)
+    (lispy-define-key map "i" 'lispy-tab)
+    (lispy-define-key map "I" 'lispy-shifttab)
+    (lispy-define-key map "N" 'lispy-narrow)
+    (lispy-define-key map "W" 'lispy-widen)
+    (lispy-define-key map "c" 'lispy-clone)
+    (lispy-define-key map "u" 'lispy-undo)
+    (lispy-define-key map "q" 'lispy-ace-paren
+      :override '(cond ((bound-and-true-p view-mode)
+                        (View-quit))))
+    (lispy-define-key map "Q" 'lispy-ace-char)
+    (lispy-define-key map "v" 'lispy-view)
+    (lispy-define-key map "T" 'lispy-ert)
+    (lispy-define-key map "t" 'lispy-teleport
+      :override '(cond ((looking-at lispy-outline)
+                        (end-of-line))))
+    (lispy-define-key map "n" 'lispy-new-copy)
+    (lispy-define-key map "b" 'lispy-back)
+    (lispy-define-key map "B" 'lispy-ediff-regions)
+    (lispy-define-key map "x" 'lispy-x)
+    (lispy-define-key map "Z" 'lispy-edebug-stop)
+    (lispy-define-key map "V" 'lispy-visit)
+    (lispy-define-key map "-" 'lispy-ace-subword)
+    (lispy-define-key map "." 'lispy-repeat)
+    (lispy-define-key map "~" 'lispy-tilde)
+    ;; digit argument
+    (mapc (lambda (x) (lispy-define-key map (format "%d" x) 'digit-argument))
+          (number-sequence 0 9))
+    map))
+
+(defvar lispy-mode-map-paredit
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "M-)") 'lispy-close-round-and-newline)
+    (define-key map (kbd "C-M-n") 'lispy-forward)
+    (define-key map (kbd "C-M-p") 'lispy-backward)
+    map))
+
+(defvar lispy-mode-map-c-digits
+  (let ((map (make-sparse-keymap)))
     (define-key map (kbd "C-1") 'lispy-describe-inline)
     (define-key map (kbd "C-2") 'lispy-arglist-inline)
     (define-key map (kbd "C-3") 'lispy-right)
-    (define-key map (kbd "C-4") lispy-mode-x-map)
+    (define-key map (kbd "C-4") lispy-mode-map-x)
     (define-key map (kbd "C-7") 'lispy-cursor-down)
     (define-key map (kbd "C-8") 'lispy-parens-down)
-    (define-key map (kbd "C-9") 'lispy-out-forward-newline))
-  ;; ——— globals: tags ————————————————————————
-  (define-key map (kbd "M-.") 'lispy-goto-symbol)
-  (define-key map (kbd "M-,") 'pop-tag-mark)
-  ;; ——— globals: miscellanea —————————————————
-  (define-key map (kbd "M-o") 'lispy-string-oneline)
-  (define-key map (kbd "M-i") 'lispy-iedit)
-  (define-key map (kbd "M-q") 'lispy-fill)
-  (define-key map (kbd "<backtab>") 'lispy-shifttab)
-  ;; ——— locals: navigation ———————————————————
-  (lispy-define-key map "l" 'lispy-right)
-  (lispy-define-key map "h" 'lispy-left)
-  (lispy-define-key map "f" 'lispy-flow)
-  (lispy-define-key map "j" 'lispy-down)
-  (lispy-define-key map "k" 'lispy-up)
-  (lispy-define-key map "d" 'lispy-different)
-  (lispy-define-key map "o" 'lispy-other-mode)
-  (lispy-define-key map "p" 'lispy-eval-other-window)
-  (lispy-define-key map "P" 'lispy-paste)
-  (lispy-define-key map "y" 'lispy-occur)
-  (lispy-define-key map "z" 'lh-knight/body)
-  ;; ——— locals: outline ——————————————————————
-  (lispy-define-key map "J" 'lispy-outline-next)
-  (lispy-define-key map "K" 'lispy-outline-prev)
-  (lispy-define-key map "L" 'lispy-outline-goto-child)
-  ;; ——— globals: outline —————————————————————
-  (define-key map (kbd "M-<left>") 'lispy-outline-left)
-  (define-key map (kbd "M-<right>") 'lispy-outline-right)
-  ;; ——— locals: Paredit transformations ——————
-  (lispy-define-key map ">" 'lispy-slurp)
-  (lispy-define-key map "<" 'lispy-barf)
-  (lispy-define-key map "/" 'lispy-splice)
-  (lispy-define-key map "r" 'lispy-raise)
-  (lispy-define-key map "R" 'lispy-raise-some)
-  (lispy-define-key map "+" 'lispy-join)
-  ;; ——— locals: more transformations —————————
-  (lispy-define-key map "C" 'lispy-convolute)
-  (lispy-define-key map "w" 'lispy-move-up)
-  (lispy-define-key map "s" 'lispy-move-down)
-  (lispy-define-key map "O" 'lispy-oneline)
-  (lispy-define-key map "M" 'lispy-multiline)
-  (lispy-define-key map "S" 'lispy-stringify)
-  ;; ——— locals: marking —————————————————————
-  (lispy-define-key map "a" 'lispy-ace-symbol
-    :override '(cond ((looking-at lispy-outline)
-                      (lispy-meta-return))))
-  (lispy-define-key map "H" 'lispy-ace-symbol-replace)
-  (lispy-define-key map "m" 'lispy-mark-list)
-  ;; ——— locals: dialect-specific —————————————
-  (lispy-define-key map "e" 'lispy-eval)
-  (lispy-define-key map "E" 'lispy-eval-and-insert)
-  (lispy-define-key map "G" 'lispy-goto-local)
-  (lispy-define-key map "g" 'lispy-goto)
-  (lispy-define-key map "F" 'lispy-follow t)
-  (lispy-define-key map "D" 'pop-tag-mark)
-  (lispy-define-key map "A" 'lispy-beginning-of-defun)
-  ;; ——— locals: miscellanea ——————————————————
-  (lispy-define-key map "SPC" 'lispy-space)
-  (lispy-define-key map "i" 'lispy-tab)
-  (lispy-define-key map "I" 'lispy-shifttab)
-  (lispy-define-key map "N" 'lispy-narrow)
-  (lispy-define-key map "W" 'lispy-widen)
-  (lispy-define-key map "c" 'lispy-clone)
-  (lispy-define-key map "u" 'lispy-undo)
-  (lispy-define-key map "q" 'lispy-ace-paren
-    :override '(cond ((bound-and-true-p view-mode)
-                      (View-quit))))
-  (lispy-define-key map "Q" 'lispy-ace-char)
-  (lispy-define-key map "v" 'lispy-view)
-  (lispy-define-key map "T" 'lispy-ert)
-  (lispy-define-key map "t" 'lispy-teleport
-    :override '(cond ((looking-at lispy-outline)
-                      (end-of-line))))
-  (lispy-define-key map "n" 'lispy-new-copy)
-  (lispy-define-key map "b" 'lispy-back)
-  (lispy-define-key map "B" 'lispy-ediff-regions)
-  (lispy-define-key map "x" 'lispy-x)
-  (lispy-define-key map "Z" 'lispy-edebug-stop)
-  (lispy-define-key map "V" 'lispy-visit)
-  (lispy-define-key map "-" 'lispy-ace-subword)
-  (lispy-define-key map "." 'lispy-repeat)
-  (lispy-define-key map "~" 'lispy-tilde)
-  ;; ——— locals: digit argument ———————————————
-  (mapc (lambda (x) (lispy-define-key map (format "%d" x) 'digit-argument))
-        (number-sequence 0 9)))
+    (define-key map (kbd "C-9") 'lispy-out-forward-newline)
+    map))
 
-(defun lispy-setup-new-bindings ()
-  "Change to new-style bindings.
-They may become the defaults in the future."
-  (let ((map lispy-mode-map))
-    (lispy-define-key map "z" 'lispy-transform-mode)
-    (define-key map [return] 'lispy-alt-line))
-  (let ((map lispy-mode-x-map))
-    (define-key map "x" nil)))
+(declare-function View-quit "view")
+(defvar lispy-mode-map-lispy
+  (let ((map (make-sparse-keymap)))
+    ;; ——— globals: navigation ——————————————————
+    (define-key map (kbd "]") 'lispy-forward)
+    (define-key map (kbd "[") 'lispy-backward)
+    (define-key map (kbd ")") 'lispy-right-nostring)
+    ;; ——— globals: kill-related ————————————————
+    (define-key map (kbd "C-k") 'lispy-kill)
+    (define-key map (kbd "C-y") 'lispy-yank)
+    (define-key map (kbd "C-d") 'lispy-delete)
+    (define-key map (kbd "M-d") 'lispy-kill-word)
+    (define-key map (kbd "DEL") 'lispy-delete-backward)
+    (define-key map (kbd "M-DEL") 'lispy-backward-kill-word)
+    (define-key map (kbd "M-k") 'lispy-kill-sentence)
+    (define-key map (kbd "M-m") 'lispy-mark-symbol)
+    (define-key map (kbd "C-,") 'lispy-kill-at-point)
+    (define-key map (kbd "C-M-,") 'lispy-mark)
+    ;; ——— globals: pairs ———————————————————————
+    (define-key map (kbd "(") 'lispy-parens)
+    (define-key map (kbd "{") 'lispy-braces)
+    (define-key map (kbd "}") 'lispy-brackets)
+    (define-key map (kbd "\"") 'lispy-quotes)
+    ;; ——— globals: insertion ———————————————————
+    (define-key map (kbd ":") 'lispy-colon)
+    (define-key map (kbd "^") 'lispy-hat)
+    (define-key map (kbd "'") 'lispy-tick)
+    (define-key map (kbd "`") 'lispy-backtick)
+    (define-key map (kbd "#") 'lispy-hash)
+    (define-key map (kbd "C-j") 'lispy-newline-and-indent)
+    (define-key map (kbd "M-j") 'lispy-split)
+    (define-key map (kbd "M-J") 'lispy-join)
+    (define-key map (kbd "RET") 'lispy-newline-and-indent-plain)
+    (define-key map (kbd ";") 'lispy-comment)
+    (define-key map (kbd "C-a") 'lispy-move-beginning-of-line)
+    (define-key map (kbd "C-e") 'lispy-move-end-of-line)
+    (define-key map (kbd "<C-return>") 'lispy-open-line)
+    (define-key map (kbd "<M-return>") 'lispy-meta-return)
+    ;; ——— globals: tags ————————————————————————
+    (define-key map (kbd "M-.") 'lispy-goto-symbol)
+    (define-key map (kbd "M-,") 'pop-tag-mark)
+    ;; ——— globals: miscellanea —————————————————
+    (define-key map (kbd "M-o") 'lispy-string-oneline)
+    (define-key map (kbd "M-i") 'lispy-iedit)
+    (define-key map (kbd "M-q") 'lispy-fill)
+    (define-key map (kbd "<backtab>") 'lispy-shifttab)
+    ;; ——— globals: outline —————————————————————
+    (define-key map (kbd "M-<left>") 'lispy-outline-left)
+    (define-key map (kbd "M-<right>") 'lispy-outline-right)
+    map))
+
+(defvar lispy-mode-map-oleh
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "φ") 'lispy-parens)
+    (define-key map (kbd "σ") 'lispy-braces)
+    (define-key map (kbd "ρ") 'lispy-brackets)
+    (define-key map (kbd "θ") 'lispy-quotes)
+    (define-key map (kbd "C-φ") 'lispy-parens-down)
+    (define-key map (kbd "χ") 'lispy-right)
+    (define-key map (kbd "C-M-a") 'lispy-beginning-of-defun)
+    (define-key map (kbd "C-x C-j") 'lispy-debug-step-in)
+    (define-key map (kbd "<return>") 'lispy-alt-line)
+    (define-key map (kbd "RET") 'lispy-newline-and-indent-plain)
+    (lispy-define-key map "Y" 'swiper)
+    map))
+
+(defun lispy-set-key-theme (theme)
+  "Set `lispy-mode-map' for according to THEME.
+THEME is a list of choices: 'special, 'lispy, 'paredit, 'c-digits."
+  (setq lispy-mode-map
+        (make-composed-keymap
+         (delq nil
+               (list
+                (when (memq 'special theme) lispy-mode-map-special)
+                (when (memq 'lispy theme) lispy-mode-map-lispy)
+                (when (memq 'paredit theme) lispy-mode-map-paredit)
+                (when (memq 'c-digits theme) lispy-mode-map-c-digits)
+                (when (memq 'oleh theme) lispy-mode-map-oleh)))))
+  (setcdr
+   (assq 'lispy-mode minor-mode-map-alist)
+   lispy-mode-map))
+
+(lispy-set-key-theme '(special lispy c-digits))
 
 (provide 'lispy)
 

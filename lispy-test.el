@@ -1497,6 +1497,7 @@ Insert KEY if there's no command."
                                (execute-kbd-macro (kbd "Hg")))
                    "(progn (setq type 'norwegian-blue)\n       (setq plumage-type |))")))
 
+;;* Paredit compatibility tests
 (ert-deftest lispy-paredit-open-round ()
   (should (string= (lispy-with "(a b |c d)"
                                "(")
@@ -1512,6 +1513,16 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "; Hello,| world!" ;
                                ")")
                    "; Hello,)| world!")))
+
+(ert-deftest lispy-paredit-close-round-and-newline ()
+  (lispy-set-key-theme '(paredit))
+  (should (string= (lispy-with "(defun f (x|  ))"
+                               (kbd "M-)"))
+                   "(defun f (x)\n  |)"))
+  (should (string= (lispy-with "; (Foo.|"
+                               (kbd "M-)"))
+                   "; (Foo.)|"))
+  (lispy-set-key-theme '(special lispy c-digits oleh)))
 
 (provide 'lispy-test)
 
