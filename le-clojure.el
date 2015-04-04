@@ -77,7 +77,7 @@ When ADD-OUTPUT is t, add the standard output to the result."
                 (format "(clojure.core/let [x %s] (with-out-str (clojure.pprint/pprint x)))"
                         str)
               str))
-           (res (nrepl-sync-request:eval str))
+           (res (nrepl-sync-request:eval str (cider-current-ns) (nrepl-current-session)))
            (val (nrepl-dict-get res "value"))
            out)
       (cond ((null val)
