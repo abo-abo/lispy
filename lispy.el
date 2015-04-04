@@ -2456,6 +2456,56 @@ When ARG is `fill', do nothing for short expressions."
            (setq res (apply #'vector res)))
          (lispy--insert res))))))
 
+(defun lispy--multiline-1 (expr)
+  "Transform a one-line EXPR into a multi-line."
+  (let ((res nil)
+        elt)
+    (while expr
+      (setq elt (pop expr))
+      (cond ((memq elt '(defun defvar defcustom))
+             (push elt res)
+             (if (>= (length expr) 2)
+                 (progn
+                   (push (pop expr) res)
+                   (push (pop expr) res)))
+             (push '(ly-raw newline) res))
+
+            ((lispy--raw-string-p elt)
+             (push
+              `(ly-raw string
+                       ,(replace-regexp-in-string
+                         "\\\\n" "\n" (cl-caddr elt)))
+              res)
+             (push '(ly-raw newline) res))
+
+            ((keywordp elt)
+             (push elt res))
+
+            ((not (listp elt))
+             (push elt res)
+             (push '(ly-raw newline) res))
+
+            ((eq (car elt) 'ly-raw)
+             (push elt res)
+             (push '(ly-raw newline) res))
+
+            ((memq (car elt) '(let let* require provide when setq cons))
+             (push
+              (cons (car elt)
+                    (m3 (cdr elt))) res)
+             (push '(ly-raw newline) res))
+
+            ((memq (car elt) '(delq assq))
+             (push elt res)
+             (push '(ly-raw newline) res))
+
+            (t
+             (push (m3 elt) res)
+             (push '(ly-raw newline) res))))
+    (if (equal (car res) '(ly-raw newline))
+        (nreverse (cdr res))
+      (nreverse res))))
+
 (defvar lispy-do-fill nil
   "If t, `lispy-insert-1' will try to fill.")
 
