@@ -851,10 +851,10 @@ Return nil if can't move."
   (cond ((and (region-active-p)
               (not (= (region-beginning) (region-end))))
          (exchange-point-and-mark))
-        ((looking-at lispy-left)
-         (forward-list))
         ((looking-back lispy-right)
          (backward-list))
+        ((looking-at lispy-left)
+         (forward-list))
         (t
          (user-error "Unexpected"))))
 
@@ -1889,13 +1889,12 @@ Return the amount of successful grow steps, nil instead of zero."
             (lispy--sub-slurp-backward arg)
           (lispy-dotimes arg
             (forward-sexp -1))))
-    (if (or (looking-at "()")
-            (and (looking-at lispy-left) (not (looking-back "()"))))
+    (if (looking-back lispy-right)
         (lispy-dotimes arg
-          (lispy--slurp-backward))
-      (if (looking-back lispy-right)
+          (lispy--slurp-forward))
+      (if (looking-at lispy-left)
           (lispy-dotimes arg
-            (lispy--slurp-forward))))
+            (lispy--slurp-backward))))
     (lispy--reindent)))
 
 (defun lispy-down-slurp ()
