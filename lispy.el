@@ -2492,7 +2492,7 @@ When ARG is `fill', do nothing for short expressions."
             ((memq (car elt) '(let let* require provide when setq cons))
              (push
               (cons (car elt)
-                    (m3 (cdr elt))) res)
+                    (lispy--multiline-1 (cdr elt))) res)
              (push '(ly-raw newline) res))
 
             ((memq (car elt) '(delq assq))
@@ -2500,7 +2500,7 @@ When ARG is `fill', do nothing for short expressions."
              (push '(ly-raw newline) res))
 
             (t
-             (push (m3 elt) res)
+             (push (lispy--multiline-1 elt) res)
              (push '(ly-raw newline) res))))
     (if (equal (car res) '(ly-raw newline))
         (nreverse (cdr res))
