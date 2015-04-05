@@ -2389,21 +2389,57 @@ When ARG is more than 1, pull ARGth expression to enclose current sexp."
           (t
            (error "Unexpected")))))
 
+(defun lispy-mapcar-tree (func expr)
+  "Apply FUNC to all lists in EXPR."
+  (cond ((null expr)
+         nil)
+        ((listp expr)
+         (funcall func
+                  (cons
+                   (lispy-mapcar-tree func (car expr))
+                   (lispy-mapcar-tree func (cdr expr)))))
+        (t
+         expr)))
+
+(defvar lispy--oneline-comments nil
+  "Collect comments for `lispy--oneline'.")
+
+(defun lispy--oneline (expr)
+  "Remove newlines from EXPR."
+  (lispy-mapcar-tree
+   (lambda (x)
+     (cond ((equal x '(ly-raw newline))
+            '(ly-raw ignore))
+           ((lispy--raw-comment-p x)
+            (push x lispy--oneline-comments)
+            '(ly-raw ignore))
+           ((lispy--raw-string-p x)
+            `(ly-raw string ,(replace-regexp-in-string "\n" "\\\\n" (caddr x))))
+           (t
+            x)))
+   expr))
+
 (defun lispy-oneline ()
   "Squeeze current sexp into one line.
 Comments will be moved ahead of sexp."
   (interactive)
-  (if (region-active-p)
-      (let* ((beg (region-beginning))
-             (end (region-end))
-             (str (buffer-substring-no-properties
-                   beg end)))
-        (delete-region beg end)
-        (insert (mapconcat #'identity (split-string str "[\n \t]+") " ")))
-    (let ((from-left (looking-at lispy-left))
-          str bnd)
-      (setq str (lispy--string-dwim (setq bnd (lispy--bounds-dwim))))
-      (delete-region (car bnd) (cdr bnd))
+  (let* ((bnd (lispy--bounds-dwim))
+         (str (lispy--string-dwim bnd))
+         (from-left (looking-at lispy-left))
+         expr)
+    (delete-region (car bnd) (cdr bnd))
+    (when (region-active-p)
+      (deactivate-mark))
+    (setq lispy--oneline-comments nil)
+    (if (setq expr (ignore-errors
+                     (lispy--oneline
+                      (lispy--read str))))
+        (progn
+          (mapc (lambda (x)
+                  (lispy--insert x)
+                  (newline))
+                (nreverse lispy--oneline-comments))
+          (lispy--insert expr))
       (let ((no-comment "")
             comments)
         (loop for s in (split-string str "\n" t)
@@ -2413,10 +2449,9 @@ Comments will be moved ahead of sexp."
         (when comments
           (insert (mapconcat #'identity comments "\n") "\n"))
         (insert (substring
-                 (replace-regexp-in-string "\n *" " " no-comment) 1))
-        (when from-left
-          (backward-list)))
-      (lispy--normalize-1))))
+                 (replace-regexp-in-string "\n *" " " no-comment) 1))))
+    (when from-left
+      (backward-list))))
 
 (defun lispy-multiline (&optional arg)
   "Spread current sexp over multiple lines.
