@@ -792,16 +792,26 @@ Return nil if can't move."
       (ring-insert lispy-pos-ring (point)))))
 
 (defun lispy-back (arg)
-  "Move point to ARGth previous position."
+  "Move point to ARGth previous position.  If position isn't
+special, move to previous or error."
   (interactive "p")
   (lispy-dotimes arg
     (if (zerop (ring-length lispy-pos-ring))
         (user-error "At beginning of point history")
       (let ((pt (ring-remove lispy-pos-ring 0)))
-        (if (consp pt)
-            (lispy--mark pt)
-          (deactivate-mark)
-          (goto-char pt))))))
+        (cond ((consp pt)
+               (lispy--mark pt))
+
+              ((save-excursion
+                 (goto-char pt)
+                 (or (looking-at lispy-left)
+                     (looking-back lispy-right)
+                     (looking-at lispy-outline)))
+               (deactivate-mark)
+               (goto-char pt))
+
+              (t
+               (lispy-back 1)))))))
 
 (defun lispy-knight-down ()
   "Make a knight-like move: down and right."
