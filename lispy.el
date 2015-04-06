@@ -2492,53 +2492,79 @@ When ARG is `fill', do nothing for short expressions."
 
 (defun lispy--multiline-1 (expr)
   "Transform a one-line EXPR into a multi-line."
-  (let ((res nil)
-        elt)
-    (while expr
-      (setq elt (pop expr))
-      (cond ((memq elt '(defun defvar defcustom))
-             (push elt res)
-             (if (>= (length expr) 2)
-                 (progn
-                   (push (pop expr) res)
-                   (push (pop expr) res)))
-             (push '(ly-raw newline) res))
+  (if (not (listp expr))
+      expr
+    (let ((res nil)
+          elt)
+      (while expr
+        (setq elt (pop expr))
+        (cond ((memq elt '(defun defmacro
+                           defvar defcustom defgroup))
+               (push elt res)
+               (if (>= (length expr) 2)
+                   (progn
+                     (push (pop expr) res)
+                     (push (pop expr) res)))
+               (push '(ly-raw newline) res))
 
-            ((lispy--raw-string-p elt)
-             (push
-              `(ly-raw string
-                       ,(replace-regexp-in-string
-                         "\\\\n" "\n" (cl-caddr elt)))
-              res)
-             (push '(ly-raw newline) res))
+              ((memq elt '(defface define-minor-mode
+                           condition-case while incf car cdr > >= < <= eq equal
+                           incf decf cl-incf cl-decf
+                           catch))
+               (push elt res))
 
-            ((keywordp elt)
-             (push elt res))
+              ((lispy--raw-string-p elt)
+               (push
+                `(ly-raw string
+                         ,(replace-regexp-in-string
+                           "\\\\n" "\n" (cl-caddr elt)))
+                res)
+               (push '(ly-raw newline) res))
 
-            ((not (listp elt))
-             (push elt res)
-             (push '(ly-raw newline) res))
+              ((keywordp elt)
+               (push elt res))
 
-            ((eq (car elt) 'ly-raw)
-             (push elt res)
-             (push '(ly-raw newline) res))
+              ((not (listp elt))
+               (push elt res)
+               (push '(ly-raw newline) res))
 
-            ((memq (car elt) '(let let* require provide when setq cons))
-             (push
-              (cons (car elt)
-                    (lispy--multiline-1 (cdr elt))) res)
-             (push '(ly-raw newline) res))
+              ((eq (car elt) 'ly-raw)
+               (if (memq (cadr elt) '(quote \`))
+                   (push `(ly-raw ,(cadr elt) ,(lispy--multiline-1 (cl-caddr elt))) res)
+                 (push elt res))
+               (push '(ly-raw newline) res))
 
-            ((memq (car elt) '(delq assq))
-             (push elt res)
-             (push '(ly-raw newline) res))
+              ((memq (car elt) '(let let*
+                                 setq cons
+                                 require provide
+                                 when if unless))
+               (push
+                (cons (car elt)
+                      (lispy--multiline-1 (cdr elt))) res)
+               (push '(ly-raw newline) res))
 
-            (t
-             (push (lispy--multiline-1 elt) res)
-             (push '(ly-raw newline) res))))
-    (if (equal (car res) '(ly-raw newline))
-        (nreverse (cdr res))
-      (nreverse res))))
+              ((memq (car elt) '(delq assq))
+               (push elt res)
+               (push '(ly-raw newline) res))
+
+              (t
+               (push (lispy--multiline-1 elt) res)
+               (push '(ly-raw newline) res))))
+      (if (equal (car res) '(ly-raw newline))
+          (nreverse (cdr res))
+        (nreverse res)))))
+
+(defun lispy-alt-multiline ()
+  "Spread current sexp over multiple lines."
+  (interactive)
+  (lispy-oneline)
+  (lispy-from-left
+   (let* ((bnd (lispy--bounds-list))
+          (str (lispy--string-dwim bnd))
+          (expr (lispy--read str)))
+     (delete-region (car bnd) (cdr bnd))
+     (lispy--insert
+      (lispy--multiline-1 expr)))))
 
 (defvar lispy-do-fill nil
   "If t, `lispy-insert-1' will try to fill.")
@@ -3602,7 +3628,11 @@ ARG is 3: `edebug-defun' on the function from this sexp.
 ARG is 4: `eval-defun' on the function from this sexp."
   (interactive "p")
   (cond ((= arg 1)
-         (edebug-defun))
+         (if (memq major-mode lispy-elisp-modes)
+             (edebug-defun)
+           (if (eq major-mode 'clojure-mode)
+               (cider-debug-defun-at-point)
+             (error "Can't debug for %S" major-mode))))
         ((= arg 2)
          (eval-defun nil))
         (t
@@ -5819,7 +5849,7 @@ FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)."
                         (View-quit))))
     (lispy-define-key map "Q" 'lispy-ace-char)
     (lispy-define-key map "v" 'lispy-view)
-    (lispy-define-key map "T" 'lispy-ert)
+    (lispy-define-key map "T" 'lispy-alt-multiline)
     (lispy-define-key map "t" 'lispy-teleport
       :override '(cond ((looking-at lispy-outline)
                         (end-of-line))))
