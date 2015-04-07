@@ -371,8 +371,8 @@ Otherwise return the amount of times executed."
               ,@body)
          (fset ',name ,old)))))
 
-(defvar lispy-site-directory
-  (file-name-directory load-file-name)
+(defvar lispy-site-directory (file-name-directory
+                              load-file-name)
   "The directory where all of the lispy files are located.")
 
 ;;* Verb related
@@ -2510,10 +2510,29 @@ When ARG is `fill', do nothing for short expressions."
   '(defvar defun defmacro defcustom defgroup)
   "List of constructs for which the first 3 elements are on the first line.")
 
+(defvar lispy--multiline-take-3-arg
+  '(defun defmacro)
+  "List of constructs for which the first 3 elements are on the first line.
+The third one is assumed to be the arglist and will not be changed.")
+
 (defvar lispy--multiline-take-2 '(defface define-minor-mode
-  condition-case while incf car cdr > >= < <= eq equal incf decf
-  cl-incf cl-decf catch require provide setq cons when if unless interactive)
+                                  condition-case while incf car
+                                  cdr > >= < <= eq equal incf
+                                  decf cl-incf cl-decf catch
+                                  require provide setq cons when
+                                  if unless interactive assq delq
+                                  assoc declare lambda remq
+                                  make-variable-buffer-local
+                                  bound-and-true-p
+                                  called-interactively-p)
   "List of constructs for which the first 2 elements are on the first line.")
+
+(defvar lispy--multiline-take-2-arg '(declare lambda
+                                      make-variable-buffer-local
+                                      bound-and-true-p
+                                      called-interactively-p)
+  "List of constructs for which the first 2 elements are on the first line.
+The second one will not be changed.")
 
 (defun lispy-interleave (x lst)
   "Insert X in between each element of LST."
@@ -2561,11 +2580,14 @@ When ARG is `fill', do nothing for short expressions."
              (push (pop expr) res))
            ;; value
            (when expr
-             (setq elt (pop expr))
-             (push (car (lispy--multiline-1 (list elt))) res))
+             (if (memq elt lispy--multiline-take-3-arg)
+                 (push (pop expr) res)
+               (push (car (lispy--multiline-1 (list (pop expr)))) res)))
            (push '(ly-raw newline) res))
           ((and (not quoted) (memq elt lispy--multiline-take-2))
-           (push elt res))
+           (push elt res)
+           (when (memq elt lispy--multiline-take-2-arg)
+             (push (pop expr) res)))
           ((memq elt '(let let*))
            (push elt res)
            (let ((body (pop expr)))
