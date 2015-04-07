@@ -2397,34 +2397,36 @@ When ARG is more than 1, pull ARGth expression to enclose current sexp."
           (t
            (error "Unexpected")))))
 
-(defun lispy-mapcar-tree (func expr)
-  "Apply FUNC to all lists in EXPR."
-  (cond ((null expr)
-         nil)
-        ((listp expr)
-         (funcall func
-                  (cons
-                   (lispy-mapcar-tree func (car expr))
-                   (lispy-mapcar-tree func (cdr expr)))))
-        (t
-         expr)))
-
 (defvar lispy--oneline-comments nil
   "Collect comments for `lispy--oneline'.")
 
+(defun lispy-mapcan-tree (func expr)
+  "Reduce with FUNC all lists in EXPR."
+  (cond ((null expr)
+         nil)
+        ((and (consp expr) (eq (car expr) 'ly-raw))
+         expr)
+        ((listp expr)
+         (funcall func
+                  (lispy-mapcan-tree func (car expr))
+                  (lispy-mapcan-tree func (cdr expr))))
+        (t
+         expr)))
+
 (defun lispy--oneline (expr)
   "Remove newlines from EXPR."
-  (lispy-mapcar-tree
-   (lambda (x)
+  (lispy-mapcan-tree
+   (lambda (x y)
      (cond ((equal x '(ly-raw newline))
-            '(ly-raw ignore))
+            y)
            ((lispy--raw-comment-p x)
             (push x lispy--oneline-comments)
-            '(ly-raw ignore))
+            y)
            ((lispy--raw-string-p x)
-            `(ly-raw string ,(replace-regexp-in-string "\n" "\\\\n" (caddr x))))
+            (cons `(ly-raw string ,(replace-regexp-in-string "\n" "\\\\n" (caddr x)))
+                  y))
            (t
-            x)))
+            (cons x y))))
    expr))
 
 (defun lispy-oneline ()
