@@ -605,43 +605,6 @@ Return nil if can't move."
              (prog1 nil
                (goto-char pt))))))
 
-(defun lispy-counterclockwise ()
-  "Move counterclockwise inside current list."
-  (declare
-   (obsolete "this function will be removed in 0.24.0" "0.23.0"))
-  (interactive)
-  (let ((pt (point)))
-    (cond ((looking-at lispy-left)
-           (lispy-forward 2)
-           (lispy-backward 1))
-
-          ((looking-back lispy-right)
-           (lispy-backward 2)
-           (lispy-forward 1)))
-    (when (= pt (point))
-      (if (looking-at lispy-left)
-          (lispy-forward 1)
-        (lispy-backward 1)))))
-
-(defun lispy-clockwise ()
-  "Move clockwise inside current list."
-  (declare
-   (obsolete "this function will be removed in 0.24.0" "0.23.0"))
-  (interactive)
-  (let ((pt (point)))
-    (cond ((looking-at lispy-left)
-           (or (lispy-backward 1)
-               (progn
-                 (goto-char pt)
-                 (forward-list))))
-
-          ((looking-back lispy-right)
-           (if (looking-at lispy-right)
-               (lispy-backward 1)
-             (unless (lispy-forward 1)
-               (goto-char pt)
-               (lispy-backward 1)))))))
-
 (defun lispy-down (arg)
   "Move down ARG times inside current list."
   (interactive "p")
@@ -2417,10 +2380,14 @@ When ARG is more than 1, pull ARGth expression to enclose current sexp."
    (lambda (x y)
      (cond ((equal x '(ly-raw newline))
             y)
-           ((and (lispy--raw-comment-p x)
-                 (null ignore-comments))
-            (push x lispy--oneline-comments)
-            y)
+           ((lispy--raw-comment-p x)
+            (if (null ignore-comments)
+                (progn
+                  (push x lispy--oneline-comments)
+                  y)
+              (if (equal (car y) '(ly-raw newline))
+                  (cons x y)
+                `(,x (ly-raw newline) ,@y))))
            ((and (lispy--raw-string-p x)
                  (null ignore-comments))
             (cons `(ly-raw string ,(replace-regexp-in-string "\n" "\\\\n" (caddr x)))
@@ -2507,7 +2474,7 @@ When ARG is `fill', do nothing for short expressions."
          (lispy--insert res))))))
 
 (defvar lispy--multiline-take-3
-  '(defvar defun defmacro defcustom defgroup)
+  '(defvar defun defmacro defcustom defgroup defvar-local)
   "List of constructs for which the first 3 elements are on the first line.")
 
 (defvar lispy--multiline-take-3-arg
@@ -2524,13 +2491,15 @@ The third one is assumed to be the arglist and will not be changed.")
                                   assoc declare lambda remq
                                   make-variable-buffer-local
                                   bound-and-true-p
-                                  called-interactively-p)
+                                  called-interactively-p
+                                  lispy-dotimes cond case cl-case)
   "List of constructs for which the first 2 elements are on the first line.")
 
 (defvar lispy--multiline-take-2-arg '(declare lambda
                                       make-variable-buffer-local
                                       bound-and-true-p
-                                      called-interactively-p)
+                                      called-interactively-p
+                                      lispy-dotimes)
   "List of constructs for which the first 2 elements are on the first line.
 The second one will not be changed.")
 
@@ -2559,6 +2528,8 @@ The second one will not be changed.")
               (setq res (cons elt expr)))
              (newline
               (setq res '(ly-raw newline)))
+             (comment
+              (setq res (cons elt expr)))
              (string
               (setq res
                     `(ly-raw string
@@ -2587,7 +2558,8 @@ The second one will not be changed.")
           ((and (not quoted) (memq elt lispy--multiline-take-2))
            (push elt res)
            (when (memq elt lispy--multiline-take-2-arg)
-             (push (pop expr) res)))
+             (push (pop expr) res)
+             (push '(ly-raw newline) res)))
           ((memq elt '(let let*))
            (push elt res)
            (let ((body (pop expr)))
@@ -2609,8 +2581,10 @@ The second one will not be changed.")
            (push elt res)
            (push '(ly-raw newline) res))
           (t
-           (push (lispy--multiline-1 elt) res)
-           (push '(ly-raw newline) res))))
+           (setq elt (lispy--multiline-1 elt))
+           (push elt res)
+           (unless (equal elt '(ly-raw newline))
+             (push '(ly-raw newline) res)))))
       (cond ((equal (car res) 'ly-raw)
              res)
             ((equal (car res) '(ly-raw newline))
