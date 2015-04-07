@@ -2519,21 +2519,23 @@ When ARG is `fill', do nothing for short expressions."
           ((eq elt 'ly-raw)
            (cl-case (car expr)
              (empty
-              (setq expr nil)
               (setq res '(ly-raw empty)))
              (raw
-              (setq res (cons elt expr))
-              (setq expr nil))
+              (setq res (cons elt expr)))
+             (string
+              (setq res
+                    `(ly-raw string
+                             ,(replace-regexp-in-string
+                               "\\\\n" "\n" (cadr expr)))))
              (t (unless (= (length expr) 2)
                   (error "Unexpected expr: %S" expr))
-                (if (null res)
-                    (progn
-                      (setq res (list 'ly-raw (car expr)
-                                      (lispy--multiline-1
-                                       (cadr expr)
-                                       (memq (car expr) '(quote \`)))))
-                      (setq expr nil))
-                  (error "Stray ly-raw in %S" expr)))))
+                (unless (null res)
+                  (error "Stray ly-raw in %S" expr))
+                (setq res (list 'ly-raw (car expr)
+                                (lispy--multiline-1
+                                 (cadr expr)
+                                 (memq (car expr) '(quote \`)))))))
+           (setq expr nil))
           (quoted
            (push (lispy--multiline-1 elt) res)
            (push '(ly-raw newline) res))
@@ -2549,13 +2551,6 @@ When ARG is `fill', do nothing for short expressions."
            (push '(ly-raw newline) res))
           ((memq elt lispy--multiline-take-2)
            (push elt res))
-          ((lispy--raw-string-p elt)
-           (push
-            `(ly-raw string
-                     ,(replace-regexp-in-string
-                       "\\\\n" "\n" (cl-caddr elt)))
-            res)
-           (push '(ly-raw newline) res))
           ((keywordp elt)
            (push elt res))
           ((not (listp elt))
@@ -2565,9 +2560,6 @@ When ARG is `fill', do nothing for short expressions."
            (push
             (cons (car elt)
                   (lispy--multiline-1 (cdr elt))) res)
-           (push '(ly-raw newline) res))
-          ((memq (car elt) '(delq assq))
-           (push elt res)
            (push '(ly-raw newline) res))
           (t
            (push (lispy--multiline-1 elt) res)
