@@ -2498,7 +2498,16 @@ When ARG is `fill', do nothing for short expressions."
            (setq res (apply #'vector res)))
          (lispy--insert res))))))
 
-(defun lispy--multiline-1 (expr)
+(defvar lispy--multiline-take-3
+  '(defvar defun defmacro defcustom defgroup)
+  "List of constructs for which the first 3 elements are on the first line.")
+
+(defvar lispy--multiline-take-2
+  '(defface define-minor-mode condition-case while incf car cdr > >= < <=
+    eq equal incf decf cl-incf cl-decf catch)
+  "List of constructs for which the first 2 elements are on the first line.")
+
+(defun lispy--multiline-1 (expr &optional quoted)
   "Transform a one-line EXPR into a multi-line."
   (if (not (listp expr))
       expr
@@ -2508,16 +2517,27 @@ When ARG is `fill', do nothing for short expressions."
         (setq elt (pop expr))
         (cond
           ((eq elt 'ly-raw)
-           (unless (= (length expr) 2)
-             (error "Unexpected expr: %S" expr))
-           (if (null res)
-               (progn
-                 (setq res (list 'ly-raw (car expr)
-                                 (lispy--multiline-1 (cadr expr))))
-                 (setq expr nil))
-             (error "Stray ly-raw in %S" expr)))
-          ((memq elt '(defun defmacro
-                       defvar defcustom defgroup))
+           (cl-case (car expr)
+             (empty
+              (setq expr nil)
+              (setq res '(ly-raw empty)))
+             (raw
+              (setq res (cons elt expr))
+              (setq expr nil))
+             (t (unless (= (length expr) 2)
+                  (error "Unexpected expr: %S" expr))
+                (if (null res)
+                    (progn
+                      (setq res (list 'ly-raw (car expr)
+                                      (lispy--multiline-1
+                                       (cadr expr)
+                                       (memq (car expr) '(quote \`)))))
+                      (setq expr nil))
+                  (error "Stray ly-raw in %S" expr)))))
+          (quoted
+           (push (lispy--multiline-1 elt) res)
+           (push '(ly-raw newline) res))
+          ((memq elt lispy--multiline-take-3)
            (push elt res)
            ;; name
            (when expr
@@ -2527,10 +2547,7 @@ When ARG is `fill', do nothing for short expressions."
              (setq elt (pop expr))
              (push (car (lispy--multiline-1 (list elt))) res))
            (push '(ly-raw newline) res))
-          ((memq elt '(defface define-minor-mode
-                       condition-case while incf car cdr > >= < <= eq equal
-                       incf decf cl-incf cl-decf
-                       catch))
+          ((memq elt lispy--multiline-take-2)
            (push elt res))
           ((lispy--raw-string-p elt)
            (push

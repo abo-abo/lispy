@@ -908,7 +908,11 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "(eval-when-compile(require'cl)(require'org))|" "T")
                    "(eval-when-compile\n  (require 'cl)\n  (require 'org))|"))
   (should (string= (lispy-with "|(defgroup lispy nil \"List navigation and editing for the Lisp family.\" :group 'bindings :prefix \"lispy-\")" "T")
-                   "|(defgroup lispy nil\n  \"List navigation and editing for the Lisp family.\"\n  :group 'bindings\n  :prefix \"lispy-\")")))
+                   "|(defgroup lispy nil\n  \"List navigation and editing for the Lisp family.\"\n  :group 'bindings\n  :prefix \"lispy-\")"))
+  (should (string= (lispy-with "|(setq expr '(defvar defun defcustom defface))" "T")
+                   "|(setq\n expr\n '(defvar\n   defun\n   defcustom\n   defface))"))
+  (should (string= (lispy-with "|(setq expr `(defvar defun defcustom defface))" "T")
+                   "|(setq\n expr\n `(defvar\n      defun\n    defcustom\n    defface))")))
 
 (ert-deftest lispy-comment ()
   (should (string= (lispy-with "(defun foo ()\n  (let (a b c)\n    (cond ((s1)\n           |(s2)\n           (s3)))))" ";")
