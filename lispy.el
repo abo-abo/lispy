@@ -2411,16 +2411,18 @@ When ARG is more than 1, pull ARGth expression to enclose current sexp."
         (t
          expr)))
 
-(defun lispy--oneline (expr)
+(defun lispy--oneline (expr &optional ignore-comments)
   "Remove newlines from EXPR."
   (lispy-mapcan-tree
    (lambda (x y)
      (cond ((equal x '(ly-raw newline))
             y)
-           ((lispy--raw-comment-p x)
+           ((and (lispy--raw-comment-p x)
+                 (null ignore-comments))
             (push x lispy--oneline-comments)
             y)
-           ((lispy--raw-string-p x)
+           ((and (lispy--raw-string-p x)
+                 (null ignore-comments))
             (cons `(ly-raw string ,(replace-regexp-in-string "\n" "\\\\n" (caddr x)))
                   y))
            (t
@@ -2530,6 +2532,8 @@ When ARG is `fill', do nothing for short expressions."
               (setq res '(ly-raw empty)))
              (raw
               (setq res (cons elt expr)))
+             (newline
+              (setq res '(ly-raw newline)))
              (string
               (setq res
                     `(ly-raw string
