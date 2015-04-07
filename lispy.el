@@ -2983,13 +2983,18 @@ When ARG isn't nil, try to pretty print the sexp."
 (defvar lispy-eval-other--buffer nil
   "Target buffer for `lispy-eval-other-window'.")
 
+(defvar lispy-eval-other--cfg nil
+  "Last window configuration for `lispy-eval-other-window'.")
+
 (defun lispy-eval--last-live-p ()
   "Return t if the last eval window is still live with same buffer."
   (and (window-live-p
         lispy-eval-other--window)
        (equal (window-buffer
                lispy-eval-other--window)
-              lispy-eval-other--buffer)))
+              lispy-eval-other--buffer)
+       (equal (current-window-configuration)
+              lispy-eval-other--cfg)))
 
 (defvar lispy--eval-sym nil
   "Last set `dolist' sym.")
@@ -3064,8 +3069,11 @@ In case the point is on a let-bound variable, add a `setq'."
                   (progn
                     (setq lispy-eval-other--buffer
                           (window-buffer lispy-eval-other--window))
+                    (setq lispy-eval-other--cfg
+                          (current-window-configuration))
                     lispy-eval-other--window)
                 (setq lispy-eval-other--buffer nil)
+                (setq lispy-eval-other--cfg nil)
                 source-window))))
       (select-window target-window)
       (setq res (lispy--eval-elisp-form expr lexical-binding))
