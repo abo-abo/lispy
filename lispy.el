@@ -2492,7 +2492,8 @@ The third one is assumed to be the arglist and will not be changed.")
                                   make-variable-buffer-local
                                   bound-and-true-p
                                   called-interactively-p
-                                  lispy-dotimes cond case cl-case)
+                                  lispy-dotimes cond case cl-case
+                                  defalias)
   "List of constructs for which the first 2 elements are on the first line.")
 
 (defvar lispy--multiline-take-2-arg '(declare lambda
@@ -2525,6 +2526,8 @@ The second one will not be changed.")
              (empty
               (setq res '(ly-raw empty)))
              (raw
+              (setq res (cons elt expr)))
+             (dot
               (setq res (cons elt expr)))
              (newline
               (setq res '(ly-raw newline)))

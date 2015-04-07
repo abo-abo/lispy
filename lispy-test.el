@@ -916,7 +916,9 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "|(defun foo (bar) \"Doc.\"(interactive \"p\") (let ((var1 (foo-1 bar 1)) (var2 1) (var-3 (foo (foo bar)))) (baz bar)))" "T")
                    "|(defun foo (bar)\n  \"Doc.\"\n  (interactive \"p\")\n  (let ((var1 (foo-1\n               bar\n               1))\n        (var2 1)\n        (var-3 (foo\n                (foo\n                 bar))))\n    (baz\n     bar)))"))
   (should (string= (lispy-with "|(if (and (string= ,left \"(\")\n         ;; (= ?\\( (aref (this-command-keys-vector) 0))\n         )\n    (insert \"(\")\n  (insert ,left ,right)\n  (backward-char 1))" "T")
-                   "|(if (and\n     (string=\n      ,left\n      \"(\")\n     ;; (= ?\\( (aref (this-command-keys-vector) 0))\n     )\n    (insert\n     \"(\")\n  (insert\n   ,left\n   ,right)\n  (backward-char\n   1))")))
+                   "|(if (and\n     (string=\n      ,left\n      \"(\")\n     ;; (= ?\\( (aref (this-command-keys-vector) 0))\n     )\n    (insert\n     \"(\")\n  (insert\n   ,left\n   ,right)\n  (backward-char\n   1))"))
+  (should (string= (lispy-with "|(foo . bar)" "T")
+                   "|(foo\n .\n bar)")))
 
 (ert-deftest lispy-comment ()
   (should (string= (lispy-with "(defun foo ()\n  (let (a b c)\n    (cond ((s1)\n           |(s2)\n           (s3)))))" ";")
