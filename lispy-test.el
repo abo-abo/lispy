@@ -918,7 +918,9 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "|(if (and (string= ,left \"(\")\n         ;; (= ?\\( (aref (this-command-keys-vector) 0))\n         )\n    (insert \"(\")\n  (insert ,left ,right)\n  (backward-char 1))" "T")
                    "|(if (and\n     (string=\n      ,left\n      \"(\")\n     ;; (= ?\\( (aref (this-command-keys-vector) 0))\n     )\n    (insert\n     \"(\")\n  (insert\n   ,left\n   ,right)\n  (backward-char\n   1))"))
   (should (string= (lispy-with "|(foo . bar)" "T")
-                   "|(foo\n .\n bar)")))
+                   "|(foo\n .\n bar)"))
+  (should (string= (lispy-with "|(foo\n ;; bar\n bar)" "T")
+                   "|(foo\n ;; bar\n bar)")))
 
 (ert-deftest lispy-comment ()
   (should (string= (lispy-with "(defun foo ()\n  (let (a b c)\n    (cond ((s1)\n           |(s2)\n           (s3)))))" ";")

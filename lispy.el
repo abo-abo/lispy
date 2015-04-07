@@ -2474,11 +2474,11 @@ When ARG is `fill', do nothing for short expressions."
          (lispy--insert res))))))
 
 (defvar lispy--multiline-take-3
-  '(defvar defun defmacro defcustom defgroup defvar-local)
+  '(defvar defun defmacro defcustom defgroup defvar-local declare-function)
   "List of constructs for which the first 3 elements are on the first line.")
 
 (defvar lispy--multiline-take-3-arg
-  '(defun defmacro)
+  '(defun defmacro declare-function)
   "List of constructs for which the first 3 elements are on the first line.
 The third one is assumed to be the arglist and will not be changed.")
 
@@ -2585,13 +2585,18 @@ The second one will not be changed.")
            (push '(ly-raw newline) res))
           (t
            (setq elt (lispy--multiline-1 elt))
-           (push elt res)
-           (unless (equal elt '(ly-raw newline))
+           (if (equal elt '(ly-raw newline))
+               (unless (equal elt (car res))
+                 (push elt res))
+             (push elt res)
              (push '(ly-raw newline) res)))))
       (cond ((equal (car res) 'ly-raw)
              res)
             ((equal (car res) '(ly-raw newline))
-             (nreverse (cdr res)))
+             (if (and (cdr res)
+                      (lispy--raw-comment-p (cadr res)))
+                 (nreverse res)
+               (nreverse (cdr res))))
             (t
              (nreverse res))))))
 
