@@ -2474,17 +2474,18 @@ When ARG is `fill', do nothing for short expressions."
          (lispy--insert res))))))
 
 (defvar lispy--multiline-take-3
-  '(defvar defun defmacro defcustom defgroup defvar-local declare-function)
+  '(defvar defun defmacro defcustom defgroup defvar-local declare-function
+    define-key nth throw define-error defadvice defhydra)
   "List of constructs for which the first 3 elements are on the first line.")
 
 (defvar lispy--multiline-take-3-arg
-  '(defun defmacro declare-function)
+  '(defun defmacro declare-function define-error defadvice defhydra)
   "List of constructs for which the first 3 elements are on the first line.
 The third one is assumed to be the arglist and will not be changed.")
 
 (defvar lispy--multiline-take-2 '(defface define-minor-mode
                                   condition-case while incf car
-                                  cdr > >= < <= eq equal incf
+                                  cdr > >= < <= /= eq equal incf
                                   decf cl-incf cl-decf catch
                                   require provide setq cons when
                                   if unless interactive assq delq
@@ -2493,14 +2494,15 @@ The third one is assumed to be the arglist and will not be changed.")
                                   bound-and-true-p
                                   called-interactively-p
                                   lispy-dotimes cond case cl-case
-                                  defalias)
+                                  defalias 1+ 1- dotimes boundp fboundp macrop
+                                  null consp oddp zerop plusp minusp kbd)
   "List of constructs for which the first 2 elements are on the first line.")
 
 (defvar lispy--multiline-take-2-arg '(declare lambda
                                       make-variable-buffer-local
                                       bound-and-true-p
                                       called-interactively-p
-                                      lispy-dotimes)
+                                      lispy-dotimes dotimes)
   "List of constructs for which the first 2 elements are on the first line.
 The second one will not be changed.")
 
