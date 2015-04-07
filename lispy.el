@@ -2522,10 +2522,11 @@ When ARG is `fill', do nothing for short expressions."
                        defvar defcustom defgroup))
            (push elt res)
            ;; name
-           (when (setq elt (pop expr))
-             (push elt res))
+           (when expr
+             (push (pop expr) res))
            ;; value
-           (when (setq elt (pop expr))
+           (when expr
+             (setq elt (pop expr))
              (push (car (lispy--multiline-1 (list elt))) res))
            (push '(ly-raw newline) res))
           ((memq elt '(defface define-minor-mode

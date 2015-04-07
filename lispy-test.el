@@ -904,7 +904,11 @@ Insert KEY if there's no command."
   (should (string= (lispy-with-clojure "|{:king \"Arthur\" :knight \"Lancelot\"}" "T")
                    "|{:king \"Arthur\"\n :knight \"Lancelot\"}"))
   (should (string= (lispy-with-clojure "#|{:king \"Arthur\" :knight \"Lancelot\"}" "T")
-                   "#|{:king \"Arthur\"\n  :knight \"Lancelot\"}")))
+                   "#|{:king \"Arthur\"\n  :knight \"Lancelot\"}"))
+  (should (string= (lispy-with "(eval-when-compile(require'cl)(require'org))|" "T")
+                   "(eval-when-compile\n  (require 'cl)\n  (require 'org))|"))
+  (should (string= (lispy-with "|(defgroup lispy nil \"List navigation and editing for the Lisp family.\" :group 'bindings :prefix \"lispy-\")" "T")
+                   "|(defgroup lispy nil\n  \"List navigation and editing for the Lisp family.\"\n  :group 'bindings\n  :prefix \"lispy-\")")))
 
 (ert-deftest lispy-comment ()
   (should (string= (lispy-with "(defun foo ()\n  (let (a b c)\n    (cond ((s1)\n           |(s2)\n           (s3)))))" ";")
