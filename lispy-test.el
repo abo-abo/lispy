@@ -1058,6 +1058,8 @@ Insert KEY if there's no command."
                    "(mapc ~#'taunt| knights)"))
   (should (string= (lispy-with "|(foo)" (kbd "M-m"))
                    "(~foo|)"))
+  (should (string= (lispy-with "(foo|)" (kbd "M-m"))
+                   "(~foo|)"))
   (should (string= (lispy-with "|[foo]" (kbd "M-m"))
                    "[~foo|]"))
   (should (string= (lispy-with "|{foo}" (kbd "M-m"))

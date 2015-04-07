@@ -1275,9 +1275,7 @@ When ARG is more than 1, mark ARGth element."
                (cdr bnd)))
            (lispy--mark bnd))
 
-          ((or (looking-at "[ ]*[](){}[]")
-               (and (region-active-p)
-                    (looking-at "[ \n]*[()]")))
+          ((looking-at " *[[({]")
            (let ((pt (point)))
              (skip-chars-forward "(){}[] \n")
              (set-mark-command nil)
@@ -6196,7 +6194,9 @@ THEME is a list of choices: 'special, 'lispy, 'paredit, 'c-digits."
    (assq 'lispy-mode minor-mode-map-alist)
    lispy-mode-map))
 
-(lispy-set-key-theme '(special lispy c-digits))
+(if (equal user-mail-address "ohwoeowho@gmail.com")
+    (lispy-set-key-theme '(oleh special lispy c-digits))
+  (lispy-set-key-theme '(special lispy c-digits)))
 
 (provide 'lispy)
 
