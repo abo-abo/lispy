@@ -5481,9 +5481,10 @@ MODE is the major mode for indenting EXPR."
                  (newline-and-indent)))))
       (goto-char (point-max))
       (widen)))
-  (backward-list)
-  (indent-sexp)
-  (forward-list))
+  (when (looking-back lispy-right)
+    (backward-list)
+    (indent-sexp)
+    (forward-list)))
 
 (defun lispy--normalize-1 ()
   "Normalize/prettify current sexp."
