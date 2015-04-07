@@ -2502,10 +2502,18 @@ When ARG is `fill', do nothing for short expressions."
   '(defvar defun defmacro defcustom defgroup)
   "List of constructs for which the first 3 elements are on the first line.")
 
-(defvar lispy--multiline-take-2
-  '(defface define-minor-mode condition-case while incf car cdr > >= < <=
-    eq equal incf decf cl-incf cl-decf catch)
+(defvar lispy--multiline-take-2 '(defface define-minor-mode
+  condition-case while incf car cdr > >= < <= eq equal incf decf
+  cl-incf cl-decf catch require provide setq cons when if unless interactive)
   "List of constructs for which the first 2 elements are on the first line.")
+
+(defun lispy-interleave (x lst)
+  "Insert X in between each element of LST."
+  (let ((res (list (pop lst))))
+    (while lst
+      (push x res)
+      (push (pop lst) res))
+    (nreverse res)))
 
 (defun lispy--multiline-1 (expr &optional quoted)
   "Transform a one-line EXPR into a multi-line."
@@ -2536,10 +2544,7 @@ When ARG is `fill', do nothing for short expressions."
                                  (cadr expr)
                                  (memq (car expr) '(quote \`)))))))
            (setq expr nil))
-          (quoted
-           (push (lispy--multiline-1 elt) res)
-           (push '(ly-raw newline) res))
-          ((memq elt lispy--multiline-take-3)
+          ((and (not quoted) (memq elt lispy--multiline-take-3))
            (push elt res)
            ;; name
            (when expr
@@ -2549,17 +2554,27 @@ When ARG is `fill', do nothing for short expressions."
              (setq elt (pop expr))
              (push (car (lispy--multiline-1 (list elt))) res))
            (push '(ly-raw newline) res))
-          ((memq elt lispy--multiline-take-2)
+          ((and (not quoted) (memq elt lispy--multiline-take-2))
            (push elt res))
+          ((memq elt '(let let*))
+           (push elt res)
+           (let ((body (pop expr)))
+             (push
+              (lispy-interleave
+               '(ly-raw newline)
+               (mapcar
+                (lambda (x)
+                  (if (listp x)
+                      (cons (car x)
+                            (lispy--multiline-1 (cdr x)))
+                    x))
+                body))
+              res))
+           (push '(ly-raw newline) res))
           ((keywordp elt)
            (push elt res))
           ((not (listp elt))
            (push elt res)
-           (push '(ly-raw newline) res))
-          ((memq (car elt) '(let let* setq cons require provide when if unless))
-           (push
-            (cons (car elt)
-                  (lispy--multiline-1 (cdr elt))) res)
            (push '(ly-raw newline) res))
           (t
            (push (lispy--multiline-1 elt) res)

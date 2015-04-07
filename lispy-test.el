@@ -910,9 +910,11 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "|(defgroup lispy nil \"List navigation and editing for the Lisp family.\" :group 'bindings :prefix \"lispy-\")" "T")
                    "|(defgroup lispy nil\n  \"List navigation and editing for the Lisp family.\"\n  :group 'bindings\n  :prefix \"lispy-\")"))
   (should (string= (lispy-with "|(setq expr '(defvar defun defcustom defface))" "T")
-                   "|(setq\n expr\n '(defvar\n   defun\n   defcustom\n   defface))"))
+                   "|(setq expr\n      '(defvar\n        defun\n        defcustom\n        defface))"))
   (should (string= (lispy-with "|(setq expr `(defvar defun defcustom defface))" "T")
-                   "|(setq\n expr\n `(defvar\n      defun\n    defcustom\n    defface))")))
+                   "|(setq expr\n      `(defvar\n           defun\n         defcustom\n         defface))"))
+  (should (string= (lispy-with "|(defun foo (bar) \"Doc.\"(interactive \"p\") (let ((var1 (foo-1 bar 1)) (var2 1) (var-3 (foo (foo bar)))) (baz bar)))" "T")
+                   "|(defun foo (bar)\n  \"Doc.\"\n  (interactive \"p\")\n  (let ((var1 (foo-1\n               bar\n               1))\n        (var2 1)\n        (var-3 (foo\n                (foo\n                 bar))))\n    (baz\n     bar)))")))
 
 (ert-deftest lispy-comment ()
   (should (string= (lispy-with "(defun foo ()\n  (let (a b c)\n    (cond ((s1)\n           |(s2)\n           (s3)))))" ";")
