@@ -1501,7 +1501,7 @@ If jammed between parens, \"(|(\" unjam: \"( |(\"."
 (defun lispy-hat ()
   "Insert ^."
   (interactive)
-  (lispy--space-unless "\\s-\\|\\s(\\|[:?]\\\\?")
+  (lispy--space-unless "\\s-\\|\\s(\\|[:?]\\|\\\\")
   (insert "^"))
 
 (defun lispy-tick ()
@@ -1509,13 +1509,13 @@ If jammed between parens, \"(|(\" unjam: \"( |(\"."
   (interactive)
   (if (lispy--string-markedp)
       (lispy-unstringify)
-    (lispy--space-unless "\\s-\\|\\s(\\|[~#:?'`]\\\\?")
+    (lispy--space-unless "\\s-\\|\\s(\\|[~#:?'`]\\|\\\\")
     (insert "'")))
 
 (defun lispy-backtick ()
   "Insert `."
   (interactive)
-  (lispy--space-unless "\\s-\\|\\s(\\|[:?`']\\\\?")
+  (lispy--space-unless "\\s-\\|\\s(\\|[:?`']\\|\\\\")
   (insert "`"))
 
 (defun lispy-tilde (arg)
