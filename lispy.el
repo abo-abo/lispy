@@ -2433,6 +2433,9 @@ When ARG is more than 1, pull ARGth expression to enclose current sexp."
   "Squeeze current sexp into one line.
 Comments will be moved ahead of sexp."
   (interactive)
+  (unless (or (looking-at lispy-left)
+              (looking-back lispy-right))
+    (lispy--out-backward 1))
   (let* ((bnd (lispy--bounds-dwim))
          (str (lispy--string-dwim bnd))
          (from-left (looking-at lispy-left))
@@ -2467,6 +2470,9 @@ Comments will be moved ahead of sexp."
   "Spread current sexp over multiple lines.
 When ARG is `fill', do nothing for short expressions."
   (interactive "p")
+  (unless (or (looking-at lispy-left)
+              (looking-back lispy-right))
+    (lispy--out-backward 1))
   (lispy-from-left
    (let* ((bnd (lispy--bounds-list))
           (str (lispy--string-dwim bnd))
@@ -2593,16 +2599,28 @@ When ARG is `fill', do nothing for short expressions."
 (defun lispy-alt-multiline ()
   "Spread current sexp over multiple lines."
   (interactive)
-  (lispy-oneline)
+  (unless (or (looking-at lispy-left)
+              (looking-back lispy-right))
+    (lispy--out-backward 1))
   (let* ((bnd (lispy--bounds-dwim))
          (str (lispy--string-dwim bnd))
          (expr (lispy--read str))
+         (expr-o (lispy--oneline expr t))
+         (expr-m (lispy--multiline-1 expr-o))
          (leftp (lispy--leftp)))
-    (delete-region (car bnd) (cdr bnd))
-    (lispy--insert
-     (lispy--multiline-1 expr))
-    (when leftp
-      (backward-list))))
+    (cond ((equal expr expr-m)
+           (message "No change"))
+          ((and (memq major-mode lispy-elisp-modes)
+                (not
+                 (equal (read str)
+                        (read (lispy--prin1-to-string
+                               expr-m 0 major-mode)))))
+           (error "Got a bad transform: %S" expr-m))
+          (t
+           (delete-region (car bnd) (cdr bnd))
+           (lispy--insert expr-m)
+           (when leftp
+             (backward-list))))))
 
 (defvar lispy-do-fill nil
   "If t, `lispy-insert-1' will try to fill.")
