@@ -2404,8 +2404,6 @@ When ARG is more than 1, pull ARGth expression to enclose current sexp."
   "Reduce with FUNC all lists in EXPR."
   (cond ((null expr)
          nil)
-        ((and (consp expr) (eq (car expr) 'ly-raw))
-         expr)
         ((listp expr)
          (funcall func
                   (lispy-mapcan-tree func (car expr))
