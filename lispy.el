@@ -2508,73 +2508,74 @@ When ARG is `fill', do nothing for short expressions."
           elt)
       (while expr
         (setq elt (pop expr))
-        (cond ((memq elt '(defun defmacro
-                           defvar defcustom defgroup))
-               (push elt res)
-               (if (>= (length expr) 2)
-                   (progn
-                     (push (pop expr) res)
-                     (push (pop expr) res)))
-               (push '(ly-raw newline) res))
-
-              ((memq elt '(defface define-minor-mode
-                           condition-case while incf car cdr > >= < <= eq equal
-                           incf decf cl-incf cl-decf
-                           catch))
-               (push elt res))
-
-              ((lispy--raw-string-p elt)
-               (push
-                `(ly-raw string
-                         ,(replace-regexp-in-string
-                           "\\\\n" "\n" (cl-caddr elt)))
-                res)
-               (push '(ly-raw newline) res))
-
-              ((keywordp elt)
-               (push elt res))
-
-              ((not (listp elt))
-               (push elt res)
-               (push '(ly-raw newline) res))
-
-              ((eq (car elt) 'ly-raw)
-               (if (memq (cadr elt) '(quote \`))
-                   (push `(ly-raw ,(cadr elt) ,(lispy--multiline-1 (cl-caddr elt))) res)
-                 (push elt res))
-               (push '(ly-raw newline) res))
-
-              ((memq (car elt) '(let let*
-                                 setq cons
-                                 require provide
-                                 when if unless))
-               (push
-                (cons (car elt)
-                      (lispy--multiline-1 (cdr elt))) res)
-               (push '(ly-raw newline) res))
-
-              ((memq (car elt) '(delq assq))
-               (push elt res)
-               (push '(ly-raw newline) res))
-
-              (t
-               (push (lispy--multiline-1 elt) res)
-               (push '(ly-raw newline) res))))
-      (if (equal (car res) '(ly-raw newline))
-          (nreverse (cdr res))
-        (nreverse res)))))
+        (cond
+          ((eq elt 'ly-raw)
+           (unless (= (length expr) 2)
+             (error "Unexpected expr: %S" expr))
+           (if (null res)
+               (progn
+                 (setq res (list 'ly-raw (car expr)
+                                 (lispy--multiline-1 (cadr expr))))
+                 (setq expr nil))
+             (error "Stray ly-raw in %S" expr)))
+          ((memq elt '(defun defmacro
+                       defvar defcustom defgroup))
+           (push elt res)
+           ;; name
+           (when (setq elt (pop expr))
+             (push elt res))
+           ;; value
+           (when (setq elt (pop expr))
+             (push (car (lispy--multiline-1 (list elt))) res))
+           (push '(ly-raw newline) res))
+          ((memq elt '(defface define-minor-mode
+                       condition-case while incf car cdr > >= < <= eq equal
+                       incf decf cl-incf cl-decf
+                       catch))
+           (push elt res))
+          ((lispy--raw-string-p elt)
+           (push
+            `(ly-raw string
+                     ,(replace-regexp-in-string
+                       "\\\\n" "\n" (cl-caddr elt)))
+            res)
+           (push '(ly-raw newline) res))
+          ((keywordp elt)
+           (push elt res))
+          ((not (listp elt))
+           (push elt res)
+           (push '(ly-raw newline) res))
+          ((memq (car elt) '(let let* setq cons require provide when if unless))
+           (push
+            (cons (car elt)
+                  (lispy--multiline-1 (cdr elt))) res)
+           (push '(ly-raw newline) res))
+          ((memq (car elt) '(delq assq))
+           (push elt res)
+           (push '(ly-raw newline) res))
+          (t
+           (push (lispy--multiline-1 elt) res)
+           (push '(ly-raw newline) res))))
+      (cond ((equal (car res) 'ly-raw)
+             res)
+            ((equal (car res) '(ly-raw newline))
+             (nreverse (cdr res)))
+            (t
+             (nreverse res))))))
 
 (defun lispy-alt-multiline ()
   "Spread current sexp over multiple lines."
   (interactive)
   (lispy-oneline)
-  (lispy-from-left
-   (let* ((bnd (lispy--bounds-list))
-          (str (lispy--string-dwim bnd))
-          (expr (lispy--read str)))
-     (delete-region (car bnd) (cdr bnd))
-     (lispy--insert
-      (lispy--multiline-1 expr)))))
+  (let* ((bnd (lispy--bounds-dwim))
+         (str (lispy--string-dwim bnd))
+         (expr (lispy--read str))
+         (leftp (lispy--leftp)))
+    (delete-region (car bnd) (cdr bnd))
+    (lispy--insert
+     (lispy--multiline-1 expr))
+    (when leftp
+      (backward-list))))
 
 (defvar lispy-do-fill nil
   "If t, `lispy-insert-1' will try to fill.")
@@ -4698,6 +4699,13 @@ Ignore the matches in strings and comments."
       (replace-match to-string))))
 
 ;;* Utilities: source transformation
+(defvar lispy--braces-table
+  (let ((table (make-char-table 'syntax-table nil)))
+    (modify-syntax-entry ?{ "(}" table)
+    (modify-syntax-entry ?} "){" table)
+    table)
+  "Syntax table for paired braces.")
+
 (defun lispy--read (str)
   "Read STR including comments and newlines."
   (let* ((deactivate-mark nil)
@@ -4759,29 +4767,23 @@ Ignore the matches in strings and comments."
                     (backward-delete-char 1)
                     (forward-char 1)
                     (insert "ly-raw clojure-lambda ")))
-                ;; ——— #{ —————————————————————
+                ;; ——— #{ or { ————————————————
                 (goto-char (point-min))
-                (while (re-search-forward "#{" nil t)
-                  (unless (lispy--in-string-or-comment-p)
-                    (backward-char 1)
-                    (save-excursion
-                      (forward-list 1)
-                      (backward-delete-char 1)
-                      (insert ")"))
-                    (backward-delete-char 1)
-                    (delete-char 1)
-                    (insert "(ly-raw clojure-set ")))
-                ;; ——— { ——————————————————————
-                (goto-char (point-min))
-                (while (re-search-forward "{" nil t)
-                  (unless (lispy--in-string-or-comment-p)
-                    (backward-char 1)
-                    (save-excursion
-                      (forward-list 1)
-                      (backward-delete-char 1)
-                      (insert ")"))
-                    (delete-char 1)
-                    (insert "(ly-raw clojure-map ")))
+                (while (re-search-forward "#?{" nil t)
+                  (let ((class (if (string= (match-string 0) "#{")
+                                   "clojure-set"
+                                 (if (string= (match-string 0) "{")
+                                     "clojure-map"
+                                   (error "Expected Clojure set or map")))))
+                    (unless (lispy--in-string-or-comment-p)
+                      (backward-char 1)
+                      (save-excursion
+                        (with-syntax-table lispy--braces-table
+                          (forward-list 1))
+                        (delete-char -1)
+                        (insert "))"))
+                      (delete-region (match-beginning 0) (match-end 0))
+                      (insert "(ly-raw " class " ("))))
                 ;; ——— ' ——————————————————————
                 (goto-char (point-min))
                 (while (re-search-forward "'" nil t)
@@ -5368,13 +5370,13 @@ MODE is the major mode for indenting EXPR."
            (delete-region beg (point))
            (insert (format "#{%s}"
                            (let ((s (prin1-to-string (cddr sxp))))
-                             (substring s 1 (1- (length s))))))
+                             (substring s 2 (- (length s) 2)))))
            (goto-char beg))
           (clojure-map
            (delete-region beg (point))
            (insert (format "{%s}"
                            (let ((s (prin1-to-string (cddr sxp))))
-                             (substring s 1 (1- (length s))))))
+                             (substring s 2 (- (length s) 2)))))
            (goto-char beg))
           (overlay
            (delete-region beg (point))
