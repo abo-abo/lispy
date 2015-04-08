@@ -2515,96 +2515,104 @@ The second one will not be changed.")
       (push (pop lst) res))
     (nreverse res)))
 
+(defcustom lispy-multiline-threshold 32
+  "Don't multiline expresssions shorter than this when printed as a string.")
+
 (defun lispy--multiline-1 (expr &optional quoted)
   "Transform a one-line EXPR into a multi-line."
   (if (not (listp expr))
       expr
-    (let ((res nil)
-          elt)
-      (while expr
-        (setq elt (pop expr))
-        (cond
-          ((eq elt 'ly-raw)
-           (cl-case (car expr)
-             (empty
-              (setq res '(ly-raw empty)))
-             (raw
-              (setq res (cons elt expr)))
-             (dot
-              (setq res (cons elt expr)))
-             (newline
-              (setq res '(ly-raw newline)))
-             (comment
-              (setq res (cons elt expr)))
-             (string
-              (setq res
-                    `(ly-raw string
-                             ,(replace-regexp-in-string
-                               "\\(?:[^\\]\\|^\\)\\(\\\\n\\)" "\n" (cadr expr) nil t 1))))
-             (t (unless (= (length expr) 2)
-                  (error "Unexpected expr: %S" expr))
-                (unless (null res)
-                  (error "Stray ly-raw in %S" expr))
-                (setq res (list 'ly-raw (car expr)
-                                (lispy--multiline-1
-                                 (cadr expr)
-                                 (memq (car expr) '(quote \`)))))))
-           (setq expr nil))
-          ((and (not quoted) (memq elt lispy--multiline-take-3))
-           (push elt res)
-           ;; name
-           (when expr
-             (push (pop expr) res))
-           ;; value
-           (when expr
-             (if (memq elt lispy--multiline-take-3-arg)
-                 (push (pop expr) res)
-               (push (car (lispy--multiline-1 (list (pop expr)))) res)))
-           (push '(ly-raw newline) res))
-          ((and (not quoted) (memq elt lispy--multiline-take-2))
-           (push elt res)
-           (when (memq elt lispy--multiline-take-2-arg)
-             (push (pop expr) res)
-             (push '(ly-raw newline) res)))
-          ((and (memq elt '(let let*))
-                expr
-                (listp (car expr))
-                (listp (cdar expr)))
-           (push elt res)
-           (let ((body (pop expr)))
-             (push
-              (lispy-interleave
-               '(ly-raw newline)
-               (mapcar
-                (lambda (x)
-                  (if (listp x)
-                      (cons (car x)
-                            (lispy--multiline-1 (cdr x)))
-                    x))
-                body))
-              res))
-           (push '(ly-raw newline) res))
-          ((keywordp elt)
-           (push elt res))
-          ((not (listp elt))
-           (push elt res)
-           (push '(ly-raw newline) res))
-          (t
-           (setq elt (lispy--multiline-1 elt))
-           (if (equal elt '(ly-raw newline))
-               (unless (equal elt (car res))
-                 (push elt res))
+    (if (and lispy-multiline-threshold
+             (< (length (lispy--prin1-to-string
+                         expr 0 'emacs-lisp-mode))
+                lispy-multiline-threshold))
+        expr
+      (let ((res nil)
+            elt)
+        (while expr
+          (setq elt (pop expr))
+          (cond
+            ((eq elt 'ly-raw)
+             (cl-case (car expr)
+               (empty
+                (setq res '(ly-raw empty)))
+               (raw
+                (setq res (cons elt expr)))
+               (dot
+                (setq res (cons elt expr)))
+               (newline
+                (setq res '(ly-raw newline)))
+               (comment
+                (setq res (cons elt expr)))
+               (string
+                (setq res
+                      `(ly-raw string
+                               ,(replace-regexp-in-string
+                                 "\\(?:[^\\]\\|^\\)\\(\\\\n\\)" "\n" (cadr expr) nil t 1))))
+               (t (unless (= (length expr) 2)
+                    (error "Unexpected expr: %S" expr))
+                  (unless (null res)
+                    (error "Stray ly-raw in %S" expr))
+                  (setq res (list 'ly-raw (car expr)
+                                  (lispy--multiline-1
+                                   (cadr expr)
+                                   (memq (car expr) '(quote \`)))))))
+             (setq expr nil))
+            ((and (not quoted) (memq elt lispy--multiline-take-3))
              (push elt res)
-             (push '(ly-raw newline) res)))))
-      (cond ((equal (car res) 'ly-raw)
-             res)
-            ((equal (car res) '(ly-raw newline))
-             (if (and (cdr res)
-                      (lispy--raw-comment-p (cadr res)))
-                 (nreverse res)
-               (nreverse (cdr res))))
+             ;; name
+             (when expr
+               (push (pop expr) res))
+             ;; value
+             (when expr
+               (if (memq elt lispy--multiline-take-3-arg)
+                   (push (pop expr) res)
+                 (push (car (lispy--multiline-1 (list (pop expr)))) res)))
+             (push '(ly-raw newline) res))
+            ((and (not quoted) (memq elt lispy--multiline-take-2))
+             (push elt res)
+             (when (memq elt lispy--multiline-take-2-arg)
+               (push (pop expr) res)
+               (push '(ly-raw newline) res)))
+            ((and (memq elt '(let let*))
+                  expr
+                  (listp (car expr))
+                  (listp (cdar expr)))
+             (push elt res)
+             (let ((body (pop expr)))
+               (push
+                (lispy-interleave
+                 '(ly-raw newline)
+                 (mapcar
+                  (lambda (x)
+                    (if (listp x)
+                        (cons (car x)
+                              (lispy--multiline-1 (cdr x)))
+                      x))
+                  body))
+                res))
+             (push '(ly-raw newline) res))
+            ((keywordp elt)
+             (push elt res))
+            ((not (listp elt))
+             (push elt res)
+             (push '(ly-raw newline) res))
             (t
-             (nreverse res))))))
+             (setq elt (lispy--multiline-1 elt))
+             (if (equal elt '(ly-raw newline))
+                 (unless (equal elt (car res))
+                   (push elt res))
+               (push elt res)
+               (push '(ly-raw newline) res)))))
+        (cond ((equal (car res) 'ly-raw)
+               res)
+              ((equal (car res) '(ly-raw newline))
+               (if (and (cdr res)
+                        (lispy--raw-comment-p (cadr res)))
+                   (nreverse res)
+                 (nreverse (cdr res))))
+              (t
+               (nreverse res)))))))
 
 (defun lispy-alt-multiline ()
   "Spread current sexp over multiple lines."
