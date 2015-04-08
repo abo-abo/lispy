@@ -2495,7 +2495,8 @@ The third one is assumed to be the arglist and will not be changed.")
                                   called-interactively-p
                                   lispy-dotimes cond case cl-case
                                   defalias 1+ 1- dotimes boundp fboundp macrop
-                                  null consp oddp zerop plusp minusp kbd)
+                                  null consp oddp zerop plusp minusp kbd
+                                  not pop listp)
   "List of constructs for which the first 2 elements are on the first line.")
 
 (defvar lispy--multiline-take-2-arg '(declare lambda
@@ -2565,7 +2566,7 @@ The second one will not be changed.")
            (when (memq elt lispy--multiline-take-2-arg)
              (push (pop expr) res)
              (push '(ly-raw newline) res)))
-          ((memq elt '(let let*))
+          ((and (not quoted) (memq elt '(let let*)))
            (push elt res)
            (let ((body (pop expr)))
              (push

@@ -920,7 +920,9 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "|(foo . bar)" "T")
                    "|(foo\n .\n bar)"))
   (should (string= (lispy-with "|(foo\n ;; bar\n bar)" "T")
-                   "|(foo\n ;; bar\n bar)")))
+                   "|(foo\n ;; bar\n bar)"))
+  (should (string= (lispy-with "|(lispy--multiline-1 '(let let*) t)" "T")
+                   "|(lispy--multiline-1\n '(let\n   let*)\n t)")))
 
 (ert-deftest lispy-comment ()
   (should (string= (lispy-with "(defun foo ()\n  (let (a b c)\n    (cond ((s1)\n           |(s2)\n           (s3)))))" ";")
