@@ -2539,7 +2539,7 @@ The second one will not be changed.")
               (setq res
                     `(ly-raw string
                              ,(replace-regexp-in-string
-                               "\\\\n" "\n" (cadr expr)))))
+                               "\\(?:[^\\]\\|^\\)\\(\\\\n\\)" "\n" (cadr expr) nil t 1))))
              (t (unless (= (length expr) 2)
                   (error "Unexpected expr: %S" expr))
                 (unless (null res)
