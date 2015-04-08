@@ -2485,7 +2485,7 @@ The third one is assumed to be the arglist and will not be changed.")
 
 (defvar lispy--multiline-take-2 '(defface define-minor-mode
                                   condition-case while incf car
-                                  cdr > >= < <= /= eq equal incf
+                                  cdr > >= < <= /= = eq equal incf
                                   decf cl-incf cl-decf catch
                                   require provide setq cons when
                                   if unless interactive assq delq
@@ -2566,7 +2566,10 @@ The second one will not be changed.")
            (when (memq elt lispy--multiline-take-2-arg)
              (push (pop expr) res)
              (push '(ly-raw newline) res)))
-          ((and (not quoted) (memq elt '(let let*)))
+          ((and (memq elt '(let let*))
+                expr
+                (listp (car expr))
+                (listp (cdar expr)))
            (push elt res)
            (let ((body (pop expr)))
              (push
