@@ -4772,8 +4772,12 @@ Ignore the matches in strings and comments."
 ;;* Utilities: source transformation
 (defvar lispy--braces-table
   (let ((table (make-char-table 'syntax-table nil)))
-    (modify-syntax-entry ?{ "(}" table)
-    (modify-syntax-entry ?} "){" table)
+    (modify-syntax-entry ?\{ "(}  " table)
+    (modify-syntax-entry ?\} "){  " table)
+    (modify-syntax-entry ?\[ "(]  " table)
+    (modify-syntax-entry ?\] ")[  " table)
+    (modify-syntax-entry ?\( "()  " table)
+    (modify-syntax-entry ?\) ")(  " table)
     table)
   "Syntax table for paired braces.")
 
@@ -4830,22 +4834,18 @@ Ignore the matches in strings and comments."
                     (forward-sexp)
                     (insert ")")
                     (replace-match "(ly-raw function ")))
-                ;; ——— #( —————————————————————
+                ;; ——— #{ or { or #( ——————————
                 (goto-char (point-min))
-                (while (re-search-forward "#(" nil t)
-                  (unless (lispy--in-string-or-comment-p)
-                    (backward-char 1)
-                    (backward-delete-char 1)
-                    (forward-char 1)
-                    (insert "ly-raw clojure-lambda ")))
-                ;; ——— #{ or { ————————————————
-                (goto-char (point-min))
-                (while (re-search-forward "#?{" nil t)
-                  (let ((class (if (string= (match-string 0) "#{")
-                                   "clojure-set"
-                                 (if (string= (match-string 0) "{")
-                                     "clojure-map"
-                                   (error "Expected Clojure set or map")))))
+                (while (re-search-forward "#(\\|{\\|#{" nil t)
+                  (let ((class
+                         (cond ((string= (match-string 0) "#{")
+                                "clojure-set")
+                               ((string= (match-string 0) "{")
+                                "clojure-map")
+                               ((string= (match-string 0) "#(")
+                                "clojure-lambda")
+                               (t
+                                (error "Expected set or map or lambda")))))
                     (unless (lispy--in-string-or-comment-p)
                       (backward-char 1)
                       (save-excursion
@@ -5432,25 +5432,25 @@ MODE is the major mode for indenting EXPR."
            (goto-char beg))
           (clojure-lambda
            (delete-region beg (point))
-           (insert (format "#%S" (cddr sxp)))
+           (insert (format "#%S" (cl-caddr sxp)))
            (goto-char beg))
           (clojure-set
            (delete-region beg (point))
            (insert (format "#{%s}"
-                           (let ((s (prin1-to-string (cddr sxp))))
-                             (substring s 2 (- (length s) 2)))))
+                           (let ((s (prin1-to-string (cl-caddr sxp))))
+                             (substring s 1 -1))))
            (goto-char beg))
           (clojure-map
            (delete-region beg (point))
            (insert (format "{%s}"
-                           (let ((s (prin1-to-string (cddr sxp))))
-                             (substring s 2 (- (length s) 2)))))
+                           (let ((s (prin1-to-string (cl-caddr sxp))))
+                             (substring s 1 -1))))
            (goto-char beg))
           (overlay
            (delete-region beg (point))
            (insert (format "#<%s>"
-                           (let ((s (prin1-to-string (cddr sxp))))
-                             (substring s 1 (1- (length s))))))
+                           (let ((s (prin1-to-string (cl-caddr sxp))))
+                             (substring s 1 -1))))
            (goto-char beg))
           (\`
            (if (> (length sxp) 3)
