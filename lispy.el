@@ -2630,8 +2630,9 @@ When QUOTED is not nil, assume that EXPR is quoted and ignore some rules."
               (t
                (nreverse res)))))))
 
-(defun lispy-alt-multiline ()
-  "Spread current sexp over multiple lines."
+(defun lispy-alt-multiline (&optional silent)
+  "Spread current sexp over multiple lines.
+When SILENT is non-nil, don't issue messages."
   (interactive)
   (unless (or (looking-at lispy-left)
               (looking-back lispy-right))
@@ -2643,7 +2644,8 @@ When QUOTED is not nil, assume that EXPR is quoted and ignore some rules."
          (expr-m (lispy--multiline-1 expr-o))
          (leftp (lispy--leftp)))
     (cond ((equal expr expr-m)
-           (message "No change"))
+           (unless silent
+             (message "No change")))
           ((and (memq major-mode lispy-elisp-modes)
                 (not
                  (equal (read str)
@@ -2962,7 +2964,9 @@ When ARG isn't nil, try to pretty print the sexp."
              (lispy-forward 1))
            (let ((str (lispy--eval (lispy--string-dwim))))
              (newline-and-indent)
-             (insert str))))
+             (insert str)
+             (when (looking-back lispy-right)
+               (lispy-alt-multiline t)))))
       (if (looking-at lispy-left)
           (save-excursion
             (doit))
