@@ -2559,6 +2559,10 @@ When QUOTED is not nil, assume that EXPR is quoted and ignore some rules."
                                    (cadr expr)
                                    (car (memq (car expr) '(quote \` clojure-lambda))))))))
              (setq expr nil))
+            ((equal elt '(ly-raw dot))
+             (when (equal (car res) '(ly-raw newline))
+               (pop res))
+             (push elt res))
             ((and (not quoted) (memq elt lispy--multiline-take-3))
              (push elt res)
              ;; name
