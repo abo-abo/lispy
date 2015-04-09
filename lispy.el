@@ -2563,6 +2563,16 @@ When QUOTED is not nil, assume that EXPR is quoted and ignore some rules."
              (when (equal (car res) '(ly-raw newline))
                (pop res))
              (push elt res))
+            ((equal elt '(ly-raw clojure-comma))
+             ;; two sexps without newlines, then a comma with a newline
+             (when (equal (car res) '(ly-raw newline))
+               (pop res))
+             (when (equal (cadr res) '(ly-raw newline))
+               (setq res
+                     (cons (car res)
+                           (cddr res))))
+             (push elt res)
+             (push '(ly-raw newline) res))
             ((and (not quoted) (memq elt lispy--multiline-take-3))
              (push elt res)
              ;; name
