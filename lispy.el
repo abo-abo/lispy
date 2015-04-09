@@ -4889,14 +4889,18 @@ Ignore the matches in strings and comments."
                 (while (re-search-forward "[^\\],[^@\"]" nil t)
                   (unless (lispy--in-string-or-comment-p)
                     (backward-char 2)
-                    (let ((beg (point))
-                          (sxp (ignore-errors (read (current-buffer)))))
-                      (when (and (consp sxp)
-                                 (eq (car sxp) '\,))
-                        (insert ")")
-                        (goto-char beg)
-                        (delete-char 1)
-                        (insert "(ly-raw \\, ")))))
+                    (if (eq major-mode 'clojure-mode)
+                        (progn
+                          (delete-char 1)
+                          (insert "(ly-raw clojure-comma)"))
+                      (let ((beg (point))
+                            (sxp (ignore-errors (read (current-buffer)))))
+                        (when (and (consp sxp)
+                                   (eq (car sxp) '\,))
+                          (insert ")")
+                          (goto-char beg)
+                          (delete-char 1)
+                          (insert "(ly-raw \\, "))))))
                 ;; ——— ,@ —————————————————————
                 (goto-char (point-min))
                 (while (re-search-forward "\\(?:[^\\]\\|^\\),@" nil t)
@@ -5455,6 +5459,10 @@ The outer delimiters are stripped."
            (delete-region beg (point))
            (insert (format "{%s}" (lispy--splice-to-str (cl-caddr sxp))))
            (goto-char beg))
+          (clojure-comma
+           (delete-region beg (point))
+           (delete-horizontal-space)
+           (insert ", "))
           (overlay
            (delete-region beg (point))
            (insert (format "#<%s>" (lispy--splice-to-str (cl-caddr sxp))))
@@ -5519,7 +5527,7 @@ The outer delimiters are stripped."
                    (current-column)))
          (was-left (looking-at lispy-left)))
     (if (or (and (memq major-mode '(clojure-mode))
-                 (string-match ",\\|\\^\\|#[^({]" str))
+                 (string-match "\\^" str))
             (> (length str) 10000))
 
         (lispy-from-left
