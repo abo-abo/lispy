@@ -5281,14 +5281,11 @@ Unless inside string or comment, or `looking-back' at CONTEXT."
 (defun lispy--current-tag ()
   "Forward to `semantic-current-tag'.
 Try to refresh if nil is returned."
-  (let ((tag (lispy-from-left
-              (semantic-current-tag))))
-    (setq tag
-          (or tag
-              (progn
-                (semantic-clear-toplevel-cache)
-                (semantic-fetch-tags)
-                (semantic-current-tag))))
+  (let ((tag (save-excursion
+               (when (or (looking-at lispy-left)
+                         (prog1 (looking-back lispy-right)
+                           (backward-list)))
+                 (semantic-current-tag)))))
     (when tag
       (or (catch 'break
             (lispy--tag-name tag))
