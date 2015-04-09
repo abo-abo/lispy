@@ -149,7 +149,6 @@
 (require 'lispy-inline)
 (require 'iedit)
 (require 'delsel)
-(require 'package)
 (require 'hydra)
 (require 'swiper)
 
@@ -2863,7 +2862,6 @@ Sexp is obtained by exiting list ARG times."
 (declare-function slime-edit-definition "ext:slime")
 (declare-function lispy--clojure-resolve "le-clojure")
 (declare-function lispy--clojure-jump "le-clojure")
-(declare-function lispy--scheme-goto-symbol "le-scheme")
 (declare-function geiser-edit-symbol "geiser-edit")
 (defun lispy-goto-symbol (symbol)
   "Go to definition of SYMBOL.
