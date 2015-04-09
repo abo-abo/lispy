@@ -1211,7 +1211,9 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "|(setq x '(\n          \n          ))" "i")
                    "|(setq x '())"))
   (should (string= (lispy-with "|(eq (char-before) ?\\()" "i")
-                   "|(eq (char-before) ?\\()")))
+                   "|(eq (char-before) ?\\()"))
+  (should (string= (lispy-with-clojure "|[#{}]" "i")
+                   "|[#{}]")))
 
 (defun lispy-test-normalize ()
   (interactive)

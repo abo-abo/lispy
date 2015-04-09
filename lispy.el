@@ -754,8 +754,8 @@ Return nil if can't move."
       (ring-insert lispy-pos-ring (point)))))
 
 (defun lispy-back (arg)
-  "Move point to ARGth previous position.  If position isn't
-special, move to previous or error."
+  "Move point to ARGth previous position.
+If position isn't special, move to previous or error."
   (interactive "p")
   (lispy-dotimes arg
     (if (zerop (ring-length lispy-pos-ring))
@@ -2373,7 +2373,9 @@ When ARG is more than 1, pull ARGth expression to enclose current sexp."
          expr)))
 
 (defun lispy--oneline (expr &optional ignore-comments)
-  "Remove newlines from EXPR."
+  "Remove newlines from EXPR.
+When IGNORE-COMMENTS is not nil, don't remove comments.
+Instead keep them, with a newline after each comment."
   (lispy-mapcan-tree
    (lambda (x y)
      (cond ((equal x '(ly-raw newline))
@@ -2517,7 +2519,8 @@ The second one will not be changed.")
   "Don't multiline expresssions shorter than this when printed as a string.")
 
 (defun lispy--multiline-1 (expr &optional quoted)
-  "Transform a one-line EXPR into a multi-line."
+  "Transform a one-line EXPR into a multi-line.
+When QUOTED is not nil, assume that EXPR is quoted and ignore some rules."
   (if (not (listp expr))
       expr
     (if (and lispy-multiline-threshold
@@ -5378,6 +5381,14 @@ MODE is the major mode for indenting EXPR."
      (+ (point-min) offset)
      (point-max))))
 
+(defun lispy--splice-to-str (sexp)
+  "Return the printed representation of SEXP.
+The outer delimiters are stripped."
+  (if sexp
+      (substring
+       (prin1-to-string sexp) 1 -1)
+    ""))
+
 (defun lispy--insert (expr)
   "Insert the EXPR read by `lispy--read'."
   (let ((start-pt (point))
@@ -5434,21 +5445,15 @@ MODE is the major mode for indenting EXPR."
            (goto-char beg))
           (clojure-set
            (delete-region beg (point))
-           (insert (format "#{%s}"
-                           (let ((s (prin1-to-string (cl-caddr sxp))))
-                             (substring s 1 -1))))
+           (insert (format "#{%s}" (lispy--splice-to-str (cl-caddr sxp))))
            (goto-char beg))
           (clojure-map
            (delete-region beg (point))
-           (insert (format "{%s}"
-                           (let ((s (prin1-to-string (cl-caddr sxp))))
-                             (substring s 1 -1))))
+           (insert (format "{%s}" (lispy--splice-to-str (cl-caddr sxp))))
            (goto-char beg))
           (overlay
            (delete-region beg (point))
-           (insert (format "#<%s>"
-                           (let ((s (prin1-to-string (cl-caddr sxp))))
-                             (substring s 1 -1))))
+           (insert (format "#<%s>" (lispy--splice-to-str (cl-caddr sxp))))
            (goto-char beg))
           (\`
            (if (> (length sxp) 3)
@@ -5949,7 +5954,7 @@ FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)."
 
 ;;* Paredit compat
 (defun lispy-close-round-and-newline (arg)
-  "Forward to `lispy-out-forward-newline'.
+  "Forward to (`lispy-out-forward-newline' ARG).
 Insert \")\" in strings and comments."
   (interactive "p")
   (if (or (lispy--in-string-or-comment-p)
@@ -5958,7 +5963,7 @@ Insert \")\" in strings and comments."
     (lispy-out-forward-newline arg)))
 
 (defun lispy-open-square (arg)
-  "Forward to `lispy-brackets'.
+  "Forward to (`lispy-brackets' ARG).
 Insert \"[\" in strings and comments."
   (interactive "p")
   (if (lispy--in-string-or-comment-p)
@@ -5966,7 +5971,7 @@ Insert \"[\" in strings and comments."
     (lispy-brackets arg)))
 
 (defun lispy-open-curly (arg)
-  "Forward to `lispy-braces'.
+  "Forward to( `lispy-braces' ARG).
 Insert \"{\" in strings and comments."
   (interactive "p")
   (if (lispy--in-string-or-comment-p)
@@ -5974,7 +5979,7 @@ Insert \"{\" in strings and comments."
     (lispy-braces arg)))
 
 (defun lispy-close-square (arg)
-  "Forward to `lispy-right'.
+  "Forward to function `lispy-right' with ARG.
 Insert \"]\" in strings and comments."
   (interactive "p")
   (if (lispy--in-string-or-comment-p)
@@ -5982,7 +5987,7 @@ Insert \"]\" in strings and comments."
     (lispy-right arg)))
 
 (defun lispy-close-curly (arg)
-  "Forward to `lispy-right'.
+  "Forward to function `lispy-right' with ARG.
 Insert \"}\" in strings and comments."
   (interactive "p")
   (if (lispy--in-string-or-comment-p)
@@ -5990,7 +5995,8 @@ Insert \"}\" in strings and comments."
     (lispy-right arg)))
 
 (defun lispy-doublequote (arg)
-  "Insert a pair of quotes around the point."
+  "Insert a pair of quotes around the point.
+When ARG is non-nil, unquote the current string."
   (interactive "P")
   (let (bnd)
     (cond ((region-active-p)
@@ -6024,7 +6030,7 @@ Insert \"}\" in strings and comments."
            (backward-char)))))
 
 (defun lispy-meta-doublequote (arg)
-  "Exit the current string."
+  "Stringify current expression or forward to (`lispy-meta-doublequote' ARG)."
   (interactive "P")
   (let ((bnd (lispy--bounds-string)))
     (if bnd
@@ -6096,7 +6102,7 @@ Insert \"}\" in strings and comments."
   (lispy--out-backward 1))
 
 (defun lispy-forward-slurp-sexp (arg)
-  "Forward to `lispy-slurp'."
+  "Forward to (`lispy-slurp' ARG)."
   (interactive "p")
   (save-excursion
     (unless (looking-back lispy-right)
@@ -6104,7 +6110,7 @@ Insert \"}\" in strings and comments."
     (lispy-slurp arg)))
 
 (defun lispy-forward-barf-sexp (arg)
-  "Forward to `lispy-barf'."
+  "Forward to (`lispy-barf' ARG)."
   (interactive "p")
   (save-excursion
     (unless (looking-at lispy-left)
@@ -6112,7 +6118,7 @@ Insert \"}\" in strings and comments."
     (lispy-barf arg)))
 
 (defun lispy-backward-slurp-sexp (arg)
-  "Forward to `lispy-slurp'."
+  "Forward to (`lispy-slurp' ARG)."
   (interactive "p")
   (save-excursion
     (unless (looking-at lispy-left)
@@ -6120,7 +6126,7 @@ Insert \"}\" in strings and comments."
     (lispy-slurp arg)))
 
 (defun lispy-backward-barf-sexp (arg)
-  "Forward to `lispy-barf'."
+  "Forward to (`lispy-barf' ARG)."
   (interactive "p")
   (save-excursion
     (unless (looking-at lispy-left)
