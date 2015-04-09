@@ -1536,7 +1536,7 @@ Insert KEY if there's no command."
                                "(")
                    "(a b (|) c d)"))
   (should (string= (lispy-with "(foo \"bar |baz\" quux)"
-                               "(")
+                               (execute-kbd-macro "("))
                    "(foo \"bar (|baz\" quux)")))
 
 (ert-deftest lispy-paredit-close-round ()
