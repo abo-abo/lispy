@@ -1676,7 +1676,7 @@ to all the functions, while maintaining the parens in a pretty state."
 (defun lispy--occur-candidates ()
   "Return the candidates for `lispy-occur'."
   (let ((bnd (save-excursion
-               (unless (and (looking-at "(")
+               (unless (and (looking-at lispy-left)
                             (looking-back "^"))
                  (beginning-of-defun))
                (lispy--bounds-dwim)))
