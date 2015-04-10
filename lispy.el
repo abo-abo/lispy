@@ -2479,11 +2479,11 @@ When ARG is `fill', do nothing for short expressions."
 
 (defvar lispy--multiline-take-3
   '(defvar defun defmacro defcustom defgroup defvar-local declare-function
-    define-key nth throw define-error defadvice defhydra)
+    define-key nth throw define-error defadvice defhydra defsubst)
   "List of constructs for which the first 3 elements are on the first line.")
 
 (defvar lispy--multiline-take-3-arg
-  '(defun defmacro declare-function define-error defadvice defhydra)
+  '(defun defmacro declare-function define-error defadvice defhydra defsubst)
   "List of constructs for which the first 3 elements are on the first line.
 The third one is assumed to be the arglist and will not be changed.")
 
@@ -2604,7 +2604,8 @@ When QUOTED is not nil, assume that EXPR is quoted and ignore some rules."
                  '(ly-raw newline)
                  (mapcar
                   (lambda (x)
-                    (if (listp x)
+                    (if (and (listp x)
+                             (not (eq (car x) 'ly-raw)))
                         (cons (car x)
                               (lispy--multiline-1 (cdr x)))
                       x))
