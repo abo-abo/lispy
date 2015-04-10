@@ -2498,7 +2498,7 @@ The third one is assumed to be the arglist and will not be changed.")
                                   bound-and-true-p
                                   called-interactively-p
                                   lispy-dotimes cond case cl-case
-                                  defalias 1+ 1- dotimes boundp fboundp macrop
+                                  defalias 1+ 1- dotimes dolist boundp fboundp macrop
                                   null consp oddp zerop plusp minusp kbd
                                   not pop listp or and)
   "List of constructs for which the first 2 elements are on the first line.")
@@ -2512,11 +2512,15 @@ The third one is assumed to be the arglist and will not be changed.")
 The second one will not be changed.")
 
 (defun lispy-interleave (x lst)
-  "Insert X in between each element of LST."
-  (let ((res (list (pop lst))))
+  "Insert X in between each element of LST.
+Don't insert X when it's already there."
+  (let ((res (list (pop lst)))
+        item)
     (while lst
-      (push x res)
-      (push (pop lst) res))
+      (unless (equal (car res) x)
+        (push x res))
+      (unless (equal (car res) (setq item (pop lst)))
+        (push item res)))
     (nreverse res)))
 
 (defcustom lispy-multiline-threshold 32
