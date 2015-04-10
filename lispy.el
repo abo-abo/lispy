@@ -2500,7 +2500,7 @@ The third one is assumed to be the arglist and will not be changed.")
                                   lispy-dotimes cond case cl-case
                                   defalias 1+ 1- dotimes boundp fboundp macrop
                                   null consp oddp zerop plusp minusp kbd
-                                  not pop listp)
+                                  not pop listp or and)
   "List of constructs for which the first 2 elements are on the first line.")
 
 (defvar lispy--multiline-take-2-arg '(declare lambda
