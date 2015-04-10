@@ -740,18 +740,25 @@ Return nil if can't move."
            (lispy-forward 1))))
   (lispy--ensure-visible))
 
-(defvar lispy-pos-ring (make-ring 200)
+(defvar lispy-pos-ring (make-ring 100)
   "Ring for point and mark position history.")
-(ring-insert lispy-pos-ring 1)
 
 (defun lispy--remember ()
   "Store the current point and mark in history."
-  (if (region-active-p)
-      (let ((bnd (lispy--bounds-dwim)))
-        (unless (equal bnd (ring-ref lispy-pos-ring 0))
-          (ring-insert lispy-pos-ring bnd)))
-    (unless (eq (point) (ring-ref lispy-pos-ring 0))
-      (ring-insert lispy-pos-ring (point)))))
+  (let* ((emptyp (zerop (ring-length lispy-pos-ring)))
+         (top (unless emptyp
+                (ring-ref lispy-pos-ring 0))))
+    (if (region-active-p)
+        (let* ((bnd (lispy--bounds-dwim))
+               (bnd (cons
+                     (move-marker (make-marker) (car bnd))
+                     (move-marker (make-marker) (cdr bnd)))))
+          (when (or emptyp
+                    (not (equal bnd top)))
+            (ring-insert lispy-pos-ring bnd)))
+      (when (or emptyp
+                (not (equal (point-marker) top)))
+        (ring-insert lispy-pos-ring (point-marker))))))
 
 (defun lispy-back (arg)
   "Move point to ARGth previous position.
@@ -759,21 +766,18 @@ If position isn't special, move to previous or error."
   (interactive "p")
   (lispy-dotimes arg
     (if (zerop (ring-length lispy-pos-ring))
-        (user-error "At beginning of point history")
+        (lispy-complain "At beginning of point history")
       (let ((pt (ring-remove lispy-pos-ring 0)))
-        (cond ((consp pt)
-               (lispy--mark pt))
-
-              ((save-excursion
-                 (goto-char pt)
-                 (or (looking-at lispy-left)
-                     (looking-back lispy-right)
-                     (looking-at lispy-outline)))
-               (deactivate-mark)
-               (goto-char pt))
-
-              (t
-               (lispy-back 1)))))))
+        ;; After deleting some text, markers that point to it converge
+        ;; to one point
+        (while (and (not (zerop (ring-length lispy-pos-ring)))
+                    (equal (ring-ref lispy-pos-ring 0)
+                           pt))
+          (ring-remove lispy-pos-ring 0))
+        (if (consp pt)
+            (lispy--mark pt)
+          (deactivate-mark)
+          (goto-char pt))))))
 
 (defun lispy-knight-down ()
   "Make a knight-like move: down and right."
