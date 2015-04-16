@@ -7,7 +7,7 @@ QEMACS = $(emacs) -Q -l elpa.el -l targets/base-init.el
 all: test
 
 cask:
-	$(shell EMACS=$(emacs) $(CASK))
+	$(shell EMACS=$(emacs) $(CASK) --verbose)
 
 compile:
 	$(BEMACS) $(LOAD) -l targets/compile.el
