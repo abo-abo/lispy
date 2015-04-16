@@ -1778,7 +1778,7 @@ See `lispy-occur-backend' for the selection back end."
                 (setq res
                       (ivy-read "pattern: "
                                 (lispy--occur-candidates)
-                                nil nil
+                                nil nil nil
                                 (lispy--occur-preselect)
                                 (lambda ()
                                   (lispy--occur-update-input
@@ -5365,7 +5365,7 @@ ACTION is called for the selected candidate."
                (ido-completing-read "tag: " strs))
               (ivy
                (ivy-read "tag: " strs
-                         nil nil (lispy--current-tag)))
+                         nil nil nil (lispy--current-tag)))
               (t
                (completing-read "tag: " strs)))))
       (funcall action (assoc res candidates)))))
