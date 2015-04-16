@@ -3718,9 +3718,10 @@ Second region and buffer are the current ones."
       (save-excursion
         (lispy-left 99)
         (if (looking-at
-             "(\\(?:cl\\|\\)def\\(?:un\\|macro\\)\\s-+\\_<[^ ]+\\_>\\s-+(")
+             "(\\(?:cl-\\)?def\\(?:un\\|macro\\)")
             (progn
               (goto-char (match-end 0))
+              (search-forward "(")
               (backward-char 1)
               (forward-sexp 1)
               (let ((sexps
