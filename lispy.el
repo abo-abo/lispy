@@ -1267,6 +1267,13 @@ When ARG is more than 1, mark ARGth element."
           ((region-active-p)
            (ignore-errors
              (forward-sexp)))
+
+          ((looking-at lispy-right)
+           (lispy--mark
+            (save-excursion
+              (backward-char 1)
+              (lispy--bounds-dwim))))
+
           (t
            (lispy--mark (lispy--bounds-dwim))))))
 
