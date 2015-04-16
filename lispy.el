@@ -2487,7 +2487,7 @@ When ARG is `fill', do nothing for short expressions."
   "List of constructs for which the first 3 elements are on the first line.
 The third one is assumed to be the arglist and will not be changed.")
 
-(defvar lispy--multiline-take-2 '(defface define-minor-mode
+(defvar-local lispy--multiline-take-2 '(defface define-minor-mode
                                   condition-case while incf car
                                   cdr > >= < <= /= = eq equal incf
                                   decf cl-incf cl-decf catch
@@ -2502,6 +2502,10 @@ The third one is assumed to be the arglist and will not be changed.")
                                   null consp oddp zerop plusp minusp kbd
                                   not pop listp or and)
   "List of constructs for which the first 2 elements are on the first line.")
+
+(setq-mode-local
+ clojure-mode
+ lispy--multiline-take-2 '(let fn def ns))
 
 (defvar lispy--multiline-take-2-arg '(declare lambda
                                       make-variable-buffer-local
