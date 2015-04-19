@@ -2076,27 +2076,30 @@ The outcome when ahead of sexps is different from when behind."
   "Replace (...(,,,|( with (,,,(...|( where ... and ,,, is arbitrary code.
 When ARG is more than 1, pull ARGth expression to enclose current sexp."
   (interactive "p")
-  (if (and (save-excursion
-             (lispy--out-forward (1+ arg)))
-           (save-excursion
-             (lispy--out-backward (1+ arg))))
-      (let (beg end deactivate-mark)
-        (lispy-from-left
-         (setq beg (point))
-         (setq end (lispy--out-backward arg))
-         (lispy--out-backward 1)
-         (lispy--swap-regions (cons beg end)
-                              (cons (point) (point)))
-         (lispy--reindent arg))
-        (lispy-from-left
-         (lispy-different)
-         (setq beg (point))
-         (setq end (lispy--out-forward arg))
-         (lispy-right 1)
-         (lispy--swap-regions (cons beg end)
-                              (cons (point) (point)))
-         (lispy--reindent (1+ arg))))
-    (error "Not enough depth to convolute")))
+  (let ((deactivate-mark nil))
+    (if (and (save-excursion
+               (lispy--out-forward (1+ arg)))
+             (save-excursion
+               (lispy--out-backward (1+ arg))))
+        (let (beg end)
+          (lispy-from-left
+           (setq beg (point))
+           (setq end (lispy--out-backward arg))
+           (lispy--out-backward 1)
+           (lispy--swap-regions (cons beg end)
+                                (cons (point) (point)))
+           (lispy--reindent arg))
+          (lispy-from-left
+           (lispy-different)
+           (setq beg (point))
+           (setq end (lispy--out-forward arg))
+           (lispy--out-forward 1)
+           (lispy--swap-regions (cons beg end)
+                                (cons (point) (point)))
+           (ignore-errors
+             (lispy-different))
+           (lispy--reindent (1+ arg))))
+      (error "Not enough depth to convolute"))))
 
 (defvar lispy-repeat--command nil
   "Command to use with `lispy-repeat'.")
@@ -2187,12 +2190,12 @@ When ARG is more than 1, pull ARGth expression to enclose current sexp."
     (if (region-active-p)
         (if (= arg 1)
             (let ((pt (point))
+                  (bnd1 (lispy--bounds-dwim))
                   (bnd0 (save-excursion
                           (deactivate-mark)
                           (if (ignore-errors (up-list) t)
                               (lispy--bounds-dwim)
                             (cons (point-min) (point-max)))))
-                  (bnd1 (lispy--bounds-dwim))
                   bnd2)
               (goto-char (car bnd1))
               (if (re-search-backward "[^ \t\n`'#(]" (car bnd0) t)
@@ -2234,12 +2237,12 @@ When ARG is more than 1, pull ARGth expression to enclose current sexp."
     (if (region-active-p)
         (if (= arg 1)
             (let ((pt (point))
+                  (bnd1 (lispy--bounds-dwim))
                   (bnd0 (save-excursion
                           (deactivate-mark)
                           (if (ignore-errors (up-list) t)
                               (lispy--bounds-dwim)
                             (cons (point-min) (point-max)))))
-                  (bnd1 (lispy--bounds-dwim))
                   bnd2)
               (goto-char (cdr bnd1))
               (if (re-search-forward "[^ \t\n]" (1- (cdr bnd0)) t)
@@ -3024,6 +3027,7 @@ When ARG isn't nil, try to pretty print the sexp."
          (bnd (lispy--bounds-dwim))
          (str (lispy--string-dwim bnd)))
     (delete-region (car bnd) (cdr bnd))
+    (deactivate-mark)
     (insert (lispy--eval str))
     (unless (or (looking-at lispy-left)
                 (looking-back lispy-right))
@@ -5260,6 +5264,7 @@ Defaults to `error'."
     (insert omega)
     (goto-char beg)
     (insert alpha)
+    (deactivate-mark)
     (indent-region beg (+ 2 end))))
 
 (defun lispy--mark (bnd)

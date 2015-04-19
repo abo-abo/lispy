@@ -171,7 +171,7 @@ Insert KEY if there's no command."
   (should (not (lispy-with-value "(a) (b) (c)| " (lispy-forward 1))))
   (should (not (lispy-with-value "(a) (b) (c)|" (lispy-forward 1))))
   ;; break active region when exiting list
-  (should (not (lispy-with-value "(|(a) (b) (c))" (set-mark (point)) "]]]]" (region-active-p))))
+  (should (not (lispy-with-value "(|(a) (b) (c))" (set-mark (point)) "]]]]" (and mark-active (not deactivate-mark)))))
   (should (lispy-with-value "(a)| (b)\n" (lispy-forward 2))))
 
 (ert-deftest lispy-backward ()
@@ -955,7 +955,9 @@ Insert KEY if there's no command."
   ;;                  "(foo (bar #\\x \"baz \\\\ quux\") zot)|"))
   ;; (should (string= (lispy-with "(foo (bar #\\x \"|baz \\\\ quux\") zot)" "\C-e\C-e")
   ;;                  "(foo (bar #\\x \"baz \\\\ quux\"|) zot)"))
-  (should (string= (lispy-with "\"fo|o\nbar\" baz" "\C-e\C-e")
+  (should (string= (lispy-with "\"fo|o\nbar\" baz"
+                               (lispy-move-end-of-line)
+                               (lispy-move-end-of-line))
                    "\"foo\nbar\"| baz"))
   (should (string= (lispy-with "\"foo|\nbar\" baz" "\C-e")
                    "\"foo\nbar\"| baz")))
