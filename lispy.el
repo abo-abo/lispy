@@ -323,7 +323,8 @@ backward through lists, which is useful to move into special.
   "Execute N times the BODYFORM unless an error is signaled.
 Return nil if couldn't execute BODYFORM at least once.
 Otherwise return the amount of times executed."
-  (declare (indent 1))
+  (declare (indent 1)
+           (debug (form body)))
   `(let ((i 0))
      (catch 'result
        (condition-case e
@@ -1990,7 +1991,12 @@ Return the amount of successful grow steps, nil instead of zero."
   "Splice ARG sexps into containing list."
   (interactive "p")
   (lispy-dotimes arg
-    (let ((bnd (lispy--bounds-list)))
+    (let ((bnd (if (region-active-p)
+                   (progn
+                     (goto-char (1- (region-end)))
+                     (deactivate-mark)
+                     (lispy--bounds-list))
+                 (lispy--bounds-list))))
       (cond ((looking-at lispy-left)
              (save-excursion
                (goto-char (cdr bnd))

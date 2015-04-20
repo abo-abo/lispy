@@ -691,7 +691,11 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "|(a b c)" "/")
                    "|a b c"))
   (should (string= (lispy-with "(a b c)|" "/")
-                   "a b c|")))
+                   "a b c|"))
+  (should (string= (lispy-with "(a ~'(b c)|)" "/")
+                   "(a 'b c|)"))
+  (should (string= (lispy-with "(a |'(b c)~)" "/")
+                   "(a 'b c|)")))
 
 (ert-deftest lispy-raise ()
   (should (string= (lispy-with "(if (and |(pred1) (pred2))\n    (thing1)\n  (thing2))" "r")
