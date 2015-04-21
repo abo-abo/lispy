@@ -274,7 +274,8 @@ using those packages."
   :type '(repeat
           (choice
            (const :tag "god-mode" god-mode)
-           (const :tag "edebug" edebug))))
+           (const :tag "edebug" edebug)
+           (const :tag "macrostep" macrostep))))
 
 ;;;###autoload
 (define-minor-mode lispy-mode
@@ -5786,6 +5787,10 @@ Use only the part bounded by BND."
             (cdr (or (assq char edebug-mode-map)
                      (assq char global-edebug-map)))))))
 
+(defvar macrostep-keymap)
+(defvar lispy--compat-cmd nil
+  "Store the looked up compat command.")
+
 (defun lispy--insert-or-call (def plist)
   "Return a lambda to call DEF if position is special.
 Otherwise call `self-insert-command'.
@@ -5817,6 +5822,11 @@ PLIST currently accepts:
              ,@(when (memq 'god-mode lispy-compat)
                      '(((and (bound-and-true-p god-global-mode))
                         (call-interactively 'god-mode-self-insert))))
+
+             ,@(when (memq 'macrostep lispy-compat)
+                     '(((and (bound-and-true-p macrostep-mode)
+                         (setq lispy--compat-cmd (lookup-key macrostep-keymap (this-command-keys))))
+                        (call-interactively lispy--compat-cmd))))
 
              ((region-active-p)
               (call-interactively ',def))
