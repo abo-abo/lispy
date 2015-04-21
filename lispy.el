@@ -5377,6 +5377,9 @@ ACTION is called for the selected candidate."
               (ido
                (ido-completing-read "tag: " strs))
               (ivy
+               (setq ivy--persistent-action
+                     (lambda (x)
+                       (funcall action (assoc x candidates))))
                (ivy-read "tag: " strs
                          nil nil nil (lispy--current-tag)))
               (t
