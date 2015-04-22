@@ -3740,7 +3740,7 @@ Second region and buffer are the current ones."
                         (cons x!
                               (let ((expr x!))
                                 (edebug-eval expr))))
-                      (delq '&optional (delq '&rest (lispy--preceding-sexp)))))
+                      (delq '&key (delq '&optional (delq '&rest (lispy--preceding-sexp))))))
                     (wnd (current-window-configuration))
                     (pt (point)))
                 (run-with-timer
