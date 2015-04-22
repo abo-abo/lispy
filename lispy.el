@@ -4351,7 +4351,7 @@ so that no other packages disturb the match data."
   "Eval E-STR as Elisp code."
   (let ((e-sexp (read e-str)))
     (when (consp e-sexp)
-      (if (and (memq (car e-sexp) '(defvar defcustom))
+      (if (and (memq (car e-sexp) '(defvar defcustom defvar-local))
                (consp (cdr e-sexp))
                (boundp (cadr e-sexp)))
           (set (cadr e-sexp) (eval (caddr e-sexp)))
