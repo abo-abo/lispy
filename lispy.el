@@ -2677,9 +2677,13 @@ When SILENT is non-nil, don't issue messages."
              (message "No change")))
           ((and (memq major-mode lispy-elisp-modes)
                 (not
-                 (equal (read str)
-                        (read (lispy--prin1-to-string
-                               expr-m 0 major-mode)))))
+                 (condition-case nil
+                     (equal (read str)
+                            (read (lispy--prin1-to-string
+                                   expr-m 0 major-mode)))
+                   (error
+                    (lispy-complain "Got an unreadable expr (probably overlay)")
+                    t))))
            (error "Got a bad transform: %S" expr-m))
           (t
            (delete-region (car bnd) (cdr bnd))
@@ -4963,11 +4967,11 @@ Ignore the matches in strings and comments."
                 (goto-char (point-min))
                 (while (re-search-forward "#<overlay" nil t)
                   (unless (lispy--in-string-or-comment-p)
-                    (backward-delete-char 9)
-                    (insert "(ly-raw overlay ")
+                    (delete-region (match-beginning 0) (match-end 0))
+                    (insert "(ly-raw overlay \"")
                     (re-search-forward ">")
                     (backward-delete-char 1)
-                    (insert ")")))
+                    (insert "\")")))
                 ;; ——— cons cell syntax ———————
                 (lispy--replace-regexp-in-code " \\. " " (ly-raw dot) ")
                 ;; ———  ———————————————————————
@@ -5514,7 +5518,7 @@ The outer delimiters are stripped."
            (insert ", "))
           (overlay
            (delete-region beg (point))
-           (insert (format "#<%s>" (lispy--splice-to-str (cl-caddr sxp))))
+           (insert (format "#<overlay%s>" (cl-caddr sxp)))
            (goto-char beg))
           (\`
            (if (> (length sxp) 3)
