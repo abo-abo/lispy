@@ -1781,6 +1781,7 @@ See `lispy-occur-backend' for the selection back end."
                       (ivy-read "pattern: "
                                 (lispy--occur-candidates)
                                 :preselect (lispy--occur-preselect)
+                                :require-match t
                                 :update-fn (lambda ()
                                              (lispy--occur-update-input
                                               ivy-text ivy--current))))
@@ -5384,6 +5385,7 @@ ACTION is called for the selected candidate."
                      (lambda (x)
                        (funcall action (assoc x candidates))))
                (ivy-read "tag: " strs
+                         :require-match t
                          :preselect (lispy--current-tag)))
               (t
                (completing-read "tag: " strs)))))
