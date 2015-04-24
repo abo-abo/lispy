@@ -5347,9 +5347,10 @@ Try to refresh if nil is returned."
                            (backward-list)))
                  (semantic-current-tag)))))
     (when tag
-      (or (catch 'break
-            (lispy--tag-name tag))
-          (semantic-tag-name tag)))))
+      (regexp-quote
+       (or (catch 'break
+             (lispy--tag-name tag))
+           (semantic-tag-name tag))))))
 
 (defvar helm-update-blacklist-regexps)
 
