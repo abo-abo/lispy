@@ -47,37 +47,40 @@
   :prefix "lispy-face-")
 
 (defface lispy-face-hint
-    '((t (:background "#fff3bc" :foreground "black")))
+  '((((class color) (background light))
+     :background "#fff3bc" :foreground "black")
+    (((class color) (background dark))
+     :background "black" :foreground "#fff3bc"))
   "Basic hint face."
   :group 'lispy-faces)
 
 (defface lispy-face-req-nosel
-    '((t (:inherit lispy-face-hint)))
+  '((t (:inherit lispy-face-hint)))
   "Face for required unselected args."
   :group 'lispy-faces)
 
 (defface lispy-face-req-sel
-    '((t (:inherit lispy-face-req-nosel :bold t)))
+  '((t (:inherit lispy-face-req-nosel :bold t)))
   "Face for required selected args."
   :group 'lispy-faces)
 
 (defface lispy-face-opt-nosel
-    '((t (:inherit lispy-face-hint :foreground "#666666" :slant italic)))
+  '((t (:inherit lispy-face-hint :foreground "#666666" :slant italic)))
   "Face for optional unselected args."
   :group 'lispy-faces)
 
 (defface lispy-face-opt-sel
-    '((t (:inherit lispy-face-opt-nosel :bold t)))
+  '((t (:inherit lispy-face-opt-nosel :bold t)))
   "Face for optional selected args."
   :group 'lispy-faces)
 
 (defface lispy-face-rst-nosel
-    '((t (:inherit lispy-face-hint)))
+  '((t (:inherit lispy-face-hint)))
   "Face for rest unselected args."
   :group 'lispy-faces)
 
 (defface lispy-face-rst-sel
-    '((t (:inherit lispy-face-rst-nosel :bold t)))
+  '((t (:inherit lispy-face-rst-nosel :bold t)))
   "Face for rest selected args."
   :group 'lispy-faces)
 

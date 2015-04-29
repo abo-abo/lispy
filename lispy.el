@@ -246,19 +246,8 @@ The hint will consist of the possible nouns that apply to the verb."
   "Face for Elisp commands."
   :group 'lispy-faces)
 
-(defface lispy-variable-name-face
-  '((t (:inherit font-lock-variable-name-face)))
-  "Face for Elisp variables and other tags."
-  :group 'lispy-faces)
-
 (defface lispy-test-face
-  '((t (:background "#f8f2ac")))
-  "Face for `lispy-view-test'."
-  :group 'lispy-faces)
-
-(defface lispy-cursor-face
-  '((t
-     (:background "#000000" :foreground "#ffffff")))
+    '((t (:inherit lispy-face-hint)))
   "Face for `lispy-view-test'."
   :group 'lispy-faces)
 
@@ -3983,8 +3972,8 @@ If the region is active, replace instead of yanking."
     (insert str)
     (lispy-font-lock-ensure)
     (let ((color-paren (face-attribute 'show-paren-match :background))
-          (color-cursor-fg (face-attribute 'lispy-cursor-face :foreground))
-          (color-cursor-bg (face-attribute 'lispy-cursor-face :background))
+          (color-cursor-fg (face-attribute 'cursor :foreground))
+          (color-cursor-bg (face-attribute 'cursor :background))
           pt mk p1 p2)
       (goto-char (point-min))
       (when (search-forward "|" nil t)
@@ -4014,9 +4003,9 @@ If the region is active, replace instead of yanking."
           (if (< mk pt)
               (progn
                 (add-text-properties (1- mk) (1- pt) '(face region) str)
-                (set-text-properties (1- pt) pt '(face lispy-cursor-face) str))
+                (set-text-properties (1- pt) pt '(face cursor) str))
             (add-text-properties (1- (min pt mk)) (1- (max pt mk)) '(face region) str)
-            (set-text-properties (1- pt) pt '(face lispy-cursor-face) str)))
+            (set-text-properties (1- pt) pt '(face cursor) str)))
         (when p1
           (add-text-properties
            (1- p1) p1
@@ -4515,7 +4504,7 @@ FACE can be :keyword, :function or :type.  It defaults to 'default."
                  (:type 'font-lock-type-face)
                  (:function 'font-lock-function-name-face)
                  (:command 'lispy-command-name-face)
-                 (t 'lispy-variable-name-face)))))
+                 (t 'font-lock-variable-name-face)))))
 
 (defun lispy--modify-tag (x regex arity-alist)
   "Re-parse X and modify it accordingly.
