@@ -239,12 +239,15 @@ The hint will consist of the possible nouns that apply to the verb."
   "Keys for jumping.")
 
 (defface lispy-command-name-face
-  '((t (:inherit font-lock-function-name-face)))
+  '((((class color) (background light))
+     :background "#d8d8f7" :inherit font-lock-function-name-face)
+    (((class color) (background dark))
+     :background "#333333" :inherit font-lock-function-name-face))
   "Face for Elisp commands."
   :group 'lispy-faces)
 
 (defface lispy-variable-name-face
-    '((t (:inherit font-lock-variable-name-face)))
+  '((t (:inherit font-lock-variable-name-face)))
   "Face for Elisp variables and other tags."
   :group 'lispy-faces)
 
