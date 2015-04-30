@@ -1481,8 +1481,10 @@ If jammed between parens, \"(|(\" unjam: \"( |(\"."
 (defun lispy-backtick ()
   "Insert `."
   (interactive)
-  (lispy--space-unless "\\s-\\|\\s(\\|[:?`']\\|\\\\")
-  (insert "`"))
+  (if (region-active-p)
+      (lispy--surround-region "`" "'")
+    (lispy--space-unless "\\s-\\|\\s(\\|[:?`']\\|\\\\")
+    (insert "`")))
 
 (defun lispy-tilde (arg)
   "Insert ~ ARG times.
