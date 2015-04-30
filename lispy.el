@@ -246,6 +246,14 @@ The hint will consist of the possible nouns that apply to the verb."
   "Face for Elisp commands."
   :group 'lispy-faces)
 
+(defface lispy-cursor-face
+  '((((class color) (background light))
+     :background "#000000" :foreground "#ffffff")
+    (((class color) (background dark))
+     :background "#ffffff" :foreground "#000000"))
+  "Face for `lispy-view-test'."
+  :group 'lispy-faces)
+
 (defface lispy-test-face
     '((t (:inherit lispy-face-hint)))
   "Face for `lispy-view-test'."
@@ -3974,8 +3982,8 @@ If the region is active, replace instead of yanking."
     (insert str)
     (lispy-font-lock-ensure)
     (let ((color-paren (face-attribute 'show-paren-match :background))
-          (color-cursor-fg (face-attribute 'cursor :foreground))
-          (color-cursor-bg (face-attribute 'cursor :background))
+          (color-cursor-fg (face-attribute 'lispy-cursor-face :foreground))
+          (color-cursor-bg (face-attribute 'lispy-cursor-face :background))
           pt mk p1 p2)
       (goto-char (point-min))
       (when (search-forward "|" nil t)
