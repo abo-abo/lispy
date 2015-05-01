@@ -442,6 +442,15 @@ Use the command `%s' to change this variable."
          (add-minor-mode ',sym ,lighter ,keymap nil nil)))))
 
 ;;* Globals: navigation
+(defsubst lispy-right-p ()
+  "Return t if after variable `lispy-right'."
+  (looking-back lispy-right
+                (line-beginning-position)))
+
+(defsubst lispy-left-p ()
+  "Return t if before variable `lispy-left'."
+  (looking-at lispy-left))
+
 (defun lispy-forward (arg)
   "Move forward list ARG times or until error.
 Return t if moved at least once,
@@ -461,7 +470,7 @@ otherwise call function `lispy-right' and return nil."
     ;; `forward-list' returns true at and of buffer
     (if (or (null r)
             (= pt (point))
-            (and (not (looking-back lispy-right))
+            (and (not (lispy-right-p))
                  (progn
                    (backward-list)
                    (forward-list)
