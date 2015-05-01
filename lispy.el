@@ -1792,20 +1792,20 @@ See `lispy-occur-backend' for the selection back end."
            (remove-hook 'helm-update-hook
                         #'lispy--occur-update-input-helm)))
         ((eq lispy-occur-backend 'ivy)
-         (let (res)
-           (unwind-protect
-                (setq res
-                      (ivy-read "pattern: "
-                                (lispy--occur-candidates)
-                                :preselect (lispy--occur-preselect)
-                                :require-match t
-                                :update-fn (lambda ()
-                                             (lispy--occur-update-input
-                                              ivy-text ivy--current))))
-             (swiper--cleanup)
-             (if (null ivy-exit)
-                 (goto-char swiper--opoint)
-               (lispy--occur-action res)))))
+         (unwind-protect
+              (ivy-read "pattern: "
+                        (lispy--occur-candidates)
+                        :preselect (lispy--occur-preselect)
+                        :require-match t
+                        :update-fn (lambda ()
+                                     (lispy--occur-update-input
+                                      ivy-text ivy--current))
+                        :action
+                        (lambda ()
+                          (lispy--occur-action ivy--current)))
+           (swiper--cleanup)
+           (when (null ivy-exit)
+             (goto-char swiper--opoint))))
         (t
          (error "Bad `lispy-occur-backend': %S" lispy-occur-backend))))
 
@@ -5377,40 +5377,42 @@ Try to refresh if nil is returned."
 (defun lispy--select-candidate (candidates action)
   "Select from CANDIDATES list with `helm'.
 ACTION is called for the selected candidate."
-  (if (eq lispy-completion-method 'helm)
-      (progn
-        (require 'helm-help)
-        ;; allows restriction with space
-        (require 'helm-match-plugin)
-        (let (helm-update-blacklist-regexps)
-          (helm :sources
-                `((name . "semantic tags")
-                  (candidates . ,(mapcar
-                                  (lambda (x)
-                                    (if (listp x)
-                                        (if (stringp (cdr x))
-                                            (cons (cdr x) (car x))
-                                          (cons (car x) x))
-                                      x))
-                                  candidates))
-                  (action . ,action))
-                :preselect (lispy--current-tag)
-                :buffer "*lispy-goto*")))
-    (let* ((strs (mapcar #'car candidates))
-           (res
-            (cl-case lispy-completion-method
-              (ido
-               (ido-completing-read "tag: " strs))
-              (ivy
-               (setq ivy--persistent-action
-                     (lambda (x)
-                       (funcall action (assoc x candidates))))
-               (ivy-read "tag: " strs
-                         :require-match t
-                         :preselect (lispy--current-tag)))
-              (t
-               (completing-read "tag: " strs)))))
-      (funcall action (assoc res candidates)))))
+  (let (strs)
+    (cond ((eq lispy-completion-method 'helm)
+           (require 'helm-help)
+           ;; allows restriction with space
+           (require 'helm-match-plugin)
+           (let (helm-update-blacklist-regexps)
+             (helm :sources
+                   `((name . "semantic tags")
+                     (candidates . ,(mapcar
+                                     (lambda (x)
+                                       (if (listp x)
+                                           (if (stringp (cdr x))
+                                               (cons (cdr x) (car x))
+                                             (cons (car x) x))
+                                         x))
+                                     candidates))
+                     (action . ,action))
+                   :preselect (lispy--current-tag)
+                   :buffer "*lispy-goto*")))
+          ((progn
+             (setq strs (mapcar #'car candidates))
+             (eq lispy-completion-method 'ivy))
+           (ivy-read "tag: " strs
+                     :require-match t
+                     :preselect (lispy--current-tag)
+                     :action (lambda ()
+                               (funcall action
+                                        (assoc ivy--current candidates)))))
+          (t
+           (let ((res
+                  (cl-case lispy-completion-method
+                    (ido
+                     (ido-completing-read "tag: " strs))
+                    (t
+                     (completing-read "tag: " strs)))))
+             (funcall action (assoc res candidates)))))))
 
 (defun lispy--action-jump (tag)
   "Jump to TAG."
