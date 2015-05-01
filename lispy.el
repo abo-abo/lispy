@@ -4432,6 +4432,8 @@ so that no other packages disturb the match data."
      (unless . 1)
      (advice-add . 1)
      (cl-defun . 1)
+     (defstruct . 1)
+     (cl-defstruct . 1)
      ;; org-mode specific
      (org-defkey . 3)
      ;; use-package specific
