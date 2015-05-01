@@ -214,6 +214,12 @@ The hint will consist of the possible nouns that apply to the verb."
           ;; `icomplete-mode' and `icy-mode' will affect this
           (const :tag "Default" default)))
 
+(defcustom lispy-visit-method 'ffip
+  "Method to switch to a file in the current project."
+  :type '(choice
+          (const :tag "Find File in Project" ffip)
+          (const :tag "Projectile" projectile)))
+
 (defcustom lispy-avy-style-char 'pre
   "Method of displaying the overlays for a char during visual selection."
   :type '(choice
@@ -3904,18 +3910,21 @@ If already there, return it to previous position."
 (declare-function projectile-find-file-other-window "ext:projectile")
 (declare-function projectile-project-root "ext:projectile")
 (defvar projectile-mode)
+(declare-function find-file-in-project "ext:find-file-in-project")
 
 (defun lispy-visit (arg)
   "Forward to find file in project depending on ARG."
   (interactive "p")
-  (unless projectile-mode
-    (projectile-global-mode 1))
-  (cond ((= arg 1)
-         (projectile-find-file nil))
-        ((= arg 2)
-         (projectile-find-file-other-window))
-        (t
-         (projectile-find-file arg))))
+  (if (eq lispy-visit-method 'ffip)
+      (find-file-in-project)
+    (unless projectile-mode
+      (projectile-global-mode 1))
+    (cond ((= arg 1)
+           (projectile-find-file nil))
+          ((= arg 2)
+           (projectile-find-file-other-window))
+          (t
+           (projectile-find-file arg)))))
 
 (defun lispy-narrow (arg)
   "Narrow ARG sexps or region."
