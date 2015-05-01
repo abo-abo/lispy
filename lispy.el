@@ -4458,15 +4458,13 @@ so that no other packages disturb the match data."
   (interactive)
   (setq dir (or dir default-directory))
   (let ((default-directory dir))
-    (mapc
-     (lambda (f)
-       (let ((buf (get-file-buffer f)))
+    (dolist (f (lispy--file-list))
+      (let ((buf (get-file-buffer f)))
          (with-current-buffer (find-file-noselect f)
            (semantic-mode 1)
            (lispy--fetch-this-file-tags)
            (unless buf
-             (kill-buffer)))))
-     (lispy--file-list)))
+             (kill-buffer))))))
   (let ((db (semanticdb-directory-loaded-p dir)))
     (or (semanticdb-save-db db) db)))
 
