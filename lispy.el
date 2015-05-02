@@ -503,7 +503,7 @@ If couldn't move backward at least once, move up backward and return nil."
     ;; `backward-list' returns true at beginning of buffer
     (if (or (null r)
             (= pt (point))
-            (and (not (looking-at lispy-left))
+            (and (not (lispy-left-p))
                  (progn
                    (forward-list)
                    (backward-list)
@@ -598,7 +598,7 @@ Return nil if can't move."
   (let ((pt (point))
         success)
     (lispy-dotimes arg
-      (cond ((or (looking-at lispy-left)
+      (cond ((or (lispy-left-p)
                  (and (looking-back "^ *") (looking-at ";")))
              (forward-char)
              (re-search-forward lispy-left nil t)
@@ -663,7 +663,7 @@ Return nil if can't move."
                        (forward-sexp -1))
                    (lispy-different))))))
 
-          ((looking-at lispy-left)
+          ((lispy-left-p)
            (lispy-forward arg)
            (let ((pt (point)))
              (if (lispy-forward 1)
@@ -730,7 +730,7 @@ Return nil if can't move."
                  (backward-sexp -1)
                  (lispy-different)))))
 
-          ((looking-at lispy-left)
+          ((lispy-left-p)
            (let ((pt (point)))
              (unless (lispy-backward arg)
                (goto-char pt))))
@@ -801,7 +801,7 @@ If position isn't special, move to previous or error."
   (interactive)
   (cond ((lispy-right-p)
          (lispy-different))
-        ((looking-at lispy-left))
+        ((lispy-left-p))
         (t (lispy-backward 1)))
   (let ((pt (point))
         (bnd (save-excursion
@@ -822,7 +822,7 @@ If position isn't special, move to previous or error."
   (interactive)
   (cond ((lispy-right-p)
          (lispy-different))
-        ((looking-at lispy-left))
+        ((lispy-left-p))
         (t (lispy-backward 1)))
   (let ((pt (point))
         (bnd (save-excursion
@@ -846,7 +846,7 @@ If position isn't special, move to previous or error."
          (exchange-point-and-mark))
         ((lispy-right-p)
          (backward-list))
-        ((looking-at lispy-left)
+        ((lispy-left-p)
          (forward-list))
         (t
          (user-error "Unexpected"))))
@@ -963,7 +963,7 @@ If position isn't special, move to previous or error."
 (defun lispy-kill-sentence ()
   "Kill until the end of current string or list."
   (interactive)
-  (if (or (looking-at lispy-left) (looking-at "\""))
+  (if (or (lispy-left-p) (looking-at "\""))
       (lispy-delete 1)
     (let ((bnd
            (or (lispy--bounds-string)
@@ -1032,7 +1032,7 @@ If position isn't special, move to previous or error."
           ((looking-at lispy-right)
            (lispy-left 1))
 
-          ((looking-at lispy-left)
+          ((lispy-left-p)
            (when (looking-back "\\(?:\\s-\\|^\\)[`',@]+")
              (delete-region
               (match-beginning 0)
@@ -1113,7 +1113,7 @@ Otherwise (`backward-delete-char-untabify' ARG)."
 
           ((or (lispy-right-p)
                (and (looking-back (concat lispy-right " "))
-                    (or (looking-at lispy-left) (looking-at "\""))))
+                    (or (lispy-left-p) (looking-at "\""))))
            (let ((pt (point)))
              (lispy-backward arg)
              (skip-chars-backward "`',@# \t")
@@ -1121,14 +1121,14 @@ Otherwise (`backward-delete-char-untabify' ARG)."
              (unless (or (looking-at " ")
                          (looking-back "^ *")
                          (and (lispy-right-p)
-                              (not (or (looking-at lispy-left)
+                              (not (or (lispy-left-p)
                                        (looking-at "\""))))
                          (looking-back lispy-left))
                (just-one-space))
              (setq pt (point))
              (if (and
                   (not (looking-back "^ *"))
-                  (not (looking-at lispy-left))
+                  (not (lispy-left-p))
                   (progn
                     (skip-chars-backward " \t\n")
                     (lispy-right-p)))
@@ -1190,7 +1190,7 @@ Otherwise (`backward-delete-char-untabify' ARG)."
                 5))
     (ignore-errors
       (recenter -20)))
-  (when (looking-at lispy-left)
+  (when (lispy-left-p)
     (indent-sexp)))
 
 (defun lispy-mark ()
@@ -1224,7 +1224,7 @@ When ARG is more than 1, mark ARGth element."
                (beginning-of-line)
                (skip-chars-forward " "))
            (skip-chars-forward ",@'`")))
-        ((looking-at lispy-left)
+        ((lispy-left-p)
          (lispy--mark
           (lispy--bounds-dwim)))
         ((lispy-right-p)
@@ -1331,7 +1331,7 @@ When this function is called:
      (interactive "p")
      (cond ((region-active-p)
             (lispy--surround-region ,left ,right)
-            (when (and (looking-at lispy-left)
+            (when (and (lispy-left-p)
                        (looking-back lispy-left))
               (insert " "))
             (backward-char 1))
@@ -1460,7 +1460,7 @@ If jammed between parens, \"(|(\" unjam: \"( |(\"."
                (lispy-different)
                t))
 
-         (if (looking-at lispy-left)
+         (if (lispy-left-p)
              (progn
                (forward-char)
                (just-one-space)
@@ -1469,7 +1469,7 @@ If jammed between parens, \"(|(\" unjam: \"( |(\"."
            (just-one-space)))
         (t
          (insert " ")
-         (when (and (looking-at lispy-left)
+         (when (and (lispy-left-p)
                     (looking-back "( "))
            (backward-char)))))
 
@@ -1546,7 +1546,7 @@ When region is active, toggle a ~ at the start of the region."
         ((eq major-mode 'cider-clojure-interaction-mode)
          (setq this-command 'cider-eval-print-last-sexp)
          (cider-eval-print-last-sexp))
-        ((looking-at lispy-left)
+        ((lispy-left-p)
          (skip-chars-backward ",@'`#")
          (newline-and-indent)
          (skip-chars-forward ",@'`#")
@@ -1581,7 +1581,7 @@ When region is active, toggle a ~ at the start of the region."
 (defun lispy-open-line ()
   "Add one line after the current expression."
   (interactive)
-  (cond ((looking-at lispy-left)
+  (cond ((lispy-left-p)
          (save-excursion
            (forward-list)
            (newline)))
@@ -1653,7 +1653,7 @@ to all the functions, while maintaining the parens in a pretty state."
           ((looking-at lispy-right)
            (when (looking-back " ")
              (lispy-right 1)))
-          ((looking-at lispy-left)
+          ((lispy-left-p)
            (lispy-different))
           ((looking-back "^ +")
            (if (re-search-forward lispy-right (line-end-position) t)
@@ -1681,7 +1681,7 @@ to all the functions, while maintaining the parens in a pretty state."
   (interactive)
   (if iedit-mode
       (iedit-mode nil)
-    (when (looking-at lispy-left)
+    (when (lispy-left-p)
       (forward-char 1))
     (iedit-mode 0)))
 
@@ -1702,7 +1702,7 @@ to all the functions, while maintaining the parens in a pretty state."
 (defun lispy--occur-candidates ()
   "Return the candidates for `lispy-occur'."
   (let ((bnd (save-excursion
-               (unless (and (looking-at lispy-left)
+               (unless (and (lispy-left-p)
                             (looking-back "^"))
                  (beginning-of-defun))
                (lispy--bounds-dwim)))
@@ -1891,7 +1891,7 @@ Return the amount of successful grow steps, nil instead of zero."
     (if (lispy-right-p)
         (lispy-dotimes arg
           (lispy--slurp-forward))
-      (if (looking-at lispy-left)
+      (if (lispy-left-p)
           (lispy-dotimes arg
             (lispy--slurp-backward))))
     (lispy--reindent)))
@@ -1903,7 +1903,7 @@ Return the amount of successful grow steps, nil instead of zero."
         (leftp (lispy--leftp))
         (regionp (region-active-p))
         deactivate-mark)
-    (when (looking-at lispy-left)
+    (when (lispy-left-p)
       (forward-sexp))
     (let ((pt (save-excursion
                 (when (lispy-forward 1)
@@ -2001,7 +2001,7 @@ Return the amount of successful grow steps, nil instead of zero."
          (lispy-dotimes arg
            (lispy--barf-backward)))
 
-        ((looking-at lispy-left)
+        ((lispy-left-p)
          (lispy-dotimes arg
            (lispy--barf-forward)))))
 
@@ -2015,7 +2015,7 @@ Return the amount of successful grow steps, nil instead of zero."
                      (deactivate-mark)
                      (lispy--bounds-list))
                  (lispy--bounds-list))))
-      (cond ((looking-at lispy-left)
+      (cond ((lispy-left-p)
              (save-excursion
                (goto-char (cdr bnd))
                (delete-char -1))
@@ -2078,7 +2078,7 @@ The outcome when ahead of sexps is different from when behind."
   (let ((pt (point)))
     (cond ((region-active-p))
 
-          ((looking-at lispy-left)
+          ((lispy-left-p)
            (lispy--out-forward 1)
            (backward-char 1)
            (set-mark (point))
@@ -2156,7 +2156,7 @@ When ARG is more than 1, pull ARGth expression to enclose current sexp."
              (backward-delete-char 1)
              (lispy--out-forward 1)
              (lispy--reindent 1)))
-          ((looking-at lispy-left)
+          ((lispy-left-p)
            (when (lispy-backward 1)
              (forward-list)
              (backward-delete-char 1)
@@ -2202,7 +2202,7 @@ When ARG is more than 1, pull ARGth expression to enclose current sexp."
              (backward-char 2)
              (lispy-right 1))
            (newline-and-indent)
-           (when (looking-at lispy-left)
+           (when (lispy-left-p)
              (indent-sexp))))))
 
 ;;* Locals: more transformations
@@ -2383,7 +2383,7 @@ When ARG is more than 1, pull ARGth expression to enclose current sexp."
                  (exchange-point-and-mark)
                  (doit)
                  (exchange-point-and-mark)))))
-          ((looking-at lispy-left)
+          ((lispy-left-p)
            (goto-char (car bnd))
            (lispy-dotimes arg
              (insert str)
@@ -2438,12 +2438,12 @@ Instead keep them, with a newline after each comment."
   "Squeeze current sexp into one line.
 Comments will be moved ahead of sexp."
   (interactive)
-  (unless (or (looking-at lispy-left)
+  (unless (or (lispy-left-p)
               (lispy-right-p))
     (lispy--out-backward 1))
   (let* ((bnd (lispy--bounds-dwim))
          (str (lispy--string-dwim bnd))
-         (from-left (looking-at lispy-left))
+         (from-left (lispy-left-p))
          expr)
     (delete-region (car bnd) (cdr bnd))
     (when (region-active-p)
@@ -2475,7 +2475,7 @@ Comments will be moved ahead of sexp."
   "Spread current sexp over multiple lines.
 When ARG is `fill', do nothing for short expressions."
   (interactive "p")
-  (unless (or (looking-at lispy-left)
+  (unless (or (lispy-left-p)
               (lispy-right-p))
     (lispy--out-backward 1))
   (lispy-from-left
@@ -2681,7 +2681,7 @@ When QUOTED is not nil, assume that EXPR is quoted and ignore some rules."
   "Spread current sexp over multiple lines.
 When SILENT is non-nil, don't issue messages."
   (interactive)
-  (unless (or (looking-at lispy-left)
+  (unless (or (lispy-left-p)
               (lispy-right-p))
     (lispy--out-backward 1))
   (let* ((bnd (lispy--bounds-dwim))
@@ -2715,7 +2715,7 @@ When SILENT is non-nil, don't issue messages."
 (defun lispy-fill ()
   "Fill current expression."
   (interactive)
-  (if (or (looking-at lispy-left)
+  (if (or (lispy-left-p)
           (lispy-right-p))
       (let ((lispy-do-fill t))
         (lispy--normalize-1))
@@ -2736,7 +2736,7 @@ When SILENT is non-nil, don't issue messages."
                  (lispy--out-backward 1)))
               ((lispy--in-string-or-comment-p)
                (self-insert-command 1))
-              ((looking-at lispy-left)
+              ((lispy-left-p)
                (setq bnd (lispy--bounds-dwim))
                (lispy-down 1)
                (comment-region (car bnd) (cdr bnd))
@@ -2851,7 +2851,7 @@ Quote newlines if ARG isn't 1."
            (setq endp (= (point) (region-end)))
            (setq regionp t)
            (lispy-different))
-          ((looking-at lispy-left)
+          ((lispy-left-p)
            (unless (lispy-dotimes arg
                      (forward-list 1))
              (error "Unexpected")))
@@ -3018,7 +3018,7 @@ When ARG isn't nil, try to pretty print the sexp."
              (insert str)
              (when (lispy-right-p)
                (lispy-alt-multiline t)))))
-      (if (looking-at lispy-left)
+      (if (lispy-left-p)
           (save-excursion
             (doit))
         (doit)))))
@@ -3029,7 +3029,7 @@ When ARG isn't nil, try to pretty print the sexp."
   (let ((str (lispy--eval (lispy--string-dwim)))
         bnd)
     (save-excursion
-      (when (looking-at lispy-left)
+      (when (lispy-left-p)
         (lispy-different))
       (if (not (looking-at "\n;+ ?=>"))
           (newline)
@@ -3057,7 +3057,7 @@ When ARG isn't nil, try to pretty print the sexp."
     (delete-region (car bnd) (cdr bnd))
     (deactivate-mark)
     (insert (lispy--eval str))
-    (unless (or (looking-at lispy-left)
+    (unless (or (lispy-left-p)
                 (lispy-right-p))
       (lispy--out-backward 1))
     (when (and leftp (lispy-right-p))
@@ -3500,7 +3500,7 @@ Pass the ARG along."
   "Inline an Elisp function at the point of its call.
 The function body is obtained from `find-function-noselect'.
 With ARG, use the contents of `lispy-store-region-and-buffer' instead."
-  (let* ((begp (if (looking-at lispy-left)
+  (let* ((begp (if (lispy-left-p)
                    t
                  (if (lispy-right-p)
                      (progn (backward-list)
@@ -3616,7 +3616,7 @@ With ARG, use the contents of `lispy-store-region-and-buffer' instead."
       (progn
         (deactivate-mark)
         (mc/remove-fake-cursors))
-    (if (looking-at lispy-left)
+    (if (lispy-left-p)
         (lispy-dotimes arg
           (mc/create-fake-cursor-at-point)
           (loop do (lispy-down 1)
@@ -3931,7 +3931,7 @@ If already there, return it to previous position."
   (interactive "p")
   (cond ((region-active-p)
          (narrow-to-region (region-beginning) (region-end)))
-        ((looking-at lispy-left)
+        ((lispy-left-p)
          (narrow-to-region (point)
                            (save-excursion
                              (lispy-forward arg)
@@ -3961,7 +3961,7 @@ If already there, return it to previous position."
   (cond ((lispy-right-p)
          (backward-char 1)
          (insert " "))
-        ((looking-at lispy-left)
+        ((lispy-left-p)
          (insert " ")
          (backward-char 1))))
 
@@ -3984,7 +3984,7 @@ If the region is active, replace instead of yanking."
         (open-line 1)))
     (yank)
     (when (and (lispy-right-p)
-               (looking-at lispy-left))
+               (lispy-left-p))
       (insert " "))))
 
 (defalias 'lispy-font-lock-ensure
@@ -4020,7 +4020,7 @@ If the region is active, replace instead of yanking."
              (setq p2 (1- (point)))
              (lispy-different)
              (setq p1 (point)))
-            ((looking-at lispy-left)
+            ((lispy-left-p)
              (setq p1 (point))
              (lispy-different)
              (setq p2 (1- (point)))))
@@ -4145,7 +4145,7 @@ Return start of string it is."
   "Return t if at region beginning, or at start of the list."
   (if (region-active-p)
       (= (point) (region-beginning))
-    (or (looking-at lispy-left)
+    (or (lispy-left-p)
         (looking-at lispy-outline))))
 
 (defun lispy--symbolp (str)
@@ -4287,7 +4287,7 @@ Return nil on failure, (point) otherwise."
             (unless lispy-ignore-whitespace
               (lispy--remove-gaps)
               (lispy--indent-for-tab)))
-        (when (looking-at lispy-left)
+        (when (lispy-left-p)
           (forward-list))
         (throw 'break nil)))
     (point)))
@@ -5279,7 +5279,7 @@ Defaults to `error'."
              (not (eq ?\\ (aref (match-string 0) 0))))
     ;; (or (looking-at "\\(\\s-*\\))")
     ;;     (and (looking-back "\\s)\\([ \t\n]+\\)")
-    ;;          (not (looking-at lispy-left))))
+    ;;          (not (lispy-left-p))))
     (unless (save-excursion
               (save-match-data
                 (goto-char (match-beginning 1))
@@ -5329,7 +5329,7 @@ Unless inside string or comment, or `looking-back' at CONTEXT."
            (backward-list)
            (indent-sexp)))
 
-        ((looking-at lispy-left)
+        ((lispy-left-p)
          (indent-sexp))
 
         (t
@@ -5340,7 +5340,7 @@ Unless inside string or comment, or `looking-back' at CONTEXT."
 
 (defun lispy--delete ()
   "Delete one sexp."
-  (unless (looking-at lispy-left)
+  (unless (lispy-left-p)
     (error "Bad position"))
   (let ((bnd (lispy--bounds-list)))
     (delete-region (car bnd) (cdr bnd))
@@ -5362,7 +5362,7 @@ Unless inside string or comment, or `looking-back' at CONTEXT."
   "Forward to `semantic-current-tag'.
 Try to refresh if nil is returned."
   (let ((tag (save-excursion
-               (when (or (looking-at lispy-left)
+               (when (or (lispy-left-p)
                          (prog1 (lispy-right-p)
                            (backward-list)))
                  (semantic-current-tag)))))
@@ -5603,7 +5603,7 @@ The outer delimiters are stripped."
          (offset (save-excursion
                    (goto-char (car bnd))
                    (current-column)))
-         (was-left (looking-at lispy-left)))
+         (was-left (lispy-left-p)))
     (if (or (and (memq major-mode '(clojure-mode))
                  (string-match "\\^" str))
             (> (length str) 10000))
@@ -5865,7 +5865,7 @@ PLIST currently accepts:
              ((lispy--in-string-or-comment-p)
               (call-interactively 'self-insert-command))
 
-             ((or (looking-at lispy-left)
+             ((or (lispy-left-p)
                   (lispy-right-p)
                   (and (looking-back "^ *")
                        (looking-at ";")))
@@ -5880,7 +5880,7 @@ If inside VARLIST part of `let' form,
 return the corresponding `setq' expression."
   (ignore-errors
     (save-excursion
-      (cond ((looking-at lispy-left)
+      (cond ((lispy-left-p)
              (forward-list))
             ((lispy-right-p))
             (t
@@ -6134,7 +6134,7 @@ When ARG is non-nil, unquote the current string."
   (let ((bnd (lispy--bounds-string)))
     (if bnd
         (goto-char (cdr bnd))
-      (if (looking-at lispy-left)
+      (if (lispy-left-p)
           (lispy-stringify)
         (lispy-doublequote arg)))))
 
@@ -6142,7 +6142,7 @@ When ARG is non-nil, unquote the current string."
   "Delete ARG sexps."
   (interactive "p")
   (let (bnd)
-    (cond ((looking-at lispy-left)
+    (cond ((lispy-left-p)
            (forward-char 1))
           ((looking-at lispy-right)
            (forward-char 1)
@@ -6185,7 +6185,7 @@ When ARG is non-nil, unquote the current string."
 (defun lispy-raise-sexp ()
   "Forward to `lispy-raise'."
   (interactive)
-  (if (looking-at lispy-left)
+  (if (lispy-left-p)
       (lispy-raise 1)
     (lispy-mark-symbol)
     (lispy-different)
@@ -6195,7 +6195,7 @@ When ARG is non-nil, unquote the current string."
 (defun lispy-convolute-sexp ()
   "Forward to `lispy-convolute'."
   (interactive)
-  (unless (looking-at lispy-left)
+  (unless (lispy-left-p)
     (lispy--out-backward 1))
   (lispy-convolute 1)
   (lispy--out-backward 1))
@@ -6212,7 +6212,7 @@ When ARG is non-nil, unquote the current string."
   "Forward to (`lispy-barf' ARG)."
   (interactive "p")
   (save-excursion
-    (unless (looking-at lispy-left)
+    (unless (lispy-left-p)
       (lispy--out-forward 1))
     (lispy-barf arg)))
 
@@ -6220,7 +6220,7 @@ When ARG is non-nil, unquote the current string."
   "Forward to (`lispy-slurp' ARG)."
   (interactive "p")
   (save-excursion
-    (unless (looking-at lispy-left)
+    (unless (lispy-left-p)
       (lispy--out-backward 1))
     (lispy-slurp arg)))
 
@@ -6228,7 +6228,7 @@ When ARG is non-nil, unquote the current string."
   "Forward to (`lispy-barf' ARG)."
   (interactive "p")
   (save-excursion
-    (unless (looking-at lispy-left)
+    (unless (lispy-left-p)
       (lispy--out-backward 1))
     (lispy-barf arg)))
 
