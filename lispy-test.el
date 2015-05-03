@@ -1286,7 +1286,9 @@ Insert KEY if there's no command."
   (should (string= (lispy-with
                     "|(add-to-list 'auto-mode-alist '(\"\\\\.cache\\\\'\" . emacs-lisp-mode))"
                     "miji")
-                   "(add-to-list '~auto-mode-alist| '(\"\\\\.cache\\\\'\" . emacs-lisp-mode))")))
+                   "(add-to-list '~auto-mode-alist| '(\"\\\\.cache\\\\'\" . emacs-lisp-mode))"))
+  (should (string= (lispy-with "\"See ~`plumage'|.\"" "i")
+                   "\"See `~plumage|'.\"")))
 
 (ert-deftest lispy-unbind-variable ()
   (should (string=
