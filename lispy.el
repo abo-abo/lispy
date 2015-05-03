@@ -4178,19 +4178,25 @@ Otherwise return cons of current string, symbol or list bounds."
                     (eq (point) (1- (cdr bnd)))))
            bnd)
           (t
-           (or
-            (ignore-errors
-              (bounds-of-thing-at-point 'sexp))
-            (ignore-errors
-              (bounds-of-thing-at-point 'symbol))
-            (ignore-errors
-              (bounds-of-thing-at-point 'sentence))
-            (ignore-errors
-              (backward-word 1)
-              (bounds-of-thing-at-point 'symbol))
-            (ignore-errors
-              (forward-word 1)
-              (bounds-of-thing-at-point 'symbol)))))))
+           (let ((res (ignore-errors
+                        (bounds-of-thing-at-point 'sexp))))
+             (if res
+                 (save-excursion
+                   (goto-char (cdr res))
+                   (lispy--in-string-or-comment-p)
+                   (skip-chars-backward "[.,]")
+                   (cons (car res) (point)))
+               (or
+                (ignore-errors
+                  (bounds-of-thing-at-point 'symbol))
+                (ignore-errors
+                  (bounds-of-thing-at-point 'sentence))
+                (ignore-errors
+                  (backward-word 1)
+                  (bounds-of-thing-at-point 'symbol))
+                (ignore-errors
+                  (forward-word 1)
+                  (bounds-of-thing-at-point 'symbol)))))))))
 
 (defun lispy--bounds-list ()
   "Return the bounds of smallest list that includes the point.
