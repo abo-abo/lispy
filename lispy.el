@@ -3265,7 +3265,8 @@ Sexp is obtained by exiting the list ARG times."
      (lispy--bounds-dwim)
      (lambda () (or (not (lispy--in-string-or-comment-p)) (looking-back ".\"")))
      lispy-avy-style-symbol))
-  (forward-char 1)
+  (unless (eq (char-after) ?\")
+    (forward-char 1))
   (lispy-mark-symbol))
 
 (defun lispy-ace-subword (arg)
@@ -3301,6 +3302,9 @@ Use STYLE function to update the overlays."
                  (selected-window)
                  (car bnd) (cdr bnd)
                  filter)))
+    (dolist (x cands)
+      (when (> (- (cdar x) (caar x)) 1)
+        (cl-incf (caar x))))
     (avi--goto
      (avi--process
       cands
