@@ -3846,6 +3846,11 @@ ARG is 4: `eval-defun' on the function from this sexp."
        (format "%S isn't a function" ldsi-fun)))))
 
 ;;* Locals: miscellanea
+(defun lispy-describe-bindings-C-4 ()
+  "Describe bindings that start with \"C-4\"."
+  (interactive)
+  (describe-bindings (kbd "C-4")))
+
 (defvar lispy-mode-map-x
   (let ((map (make-sparse-keymap)))
     (define-key map "d" 'lispy-to-defun)
@@ -3863,10 +3868,7 @@ ARG is 4: `eval-defun' on the function from this sexp."
     (define-key map "b" 'lispy-bind-variable)
     (define-key map "v" 'lispy-view-test)
     (define-key map "B" 'lispy-store-region-and-buffer)
-    (define-key map (char-to-string help-char)
-      (lambda ()
-        (interactive)
-        (describe-bindings (kbd "C-4"))))
+    (define-key map (char-to-string help-char) 'lispy-describe-bindings-C-4)
     map))
 
 (defun lispy-x ()
