@@ -3299,7 +3299,6 @@ Use STYLE function to update the overlays."
   (let* ((avi-keys lispy-avy-keys)
          (cands (avi--regex-candidates
                  regex
-                 (selected-window)
                  (car bnd) (cdr bnd)
                  filter)))
     (dolist (x cands)
