@@ -241,6 +241,11 @@ The hint will consist of the possible nouns that apply to the verb."
           (const :tag "At" at)
           (const :tag "Post" post)))
 
+(defcustom lispy-avy-ignore-current nil
+  "When t, `lispy' will not offer the current delimiter as a candidate."
+  :type 'boolean
+  :group 'lispy)
+
 (defcustom lispy-avy-keys (number-sequence ?a ?z)
   "Keys for jumping.")
 
@@ -3251,7 +3256,9 @@ When called twice in a row, restore point and mark."
        (lispy--bounds-dwim))
      (lambda ()
        (and (not (lispy--in-string-or-comment-p))
-            (not (equal (point) pt))))
+            (if lispy-avy-ignore-current
+                (not (equal (point) pt))
+              t)))
      lispy-avy-style-paren)))
 
 (defun lispy-ace-symbol (arg)

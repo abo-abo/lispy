@@ -1508,15 +1508,26 @@ Insert KEY if there's no command."
                    "(cons 'n|orwegian 'blue)")))
 
 (ert-deftest lispy-ace-paren ()
-  (should (string= (lispy-with "|(progn (setq type 'norwegian-blue)\n       (setq plumage-type 'lovely))"
-                               (execute-kbd-macro (kbd "qa")))
-                   "(progn |(setq type 'norwegian-blue)\n       (setq plumage-type 'lovely))"))
-  (should (string= (lispy-with "|(progn (setq type 'norwegian-blue)\n       (setq plumage-type 'lovely))"
-                               (execute-kbd-macro (kbd "qb")))
-                   "(progn (setq type 'norwegian-blue)\n       |(setq plumage-type 'lovely))"))
-  (should (string= (lispy-with "(progn (setq type 'norwegian-blue)\n       |(setq plumage-type 'lovely))"
-                               (execute-kbd-macro (kbd "qa")))
-                   "|(progn (setq type 'norwegian-blue)\n       (setq plumage-type 'lovely))")))
+  (let ((lispy-avy-ignore-current t))
+    (should (string= (lispy-with "|(progn (setq type 'norwegian-blue)\n       (setq plumage-type 'lovely))"
+                                 (execute-kbd-macro (kbd "qa")))
+                     "(progn |(setq type 'norwegian-blue)\n       (setq plumage-type 'lovely))"))
+    (should (string= (lispy-with "|(progn (setq type 'norwegian-blue)\n       (setq plumage-type 'lovely))"
+                                 (execute-kbd-macro (kbd "qb")))
+                     "(progn (setq type 'norwegian-blue)\n       |(setq plumage-type 'lovely))"))
+    (should (string= (lispy-with "(progn (setq type 'norwegian-blue)\n       |(setq plumage-type 'lovely))"
+                                 (execute-kbd-macro (kbd "qa")))
+                     "|(progn (setq type 'norwegian-blue)\n       (setq plumage-type 'lovely))")))
+  (let ((lispy-avy-ignore-current nil))
+    (should (string= (lispy-with "|(progn (setq type 'norwegian-blue)\n       (setq plumage-type 'lovely))"
+                                 (execute-kbd-macro (kbd "qb")))
+                     "(progn |(setq type 'norwegian-blue)\n       (setq plumage-type 'lovely))"))
+    (should (string= (lispy-with "|(progn (setq type 'norwegian-blue)\n       (setq plumage-type 'lovely))"
+                                 (execute-kbd-macro (kbd "qc")))
+                     "(progn (setq type 'norwegian-blue)\n       |(setq plumage-type 'lovely))"))
+    (should (string= (lispy-with "(progn (setq type 'norwegian-blue)\n       |(setq plumage-type 'lovely))"
+                                 (execute-kbd-macro (kbd "qa")))
+                     "|(progn (setq type 'norwegian-blue)\n       (setq plumage-type 'lovely))"))))
 
 (ert-deftest lispy-ace-symbol ()
   (should (string= (lispy-with "|(progn (setq type 'norwegian-blue)\n       (setq plumage-type 'lovely))"
