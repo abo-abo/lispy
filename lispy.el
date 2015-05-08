@@ -3243,13 +3243,16 @@ When called twice in a row, restore point and mark."
   (interactive)
   (lispy--remember)
   (deactivate-mark)
-  (lispy--avy-do
-   lispy-left
-   (save-excursion
-     (lispy--out-backward 50)
-     (lispy--bounds-dwim))
-   (lambda () (not (lispy--in-string-or-comment-p)))
-   lispy-avy-style-paren))
+  (let ((pt (1+ (point))))
+    (lispy--avy-do
+     lispy-left
+     (save-excursion
+       (lispy--out-backward 50)
+       (lispy--bounds-dwim))
+     (lambda ()
+       (and (not (lispy--in-string-or-comment-p))
+            (not (equal (point) pt))))
+     lispy-avy-style-paren)))
 
 (defun lispy-ace-symbol (arg)
   "Jump to a symbol withing the current sexp and mark it.

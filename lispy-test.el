@@ -1509,10 +1509,10 @@ Insert KEY if there's no command."
 
 (ert-deftest lispy-ace-paren ()
   (should (string= (lispy-with "|(progn (setq type 'norwegian-blue)\n       (setq plumage-type 'lovely))"
-                               (execute-kbd-macro (kbd "qb")))
+                               (execute-kbd-macro (kbd "qa")))
                    "(progn |(setq type 'norwegian-blue)\n       (setq plumage-type 'lovely))"))
   (should (string= (lispy-with "|(progn (setq type 'norwegian-blue)\n       (setq plumage-type 'lovely))"
-                               (execute-kbd-macro (kbd "qc")))
+                               (execute-kbd-macro (kbd "qb")))
                    "(progn (setq type 'norwegian-blue)\n       |(setq plumage-type 'lovely))"))
   (should (string= (lispy-with "(progn (setq type 'norwegian-blue)\n       |(setq plumage-type 'lovely))"
                                (execute-kbd-macro (kbd "qa")))
