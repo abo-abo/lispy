@@ -3096,6 +3096,7 @@ When ARG isn't nil, try to pretty print the sexp."
   "List data for a `dolist' sym.")
 
 (declare-function aw-select "ext:ace-window")
+(defvar aw-dispatch-always)
 
 (defun lispy-eval-other-window ()
   "Eval current expression in the context of other window.
@@ -3104,6 +3105,7 @@ In case the point is on a let-bound variable, add a `setq'."
   (require 'ace-window)
   (let* ((pt (point))
          (lispy-ignore-whitespace t)
+         (aw-dispatch-always nil)
          (str (save-match-data
                 (lispy--string-dwim)))
          (expr (save-match-data
