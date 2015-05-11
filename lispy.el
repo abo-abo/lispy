@@ -144,7 +144,7 @@
 (require 'outline)
 (require 'semantic)
 (require 'semantic/db)
-(require 'avy-jump)
+(require 'avy)
 (require 'newcomment)
 (require 'lispy-inline)
 (require 'iedit)
