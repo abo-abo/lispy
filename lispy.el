@@ -3294,7 +3294,6 @@ Sexp is obtained by exiting list ARG times."
   "Visually select a match to REGEX within BND.
 Filter out the matches that don't match FILTER.
 Use STYLE function to update the overlays."
-  (require 'avy-jump)
   (lispy--recenter-bounds bnd)
   (let* ((avi-keys lispy-avy-keys)
          (cands (avi--regex-candidates
