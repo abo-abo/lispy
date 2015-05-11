@@ -225,6 +225,7 @@ The hint will consist of the possible nouns that apply to the verb."
   :type '(choice
           (const :tag "Pre" pre)
           (const :tag "At" at)
+          (const :tag "At full" at-full)
           (const :tag "Post" post)))
 
 (defcustom lispy-avy-style-paren 'at
@@ -232,6 +233,7 @@ The hint will consist of the possible nouns that apply to the verb."
   :type '(choice
           (const :tag "Pre" pre)
           (const :tag "At" at)
+          (const :tag "At full" at-full)
           (const :tag "Post" post)))
 
 (defcustom lispy-avy-style-symbol 'pre
@@ -239,6 +241,7 @@ The hint will consist of the possible nouns that apply to the verb."
   :type '(choice
           (const :tag "Pre" pre)
           (const :tag "At" at)
+          (const :tag "At full" at-full)
           (const :tag "Post" post)))
 
 (defcustom lispy-avy-keys (number-sequence ?a ?z)
@@ -3221,35 +3224,39 @@ When called twice in a row, restore point and mark."
          (beginning-of-defun arg))))
 
 ;;* Locals: avy-jump
-(declare-function avi--regex-candidates "avy-jump")
-(declare-function avi--goto "avy-jump")
-(declare-function avi--process "avy-jump")
-(declare-function avi--overlay-post "avy-jump")
+(declare-function avy--regex-candidates "avy")
+(declare-function avy--goto "avy")
+(declare-function avy--process "avy")
+(declare-function avy--overlay-post "avy")
 
 (defun lispy-ace-char ()
   "Visually select a char within the current defun."
   (interactive)
-  (lispy--avy-do
-   (string (read-char "Char: "))
-   (save-excursion
-     ;; `beginning-of-defun' won't work, since it can change sexp
-     (lispy--out-backward 50)
-     (lispy--bounds-dwim))
-   (lambda () t)
-   lispy-avy-style-char))
+  (let ((avy-keys lispy-avy-keys))
+    (avy--with-avy-keys lispy-ace-char
+      (lispy--avy-do
+       (string (read-char "Char: "))
+       (save-excursion
+         ;; `beginning-of-defun' won't work, since it can change sexp
+         (lispy--out-backward 50)
+         (lispy--bounds-dwim))
+       (lambda () t)
+       lispy-avy-style-char))))
 
 (defun lispy-ace-paren ()
   "Jump to an open paren within the current defun."
   (interactive)
   (lispy--remember)
   (deactivate-mark)
-  (lispy--avy-do
-   lispy-left
-   (save-excursion
-     (lispy--out-backward 50)
-     (lispy--bounds-dwim))
-   (lambda () (not (lispy--in-string-or-comment-p)))
-   lispy-avy-style-paren))
+  (let ((avy-keys lispy-avy-keys))
+    (avy--with-avy-keys lispy-ace-paren
+      (lispy--avy-do
+       lispy-left
+       (save-excursion
+         (lispy--out-backward 50)
+         (lispy--bounds-dwim))
+       (lambda () (not (lispy--in-string-or-comment-p)))
+       lispy-avy-style-paren))))
 
 (defun lispy-ace-symbol (arg)
   "Jump to a symbol withing the current sexp and mark it.
@@ -3259,12 +3266,14 @@ Sexp is obtained by exiting the list ARG times."
    (if (region-active-p)
        (progn (deactivate-mark) arg)
      (1- arg)))
-  (let ((avi--overlay-offset (if (eq lispy-avy-style-symbol 'at) 0 1)))
-    (lispy--avy-do
-     "[([{ ]\\(?:\\sw\\|\\s_\\|[\"'`#~,@]\\)"
-     (lispy--bounds-dwim)
-     (lambda () (or (not (lispy--in-string-or-comment-p)) (looking-back ".\"")))
-     lispy-avy-style-symbol))
+  (let ((avy-keys lispy-avy-keys))
+    (avy--with-avy-keys lispy-ace-symbol
+      (let ((avy--overlay-offset (if (eq lispy-avy-style-symbol 'at) 0 1)))
+        (lispy--avy-do
+         "[([{ ]\\(?:\\sw\\|\\s_\\|[\"'`#~,@]\\)"
+         (lispy--bounds-dwim)
+         (lambda () (or (not (lispy--in-string-or-comment-p)) (looking-back ".\"")))
+         lispy-avy-style-symbol))))
   (unless (eq (char-after) ?\")
     (forward-char 1))
   (lispy-mark-symbol))
@@ -3282,12 +3291,14 @@ Sexp is obtained by exiting list ARG times."
      (if (region-active-p)
          (progn (deactivate-mark) arg)
        (1- arg)))
-    (let ((avi--overlay-offset (if (eq lispy-avy-style-symbol 'at) 0 1)))
-      (lispy--avy-do
-       "[([{ -]\\(?:\\sw\\|\\s_\\|\\s(\\|[\"'`#]\\)"
-       (lispy--bounds-dwim)
-       (lambda () (or (not (lispy--in-string-or-comment-p)) (looking-back ".\"")))
-       lispy-avy-style-symbol))
+    (let ((avy--overlay-offset (if (eq lispy-avy-style-symbol 'at) 0 1))
+          (avy-keys lispy-avy-keys))
+      (avy--with-avy-keys 'lispy-ace-subword
+        (lispy--avy-do
+         "[([{ -]\\(?:\\sw\\|\\s_\\|\\s(\\|[\"'`#]\\)"
+         (lispy--bounds-dwim)
+         (lambda () (or (not (lispy--in-string-or-comment-p)) (looking-back ".\"")))
+         lispy-avy-style-symbol)))
     (skip-chars-forward "-([{ `'#") (mark-word)))
 
 (defun lispy--avy-do (regex bnd filter style)
@@ -3295,21 +3306,21 @@ Sexp is obtained by exiting list ARG times."
 Filter out the matches that don't match FILTER.
 Use STYLE function to update the overlays."
   (lispy--recenter-bounds bnd)
-  (let* ((avi-keys lispy-avy-keys)
-         (cands (avi--regex-candidates
+  (let* ((cands (avy--regex-candidates
                  regex
                  (car bnd) (cdr bnd)
                  filter)))
     (dolist (x cands)
       (when (> (- (cdar x) (caar x)) 1)
         (cl-incf (caar x))))
-    (avi--goto
-     (avi--process
+    (avy--goto
+     (avy--process
       cands
       (cl-case style
-        (pre #'avi--overlay-pre)
-        (at #'avi--overlay-at)
-        (post #'avi--overlay-post))))))
+        (pre #'avy--overlay-pre)
+        (at #'avy--overlay-at)
+        (at-full #'avy--overlay-at-full)
+        (post #'avy--overlay-post))))))
 
 (defun lispy-ace-symbol-replace (arg)
   "Jump to a symbol withing the current sexp and delete it.
