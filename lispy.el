@@ -3098,6 +3098,25 @@ When ARG isn't nil, try to pretty print the sexp."
 (declare-function aw-select "ext:ace-window")
 (defvar aw-dispatch-always)
 
+(defun lispy--dolist-item-expr (expr)
+  "Produce an eval expression for dolist-type EXPR.
+EXPR is (SYM LST).
+SYM will take on each value of LST with each eval."
+  (let ((sym (car expr)))
+    (unless (eq sym lispy--eval-sym)
+      (setq lispy--eval-sym sym)
+      (setq lispy--eval-data
+            (lispy--eval-elisp-form (cadr expr) lexical-binding)))
+    (if lispy--eval-data
+        (let* ((popped (pop lispy--eval-data))
+               (popped (if (or (symbolp popped) (listp popped))
+                           `(quote ,popped)
+                         popped)))
+          (set sym popped))
+      (setq lispy--eval-data
+            (lispy--eval-elisp-form (cadr expr) lexical-binding))
+      (set sym nil))))
+
 (defun lispy-eval-other-window ()
   "Eval current expression in the context of other window.
 In case the point is on a let-bound variable, add a `setq'."
@@ -3119,21 +3138,7 @@ In case the point is on a let-bound variable, add a `setq'."
                            (read str))))
 
                    ((looking-back "(dolist ")
-                    (let* ((exp (read str))
-                           (sym (car exp)))
-                      (unless (eq sym lispy--eval-sym)
-                        (setq lispy--eval-sym sym)
-                        (setq lispy--eval-data
-                              (lispy--eval-elisp-form (cadr exp) lexical-binding)))
-                      (if lispy--eval-data
-                          (let* ((popped (pop lispy--eval-data))
-                                 (popped (if (or (symbolp popped) (listp popped))
-                                             `(quote ,popped)
-                                           popped)))
-                            `(setq ,sym ,popped))
-                        (setq lispy--eval-data
-                              (lispy--eval-elisp-form (cadr exp) lexical-binding))
-                        `(setq ,sym nil))))
+                    `(lispy--dolist-item-expr ',(read str)))
 
                    ;; point moves
                    ((progn
