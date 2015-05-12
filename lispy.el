@@ -3915,6 +3915,37 @@ If already there, return it to previous position."
        (put 'lispy-recenter :line window-line)
        (recenter 0)))))
 
+(defun lispy-setq ()
+  "Set the current variable, with completion."
+  (interactive)
+  (let ((sym (intern-soft (thing-at-point 'symbol)))
+        sym-type
+        cands)
+    (when (and (boundp sym)
+               (setq sym-type (get sym 'custom-type)))
+      (cl-case sym-type
+        (choice
+         (setq cands
+               (mapcar (lambda (x)
+                         (setq x (car (last x)))
+                         (cons (prin1-to-string x)
+                               (if (symbolp x)
+                                   (list 'quote x)
+                                 x)))
+                       (cdr sym-type))))
+        (boolean
+         (setq cands
+               '(("nil" . nil) ("t" . t))))
+        (t
+         (error "Unrecognized custom type")))
+      (let ((res (ivy-read (format "Set (%S): " sym) cands)))
+        (when res
+          (setq res
+                (if (assoc res cands)
+                    (cdr (assoc res cands))
+                  (read res)))
+          (eval `(setq ,sym ,res)))))))
+
 (unless (fboundp 'macrop)
   (defun macrop (object)
     "Non-nil if and only if OBJECT is a macro."
