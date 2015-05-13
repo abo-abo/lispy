@@ -3275,7 +3275,7 @@ Sexp is obtained by exiting the list ARG times."
      (1- arg)))
   (let ((avy-keys lispy-avy-keys))
     (avy--with-avy-keys lispy-ace-symbol
-      (let ((avy--overlay-offset (if (eq lispy-avy-style-symbol 'at) 0 1)))
+      (let ((avy--overlay-offset (if (eq lispy-avy-style-symbol 'at) -1 0)))
         (lispy--avy-do
          "[([{ ]\\(?:\\sw\\|\\s_\\|[\"'`#~,@]\\)"
          (lispy--bounds-dwim)
