@@ -6068,7 +6068,7 @@ FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)."
     (lispy-define-key map "w" 'lispy-move-up)
     (lispy-define-key map "s" 'lispy-move-down)
     (lispy-define-key map "O" 'lispy-oneline)
-    (lispy-define-key map "M" 'lispy-multiline)
+    (lispy-define-key map "M" 'lispy-alt-multiline)
     (lispy-define-key map "S" 'lispy-stringify)
     ;; marking
     (lispy-define-key map "a" 'lispy-ace-symbol
@@ -6097,7 +6097,6 @@ FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)."
                         (View-quit))))
     (lispy-define-key map "Q" 'lispy-ace-char)
     (lispy-define-key map "v" 'lispy-view)
-    (lispy-define-key map "T" 'lispy-alt-multiline)
     (lispy-define-key map "t" 'lispy-teleport
       :override '(cond ((looking-at lispy-outline)
                         (end-of-line))))
