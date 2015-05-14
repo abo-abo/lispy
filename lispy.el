@@ -2547,7 +2547,7 @@ The third one is assumed to be the arglist and will not be changed.")
 
 (setq-mode-local
  clojure-mode
- lispy--multiline-take-2 '(let fn def ns))
+ lispy--multiline-take-2 '(let fn def ns if))
 
 (defvar lispy--multiline-take-2-arg '(declare lambda
                                       make-variable-buffer-local
