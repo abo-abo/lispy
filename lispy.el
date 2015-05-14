@@ -2514,30 +2514,35 @@ When ARG is `fill', do nothing for short expressions."
            (setq res (apply #'vector res)))
          (lispy--insert res))))))
 
-(defvar lispy--multiline-take-3
-  '(defvar defun defmacro defcustom defgroup defvar-local declare-function
-    define-key nth throw define-error defadvice defhydra defsubst)
+(defvar-local lispy--multiline-take-3
+    '(defvar defun defmacro defcustom defgroup defvar-local declare-function
+      define-key nth throw define-error defadvice defhydra defsubst)
   "List of constructs for which the first 3 elements are on the first line.")
+
+(setq-mode-local
+ clojure-mode
+ lispy--multiline-take-3 '(defn))
 
 (defvar lispy--multiline-take-3-arg
   '(defun defmacro declare-function define-error defadvice defhydra defsubst)
   "List of constructs for which the first 3 elements are on the first line.
 The third one is assumed to be the arglist and will not be changed.")
 
-(defvar-local lispy--multiline-take-2 '(defface define-minor-mode
-                                  condition-case while incf car
-                                  cdr > >= < <= /= = eq equal incf
-                                  decf cl-incf cl-decf catch
-                                  require provide setq cons when
-                                  if unless interactive assq delq
-                                  assoc declare lambda remq
-                                  make-variable-buffer-local
-                                  bound-and-true-p
-                                  called-interactively-p
-                                  lispy-dotimes cond case cl-case
-                                  defalias 1+ 1- dotimes dolist boundp fboundp macrop
-                                  null consp oddp zerop plusp minusp kbd
-                                  not pop listp or and)
+(defvar-local lispy--multiline-take-2
+    '(defface define-minor-mode
+      condition-case while incf car
+      cdr > >= < <= /= = eq equal incf
+      decf cl-incf cl-decf catch
+      require provide setq cons when
+      if unless interactive assq delq
+      assoc declare lambda remq
+      make-variable-buffer-local
+      bound-and-true-p
+      called-interactively-p
+      lispy-dotimes cond case cl-case
+      defalias 1+ 1- dotimes dolist boundp fboundp macrop
+      null consp oddp zerop plusp minusp kbd
+      not pop listp or and)
   "List of constructs for which the first 2 elements are on the first line.")
 
 (setq-mode-local
