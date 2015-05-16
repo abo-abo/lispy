@@ -2521,7 +2521,7 @@ When ARG is `fill', do nothing for short expressions."
 
 (setq-mode-local
  clojure-mode
- lispy--multiline-take-3 '(defn))
+ lispy--multiline-take-3 '())
 
 (defvar lispy--multiline-take-3-arg
   '(defun defmacro declare-function define-error defadvice defhydra defsubst)
@@ -2547,7 +2547,10 @@ The third one is assumed to be the arglist and will not be changed.")
 
 (setq-mode-local
  clojure-mode
- lispy--multiline-take-2 '(let fn def ns if))
+ lispy--multiline-take-2 '(loop recur let for fn def defn ns if -> ->>
+                           + +' - -' * *' / > >= < <= = ==
+                           or and not
+                           assoc! assoc assoc-in concat))
 
 (defvar lispy--multiline-take-2-arg '(declare lambda
                                       make-variable-buffer-local
