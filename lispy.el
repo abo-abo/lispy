@@ -2893,13 +2893,18 @@ Quote newlines if ARG isn't 1."
 (defun lispy-goto (&optional arg)
   "Jump to symbol within files in current directory.
 When ARG isn't nil, call `lispy-goto-projectile' instead."
-  (interactive "P")
+  (interactive "p")
   (deactivate-mark)
   (lispy--select-candidate
    (mapcar #'lispy--format-tag-line
-           (if arg
-               (lispy--fetch-tags-projectile)
-             (lispy--fetch-tags)))
+           (cl-case arg
+             (1
+              (lispy--fetch-tags))
+             (2
+              (let ((lispy-force-reparse t))
+                (lispy--fetch-tags)))
+             (t
+              (lispy--fetch-tags-projectile))))
    #'lispy--action-jump))
 
 (defun lispy-goto-recursive ()
@@ -2913,14 +2918,16 @@ When ARG isn't nil, call `lispy-goto-projectile' instead."
        (mapcar #'lispy--format-tag-line candidates))
      #'lispy--action-jump)))
 
-(defun lispy-goto-local ()
-  "Jump to symbol within current file."
-  (interactive)
+(defun lispy-goto-local (&optional arg)
+  "Jump to symbol within current file.
+When ARG is non-nil, force a reparse."
+  (interactive "P")
   (deactivate-mark)
-  (lispy--select-candidate
-   (mapcar #'lispy--format-tag-line
-           (lispy--fetch-tags (list (buffer-file-name))))
-   #'lispy--action-jump))
+  (let ((lispy-force-reparse arg))
+    (lispy--select-candidate
+     (mapcar #'lispy--format-tag-line
+             (lispy--fetch-tags (list (buffer-file-name))))
+     #'lispy--action-jump)))
 
 (defun lispy-goto-projectile ()
   "Jump to symbol within files in (`projectile-project-root')."

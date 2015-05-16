@@ -78,6 +78,9 @@
             stored-time))
           1.0)))
 
+(defvar lispy-force-reparse nil
+  "When non-nil, ignore that tags are up-to-date and parse anyway.")
+
 (defun lispy--fetch-tags (&optional file-list)
   "Get a list of tags for FILE-LIST."
   (setq file-list (or file-list (lispy--file-list)))
@@ -85,7 +88,8 @@
     (dolist (file file-list)
       (let ((file-modtime (nth 5 (file-attributes file 'integer)))
             (exfile (expand-file-name file)))
-        (unless (and (setq dbfile
+        (unless (and (null lispy-force-reparse)
+                     (setq dbfile
                            (gethash exfile lispy-db))
                      (lispy--file-fresh-p
                       file-modtime
@@ -96,7 +100,8 @@
                 (error "Couldn't open semanticdb for file: %S" file)
               (let ((db (car table))
                     (table (cdr table)))
-                (unless (and (lispy--file-fresh-p
+                (unless (and (null lispy-force-reparse)
+                             (lispy--file-fresh-p
                               file-modtime
                               (oref table lastmodtime))
                              (ignore-errors
