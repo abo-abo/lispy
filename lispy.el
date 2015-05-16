@@ -135,6 +135,7 @@
 (eval-when-compile
   (require 'cl)
   (require 'org))
+(require 'lispy-tags)
 (require 'help-fns)
 (require 'edebug)
 (require 'ediff)
@@ -144,6 +145,7 @@
 (require 'outline)
 (require 'semantic)
 (require 'semantic/db)
+(require 'semantic/bovine/el)
 (require 'avy)
 (require 'newcomment)
 (require 'lispy-inline)
@@ -2893,22 +2895,32 @@ Quote newlines if ARG isn't 1."
 When ARG isn't nil, call `lispy-goto-projectile' instead."
   (interactive "P")
   (deactivate-mark)
-  (lispy--goto
-   (if arg
-       #'lispy--fetch-tags-projectile
-     #'lispy--fetch-tags)))
+  (lispy--select-candidate
+   (mapcar #'lispy--format-tag-line
+           (if arg
+               (lispy--fetch-tags-projectile)
+             (lispy--fetch-tags)))
+   #'lispy--action-jump))
 
 (defun lispy-goto-recursive ()
   "Jump to symbol within files in current directory and its subdiretories."
   (interactive)
   (deactivate-mark)
-  (lispy--goto 'lispy--fetch-tags-recursive))
+  (let ((candidates (lispy--fetch-tags-recursive)))
+    (lispy--select-candidate
+     (if (> (length candidates) 30000)
+         candidates
+       (mapcar #'lispy--format-tag-line candidates))
+     #'lispy--action-jump)))
 
 (defun lispy-goto-local ()
   "Jump to symbol within current file."
   (interactive)
   (deactivate-mark)
-  (lispy--goto 'lispy--fetch-this-file-tags))
+  (lispy--select-candidate
+   (mapcar #'lispy--format-tag-line
+           (lispy--fetch-tags (list (buffer-file-name))))
+   #'lispy--action-jump))
 
 (defun lispy-goto-projectile ()
   "Jump to symbol within files in (`projectile-project-root')."
@@ -4511,6 +4523,8 @@ so that no other packages disturb the match data."
      (ert-deftest . 1)
      (declare-function . 1)
      (defalias . 2)
+     (defvaralias . 2)
+     (defvar-local . 1)
      (make-variable-buffer-local . 1)
      (define-minor-mode . 1)
      (make-obsolete . 2)
@@ -4538,39 +4552,15 @@ so that no other packages disturb the match data."
      (defhydra . 1)))
   "Alist of tag arities for supported modes.")
 
-(defun lispy-build-semanticdb (&optional dir)
-  "Build and save semanticdb for DIR."
-  (interactive)
-  (setq dir (or dir default-directory))
-  (let ((default-directory dir))
-    (dolist (f (lispy--file-list))
-      (let ((buf (get-file-buffer f)))
-         (with-current-buffer (find-file-noselect f)
-           (semantic-mode 1)
-           (lispy--fetch-this-file-tags)
-           (unless buf
-             (kill-buffer))))))
-  (let ((db (semanticdb-directory-loaded-p dir)))
-    (or (semanticdb-save-db db) db)))
-
-(defun lispy--fetch-this-file-tags ()
-  "Fetch this file tags."
-  (let ((tags
-         (lispy--set-file-to-tags
-          (expand-file-name (buffer-file-name))
-          (semantic-fetch-tags))))
+(defun lispy--fetch-this-file-tags (&optional file)
+  "Fetch tags for FILE."
+  (setq file (or file (buffer-file-name)))
+  (let ((tags (semantic-parse-region (point-min) (point-max))))
     (when (memq major-mode (cons 'lisp-mode lispy-elisp-modes))
       (lexical-let ((arity (cdr (assoc major-mode lispy-tag-arity)))
                     (tag-regex (lispy--tag-regexp)))
-        (mapc (lambda (x) (lispy--modify-tag x tag-regex arity)) tags)))
+        (mapc (lambda (x) (lispy--modify-tag x tag-regex arity file)) tags)))
     tags))
-
-(defun lispy--file-list ()
-  "Get the list of same type files in current directory."
-  (let ((ext (file-name-extension (buffer-file-name))))
-    (cl-remove-if
-     (lambda (x) (string-match "\\(?:^\\.?#\\|~$\\|loaddefs.el\\)" x))
-     (file-expand-wildcards (format "*.%s" ext)))))
 
 (defun lispy--tag-regexp (&optional mode)
   "Return tag regexp based on MODE."
@@ -4610,19 +4600,19 @@ FACE can be :keyword, :function or :type.  It defaults to 'default."
                  (:command 'lispy-command-name-face)
                  (t 'font-lock-variable-name-face)))))
 
-(defun lispy--modify-tag (x regex arity-alist)
+(defun lispy--modify-tag (x regex arity-alist file)
   "Re-parse X and modify it accordingly.
 REGEX selects the symbol is 1st place of sexp.
-ARITY-ALIST combines strings that REGEX matches and their arities."
-  (let ((overlay (nth 4 x))
-        buffer start)
-    (if (overlayp overlay)
-        (setq buffer (overlay-buffer overlay)
-              start (overlay-start overlay))
-      (if (vectorp overlay)
-          (setq buffer (find-file-noselect (aref overlay 2))
-                start (aref overlay 0))
-        (error "Unexpected")))
+ARITY-ALIST combines strings that REGEX matches and their arities.
+FILE is the file where X is defined."
+  (let* ((overlay (nth 4 x))
+         (buffer (find-file-noselect file))
+         (start (cond ((overlayp overlay)
+                       (overlay-start overlay))
+                      ((vectorp overlay)
+                       (aref overlay 0))
+                      (t
+                       (error "Unexpected")))))
     (with-current-buffer buffer
       (save-excursion
         (goto-char (or start (point-min)))
@@ -4657,15 +4647,17 @@ ARITY-ALIST combines strings that REGEX matches and their arities."
          (lispy--propertize-tag (symbol-name (cadr x)) x))
         (t (car x))))
 
-(defun lispy--tag-sexp-elisp (x)
-  "Get the actual sexp from semantic tag X."
+(defun lispy--tag-sexp-elisp (x &optional file)
+  "Get the actual sexp from semantic tag X in FILE."
   (let ((ov (nth 4 x))
         buf end)
     (if (overlayp ov)
         (setq buf (overlay-buffer ov)
               end (overlay-end ov))
       (if (vectorp ov)
-          (setq buf (find-file-noselect (aref ov 2))
+          (setq buf (find-file-noselect
+                     (or file
+                         (aref ov 2)))
                 end (aref ov 1))
         (error "Unexpected")))
     (with-current-buffer buf
@@ -4674,8 +4666,8 @@ ARITY-ALIST combines strings that REGEX matches and their arities."
         (ignore-errors
           (lispy--preceding-sexp))))))
 
-(defun lispy--tag-name-elisp (x)
-  "Build tag name for Elisp tag X."
+(defun lispy--tag-name-elisp (x &optional file)
+  "Build tag name for Elisp tag X in FILE."
   (cond ((not (stringp (car x)))
          "tag with no name")
         ((eq (cadr x) 'include)
@@ -4694,12 +4686,14 @@ ARITY-ALIST combines strings that REGEX matches and their arities."
          (lispy--propertize-tag (symbol-name (cadr x)) x))
         ((and (eq (cadr x) 'code)
               (string= (car x) "define-derived-mode"))
-         (let ((sexp (lispy--tag-sexp-elisp x)))
-           (lispy--propertize-tag
-            "define-derived-mode"
-            (list (format "%s %s"
-                          (cadr sexp)
-                          (caddr sexp))))))
+         (let ((sexp (lispy--tag-sexp-elisp x file)))
+           (if (and sexp (listp sexp))
+               (lispy--propertize-tag
+                "define-derived-mode"
+                (list (format "%s %s"
+                              (cadr sexp)
+                              (caddr sexp))))
+             "define-derived-mode")))
         (t (car x))))
 
 (defun lispy--tag-name-clojure (x)
@@ -4713,12 +4707,12 @@ ARITY-ALIST combines strings that REGEX matches and their arities."
          (lispy--propertize-tag "def" x))
         (t (car x))))
 
-(defun lispy--tag-name (x)
-  "Given a semantic tag X, return its string representation.
+(defun lispy--tag-name (x &optional file)
+  "Given a semantic tag X in FILE, return its string representation.
 This is `semantic-tag-name', amended with extra info.
 For example, a `setq' statement is amended with variable name that it uses."
   (let ((str (cond ((memq major-mode lispy-elisp-modes)
-                    (lispy--tag-name-elisp x))
+                    (lispy--tag-name-elisp x file))
                    ((eq major-mode 'clojure-mode)
                     (lispy--tag-name-clojure x))
                    ((eq major-mode 'scheme-mode)
@@ -4726,97 +4720,24 @@ For example, a `setq' statement is amended with variable name that it uses."
                     (car x))
                    ((eq major-mode 'lisp-mode)
                     (lispy--tag-name-lisp x))
-                   (t (throw 'break nil)))))
-    (setq str (replace-regexp-in-string "\t" "    " str))
-    (let ((width (car lispy-helm-columns)))
-      (if (> (length str) width)
-          (concat (substring str 0 (- width 4)) " ...")
-        str))))
-
-(defun lispy--tag-name-and-file (x)
-  "Add file name to (`lispy--tag-name' X)."
-  (if (and (eq lispy-completion-method 'ido)
-           (not (or (bound-and-true-p ido-vertical-mode)
-                    (bound-and-true-p ivy-mode))))
-      x
-    (or
-     (catch 'break
-       (cons
-        (let* ((width (min (window-width) (cadr lispy-helm-columns)))
-               (s1 (lispy--tag-name x))
-               (v (nth 4 x))
-               (s2 (file-name-nondirectory
-                    (cond ((overlayp v)
-                           (buffer-file-name (overlay-buffer v)))
-                          ((vectorp v)
-                           (aref v 2))
-                          (t (error "Unexpected"))))))
-          (format (format "%%s%% %ds" (- width
-                                         (length s1)))
-                  s1 s2))
-
-        (cdr x)))
-     x)))
-
-(defun lispy--fetch-tags (&optional path)
-  "Get a list of tags for PATH."
-  (setq path (or path (expand-file-name default-directory)))
-  (unless (string-match "/$" path)
-    (setq path (concat path "/")))
-  (let* ((this-file (expand-file-name (buffer-file-name)))
-         (default-directory path)
-         (db (or (semanticdb-directory-loaded-p path)
-                 (lispy-build-semanticdb path)
-                 (error "Semantic not loaded")))
-         (db-tables (semanticdb-get-database-tables db))
-         db-tables-with-mode
-         was-updated)
-    (unless (lexical-let ((db-files
-                           (mapcar (lambda (x) (oref x file))
-                                   db-tables)))
-              (cl-every (lambda (x) (member x db-files))
-                        (let ((default-directory path))
-                          (lispy--file-list))))
-      (lispy-build-semanticdb path)
-      (setq db (semanticdb-directory-loaded-p path))
-      (setq was-updated t))
-    (if (null db)
-        (error "Could not access semanticdb")
-      (setq db-tables-with-mode
-            (cl-remove-if-not
-             (lambda (x) (eq (oref x major-mode) major-mode))
-             db-tables))
-      (prog1 (apply
-              #'append
-              (mapcar
-               (lambda (x)
-                 (or
-                  (lispy--set-file-to-tags
-                   (expand-file-name (oref x file))
-                   (oref x tags))
-                  (oset x tags
-                        (let ((full-name (expand-file-name (oref x file) path)))
-                          (with-current-buffer
-                              (find-file-noselect full-name)
-                            (semantic-mode 1)
-                            (unless (string= this-file full-name)
-                              (setq was-updated full-name))
-                            (lispy--fetch-this-file-tags))))))
-               db-tables-with-mode))
-        (when was-updated
-          (message "%s was updated, saving db ..." was-updated)
-          (semanticdb-save-db db))))))
+                   (t nil))))
+    (when str
+      (setq str (replace-regexp-in-string "\t" "    " str))
+      (let ((width (car lispy-helm-columns)))
+        (if (> (length str) width)
+            (concat (substring str 0 (- width 4)) " ...")
+          str)))))
 
 (defun lispy--fetch-tags-recursive ()
   "Fetch all tags in current directory recursively."
-  (let ((dirs
-         (split-string
-          (shell-command-to-string
-           (format "find %s -type d ! -regex \".*\\(\\.git\\|\\.cask\\).*\"" default-directory))
-          "\n"
-          t)))
-    (apply #'append
-           (mapcar #'lispy--fetch-tags dirs))))
+  (lispy--fetch-tags
+   (split-string
+    (shell-command-to-string
+     (format "find %s -type f -regex \".*\\.%s\" ! -regex \".*\\(\\.git\\|\\.cask\\).*\""
+             default-directory
+             (file-name-extension (buffer-file-name))))
+    "\n"
+    t)))
 
 (defun lispy--fetch-tags-projectile ()
   "Fetch all tags in the projectile directory recursively."
@@ -4824,37 +4745,13 @@ For example, a `setq' statement is amended with variable name that it uses."
   (let ((default-directory (projectile-project-root)))
     (lispy--fetch-tags-recursive)))
 
-(defun lispy--set-file-to-tags (file tags)
-  "Put FILE as property of each tag in TAGS."
-  (mapcar
-   (lambda (y)
-     (let ((v (nth 4 y)))
-       (cond ((vectorp v)
-              (cl-case (length v)
-                (2 (setcar (nthcdr 4 y)
-                           (vconcat v (vector file))))
-                (3 nil)
-                (t (error "Unexpected"))))
-             ((overlayp v)
-              (setcar (nthcdr 4 y)
-                      (vector (overlay-start v)
-                              (overlay-end v)
-                              file)))
-             (t (error "Unexpected")))
-       y))
-   (delq nil tags)))
-
-(defvar helm-candidate-number-limit)
-
 (defun lispy--goto (fun)
   "Jump to symbol selected from (FUN)."
-  (require 'semantic/bovine/el)
   (let ((semantic-on (bound-and-true-p semantic-mode)))
     (semantic-mode 1)
-    (let ((candidates (funcall fun))
-          helm-candidate-number-limit)
+    (let ((candidates (funcall fun)))
       (lispy--select-candidate
-       (mapcar #'lispy--tag-name-and-file candidates)
+       (mapcar #'lispy--format-tag-line candidates)
        #'lispy--action-jump))
     (when (and lispy-no-permanent-semantic
                (not semantic-on))
@@ -5437,18 +5334,48 @@ Unless inside string or comment, or `looking-back' at CONTEXT."
 (defun lispy--current-tag ()
   "Forward to `semantic-current-tag'.
 Try to refresh if nil is returned."
-  (let ((tag (save-excursion
-               (when (or (lispy-left-p)
-                         (prog1 (lispy-right-p)
-                           (backward-list)))
-                 (semantic-current-tag)))))
-    (when tag
-      (regexp-quote
-       (or (catch 'break
-             (lispy--tag-name tag))
-           (semantic-tag-name tag))))))
+  (save-excursion
+    (lispy-beginning-of-defun)
+    (let ((tag (semantic-current-tag)))
+      (setq tag
+            (or (and tag (lispy--tag-name tag))
+                (semantic-tag-name tag)
+                (when (looking-at "(def")
+                  (goto-char (match-end 0))
+                  (forward-sexp 2)
+                  (backward-char 1)
+                  (thing-at-point 'sexp))
+                (lispy--fancy-tag)))
+      (when tag
+        (regexp-quote tag)))))
+
+(defun lispy--fancy-tag ()
+  "Return a fancy tag name using `lispy-tag-arity'."
+  (let ((arity-alist (cdr (assoc major-mode lispy-tag-arity)))
+        (regex (lispy--tag-regexp)))
+    (if (looking-at regex)
+        (progn
+          (goto-char (match-end 0))
+          (let ((tag-head (match-string 1))
+                beg arity str)
+            (skip-chars-forward " \n")
+            (if (setq arity (cdr (assoc (intern tag-head) arity-alist)))
+                (progn
+                  (setq beg (point))
+                  (condition-case nil
+                      (forward-sexp arity)
+                    (error
+                     (forward-sexp 1)))
+                  (concat tag-head " "
+                          (replace-regexp-in-string
+                           "\n" " " (buffer-substring-no-properties beg (point)))))
+              tag-head)))
+      (save-excursion
+        (forward-char 1)
+        (thing-at-point 'sexp)))))
 
 (defvar helm-update-blacklist-regexps)
+(defvar helm-candidate-number-limit)
 
 (defun lispy--select-candidate (candidates action)
   "Select from CANDIDATES list with `helm'.
@@ -5458,7 +5385,8 @@ ACTION is called for the selected candidate."
            (require 'helm-help)
            ;; allows restriction with space
            (require 'helm-match-plugin)
-           (let (helm-update-blacklist-regexps)
+           (let (helm-update-blacklist-regexps
+                 helm-candidate-number-limit)
              (helm :sources
                    `((name . "semantic tags")
                      (candidates . ,(mapcar
@@ -5480,7 +5408,7 @@ ACTION is called for the selected candidate."
                      :preselect (lispy--current-tag)
                      :action (lambda ()
                                (funcall action
-                                        (assoc ivy--current candidates)))))
+                                        (cdr (assoc ivy--current candidates))))))
           (t
            (let ((res
                   (cl-case lispy-completion-method
@@ -5492,28 +5420,17 @@ ACTION is called for the selected candidate."
 
 (defun lispy--action-jump (tag)
   "Jump to TAG."
-  (when (semantic-tag-p tag)
-    (let ((overlay (semantic-tag-overlay tag)))
-      (cond ((overlayp overlay))
-            ((arrayp overlay)
-             (semantic--tag-set-overlay
-              tag
-              (setq overlay
-                    (make-overlay (or (aref overlay 0) 1)
-                                  (or (aref overlay 1) 1)
-                                  (if (>= (length overlay) 3)
-                                      (find-file (aref overlay 2))
-                                    (current-buffer))))))
-            (t (error "Unexpected")))
-      (push-mark)
-      (switch-to-buffer (overlay-buffer overlay))
-      (goto-char (overlay-start overlay))
-      (lispy--ensure-visible)
-      ;; (semantic-go-to-tag tag)
-      (when (eq major-mode 'clojure-mode)
-        (ignore-errors (up-list 1))
-        (backward-list 1))
-      (switch-to-buffer (current-buffer)))))
+  (if (eq (length tag) 3)
+      (progn
+        (push-mark)
+        (find-file (cadr tag))
+        (goto-char
+         (let ((ov (cl-caddr tag)))
+           (if (overlayp ov)
+               (overlay-start ov)
+             (aref ov 0))))
+        (lispy--ensure-visible))
+    (error "Unexpected tag: %S" tag)))
 
 (defun lispy--recenter-bounds (bnd)
   "Make sure BND is visible in window.
