@@ -536,7 +536,8 @@ Return nil on failure, t otherwise."
 Self-insert otherwise."
   (interactive "p")
   (if (or (lispy--in-string-or-comment-p)
-          (looking-back "?\\\\"))
+          (looking-back "?\\\\"
+                        (line-beginning-position)))
       (self-insert-command arg)
     (lispy--out-forward arg)))
 
@@ -586,7 +587,7 @@ If this point is inside string, move outside string."
 Reveal outlines."
   (interactive)
   (lispy--ensure-visible)
-  (if (looking-back "^")
+  (if (bolp)
       (back-to-indentation)
     (move-beginning-of-line 1)))
 
@@ -602,7 +603,9 @@ Return nil if can't move."
         success)
     (lispy-dotimes arg
       (cond ((or (lispy-left-p)
-                 (and (looking-back "^ *") (looking-at ";")))
+                 (and (looking-back "^ *"
+                                    (line-beginning-position))
+                      (looking-at ";")))
              (forward-char)
              (re-search-forward lispy-left nil t)
              (while (and (lispy--in-string-or-comment-p)
@@ -876,7 +879,8 @@ If position isn't special, move to previous or error."
             (match-beginning 0)
             (match-end 0))
            (lispy--indent-for-tab))
-          ((and (looking-at lispy-right) (looking-back lispy-left))
+          ((and (looking-at lispy-right) (looking-back lispy-left
+                                                       (line-beginning-position)))
            (delete-char 1)
            (backward-delete-char 1))
           (t
