@@ -4590,6 +4590,8 @@ so that no other packages disturb the match data."
                    (cdr (assoc mode lispy-tag-arity))))
           "\\)"
           "\\_>"))
+        ((eq major-mode 'clojure-mode)
+         "^(\\([a-z-A-Z0-0]+\\)")
         (t (error "%s isn't supported" mode))))
 
 (defun lispy--propertize-tag (kind x &optional face)
@@ -5436,6 +5438,9 @@ ACTION is called for the selected candidate."
            (if (overlayp ov)
                (overlay-start ov)
              (aref ov 0))))
+        (when (and (eq major-mode 'clojure-mode)
+                   (not (looking-at "(")))
+          (forward-char -1))
         (lispy--ensure-visible))
     (error "Unexpected tag: %S" tag)))
 
