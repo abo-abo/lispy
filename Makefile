@@ -2,12 +2,15 @@ emacs ?= emacs
 CASK = ~/.cask/bin/cask
 BEMACS = $(emacs) -batch -l elpa.el
 LOAD = -l lispy-inline.el -l lispy.el
-QEMACS = $(emacs) -Q -l elpa.el -l targets/base-init.el
+QEMACS = $(emacs) -Q -l elpa.el -l targets/interactive-init.el
 
 all: test
 
 cask:
 	$(shell EMACS=$(emacs) $(CASK) --verbose --debug)
+
+update:
+	$(shell EMACS=$(emacs) $(CASK) update --debug)
 
 compile:
 	$(BEMACS) $(LOAD) -l targets/compile.el
