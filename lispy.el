@@ -1144,11 +1144,12 @@ Otherwise (`backward-delete-char-untabify' ARG)."
                (goto-char pt)
                (indent-for-tab-command))))
 
-          ((and (looking-back lispy-left) (not (looking-back "\\\\.")))
+          ((and (lispy-looking-back lispy-left)
+                (not (lispy-looking-back "\\\\.")))
            (lispy--out-forward 1)
            (lispy-delete-backward 1))
 
-          ((looking-back "\"")
+          ((eq (char-before) ?\")
            (backward-char 1)
            (let ((bnd (lispy--bounds-string)))
              (delete-region (car bnd)
@@ -1158,7 +1159,8 @@ Otherwise (`backward-delete-char-untabify' ARG)."
                (insert " "))
              (indent-for-tab-command)))
 
-          ((and (looking-back "\" ") (not (looking-at lispy-right)))
+          ((and (lispy-after-string-p "\" ")
+                (not (looking-at lispy-right)))
            (let ((pt (point)))
              (goto-char (match-beginning 0))
              (delete-region (car (lispy--bounds-string)) pt))
@@ -4256,6 +4258,14 @@ Return start of string it is."
   (save-excursion
     (skip-chars-backward " ")
     (bolp)))
+
+(defun lispy-after-string-p (str)
+  "Return t if the string before point is STR."
+  (string=
+   (buffer-substring
+    (- (point) (length str))
+    (point))
+   str))
 
 ;;* Pure
 (defun lispy--bounds-dwim ()
