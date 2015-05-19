@@ -5321,8 +5321,10 @@ Defaults to `error'."
   "Insert one space.
 Unless inside string or comment, or `looking-back' at CONTEXT."
   (unless (or lispy-no-space
-              (lispy--in-string-or-comment-p)
               (bolp)
+              (and (window-minibuffer-p)
+                   (eq (point) (minibuffer-prompt-end)))
+              (lispy--in-string-or-comment-p)
               (lispy-looking-back context))
     (insert " ")))
 
