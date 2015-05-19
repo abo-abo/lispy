@@ -1480,7 +1480,7 @@ If jammed between parens, \"(|(\" unjam: \"( |(\"."
         (t
          (insert " ")
          (when (and (lispy-left-p)
-                    (looking-back "( "))
+                    (lispy-after-string-p "( "))
            (backward-char)))))
 
 (defvar lispy-colon-no-space-regex
@@ -1539,7 +1539,7 @@ When region is active, toggle a ~ at the start of the region."
   (if (and (memq major-mode '(clojure-mode
                               nrepl-repl-mode
                               cider-clojure-interaction-mode))
-           (looking-back "\\sw #"))
+           (lispy-looking-back "\\sw #"))
       (progn
         (backward-delete-char 2)
         (insert "#"))
@@ -1578,7 +1578,7 @@ When region is active, toggle a ~ at the start of the region."
      (slime-repl-return))
     (t
      (if (and (not (lispy--in-string-or-comment-p))
-              (looking-back "[^#`',@~][#`',@~]+"))
+              (lispy-looking-back "[^#`',@~][#`',@~]+"))
          (save-excursion
            (goto-char (match-beginning 0))
            (newline-and-indent))
@@ -1661,11 +1661,11 @@ to all the functions, while maintaining the parens in a pretty state."
            (goto-char (cdr (lispy--bounds-string))))
           ((lispy-right-p))
           ((looking-at lispy-right)
-           (when (looking-back " ")
+           (when (eq (char-before) ?\ )
              (lispy-right 1)))
           ((lispy-left-p)
            (lispy-different))
-          ((looking-back "^ +")
+          ((lispy-looking-back "^ +")
            (if (re-search-forward lispy-right (line-end-position) t)
                (backward-char 1)
              (move-end-of-line 1)))
@@ -1679,7 +1679,7 @@ to all the functions, while maintaining the parens in a pretty state."
 (defun lispy-string-oneline ()
   "Convert current string to one line."
   (interactive)
-  (when (looking-back "\"")
+  (when (eq (char-before) ?\")
     (backward-char 1))
   (let (bnd str)
     (setq str (lispy--string-dwim (setq bnd (lispy--bounds-string))))
@@ -1712,8 +1712,8 @@ to all the functions, while maintaining the parens in a pretty state."
 (defun lispy--occur-candidates ()
   "Return the candidates for `lispy-occur'."
   (let ((bnd (save-excursion
-               (unless (and (lispy-left-p)
-                            (looking-back "^"))
+               (unless (and (bolp)
+                            (lispy-left-p))
                  (beginning-of-defun))
                (lispy--bounds-dwim)))
         (line-number -1)
@@ -1869,7 +1869,7 @@ Return the amount of successful grow steps, nil instead of zero."
 (defun lispy--sub-slurp-backward (arg)
   "Grow current marked symbol by ARG backwards.
 Return the amount of successful grow steps, nil instead of zero."
-  (when (looking-back "\\s_")
+  (when (lispy-looking-back "\\s_")
     (let ((beg (car (bounds-of-thing-at-point 'symbol)))
           prev)
       (lispy-dotimes arg
@@ -1887,7 +1887,7 @@ Return the amount of successful grow steps, nil instead of zero."
           (if (or (looking-at "\\s_")
                   (save-excursion
                     (goto-char (region-beginning))
-                    (looking-back "\\s_")))
+                    (lispy-looking-back "\\s_")))
               (lispy--sub-slurp-forward arg)
             (lispy-dotimes arg
               (forward-sexp 1)))
@@ -2180,7 +2180,7 @@ When ARG is more than 1, pull ARGth expression to enclose current sexp."
                 (or (save-excursion
                       (goto-char (car bnd))
                       (skip-chars-backward " \t\n")
-                      (when (looking-back "\"")
+                      (when (eq (char-before) ?\")
                         (delete-region (1- (point))
                                        (1+ (car bnd)))
                         t))
