@@ -1057,7 +1057,7 @@ If position isn't special, move to previous or error."
              (delete-region pt (point))
              (unless (or (eolp)
                          (bolp)
-                         (lispy-looking-back "^ +"))
+                         (lispy-bolp))
                (insert " "))))
 
           (t
@@ -4368,7 +4368,7 @@ First, try to return `lispy--bounds-string'."
                               (= col (current-column))
                               ;; if there's code in between,
                               ;; count comments as separate
-                              (looking-back "^\\s-*")))
+                              (lispy-looking-back "^\\s-*")))
                (setq pt (point)))
              (goto-char pt)
              (end-of-line)
@@ -4801,7 +4801,7 @@ For example, a `setq' statement is amended with variable name that it uses."
         (char (char-before)))
     (skip-chars-forward " \t")
     (delete-region pt (point))
-    (unless (or (looking-back "()") (eolp))
+    (unless (or (lispy-after-string-p "()") (eolp))
       (insert " "))
     (when (ignore-errors
             (forward-sexp) t)
@@ -4835,7 +4835,7 @@ For example, a `setq' statement is amended with variable name that it uses."
   "Shrink current sexp backward by one sexp."
   (let ((pt (point))
         (char (char-before)))
-    (unless (looking-back "()")
+    (unless (lispy-after-string-p "()")
       (backward-char)
       (backward-sexp)
       (skip-chars-backward " \n	")
@@ -4890,7 +4890,7 @@ Ignore the matches in strings and comments."
                   (progn
                     (setq cbnd (lispy--bounds-string))
                     (when cbnd
-                      (if (looking-back "ly-raw comment \"")
+                      (if (lispy-after-string-p "ly-raw comment \"")
                           (goto-char (cdr cbnd))
                         (setq str (lispy--string-dwim cbnd))
                         (delete-region (car cbnd) (cdr cbnd))
@@ -5285,11 +5285,14 @@ Defaults to `error'."
 
 (defun lispy--remove-gaps ()
   "Remove dangling `\\s)'."
-  (when (and (looking-back "[^ \t\n]\\([ \t\n]+\\)\\s)")
+  (when (and (lispy-right-p)
+             (looking-back "[^ \t\n]\\([ \t\n]+\\)\\s)"
+                           (condition-case nil
+                               (save-excursion
+                                 (backward-list)
+                                 (point))
+                             (error (point-min))))
              (not (eq ?\\ (aref (match-string 0) 0))))
-    ;; (or (looking-at "\\(\\s-*\\))")
-    ;;     (and (looking-back "\\s)\\([ \t\n]+\\)")
-    ;;          (not (lispy-left-p))))
     (unless (save-excursion
               (save-match-data
                 (goto-char (match-beginning 1))
@@ -5320,7 +5323,7 @@ Unless inside string or comment, or `looking-back' at CONTEXT."
   (unless (or lispy-no-space
               (lispy--in-string-or-comment-p)
               (bolp)
-              (looking-back context))
+              (lispy-looking-back context))
     (insert " ")))
 
 (defun lispy--reindent (&optional arg)
@@ -5365,7 +5368,7 @@ Unless inside string or comment, or `looking-back' at CONTEXT."
 
           (t
            (just-one-space)
-           (when (looking-back "( ")
+           (when (lispy-after-string-p "( ")
              (backward-delete-char 1))))))
 
 (defun lispy--current-tag ()
@@ -5715,7 +5718,7 @@ Only `ly-raw' lists within FOO are manipulated."
                 (setq ms (match-string 1)))
       (goto-char mb)
       (if (or (lispy--in-string-or-comment-p)
-              (looking-back "^"))
+              (bolp))
           (goto-char me)
         (delete-region mb me)
         (when (cl-search "\\1" to)
@@ -5744,7 +5747,7 @@ Make text marked if REGIONP is t."
       (when (looking-at "(")
         (save-excursion
           (newline-and-indent)))
-      (unless (looking-back "[ (]")
+      (unless (lispy-looking-back "[ (]")
         (insert " ")
         (incf beg1))
       (insert str)

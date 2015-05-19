@@ -4,7 +4,7 @@ BEMACS = $(emacs) -batch -l elpa.el
 LOAD = -l lispy-inline.el -l lispy.el
 QEMACS = $(emacs) -Q -l elpa.el -l targets/interactive-init.el
 
-all: test
+all: compile test
 
 cask:
 	$(shell EMACS=$(emacs) $(CASK) --verbose --debug)
