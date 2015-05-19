@@ -1891,7 +1891,7 @@ Return the amount of successful grow steps, nil instead of zero."
               (lispy--sub-slurp-forward arg)
             (lispy-dotimes arg
               (forward-sexp 1)))
-        (if (or (looking-back "\\s_")
+        (if (or (lispy-looking-back "\\s_")
                 (save-excursion
                   (goto-char (region-end))
                   (looking-at "\\s_")))
@@ -2768,7 +2768,7 @@ When SILENT is non-nil, don't issue messages."
                (insert " "))
               ((eolp)
                (comment-dwim nil))
-              ((looking-back "^ +")
+              ((lispy-bolp)
                (comment-dwim nil))
               ((setq bnd (save-excursion
                            (and (lispy--out-forward 1)
@@ -3164,33 +3164,37 @@ When ARG is non-nil, force select the window."
                  (unless (lispy--leftp)
                    (lispy-different))
                  (cond
-                  ((looking-back "(\\(?:lexical-\\)?let\\*?[ \t\n]*")
-                   (cons 'setq
-                         (cl-mapcan
-                          (lambda (x) (unless (listp x) (list x nil)))
-                          (read str))))
+                   ((looking-back "(\\(?:lexical-\\)?let\\*?[ \t\n]*"
+                                  (line-beginning-position 0))
+                    (cons 'setq
+                          (cl-mapcan
+                           (lambda (x) (unless (listp x) (list x nil)))
+                           (read str))))
 
-                  ((looking-back "(dolist ")
-                   `(lispy--dolist-item-expr ',(read str)))
+                   ((lispy-after-string-p "(dolist ")
+                    `(lispy--dolist-item-expr ',(read str)))
 
-                  ;; point moves
-                  ((progn
-                     (lispy--out-backward 1)
-                     (looking-back
-                      "(\\(?:lexical-\\)?let\\*?[ \t\n]*"))
-                   (cons 'setq (read str)))
+                   ;; point moves
+                   ((progn
+                      (lispy--out-backward 1)
+                      (looking-back
+                       "(\\(?:lexical-\\)?let\\*?[ \t\n]*"
+                       (line-beginning-position 0)))
+                    (cons 'setq (read str)))
 
-                  ((looking-back "(\\(?:cl-\\)?labels[ \t\n]*")
-                   (cons 'defun (read str)))
+                   ((looking-back
+                     "(\\(?:cl-\\)?labels[ \t\n]*"
+                     (line-beginning-position 0))
+                    (cons 'defun (read str)))
 
-                  ((looking-at
-                    "(cond\\b")
-                   (let ((re (read str)))
-                     `(if ,(car re)
-                          (progn
-                            ,@(cdr re))
-                        lispy--eval-cond-msg)))
-                  (t (read str)))))
+                   ((looking-at
+                     "(cond\\b")
+                    (let ((re (read str)))
+                      `(if ,(car re)
+                           (progn
+                             ,@(cdr re))
+                         lispy--eval-cond-msg)))
+                   (t (read str)))))
          res)
     (goto-char pt)
     (let* ((source-window (selected-window))
@@ -3312,7 +3316,8 @@ Sexp is obtained by exiting the list ARG times."
         (lispy--avy-do
          "[([{ ]\\(?:\\sw\\|\\s_\\|[\"'`#~,@]\\)"
          (lispy--bounds-dwim)
-         (lambda () (or (not (lispy--in-string-or-comment-p)) (looking-back ".\"")))
+         (lambda () (or (not (lispy--in-string-or-comment-p))
+                   (lispy-looking-back ".\"")))
          lispy-avy-style-symbol))))
   (unless (eq (char-after) ?\")
     (forward-char 1))
@@ -3337,7 +3342,8 @@ Sexp is obtained by exiting list ARG times."
         (lispy--avy-do
          "[([{ -]\\(?:\\sw\\|\\s_\\|\\s(\\|[\"'`#]\\)"
          (lispy--bounds-dwim)
-         (lambda () (or (not (lispy--in-string-or-comment-p)) (looking-back ".\"")))
+         (lambda () (or (not (lispy--in-string-or-comment-p))
+                   (lispy-looking-back ".\"")))
          lispy-avy-style-symbol)))
     (skip-chars-forward "-([{ `'#") (mark-word)))
 
@@ -3515,7 +3521,7 @@ When ARG isn't nil, show table of contents."
       (let ((pt (point)))
         (when (region-active-p)
           (deactivate-mark))
-        (when (looking-back ")")
+        (when (eq (char-before) ?\))
           (backward-list))
         (while (and (not (looking-at "(lambda"))
                     (lispy--out-backward 1)))
@@ -3580,7 +3586,7 @@ With ARG, use the contents of `lispy-store-region-and-buffer' instead."
           (progn
             (save-excursion
               (insert (pp-to-string (macroexpand (read str))))
-              (when (looking-back "\n")
+              (when (bolp)
                 (delete-char -1)))
             (indent-sexp))
         (let* ((e-args (cl-remove-if #'lispy--whitespacep (cdr expr)))
