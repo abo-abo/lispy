@@ -1492,6 +1492,35 @@ Insert KEY if there's no command."
                                (lispy-knight-up))
                    "|(defun foo ()\n  (bar)\n  (baz))")))
 
+(ert-deftest lispy--setq-expression ()
+  (should (equal (lispy-with-value "(dolist |(s '(1 2 3))\n  (message \"val: %d\" s))"
+                                   (lispy--setq-expression))
+                 '(lispy--dolist-item-expr
+                   (quote (s (quote (1 2 3)))))))
+  (should (equal (lispy-with-value "(cond |((string= question \"Where'd you get the coconut?\")\n       (message \"We found them.\")))"
+                                   (lispy--setq-expression))
+                 '(if (string=
+                       question
+                       "Where'd you get the coconut?")
+                   (progn
+                     (message "We found them."))
+                   lispy--eval-cond-msg)))
+  (should (equal (lispy-with-value "(let |(coconuts-migrate (swallow-type 'african) ridden-on-a-horse))"
+                                   (lispy--setq-expression))
+                 '(setq coconuts-migrate
+                   nil
+                   ridden-on-a-horse
+                   nil)))
+  (should (equal (lispy-with-value "(let (coconuts-migrate |(swallow-type 'african) ridden-on-a-horse))"
+                                   (lispy--setq-expression))
+                 '(setq swallow-type
+                   (quote african))))
+  (should (equal (lispy-with-value "(cl-labels (|(greeting ()\n (message \"Halt! Who goes there?\")))\n (greeting))"
+                                   (lispy--setq-expression))
+                 '(defun greeting nil
+                   (message
+                    "Halt! Who goes there?")))))
+
 (ert-deftest lispy-eval-other-window ()
   (setq lispy--eval-sym nil)
   (should (string= (lispy-with-value "(dolist |(s '(1 2 3))\n  (message \"val: %d\" s))"
@@ -1562,7 +1591,7 @@ Insert KEY if there's no command."
                                ")")
                    "(a b c)|"))
   (should (string= (lispy-with "; Hello,| world!" ;
-                               ")")
+                   ")")
                    "; Hello,)| world!")))
 
 (ert-deftest lispy-paredit-close-round-and-newline ()

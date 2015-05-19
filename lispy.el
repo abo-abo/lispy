@@ -3155,69 +3155,28 @@ In case the point is on a let-bound variable, add a `setq'.
 When ARG is non-nil, force select the window."
   (interactive "P")
   (require 'ace-window)
-  (let* ((pt (point))
-         (lispy-ignore-whitespace t)
+  (let* ((expr (lispy--setq-expression))
          (aw-dispatch-always nil)
-         (str (save-match-data
-                (lispy--string-dwim)))
-         (expr (save-match-data
-                 (unless (lispy--leftp)
-                   (lispy-different))
-                 (cond
-                   ((looking-back "(\\(?:lexical-\\)?let\\*?[ \t\n]*"
-                                  (line-beginning-position 0))
-                    (cons 'setq
-                          (cl-mapcan
-                           (lambda (x) (unless (listp x) (list x nil)))
-                           (read str))))
-
-                   ((lispy-after-string-p "(dolist ")
-                    `(lispy--dolist-item-expr ',(read str)))
-
-                   ;; point moves
-                   ((progn
-                      (lispy--out-backward 1)
-                      (looking-back
-                       "(\\(?:lexical-\\)?let\\*?[ \t\n]*"
-                       (line-beginning-position 0)))
-                    (cons 'setq (read str)))
-
-                   ((looking-back
-                     "(\\(?:cl-\\)?labels[ \t\n]*"
-                     (line-beginning-position 0))
-                    (cons 'defun (read str)))
-
-                   ((looking-at
-                     "(cond\\b")
-                    (let ((re (read str)))
-                      `(if ,(car re)
-                           (progn
-                             ,@(cdr re))
-                         lispy--eval-cond-msg)))
-                   (t (read str)))))
+         (target-window
+          (if (and (null arg) (lispy-eval--last-live-p))
+              lispy-eval-other--window
+            (if (setq lispy-eval-other--window
+                      (aw-select " Ace - Eval in Window"))
+                (progn
+                  (setq lispy-eval-other--buffer
+                        (window-buffer lispy-eval-other--window))
+                  (setq lispy-eval-other--cfg
+                        (cl-mapcan #'window-list (frame-list)))
+                  lispy-eval-other--window)
+              (setq lispy-eval-other--buffer nil)
+              (setq lispy-eval-other--cfg nil)
+              (selected-window))))
          res)
-    (goto-char pt)
-    (let* ((source-window (selected-window))
-           (target-window
-            (if (and (null arg) (lispy-eval--last-live-p))
-                lispy-eval-other--window
-              (if (setq lispy-eval-other--window
-                        (aw-select " Ace - Eval in Window"))
-                  (progn
-                    (setq lispy-eval-other--buffer
-                          (window-buffer lispy-eval-other--window))
-                    (setq lispy-eval-other--cfg
-                          (cl-mapcan #'window-list (frame-list)))
-                    lispy-eval-other--window)
-                (setq lispy-eval-other--buffer nil)
-                (setq lispy-eval-other--cfg nil)
-                source-window))))
-      (select-window target-window)
+    (with-selected-window target-window
       (setq res (lispy--eval-elisp-form expr lexical-binding))
-      (select-window source-window))
-    (if (equal res lispy--eval-cond-msg)
-        (message res)
-      (message "%S" res))))
+      (if (equal res lispy--eval-cond-msg)
+          (message res)
+        (message "%S" res)))))
 
 (defun lispy-follow ()
   "Follow to `lispy--current-function'."
@@ -5914,33 +5873,53 @@ PLIST currently accepts:
 
 (defun lispy--setq-expression ()
   "Return the smallest list to contain point.
-If inside VARLIST part of `let' form,
-return the corresponding `setq' expression."
-  (ignore-errors
-    (save-excursion
-      (cond ((lispy-left-p)
-             (forward-list))
-            ((lispy-right-p))
-            (t
-             (up-list)))
-      (let ((tsexp (lispy--preceding-sexp)))
-        (backward-list 1)
+Return an appropriate `setq' expression when in `let', `dolist',
+`labels', `cond'."
+  (save-excursion
+    (let ((tsexp
+           (ignore-errors
+             (cond ((lispy-left-p)
+                    (forward-list))
+                   ((lispy-right-p))
+                   ((region-active-p)
+                    (lispy-complain "Unimplemented"))
+                   (t
+                    (up-list)))
+             (lispy--preceding-sexp))))
+      (when tsexp
+        (lispy-different)
         (cond
-          ((looking-back "(\\(?:let\\|lexical-let\\)\\*?[ \t]*")
+          ((looking-back "(\\(?:lexical-\\)?let\\*?[ \t\n]*"
+                         (line-beginning-position 0))
            (cons 'setq
-                 (if (and (= (length tsexp) 1)
-                          (listp (car tsexp)))
-                     (car tsexp)
-                   (cl-mapcan
-                    (lambda (x) (unless (listp x) (list x nil)))
-                    tsexp))))
-          ((ignore-errors
-             (up-list)
-             (backward-list 1)
-             (looking-back "(\\(?:let\\|lexical-let\\)\\*?[ \t]*"))
+                 (cl-mapcan
+                  (lambda (x) (unless (listp x) (list x nil)))
+                  tsexp)))
+
+          ((lispy-after-string-p "(dolist ")
+           `(lispy--dolist-item-expr ',tsexp))
+
+          ;; point moves
+          ((progn
+             (lispy--out-backward 1)
+             (looking-back
+              "(\\(?:lexical-\\)?let\\*?[ \t\n]*"
+              (line-beginning-position 0)))
            (cons 'setq tsexp))
-          (t
-           tsexp))))))
+
+          ((looking-back
+            "(\\(?:cl-\\)?labels[ \t\n]*"
+            (line-beginning-position 0))
+           (cons 'defun tsexp))
+
+          ((looking-at
+            "(cond\\b")
+           (let ((re tsexp))
+             `(if ,(car re)
+                  (progn
+                    ,@(cdr re))
+                lispy--eval-cond-msg)))
+          (t tsexp))))))
 
 ;;* Key definitions
 (defvar ac-trigger-commands '(self-insert-command))
