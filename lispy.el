@@ -4201,7 +4201,7 @@ Return start of string it is."
     (or (and (nth 3 syn)
              (nth 8 syn))
         (and (eq (char-after) ?\")
-             (not (looking-back "\\\\"))
+             (not (eq ?\\ (char-before)))
              (point)))))
 
 (defun lispy--in-comment-p ()
@@ -4334,7 +4334,7 @@ First, try to return `lispy--bounds-string'."
   (unless (lispy--in-comment-p)
     (let ((beg (or (nth 8 (syntax-ppss))
                    (and (eq (char-after (point)) ?\")
-                        (not (looking-back "\\\\"))
+                        (not (eq ?\\ (char-before)))
                         (point)))))
       (when (and beg (not (comment-only-p beg (1+ (point)))))
         (ignore-errors
