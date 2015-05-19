@@ -605,8 +605,7 @@ Return nil if can't move."
         success)
     (lispy-dotimes arg
       (cond ((or (lispy-left-p)
-                 (and (looking-back "^ *"
-                                    (line-beginning-position))
+                 (and (lispy-bolp)
                       (looking-at ";")))
              (forward-char)
              (re-search-forward lispy-left nil t)
@@ -1033,7 +1032,7 @@ If position isn't special, move to previous or error."
                   (lispy--exit-string))))
 
           ((lispy--in-comment-p)
-           (if (lispy-looking-back "^ *")
+           (if (lispy-bolp)
                (let ((bnd (lispy--bounds-comment)))
                  (delete-region (car bnd) (cdr bnd)))
              (delete-char arg)))
@@ -1113,30 +1112,30 @@ Otherwise (`backward-delete-char-untabify' ARG)."
                  (indent-for-tab-command))
              (backward-delete-char-untabify arg)))
 
-          ((looking-back "\\\\.")
+          ((lispy-looking-back "\\\\.")
            (backward-delete-char-untabify arg))
 
-          ((and (looking-back (concat lispy-right " "))
+          ((and (lispy-looking-back (concat lispy-right " "))
                 (looking-at " *$"))
            (backward-delete-char-untabify arg))
 
           ((or (lispy-right-p)
-               (and (looking-back (concat lispy-right " "))
+               (and (lispy-looking-back (concat lispy-right " "))
                     (or (lispy-left-p) (looking-at "\""))))
            (let ((pt (point)))
              (lispy-backward arg)
              (skip-chars-backward "`',@# \t")
              (delete-region pt (point))
              (unless (or (looking-at " ")
-                         (looking-back "^ *")
+                         (lispy-bolp)
                          (and (lispy-right-p)
                               (not (or (lispy-left-p)
                                        (looking-at "\""))))
-                         (looking-back lispy-left))
+                         (lispy-looking-back lispy-left))
                (just-one-space))
              (setq pt (point))
              (if (and
-                  (not (looking-back "^ *"))
+                  (not (lispy-bolp))
                   (not (lispy-left-p))
                   (progn
                     (skip-chars-backward " \t\n")
@@ -1168,7 +1167,7 @@ Otherwise (`backward-delete-char-untabify' ARG)."
              (just-one-space))
            (indent-for-tab-command))
 
-          ((looking-back "^ *")
+          ((lispy-bolp)
            (delete-region
             (line-beginning-position)
             (point))
@@ -1240,7 +1239,7 @@ When ARG is more than 1, mark ARGth element."
          (lispy--mark
           (lispy--bounds-dwim))
          (lispy-different))
-        ((and (looking-back "^ *") (looking-at ";"))
+        ((and (lispy-bolp) (looking-at ";"))
          (lispy--mark (lispy--bounds-comment))))
   (setq this-command 'lispy-mark-list))
 
@@ -1462,7 +1461,7 @@ If jammed between parens, \"(|(\" unjam: \"( |(\"."
          (when (lispy--leftp)
            (lispy-different))
          (backward-char)
-         (unless (looking-back "^ *")
+         (unless (lispy-bolp)
            (newline-and-indent)))
         ((or (eq arg 2)
              (when (eq arg 3)
@@ -1608,7 +1607,7 @@ When region is active, toggle a ~ at the start of the region."
     (cond ((lispy--in-comment-p)
            (end-of-line)
            (newline))
-          ((and (looking-back "^ *")
+          ((and (lispy-bolp)
                 (looking-at " *$"))
            (delete-region
             (line-beginning-position)
@@ -2318,7 +2317,7 @@ When ARG is more than 1, pull ARGth expression to enclose current sexp."
         (delete-region (car bnd) (cdr bnd))
         (cond ((looking-at " *;"))
               ((and (looking-at "\n")
-                    (looking-back "^ *"))
+                    (lispy-bolp))
                (delete-blank-lines))
               ((looking-at "\\([\n ]+\\)[^\n ;]")
                (delete-region (match-beginning 1)
@@ -2352,7 +2351,7 @@ When ARG is more than 1, pull ARGth expression to enclose current sexp."
         (delete-region (car bnd) (cdr bnd))
         (cond ((looking-at " *;"))
               ((and (looking-at "\n")
-                    (looking-back "^ *"))
+                    (lispy-bolp))
                (delete-blank-lines))
               ((looking-at "\\([\n ]+\\)[^\n ;]")
                (delete-region (match-beginning 1)
@@ -4252,6 +4251,12 @@ Return start of string it is."
   "Forward to (`looking-back' REGEXP)."
   (looking-back regexp (line-beginning-position)))
 
+(defun lispy-bolp ()
+  "Return t if point is at beginning of line, after optional spaces."
+  (save-excursion
+    (skip-chars-backward " ")
+    (bolp)))
+
 ;;* Pure
 (defun lispy--bounds-dwim ()
   "Return a cons of region bounds if it's active.
@@ -5877,7 +5882,7 @@ PLIST currently accepts:
 
              ((or (lispy-left-p)
                   (lispy-right-p)
-                  (and (looking-back "^ *")
+                  (and (lispy-bolp)
                        (looking-at ";")))
               (call-interactively ',def))
 
