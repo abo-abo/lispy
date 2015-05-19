@@ -56,7 +56,10 @@
   "Eval STR as Clojure code.
 The result is a string.
 
-When ADD-OUTPUT is t, add the standard output to the result."
+When ADD-OUTPUT is non-nil, add the standard output to the result.
+
+When LAX is non-nil, expect STR to be two sexps from a let binding.
+Generate an appropriate def from for that let binding and eval it."
   (require 'cider)
   (if (null (nrepl-current-connection-buffer t))
       (progn
@@ -85,7 +88,7 @@ When ADD-OUTPUT is t, add the standard output to the result."
            (val (nrepl-dict-get res "value"))
            out)
       (cond ((null val)
-             (error "eval error: %S"
+             (error "Eval error: %S"
                     (nrepl-dict-get res "err")))
 
             (add-output
