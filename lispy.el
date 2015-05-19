@@ -931,14 +931,14 @@ If position isn't special, move to previous or error."
       (setq skipped (skip-chars-backward " \n"))
       (if (memq (char-syntax (char-before))
                 '(?w ?_))
-          (if (looking-back "\\_<\\s_+")
+          (if (lispy-looking-back "\\_<\\s_+")
               (delete-region (match-beginning 0)
                              (match-end 0))
             (backward-word 1)
             (kill-region (point) pt)
             (when (and (lispy--in-string-p)
-                       (not (looking-back "\\\\\\\\"))
-                       (looking-back "\\\\"))
+                       (not (lispy-looking-back "\\\\\\\\"))
+                       (lispy-looking-back "\\\\"))
               (delete-char -1)))
         (delete-region (point) pt)
         (unless (or (zerop skipped)
@@ -961,8 +961,8 @@ If position isn't special, move to previous or error."
                 (narrow-to-region (1+ (car bnd)) (point))
                 (kill-region (progn
                                (forward-word -1)
-                               (when (and (not (looking-back "\\\\\\\\"))
-                                          (looking-back "\\\\"))
+                               (when (and (not (lispy-looking-back "\\\\\\\\"))
+                                          (lispy-looking-back "\\\\"))
                                  (backward-char))
                                (point))
                              (point-max))
@@ -1009,14 +1009,14 @@ If position isn't special, move to previous or error."
                       (goto-char (car bnd))
                     (delete-char 2)))
                  ((and (looking-at "\"")
-                       (looking-back "\\\\"))
+                       (lispy-looking-back "\\\\"))
                   (backward-char 1)
                   (delete-char 2))
                  ((lispy--delete-pair-in-string "\\\\\\\\(" "\\\\\\\\)"))
                  ((looking-at "\\\\\\\\")
                   (delete-char 2))
                  ((and (looking-at "\\\\")
-                       (looking-back "\\\\"))
+                       (lispy-looking-back "\\\\"))
                   (backward-char 1)
                   (delete-char 2))
                  ((eq (point) (car bnd))
@@ -1033,7 +1033,7 @@ If position isn't special, move to previous or error."
                   (lispy--exit-string))))
 
           ((lispy--in-comment-p)
-           (if (looking-back "^ *")
+           (if (lispy-looking-back "^ *")
                (let ((bnd (lispy--bounds-comment)))
                  (delete-region (car bnd) (cdr bnd)))
              (delete-char arg)))
@@ -1042,7 +1042,7 @@ If position isn't special, move to previous or error."
            (lispy-left 1))
 
           ((lispy-left-p)
-           (when (looking-back "\\(?:\\s-\\|^\\)[`',@]+")
+           (when (lispy-looking-back "\\(?:\\s-\\|^\\)[`',@]+")
              (delete-region
               (match-beginning 0)
               (match-end 0))
@@ -1058,7 +1058,7 @@ If position isn't special, move to previous or error."
              (delete-region pt (point))
              (unless (or (eolp)
                          (bolp)
-                         (looking-back "^ +"))
+                         (lispy-looking-back "^ +"))
                (insert " "))))
 
           (t
@@ -1085,15 +1085,15 @@ Otherwise (`backward-delete-char-untabify' ARG)."
                 (not (eq (point) (car bnd))))
            (cond ((eq (- (point) (car bnd)) 1)
                   (goto-char (cdr bnd)))
-                 ((or (looking-back "\\\\\\\\(")
-                      (looking-back "\\\\\\\\)"))
+                 ((or (looking-back "\\\\\\\\(" (car bnd))
+                      (looking-back "\\\\\\\\)" (car bnd)))
                   (let ((pt (point)))
                     (goto-char (match-beginning 0))
                     (unless (lispy--delete-pair-in-string
                              "\\\\\\\\(" "\\\\\\\\)")
                       (goto-char pt)
                       (backward-delete-char-untabify arg))))
-                 ((looking-back "\\\\[^\\]")
+                 ((looking-back "\\\\[^\\]" (car bnd))
                   (backward-delete-char 2))
                  (t
                   (backward-delete-char-untabify arg))))
@@ -1106,9 +1106,9 @@ Otherwise (`backward-delete-char-untabify' ARG)."
              (delete-char -1)))
 
           ((lispy--in-comment-p)
-           (if (looking-back "\n +")
+           (if (lispy-looking-back "^ +")
                (progn
-                 (delete-region (match-beginning 0)
+                 (delete-region (1- (match-beginning 0))
                                 (match-end 0))
                  (indent-for-tab-command))
              (backward-delete-char-untabify arg)))
@@ -4247,6 +4247,10 @@ Return start of string it is."
   (and (region-active-p)
        (eq ?\" (char-after (region-beginning)))
        (eq ?\" (char-before (region-end)))))
+
+(defsubst lispy-looking-back (regexp)
+  "Forward to (`looking-back' REGEXP)."
+  (looking-back regexp (line-beginning-position)))
 
 ;;* Pure
 (defun lispy--bounds-dwim ()
