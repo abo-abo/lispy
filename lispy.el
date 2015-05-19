@@ -3117,7 +3117,7 @@ When ARG isn't nil, try to pretty print the sexp."
        (equal (window-buffer
                lispy-eval-other--window)
               lispy-eval-other--buffer)
-       (equal (current-window-configuration)
+       (equal (cl-mapcan #'window-list (frame-list))
               lispy-eval-other--cfg)))
 
 (defvar lispy--eval-sym nil
@@ -3148,10 +3148,11 @@ SYM will take on each value of LST with each eval."
             (lispy--eval-elisp-form (cadr expr) lexical-binding))
       (set sym nil))))
 
-(defun lispy-eval-other-window ()
+(defun lispy-eval-other-window (&optional arg)
   "Eval current expression in the context of other window.
-In case the point is on a let-bound variable, add a `setq'."
-  (interactive)
+In case the point is on a let-bound variable, add a `setq'.
+When ARG is non-nil, force select the window."
+  (interactive "P")
   (require 'ace-window)
   (let* ((pt (point))
          (lispy-ignore-whitespace t)
@@ -3162,38 +3163,38 @@ In case the point is on a let-bound variable, add a `setq'."
                  (unless (lispy--leftp)
                    (lispy-different))
                  (cond
-                   ((looking-back "(\\(?:lexical-\\)?let\\*?[ \t\n]*")
-                    (cons 'setq
-                          (cl-mapcan
-                           (lambda (x) (unless (listp x) (list x nil)))
-                           (read str))))
+                  ((looking-back "(\\(?:lexical-\\)?let\\*?[ \t\n]*")
+                   (cons 'setq
+                         (cl-mapcan
+                          (lambda (x) (unless (listp x) (list x nil)))
+                          (read str))))
 
-                   ((looking-back "(dolist ")
-                    `(lispy--dolist-item-expr ',(read str)))
+                  ((looking-back "(dolist ")
+                   `(lispy--dolist-item-expr ',(read str)))
 
-                   ;; point moves
-                   ((progn
-                      (lispy--out-backward 1)
-                      (looking-back
-                       "(\\(?:lexical-\\)?let\\*?[ \t\n]*"))
-                    (cons 'setq (read str)))
+                  ;; point moves
+                  ((progn
+                     (lispy--out-backward 1)
+                     (looking-back
+                      "(\\(?:lexical-\\)?let\\*?[ \t\n]*"))
+                   (cons 'setq (read str)))
 
-                   ((looking-back "(\\(?:cl-\\)?labels[ \t\n]*")
-                    (cons 'defun (read str)))
+                  ((looking-back "(\\(?:cl-\\)?labels[ \t\n]*")
+                   (cons 'defun (read str)))
 
-                   ((looking-at
-                     "(cond\\b")
-                    (let ((re (read str)))
-                      `(if ,(car re)
-                           (progn
-                             ,@(cdr re))
-                         lispy--eval-cond-msg)))
-                   (t (read str)))))
+                  ((looking-at
+                    "(cond\\b")
+                   (let ((re (read str)))
+                     `(if ,(car re)
+                          (progn
+                            ,@(cdr re))
+                        lispy--eval-cond-msg)))
+                  (t (read str)))))
          res)
     (goto-char pt)
     (let* ((source-window (selected-window))
            (target-window
-            (if (lispy-eval--last-live-p)
+            (if (and (null arg) (lispy-eval--last-live-p))
                 lispy-eval-other--window
               (if (setq lispy-eval-other--window
                         (aw-select " Ace - Eval in Window"))
@@ -3201,7 +3202,7 @@ In case the point is on a let-bound variable, add a `setq'."
                     (setq lispy-eval-other--buffer
                           (window-buffer lispy-eval-other--window))
                     (setq lispy-eval-other--cfg
-                          (current-window-configuration))
+                          (cl-mapcan #'window-list (frame-list)))
                     lispy-eval-other--window)
                 (setq lispy-eval-other--buffer nil)
                 (setq lispy-eval-other--cfg nil)
@@ -5366,7 +5367,7 @@ Try to refresh if nil is returned."
         (progn
           (goto-char (match-end 0))
           (let ((tag-head (match-string 1))
-                beg arity str)
+                beg arity)
             (skip-chars-forward " \n")
             (if (setq arity (cdr (assoc (intern tag-head) arity-alist)))
                 (progn
