@@ -3140,7 +3140,7 @@ SYM will take on each value of LST with each eval."
             (lispy--eval-elisp-form (cadr expr) lexical-binding)))
     (if lispy--eval-data
         (let* ((popped (pop lispy--eval-data))
-               (popped (if (or (symbolp popped) (listp popped))
+               (popped (if (symbolp popped)
                            `(quote ,popped)
                          popped)))
           (set sym popped))
