@@ -261,7 +261,7 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
   "Inline a Clojure function at the point of its call."
   (let* ((begp (if (looking-at lispy-left)
                    t
-                 (if (looking-back lispy-right)
+                 (if (lispy-right-p)
                      (progn (backward-list)
                             nil)
                    (lispy-left 1))))

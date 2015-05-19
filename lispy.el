@@ -6073,7 +6073,7 @@ FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)."
 Insert \")\" in strings and comments."
   (interactive "p")
   (if (or (lispy--in-string-or-comment-p)
-          (looking-back "?\\\\"))
+          (lispy-after-string-p "?\\"))
       (insert ")")
     (lispy-out-forward-newline arg)))
 
@@ -6130,7 +6130,7 @@ When ARG is non-nil, unquote the current string."
           (arg
            (lispy-stringify))
 
-          ((looking-back "?\\\\")
+          ((lispy-after-string-p "?\\")
            (self-insert-command 1))
 
           ((lispy--in-comment-p)
@@ -6173,10 +6173,10 @@ When ARG is non-nil, unquote the current string."
 (defun lispy-backward-delete (arg)
   "Delete ARG sexps backward."
   (interactive "p")
-  (cond ((and (looking-back "\"")
+  (cond ((and (eq (char-before) ?\")
               (null (lispy--bounds-string)))
          (backward-char 1))
-        ((looking-back lispy-left)
+        ((lispy-looking-back lispy-left)
          (lispy-delete-backward arg)
          (insert " "))
         ((lispy-right-p)
