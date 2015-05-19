@@ -1098,7 +1098,7 @@ Otherwise (`backward-delete-char-untabify' ARG)."
                   (backward-delete-char-untabify arg))))
 
           ((looking-at lispy-outline)
-           (if (looking-back (concat lispy-outline ".*\n"))
+           (if (lispy-looking-back (concat lispy-outline ".*\n"))
                (delete-region
                 (match-beginning 0)
                 (match-end 0))
@@ -1165,7 +1165,7 @@ Otherwise (`backward-delete-char-untabify' ARG)."
              (goto-char (match-beginning 0))
              (delete-region (car (lispy--bounds-string)) pt))
            (lispy--delete-whitespace-backward)
-           (unless (looking-back lispy-left)
+           (unless (lispy-looking-back lispy-left)
              (just-one-space))
            (indent-for-tab-command))
 
@@ -1185,11 +1185,11 @@ Otherwise (`backward-delete-char-untabify' ARG)."
                (backward-delete-char 1)
                (unless (or (eolp)
                            (looking-at lispy-right)
-                           (looking-back lispy-left))
+                           (lispy-looking-back lispy-left))
                  (just-one-space)))
              (indent-for-tab-command)))
 
-          ((looking-back "[^ ]  +")
+          ((lispy-looking-back "[^ ]  +")
            (delete-region (+ (match-beginning 0) 2) (point)))
 
           (t
@@ -1419,7 +1419,7 @@ otherwise the whole string is unquoted."
           (arg
            (lispy-stringify))
 
-          ((looking-back "?\\\\")
+          ((lispy-after-string-p "?\\")
            (self-insert-command 1))
 
           (t
@@ -4263,7 +4263,9 @@ Return start of string it is."
   "Return t if the string before point is STR."
   (string=
    (buffer-substring
-    (- (point) (length str))
+    (max
+     (- (point) (length str))
+     1)
     (point))
    str))
 
