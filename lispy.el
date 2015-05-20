@@ -3832,7 +3832,8 @@ ARG is 4: `eval-defun' on the function from this sexp."
   (interactive)
   (let* ((ldsi-sxp (lispy--setq-expression))
          (ldsi-fun (car ldsi-sxp)))
-    (if (functionp ldsi-fun)
+    (if (or (functionp ldsi-fun)
+            (macrop ldsi-fun))
         (let ((ldsi-args
                (copy-seq
                 (help-function-arglist
@@ -3841,7 +3842,8 @@ ARG is 4: `eval-defun' on the function from this sexp."
                    ldsi-fun)
                  t)))
               (ldsi-vals (cdr ldsi-sxp))
-              ldsi-arg)
+              ldsi-arg
+              ldsi-val)
           (catch 'done
             (while (setq ldsi-arg (pop ldsi-args))
               (cond ((eq ldsi-arg '&optional)
@@ -3852,7 +3854,11 @@ ARG is 4: `eval-defun' on the function from this sexp."
                      (set ldsi-arg (mapcar #'eval ldsi-vals))
                      (throw 'done t))
                     (t
-                     (set ldsi-arg (eval (pop ldsi-vals)))))))
+                     (setq ldsi-val (pop ldsi-vals))
+                     (set ldsi-arg
+                          (if (functionp ldsi-fun)
+                              (eval ldsi-val)
+                            ldsi-val))))))
           (lispy-goto-symbol ldsi-fun))
       (lispy-complain
        (format "%S isn't a function" ldsi-fun)))))
