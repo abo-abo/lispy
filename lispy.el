@@ -1810,9 +1810,7 @@ See `lispy-occur-backend' for the selection back end."
                         :update-fn (lambda ()
                                      (lispy--occur-update-input
                                       ivy-text ivy--current))
-                        :action
-                        (lambda ()
-                          (lispy--occur-action ivy--current)))
+                        :action #'lispy--occur-action)
            (swiper--cleanup)
            (when (null ivy-exit)
              (goto-char swiper--opoint))))
@@ -5411,9 +5409,9 @@ ACTION is called for the selected candidate."
            (ivy-read "tag: " strs
                      :require-match t
                      :preselect (lispy--current-tag)
-                     :action (lambda ()
+                     :action (lambda (x)
                                (funcall action
-                                        (cdr (assoc ivy--current candidates))))))
+                                        (cdr (assoc x candidates))))))
           (t
            (let ((res
                   (cl-case lispy-completion-method
