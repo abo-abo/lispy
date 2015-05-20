@@ -5889,7 +5889,7 @@ Return an appropriate `setq' expression when in `let', `dolist',
       (when tsexp
         (lispy-different)
         (cond
-          ((looking-back "(\\(?:lexical-\\)?let\\*?[ \t\n]*"
+          ((looking-back "(\\(?:lexical-\\)?let\\(?:\\*\\|-when-compile\\)?[ \t\n]*"
                          (line-beginning-position 0))
            (cons 'setq
                  (cl-mapcan
@@ -5903,7 +5903,7 @@ Return an appropriate `setq' expression when in `let', `dolist',
           ((progn
              (lispy--out-backward 1)
              (looking-back
-              "(\\(?:lexical-\\)?let\\*?[ \t\n]*"
+              "(\\(?:lexical-\\)?let\\(?:\\*\\|-when-compile\\)?[ \t\n]*"
               (line-beginning-position 0)))
            (cons 'setq tsexp))
 
