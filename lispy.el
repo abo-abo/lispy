@@ -3074,7 +3074,7 @@ When ARG isn't nil, try to pretty print the sexp."
         (insert str)
         (if (lispy-right-p)
             (progn
-              (lispy-multiline 'fill)
+              (lispy-alt-multiline t)
               (goto-char (point-min))
               (insert "=>\n"))
           (goto-char (point-min))
