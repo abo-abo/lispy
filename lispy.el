@@ -3863,6 +3863,30 @@ ARG is 4: `eval-defun' on the function from this sexp."
       (lispy-complain
        (format "%S isn't a function" ldsi-fun)))))
 
+(defvar cl--bind-lets)
+(defvar cl--bind-forms)
+(defvar cl--bind-defs)
+(defvar cl--bind-block)
+(defvar cl--bind-enquote)
+
+(defmacro lispy-destructuring-setq (args expr)
+  "Set ARGS to parts of EXPR.
+An equivalent of `cl-destructuring-bind'."
+  (declare (indent 2))
+  (let* ((cl--bind-lets nil)
+         (cl--bind-forms nil)
+         (cl--bind-defs nil)
+         (cl--bind-block (quote cl-none))
+         (cl--bind-enquote nil)
+         res)
+    (cl--do-arglist (or args (quote (&aux))) expr)
+    (setq res
+          (nreverse cl--bind-lets))
+    (cons 'progn
+          (mapcar (lambda (x)
+                    (cons 'setq x))
+                  res))))
+
 ;;* Locals: miscellanea
 (defun lispy-describe-bindings-C-4 ()
   "Describe bindings that start with \"C-4\"."
@@ -5930,6 +5954,25 @@ Return an appropriate `setq' expression when in `let', `dolist',
                   (progn
                     ,@(cdr re))
                 lispy--eval-cond-msg)))
+          ((looking-at "(\\(?:cl-\\)?\\(?:defun\\|defmacro\\)")
+           (let* ((fn-name (save-excursion
+                             (forward-char)
+                             (forward-sexp 2)
+                             (lispy--preceding-sexp)))
+                  (int-form
+                   (and (fboundp fn-name)
+                        (interactive-form fn-name)))
+                  (int-form (when (and (eq (car int-form) 'interactive)
+                                       (listp (cadr int-form)))
+                              (cadr int-form))))
+             (if int-form
+                 `(lispy-destructuring-setq ,tsexp
+                      ,int-form)
+               `(progn
+                  ,@(mapcar
+                     (lambda (x)
+                       (list 'setq x nil))
+                     (delq '&key (delq '&optional (delq '&rest tsexp))))))))
           (t tsexp))))))
 
 ;;* Key definitions
