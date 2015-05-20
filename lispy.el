@@ -4899,6 +4899,10 @@ Ignore the matches in strings and comments."
                         (insert "))"))
                       (delete-region (match-beginning 0) (match-end 0))
                       (insert "(ly-raw " class " ("))))
+                ;; ——— 123# ———————————————————
+                (goto-char (point-min))
+                (while (re-search-forward "[0-9]+\\(#\\)" nil t)
+                  (replace-match "\\#" nil t nil 1))
                 ;; ——— ' ——————————————————————
                 (goto-char (point-min))
                 (while (re-search-forward "'" nil t)
@@ -5574,6 +5578,9 @@ The outer delimiters are stripped."
       (while (re-search-forward "\\\\\\." nil t)
         (unless (lispy--in-string-p)
           (replace-match ".")))
+      (goto-char (point-min))
+      (while (re-search-forward "[0-9]+\\(\\\\#\\)" nil t)
+        (replace-match "#" nil t nil 1))
       (when lispy-do-fill
         (goto-char (point-min))
         (while (re-search-forward " " nil t)

@@ -1128,15 +1128,11 @@ Insert KEY if there's no command."
                                (match-strict (ly-raw dot)
                                              (ly-raw newline)
                                              (lambda (x))))))))
-  (let ((str "'(helm :sources (ly-raw newline)
-               (ly-raw \\` (name (ly-raw dot) (ly-raw string \"\\\"this defun\\\"\"))
-                (ly-raw newline)
-                (match-strict (ly-raw dot)
-                 (ly-raw newline)
-                 (lambda (x)))))"))
-    (should (equal
-             (lispy--prin1-to-string (lispy--read str) 13 'emacs-lisp-mode)
-             str))))
+  (should (equal
+           (lispy--prin1-to-string
+            (lispy--read "(fn* [p1__7041#] (+ 1 p1__7041#))")
+            0 'clojure-mode)
+           "(fn* [p1__7041#] (+ 1 p1__7041#))")))
 
 (ert-deftest lispy-tick ()
   (should (string= (lispy-with "|" "'") "'|"))
