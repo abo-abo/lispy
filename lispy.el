@@ -2054,6 +2054,21 @@ Return the amount of successful grow steps, nil instead of zero."
                (goto-char (car bnd))
                (delete-char 1)))))))
 
+(defun lispy-reverse ()
+  "Reverse the current list or region selection."
+  (interactive)
+  (let* ((leftp (lispy--leftp))
+         (bnd (lispy--bounds-dwim))
+         (expr (lispy--read (format "(%s)" (lispy--string-dwim bnd))))
+         (deactivate-mark nil))
+    (delete-region (car bnd) (cdr bnd))
+    (if (eq (length expr) 1)
+        (lispy--insert (nreverse (car expr)))
+      (lispy--insert (nreverse expr))
+      (lispy-splice 1))
+    (when leftp
+      (lispy-different))))
+
 (defun lispy-raise (arg)
   "Use current sexp or region as replacement for its parent.
 Do so ARG times."
@@ -3914,6 +3929,7 @@ An equivalent of `cl-destructuring-bind'."
     (define-key map "b" 'lispy-bind-variable)
     (define-key map "v" 'lispy-view-test)
     (define-key map "B" 'lispy-store-region-and-buffer)
+    (define-key map "R" 'lispy-reverse)
     (define-key map (char-to-string help-char) 'lispy-describe-bindings-C-4)
     map))
 

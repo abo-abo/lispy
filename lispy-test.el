@@ -1891,6 +1891,20 @@ Insert KEY if there's no command."
                                "n3P")
                    "(a witch (a witch)|)")))
 
+(ert-deftest lispy-reverse ()
+  (should (string= (lispy-with "|(read-string slurp clojure.java.io/resource path)"
+                               (execute-kbd-macro "xR"))
+                   "|(path clojure.java.io/resource slurp read-string)"))
+  (should (string= (lispy-with "(read-string slurp clojure.java.io/resource path)|"
+                               (execute-kbd-macro "xR"))
+                   "(path clojure.java.io/resource slurp read-string)|"))
+  (should (string= (lispy-with "(read-string ~slurp clojure.java.io/resource path|)"
+                               (execute-kbd-macro "xR"))
+                   "(read-string ~path clojure.java.io/resource slurp|)"))
+  (should (string= (lispy-with "(read-string |slurp clojure.java.io/resource path~)"
+                               (execute-kbd-macro "xR"))
+                   "(read-string |path clojure.java.io/resource slurp~)")))
+
 (provide 'lispy-test)
 
 ;;; lispy-test.el ends here
