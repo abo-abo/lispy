@@ -1879,6 +1879,14 @@ Insert KEY if there's no command."
                    "(frob grovel)                           ;|"))
   (lispy-set-key-theme '(special lispy c-digits oleh)))
 
+(ert-deftest lispy-paste ()
+  (should (string= (lispy-with "|(a witch)"
+                               "n2P")
+                   "(a (a witch)| witch)"))
+  (should (string= (lispy-with "|(a witch)"
+                               "n3P")
+                   "(a witch (a witch)|)")))
+
 (provide 'lispy-test)
 
 ;;; lispy-test.el ends here

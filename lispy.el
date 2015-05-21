@@ -4050,27 +4050,38 @@ If already there, return it to previous position."
          (insert " ")
          (backward-char 1))))
 
-(defun lispy-paste ()
+(defun lispy-paste (arg)
   "Forward to `yank'.
-If the region is active, replace instead of yanking."
-  (interactive)
-  (if (region-active-p)
-      (let ((bnd (lispy--bounds-dwim)))
-        (deactivate-mark)
-        (delete-region (car bnd)
-                       (cdr bnd))
-        (yank))
-    (if (and (lispy-right-p)
-             (save-excursion
-               (forward-list -1)
-               (bolp)))
-        (newline)
-      (when (bolp)
-        (open-line 1)))
-    (yank)
-    (when (and (lispy-right-p)
-               (lispy-left-p))
-      (insert " "))))
+If the region is active, replace instead of yanking.
+When ARG is given, paste at that place in the current list."
+  (interactive "p")
+  (cond ((region-active-p)
+         (let ((bnd (lispy--bounds-dwim)))
+           (deactivate-mark)
+           (delete-region (car bnd)
+                          (cdr bnd))
+           (yank)))
+        ((> arg 1)
+         (lispy-mark-car)
+         (lispy-down (- arg 2))
+         (deactivate-mark)
+         (just-one-space)
+         (yank)
+         (unless (or (eolp) (looking-at lispy-right))
+           (just-one-space)
+           (forward-char -1)))
+        (t
+         (if (and (lispy-right-p)
+                  (save-excursion
+                    (forward-list -1)
+                    (bolp)))
+             (newline)
+           (when (bolp)
+             (open-line 1)))
+         (yank)
+         (when (and (lispy-right-p)
+                    (lispy-left-p))
+           (insert " ")))))
 
 (defalias 'lispy-font-lock-ensure
     (if (fboundp 'font-lock-ensure)
