@@ -2017,33 +2017,36 @@ Return the amount of successful grow steps, nil instead of zero."
   "Splice ARG sexps into containing list."
   (interactive "p")
   (lispy-dotimes arg
-    (let ((bnd (if (region-active-p)
-                   (progn
-                     (goto-char (1- (region-end)))
-                     (deactivate-mark)
-                     (lispy--bounds-list))
-                 (lispy--bounds-list))))
-      (cond ((lispy-left-p)
+    (let ((bnd (lispy--bounds-dwim))
+          (deactivate-mark nil))
+      (cond ((region-active-p)
+             (save-excursion
+               (goto-char (cdr bnd))
+               (re-search-backward lispy-right)
+               (delete-region (point) (cdr bnd)))
+             (save-excursion
+               (goto-char (car bnd))
+               (re-search-forward lispy-left)
+               (delete-region (car bnd) (point))))
+
+            ((lispy-left-p)
              (save-excursion
                (goto-char (cdr bnd))
                (delete-char -1))
              (delete-char 1)
-             (if (lispy-forward 1)
-                 (lispy-backward 1)
-               (lispy-backward 1)
-               (lispy-flow 1)))
+             (lispy-forward 1)
+             (lispy-backward 1))
 
             ((lispy-right-p)
              (setq bnd (lispy--bounds-dwim))
              (delete-char -1)
              (goto-char (car bnd))
              (delete-char 1)
-             (if (lispy-backward 1)
-                 (lispy-forward 1)
-               (lispy-forward 1)
-               (lispy-flow 1)))
+             (lispy-backward 1)
+             (forward-list))
 
             (t
+             (setq bnd (lispy--bounds-list))
              (save-excursion
                (goto-char (cdr bnd))
                (delete-char -1))
