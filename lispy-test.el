@@ -244,6 +244,11 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "(|asdf ?\\ )"
                                (lispy-right 1))
                    "(asdf ?\\ )|")))
+
+(ert-deftest lispy-move-right ()
+  (should (string= (lispy-with "(defn |exclaim~ [exclamation]\n  (str exclamation \"!\"))" "col")
+                   "(defn exclaim [exclamation]\n  (str exclamation \"!\"))\n|exclaim~")))
+
 (ert-deftest lispy-left ()
   (should (string= (lispy-with "(|(a) (b) (c))" "h")
                    "|((a) (b) (c))"))

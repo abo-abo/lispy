@@ -2357,6 +2357,7 @@ When ARG is more than 1, pull ARGth expression to enclose current sexp."
                (delete-region (match-beginning 1)
                               (match-end 1))))
         (lispy--out-backward 1)
+        (deactivate-mark)
         (lispy-different)
         (newline-and-indent)
         (setq pt (point))
