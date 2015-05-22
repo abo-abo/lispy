@@ -5643,7 +5643,8 @@ The outer delimiters are stripped."
         (replace-match "?" t t nil 1))
       (goto-char (point-min))
       (while (re-search-forward "\\\\\\." nil t)
-        (unless (lispy--in-string-p)
+        (unless (save-match-data
+                  (lispy--in-string-p))
           (replace-match ".")))
       (goto-char (point-min))
       (while (re-search-forward "[0-9]+\\(\\\\#\\)" nil t)
