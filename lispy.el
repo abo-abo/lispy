@@ -2997,7 +2997,15 @@ SYMBOL is a string."
            (cond ((and current-prefix-arg (boundp symbol))
                   (find-variable symbol))
                  ((fboundp symbol)
-                  (find-function symbol))
+                  (condition-case nil
+                      (find-function symbol)
+                    (error
+                     (goto-char (point-min))
+                     (if (re-search-forward (format "^(def.*%S" symbol) nil t)
+                         (move-beginning-of-line 1)
+                       (lispy-complain
+                        (format "Don't know where `%S' is defined" symbol))
+                       (pop-tag-mark)))))
                  ((boundp symbol)
                   (find-variable symbol))
                  ((or (featurep symbol)
