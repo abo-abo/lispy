@@ -1903,7 +1903,10 @@ Insert KEY if there's no command."
                    "(read-string ~path clojure.java.io/resource slurp|)"))
   (should (string= (lispy-with "(read-string |slurp clojure.java.io/resource path~)"
                                (execute-kbd-macro "xR"))
-                   "(read-string |path clojure.java.io/resource slurp~)")))
+                   "(read-string |path clojure.java.io/resource slurp~)"))
+  (should (string= (lispy-with "(defn read-resource\n  \"Read a resource into a string.\"\n  [path]\n  |(read-string\n   (slurp\n    (clojure.java.io/resource path))))"
+                               (execute-kbd-macro "f//xR2 ->[i"))
+                   "(defn read-resource\n  \"Read a resource into a string.\"\n  [path]\n  |(-> path clojure.java.io/resource\n      slurp\n      read-string))")))
 
 (provide 'lispy-test)
 
