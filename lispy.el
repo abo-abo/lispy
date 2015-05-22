@@ -5901,10 +5901,10 @@ PLIST currently accepts:
 - :override with a lambda to conditionally abort command"
   (let ((disable (plist-get plist :disable))
         (override (plist-get plist :override)))
-    `(lambda ,(help-function-arglist def)
+    `(lambda ()
        ,(format "Call `%s' when special, self-insert otherwise.\n\n%s"
                 (symbol-name def) (documentation def))
-       ,(interactive-form def)
+       (interactive)
        ,@(when disable `((,disable -1)))
        (unless (looking-at lispy-outline)
          (lispy--ensure-visible))
@@ -5917,18 +5917,18 @@ PLIST currently accepts:
                       (error "Unexpected :override %S" override)))
 
              ,@(when (memq 'edebug lispy-compat)
-                     '(((lispy--edebug-commandp)
-                        (call-interactively
-                         lispy--edebug-command))))
+                 '(((lispy--edebug-commandp)
+                    (call-interactively
+                     lispy--edebug-command))))
 
              ,@(when (memq 'god-mode lispy-compat)
-                     '(((and (bound-and-true-p god-global-mode))
-                        (call-interactively 'god-mode-self-insert))))
+                 '(((and (bound-and-true-p god-global-mode))
+                    (call-interactively 'god-mode-self-insert))))
 
              ,@(when (memq 'macrostep lispy-compat)
-                     '(((and (bound-and-true-p macrostep-mode)
-                         (setq lispy--compat-cmd (lookup-key macrostep-keymap (this-command-keys))))
-                        (call-interactively lispy--compat-cmd))))
+                 '(((and (bound-and-true-p macrostep-mode)
+                     (setq lispy--compat-cmd (lookup-key macrostep-keymap (this-command-keys))))
+                    (call-interactively lispy--compat-cmd))))
 
              ((region-active-p)
               (call-interactively ',def))
