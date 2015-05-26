@@ -281,7 +281,7 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
     (insert result)
     (when begp
       (goto-char (car bnd))))
-  (lispy-multiline))
+  (lispy-alt-multiline))
 
 (provide 'le-clojure)
 
