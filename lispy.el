@@ -3577,6 +3577,7 @@ With ARG, use the contents of `lispy-store-region-and-buffer' instead."
                (body (lispy--flatten-function fstr e-args))
                (print-quoted t))
           (lispy--insert body)))
+      (lispy-alt-multiline)
       (when begp
         (goto-char (car bnd))))))
 

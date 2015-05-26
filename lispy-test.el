@@ -1257,15 +1257,15 @@ Insert KEY if there's no command."
   (should (string= (lispy-with
                     "(defun square (x &optional y &rest z)\n  (if y\n      (cons 200 z)\n    (* x x)))|\n(square 10 1 2 3)"
                     "ej" (lispy-flatten nil))
-                   "(defun square (x &optional y &rest z)\n  (if y\n      (cons 200 z)\n    (* x x)))\n(if 1 (cons 200 (list 2 3)) (* 10 10))|"))
+                   "(defun square (x &optional y &rest z)\n  (if y\n      (cons 200 z)\n    (* x x)))\n(if 1\n    (cons 200 (list 2 3))\n  (* 10 10))|"))
   (should (string= (lispy-with
                     "(defun square (x &optional y &rest z)\n  (if y\n      (cons 200 z)\n    (* x x)))|\n(square 10 1)"
                     "ej" (lispy-flatten nil))
-                   "(defun square (x &optional y &rest z)\n  (if y\n      (cons 200 z)\n    (* x x)))\n(if 1 (cons 200 (list)) (* 10 10))|"))
+                   "(defun square (x &optional y &rest z)\n  (if y\n      (cons 200 z)\n    (* x x)))\n(if 1\n    (cons 200 (list))\n  (* 10 10))|"))
   (should (string= (lispy-with
                     "(defun square (x &optional y &rest z)\n  (if y\n      (cons 200 z)\n    (* x x)))|\n(square 10)"
                     "ej" (lispy-flatten nil))
-                   "(defun square (x &optional y &rest z)\n  (if y\n      (cons 200 z)\n    (* x x)))\n(if nil (cons 200 (list)) (* 10 10))|")))
+                   "(defun square (x &optional y &rest z)\n  (if y\n      (cons 200 z)\n    (* x x)))\n(if nil\n    (cons 200 (list))\n  (* 10 10))|")))
 
 (ert-deftest lispy-mark-list ()
   (should (string= (lispy-with "|;; foo\n(bar)" (lispy-mark-list 1))
