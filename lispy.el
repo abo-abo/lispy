@@ -3878,7 +3878,10 @@ ARG is 4: `eval-defun' on the function from this sexp."
                      (set ldsi-arg (eval (pop ldsi-vals))))
                     ((eq ldsi-arg '&rest)
                      (setq ldsi-arg (pop ldsi-args))
-                     (set ldsi-arg (mapcar #'eval ldsi-vals))
+                     (set ldsi-arg
+                          (if (functionp ldsi-fun)
+                              (mapcar #'eval ldsi-vals)
+                            ldsi-vals))
                      (throw 'done t))
                     (t
                      (setq ldsi-val (pop ldsi-vals))
