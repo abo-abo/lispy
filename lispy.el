@@ -5957,7 +5957,8 @@ PLIST currently accepts:
 Return an appropriate `setq' expression when in `let', `dolist',
 `labels', `cond'."
   (save-excursion
-    (let ((tsexp
+    (let ((origin (point))
+          (tsexp
            (ignore-errors
              (cond ((lispy-left-p)
                     (forward-list))
@@ -6000,7 +6001,10 @@ Return an appropriate `setq' expression when in `let', `dolist',
                   (progn
                     ,@(cdr re))
                 lispy--eval-cond-msg)))
-          ((looking-at "(\\(?:cl-\\)?\\(?:defun\\|defmacro\\)")
+          ((and (looking-at "(\\(?:cl-\\)?\\(?:defun\\|defmacro\\)")
+                (save-excursion
+                  (lispy-flow 1)
+                  (eq (point) origin)))
            (let* ((fn-name (save-excursion
                              (forward-char)
                              (forward-sexp 2)
