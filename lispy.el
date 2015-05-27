@@ -2390,7 +2390,8 @@ When ARG is more than 1, pull ARGth expression to enclose current sexp."
             (lispy-different)))))))
 
 (defun lispy-clone (arg)
-  "Clone sexp ARG times."
+  "Clone sexp ARG times.
+When the sexp is top-level, insert an additional newline."
   (interactive "p")
   (let* ((bnd (lispy--bounds-dwim))
          (str (lispy--string-dwim bnd))
@@ -2411,14 +2412,26 @@ When ARG is more than 1, pull ARGth expression to enclose current sexp."
                  (exchange-point-and-mark)))))
           ((lispy-left-p)
            (goto-char (car bnd))
-           (lispy-dotimes arg
-             (insert str)
-             (newline-and-indent))
+           (if (bolp)
+               (lispy-dotimes arg
+                 (insert str)
+                 (newline)
+                 (newline))
+             (lispy-dotimes arg
+               (insert str)
+               (newline-and-indent)))
            (goto-char pt))
           ((lispy-right-p)
-           (lispy-dotimes arg
-             (newline-and-indent)
-             (insert str)))
+           (if (save-excursion
+                 (backward-list)
+                 (bolp))
+               (lispy-dotimes arg
+                 (newline)
+                 (newline-and-indent)
+                 (insert str))
+             (lispy-dotimes arg
+               (newline-and-indent)
+               (insert str))))
           (t
            (error "Unexpected")))))
 
