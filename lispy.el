@@ -2166,8 +2166,7 @@ When ARG is more than 1, pull ARGth expression to enclose current sexp."
     (setq lispy-repeat--prefix-arg
           (or last-prefix-arg 1)))
   (setq current-prefix-arg lispy-repeat--prefix-arg)
-  (funcall lispy-repeat--command
-           lispy-repeat--prefix-arg))
+  (funcall lispy-repeat--command))
 
 (defun lispy-join ()
   "Join sexps."

@@ -1918,6 +1918,11 @@ Insert KEY if there's no command."
                                (execute-kbd-macro "f//xR2 ->[i"))
                    "(defn read-resource\n  \"Read a resource into a string.\"\n  [path]\n  |(-> path clojure.java.io/resource\n      slurp\n      read-string))")))
 
+(ert-deftest lispy-repeat ()
+  (should (string= (lispy-with "(message \"a witch\")|"
+                               "2c..")
+                   "(message \"a witch\")\n\n(message \"a witch\")\n\n(message \"a witch\")\n\n(message \"a witch\")\n\n(message \"a witch\")|")))
+
 (provide 'lispy-test)
 
 ;;; lispy-test.el ends here
