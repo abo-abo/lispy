@@ -5028,12 +5028,13 @@ Ignore the matches in strings and comments."
                         (goto-char beg)
                         (delete-char 2)
                         (insert "(ly-raw \\,@ ")))))
-                ;; ——— overlay syntax —————————
+                ;; ——— angle syntax —————————
+                ;; used for markers/buffers/windows/overlays
                 (goto-char (point-min))
-                (while (re-search-forward "#<overlay" nil t)
+                (while (re-search-forward "#<" nil t)
                   (unless (lispy--in-string-or-comment-p)
                     (delete-region (match-beginning 0) (match-end 0))
-                    (insert "(ly-raw overlay \"")
+                    (insert "(ly-raw angle \"")
                     (re-search-forward ">")
                     (backward-delete-char 1)
                     (insert "\")")))
@@ -5615,9 +5616,9 @@ The outer delimiters are stripped."
            (delete-region beg (point))
            (delete-horizontal-space)
            (insert ", "))
-          (overlay
+          (angle
            (delete-region beg (point))
-           (insert (format "#<overlay%s>" (cl-caddr sxp)))
+           (insert (format "#<%s>" (cl-caddr sxp)))
            (goto-char beg))
           (\`
            (if (> (length sxp) 3)

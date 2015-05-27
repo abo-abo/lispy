@@ -1144,7 +1144,12 @@ Insert KEY if there's no command."
            (lispy--prin1-to-string
             (lispy--read "(fn* [p1__7041#] (+ 1 p1__7041#))")
             0 'clojure-mode)
-           "(fn* [p1__7041#] (+ 1 p1__7041#))")))
+           "(fn* [p1__7041#] (+ 1 p1__7041#))"))
+  (should (equal
+           (lispy--prin1-to-string
+            (lispy--read "#<marker (moves after insertion) at 280 in *Customize Group: Lispy Faces*>")
+            0 'emacs-lisp-mode)
+           "#<marker (moves after insertion) at 280 in *Customize Group: Lispy Faces*>")))
 
 (ert-deftest lispy-tick ()
   (should (string= (lispy-with "|" "'") "'|"))
