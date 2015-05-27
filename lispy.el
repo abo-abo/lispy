@@ -4974,6 +4974,14 @@ Ignore the matches in strings and comments."
                 (goto-char (point-min))
                 (while (re-search-forward "[0-9]+\\(#\\)" nil t)
                   (replace-match "\\#" nil t nil 1))
+                ;; ——— #1 —————————————————————
+                ;; Elisp syntax for circular lists
+                (goto-char (point-min))
+                (while (re-search-forward "\\(?:^\\|\\s-\\)\\(#[0-9]+\\)" nil t)
+                  (replace-match (format "(ly-raw reference %S)"
+                                         (substring-no-properties
+                                          (match-string 1)))
+                                 nil nil nil 1))
                 ;; ——— ' ——————————————————————
                 (goto-char (point-min))
                 (while (re-search-forward "'" nil t)
@@ -5620,6 +5628,9 @@ The outer delimiters are stripped."
            (delete-region beg (point))
            (insert (format "#<%s>" (cl-caddr sxp)))
            (goto-char beg))
+          (reference
+           (delete-region beg (point))
+           (insert (cl-caddr sxp)))
           (\`
            (if (> (length sxp) 3)
                (progn

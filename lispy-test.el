@@ -1149,7 +1149,12 @@ Insert KEY if there's no command."
            (lispy--prin1-to-string
             (lispy--read "#<marker (moves after insertion) at 280 in *Customize Group: Lispy Faces*>")
             0 'emacs-lisp-mode)
-           "#<marker (moves after insertion) at 280 in *Customize Group: Lispy Faces*>")))
+           "#<marker (moves after insertion) at 280 in *Customize Group: Lispy Faces*>"))
+  (should (equal
+           (lispy--prin1-to-string
+            (lispy--read "(1 2 3 1 2 . #2)")
+            0 'emacs-lisp-mode)
+           "(1 2 3 1 2 . #2)")))
 
 (ert-deftest lispy-tick ()
   (should (string= (lispy-with "|" "'") "'|"))
