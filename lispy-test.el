@@ -878,11 +878,11 @@ Insert KEY if there's no command."
 
 (ert-deftest lispy-clone ()
   (should (string= (lispy-with "(foo)|" "c")
-                   "(foo)\n\n(foo)|"))
+                   "(foo)\n(foo)|"))
   (should (string= (lispy-with "(list\n (foo)|)" "c")
                    "(list\n (foo)\n (foo)|)"))
   (should (string= (lispy-with "|(foo)" "c")
-                   "|(foo)\n\n(foo)"))
+                   "|(foo)\n(foo)"))
   (should (string= (lispy-with "(list\n |(foo))" "c")
                    "(list\n |(foo)\n (foo))"))
   (should (string= (lispy-with "(foo ~(bar)|)" "c")
@@ -1925,7 +1925,7 @@ Insert KEY if there's no command."
 (ert-deftest lispy-repeat ()
   (should (string= (lispy-with "(message \"a witch\")|"
                                "2c..")
-                   "(message \"a witch\")\n\n(message \"a witch\")\n\n(message \"a witch\")\n\n(message \"a witch\")\n\n(message \"a witch\")|")))
+                   "(message \"a witch\")\n(message \"a witch\")\n(message \"a witch\")\n(message \"a witch\")\n(message \"a witch\")|")))
 
 (provide 'lispy-test)
 

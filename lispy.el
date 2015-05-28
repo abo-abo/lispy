@@ -2412,7 +2412,7 @@ When the sexp is top-level, insert an additional newline."
                  (exchange-point-and-mark)))))
           ((lispy-left-p)
            (goto-char (car bnd))
-           (if (bolp)
+           (if (and (bolp) (looking-at "(defun"))
                (lispy-dotimes arg
                  (insert str)
                  (newline)
@@ -2424,7 +2424,7 @@ When the sexp is top-level, insert an additional newline."
           ((lispy-right-p)
            (if (save-excursion
                  (backward-list)
-                 (bolp))
+                 (and (bolp) (looking-at "(defun")))
                (lispy-dotimes arg
                  (newline)
                  (newline-and-indent)
