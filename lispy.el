@@ -3820,6 +3820,8 @@ Second region and buffer are the current ones."
               (let ((sexps
                      (mapcar
                       (lambda (x!)
+                        (when (consp x!)
+                          (setq x! (car x!)))
                         (cons x!
                               (let ((expr x!))
                                 (edebug-eval expr))))
