@@ -383,6 +383,16 @@ Otherwise return the amount of times executed."
               ,@body)
          (fset ',name ,old)))))
 
+(defmacro lispy-multipop (lst n)
+  "Remove LST's first N elements and return them."
+  `(if (<= (length ,lst) ,n)
+       (prog1 ,lst
+         (setq ,lst nil))
+     (prog1 ,lst
+       (setcdr
+        (nthcdr (1- ,n) (prog1 ,lst (setq ,lst (nthcdr ,n ,lst))))
+        nil))))
+
 (defvar lispy-site-directory (file-name-directory
                               load-file-name)
   "The directory where all of the lispy files are located.")
@@ -2594,7 +2604,7 @@ The third one is assumed to be the arglist and will not be changed.")
 
 (setq-mode-local
  clojure-mode
- lispy--multiline-take-2 '(loop recur let for fn def defn ns if -> ->>
+ lispy--multiline-take-2 '(loop recur for fn def defn ns if -> ->>
                            + +' - -' * *' / > >= < <= = ==
                            or and not
                            assoc! assoc assoc-in concat))
@@ -2607,16 +2617,18 @@ The third one is assumed to be the arglist and will not be changed.")
   "List of constructs for which the first 2 elements are on the first line.
 The second one will not be changed.")
 
-(defun lispy-interleave (x lst)
+(defun lispy-interleave (x lst &optional step)
   "Insert X in between each element of LST.
 Don't insert X when it's already there."
-  (let ((res (list (pop lst)))
+  (setq step (or step 1))
+  (let ((res (nreverse (lispy-multipop lst step)))
         item)
     (while lst
       (unless (equal (car res) x)
         (push x res))
-      (unless (equal (car res) (setq item (pop lst)))
-        (push item res)))
+      (unless (equal (car res)
+                     (car (setq item (lispy-multipop lst step))))
+        (setq res (nconc (nreverse item) res))))
     (nreverse res)))
 
 (defcustom lispy-multiline-threshold 32
@@ -2707,21 +2719,27 @@ When QUOTED is not nil, assume that EXPR is quoted and ignore some rules."
                   (push '(ly-raw newline) res)))
                ((and (memq elt '(let let*))
                      expr
-                     (listp (car expr))
-                     (listp (cdar expr)))
+                     (or (eq major-mode 'clojure-mode)
+                         (and
+                          (listp (car expr))
+                          (listp (cdar expr)))))
                 (push elt res)
                 (let ((body (pop expr)))
                   (push
-                   (lispy-interleave
-                    '(ly-raw newline)
-                    (mapcar
-                     (lambda (x)
-                       (if (and (listp x)
-                                (not (eq (car x) 'ly-raw)))
-                           (cons (car x)
-                                 (lispy--multiline-1 (cdr x)))
-                         x))
-                     body))
+                   (if (eq major-mode 'clojure-mode)
+                       (apply #'vector
+                              (lispy-interleave '(ly-raw newline)
+                                                (mapcar #'lispy--multiline-1 body) 2))
+                     (lispy-interleave
+                      '(ly-raw newline)
+                      (mapcar
+                       (lambda (x)
+                         (if (and (listp x)
+                                  (not (eq (car x) 'ly-raw)))
+                             (cons (car x)
+                                   (lispy--multiline-1 (cdr x)))
+                           x))
+                       body)))
                    res))
                 (push '(ly-raw newline) res))
                ((keywordp elt)

@@ -933,6 +933,8 @@ Insert KEY if there's no command."
                      "|{:king \"Arthur\"\n :knight \"Lancelot\"}"))
     (should (string= (lispy-with-clojure "#|{:king \"Arthur\" :knight \"Lancelot\"}" "M")
                      "#|{:king \"Arthur\"\n  :knight \"Lancelot\"}"))
+    (should (string= (lispy-with-clojure "|(let [name \"Launcelot\" quest 'grail color 'blue] (print \"Right. Off you go\"))" "M")
+                     "|(let [name \"Launcelot\"\n      quest 'grail\n      color 'blue]\n  (print\n   \"Right. Off you go\"))"))
     (should (string= (lispy-with "(eval-when-compile(require'cl)(require'org))|" "M")
                      "(eval-when-compile\n  (require 'cl)\n  (require 'org))|"))
     (should (string= (lispy-with "|(defgroup lispy nil \"List navigation and editing for the Lisp family.\" :group 'bindings :prefix \"lispy-\")" "M")
@@ -1932,6 +1934,22 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "(message \"a witch\")|"
                                "2c..")
                    "(message \"a witch\")\n(message \"a witch\")\n(message \"a witch\")\n(message \"a witch\")\n(message \"a witch\")|")))
+
+(ert-deftest lispy-interleave ()
+  (should (equal (lispy-interleave 0 '(1 2 3))
+                 '(1 0 2 0 3)))
+  (should (equal (lispy-interleave 1 '(1 2 3))
+                 '(1 2 1 3)))
+  (should (equal (lispy-interleave 2 '(1 2 3))
+                 '(1 2 3)))
+  (should (equal (lispy-interleave 3 '(1 2 3))
+                 '(1 3 2 3)))
+  (should (equal (lispy-interleave 0 '(1 2 3 4 5 6 7 8 9 10) 2)
+                 '(1 2 0 3 4 0 5 6 0 7 8 0 9 10)))
+  (should (equal (lispy-interleave 0 '(1 2 3 4 5 6 7 8 9 10) 3)
+                 '(1 2 3 0 4 5 6 0 7 8 9 0 10)))
+  (should (equal (lispy-interleave 3 '(1 2 3 4 5 6 7 8 9 10) 3)
+                 '(1 2 3 4 5 6 3 7 8 9 3 10))))
 
 (provide 'lispy-test)
 
