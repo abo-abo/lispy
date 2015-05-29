@@ -904,7 +904,9 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "(defun abc (x)\n  \"def.\"\n  (+ x\n     x\n     x))|" "O")
                    "(defun abc (x) \"def.\" (+ x x x))|"))
   (should (string= (lispy-with "|(defun foo ()\n  ;; comment\n  (bar)\n  (baz))" "O")
-                   ";; comment\n|(defun foo () (bar) (baz))")))
+                   ";; comment\n|(defun foo () (bar) (baz))"))
+  (should (string= (lispy-with "[1\n 2\n 3\n 4\n 5]|" "O")
+                   "[1 2 3 4 5]|")))
 
 (ert-deftest lispy-multiline ()
   (should (string= (lispy-with "|(defun abc (x) \"def.\" (+ x x x) (foo) (bar))"
