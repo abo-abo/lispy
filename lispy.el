@@ -2445,6 +2445,14 @@ When the sexp is top-level, insert an additional newline."
   "Reduce with FUNC all lists in EXPR."
   (cond ((null expr)
          nil)
+        ((and (vectorp expr) (> (length expr) 0))
+         (apply #'vector
+                (funcall func
+                         (lispy-mapcan-tree func (aref expr 0))
+                         (lispy-mapcan-tree
+                          func
+                          (cdr
+                           (mapcar #'identity expr))))))
         ((listp expr)
          (funcall func
                   (lispy-mapcan-tree func (car expr))
@@ -2456,27 +2464,25 @@ When the sexp is top-level, insert an additional newline."
   "Remove newlines from EXPR.
 When IGNORE-COMMENTS is not nil, don't remove comments.
 Instead keep them, with a newline after each comment."
-  (if (vectorp expr)
-      (apply #'vector (lispy--oneline (mapcar #'identity expr)))
-    (lispy-mapcan-tree
-     (lambda (x y)
-       (cond ((equal x '(ly-raw newline))
-              y)
-             ((lispy--raw-comment-p x)
-              (if (null ignore-comments)
-                  (progn
-                    (push x lispy--oneline-comments)
-                    y)
-                (if (equal (car y) '(ly-raw newline))
-                    (cons x y)
-                  `(,x (ly-raw newline) ,@y))))
-             ((and (lispy--raw-string-p x)
-                   (null ignore-comments))
-              (cons `(ly-raw string ,(replace-regexp-in-string "\n" "\\\\n" (caddr x)))
-                    y))
-             (t
-              (cons x y))))
-     expr)))
+  (lispy-mapcan-tree
+   (lambda (x y)
+     (cond ((equal x '(ly-raw newline))
+            y)
+           ((lispy--raw-comment-p x)
+            (if (null ignore-comments)
+                (progn
+                  (push x lispy--oneline-comments)
+                  y)
+              (if (equal (car y) '(ly-raw newline))
+                  (cons x y)
+                `(,x (ly-raw newline) ,@y))))
+           ((and (lispy--raw-string-p x)
+                 (null ignore-comments))
+            (cons `(ly-raw string ,(replace-regexp-in-string "\n" "\\\\n" (caddr x)))
+                  y))
+           (t
+            (cons x y))))
+   expr))
 
 (defun lispy-oneline ()
   "Squeeze current sexp into one line.
