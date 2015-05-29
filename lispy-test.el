@@ -952,7 +952,9 @@ Insert KEY if there's no command."
     (should (string= (lispy-with "|(lispy--multiline-1 '(let let*) t)" "M")
                      "|(lispy--multiline-1\n '(let\n   let*)\n t)"))
     (should (string= (lispy-with "|(format\n      #(\"error: [h]: first, [j]: next, [k]: prev, [SPC]: rep.\"\n        8 9 (face hydra-face-red)\n        20 21 (face hydra-face-red)\n        31 32 (face hydra-face-red)\n        42 45 (face hydra-face-red)))" "M")
-                     "|(format\n #(\"error: [h]: first, [j]: next, [k]: prev, [SPC]: rep.\"\n   8 9 (face\n        hydra-face-red)\n   20 21 (face\n          hydra-face-red)\n   31 32 (face\n          hydra-face-red)\n   42 45 (face\n          hydra-face-red)))"))))
+                     "|(format\n #(\"error: [h]: first, [j]: next, [k]: prev, [SPC]: rep.\"\n   8 9 (face\n        hydra-face-red)\n   20 21 (face\n          hydra-face-red)\n   31 32 (face\n          hydra-face-red)\n   42 45 (face\n          hydra-face-red)))"))
+    (should (string= (lispy-with "[1 2 3 4 5]|" "M")
+                     "[1\n 2\n 3\n 4\n 5]|"))))
 
 (ert-deftest lispy-comment ()
   (should (string= (lispy-with "(defun foo ()\n  (let (a b c)\n    (cond ((s1)\n           |(s2)\n           (s3)))))" ";")
