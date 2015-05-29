@@ -704,6 +704,8 @@ Insert KEY if there's no command."
                    "(a ~b c|)"))
   (should (string= (lispy-with "(a |'(b c)~)" "/")
                    "(a |b c~)"))
+  (should (string= (lispy-with "(a '(b c)|)" "/")
+                   "(a b c)|"))
   (should (string= (lispy-with "(asdf)\n(progn\n  |(foo)\n  (bar))\n(asdf)" "//")
                    "(asdf)\n|(progn\n  foo\n  bar)\n(asdf)"))
   (should (string= (lispy-with "(asdf)\n(progn\n  (foo)\n  (bar)|)\n(asdf)" "//")

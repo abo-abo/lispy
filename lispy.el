@@ -1041,12 +1041,7 @@ If position isn't special, move to previous or error."
            (lispy-left 1))
 
           ((lispy-left-p)
-           (when (lispy-looking-back "\\(?:\\s-\\|^\\)[`',@]+")
-             (delete-region
-              (match-beginning 0)
-              (match-end 0))
-             (insert " "))
-
+           (lispy--delete-quote-garbage)
            (lispy-dotimes arg
              (lispy--delete)))
 
@@ -1063,6 +1058,11 @@ If position isn't special, move to previous or error."
           (t
            (delete-char arg)))))
 
+(defun lispy--delete-quote-garbage ()
+  "Delete any combination of `',@ preceeding point."
+  (let ((pt (point)))
+    (skip-chars-backward "`',@")
+    (delete-region (point) pt)))
 
 (defun lispy--delete-whitespace-backward ()
   "Delete spaces backward."
@@ -2033,6 +2033,7 @@ Return the amount of successful grow steps, nil instead of zero."
              (save-excursion
                (goto-char (cdr bnd))
                (delete-char -1))
+             (lispy--delete-quote-garbage)
              (delete-char 1)
              (lispy-forward 1)
              (lispy-backward 1))
@@ -2041,7 +2042,9 @@ Return the amount of successful grow steps, nil instead of zero."
              (setq bnd (lispy--bounds-dwim))
              (delete-char -1)
              (goto-char (car bnd))
-             (delete-char 1)
+             (let ((pt (point)))
+               (re-search-forward lispy-left nil t)
+               (delete-region pt (point)))
              (lispy-backward 1)
              (forward-list))
 
