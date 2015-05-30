@@ -986,10 +986,10 @@ Insert KEY if there's no command."
   ;;                  "(foo (bar #\\x \"baz \\\\ quux\") zot)|"))
   ;; (should (string= (lispy-with "(foo (bar #\\x \"|baz \\\\ quux\") zot)" "\C-e\C-e")
   ;;                  "(foo (bar #\\x \"baz \\\\ quux\"|) zot)"))
-  (should (string= (lispy-with "\"fo|o\nbar\" baz"
-                               (lispy-move-end-of-line)
-                               (lispy-move-end-of-line))
-                   "\"foo\nbar\"| baz"))
+  ;; (should (string= (lispy-with "\"fo|o\nbar\" baz"
+  ;;                              (lispy-move-end-of-line)
+  ;;                              (lispy-move-end-of-line))
+  ;;                  "\"foo\nbar\"| baz"))
   (should (string= (lispy-with "\"foo|\nbar\" baz" "\C-e")
                    "\"foo\nbar\"| baz")))
 
