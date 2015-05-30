@@ -1723,6 +1723,9 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "(foo bar)|"
                                (kbd "DEL"))
                    "(foo bar|)"))
+  (should (string= (lispy-with "(|)"
+                               (kbd "DEL"))
+                   "|"))
   (lispy-set-key-theme '(special lispy c-digits oleh)))
 
 (ert-deftest lispy-paredit-kill ()
