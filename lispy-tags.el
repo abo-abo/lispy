@@ -32,11 +32,12 @@
 
 (defun lispy--file-list ()
   "Get the list of same type files in current directory."
-  (let ((ext (file-name-extension (buffer-file-name))))
-    (nreverse
-     (cl-remove-if
-      (lambda (x) (string-match "\\(?:^\\.?#\\|~$\\|loaddefs.el\\)" x))
-      (file-expand-wildcards (format "*.%s" ext))))))
+  (and (buffer-file-name)
+       (let ((ext (file-name-extension (buffer-file-name))))
+         (nreverse
+          (cl-remove-if
+           (lambda (x) (string-match "\\(?:^\\.?#\\|~$\\|loaddefs.el\\)" x))
+           (file-expand-wildcards (format "*.%s" ext)))))))
 
 (defun lispy-build-semanticdb (&optional dir)
   "Build and save semanticdb for DIR."
