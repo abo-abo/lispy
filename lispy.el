@@ -1598,19 +1598,21 @@ When region is active, toggle a ~ at the start of the region."
          (lispy--out-backward 1)
          (indent-sexp))))))
 
-(defun lispy-open-line ()
-  "Add one line after the current expression."
-  (interactive)
-  (cond ((lispy-left-p)
-         (save-excursion
-           (forward-list)
-           (newline)))
-        ((lispy-right-p)
-         (save-excursion (newline)))
-        (t
-         (save-excursion
-           (lispy--out-forward 1)
-           (newline)))))
+(defun lispy-open-line (arg)
+  "Add ARG lines after the current expression.
+When ARG is nagative, add them above instead"
+  (interactive "p")
+  (save-excursion
+    (cond ((lispy-left-p)
+           (forward-list))
+          ((lispy-right-p))
+          (t
+           (lispy--out-forward 1)))
+    (if (> arg 0)
+        (newline arg)
+      (forward-list -1)
+      (newline (- arg))
+      (indent-for-tab-command))))
 
 (defun lispy-meta-return ()
   "Insert a new heading."
