@@ -4362,7 +4362,7 @@ Return start of string it is."
 (defun lispy-bolp ()
   "Return t if point is at beginning of line, after optional spaces."
   (save-excursion
-    (skip-chars-backward " ")
+    (skip-chars-backward " \t")
     (bolp)))
 
 (defun lispy-after-string-p (str)
