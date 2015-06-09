@@ -6033,6 +6033,7 @@ Return an appropriate `setq' expression when in `let', `dolist',
 `labels', `cond'."
   (save-excursion
     (let ((origin (point))
+          (lispy-ignore-whitespace t)
           (tsexp
            (ignore-errors
              (cond ((lispy-left-p)
