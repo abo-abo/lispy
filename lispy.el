@@ -4045,25 +4045,28 @@ If already there, return it to previous position."
        (put 'lispy-recenter :line window-line)
        (recenter 0)))))
 
+(defun lispy--setq-doconst (x)
+  "Return a cons of description and value for X.
+X is an item of a radio- or choice-type defcustom."
+  (setq x (car (last x)))
+  (cons (prin1-to-string x)
+        (if (symbolp x)
+            (list 'quote x)
+          x)))
+
 (defun lispy-setq ()
-  "Set the current variable, with completion."
+  "Set variable at point, with completion."
   (interactive)
   (let ((sym (intern-soft (thing-at-point 'symbol)))
         sym-type
         cands)
     (when (and (boundp sym)
                (setq sym-type (get sym 'custom-type)))
-      (cl-case sym-type
-        (choice
-         (setq cands
-               (mapcar (lambda (x)
-                         (setq x (car (last x)))
-                         (cons (prin1-to-string x)
-                               (if (symbolp x)
-                                   (list 'quote x)
-                                 x)))
-                       (cdr sym-type))))
-        (boolean
+      (cond
+        ((or (eq sym-type 'choice)
+             (and (consp sym-type) (eq (car sym-type) 'radio)))
+         (setq cands (mapcar #'lispy--setq-doconst (cdr sym-type))))
+        ((eq sym-type 'boolean)
          (setq cands
                '(("nil" . nil) ("t" . t))))
         (t
