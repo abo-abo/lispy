@@ -131,38 +131,39 @@
 :PROPERTIES:
 :CUSTOM_ID: a-z
 :END:
-| key | function name                 |
-|-----+-------------------------------|
-| a   | [[#lispy-ace-symbol][lispy-ace-symbol]]              |
-| b   | [[#lispy-store-region-and-buffer][lispy-store-region-and-buffer]] |
-| c   | [[#lispy-clone][lispy-clone]]                   |
-| d   | [[#lispy-different][lispy-different]]               |
-| e   | [[#lispy-eval][lispy-eval]]                    |
-| f   | [[#lispy-flow][lispy-flow]]                    |
-| g   | [[#lispy-goto][lispy-goto]]                    |
-| h   | [[#lispy-left][lispy-left]]                    |
-| i   | [[#lispy-tab][lispy-tab]]                     |
-| j   | [[#lispy-down][lispy-down]]                    |
-| k   | [[#lispy-up][lispy-up]]                      |
-| l   | [[#lispy-right][lispy-right]]                   |
-| m   | [[#lispy-mark-list][lispy-mark-list]]               |
-| n   | [[#lispy-new-copy][lispy-new-copy]]                |
-| o   | [[#lispy-other-mode][lispy-other-mode]]              |
-| p   | [[#lispy-eval-other-window][lispy-eval-other-window]]       |
-| q   | [[#lispy-ace-paren][lispy-ace-paren]]               |
-| r   | [[#lispy-raise][lispy-raise]]                   |
-| s   | [[#lispy-move-down][lispy-move-down]]               |
-| t   | [[#lispy-teleport][lispy-teleport]]                |
-| u   | [[#lispy-undo][lispy-undo]]                    |
-| v   | [[#lispy-view][lispy-view]]                    |
-| w   | [[#lispy-move-up][lispy-move-up]]                 |
-| x   | [[#x-bindings][see]]                           |
-| y   | [[#lispy-occur][lispy-occur]]                   |
-| z   | unbound                       |
-| >   | [[#lispy-slurp][lispy-slurp]]                   |
-| <   | [[#lispy-barf][lispy-barf]]                    |
-| -   | [[#lispy-ace-subword][lispy-ace-subword]]             |
-|-----+-------------------------------|
+| key    | function name                 |
+|--------+-------------------------------|
+| a      | [[#lispy-ace-symbol][lispy-ace-symbol]]              |
+| b      | [[#lispy-store-region-and-buffer][lispy-store-region-and-buffer]] |
+| c      | [[#lispy-clone][lispy-clone]]                   |
+| d      | [[#lispy-different][lispy-different]]               |
+| e      | [[#lispy-eval][lispy-eval]]                    |
+| f      | [[#lispy-flow][lispy-flow]]                    |
+| g      | [[#lispy-goto][lispy-goto]]                    |
+| h      | [[#lispy-left][lispy-left]]                    |
+| i      | [[#lispy-tab][lispy-tab]]                     |
+| j      | [[#lispy-down][lispy-down]]                    |
+| k      | [[#lispy-up][lispy-up]]                      |
+| l      | [[#lispy-right][lispy-right]]                   |
+| m      | [[#lispy-mark-list][lispy-mark-list]]               |
+| n      | [[#lispy-new-copy][lispy-new-copy]]                |
+| o      | [[#lispy-other-mode][lispy-other-mode]]              |
+| p      | [[#lispy-eval-other-window][lispy-eval-other-window]]       |
+| q      | [[#lispy-ace-paren][lispy-ace-paren]]               |
+| r      | [[#lispy-raise][lispy-raise]]                   |
+| s      | [[#lispy-move-down][lispy-move-down]]               |
+| t      | [[#lispy-teleport][lispy-teleport]]                |
+| u      | [[#lispy-undo][lispy-undo]]                    |
+| v      | [[#lispy-view][lispy-view]]                    |
+| w      | [[#lispy-move-up][lispy-move-up]]                 |
+| x      | [[#x-bindings][see]]                           |
+| y      | [[#lispy-occur][lispy-occur]]                   |
+| z      | unbound                       |
+| >      | [[#lispy-slurp][lispy-slurp]]                   |
+| <      | [[#lispy-barf][lispy-barf]]                    |
+| -      | [[#lispy-ace-subword][lispy-ace-subword]]             |
+| \slash | [[#lispy-splice][lispy-splice]]                  |
+|--------+-------------------------------|
 * [[#global-bindings][G]] [[#a-z][az]] [[#A-Z][AZ]] [[#x-bindings][x]] [A-Z] local bindings
 :PROPERTIES:
 :CUSTOM_ID: A-Z
@@ -723,6 +724,31 @@ Bound to ~-~.
 
 Similar to [[#lispy-ace-symbol][=lispy-ace-symbol=]], but selects a subword instead.
 -----
+** =lispy-splice=
+:PROPERTIES:
+:CUSTOM_ID: lispy-splice
+:END:
+
+Bound to ~/~.
+
+Splice the current list into the parent list. Move the point to the next list to splice in appropriate direction.
+If there are none within the parent list, move to the parent list in appropriate direction.
+
+#+HTML: <table><tbody><tr><td>
+#+begin_src elisp
+(|(a) (b) (c))
+#+end_src
+#+HTML: </td><td>
+-> ~/~ ->
+#+HTML: </td><td>
+#+begin_src elisp
+(a |(b) (c))
+#+end_src
+#+HTML: </td></tr></tbody></table>
+-----
+
+
+
 ** =lispy-occur=
 :PROPERTIES:
 :CUSTOM_ID: lispy-occur
