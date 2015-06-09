@@ -2406,7 +2406,7 @@ When ARG is more than 1, pull ARGth expression to enclose current sexp."
 
 (defun lispy-clone (arg)
   "Clone sexp ARG times.
-When the sexp is top-level, insert an additional newline."
+When the sexp is top level, insert an additional newline."
   (interactive "p")
   (let* ((bnd (lispy--bounds-dwim))
          (str (lispy--string-dwim bnd))
@@ -2621,7 +2621,8 @@ The second one will not be changed.")
 
 (defun lispy-interleave (x lst &optional step)
   "Insert X in between each element of LST.
-Don't insert X when it's already there."
+Don't insert X when it's already there.
+When STEP is non-nil, insert in between each STEP elements instead."
   (setq step (or step 1))
   (let ((res (nreverse (lispy-multipop lst step)))
         item)
@@ -3657,12 +3658,15 @@ With ARG, use the contents of `lispy-store-region-and-buffer' instead."
   (interactive)
   (lispy-from-left
    (let* ((bnd (lispy--bounds-dwim))
-          (expr (lispy--read (lispy--string-dwim bnd))))
-     (unless (eq (car expr) 'if)
-       (error "%s isn't if" (car expr)))
+          (expr (lispy--read (lispy--string-dwim bnd)))
+          (res (cond ((eq (car expr) 'if)
+                      (cons 'cond (lispy--ifs->cases expr)))
+                     ((memq (car expr) '(case cl-case))
+                      (lispy--case->cond expr))
+                     (t
+                      (error "Can't convert %s to cond" (car expr))))))
      (delete-region (car bnd) (cdr bnd))
-     (lispy--fast-insert
-      (cons 'cond (lispy--ifs->cases expr)))))
+     (lispy--fast-insert res)))
   (lispy-from-left
    (indent-sexp)))
 
@@ -5347,6 +5351,29 @@ Defaults to `error'."
                                  `((t (ly-raw newline) ,@ifs4)))))
           (setq ifs1 nil))))
     result))
+
+(defun lispy--raw-quote-maybe (x)
+  "Quote X if it's a symbol."
+  (cond ((null x)
+         nil)
+        ((symbolp x)
+         `(ly-raw quote ,x))
+        (t
+         x)))
+
+(defun lispy--case->cond (expr)
+  "Convert EXPR, a `case' expression, to a `cond'."
+  (let ((sym-name (cadr expr)))
+    (cons 'cond
+          (mapcar (lambda (x)
+                    (if (lispy--whitespacep x)
+                        x
+                      (if (eq (car x) t)
+                          x
+                        (cons (list 'eq sym-name
+                                    (lispy--raw-quote-maybe (car x)))
+                              (cdr x)))))
+                  (cddr expr)))))
 
 (defun lispy--replace (lst from to)
   "Recursively replace elements in LST from FROM to TO."

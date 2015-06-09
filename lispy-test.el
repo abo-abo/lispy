@@ -1227,7 +1227,10 @@ Insert KEY if there's no command."
   (should (or (version<= emacs-version "24.3.1")
               (string= (lispy-with "|(if (looking-at \" *;\")\n    nil\n  (if (and (looking-at \"\\n\")\n           (looking-back \"^ *\"))\n      (delete-blank-lines)\n    (if (looking-at \"\\\\([\\n ]+\\\\)[^\\n ;]\")\n        (delete-region (match-beginning 1)\n                       (match-end 1)))))"
                                    (lispy-to-cond))
-                       "|(cond ((looking-at \" *;\"))\n      ((and (looking-at \"\\n\")\n            (looking-back \"^ *\"))\n       (delete-blank-lines))\n      ((looking-at \"\\\\([\\n ]+\\\\)[^\\n ;]\")\n       (delete-region (match-beginning 1)\n                      (match-end 1))))"))))
+                       "|(cond ((looking-at \" *;\"))\n      ((and (looking-at \"\\n\")\n            (looking-back \"^ *\"))\n       (delete-blank-lines))\n      ((looking-at \"\\\\([\\n ]+\\\\)[^\\n ;]\")\n       (delete-region (match-beginning 1)\n                      (match-end 1))))")))
+  (should (string= (lispy-with "|(cl-case question\n  (name\n   \"Sir Launcelot\")\n  ( quest\n   \"To seek the Holy Grail\")\n  (   favorite-color\n   \"Blue\")\n  (t\n   (error \"I don't know that!\")))"
+                               (execute-kbd-macro "xc"))
+                   "|(cond\n  ((eq question 'name)\n   \"Sir Launcelot\")\n  ((eq question 'quest)\n   \"To seek the Holy Grail\")\n  ((eq question 'favorite-color)\n   \"Blue\")\n  (t\n   (error \"I don't know that!\")))")))
 
 (ert-deftest lispy-to-defun ()
   (should (string= (lispy-with "(foo bar)|" (lispy-to-defun))
