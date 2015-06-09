@@ -5569,14 +5569,7 @@ ACTION is called for the selected candidate."
                  helm-candidate-number-limit)
              (helm :sources
                    `((name . "semantic tags")
-                     (candidates . ,(mapcar
-                                     (lambda (x)
-                                       (if (listp x)
-                                           (if (stringp (cdr x))
-                                               (cons (cdr x) (car x))
-                                             (cons (car x) x))
-                                         x))
-                                     candidates))
+                     (candidates . ,candidates)
                      (action . ,action))
                    :preselect (lispy--current-tag)
                    :buffer "*lispy-goto*")))
@@ -5596,7 +5589,7 @@ ACTION is called for the selected candidate."
                      (ido-completing-read "tag: " strs))
                     (t
                      (completing-read "tag: " strs)))))
-             (funcall action (assoc res candidates)))))))
+             (funcall action (cdr (assoc res candidates))))))))
 
 (defun lispy--action-jump (tag)
   "Jump to TAG."
