@@ -151,7 +151,6 @@
 (require 'lispy-inline)
 (require 'iedit)
 (require 'delsel)
-(require 'hydra)
 (require 'swiper)
 
 ;;* Customization
@@ -6187,6 +6186,19 @@ FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)."
   ("c" lispy-to-cond)
   ("f" lispy-flatten)
   ("a" lispy-teleport)))
+
+(unless (package-installed-p 'hydra)
+  (defmacro defhydra (name &rest _)
+    "This is a stub for uninstalled `hydra' package."
+    `(defun ,(intern (format "%S/body" name)) ()
+       (interactive)
+       (if (yes-or-no-p "Package `hydra' not installed. Install?")
+           (progn
+             (package-install 'hydra)
+             (save-window-excursion
+               (find-library "lispy")
+               (byte-compile-file (buffer-file-name) t)))
+         (error "Please install `hydra' and recompile/reinstall `lispy'")))))
 
 (defhydra lh-knight ()
   "knight"
