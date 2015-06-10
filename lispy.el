@@ -4063,8 +4063,8 @@ X is an item of a radio- or choice-type defcustom."
     (when (and (boundp sym)
                (setq sym-type (get sym 'custom-type)))
       (cond
-        ((or (eq sym-type 'choice)
-             (and (consp sym-type) (eq (car sym-type) 'radio)))
+        ((and (consp sym-type)
+              (memq (car sym-type) '(choice radio)))
          (setq cands (mapcar #'lispy--setq-doconst (cdr sym-type))))
         ((eq sym-type 'boolean)
          (setq cands
