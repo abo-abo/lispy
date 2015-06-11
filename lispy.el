@@ -893,6 +893,12 @@ If position isn't special, move to previous or error."
                                                        (line-beginning-position)))
            (delete-char 1)
            (backward-delete-char 1))
+          ((and (lispy-left-p)
+                (progn
+                  (setq bnd (lispy--bounds-list))
+                  (> (count-lines (car bnd) (cdr bnd)) 1)))
+           (kill-region (car bnd)
+                        (cdr bnd)))
           (t
            (let ((beg (point))
                  (end (line-end-position)))

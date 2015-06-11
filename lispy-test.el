@@ -447,7 +447,9 @@ Insert KEY if there's no command."
                                        "\C-k")
                    "{:a 1 |}"))
   (should (string= (lispy-with "|\"multiline\nstring\"\n(expr)" "\C-k")
-                   "|\n(expr)")))
+                   "|\n(expr)"))
+  (should (string= (lispy-with "(defun lispy-kill-test ()\n  |(foo\n    bar baz)\n  (1 2 3)\n  (a b c))" "\C-k")
+                   "(defun lispy-kill-test ()\n  |\n  (1 2 3)\n  (a b c))")))
 
 (ert-deftest lispy-yank ()
   (should (string= (lispy-with "\"|\"" (kill-new "foo") (lispy-yank))
