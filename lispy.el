@@ -4695,6 +4695,7 @@ so that no other packages disturb the match data."
 (defun lispy--fetch-this-file-tags (&optional file)
   "Fetch tags for FILE."
   (setq file (or file (buffer-file-name)))
+  (semantic-new-buffer-fcn)
   (let ((tags (semantic-parse-region (point-min) (point-max))))
     (when (memq major-mode (cons 'lisp-mode lispy-elisp-modes))
       (lexical-let ((arity (cdr (assoc major-mode lispy-tag-arity)))

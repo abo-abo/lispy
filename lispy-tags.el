@@ -100,13 +100,17 @@
             (if (null table)
                 (error "Couldn't open semanticdb for file: %S" file)
               (let ((db (car table))
-                    (table (cdr table)))
+                    (table (cdr table))
+                    tags)
                 (unless (and (null lispy-force-reparse)
                              (lispy--file-fresh-p
                               file-modtime
                               (oref table lastmodtime))
-                             (ignore-errors
-                               (oref table tags)))
+                             (setq tags
+                                   (ignore-errors
+                                     (oref table tags)))
+                             (semantic-tag-overlay (car-safe tags))
+                             (not (eq (cadr (car-safe tags)) 'code)))
                   (let ((buf (get-file-buffer file)))
                     (with-current-buffer (or buf (find-file-noselect file))
                       (semantic-new-buffer-fcn)
