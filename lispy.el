@@ -921,19 +921,21 @@ If position isn't special, move to previous or error."
 (defun lispy-kill-word (arg)
   "Kill ARG words, keeping parens consistent."
   (interactive "p")
-  (let (bnd)
-    (lispy-dotimes arg
-      (while (not (or (eobp)
-                      (memq (char-syntax (char-after))
-                            '(?w ?_))))
-        (forward-char 1))
-      (delete-horizontal-space)
-      (if (setq bnd (lispy--bounds-string))
-          (save-restriction
-            (narrow-to-region (1+ (car bnd)) (1- (cdr bnd)))
-            (kill-word 1)
-            (widen))
-        (kill-word 1)))))
+  (if (< arg 0)
+      (lispy-backward-kill-word (- arg))
+    (let (bnd)
+      (lispy-dotimes arg
+        (while (not (or (eobp)
+                        (memq (char-syntax (char-after))
+                              '(?w ?_))))
+          (forward-char 1))
+        (delete-horizontal-space)
+        (if (setq bnd (lispy--bounds-string))
+            (save-restriction
+              (narrow-to-region (1+ (car bnd)) (1- (cdr bnd)))
+              (kill-word 1)
+              (widen))
+          (kill-word 1))))))
 
 (defun lispy-backward-kill-word (arg)
   "Kill ARG words backward, keeping parens consistent."
