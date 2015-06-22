@@ -283,6 +283,31 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
       (goto-char (car bnd))))
   (lispy-alt-multiline))
 
+(defun lispy--clojure-debug-step-in ()
+  "Inline a Clojure function at the point of its call."
+  (lispy--clojure-middleware-load)
+  (let* ((str (lispy--eval-clojure
+               (format "(lispy-clojure/debug-step-in '%s)"
+                       (lispy--string-dwim))))
+         (expr (lispy--read str))
+         (n-args (1- (length expr))))
+    (lispy--eval-clojure str)
+    (lispy-follow)
+    (forward-char 1)
+    (forward-sexp 2)
+    (if (looking-at "[ \t\n]*\\[")
+        (progn
+          (goto-char (1- (match-end 0)))
+          (lispy-flow 1))
+      (lispy-forward 1)
+      (lispy-backward 1)
+      (lispy-flow 1)
+      (while (/= n-args (length (lispy--read (lispy--string-dwim))))
+        (lispy--out-backward 1)
+        (lispy-down 1)
+        (lispy-flow 1))
+      (lispy-down 1))))
+
 (provide 'le-clojure)
 
 ;;; le-clojure.el ends here

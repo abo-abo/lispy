@@ -3060,6 +3060,7 @@ Sexp is obtained by exiting list ARG times."
 (declare-function slime-edit-definition "ext:slime")
 (declare-function lispy--clojure-resolve "le-clojure")
 (declare-function lispy--clojure-jump "le-clojure")
+(declare-function lispy--clojure-debug-step-in "le-clojure")
 (declare-function geiser-edit-symbol "geiser-edit")
 (defun lispy-goto-symbol (symbol)
   "Go to definition of SYMBOL.
@@ -3978,6 +3979,9 @@ ARG is 4: `eval-defun' on the function from this sexp."
                  (lispy-goto-symbol ldsi-fun))
              (lispy-complain
               (format "%S isn't a function" ldsi-fun)))))
+        ((eq major-mode 'clojure-mode)
+         (require 'le-clojure)
+         (lispy--clojure-debug-step-in))
         (t
          (lispy-complain
           (format "%S isn't currently supported" major-mode)))))

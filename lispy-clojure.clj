@@ -94,3 +94,28 @@
                        (vector func-args (vec args))
                        (interleave func-args args)))
                 func-impl))))
+
+(defn debug-step-in
+  "Evaluate the function call arugments and sub them into function arguments."
+  [expr]
+  (let [func-name (first expr)
+        args (rest expr)
+        func-def (lispy-clojure/symbol-function func-name)
+        func-doc (when (string? (nth func-def 2))
+                   (nth func-def 2))
+        func-rest (drop (if func-doc 3 2) func-def)
+        func-rest (if (map? (first func-rest))
+                    (rest func-rest)
+                    func-rest)
+        func-bodies (if (vector? (first func-rest))
+                      (list func-rest)
+                      func-rest)
+        func-body (first (filter #(>= (lispy-clojure/arity (first %)) (count args))
+                                 (sort (fn [a b] (< (lispy-clojure/arity (first a))
+                                                    (lispy-clojure/arity (first b))))
+                                       func-bodies)))
+        func-args (first func-body)]
+    (cons 'do
+          (map (fn [name val]
+                 (list 'def name val))
+               func-args args))))
