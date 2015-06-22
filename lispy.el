@@ -3852,8 +3852,8 @@ Second region and buffer are the current ones."
            (lispy--mark (cons (1+ (car bnd-1))
                               (1- (cdr bnd-1)))))
 
-          ((and (eq (char-after (car bnd-1)) ?`)
-                (eq (char-before (cdr bnd-1)) ?'))
+          ((and (eq (char-after (car bnd-1)) ?\`)
+                (eq (char-before (cdr bnd-1)) ?\'))
            (lispy--mark (cons (1+ (car bnd-1))
                               (1- (cdr bnd-1)))))
 
