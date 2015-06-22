@@ -1011,7 +1011,10 @@ If position isn't special, move to previous or error."
   "Delete ARG sexps."
   (interactive "p")
   (let (bnd)
-    (cond ((region-active-p)
+    (cond ((< arg 0)
+           (lispy-delete-backward (- arg)))
+
+          ((region-active-p)
            (delete-region
             (region-beginning) (region-end)))
 
