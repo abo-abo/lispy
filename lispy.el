@@ -1093,7 +1093,10 @@ If position isn't special, move to previous or error."
 Otherwise (`backward-delete-char-untabify' ARG)."
   (interactive "p")
   (let (bnd)
-    (cond ((region-active-p)
+    (cond ((< arg 0)
+           (lispy-delete (- arg)))
+
+          ((region-active-p)
            (delete-region (region-beginning)
                           (region-end)))
           ((bobp))
