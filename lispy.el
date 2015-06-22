@@ -523,8 +523,14 @@ If couldn't move backward at least once, move up backward and return nil."
                    (backward-list)
                    (= pt (point)))))
         (prog1 nil
-          (lispy--out-forward 1)
-          (backward-list))
+          (condition-case nil
+              (progn
+                (lispy--out-forward 1)
+                (backward-list))
+            (error
+             (progn
+               (goto-char pt)
+               (up-list -1)))))
       (point))))
 
 (defun lispy-right (arg)
@@ -563,7 +569,9 @@ Return nil on failure, t otherwise."
         ((looking-at lispy-outline)
          (lispy-outline-left))
         (t
-         (lispy--out-backward arg))))
+         (or (lispy--out-backward arg)
+             (ignore-errors
+               (up-list -1))))))
 
 (defun lispy-out-forward-newline (arg)
   "Call `lispy--out-forward', then ARG times `newline-and-indent'."
