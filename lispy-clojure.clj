@@ -117,5 +117,13 @@
         func-args (first func-body)]
     (cons 'do
           (map (fn [name val]
-                 (list 'def name val))
+                 (list 'def name (quote-maybe (eval val))))
                func-args args))))
+
+(defn quote-maybe
+  "Quote X that isn't self-quoting, like symbol or list."
+  [x]
+  (if (or (symbol? x)
+          (list? x))
+    (list 'quote x)
+    x))
