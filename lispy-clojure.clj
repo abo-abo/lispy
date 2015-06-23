@@ -95,6 +95,16 @@
                        (interleave func-args args)))
                 func-impl))))
 
+(defn quote-maybe
+  "Quote X that isn't self-quoting, like symbol or list."
+  [x]
+  (if (fn? x)
+    x
+    (if (or (symbol? x)
+            (list? x))
+      (list 'quote x)
+      x)))
+
 (defn debug-step-in
   "Evaluate the function call arugments and sub them into function arguments."
   [expr]
@@ -123,13 +133,3 @@
                            val
                            (lispy-clojure/quote-maybe ev)))))
                func-args args))))
-
-(defn quote-maybe
-  "Quote X that isn't self-quoting, like symbol or list."
-  [x]
-  (if (fn? x)
-    x
-    (if (or (symbol? x)
-            (list? x))
-      (list 'quote x)
-      x)))
