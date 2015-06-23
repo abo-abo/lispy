@@ -117,13 +117,19 @@
         func-args (first func-body)]
     (cons 'do
           (map (fn [name val]
-                 (list 'def name (quote-maybe (eval val))))
+                 (let [ev (eval val)]
+                   (list 'def name
+                         (if (fn? ev)
+                           val
+                           (lispy-clojure/quote-maybe ev)))))
                func-args args))))
 
 (defn quote-maybe
   "Quote X that isn't self-quoting, like symbol or list."
   [x]
-  (if (or (symbol? x)
-          (list? x))
-    (list 'quote x)
-    x))
+  (if (fn? x)
+    x
+    (if (or (symbol? x)
+            (list? x))
+      (list 'quote x)
+      x)))
