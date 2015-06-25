@@ -265,7 +265,7 @@ The hint will consist of the possible nouns that apply to the verb."
   :group 'lispy-faces)
 
 (defface lispy-test-face
-    '((t (:inherit lispy-face-hint)))
+  '((t (:inherit lispy-face-hint)))
   "Face for `lispy-view-test'."
   :group 'lispy-faces)
 
