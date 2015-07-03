@@ -4532,7 +4532,7 @@ First, try to return `lispy--bounds-string'."
   "Return current function as string."
   (if (region-active-p)
       (let ((str (lispy--string-dwim)))
-        (if (string-match "^[#'`]*\\(.*\\)$" str)
+        (if (string-match "\\`[#'`]*\\(.*?\\)'?\\'" str)
             (match-string 1 str)
           nil))
     (save-excursion
