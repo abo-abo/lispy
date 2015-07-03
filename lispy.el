@@ -5598,6 +5598,9 @@ Try to refresh if nil is returned."
 (defvar helm-update-blacklist-regexps)
 (defvar helm-candidate-number-limit)
 
+(defvar lispy-tag-history nil
+  "History for tags.")
+
 (defun lispy--select-candidate (candidates action)
   "Select from CANDIDATES list with `helm'.
 ACTION is called for the selected candidate."
@@ -5622,7 +5625,8 @@ ACTION is called for the selected candidate."
                      :preselect (lispy--current-tag)
                      :action (lambda (x)
                                (funcall action
-                                        (cdr (assoc x candidates))))))
+                                        (cdr (assoc x candidates))))
+                     :history 'lispy-tag-history))
           (t
            (let ((res
                   (cl-case lispy-completion-method
