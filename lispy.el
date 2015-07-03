@@ -4647,12 +4647,14 @@ so that no other packages disturb the match data."
   "Eval E-STR as Elisp code."
   (let ((e-sexp (read e-str)))
     (when (consp e-sexp)
-      (if (and (memq (car e-sexp) '(defvar defcustom defvar-local))
-               (consp (cdr e-sexp))
-               (boundp (cadr e-sexp)))
-          (set (cadr e-sexp) (eval (caddr e-sexp)))
-        (if (memq (car e-sexp) '(\, \,@))
-            (setq e-sexp (cadr e-sexp)))))
+      (cond ((and (memq (car e-sexp) '(defvar defcustom defvar-local))
+                  (consp (cdr e-sexp))
+                  (boundp (cadr e-sexp)))
+             (set (cadr e-sexp) (eval (caddr e-sexp))))
+            ((eq (car e-sexp) 'defface)
+             (eval-defun-1 (macroexpand e-sexp)))
+            ((memq (car e-sexp) '(\, \,@))
+             (setq e-sexp (cadr e-sexp)))))
     (condition-case e
         (prin1-to-string
          (lispy--eval-elisp-form e-sexp lexical-binding))
