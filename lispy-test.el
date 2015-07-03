@@ -1141,7 +1141,9 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "(foo \"|bar\")" (kbd "M-m"))
                    "(foo \"~bar|\")"))
   (should (string= (lispy-with "\"See `plu|mage'.\"" (kbd "M-m"))
-                   "\"See ~`plumage'|.\"")))
+                   "\"See ~`plumage'|.\""))
+  (should (string= (lispy-with ";; See `plu|mage'." (kbd "M-m"))
+                   ";; See ~`plumage'|.")))
 
 (ert-deftest lispy--read ()
   (should (equal (lispy--read "(progn

@@ -1290,7 +1290,15 @@ When ARG is more than 1, mark ARGth element."
            (search-backward (funcall iedit-current-symbol)))
 
           ((lispy--in-comment-p)
-           (lispy--mark (lispy--bounds-comment)))
+           (if (and (looking-at "\\(?:\\w\\|\\s_\\)*'")
+                    (setq bnd (match-end 0))
+                    (looking-back "`\\(?:\\w\\|\\s_\\)*"
+                                  (line-beginning-position)))
+               (progn
+                 (goto-char (match-beginning 0))
+                 (set-mark (point))
+                 (goto-char bnd))
+             (lispy--mark (lispy--bounds-comment))))
 
           ((and
             (not (region-active-p))
