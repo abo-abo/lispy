@@ -26,6 +26,9 @@
   (ignore-errors (require 'slime)))
 
 (declare-function slime-output-buffer "ext:slime-repl")
+(declare-function slime "ext:slime")
+(declare-function slime-current-connection "ext:slime")
+(declare-function slime-eval "ext:slime")
 
 (defun lispy--eval-lisp (str)
   "Eval STR as Common Lisp code."
