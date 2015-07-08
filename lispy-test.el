@@ -1593,7 +1593,14 @@ Insert KEY if there's no command."
   (should (string= (lispy-with-value "(dolist |(s '(1 2 3))\n  (message \"val: %d\" s))"
                                      (lispy-eval-other-window)) "nil"))
   (should (string= (lispy-with-value "(dolist |(s '(1 2 3))\n  (message \"val: %d\" s))"
-                                     (lispy-eval-other-window)) "1")))
+                                     (lispy-eval-other-window)) "1"))
+  (setq lispy--eval-sym nil)
+  (should (string= (lispy-with-value "(mapcar |(lambda (s) (* s s)) '(1 2))"
+                                     (lispy-eval-other-window)) "1"))
+  (should (string= (lispy-with-value "(mapcar |(lambda (s) (* s s)) '(1 2))"
+                                     (lispy-eval-other-window)) "2"))
+  (should (string= (lispy-with-value "(mapcar |(lambda (s) (* s s)) '(1 2))"
+                                     (lispy-eval-other-window)) "nil")))
 
 (ert-deftest lispy-ace-char ()
   (should (string= (lispy-with "|(cons 'norwegian 'blue)"

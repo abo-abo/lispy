@@ -3274,6 +3274,25 @@ SYM will take on each value of LST with each eval."
             (lispy--eval-elisp-form (cadr expr) lexical-binding))
       (set sym nil))))
 
+(defun lispy--mapcar-item-expr (lmda lst)
+  "Produce an eval expression for mapcar-type LMDA EXPR.
+LMDA is (lambda (SYM) ...).
+SYM will take on each value of LST with each eval."
+  (let ((sym (car lmda)))
+    (when (eq sym 'closure)
+      (setq sym (caar (cddr lmda))))
+    (unless (eq sym lispy--eval-sym)
+      (setq lispy--eval-sym sym)
+      (setq lispy--eval-data lst))
+    (if lispy--eval-data
+        (let* ((popped (pop lispy--eval-data))
+               (popped (if (symbolp popped)
+                           `(quote ,popped)
+                         popped)))
+          (set sym popped))
+      (setq lispy--eval-data lst)
+      (set sym nil))))
+
 (defun lispy-eval-other-window (&optional arg)
   "Eval current expression in the context of other window.
 In case the point is on a let-bound variable, add a `setq'.
@@ -6135,6 +6154,16 @@ Return an appropriate `setq' expression when in `let', `dolist',
 
           ((lispy-after-string-p "(dolist ")
            `(lispy--dolist-item-expr ',tsexp))
+
+          ((and (consp tsexp)
+                (eq (car tsexp) 'lambda)
+                (eq (length (cadr tsexp)) 1)
+                (looking-back "(map\\sw* +"
+                              (line-beginning-position)))
+           `(lispy--mapcar-item-expr ,tsexp
+                                     ,(save-excursion
+                                        (lispy-different)
+                                        (read (current-buffer)))))
 
           ;; point moves
           ((progn
