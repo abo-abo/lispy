@@ -3872,7 +3872,8 @@ Second region and buffer are the current ones."
   (let ((bnd-1 (lispy--bounds-dwim))
         bnd-2)
     (cond ((and (eq (char-after (car bnd-1)) ?\")
-                (eq (char-before (cdr bnd-1)) ?\"))
+                (eq (char-before (cdr bnd-1)) ?\")
+                (eq 1 (length (read (format "(%s)" (lispy--string-dwim))))))
            (lispy--mark (cons (1+ (car bnd-1))
                               (1- (cdr bnd-1)))))
 
