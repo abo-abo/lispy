@@ -4663,6 +4663,11 @@ so that no other packages disturb the match data."
       (fset '\, nil))
     val))
 
+(defalias 'lispy-eval-defun-1
+    (if (fboundp 'eval-defun-1)
+        'eval-defun-1
+      'elisp--eval-defun-1))
+
 (defun lispy--eval-elisp (e-str)
   "Eval E-STR as Elisp code."
   (let ((e-sexp (read e-str)))
@@ -4672,7 +4677,7 @@ so that no other packages disturb the match data."
                   (boundp (cadr e-sexp)))
              (set (cadr e-sexp) (eval (caddr e-sexp))))
             ((eq (car e-sexp) 'defface)
-             (eval-defun-1 (macroexpand e-sexp)))
+             (lispy-eval-defun-1 (macroexpand e-sexp)))
             ((memq (car e-sexp) '(\, \,@))
              (setq e-sexp (cadr e-sexp)))))
     (condition-case e
