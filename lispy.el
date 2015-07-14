@@ -3390,18 +3390,24 @@ When called twice in a row, restore point and mark."
        (lambda () t)
        lispy-avy-style-char))))
 
-(defun lispy-ace-paren ()
-  "Jump to an open paren within the current defun."
-  (interactive)
+(defun lispy-ace-paren (&optional arg)
+  "Jump to an open paren within the current defun.
+ARG can extend the bounds beyond the current defun."
+  (interactive "p")
+  (setq arg (or arg 1))
   (lispy--remember)
   (deactivate-mark)
-  (let ((avy-keys lispy-avy-keys))
+  (let ((avy-keys lispy-avy-keys)
+        (bnd (if (eq arg 1)
+                 (save-excursion
+                   (lispy--out-backward 50)
+                   (lispy--bounds-dwim))
+               (cons (window-start)
+                     (window-end nil t)))))
     (avy--with-avy-keys lispy-ace-paren
       (lispy--avy-do
        lispy-left
-       (save-excursion
-         (lispy--out-backward 50)
-         (lispy--bounds-dwim))
+       bnd
        (lambda () (not (lispy--in-string-or-comment-p)))
        lispy-avy-style-paren))))
 
