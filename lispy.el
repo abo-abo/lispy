@@ -2976,6 +2976,21 @@ Quote newlines if ARG isn't 1."
       (save-excursion (insert (read str)))
       (forward-char offset))))
 
+(defvar lispy-teleport-global nil
+  "When non-nil, `lispy-teleport' will consider all open parens in window.
+Otherwise, only parens within the current defun are considered.
+When you press \"t\" in `lispy-teleport', this will be bound to t temporarily.")
+
+(defmacro lispy-quit-and-run (&rest body)
+  "Quit the minibuffer and run BODY afterwards."
+  `(progn
+     (put 'quit 'error-message "")
+     (run-at-time nil nil
+                  (lambda ()
+                    (put 'quit 'error-message "Quit")
+                    ,@body))
+     (minibuffer-keyboard-quit)))
+
 (defun lispy-teleport (arg)
   "Move ARG sexps into a sexp determined by `lispy-ace-paren'."
   (interactive "p")
@@ -2998,7 +3013,16 @@ Quote newlines if ARG isn't 1."
            (error "Unexpected")))
     (setq end (point))
     (goto-char beg)
-    (lispy-ace-paren)
+    (let ((lispy-avy-keys (delete ?t lispy-avy-keys))
+          (avy-handler-function
+           (lambda (x) (when (eq x ?t)
+                    (avy--done)
+                    (lispy-quit-and-run
+                     (let ((lispy-teleport-global t))
+                       (lispy-teleport arg)))))))
+      (lispy-ace-paren
+       (when lispy-teleport-global
+         2)))
     (forward-char 1)
     (unless (looking-at "(")
       (ignore-errors
