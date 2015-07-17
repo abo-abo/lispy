@@ -5611,7 +5611,7 @@ Unless inside string or comment, or `looking-back' at CONTEXT."
            (delete-region (match-beginning 0)
                           (match-end 0)))
           ((looking-at lispy-right))
-
+          ((eolp))
           (t
            (just-one-space)
            (when (lispy-after-string-p "( ")
