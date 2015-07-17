@@ -2995,31 +2995,40 @@ When you press \"t\" in `lispy-teleport', this will be bound to t temporarily.")
   "Move ARG sexps into a sexp determined by `lispy-ace-paren'."
   (interactive "p")
   (let ((beg (point))
-        end endp regionp)
+        end endp regionp
+        deactivate-mark)
     (cond ((region-active-p)
-           (setq endp (= (point) (region-end)))
-           (setq regionp t)
-           (lispy-different))
+           (if (= (point) (region-end))
+               (progn
+                 (setq end (region-beginning))
+                 (setq endp t))
+             (setq end (region-end)))
+           (setq regionp t))
           ((lispy-left-p)
            (unless (lispy-dotimes arg
                      (forward-list 1))
-             (error "Unexpected")))
+             (error "Unexpected"))
+           (setq end (point)))
           ((lispy-right-p)
            (setq endp t)
            (unless (lispy-dotimes arg
                      (backward-list arg))
-             (error "Unexpected")))
+             (error "Unexpected"))
+           (setq end (point)))
           (t
            (error "Unexpected")))
-    (setq end (point))
-    (goto-char beg)
     (let ((lispy-avy-keys (delete ?t lispy-avy-keys))
           (avy-handler-function
-           (lambda (x) (when (eq x ?t)
-                    (avy--done)
-                    (lispy-quit-and-run
-                     (let ((lispy-teleport-global t))
-                       (lispy-teleport arg)))))))
+           (lambda (x)
+             (if (eq x ?t)
+                 (progn
+                   (avy--done)
+                   (lispy-quit-and-run
+                    (let ((lispy-teleport-global t))
+                      (when regionp
+                        (activate-mark))
+                      (lispy-teleport arg))))
+               (avy-handler-default x)))))
       (lispy-ace-paren
        (when lispy-teleport-global
          2)))
