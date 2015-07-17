@@ -3413,7 +3413,7 @@ When called twice in a row, restore point and mark."
   "Visually select a char within the current defun."
   (interactive)
   (let ((avy-keys lispy-avy-keys))
-    (avy--with-avy-keys lispy-ace-char
+    (avy-with lispy-ace-char
       (lispy--avy-do
        (string (read-char "Char: "))
        (save-excursion
@@ -3437,7 +3437,7 @@ ARG can extend the bounds beyond the current defun."
                    (lispy--bounds-dwim))
                (cons (window-start)
                      (window-end nil t)))))
-    (avy--with-avy-keys lispy-ace-paren
+    (avy-with lispy-ace-paren
       (lispy--avy-do
        lispy-left
        bnd
@@ -3453,7 +3453,7 @@ Sexp is obtained by exiting the list ARG times."
        (progn (deactivate-mark) arg)
      (1- arg)))
   (let ((avy-keys lispy-avy-keys))
-    (avy--with-avy-keys lispy-ace-symbol
+    (avy-with lispy-ace-symbol
       (let ((avy--overlay-offset (if (eq lispy-avy-style-symbol 'at) -1 0)))
         (lispy--avy-do
          "[([{ ]\\(?:\\sw\\|\\s_\\|[\"'`#~,@]\\)"
@@ -3481,7 +3481,7 @@ Sexp is obtained by exiting list ARG times."
        (1- arg)))
     (let ((avy--overlay-offset (if (eq lispy-avy-style-symbol 'at) 0 1))
           (avy-keys lispy-avy-keys))
-      (avy--with-avy-keys 'lispy-ace-subword
+      (avy-with 'lispy-ace-subword
         (lispy--avy-do
          "[([{ -]\\(?:\\sw\\|\\s_\\|\\s(\\|[\"'`#]\\)"
          (lispy--bounds-dwim)
@@ -3502,14 +3502,13 @@ Use STYLE function to update the overlays."
     (dolist (x cands)
       (when (> (- (cdar x) (caar x)) 1)
         (cl-incf (caar x))))
-    (avy--goto
-     (avy--process
-      cands
-      (cl-case style
-        (pre #'avy--overlay-pre)
-        (at #'avy--overlay-at)
-        (at-full #'avy--overlay-at-full)
-        (post #'avy--overlay-post))))))
+    (avy--process
+     cands
+     (cl-case style
+       (pre #'avy--overlay-pre)
+       (at #'avy--overlay-at)
+       (at-full #'avy--overlay-at-full)
+       (post #'avy--overlay-post)))))
 
 (defun lispy-ace-symbol-replace (arg)
   "Jump to a symbol withing the current sexp and delete it.
