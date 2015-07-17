@@ -5148,8 +5148,11 @@ Ignore the matches in strings and comments."
                     (unless (lispy--in-string-or-comment-p)
                       (backward-char 1)
                       (save-excursion
-                        (with-syntax-table lispy--braces-table
-                          (forward-list 1))
+                        (if (save-match-data
+                              (looking-at "((ly-raw string"))
+                            (forward-list 1)
+                          (with-syntax-table lispy--braces-table
+                            (forward-list 1)))
                         (delete-char -1)
                         (insert "))"))
                       (delete-region (match-beginning 0) (match-end 0))

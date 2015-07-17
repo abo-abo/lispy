@@ -1190,7 +1190,11 @@ Insert KEY if there's no command."
            (lispy--prin1-to-string
             (lispy--read "(1 2 3 1 2 . #2)")
             0 'emacs-lisp-mode)
-           "(1 2 3 1 2 . #2)")))
+           "(1 2 3 1 2 . #2)"))
+  (should (equal
+           (lispy--read "#(\"]\" 0 1 (face hydra-face-red))")
+           '(ly-raw clojure-lambda ((ly-raw string "\"]\"")
+                                    0 1 (face hydra-face-red))))))
 
 (ert-deftest lispy-tick ()
   (should (string= (lispy-with "|" "'") "'|"))
