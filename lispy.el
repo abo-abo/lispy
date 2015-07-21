@@ -3592,6 +3592,7 @@ Sexp is obtained by exiting the list ARG times."
 (declare-function org-cycle-internal-local "org")
 (declare-function org-content "org")
 (declare-function org-cycle-internal-global "org")
+(declare-function org-narrow-to-subtree "org")
 
 (defun lispy-tab ()
   "Indent code and hide/show outlines.
@@ -4236,11 +4237,8 @@ X is an item of a radio- or choice-type defcustom."
         ((looking-at lispy-outline)
          (save-excursion
            (outline-back-to-heading)
-           (narrow-to-region
-            (point)
-            (progn
-              (outline-next-heading)
-              (1- (point))))))))
+           (let ((org-outline-regexp outline-regexp))
+             (org-narrow-to-subtree))))))
 
 (defun lispy-widen ()
   "Forward to `widen'."
