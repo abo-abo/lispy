@@ -6307,18 +6307,6 @@ FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)."
   ("SPC" lispy-other-space)
   ("g" lispy-goto-mode)))
 
-(lispy-defverb
- "transform"
- (("o" lispy-oneline)
-  ("m" lispy-multiline)
-  ("s" lispy-stringify)
-  ("d" lispy-to-defun)
-  ("l" lispy-to-lambda)
-  ("i" lispy-to-ifs)
-  ("c" lispy-to-cond)
-  ("f" lispy-flatten)
-  ("a" lispy-teleport)))
-
 (unless (package-installed-p 'hydra)
   (defmacro defhydra (name &rest _)
     "This is a stub for uninstalled `hydra' package."
