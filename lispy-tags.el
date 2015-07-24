@@ -28,7 +28,8 @@
 (cl-defstruct lispy-dbfile
   file
   tags
-  modtime)
+  modtime
+  plain-tags)
 
 (defun lispy--file-list ()
   "Get the list of same type files in current directory."
@@ -133,7 +134,8 @@
                         :tags (mapcar
                                (lambda (x)
                                  (lispy--make-tag x exfile))
-                               (oref table tags))))
+                               (oref table tags))
+                        :plain-tags (oref table tags)))
                  lispy-db)))))
         (setq res (append (lispy-dbfile-tags dbfile) res))))
     (dolist (db db-to-save)

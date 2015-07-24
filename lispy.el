@@ -3079,6 +3079,25 @@ When ARG is non-nil, force a reparse."
              (lispy--fetch-tags (list (buffer-file-name))))
      #'lispy--action-jump)))
 
+(defun lispy-goto-elisp-commands (&optional arg)
+  "Jump to Elisp commands within current file.
+When ARG is non-nil, force a reparse."
+  (interactive "P")
+  (deactivate-mark)
+  (let ((lispy-force-reparse arg))
+    (lispy--fetch-tags (list (buffer-file-name)))
+    (let ((struct (gethash (buffer-file-name) lispy-db)))
+      (lispy--select-candidate
+       (mapcar #'lispy--format-tag-line
+               (delq nil
+                     (cl-mapcar
+                      (lambda (tag pretty-tag)
+                        (when (semantic-tag-get-attribute tag :user-visible-flag)
+                          pretty-tag))
+                      (lispy-dbfile-plain-tags struct)
+                      (lispy-dbfile-tags struct))))
+       #'lispy--action-jump))))
+
 (defun lispy-goto-projectile ()
   "Jump to symbol within files in (`projectile-project-root')."
   (interactive)
@@ -6294,7 +6313,8 @@ FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)."
   ("b" pop-tag-mark)
   ("q" lispy-quit)
   ("j" lispy-goto-def-down)
-  ("a" lispy-goto-def-ace)))
+  ("a" lispy-goto-def-ace)
+  ("e" lispy-goto-elisp-commands)))
 
 (lispy-defverb
  "other"
