@@ -1334,7 +1334,9 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "(progn ,@|(cdr re))" "m")
                    "(progn ~,@(cdr re)|)"))
   (should (string= (lispy-with "(progn ,@|(cdr re))" "mm")
-                   "(progn ,@(cdr re)|)")))
+                   "(progn ,@(cdr re)|)"))
+  (should (string= (lispy-with-clojure "#|{:bar 'baz}" "0m")
+                   "#{~:bar 'baz|}")))
 
 (ert-deftest lispy-mark-car ()
   (should (string= (lispy-with "|\"foo\"~" "i")

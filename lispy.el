@@ -1256,7 +1256,7 @@ When ARG is more than 1, mark ARGth element."
         ((= arg 0)
          (let ((bnd (lispy--bounds-dwim)))
            (lispy--mark
-            (cons (1+ (car bnd))
+            (cons (+ (car bnd) (if (eq (char-after (car bnd)) ?\#) 2 1))
                   (1- (cdr bnd))))))
         ((region-active-p)
          (deactivate-mark)
