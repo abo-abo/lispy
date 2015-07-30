@@ -4514,7 +4514,10 @@ Otherwise return cons of current string, symbol or list bounds."
            bnd)
           (t
            (let ((res (ignore-errors
-                        (bounds-of-thing-at-point 'sexp))))
+                        (bounds-of-thing-at-point
+                         (if (looking-at lispy-right)
+                             'symbol
+                           'sexp)))))
              (if res
                  (save-excursion
                    (goto-char (cdr res))
