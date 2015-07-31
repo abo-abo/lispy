@@ -1870,7 +1870,7 @@ STR is the full current candidate."
         (num (if (string-match "^[0-9]+" str)
                  (string-to-number (match-string 0 str))
                0)))
-    (with-selected-window swiper--window
+    (with-selected-window (ivy-state-window ivy-last)
       (goto-char lispy--occur-beg)
       (when (cl-plusp num)
         (forward-line num)
@@ -1879,7 +1879,7 @@ STR is the full current candidate."
       (let ((ov (make-overlay (line-beginning-position)
                               (1+ (line-end-position)))))
         (overlay-put ov 'face 'swiper-line-face)
-        (overlay-put ov 'window swiper--window)
+        (overlay-put ov 'window (ivy-state-window ivy-last))
         (push ov swiper--overlays))
       (swiper--add-overlays
        re
