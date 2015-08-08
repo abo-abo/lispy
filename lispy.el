@@ -5727,10 +5727,15 @@ ACTION is called for the selected candidate."
                      (completing-read "tag: " strs)))))
              (funcall action (cdr (assoc res candidates))))))))
 
+(defvar ivy-last)
+(declare-function ivy-state-window "ext:ivy")
+
 (defun lispy--action-jump (tag)
   "Jump to TAG."
   (if (eq (length tag) 3)
-      (progn
+      (with-selected-window (if (eq lispy-completion-method 'ivy)
+                                (ivy-state-window ivy-last)
+                              (selected-window))
         (push-mark)
         (find-file (cadr tag))
         (goto-char
