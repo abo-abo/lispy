@@ -6190,6 +6190,7 @@ PLIST currently accepts:
               (call-interactively ',def))
 
              (t
+              (setq this-command 'self-insert-command)
               (call-interactively
                (quote
                 ,(or inserter
