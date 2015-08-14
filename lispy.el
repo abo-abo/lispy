@@ -4685,6 +4685,7 @@ When ADD-OUTPUT is t, append the output to the result."
    (cond ((memq major-mode lispy-elisp-modes)
           'lispy--eval-elisp)
          ((memq major-mode '(clojure-mode
+                             clojurescript-mode
                              nrepl-repl-mode
                              cider-clojure-interaction-mode))
           (require 'le-clojure)
