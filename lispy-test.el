@@ -48,9 +48,9 @@
          (and (buffer-name temp-buffer)
               (kill-buffer temp-buffer))))))
 
-(defmacro lispy-with-clojure (in &rest body)
+(defmacro lispy-with-clojure (clojure-derived-mode in &rest body)
   `(with-temp-buffer
-     (clojure-mode)
+     (funcall ,clojure-derived-mode)
      (lispy-mode)
      (insert ,in)
      (when (search-backward "~" nil t)
@@ -443,7 +443,16 @@ Insert KEY if there's no command."
                    "|"))
   (should (string= (lispy-with "|#(foo\n  bar)" "\C-k")
                    "|"))
-  (should (string= (lispy-with-clojure "{:a 1 |:b 2}"
+  (should (string= (lispy-with-clojure #'clojure-mode
+                                       "{:a 1 |:b 2}"
+                                       "\C-k")
+                   "{:a 1 |}"))
+  (should (string= (lispy-with-clojure #'clojurescript-mode
+                                       "{:a 1 |:b 2}"
+                                       "\C-k")
+                   "{:a 1 |}"))
+  (should (string= (lispy-with-clojure #'clojurex-mode
+                                       "{:a 1 |:b 2}"
                                        "\C-k")
                    "{:a 1 |}"))
   (should (string= (lispy-with "|\"multiline\nstring\"\n(expr)" "\C-k")
@@ -951,11 +960,14 @@ Insert KEY if there's no command."
                      "|(defun abc (x)\n  \"def.\"\n  (+\n   x\n   x\n   x)\n  (foo)\n  (bar))"))
     (should (string= (lispy-with "|(\"King Arthur\" \"Sir Lancelot\" \"Sir Robin\")" "M")
                      "|(\"King Arthur\"\n \"Sir Lancelot\"\n \"Sir Robin\")"))
-    (should (string= (lispy-with-clojure "|{:king \"Arthur\" :knight \"Lancelot\"}" "M")
+    (should (string= (lispy-with-clojure #'clojure-mode
+                                         "|{:king \"Arthur\" :knight \"Lancelot\"}" "M")
                      "|{:king \"Arthur\"\n :knight \"Lancelot\"}"))
-    (should (string= (lispy-with-clojure "#|{:king \"Arthur\" :knight \"Lancelot\"}" "M")
+    (should (string= (lispy-with-clojure #'clojure-mode
+                                         "#|{:king \"Arthur\" :knight \"Lancelot\"}" "M")
                      "#|{:king \"Arthur\"\n  :knight \"Lancelot\"}"))
-    (should (string= (lispy-with-clojure "|(let [name \"Launcelot\" quest 'grail color 'blue] (print \"Right. Off you go\"))" "M")
+    (should (string= (lispy-with-clojure #'clojure-mode
+                                         "|(let [name \"Launcelot\" quest 'grail color 'blue] (print \"Right. Off you go\"))" "M")
                      "|(let [name \"Launcelot\"\n      quest 'grail\n      color 'blue]\n  (print\n   \"Right. Off you go\"))"))
     (should (string= (lispy-with "(eval-when-compile(require'cl)(require'org))|" "M")
                      "(eval-when-compile\n  (require 'cl)\n  (require 'org))|"))
@@ -1110,7 +1122,14 @@ Insert KEY if there's no command."
 (ert-deftest clojure-thread-macro ()
   ;; changes indentation
   (require 'cider)
-  (should (string= (lispy-with-clojure "|(map sqr (filter odd? [1 2 3 4 5]))" "2(->>]<]<]wwlM")
+  (should (string= (lispy-with-clojure #'clojure-mode
+                                       "|(map sqr (filter odd? [1 2 3 4 5]))" "2(->>]<]<]wwlM")
+                   "(->>\n [1 2 3 4 5]\n (map sqr)\n (filter odd?))|"))
+  (should (string= (lispy-with-clojure #'clojurescript-mode
+                                       "|(map sqr (filter odd? [1 2 3 4 5]))" "2(->>]<]<]wwlM")
+                   "(->>\n [1 2 3 4 5]\n (map sqr)\n (filter odd?))|"))
+  (should (string= (lispy-with-clojure #'clojurex-mode
+                                       "|(map sqr (filter odd? [1 2 3 4 5]))" "2(->>]<]<]wwlM")
                    "(->>\n [1 2 3 4 5]\n (map sqr)\n (filter odd?))|")))
 
 (ert-deftest lispy-mark ()
@@ -1203,9 +1222,17 @@ Insert KEY if there's no command."
                    "~right|"))
   (should (string= (lispy-with "|\"right\"~" "'")
                    "|right~"))
-  (should (string= (lispy-with-clojure "foo|" "'")
+  (should (string= (lispy-with-clojure #'clojure-mode "foo|" "'")
                    "foo '|"))
-  (should (string= (lispy-with-clojure "foo|" " ~'")
+  (should (string= (lispy-with-clojure #'clojurescript-mode "foo|" "'")
+                   "foo '|"))
+  (should (string= (lispy-with-clojure #'clojurex-mode "foo|" "'")
+                   "foo '|"))
+  (should (string= (lispy-with-clojure #'clojure-mode "foo|" " ~'")
+                   "foo ~'|"))
+  (should (string= (lispy-with-clojure #'clojurescript-mode "foo|" " ~'")
+                   "foo ~'|"))
+  (should (string= (lispy-with-clojure #'clojurex-mode "foo|" " ~'")
                    "foo ~'|")))
 
 (ert-deftest lispy-to-lambda ()
@@ -1287,7 +1314,11 @@ Insert KEY if there's no command."
                    "|(setq x '())"))
   (should (string= (lispy-with "|(eq (char-before) ?\\()" "i")
                    "|(eq (char-before) ?\\()"))
-  (should (string= (lispy-with-clojure "|[#{}]" "i")
+  (should (string= (lispy-with-clojure #'clojure-mode "|[#{}]" "i")
+                   "|[#{}]"))
+  (should (string= (lispy-with-clojure #'clojurescript-mode "|[#{}]" "i")
+                   "|[#{}]"))
+  (should (string= (lispy-with-clojure #'clojurex-mode "|[#{}]" "i")
                    "|[#{}]")))
 
 (defun lispy-test-normalize ()
@@ -1335,7 +1366,11 @@ Insert KEY if there's no command."
                    "(progn ~,@(cdr re)|)"))
   (should (string= (lispy-with "(progn ,@|(cdr re))" "mm")
                    "(progn ,@(cdr re)|)"))
-  (should (string= (lispy-with-clojure "#|{:bar 'baz}" "0m")
+  (should (string= (lispy-with-clojure #'clojure-mode "#|{:bar 'baz}" "0m")
+                   "#{~:bar 'baz|}"))
+  (should (string= (lispy-with-clojure #'clojurescript-mode "#|{:bar 'baz}" "0m")
+                   "#{~:bar 'baz|}"))
+  (should (string= (lispy-with-clojure #'clojurex-mode "#|{:bar 'baz}" "0m")
                    "#{~:bar 'baz|}")))
 
 (ert-deftest lispy-mark-car ()
@@ -1538,9 +1573,17 @@ Insert KEY if there's no command."
                    "(message \"Then shalt thou count to three|\")")))
 
 (ert-deftest lispy-hash ()
-  (should (string= (lispy-with-clojure "foo|" "#")
+  (should (string= (lispy-with-clojure #'clojure-mode "foo|" "#")
                    "foo #|"))
-  (should (string= (lispy-with-clojure "foo|" "##")
+  (should (string= (lispy-with-clojure #'clojurescript-mode "foo|" "#")
+                   "foo #|"))
+  (should (string= (lispy-with-clojure #'clojurex-mode "foo|" "#")
+                   "foo #|"))
+  (should (string= (lispy-with-clojure #'clojure-mode "foo|" "##")
+                   "foo#|"))
+  (should (string= (lispy-with-clojure #'clojurescript-mode "foo|" "##")
+                   "foo#|"))
+  (should (string= (lispy-with-clojure #'clojurex-mode "foo|" "##")
                    "foo#|")))
 
 (ert-deftest lispy-newline-and-indent-plain ()
