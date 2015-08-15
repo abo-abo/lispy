@@ -94,6 +94,10 @@ The caller of `lispy--show' might use a substitute e.g. `describe-function'."
   '(emacs-lisp-mode lisp-interaction-mode eltex-mode minibuffer-inactive-mode)
   "Modes for which `lispy--eval-elisp' and related functions are appropriate.")
 
+(defvar lispy-clojure-modes
+  '(clojure-mode clojurescript-mode clojurex-mode)
+  "Modes for which clojure related functions are appropriate.")
+
 (defvar lispy-overlay nil
   "Hint overlay instance.")
 
@@ -127,7 +131,8 @@ The caller of `lispy--show' might use a substitute e.g. `describe-function'."
                (cond ((fboundp sym)
                       (setq lispy-hint-pos (point))
                       (lispy--show (lispy--pretty-args sym))))))
-            ((memq major-mode '(clojure-mode cider-repl-mode))
+            ((or (memq major-mode '(cider-repl-mode))
+                 (memq major-mode lispy-clojure-modes))
              (require 'le-clojure)
              (setq lispy-hint-pos (point))
              (lispy--show (lispy--clojure-args (lispy--current-function))))
@@ -191,7 +196,8 @@ Return t if at least one was deleted."
                               (describe-variable sym)
                               nil))
                            (t "unbound"))))
-                  ((memq major-mode '(clojure-mode cider-repl-mode))
+                  ((or (memq major-mode lispy-clojure-modes)
+                       (memq major-mode '(cider-repl-mode)))
                    (require 'le-clojure)
                    (let ((rsymbol (lispy--clojure-resolve sym)))
                      (string-trim-left
