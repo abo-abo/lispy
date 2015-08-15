@@ -3208,7 +3208,7 @@ When ARG is 2, insert the result as a comment."
         "%" "%%" (lispy--eval (lispy--string-dwim) t))))))
 
 (defvar lispy-do-pprint nil
-  "Try a pretty-print when this ins't nil.")
+  "Try a pretty-print when this isn't nil.")
 
 (defun lispy-eval-and-insert (&optional arg)
   "Eval last sexp and insert the result.
