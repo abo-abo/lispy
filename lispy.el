@@ -3203,9 +3203,19 @@ When ARG is 2, insert the result as a comment."
     (save-excursion
       (unless (or (lispy-right-p) (region-active-p))
         (lispy-forward 1))
-      (message
-       (replace-regexp-in-string
-        "%" "%%" (lispy--eval (lispy--string-dwim) t))))))
+      (let ((result (replace-regexp-in-string
+                     "%" "%%" (lispy--eval (lispy--string-dwim) t))))
+        (if (and (memq major-mode lispy-clojure-modes)
+                 (fboundp 'cider--display-interactive-eval-result)
+                 (boundp 'cider-eval-result-duration))
+            ;; show the result in an overlay if the user has
+            ;; configured cider to show one. Otherwise a message is
+            ;; shown. Overlays are present in cider 0.10 onwards.
+            (let ((cider-eval-result-duration 1))
+              ;; work around this bug:
+              ;; https://github.com/clojure-emacs/cider/issues/1257
+              (cider--display-interactive-eval-result result (point)))
+          (message result))))))
 
 (defvar lispy-do-pprint nil
   "Try a pretty-print when this isn't nil.")
