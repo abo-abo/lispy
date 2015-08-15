@@ -1570,9 +1570,9 @@ When region is active, toggle a ~ at the start of the region."
 (defun lispy-hash ()
   "Insert #."
   (interactive)
-  (if (and (memq major-mode '(clojure-mode
-                              nrepl-repl-mode
-                              cider-clojure-interaction-mode))
+  (if (and (or (memq major-mode lispy-clojure-modes)
+               (memq major-mode '(nrepl-repl-mode
+                                  cider-clojure-interaction-mode)))
            (lispy-looking-back "\\sw #"))
       (progn
         (backward-delete-char 2)
@@ -3702,9 +3702,9 @@ Pass the ARG along."
   (cond ((memq major-mode lispy-elisp-modes)
          (lispy-flatten--elisp arg))
 
-        ((memq major-mode '(clojure-mode
-                            nrepl-repl-mode
-                            cider-clojure-interaction-mode))
+        ((or (memq major-mode lispy-clojure-modes)
+             (memq major-mode '(nrepl-repl-mode
+                                cider-clojure-interaction-mode)))
          (require 'le-clojure)
          (lispy-flatten--clojure arg))
 
@@ -4684,10 +4684,9 @@ When ADD-OUTPUT is t, append the output to the result."
   (funcall
    (cond ((memq major-mode lispy-elisp-modes)
           'lispy--eval-elisp)
-         ((memq major-mode '(clojure-mode
-                             clojurescript-mode
-                             nrepl-repl-mode
-                             cider-clojure-interaction-mode))
+         ((or (memq major-mode lispy-clojure-modes)
+              (memq major-mode '(nrepl-repl-mode
+                                 cider-clojure-interaction-mode)))
           (require 'le-clojure)
           (lambda (x)
             (lispy--eval-clojure x add-output t)))
@@ -5922,7 +5921,7 @@ The outer delimiters are stripped."
                    (goto-char (car bnd))
                    (current-column)))
          (was-left (lispy-left-p)))
-    (if (or (and (memq major-mode '(clojure-mode))
+    (if (or (and (memq major-mode lispy-clojure-modes)
                  (string-match "\\^" str))
             (> (length str) 10000))
 
