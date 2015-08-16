@@ -3194,6 +3194,14 @@ SYMBOL is a string."
   (lispy--ensure-visible))
 
 ;;* Locals: dialect-related
+(defcustom lispy-eval-display-style 'message
+  "Choose a function to display the eval result."
+  :type '(choice
+          (const :tag "message" message)
+          (const :tag "overlay" overlay)))
+
+(defvar cider-eval-result-duration)
+
 (defun lispy-eval (arg)
   "Eval last sexp.
 When ARG is 2, insert the result as a comment."
@@ -3205,17 +3213,12 @@ When ARG is 2, insert the result as a comment."
         (lispy-forward 1))
       (let ((result (replace-regexp-in-string
                      "%" "%%" (lispy--eval (lispy--string-dwim) t))))
-        (if (and (memq major-mode lispy-clojure-modes)
-                 (fboundp 'cider--display-interactive-eval-result)
-                 (boundp 'cider-eval-result-duration))
-            ;; show the result in an overlay if the user has
-            ;; configured cider to show one. Otherwise a message is
-            ;; shown. Overlays are present in cider 0.10 onwards.
-            (let ((cider-eval-result-duration 1))
-              ;; work around this bug:
-              ;; https://github.com/clojure-emacs/cider/issues/1257
-              (cider--display-interactive-eval-result result (point)))
-          (message result))))))
+        (if (eq lispy-eval-display-style 'message)
+            (message result)
+          (if (fboundp 'cider--display-interactive-eval-result)
+              (let ((cider-eval-result-duration 1))
+                (cider--display-interactive-eval-result result (point)))
+            (error "Please install CIDER to display overlay")))))))
 
 (defvar lispy-do-pprint nil
   "Try a pretty-print when this isn't nil.")
