@@ -269,7 +269,7 @@ The hint will consist of the possible nouns that apply to the verb."
   "Face for `lispy-view-test'."
   :group 'lispy-faces)
 
-(defvar lispy-mode-map (make-sparse-keymap))
+(defvar lispy-mode-map (make-sparse-keymap))
 
 (defvar lispy-known-verbs nil
   "List of registered verbs.")
@@ -3218,7 +3218,7 @@ When ARG is 2, insert the result as a comment."
           (if (fboundp 'cider--display-interactive-eval-result)
               (let ((cider-eval-result-duration 1))
                 (cider--display-interactive-eval-result result (point)))
-            (error "Please install CIDER to display overlay")))))))
+            (error "Please install CIDER 0.10 to display overlay")))))))
 
 (defvar lispy-do-pprint nil
   "Try a pretty-print when this isn't nil.")
