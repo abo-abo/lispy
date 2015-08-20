@@ -6222,7 +6222,8 @@ Return an appropriate `setq' expression when in `let', `dolist',
                     (forward-list))
                    ((lispy-right-p))
                    ((region-active-p)
-                    (lispy-complain "Unimplemented"))
+                    (when (eq (point) (region-beginning))
+                      (exchange-point-and-mark)))
                    (t
                     (up-list)))
              (lispy--preceding-sexp))))
