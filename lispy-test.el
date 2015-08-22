@@ -250,7 +250,9 @@ Insert KEY if there's no command."
                    "(defn exclaim [exclamation]\n  (str exclamation \"!\"))\n|exclaim~"))
   (should (string= (lispy-with "|(defn read-resource\n  \"Read a resource into a string.\"\n  [path]\n  (read-string\n   (slurp\n    (clojure.java.io/resource path))))"
                                "fffolfol2mol(2 ->[wd>w>w>fdkk///")
-                   "(defn read-resource\n  \"Read a resource into a string.\"\n  [path]\n  |(-> path\n      clojure.java.io/resource\n      slurp\n      read-string))")))
+                   "(defn read-resource\n  \"Read a resource into a string.\"\n  [path]\n  |(-> path\n      clojure.java.io/resource\n      slurp\n      read-string))"))
+  (should (string= (lispy-with "(progn\n\n  |(sexp1)\n  (sexp2))" "ol")
+                   "(progn\n\n  (sexp2))\n|(sexp1)")))
 
 (ert-deftest lispy-move-left ()
   (should (string= (lispy-with "(progn\n |(sexp1)\n (sexp2))" "oh")

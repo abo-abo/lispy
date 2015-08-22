@@ -2424,7 +2424,9 @@ When ARG is more than 1, pull ARGth expression to enclose current sexp."
         (cond ((looking-at " *;"))
               ((and (looking-at "\n")
                     (lispy-bolp))
-               (delete-blank-lines))
+               (delete-region
+                (line-beginning-position)
+                (1+ (point))))
               ((looking-at "\\([\n ]+\\)[^\n ;]")
                (delete-region (match-beginning 1)
                               (match-end 1))))
