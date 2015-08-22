@@ -996,11 +996,11 @@ If position isn't special, move to previous or error."
 (defun lispy-kill-sentence ()
   "Kill until the end of current string or list."
   (interactive)
-  (if (or (lispy-left-p) (looking-at "\""))
-      (lispy-delete 1)
-    (let ((bnd
-           (or (lispy--bounds-string)
-               (lispy--bounds-list))))
+  (let ((bnd (lispy--bounds-dwim)))
+    (if (or (lispy-left-p) (looking-at "\""))
+        (kill-region (car bnd) (cdr bnd))
+      (setq bnd (or (lispy--bounds-string)
+                    (lispy--bounds-list)))
       (kill-region (point) (1- (cdr bnd))))))
 
 (defun lispy-yank ()
