@@ -252,6 +252,10 @@ Insert KEY if there's no command."
                                "fffolfol2mol(2 ->[wd>w>w>fdkk///")
                    "(defn read-resource\n  \"Read a resource into a string.\"\n  [path]\n  |(-> path\n      clojure.java.io/resource\n      slurp\n      read-string))")))
 
+(ert-deftest lispy-move-left ()
+  (should (string= (lispy-with "(progn\n |(sexp1)\n (sexp2))" "oh")
+                   "|(sexp1)\n(progn\n  (sexp2))")))
+
 (ert-deftest lispy-left ()
   (should (string= (lispy-with "(|(a) (b) (c))" "h")
                    "|((a) (b) (c))"))
