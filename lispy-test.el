@@ -258,6 +258,10 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "(progn\n |(sexp1)\n (sexp2))" "oh")
                    "|(sexp1)\n(progn\n  (sexp2))")))
 
+(ert-deftest lispy-down-slurp ()
+  (should (string= (lispy-with "(progn\n\n  |(sexp1)\n  (sexp2))" "oj")
+                   "(progn\n\n  (|(sexp1)\n   sexp2))")))
+
 (ert-deftest lispy-left ()
   (should (string= (lispy-with "(|(a) (b) (c))" "h")
                    "|((a) (b) (c))"))
