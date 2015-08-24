@@ -871,7 +871,9 @@ Insert KEY if there's no command."
     (should (string= (lispy-with ";;; b\n(bar)\n;;; c\n(baz)\n|;;; a\n(foo)\n" "w")
                      ";;; b\n(bar)\n|;;; a\n(foo)\n;;; c\n(baz)\n"))
     (should (string= (lispy-with ";;; b\n(bar)\n;;; c\n(baz)\n|;;; a\n(foo)\n" "2w")
-                     "|;;; a\n(foo)\n;;; b\n(bar)\n;;; c\n(baz)\n"))))
+                     "|;;; a\n(foo)\n;;; b\n(bar)\n;;; c\n(baz)\n")))
+  (should (string= (lispy-with "(sexp (one)\n      ;; comment\n      |(two))" "w")
+                   "(sexp (one)\n      |(two)\n      ;; comment\n      )")))
 
 (ert-deftest lispy-move-down ()
   (should (string= (lispy-with "(|(a) (b) (c))" "s")
