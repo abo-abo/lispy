@@ -285,6 +285,7 @@ using those packages."
           (choice
            (const :tag "god-mode" god-mode)
            (const :tag "edebug" edebug)
+           (const :tag "cider" cider)
            (const :tag "macrostep" macrostep))))
 
 ;;;###autoload
@@ -6144,6 +6145,9 @@ Use only the part bounded by BND."
 (defvar lispy--edebug-command nil
   "Command that corresponds to currently pressed key.")
 
+(defvar lispy--cider-debug-command nil
+  "Command that corresponds to currently pressed key.")
+
 (defun lispy--edebug-commandp ()
   "Return true if `this-command-keys' should be forwarded to edebug."
   (when (and (bound-and-true-p edebug-active)
@@ -6152,6 +6156,14 @@ Use only the part bounded by BND."
       (setq lispy--edebug-command
             (cdr (or (assq char edebug-mode-map)
                      (assq char global-edebug-map)))))))
+
+(defun lispy--cider-debug-commandp ()
+  "Return true if `this-command-keys' should be forwarded to cider-debug."
+  (when (and (bound-and-true-p cider--debug-mode)
+             (= 1 (length (this-command-keys))))
+    (let ((char (aref (this-command-keys) 0)))
+      (setq lispy--cider-debug-command
+            (cdr (assq char cider--debug-mode-map))))))
 
 (defvar macrostep-keymap)
 (defvar lispy--compat-cmd nil
@@ -6185,6 +6197,11 @@ PLIST currently accepts:
                      '(((lispy--edebug-commandp)
                         (call-interactively
                          lispy--edebug-command))))
+
+             ,@(when (memq 'cider lispy-compat)
+                 '(((lispy--cider-debug-commandp)
+                    (call-interactively
+                     lispy--cider-debug-command))))
 
              ,@(when (memq 'god-mode lispy-compat)
                      '(((and (bound-and-true-p god-global-mode))
