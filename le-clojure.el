@@ -61,49 +61,50 @@ When ADD-OUTPUT is non-nil, add the standard output to the result.
 When LAX is non-nil, expect STR to be two sexps from a let binding.
 Generate an appropriate def from for that let binding and eval it."
   (require 'cider)
-  (if (null (nrepl-current-connection-buffer t))
-      (progn
-        (setq lispy--clojure-hook-lambda
-              `(lambda ()
-                 (set-window-configuration
-                  ,(current-window-configuration))
-                 (message
-                  (lispy--eval-clojure ,str ,add-output ,lax))))
-        (add-hook 'nrepl-connected-hook
-                  'lispy--clojure-eval-hook-lambda t)
-        (cider-jack-in)
-        "Starting CIDER...")
-    (when lax
-      (setq str (lispy--clojure-lax str)))
-    (let* ((str
-            (if lispy-do-pprint
-                (format "(clojure.core/let [x %s] (with-out-str (clojure.pprint/pprint x)))"
-                        str)
-              str))
-           (res (nrepl-sync-request:eval str (cider-current-ns) (nrepl-current-session)))
-           (status (nrepl-dict-get res "status"))
-           (res (if (member "namespace-not-found" status)
-                    (nrepl-sync-request:eval str)
-                  res))
-           (val (nrepl-dict-get res "value"))
-           out)
-      (cond ((null val)
-             (error "Eval error: %S"
-                    (nrepl-dict-get res "err")))
+  (let (deactivate-mark)
+    (if (null (nrepl-current-connection-buffer t))
+        (progn
+          (setq lispy--clojure-hook-lambda
+                `(lambda ()
+                   (set-window-configuration
+                    ,(current-window-configuration))
+                   (message
+                    (lispy--eval-clojure ,str ,add-output ,lax))))
+          (add-hook 'nrepl-connected-hook
+                    'lispy--clojure-eval-hook-lambda t)
+          (cider-jack-in)
+          "Starting CIDER...")
+      (when lax
+        (setq str (lispy--clojure-lax str)))
+      (let* ((str
+              (if lispy-do-pprint
+                  (format "(clojure.core/let [x %s] (with-out-str (clojure.pprint/pprint x)))"
+                          str)
+                str))
+             (res (nrepl-sync-request:eval str (cider-current-ns) (nrepl-current-session)))
+             (status (nrepl-dict-get res "status"))
+             (res (if (member "namespace-not-found" status)
+                      (nrepl-sync-request:eval str)
+                    res))
+             (val (nrepl-dict-get res "value"))
+             out)
+        (cond ((null val)
+               (error "Eval error: %S"
+                      (nrepl-dict-get res "err")))
 
-            (add-output
-             (if (setq out (nrepl-dict-get res "out"))
-                 (format "%s\n%s"
-                         (propertize
-                          out 'face 'font-lock-string-face)
-                         val)
-               val))
+              (add-output
+               (if (setq out (nrepl-dict-get res "out"))
+                   (format "%s\n%s"
+                           (propertize
+                            out 'face 'font-lock-string-face)
+                           val)
+                 val))
 
-            (lispy-do-pprint
-             (read res))
+              (lispy-do-pprint
+               (read res))
 
-            (t
-             val)))))
+              (t
+               val))))))
 
 (defun lispy--clojure-resolve (symbol)
   "Return resolved SYMBOL.
