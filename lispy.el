@@ -3215,8 +3215,7 @@ When ARG is 2, insert the result as a comment."
         (if (eq lispy-eval-display-style 'message)
             (message result)
           (if (fboundp 'cider--display-interactive-eval-result)
-              (let ((cider-eval-result-duration 1))
-                (cider--display-interactive-eval-result result (point)))
+              (cider--display-interactive-eval-result result (point))
             (error "Please install CIDER 0.10 to display overlay")))))))
 
 (defvar lispy-do-pprint nil
