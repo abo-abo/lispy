@@ -1605,7 +1605,9 @@ When region is active, toggle a ~ at the start of the region."
      (slime-repl-return))
     (t
      (if (and (not (lispy--in-string-or-comment-p))
-              (lispy-looking-back "[^#`',@~][#`',@~]+"))
+              (if (memq major-mode lispy-clojure-modes)
+                  (lispy-looking-back "[^#`'@~][#`'@~]+")
+                (lispy-looking-back "[^#`',@][#`',@]+")))
          (save-excursion
            (goto-char (match-beginning 0))
            (newline-and-indent))
