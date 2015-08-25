@@ -413,7 +413,15 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "(progn\n  foo-bar-baz-|flip-flop~)" (lispy-up 1))
                    "(progn\n  foo-bar-|baz-flip~-flop)"))
   (should (string= (lispy-with "(progn\n  foo-bar-baz-|flip-flop~)" (lispy-up 5))
-                   "(progn\n  |foo-bar~-baz-flip-flop)")))
+                   "(progn\n  |foo-bar~-baz-flip-flop)"))
+  (should (string= (lispy-with "(foo)\n;; comment\n~(bar)|" "k")
+                   "(foo)\n~;; comment|\n(bar)"))
+  (should (string= (lispy-with "(foo)\n;; comment\n~(bar)|" "kk")
+                   "~(foo)|\n;; comment\n(bar)"))
+  (should (string= (lispy-with "(foo)\n;; comment\n|(bar)~" "k")
+                   "(foo)\n|;; comment~\n(bar)"))
+  (should (string= (lispy-with "(foo)\n;; comment\n|(bar)~" "kk")
+                   "|(foo)~\n;; comment\n(bar)")))
 
 (ert-deftest lispy-different ()
   (should (string= (lispy-with "((a) (b) (c)|)" "d")
@@ -941,7 +949,7 @@ Insert KEY if there's no command."
                    "|(defun abc (x) \"def.\" (+ x x x))"))
   (should (string= (lispy-with "(defun abc (x)\n  \"def.\"\n  (+ x\n     x\n     x))|" "O")
                    "(defun abc (x) \"def.\" (+ x x x))|"))
-  (should (string= (lispy-with "|(defun foo ()\n  ;; comment\n  (bar)\n  (baz))" "O") ;
+  (should (string= (lispy-with "|(defun foo ()\n  ;; comment\n  (bar)\n  (baz))" "O")
                                         ";; comment\n|(defun foo () (bar) (baz))"))
   (should (string= (lispy-with "[1\n 2\n 3\n 4\n 5]|" "O")
                    "[1 2 3 4 5]|")))
@@ -1680,8 +1688,8 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "(a b |c   )"
                                ")")
                    "(a b c)|"))
-  (should (string= (lispy-with "; Hello,| world!" ;
-                   ")")
+  (should (string= (lispy-with "; Hello,| world!"
+                               ")")
                    "; Hello,)| world!")))
 
 (ert-deftest lispy-paredit-close-round-and-newline ()

@@ -716,37 +716,36 @@ Return nil if can't move."
     (lispy--remember))
   (save-match-data
     (cond ((region-active-p)
-           (if (lispy--symbolp (lispy--string-dwim))
-               (if (= (point) (region-end))
-                   (lispy-dotimes arg
-                     (lispy-different)
-                     (if (lispy-slurp 1)
-                         (progn
-                           (lispy-different)
-                           (lispy-barf 1))
-                       (lispy-different)))
-                 (lispy-dotimes arg
-                   (when (lispy-slurp 1)
-                     (lispy-different)
-                     (lispy-barf 1)
-                     (lispy-different))))
-             (if (= (point) (region-end))
-                 (lispy-dotimes arg
-                   (lispy-different)
-                   (if (ignore-errors
-                         (backward-sexp 1) t)
-                       (progn
-                         (lispy-different)
-                         (backward-sexp 2)
-                         (backward-sexp -1))
-                     (lispy-different)
-                     (error "Can't move up")))
-               (lispy-dotimes arg
-                 (backward-sexp 1)
-                 (lispy-different)
-                 (backward-sexp 2)
-                 (backward-sexp -1)
-                 (lispy-different)))))
+           (let ((leftp (= (point) (region-beginning))))
+             (unless leftp
+               (exchange-point-and-mark))
+             (cond ((looking-back "^ *\\(;\\)[^\n]*[\n ]*"
+                                  (save-excursion
+                                    (backward-sexp 1)
+                                    (point)))
+                    (deactivate-mark)
+                    (goto-char (match-beginning 1))
+                    (lispy--mark (lispy--bounds-comment))
+                    (exchange-point-and-mark))
+                   ((lispy--symbolp (lispy--string-dwim))
+                    (lispy-dotimes arg
+                      (when (lispy-slurp 1)
+                        (lispy-different)
+                        (lispy-barf 1)
+                        (lispy-different))))
+                   (t
+                    (lispy-dotimes arg
+                      (backward-sexp 1)
+                      (lispy-different)
+                      (if (lispy--in-comment-p)
+                          (progn
+                            (goto-char (1- (car (lispy--bounds-comment))))
+                            (skip-chars-backward "\n"))
+                        (backward-sexp 2)
+                        (backward-sexp -1))
+                      (lispy-different))))
+             (unless leftp
+               (exchange-point-and-mark))))
 
           ((lispy-left-p)
            (let ((pt (point)))
