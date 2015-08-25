@@ -95,7 +95,7 @@ The caller of `lispy--show' might use a substitute e.g. `describe-function'."
   "Modes for which `lispy--eval-elisp' and related functions are appropriate.")
 
 (defvar lispy-clojure-modes
-  '(clojure-mode clojurescript-mode clojurex-mode)
+  '(clojure-mode clojurescript-mode clojurex-mode clojurec-mode)
   "Modes for which clojure related functions are appropriate.")
 
 (defvar lispy-overlay nil
