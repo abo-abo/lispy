@@ -366,8 +366,12 @@ Insert KEY if there's no command."
                    "(progn\n  foo-bar-baz-~flip-flop|)"))
   (should (string= (lispy-with "(eval-when-~compile|\n  (require 'cl))" (lispy-down 1))
                    "(eval-when-~compile|\n  (require 'cl))"))
-  (should (string= (lispy-with "~;; foo|\n(bar)" (lispy-down 1)) ;
-                   ";; foo\n~(bar)|")))
+  (should (string= (lispy-with "~;; foo|\n(bar)" (lispy-down 1))
+                   ";; foo\n~(bar)|"))
+  (should (string= (lispy-with "~(foo)|\n;; comment\n(bar)" "j")
+                   "(foo)\n~;; comment|\n(bar)"))
+  (should (string= (lispy-with "~(foo)|\n;; comment\n(bar)" "jj")
+                   "(foo)\n;; comment\n~(bar)|")))
 
 (ert-deftest lispy-up ()
   (should (string= (lispy-with "((a) (b) (c)|)" "k")
