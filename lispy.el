@@ -6464,6 +6464,7 @@ FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)."
     (mapc (lambda (x) (lispy-define-key map (format "%d" x) 'digit-argument))
           (number-sequence 0 9))
     map))
+(eldoc-remove-command 'special-lispy-eval)
 
 ;;* Paredit compat
 (defun lispy-close-round-and-newline (arg)
