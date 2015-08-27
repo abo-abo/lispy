@@ -40,8 +40,14 @@
                        (get-buffer-window (slime-output-buffer))))
         (sit-for 0.2))
       (set-window-configuration wnd)))
-  (let (deactivate-mark)
-    (cadr (slime-eval `(swank:eval-and-grab-output ,str)))))
+  (let* ((deactivate-mark nil)
+         (result (slime-eval `(swank:eval-and-grab-output ,str))))
+    (if (equal (car result) "")
+        (cadr result)
+      (concat (propertize (substring (car result) 1)
+                          'face 'font-lock-string-face)
+              "\n\n"
+              (cadr result)))))
 
 (defun lispy--lisp-args (symbol)
   "Return a pretty string with arguments for SYMBOL."
