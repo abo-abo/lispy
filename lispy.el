@@ -656,7 +656,10 @@ Return nil if can't move."
            (let ((leftp (= (point) (region-beginning))))
              (when leftp
                (exchange-point-and-mark))
-             (cond ((lispy--symbolp (lispy--string-dwim))
+             (cond ((save-excursion
+                      (skip-chars-forward " \n")
+                      (eobp)))
+                   ((lispy--symbolp (lispy--string-dwim))
                     (lispy-dotimes arg
                       (when (lispy-slurp 1)
                         (lispy-different)
@@ -720,7 +723,10 @@ Return nil if can't move."
            (let ((leftp (= (point) (region-beginning))))
              (unless leftp
                (exchange-point-and-mark))
-             (cond ((looking-back "^ *\\(;\\)[^\n]*[\n ]*"
+             (cond ((save-excursion
+                      (skip-chars-backward "\n ")
+                      (bobp)))
+                   ((looking-back "^ *\\(;\\)[^\n]*[\n ]*"
                                   (save-excursion
                                     (backward-sexp 1)
                                     (point)))
