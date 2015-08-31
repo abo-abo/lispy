@@ -3862,6 +3862,15 @@ With ARG, use the contents of `lispy-store-region-and-buffer' instead."
       (mc/mark-lines arg 'forwards))
     (mc/maybe-multiple-cursors-mode)))
 
+(eval-after-load 'multiple-cursors
+  '(defadvice mc/execute-command-for-all-fake-cursors
+    (around lispy-other-mode-mc (cmd) activate)
+    (unless (and (eq cmd 'special-lispy-other-mode)
+                 (or (lispy-left-p)
+                     (lispy-right-p)
+                     (region-active-p)))
+      ad-do-it)))
+
 (defun lispy-cursor-ace ()
   "Add a cursor at a visually selected paren.
 Currently, only one cursor can be added with local binding.
@@ -6330,7 +6339,7 @@ Return an appropriate `setq' expression when in `let', `dolist',
 (defvar mc/cmds-to-run-for-all nil)
 (defvar mc/cmds-to-run-once nil)
 (mapc (lambda (x) (add-to-list 'mc/cmds-to-run-once x))
-      '(lispy-cursor-down special-lispy-other-mode))
+      '(lispy-cursor-down))
 (mapc (lambda (x) (add-to-list 'mc/cmds-to-run-for-all x))
       '(lispy-parens lispy-brackets lispy-braces lispy-quotes
         lispy-kill lispy-delete))
