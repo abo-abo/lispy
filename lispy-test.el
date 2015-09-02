@@ -1026,7 +1026,11 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "(|\"foo\"\n (bar)\n baz)" ";")
                    "(;; \"foo\"\n |(bar)\n baz)"))
   (should (string= (lispy-with "(foo|)" ";")
-                   "(foo\n ;; |\n )")))
+                   "(foo\n ;; |\n )"))
+  (should (string= (lispy-with "((foo)| (bar))" ";")
+                   "((foo)\n ;; |\n (bar))"))
+  (should (string= (lispy-with "((foo) (bar)|)" ";")
+                   "((foo) (bar)\n ;; |\n )")))
 
 (ert-deftest lispy-move-end-of-line ()
   ;; (should (string= (lispy-with "(foo (bar #\\x \"|baz \\\\ quux\") zot)"
