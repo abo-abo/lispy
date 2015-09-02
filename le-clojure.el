@@ -81,10 +81,17 @@ Generate an appropriate def from for that let binding and eval it."
                   (format "(clojure.core/let [x %s] (with-out-str (clojure.pprint/pprint x)))"
                           str)
                 str))
-             (res (nrepl-sync-request:eval str (cider-current-ns) (nrepl-current-session)))
+             (res (nrepl-sync-request:eval
+                   str
+                   (cider-current-connection)
+                   (cider-current-session)
+                   (cider-current-ns)))
              (status (nrepl-dict-get res "status"))
              (res (if (member "namespace-not-found" status)
-                      (nrepl-sync-request:eval str)
+                      (nrepl-sync-request:eval
+                       str
+                       (cider-current-connection)
+                       (cider-current-session))
                     res))
              (val (nrepl-dict-get res "value"))
              out)
@@ -227,7 +234,8 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
                  "op" "info"
                  "session" (nrepl-current-session)
                  "ns" (cider-current-ns)
-                 "symbol" symbol)))
+                 "symbol" symbol)
+                (cider-current-connection)))
          (file (nrepl-dict-get dict "file"))
          (line (nrepl-dict-get dict "line"))
          (col (nrepl-dict-get dict "column")))
