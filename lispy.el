@@ -1920,13 +1920,17 @@ Return the amount of successful grow steps, nil instead of zero."
   (interactive "p")
   (if (region-active-p)
       (if (= (point) (region-end))
-          (if (or (looking-at "\\s_")
-                  (save-excursion
-                    (goto-char (region-beginning))
-                    (lispy-looking-back "\\s_")))
-              (lispy--sub-slurp-forward arg)
-            (lispy-dotimes arg
-              (forward-sexp 1)))
+          (cond ((or (looking-at "\\s_")
+                     (save-excursion
+                       (goto-char (region-beginning))
+                       (lispy-looking-back "\\s_")))
+                 (lispy--sub-slurp-forward arg))
+                ((looking-at "[\n ]+;")
+                 (goto-char (match-end 0))
+                 (goto-char (cdr (lispy--bounds-comment))))
+                (t
+                 (lispy-dotimes arg
+                   (forward-sexp 1))))
         (if (or (lispy-looking-back "\\s_")
                 (save-excursion
                   (goto-char (region-end))
