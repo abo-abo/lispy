@@ -2018,25 +2018,29 @@ Return the amount of successful grow steps, nil instead of zero."
           (goto-char (car bnd)))))))
 
 (defun lispy-barf (arg)
-  "Shrink current sexp by ARG sexps."
+  "Shrink current sexp or region by ARG sexps."
   (interactive "p")
   (cond ((region-active-p)
          (let* ((str (lispy--string-dwim))
                 (one-symbolp (lispy--symbolp str)))
            (if (= (point) (region-end))
-               (if one-symbolp
-                   (lispy-dotimes arg
-                     (if (re-search-backward "\\sw\\s_+" (region-beginning) t)
-                         (forward-char 1)
-                       (throw 'result i)))
-                 (save-restriction
-                   (narrow-to-region (region-beginning)
-                                     (point-max))
-                   (incf arg)
-                   (lispy-dotimes arg
-                     (forward-sexp -1))
-                   (forward-sexp 1)
-                   (widen)))
+               (cond (one-symbolp
+                      (lispy-dotimes arg
+                        (if (re-search-backward "\\sw\\s_+" (region-beginning) t)
+                            (forward-char 1)
+                          (throw 'result i))))
+                     ((lispy--in-comment-p)
+                      (goto-char (car (lispy--bounds-comment)))
+                      (skip-chars-backward " \n"))
+                     (t
+                      (save-restriction
+                        (narrow-to-region (region-beginning)
+                                          (point-max))
+                        (incf arg)
+                        (lispy-dotimes arg
+                          (forward-sexp -1))
+                        (forward-sexp 1)
+                        (widen))))
              (if one-symbolp
                  (lispy-dotimes arg
                    (if (re-search-forward "\\s_+\\sw" (region-end) t)
