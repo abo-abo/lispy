@@ -1931,13 +1931,19 @@ Return the amount of successful grow steps, nil instead of zero."
                 (t
                  (lispy-dotimes arg
                    (forward-sexp 1))))
-        (if (or (lispy-looking-back "\\s_")
-                (save-excursion
-                  (goto-char (region-end))
-                  (looking-at "\\s_")))
-            (lispy--sub-slurp-backward arg)
-          (lispy-dotimes arg
-            (forward-sexp -1))))
+        (cond ((or (lispy-looking-back "\\s_")
+                   (save-excursion
+                     (goto-char (region-end))
+                     (looking-at "\\s_")))
+               (lispy--sub-slurp-backward arg))
+              ((save-excursion
+                 (skip-chars-backward " \n")
+                 (lispy--in-comment-p))
+               (skip-chars-backward " \n")
+               (goto-char (car (lispy--bounds-comment))))
+              (t
+               (lispy-dotimes arg
+                 (forward-sexp -1)))))
     (if (lispy-right-p)
         (lispy-dotimes arg
           (lispy--slurp-forward))
