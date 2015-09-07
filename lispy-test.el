@@ -471,7 +471,9 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "|\"multiline\nstring\"\n(expr)" "\C-k")
                    "|\n(expr)"))
   (should (string= (lispy-with "(defun lispy-kill-test ()\n  |(foo\n    bar baz)\n  (1 2 3)\n  (a b c))" "\C-k")
-                   "(defun lispy-kill-test ()\n  |\n  (1 2 3)\n  (a b c))")))
+                   "(defun lispy-kill-test ()\n  |\n  (1 2 3)\n  (a b c))"))
+  (should (string= (lispy-with "(progn\n  |(looking-at-p \"\\(\"))" "\C-k")
+                   "(progn\n  |)")))
 
 (ert-deftest lispy-yank ()
   (should (string= (lispy-with "\"|\"" (kill-new "foo") (lispy-yank))
