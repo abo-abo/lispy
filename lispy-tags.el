@@ -62,13 +62,18 @@
            (not (or (bound-and-true-p ido-vertical-mode)
                     (bound-and-true-p ivy-mode))))
       x
-    (let* ((width (min (window-width) (cadr lispy-helm-columns)))
+    (let* ((width (min (- (window-width) 3) (cadr lispy-helm-columns)))
            (s1 (car x))
            (s2 (file-name-nondirectory
                 (cadr x))))
-      (cons (format (format "%%s%% %ds" (- width
-                                           (length s1)))
-                    s1 s2)
+      (cons (if (< width 50)
+                (if (> (length s1) width)
+                    (concat (substring s1 0 (- width 3))
+                            "...")
+                  s1)
+              (format (format "%%s%% %ds" (- width
+                                             (length s1)))
+                      s1 s2))
             x))))
 
 (defun lispy--file-fresh-p (actual-time stored-time)
