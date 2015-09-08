@@ -3550,8 +3550,10 @@ Sexp is obtained by exiting the list ARG times."
         (lispy--avy-do
          "[([{ ]\\(?:\\sw\\|\\s_\\|[\"'`#~,@]\\)"
          (lispy--bounds-dwim)
-         (lambda () (or (not (lispy--in-string-or-comment-p))
-                        (lispy-looking-back ".\"")))
+         (lambda ()
+           (not (save-excursion
+                  (forward-char -1)
+                  (lispy--in-string-or-comment-p))))
          lispy-avy-style-symbol))))
   (unless (or (eq (char-after) ?\")
               (looking-at ". "))
