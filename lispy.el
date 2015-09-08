@@ -4981,7 +4981,7 @@ FILE is the file where X is defined."
                 (error
                  (forward-sexp 1)))
               (setq str (replace-regexp-in-string
-                         "\n" " " (buffer-substring-no-properties beg (point))))
+                         "\n *" " " (buffer-substring-no-properties beg (point))))
               (setcar x str)
               (setcar (nthcdr 1 x) (intern tag-head))))))))
   x)
