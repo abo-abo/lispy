@@ -723,7 +723,9 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "(progn\n  |foo-bar-baz-flip-flop~)" (lispy-barf 5))
                    "(progn\n  foo-bar-baz-flip-|flop~)"))
   (should (string= (lispy-with "(progn\n  ~(foo)\n  ;; comment 1\n  ;; comment 2|\n  (bar))" "<")
-                   "(progn\n  ~(foo)|\n  ;; comment 1\n  ;; comment 2\n  (bar))")))
+                   "(progn\n  ~(foo)|\n  ;; comment 1\n  ;; comment 2\n  (bar))"))
+  (should (string= (lispy-with "(progn\n  (foo)\n  ~;; bar|\n  (baz))" "<")
+                   "(progn\n  (foo)\n  ~;; bar|\n  (baz))")))
 
 (ert-deftest lispy-splice ()
   (should (string= (lispy-with "(|(a) (b) (c))" "/")

@@ -2027,11 +2027,27 @@ Return the amount of successful grow steps, nil instead of zero."
             (lispy-different)
           (goto-char (car bnd)))))))
 
+(defun lispy--backward-sexp-or-comment ()
+  (if (lispy--in-comment-p)
+      (goto-char (car (lispy--bounds-comment)))
+    (forward-sexp -1))
+  (skip-chars-backward " \n"))
+
+(defun lispy--forward-sexp-or-comment ()
+  (if (save-excursion
+        (skip-chars-forward " \n")
+        (lispy--in-comment-p))
+      (progn
+        (skip-chars-forward " \n")
+        (goto-char (cdr (lispy--bounds-comment))))
+    (forward-sexp 1)))
+
 (defun lispy-barf (arg)
   "Shrink current sexp or region by ARG sexps."
   (interactive "p")
   (cond ((region-active-p)
-         (let* ((str (lispy--string-dwim))
+         (let* ((bnd (lispy--bounds-dwim))
+                (str (lispy--string-dwim bnd))
                 (one-symbolp (lispy--symbolp str)))
            (if (= (point) (region-end))
                (cond (one-symbolp
@@ -2041,29 +2057,37 @@ Return the amount of successful grow steps, nil instead of zero."
                           (throw 'result i))))
                      ((lispy--in-comment-p)
                       (goto-char (car (lispy--bounds-comment)))
-                      (skip-chars-backward " \n"))
+                      (if (= (point) (region-beginning))
+                          (goto-char (cdr (lispy--bounds-comment)))
+                        (skip-chars-backward " \n")))
                      (t
-                      (save-restriction
-                        (narrow-to-region (region-beginning)
-                                          (point-max))
-                        (incf arg)
-                        (lispy-dotimes arg
-                          (forward-sexp -1))
-                        (forward-sexp 1)
-                        (widen))))
-             (if one-symbolp
-                 (lispy-dotimes arg
-                   (if (re-search-forward "\\s_+\\sw" (region-end) t)
-                       (backward-char 1)
-                     (throw 'result i)))
-               (save-restriction
-                 (narrow-to-region (point-min)
-                                   (region-end))
-                 (incf arg)
-                 (lispy-dotimes arg
-                   (forward-sexp 1))
-                 (forward-sexp -1)
-                 (widen))))))
+                      (incf arg)
+                      (lispy-dotimes arg
+                        (lispy--backward-sexp-or-comment))
+                      (when (< (point) (car bnd))
+                        (goto-char (car bnd)))
+                      (lispy--forward-sexp-or-comment)))
+             (cond (one-symbolp
+                    (lispy-dotimes arg
+                      (if (re-search-forward "\\s_+\\sw" (region-end) t)
+                          (backward-char 1)
+                        (throw 'result i))))
+                   ((lispy--in-comment-p)
+                    (goto-char (cdr (lispy--bounds-comment)))
+                    (if (= (region-beginning) (region-end))
+                        (goto-char (car bnd))
+                      (skip-chars-forward " \n")))
+                   (t
+                    (save-restriction
+                      (narrow-to-region (point-min)
+                                        (region-end))
+                      (incf arg)
+                      (lispy-dotimes arg
+                        (lispy--forward-sexp-or-comment))
+                      (if (lispy--in-comment-p)
+                          (goto-char (car (lispy--bounds-comment)))
+                        (forward-sexp -1))
+                      (widen)))))))
 
         ((looking-at "()"))
 
@@ -2911,7 +2935,7 @@ When SILENT is non-nil, don't issue messages."
               ((eolp)
                (comment-dwim nil))
               ((looking-at " *[])}]")
-               (unless (looking-back "^ *")
+               (unless (lispy-bolp)
                  (insert "\n"))
                (insert ";;\n")
                (when (lispy--out-forward 1)
