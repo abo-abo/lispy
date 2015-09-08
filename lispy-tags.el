@@ -62,7 +62,8 @@
            (not (or (bound-and-true-p ido-vertical-mode)
                     (bound-and-true-p ivy-mode))))
       x
-    (let* ((width (min (- (window-width) 3) (cadr lispy-helm-columns)))
+    (let* ((width (min (- (window-width)
+                          (if (eq fringe-mode 0) 1 0)) (cadr lispy-helm-columns)))
            (s1 (car x))
            (s2 (file-name-nondirectory
                 (cadr x))))
