@@ -1040,7 +1040,9 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "((foo)| (bar))" ";")
                    "((foo)\n ;; |\n (bar))"))
   (should (string= (lispy-with "((foo) (bar)|)" ";")
-                   "((foo) (bar)\n ;; |\n )")))
+                   "((foo) (bar)\n ;; |\n )"))
+  (should (string= (lispy-with "|\n(defun foo ())" ";;")
+                   ";;;###autoload\n|(defun foo ())")))
 
 (ert-deftest lispy-move-end-of-line ()
   ;; (should (string= (lispy-with "(foo (bar #\\x \"|baz \\\\ quux\") zot)"
