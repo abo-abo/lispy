@@ -2919,7 +2919,7 @@ When SILENT is non-nil, don't issue messages."
                  (lispy--out-backward 1)))
               ((lispy--in-string-or-comment-p)
                (if (and (eq major-mode 'emacs-lisp-mode)
-                        (looking-back ";; "))
+                        (lispy-after-string-p ";; "))
                    (progn
                      (delete-char -1)
                      (insert ";###autoload")
@@ -3503,7 +3503,6 @@ When called twice in a row, restore point and mark."
 
 ;;* Locals: avy-jump
 (declare-function avy--regex-candidates "avy")
-(declare-function avy--goto "avy")
 (declare-function avy--process "avy")
 (declare-function avy--overlay-post "avy")
 
