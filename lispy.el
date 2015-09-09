@@ -3458,14 +3458,23 @@ When ARG is non-nil, force select the window."
   (interactive)
   (lispy-goto-symbol (lispy--current-function)))
 
+(declare-function cider-doc-lookup "ext:cider-interaction")
+
 (defun lispy-describe ()
   "Display documentation for `lispy--current-function'."
   (interactive)
-  (let ((symbol (intern-soft (lispy--current-function))))
-    (cond ((fboundp symbol)
-           (describe-function symbol))
-          ((boundp symbol)
-           (describe-variable symbol)))))
+  (cond ((memq major-mode lispy-elisp-modes)
+         (let ((symbol (intern-soft (lispy--current-function))))
+           (cond ((fboundp symbol)
+                  (describe-function symbol))
+                 ((boundp symbol)
+                  (describe-variable symbol)))))
+        ((memq major-mode lispy-clojure-modes)
+         (cider-doc-lookup (lispy--current-function)))
+
+        (t
+         (lispy-complain
+          (format "%s isn't supported currently" major-mode)))))
 
 (defun lispy-arglist ()
   "Display arglist for `lispy--current-function'."
