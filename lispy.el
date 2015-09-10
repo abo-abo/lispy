@@ -5275,18 +5275,15 @@ Ignore the matches in strings and comments."
                         (insert "))"))
                       (delete-region (match-beginning 0) (match-end 0))
                       (insert "(ly-raw " class " ("))))
-                ;; ——— 123# ———————————————————
-                (goto-char (point-min))
-                (while (re-search-forward "[0-9]+\\(#\\)" nil t)
-                  (replace-match "\\#" nil t nil 1))
                 ;; ——— #1 —————————————————————
                 ;; Elisp syntax for circular lists
                 (goto-char (point-min))
                 (while (re-search-forward "\\(?:^\\|\\s-\\|\\s(\\)\\(#[0-9]+\\)" nil t)
-                  (replace-match (format "(ly-raw reference %S)"
-                                         (substring-no-properties
-                                          (match-string 1)))
-                                 nil nil nil 1))
+                  (unless (lispy--in-string-p)
+                    (replace-match (format "(ly-raw reference %S)"
+                                           (substring-no-properties
+                                            (match-string 1)))
+                                   nil nil nil 1)))
                 ;; ——— ' ——————————————————————
                 (goto-char (point-min))
                 (while (re-search-forward "'" nil t)
@@ -5353,6 +5350,14 @@ Ignore the matches in strings and comments."
                     (insert "\")")))
                 ;; ——— cons cell syntax ———————
                 (lispy--replace-regexp-in-code " \\. " " (ly-raw dot) ")
+                ;; Clojure # in the middle of the symbol
+                (goto-char (point-min))
+                (while (re-search-forward "\\(?:\\sw\\|\\s_\\)#" nil t)
+                  (unless (lispy--in-string-p)
+                    (let* ((bnd (lispy--bounds-dwim))
+                           (str (lispy--string-dwim bnd)))
+                      (delete-region (car bnd) (cdr bnd))
+                      (insert (format "(ly-raw symbol %S)" str)))))
                 ;; ———  ———————————————————————
                 (buffer-substring-no-properties
                  (point-min)
