@@ -5231,7 +5231,7 @@ Ignore the matches in strings and comments."
                 (lispy--replace-regexp-in-code "\n" " (ly-raw newline)")
                 ;; ——— () —————————————————————
                 (goto-char (point-min))
-                (while (re-search-forward "[^\\]\\(()\\)" nil t)
+                (while (re-search-forward "\\(?:[^\\]\\|^\\)\\(()\\)" nil t)
                   (unless (lispy--in-string-or-comment-p)
                     (replace-match "(ly-raw empty)" nil nil nil 1)))
                 ;; ——— ? char syntax ——————————
