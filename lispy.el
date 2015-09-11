@@ -3894,7 +3894,7 @@ With ARG, use the contents of `lispy-store-region-and-buffer' instead."
   (lispy-left 1)
   (lispy-delete 1)
   (save-excursion
-    (lispy--out-backward 1)
+    (lispy--out-backward 2)
     (lispy--normalize-1)))
 
 (defun lispy-bind-variable ()
