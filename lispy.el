@@ -3591,10 +3591,10 @@ Sexp is obtained by exiting list ARG times."
           (avy-keys lispy-avy-keys))
       (avy-with 'lispy-ace-subword
         (lispy--avy-do
-         "[([{ -]\\(?:\\sw\\|\\s_\\|\\s(\\|[\"'`#]\\)"
+         "[([{ -/]\\(?:\\sw\\|\\s_\\|\\s(\\|[\"'`#]\\)"
          (lispy--bounds-dwim)
          (lambda () (or (not (lispy--in-string-or-comment-p))
-                   (lispy-looking-back ".\"")))
+                        (lispy-looking-back ".\"")))
          lispy-avy-style-symbol)))
     (skip-chars-forward "-([{ `'#") (mark-word)))
 
