@@ -1203,7 +1203,7 @@ Otherwise (`backward-delete-char-untabify' ARG)."
           ((and (lispy-after-string-p "\" ")
                 (not (looking-at lispy-right)))
            (let ((pt (point)))
-             (goto-char (match-beginning 0))
+             (backward-char 2)
              (delete-region (car (lispy--bounds-string)) pt))
            (lispy--delete-whitespace-backward)
            (unless (lispy-looking-back lispy-left)
