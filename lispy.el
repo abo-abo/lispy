@@ -3895,18 +3895,35 @@ With ARG, use the contents of `lispy-store-region-and-buffer' instead."
 (defun lispy-unbind-variable ()
   "Subsititute let-bound variable."
   (interactive)
-  (forward-char 1)
+  (if (memq major-mode lispy-clojure-modes)
+      (lispy-unbind-variable-clojure)
+    (forward-char 1)
+    (lispy-flet (message (&rest _x))
+      (iedit-mode 0))
+    (lispy-mark-symbol)
+    (lispy-move-down 1)
+    (iedit-mode)
+    (deactivate-mark)
+    (lispy-left 1)
+    (lispy-delete 1)
+    (save-excursion
+      (lispy--out-backward 2)
+      (lispy--normalize-1))))
+
+(defun lispy-unbind-variable-clojure ()
+  "Subsititute let-bound variable in Clojure."
+  (interactive)
   (lispy-flet (message (&rest _x))
     (iedit-mode 0))
   (lispy-mark-symbol)
   (lispy-move-down 1)
   (iedit-mode)
-  (deactivate-mark)
-  (lispy-left 1)
-  (lispy-delete 1)
-  (save-excursion
-    (lispy--out-backward 2)
-    (lispy--normalize-1)))
+  (exchange-point-and-mark)
+  (lispy-slurp 1)
+  (delete-active-region)
+  (lispy--out-backward 2)
+  (lispy--normalize-1)
+  (lispy-flow 1))
 
 (defun lispy-bind-variable ()
   "Bind current expression as variable."

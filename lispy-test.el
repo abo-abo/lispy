@@ -1452,7 +1452,28 @@ Insert KEY if there's no command."
     (foo3 20 10 z)
     (foo4 20 z 10)
     (foo5 z 10 20)
-    (foo6 z 20 10)))")))
+    (foo6 z 20 10)))"))
+  (should (string=
+           (lispy-flet (recenter (&optional x))
+             (lispy-with-clojure "
+(defn foobar []
+  (let [~x| 10 y 20 z 30]
+    (+ 1 x y z)
+    (+ 2 x z y)
+    (+ 3 y x z)
+    (+ 4 y z x)
+    (+ 5 z x y)
+    (+ 6 z y x)))"
+                                 (lispy-unbind-variable)))
+           "
+(defn foobar []
+  (let |[y 20 z 30]
+    (+ 1 10 y z)
+    (+ 2 10 z y)
+    (+ 3 y 10 z)
+    (+ 4 y z 10)
+    (+ 5 z 10 y)
+    (+ 6 z y 10)))")))
 
 
 (ert-deftest lispy-other-space ()
