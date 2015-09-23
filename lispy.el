@@ -3921,6 +3921,7 @@ With ARG, use the contents of `lispy-store-region-and-buffer' instead."
   (exchange-point-and-mark)
   (lispy-slurp 1)
   (delete-active-region)
+  (deactivate-mark)
   (lispy--out-backward 2)
   (lispy--normalize-1)
   (lispy-flow 1))
