@@ -2729,6 +2729,17 @@ When STEP is non-nil, insert in between each STEP elements instead."
 (defcustom lispy-multiline-threshold 32
   "Don't multiline expresssions shorter than this when printed as a string.")
 
+(defun lispy--translate-newlines (str)
+  "Replace quoted newlines with real ones in STR."
+  (with-temp-buffer
+    (insert str)
+    (goto-char (point-min))
+    (while (re-search-forward "\\\\n" nil t)
+      (unless (= ?\\
+                 (char-before (- (point) 2)))
+        (replace-match "\n" nil t)))
+    (buffer-string)))
+
 (defun lispy--multiline-1 (expr &optional quoted)
   "Transform a one-line EXPR into a multi-line.
 When QUOTED is not nil, assume that EXPR is quoted and ignore some rules."
@@ -2764,8 +2775,8 @@ When QUOTED is not nil, assume that EXPR is quoted and ignore some rules."
                   (string
                    (setq res
                          `(ly-raw string
-                                  ,(replace-regexp-in-string
-                                    "\\(?:[^\\]\\|^\\)\\(\\\\n\\)" "\n" (cadr expr) nil t 1))))
+                                  ,(lispy--translate-newlines
+                                    (cadr expr)))))
                   (t (unless (= (length expr) 2)
                        (error "Unexpected expr: %S" expr))
                      (unless (null res)
