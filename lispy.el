@@ -1333,9 +1333,9 @@ When ARG is more than 1, mark ARGth element."
                 (goto-char pt)))))
 
           ((lispy-right-p)
-           (skip-chars-backward "() \n")
+           (skip-chars-backward "}]) \n")
            (set-mark-command nil)
-           (re-search-backward "[() \n]")
+           (re-search-backward "[][{}() \n]")
            (while (lispy--in-string-or-comment-p)
              (re-search-backward "[() \n]"))
            (forward-char 1))
