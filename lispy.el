@@ -3297,10 +3297,23 @@ When ARG is 2, insert the result as a comment."
       (let ((result (replace-regexp-in-string
                      "%" "%%" (lispy--eval (lispy--string-dwim) t))))
         (if (eq lispy-eval-display-style 'message)
-            (message result)
+            (lispy-message result)
           (if (fboundp 'cider--display-interactive-eval-result)
               (cider--display-interactive-eval-result result (point))
             (error "Please install CIDER 0.10 to display overlay")))))))
+
+(defun lispy-message (str)
+  "Display STR in the echo area.
+If STR is too large, pop it to a buffer instead."
+  (if (> (cl-count ?\n str) 20)
+      (progn
+        (pop-to-buffer "*lispy-message*")
+        (special-mode)
+        (let ((inhibit-read-only t))
+          (delete-region (point-min) (point-max))
+          (insert str)
+          (goto-char (point-min))))
+    (message str)))
 
 (defvar lispy-do-pprint nil
   "Try a pretty-print when this isn't nil.")
