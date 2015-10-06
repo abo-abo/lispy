@@ -1357,12 +1357,8 @@ When ARG is more than 1, mark ARGth element."
   "Kill the quoted string or the list that includes the point."
   (interactive)
   (if (region-active-p)
-      (progn
-        (kill-new (buffer-substring-no-properties
-                   (region-beginning)
-                   (region-end)))
-        (newline-and-indent)
-        (insert (current-kill 0)))
+      (kill-region (region-beginning)
+                   (region-end))
     (let ((bounds (or (lispy--bounds-comment)
                       (lispy--bounds-string)
                       (lispy--bounds-list))))
