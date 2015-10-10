@@ -4310,11 +4310,14 @@ If already there, return it to previous position."
 (defun lispy--setq-doconst (x)
   "Return a cons of description and value for X.
 X is an item of a radio- or choice-type defcustom."
-  (setq x (car (last x)))
-  (cons (prin1-to-string x)
-        (if (symbolp x)
-            (list 'quote x)
-          x)))
+  (let (y)
+    (when (and (listp x)
+               (consp (setq y (last x))))
+      (setq x (car y))
+      (cons (prin1-to-string x)
+            (if (symbolp x)
+                (list 'quote x)
+              x)))))
 
 (defun lispy-setq ()
   "Set variable at point, with completion."
