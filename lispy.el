@@ -1552,6 +1552,22 @@ If jammed between parens, \"(|(\" unjam: \"( |(\"."
     (lispy--space-unless "\\s-\\|\\s(\\|[~#:?'`]\\|\\\\")
     (insert "'")))
 
+(defun lispy-underscore (&optional arg)
+  "Insert _.
+For Clojure modes, toggle #_ sexp comment."
+  (interactive "p")
+  (setq arg (or arg 1))
+  (if (memq major-mode lispy-clojure-modes)
+      (let ((leftp (lispy--leftp)))
+        (unless leftp
+          (lispy-different))
+        (if (lispy-after-string-p "#_")
+            (delete-char -2)
+          (insert "#_"))
+        (unless leftp
+          (lispy-different)))
+    (self-insert-command arg)))
+
 (defun lispy-backtick ()
   "Insert `."
   (interactive)
@@ -6579,6 +6595,7 @@ FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)."
     (lispy-define-key map "F" 'lispy-follow t)
     (lispy-define-key map "D" 'pop-tag-mark)
     (lispy-define-key map "A" 'lispy-beginning-of-defun)
+    (lispy-define-key map "_" 'lispy-underscore)
     ;; miscellanea
     (lispy-define-key map "SPC" 'lispy-space)
     (lispy-define-key map "i" 'lispy-tab)
