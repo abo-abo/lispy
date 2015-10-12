@@ -1621,7 +1621,7 @@ When region is active, toggle a ~ at the start of the region."
      (if (and (not (lispy--in-string-or-comment-p))
               (if (memq major-mode lispy-clojure-modes)
                   (lispy-looking-back "[^#`'@~][#`'@~]+")
-                (lispy-looking-back "[^#`',@][#`',@]+")))
+                (lispy-looking-back "[^#`',@|][#`',@]+")))
          (save-excursion
            (goto-char (match-beginning 0))
            (newline-and-indent))
@@ -4721,24 +4721,29 @@ First, try to return `lispy--bounds-string'."
                                  (if (bolp) 0 1))))
                (setq pt (point)))
              (goto-char pt))
-           (let ((beg (lispy--beginning-of-comment))
-                 (pt (point))
-                 (col (current-column)))
-             (while (and (lispy--in-comment-p)
-                         (forward-comment 1)
-                         (lispy--beginning-of-comment)
-                         (and (= 1 (- (count-lines pt (point))
-                                      (if (bolp) 0 1)))
-                              ;; count comments starting in different columns
-                              ;; as separate
-                              (= col (current-column))
-                              ;; if there's code in between,
-                              ;; count comments as separate
-                              (lispy-looking-back "^\\s-*")))
-               (setq pt (point)))
-             (goto-char pt)
-             (end-of-line)
-             (cons beg (point)))))))
+           (if (looking-at "#|")
+               (cons (point)
+                     (progn
+                       (comment-forward)
+                       (point)))
+             (let ((beg (lispy--beginning-of-comment))
+                   (pt (point))
+                   (col (current-column)))
+               (while (and (lispy--in-comment-p)
+                           (forward-comment 1)
+                           (lispy--beginning-of-comment)
+                           (and (= 1 (- (count-lines pt (point))
+                                        (if (bolp) 0 1)))
+                                ;; count comments starting in different columns
+                                ;; as separate
+                                (= col (current-column))
+                                ;; if there's code in between,
+                                ;; count comments as separate
+                                (lispy-looking-back "^\\s-*")))
+                 (setq pt (point)))
+               (goto-char pt)
+               (end-of-line)
+               (cons beg (point))))))))
 
 (defun lispy--string-dwim (&optional bounds)
   "Return the string that corresponds to BOUNDS.
@@ -4808,6 +4813,7 @@ Return nil on failure, t otherwise."
 (defun lispy--beginning-of-comment ()
   "Go to beginning of comment on current line."
   (end-of-line)
+  (comment-beginning)
   (let ((cs (comment-search-backward (line-beginning-position) t)))
     (when cs
       (goto-char cs))))
