@@ -1215,9 +1215,10 @@ Otherwise (`backward-delete-char-untabify' ARG)."
             (line-beginning-position)
             (point))
            (unless (bobp)
-             (if (save-excursion
-                   (backward-char 1)
-                   (lispy--in-comment-p))
+             (if (and (not (eolp))
+                      (save-excursion
+                        (backward-char 1)
+                        (lispy--in-comment-p)))
                  (progn
                    (backward-char 1)
                    (let ((bnd (lispy--bounds-comment)))
