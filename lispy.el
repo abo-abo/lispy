@@ -1563,7 +1563,7 @@ If jammed between parens, \"(|(\" unjam: \"( |(\"."
     (insert "'")))
 
 (defun lispy-underscore (&optional arg)
-  "Insert _.
+  "Insert _ ARG times.
 For Clojure modes, toggle #_ sexp comment."
   (interactive "p")
   (setq arg (or arg 1))
@@ -2051,12 +2051,16 @@ Return the amount of successful grow steps, nil instead of zero."
           (goto-char (car bnd)))))))
 
 (defun lispy--backward-sexp-or-comment ()
+  "When in comment, move to the comment start.
+Otherwise, move to the previous sexp."
   (if (lispy--in-comment-p)
       (goto-char (car (lispy--bounds-comment)))
     (forward-sexp -1))
   (skip-chars-backward " \n"))
 
 (defun lispy--forward-sexp-or-comment ()
+  "When before comment, move to the comment end.
+Otherwise, move to the next sexp."
   (if (save-excursion
         (skip-chars-forward " \n")
         (lispy--in-comment-p))
