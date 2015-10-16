@@ -613,7 +613,9 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "|foo bar~" "(")
                    "|(foo bar)"))
   (should (string= (lispy-with "~foo bar|" "(")
-                   "|(foo bar)")))
+                   "|(foo bar)"))
+  (should (string= (lispy-with "(progn\n|\n (foo))" "2(")
+                   "(progn\n  (|\n   (foo)))")))
 
 (ert-deftest lispy--sub-slurp-forward ()
   (should (eq (lispy-with-value "(progn\n  ~foo|-bar-baz-flip-flop)"
