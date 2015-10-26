@@ -6467,6 +6467,12 @@ Return an appropriate `setq' expression when in `let', `dolist',
                   (progn
                     ,@(cdr re))
                 lispy--eval-cond-msg)))
+          ((looking-at "(pcase\\s-*")
+           (goto-char (match-end 0))
+           `(if ,(pcase--expand (lispy--read (lispy--string-dwim))
+                                `((,(car tsexp) t)))
+                "pcase: t"
+              "pcase: nil"))
           ((and (looking-at "(\\(?:cl-\\)?\\(?:defun\\|defmacro\\)")
                 (save-excursion
                   (lispy-flow 1)
