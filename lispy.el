@@ -5783,13 +5783,14 @@ Defaults to `error'."
 (defun lispy--space-unless (context)
   "Insert one space.
 Unless inside string or comment, or `looking-back' at CONTEXT."
-  (unless (or lispy-no-space
-              (bolp)
-              (and (window-minibuffer-p)
-                   (eq (point) (minibuffer-prompt-end)))
-              (lispy--in-string-or-comment-p)
-              (lispy-looking-back context))
-    (insert " ")))
+  (let ((inhibit-field-text-motion t))
+    (unless (or lispy-no-space
+                (bolp)
+                (and (window-minibuffer-p)
+                     (eq (point) (minibuffer-prompt-end)))
+                (lispy--in-string-or-comment-p)
+                (lispy-looking-back context))
+      (insert " "))))
 
 (defun lispy--reindent (&optional arg)
   "Reindent current sexp.  Up-list ARG times before that."
