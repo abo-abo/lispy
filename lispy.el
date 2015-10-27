@@ -3638,8 +3638,7 @@ Sexp is obtained by exiting list ARG times."
      (if (region-active-p)
          (progn (deactivate-mark) arg)
        (1- arg)))
-    (let ((avy--overlay-offset (if (eq lispy-avy-style-symbol 'at) 0 1))
-          (avy-keys lispy-avy-keys))
+    (let ((avy-keys lispy-avy-keys))
       (avy-with 'lispy-ace-subword
         (lispy--avy-do
          "[([{ -/]\\(?:\\sw\\|\\s_\\|\\s(\\|[\"'`#]\\)"
