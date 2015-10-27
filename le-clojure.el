@@ -113,6 +113,33 @@ Generate an appropriate def from for that let binding and eval it."
               (t
                val))))))
 
+(defvar cider--debug-mode-response)
+(declare-function cider--debug-mode "ext:cider-debug")
+
+(defun lispy--clojure-debug-quit ()
+  (let ((pt (save-excursion
+              (if (lispy--leftp)
+                  (forward-list)
+                (lispy--out-forward 1))
+              (lispy-up 1)
+              (point)))
+        (str (format "(do %s)"
+                     (mapconcat
+                      (lambda (x)
+                        (format "(def %s %s)" (car x) (cadr x)))
+                      (nrepl-dict-get cider--debug-mode-response "locals")
+                      "\n"))))
+    (nrepl-send-request
+     (list "op" "debug-input" "input" ":quit"
+           "key" (nrepl-dict-get cider--debug-mode-response "key"))
+     (lambda (_response))
+     (cider-current-connection))
+    (lispy--eval-clojure str)
+    (ignore-errors
+      (let ((nrepl-ongoing-sync-request nil))
+        (cider--debug-mode -1)))
+    (goto-char pt)))
+
 (defun lispy--clojure-resolve (symbol)
   "Return resolved SYMBOL.
 Return 'special or 'keyword appropriately.

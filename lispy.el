@@ -4143,38 +4143,45 @@ Second region and buffer are the current ones."
              (lispy-complain "can't descend further"))))))
 
 ;;* Locals: edebug
+(declare-function lispy--clojure-debug-quit "le-clojure")
 (defun lispy-edebug-stop ()
   "Stop edebugging, while saving current function arguments."
   (interactive)
-  (if (bound-and-true-p edebug-active)
-      (save-excursion
-        (lispy-left 99)
-        (if (looking-at
-             "(\\(?:cl-\\)?def\\(?:un\\|macro\\)")
-            (progn
-              (goto-char (match-end 0))
-              (search-forward "(")
-              (backward-char 1)
-              (forward-sexp 1)
-              (let ((sexps
-                     (mapcar
-                      (lambda (x!)
-                        (when (consp x!)
-                          (setq x! (car x!)))
-                        (cons x!
-                              (let ((expr x!))
-                                (edebug-eval expr))))
-                      (delq '&key (delq '&optional (delq '&rest (lispy--preceding-sexp))))))
-                    (wnd (current-window-configuration))
-                    (pt (point)))
-                (run-with-timer
-                 0 nil
-                 `(lambda ()
-                    (mapc (lambda (x!) (set (car x!) (cdr x!))) ',sexps)
-                    (set-window-configuration ,wnd)
-                    (goto-char ,pt)))
-                (top-level)))))
-    (self-insert-command 1)))
+  (cond ((memq major-mode lispy-elisp-modes)
+         (if (bound-and-true-p edebug-active)
+             (save-excursion
+               (lispy-left 99)
+               (if (looking-at
+                    "(\\(?:cl-\\)?def\\(?:un\\|macro\\)")
+                   (progn
+                     (goto-char (match-end 0))
+                     (search-forward "(")
+                     (backward-char 1)
+                     (forward-sexp 1)
+                     (let ((sexps
+                            (mapcar
+                             (lambda (x!)
+                               (when (consp x!)
+                                 (setq x! (car x!)))
+                               (cons x!
+                                     (let ((expr x!))
+                                       (edebug-eval expr))))
+                             (delq '&key
+                                   (delq '&optional
+                                         (delq '&rest
+                                               (lispy--preceding-sexp))))))
+                           (wnd (current-window-configuration))
+                           (pt (point)))
+                       (run-with-timer
+                        0 nil
+                        `(lambda ()
+                           (mapc (lambda (x!) (set (car x!) (cdr x!))) ',sexps)
+                           (set-window-configuration ,wnd)
+                           (goto-char ,pt)))
+                       (top-level)))))
+           (self-insert-command 1)))
+        ((eq major-mode 'clojure-mode)
+         (lispy--clojure-debug-quit))))
 
 (defun lispy-edebug (arg)
   "Start/stop edebug of current thing depending on ARG.
