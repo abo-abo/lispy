@@ -1264,7 +1264,11 @@ Insert KEY if there's no command."
   (should (string= (lispy-with-clojure "foo|" "'")
                    "foo '|"))
   (should (string= (lispy-with-clojure "foo|" " ~'")
-                   "foo ~'|")))
+                   "foo ~'|"))
+  (should (string= (lispy-with "(setq foo ~bar|)" "'")
+                   "(setq foo ~'bar|)"))
+  (should (string= (lispy-with "(setq foo ~'bar|)" "'")
+                   "(setq foo ~bar|)")))
 
 (ert-deftest lispy-underscore ()
   (should (string= (lispy-with-clojure "(list |[1 2 3]\n      [3 4 5])" "_")

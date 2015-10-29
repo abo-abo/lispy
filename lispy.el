@@ -1554,13 +1554,18 @@ If jammed between parens, \"(|(\" unjam: \"( |(\"."
   (lispy--space-unless "\\s-\\|\\s(\\|[:?]\\|\\\\")
   (insert "^"))
 
-(defun lispy-tick ()
-  "Insert '."
-  (interactive)
-  (if (lispy--string-markedp)
-      (lispy-unstringify)
-    (lispy--space-unless "\\s-\\|\\s(\\|[~#:?'`]\\|\\\\")
-    (insert "'")))
+(defun lispy-tick (arg)
+  "Insert ' ARG times.
+When the region is active and marks a string, unquote it.
+Otherwise, when the region is active, toggle ' at the start of the region."
+  (interactive "p")
+  (cond ((lispy--string-markedp)
+         (lispy-unstringify))
+        ((region-active-p)
+         (lispy-toggle-char ?\'))
+        (t
+         (lispy--space-unless "\\s-\\|\\s(\\|[~#:?'`]\\|\\\\")
+         (insert "'"))))
 
 (defun lispy-underscore (&optional arg)
   "Insert _ ARG times.
@@ -1588,17 +1593,21 @@ For Clojure modes, toggle #_ sexp comment."
 
 (defun lispy-tilde (arg)
   "Insert ~ ARG times.
-When region is active, toggle a ~ at the start of the region."
+When the region is active, toggle a ~ at the start of the region."
   (interactive "p")
   (if (region-active-p)
-      (let ((bnd (lispy--bounds-dwim))
-            deactivate-mark)
-        (save-excursion
-          (goto-char (car bnd))
-          (if (eq (char-after) ?~)
-              (delete-char 1)
-            (insert "~"))))
+      (lispy-toggle-char ?~)
     (self-insert-command arg)))
+
+(defun lispy-toggle-char (char)
+  "Toggle CHAR at the start of the region."
+  (let ((bnd (lispy--bounds-dwim))
+        deactivate-mark)
+    (save-excursion
+      (goto-char (car bnd))
+      (if (eq (char-after) char)
+          (delete-char 1)
+        (insert char)))))
 
 (defun lispy-hash ()
   "Insert #."
