@@ -1104,6 +1104,12 @@ Insert KEY if there's no command."
                                (lispy-eval-and-replace))
                    "(setq foo 42)\n|(list foo 42)")))
 
+(ert-deftest lispy-eval-and-comment ()
+  (should (string= (lispy-with "(|(number-sequence 1 10))" "2e")
+                   "(|(number-sequence 1 10)\n ;; =>\n ;; (1 2 3 4 5 6 7 8 9 10)\n )"))
+  (should (string= (lispy-with "((number-sequence 1 10)|)" "2e")
+                   "((number-sequence 1 10)|\n ;; =>\n ;; (1 2 3 4 5 6 7 8 9 10)\n )")))
+
 (ert-deftest lispy-quotes ()
   (should (string= (lispy-with "(frob grovel |full lexical)" "\"")
                    "(frob grovel \"|\" full lexical)"))

@@ -3373,22 +3373,29 @@ When ARG isn't nil, try to pretty print the sexp."
     (save-excursion
       (when (lispy-left-p)
         (lispy-different))
-      (if (not (looking-at "\n;+ ?=>"))
-          (newline)
-        (goto-char (1+ (match-beginning 0)))
+      (if (not (looking-at "\n *\\(;+\\) ?=>"))
+          (newline-and-indent)
+        (goto-char (1+ (match-beginning 1)))
         (setq bnd (lispy--bounds-comment))
         (delete-region (car bnd) (cdr bnd)))
       (save-restriction
         (narrow-to-region (point) (point))
         (insert str)
-        (if (lispy-right-p)
-            (progn
-              (lispy-alt-multiline t)
-              (goto-char (point-min))
-              (insert "=>\n"))
-          (goto-char (point-min))
-          (insert "=> "))
-        (comment-region (point-min) (point-max))))))
+        (save-excursion
+          (if (lispy-right-p)
+              (progn
+                ;; avoid "Lisp nesting exceeds `max-lisp-eval-depth'"
+                (ignore-errors
+                  (lispy-alt-multiline t))
+                (goto-char (point-min))
+                (insert "=>\n"))
+            (goto-char (point-min))
+            (insert "=> ")))
+        (comment-region (point-min) (point-max))
+        (goto-char (point-max)))
+      (unless (eolp)
+        (newline)))
+    (lispy--reindent 1)))
 
 (defun lispy-eval-and-replace ()
   "Eval last sexp and replace it with the result."
