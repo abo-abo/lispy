@@ -2091,6 +2091,11 @@ Insert KEY if there's no command."
   (should (equal (lispy-interleave 3 '(1 2 3 4 5 6 7 8 9 10) 3)
                  '(1 2 3 4 5 6 3 7 8 9 3 10))))
 
+(ert-deftest lispy-extract-block ()
+  (should (string= (lispy-with "(defun cube (x)\n  (* x |(* x x)))"
+                               (execute-kbd-macro "xdsquare x["))
+                   "(defun square (x)\n  (* x x))\n\n(defun cube (x)\n  (* x |(square x)))")))
+
 (provide 'lispy-test)
 
 ;;; lispy-test.el ends here

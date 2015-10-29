@@ -3823,38 +3823,40 @@ When ARG isn't nil, show table of contents."
   "Turn the current lambda or toplevel sexp into a defun."
   (interactive)
   (let (bnd expr)
-    (if (and (lispy-from-left (bolp))
-             (progn
-               (setq expr
-                     (lispy--read
-                      (lispy--string-dwim
-                       (setq bnd (lispy--bounds-dwim)))))
-               (cl-every #'symbolp expr)))
-        (progn
-          (delete-region (car bnd)
-                         (cdr bnd))
-          (lispy--insert
-           `(defun ,(car expr) ,(or (cdr expr) '(ly-raw empty))
-              (ly-raw newline)))
-          (backward-char))
-      (let ((pt (point)))
-        (when (region-active-p)
-          (deactivate-mark))
-        (when (eq (char-before) ?\))
-          (backward-list))
-        (while (and (not (looking-at "(lambda"))
-                    (lispy--out-backward 1)))
-        (if (looking-at "(lambda")
-            (let ((name (read-string "Function name: ")))
-              (forward-char 1)
-              (delete-char 6)
-              (insert "defun " name)
-              (lispy-kill-at-point)
-              (insert "#'" name)
-              (message "defun stored to kill ring")
-              (lispy-backward 1))
-          (lispy-complain "Not in lambda")
-          (goto-char pt))))))
+    (cond ((and (lispy-from-left (bolp))
+                (progn
+                  (setq expr
+                        (lispy--read
+                         (lispy--string-dwim
+                          (setq bnd (lispy--bounds-dwim)))))
+                  (cl-every #'symbolp expr)))
+           (delete-region (car bnd)
+                          (cdr bnd))
+           (lispy--insert
+            `(defun ,(car expr) ,(or (cdr expr) '(ly-raw empty))
+               (ly-raw newline)))
+           (backward-char))
+          ((let ((pt (point)))
+             (when (region-active-p)
+               (deactivate-mark))
+             (when (lispy-right-p)
+               (backward-list))
+             (while (and (not (looking-at "(lambda"))
+                         (lispy--out-backward 1)))
+             (if (looking-at "(lambda")
+                 t
+               (goto-char pt)
+               nil))
+           (let ((name (read-string "Function name: ")))
+             (forward-char 1)
+             (delete-char 6)
+             (insert "defun " name)
+             (lispy-kill-at-point)
+             (insert "#'" name)
+             (message "defun stored to kill ring")
+             (lispy-backward 1)))
+          (t
+           (lispy-extract-block)))))
 
 (declare-function lispy-flatten--clojure "le-clojure")
 (defun lispy-flatten (arg)
@@ -4622,6 +4624,90 @@ When ARG is given, paste at that place in the current list."
         (t
          (lispy-complain "should position point before (should (string="))))
 
+;;* Locals: extract block
+(defvar lispy-eb-input-overlay nil
+  "The input overlay for `lispy-extract-block'.")
+
+(defvar lispy-eb-target-beg 1
+  "The target start for `lispy-extract-block'.")
+
+(defvar lispy-eb-target-end 1
+  "The target end for `lispy-extract-block'.")
+
+(defvar lispy-eb-keymap
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "[")
+      (lambda () (interactive) (lispy-eb-delete-overlay) (lispy-backward 1)))
+    map)
+  "The input overlay keymap for `lispy-extract-block'.")
+
+(defun lispy-eb-make-input-overlay (beg end)
+  "Set `lispy-eb-input-overlay' to an overlay from BEG to END.
+This overlay will automatically extend with modifications.
+
+Each modification inside `lispy-eb-input-overlay' will update the
+area between `lispy-eb-target-beg' and `lispy-eb-target-end'."
+  (when (overlayp lispy-eb-input-overlay)
+    (delete-overlay lispy-eb-input-overlay))
+  (let ((ov (make-overlay beg end (current-buffer) nil t)))
+    (overlay-put ov 'face 'iedit-occurrence)
+    (overlay-put ov 'insert-in-front-hooks '(lispy-eb--overlay-update-hook))
+    (overlay-put ov 'insert-behind-hooks '(lispy-eb--overlay-update-hook))
+    (overlay-put ov 'modification-hooks '(lispy-eb--overlay-update-hook))
+    (overlay-put ov 'priority 200)
+    (overlay-put ov 'keymap lispy-eb-keymap)
+    (setq lispy-eb-input-overlay ov)))
+
+(defun lispy-eb-delete-overlay ()
+  "Delete `lispy-eb-input-overlay'."
+  (when (overlayp lispy-eb-input-overlay)
+    (delete-overlay lispy-eb-input-overlay)))
+
+(defun lispy-eb--overlay-update-hook (occurrence after beg end &optional change)
+  (when change
+    (let ((inhibit-modification-hooks t)
+          (str (buffer-substring-no-properties
+                (overlay-start lispy-eb-input-overlay)
+                (overlay-end lispy-eb-input-overlay))))
+      (save-excursion
+        (goto-char lispy-eb-target-beg)
+        (delete-region
+         lispy-eb-target-beg
+         lispy-eb-target-end)
+        (let* ((fun-and-args (read (format "(%s)" str)))
+               (args (cdr fun-and-args)))
+          (insert (format "%S %s"
+                          (car fun-and-args)
+                          (if args
+                              (prin1-to-string args)
+                            "()"))))
+        (setq lispy-eb-target-end (point))))))
+
+(defun lispy-extract-block ()
+  "Transform the current sexp or region into a function call.
+The newly generated function will be placed above the current function.
+Starts the input for the new function name and arguments.
+To finalize this input, press \"[\"."
+  (interactive)
+  (lispy-eb-delete-overlay)
+  (let* ((bnd (lispy--bounds-dwim))
+         (str (lispy--string-dwim bnd)))
+    (undo-boundary)
+    (delete-region (car bnd) (cdr bnd))
+    (insert "()")
+    (backward-char)
+    (lispy-eb-make-input-overlay (point)
+                                 (point))
+    (save-excursion
+      (lispy-beginning-of-defun)
+      (save-excursion
+        (insert "(defun a ()\n" str ")\n\n"))
+      (indent-sexp)
+      (forward-char 1)
+      (forward-sexp 2)
+      (delete-char -1)
+      (setq lispy-eb-target-beg (point))
+      (setq lispy-eb-target-end (+ (point) 3)))))
 ;;* Predicates
 (defun lispy--in-string-p ()
   "Test if point is inside a string.
