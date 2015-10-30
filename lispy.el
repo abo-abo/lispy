@@ -4520,10 +4520,10 @@ When ARG is given, paste at that place in the current list."
         'font-lock-ensure
       'font-lock-fontify-buffer))
 
-(defun lispy--fontify (str)
-  "Return STR fontified in `emacs-lisp-mode'."
+(defun lispy--fontify (str mode)
+  "Return STR fontified in MODE."
   (with-temp-buffer
-    (emacs-lisp-mode)
+    (funcall mode)
     (show-paren-mode)
     (insert str)
     (lispy-font-lock-ensure)
@@ -4610,15 +4610,22 @@ When ARG is given, paste at that place in the current list."
                 (str1 (cadr (cadr expr)))
                 (str2 (caddr expr))
                 (keys (cddadr expr))
+                (keys (if (and (= (length keys) 1)
+                               (eq (caar keys) 'execute-kbd-macro))
+                          (cl-cadar keys)
+                        keys))
                 (sep (make-string (- (window-width)
-                                     (current-column)) ?-)))
+                                     (current-column)) ?-))
+                (mode (if (looking-at "[^\n]*(lispy-with-clojure")
+                          'clojure-mode
+                        'emacs-lisp-mode)))
            (lispy--show
             (concat "\n"
-                    (lispy--fontify str1)
+                    (lispy--fontify str1 mode)
                     "\n" sep "\n"
                     (substring (prin1-to-string keys) 1 -1)
                     "\n" sep "\n"
-                    (lispy--fontify str2)
+                    (lispy--fontify str2 mode)
                     "\n"))))
 
         (t
@@ -4678,9 +4685,16 @@ area between `lispy-eb-target-beg' and `lispy-eb-target-end'."
                (args (cdr fun-and-args)))
           (insert (format "%S %s"
                           (car fun-and-args)
-                          (if args
-                              (prin1-to-string args)
-                            "()"))))
+                          (if (memq major-mode lispy-clojure-modes)
+                              (if args
+                                  (format
+                                   "[%s]"
+                                   (substring (prin1-to-string args)
+                                              1 -1))
+                                "[]")
+                            (if args
+                                (prin1-to-string args)
+                              "()")))))
         (setq lispy-eb-target-end (point))))))
 
 (defun lispy-extract-block ()
@@ -4701,13 +4715,19 @@ To finalize this input, press \"[\"."
     (save-excursion
       (lispy-beginning-of-defun)
       (save-excursion
-        (insert "(defun a ()\n" str ")\n\n"))
+        (insert
+         (if (memq major-mode lispy-clojure-modes)
+             "(defn a []\n"
+           "(defun a ()\n")
+         str
+         ")\n\n"))
       (indent-sexp)
       (forward-char 1)
       (forward-sexp 2)
       (delete-char -1)
       (setq lispy-eb-target-beg (point))
       (setq lispy-eb-target-end (+ (point) 3)))))
+
 ;;* Predicates
 (defun lispy--in-string-p ()
   "Test if point is inside a string.

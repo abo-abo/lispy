@@ -49,24 +49,30 @@
               (kill-buffer temp-buffer))))))
 
 (defmacro lispy-with-clojure (in &rest body)
-  `(with-temp-buffer
-     (clojure-mode)
-     (lispy-mode)
-     (insert ,in)
-     (when (search-backward "~" nil t)
-       (delete-char 1)
-       (set-mark (point))
-       (goto-char (point-max)))
-     (search-backward "|")
-     (delete-char 1)
-     ,@(mapcar (lambda (x) (if (stringp x) `(lispy-unalias ,x) x)) body)
-     (insert "|")
-     (when (region-active-p)
-       (exchange-point-and-mark)
-       (insert "~"))
-     (buffer-substring-no-properties
-      (point-min)
-      (point-max))))
+  `(let ((temp-buffer (generate-new-buffer " *temp*")))
+     (save-window-excursion
+       (unwind-protect
+            (progn
+              (switch-to-buffer temp-buffer)
+              (clojure-mode)
+              (lispy-mode)
+              (insert ,in)
+              (when (search-backward "~" nil t)
+                (delete-char 1)
+                (set-mark (point))
+                (goto-char (point-max)))
+              (search-backward "|")
+              (delete-char 1)
+              ,@(mapcar (lambda (x) (if (stringp x) `(lispy-unalias ,x) x)) body)
+              (insert "|")
+              (when (region-active-p)
+                (exchange-point-and-mark)
+                (insert "~"))
+              (buffer-substring-no-properties
+               (point-min)
+               (point-max)))
+         (and (buffer-name temp-buffer)
+              (kill-buffer temp-buffer))))))
 
 (defmacro lispy-with-value (in &rest body)
   `(with-temp-buffer
@@ -2094,7 +2100,10 @@ Insert KEY if there's no command."
 (ert-deftest lispy-extract-block ()
   (should (string= (lispy-with "(defun cube (x)\n  (* x |(* x x)))"
                                (execute-kbd-macro "xdsquare x["))
-                   "(defun square (x)\n  (* x x))\n\n(defun cube (x)\n  (* x |(square x)))")))
+                   "(defun square (x)\n  (* x x))\n\n(defun cube (x)\n  (* x |(square x)))"))
+  (should (string= (lispy-with-clojure "(defn cube [x]\n  (* x |(* x x)))"
+                                       (execute-kbd-macro "xdsquare x["))
+                   "(defn square [x]\n  (* x x))\n\n(defn cube [x]\n  (* x |(square x)))")))
 
 (provide 'lispy-test)
 
