@@ -4611,6 +4611,7 @@ When ARG is given, paste at that place in the current list."
                 (str2 (caddr expr))
                 (keys (cddadr expr))
                 (keys (if (and (= (length keys) 1)
+                               (consp (car keys))
                                (eq (caar keys) 'execute-kbd-macro))
                           (cl-cadar keys)
                         keys))
