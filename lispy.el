@@ -6073,7 +6073,7 @@ ACTION is called for the selected candidate."
   "Jump to TAG."
   (if (eq (length tag) 3)
       (with-selected-window (if (eq lispy-completion-method 'ivy)
-                                (ivy-state-window ivy-last)
+                                (ivy--get-window ivy-last)
                               (selected-window))
         (push-mark)
         (find-file (cadr tag))
