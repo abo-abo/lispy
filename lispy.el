@@ -1242,7 +1242,8 @@ Otherwise (`backward-delete-char-untabify' ARG)."
                 5))
     (ignore-errors
       (recenter -20)))
-  (when (lispy-left-p)
+  (when (and (lispy-left-p)
+             (not (lispy--in-string-or-comment-p)))
     (indent-sexp)))
 
 (defun lispy-mark ()
