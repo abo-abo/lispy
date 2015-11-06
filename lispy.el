@@ -5465,6 +5465,14 @@ Ignore the matches in strings and comments."
                       (setq sexp (buffer-substring-no-properties pt (point)))
                       (delete-region (1- pt) (point))
                       (insert (format "(ly-raw char %S)" sexp)))))
+                ;; ——— \ char syntax (Clojure)—
+                (goto-char (point-min))
+                (while (re-search-forward "\\\\\\sw\\b" nil t)
+                  (unless (lispy--in-string-or-comment-p)
+                    (replace-match (format "(ly-raw clojure-char %S)"
+                                           (substring-no-properties
+                                            (match-string 0)))
+                                   nil t)))
                 ;; ——— #' —————————————————————
                 (goto-char (point-min))
                 (while (re-search-forward "#'" nil t)
@@ -6161,6 +6169,9 @@ The outer delimiters are stripped."
           (char
            (delete-region beg (point))
            (insert "?" (caddr sxp)))
+          (clojure-char
+           (delete-region beg (point))
+           (insert (caddr sxp)))
           (function
            (delete-region beg (point))
            (insert (format "#'%S" (caddr sxp)))
