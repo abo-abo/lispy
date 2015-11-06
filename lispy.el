@@ -6550,6 +6550,36 @@ PLIST currently accepts:
                 ,(or inserter
                      'self-insert-command))))))))
 
+(defun lispy--quote-maybe (x)
+  "Quote X if it's a symbol."
+  (cond ((null x)
+         nil)
+        ((or (symbolp x) (consp x))
+         (list 'quote x))
+        (t
+         x)))
+
+(defun lispy--pcase-pattern-matcher (pattern)
+  "Turn pcase PATTERN into a predicate.
+For any given pcase PATTERN, return a predicate P that returns
+non-nil for any EXP when and only when PATTERN matches EXP.  In
+that case, P returns a list of the form (bindings . BINDINGS) as
+non-nil value, where BINDINGS is a list of bindings that pattern
+matching with PATTERN would actually establish in a pcase branch."
+  (let ((arg (make-symbol "exp")))
+    `(lambda (,arg)
+       ,(pcase--u
+         `((,(pcase--match arg (pcase--macroexpand pattern))
+             ,(lambda (vars)
+                `(cons
+                  'progn
+                  (list
+                   ,@(nreverse (mapcar
+                                (lambda (binding)
+                                  `(list 'setq ',(car binding)
+                                         (lispy--quote-maybe ,(cdr binding))))
+                                vars)))))))))))
+
 (defun lispy--setq-expression ()
   "Return the smallest list to contain point.
 Return an appropriate `setq' expression when in `let', `dolist',
@@ -6613,10 +6643,13 @@ Return an appropriate `setq' expression when in `let', `dolist',
                 lispy--eval-cond-msg)))
           ((looking-at "(pcase\\s-*")
            (goto-char (match-end 0))
-           `(if ,(pcase--expand (lispy--read (lispy--string-dwim))
-                                `((,(car tsexp) t)))
-                "pcase: t"
-              "pcase: nil"))
+           (if (eval (pcase--expand (lispy--read (lispy--string-dwim))
+                                    `((,(car tsexp) t))))
+               `(progn
+                  ,(funcall (lispy--pcase-pattern-matcher (car tsexp))
+                            (eval (read (lispy--string-dwim))))
+                  "pcase: t")
+             "pcase: nil"))
           ((and (looking-at "(\\(?:cl-\\)?\\(?:defun\\|defmacro\\)")
                 (save-excursion
                   (lispy-flow 1)
