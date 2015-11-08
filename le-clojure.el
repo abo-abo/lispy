@@ -85,9 +85,12 @@ Generate an appropriate def from for that let binding and eval it."
                    str
                    (cider-current-connection)
                    (cider-current-session)
-                   (cider-current-ns)))
+                   (if lax
+                       "user"
+                     (cider-current-ns))))
              (status (nrepl-dict-get res "status"))
-             (res (if (member "namespace-not-found" status)
+             (res (if (or (member "namespace-not-found" status)
+                          (member "eval-error" status))
                       (nrepl-sync-request:eval
                        str
                        (cider-current-connection)
