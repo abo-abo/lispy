@@ -1422,7 +1422,8 @@ When this function is called:
             (insert ,left)
             (unless (eolp)
               (just-one-space))
-            (forward-sexp)
+            ;; when (looking-at lispy-right) `forward-sexp' will error
+            (ignore-errors (forward-sexp))
             (insert ,right)
             (backward-sexp)
             (indent-sexp)

@@ -1306,7 +1306,9 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "(foo bar|)" "2(")
                    "(foo (| bar))"))
   (should (string= (lispy-with "(foo bar| )" "2(")
-                   "(foo (| bar) )")))
+                   "(foo (| bar) )"))
+  (should (string= (lispy-with "(defun foo (x)\n  |)" "2(")
+                   "(defun foo (x)\n  (| ))")))
 
 (ert-deftest lispy-braces ()
   (should (string= (lispy-with "\"a regex \\\\|\"" "{")
