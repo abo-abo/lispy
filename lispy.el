@@ -6057,7 +6057,8 @@ ACTION is called for the selected candidate."
                      :action (lambda (x)
                                (funcall action
                                         (cdr (assoc x candidates))))
-                     :history 'lispy-tag-history))
+                     :history 'lispy-tag-history
+                     :caller 'lispy-goto))
           (t
            (let ((res
                   (cl-case lispy-completion-method
