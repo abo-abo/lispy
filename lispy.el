@@ -1567,7 +1567,7 @@ Otherwise, when the region is active, toggle ' at the start of the region."
          (lispy-toggle-char ?\'))
         (t
          (lispy--space-unless "\\s-\\|\\s(\\|[~#:?'`]\\|\\\\")
-         (insert "'"))))
+         (self-insert-command arg))))
 
 (defun lispy-underscore (&optional arg)
   "Insert _ ARG times.
