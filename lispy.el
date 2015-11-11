@@ -269,7 +269,7 @@ The hint will consist of the possible nouns that apply to the verb."
   "Face for `lispy-view-test'."
   :group 'lispy-faces)
 
-(defvar lispy-mode-map (make-sparse-keymap))
+(defvar lispy-mode-map (make-sparse-keymap))
 
 (defvar lispy-known-verbs nil
   "List of registered verbs.")
