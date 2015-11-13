@@ -3673,7 +3673,8 @@ Sexp is obtained by exiting list ARG times."
 Filter out the matches that don't match FILTER.
 Use STYLE function to update the overlays."
   (lispy--recenter-bounds bnd)
-  (let* ((cands (avy--regex-candidates
+  (let* ((avy-all-windows nil)
+         (cands (avy--regex-candidates
                  regex
                  (car bnd) (cdr bnd)
                  filter)))
