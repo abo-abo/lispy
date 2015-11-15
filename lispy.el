@@ -288,7 +288,7 @@ using those packages."
            (const :tag "cider" cider)
            (const :tag "macrostep" macrostep))))
 
-(defvar-local lispy-old-outline-settings
+(defvar-local lispy-old-outline-settings nil
   "Store the old values of `outline-regexp' and `outline-level'.
 `lispy-mode' overrides those while it's on.")
 
