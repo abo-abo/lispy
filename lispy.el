@@ -288,6 +288,10 @@ using those packages."
            (const :tag "cider" cider)
            (const :tag "macrostep" macrostep))))
 
+(defvar-local lispy-old-outline-settings
+  "Store the old values of `outline-regexp' and `outline-level'.
+`lispy-mode' overrides those while it's on.")
+
 ;;;###autoload
 (define-minor-mode lispy-mode
   "Minor mode for navigating and editing LISP dialects.
@@ -315,13 +319,17 @@ backward through lists, which is useful to move into special.
   :lighter " LY"
   (if lispy-mode
       (progn
+        (setq lispy-old-outline-settings
+              (cons outline-regexp outline-level))
         (setq-local outline-level 'lispy-outline-level)
         (setq-local outline-regexp (substring lispy-outline 1))
         (when (called-interactively-p 'any)
           (mapc #'lispy-raise-minor-mode
                 (cons 'lispy-mode lispy-known-verbs))))
-    (setq-local outline-regexp ";;;\\(;* [^ \t\n]\\|###autoload\\)\\|(")
-    (setq-local outline-level 'lisp-outline-level)))
+    (when lispy-old-outline-settings
+      (setq outline-regexp (car lispy-old-outline-settings))
+      (setq outline-level (cdr lispy-old-outline-settings))
+      (setq lispy-old-outline-settings nil))))
 
 (defun lispy-raise-minor-mode (mode)
   "Make MODE the first on `minor-mode-map-alist'."
