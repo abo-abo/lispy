@@ -4682,7 +4682,7 @@ area between `lispy-eb-target-beg' and `lispy-eb-target-end'."
   (when (overlayp lispy-eb-input-overlay)
     (delete-overlay lispy-eb-input-overlay)))
 
-(defun lispy-eb--overlay-update-hook (occurrence after beg end &optional change)
+(defun lispy-eb--overlay-update-hook (_occurrence _after _beg _end &optional change)
   (when change
     (let ((inhibit-modification-hooks t)
           (str (buffer-substring-no-properties
