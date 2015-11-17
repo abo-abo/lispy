@@ -124,6 +124,8 @@ The caller of `lispy--show' might use a substitute e.g. `describe-function'."
     (unless (and (when (overlayp lispy-overlay)
                    (delete-overlay lispy-overlay)
                    (setq lispy-overlay nil)
+                   (when (window-minibuffer-p)
+                     (window-resize (selected-window) -1))
                    t)
                  (= lispy-hint-pos (point)))
       (cond ((memq major-mode lispy-elisp-modes)
@@ -246,7 +248,8 @@ Return t if at least one was deleted."
 (defun lispy--show-fits-p (str)
   "Return nil if window isn't large enough to display STR whole."
   (let ((strs (split-string str "\n")))
-    (when (< (length strs) (* lispy-window-height-ratio (window-height)))
+    (when (or (< (length strs) (* lispy-window-height-ratio (window-height)))
+              (window-minibuffer-p))
       strs)))
 
 (defun lispy--show (str)
@@ -256,17 +259,20 @@ Return t if at least one was deleted."
     (when strs
       (setq str (lispy--join-pad
                  strs
-                 (string-width (buffer-substring
-                                (line-beginning-position)
-                                (point)))))
+                 (+ (if (window-minibuffer-p)
+                        (- (minibuffer-prompt-end) (point-min))
+                      0)
+                    (string-width (buffer-substring
+                                   (line-beginning-position)
+                                   (point))))))
       (save-excursion
         (goto-char lispy-hint-pos)
         (if (= -1 (forward-line -1))
             (setq str (concat str "\n"))
           (end-of-line)
           (setq str (concat "\n" str)))
-        (setq str (concat str (make-string 1 (char-after))))
-        (font-lock-unfontify-region (point) (+ (point) 1))
+        (setq str (concat str
+                          (buffer-substring (point) (1+ (point)))))
         (if lispy-overlay
             (progn
               (move-overlay lispy-overlay (point) (+ (point) 1))
