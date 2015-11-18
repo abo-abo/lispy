@@ -2065,7 +2065,19 @@ Insert KEY if there's no command."
                    "(a (a witch)| witch)"))
   (should (string= (lispy-with "|(a witch)"
                                "n3P")
-                   "(a witch (a witch)|)")))
+                   "(a witch (a witch)|)"))
+  (should (string= (lispy-with "(progn\n  |(one)\n  (two)\n  (three))"
+                               "njP")
+                   "(progn\n  (one)\n  (one)|\n  (two)\n  (three))"))
+  (should (string= (lispy-with "(progn\n  |(one)\n  (two)\n  (three))"
+                               "njjP")
+                   "(progn\n  (one)\n  (two)\n  (one)|\n  (three))"))
+  (should (string= (lispy-with "(progn\n  (one)|\n  (two)\n  (three))"
+                               "njP")
+                   "(progn\n  (one)\n  (two)\n  (one)|\n  (three))"))
+  (should (string= (lispy-with "(progn\n  (one)|\n  (two)\n  (three))"
+                               "njjP")
+                   "(progn\n  (one)\n  (two)\n  (three)\n  (one)|)")))
 
 (ert-deftest lispy-reverse ()
   (should (string= (lispy-with "|(read-string slurp clojure.java.io/resource path)"

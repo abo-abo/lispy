@@ -4513,18 +4513,16 @@ When ARG is given, paste at that place in the current list."
          (unless (or (eolp) (looking-at lispy-right))
            (just-one-space)
            (forward-char -1)))
+        ((lispy-right-p)
+         (newline-and-indent)
+         (yank))
+        ((lispy-left-p)
+         (newline-and-indent)
+         (forward-line -1)
+         (indent-for-tab-command)
+         (yank))
         (t
-         (if (and (lispy-right-p)
-                  (save-excursion
-                    (forward-list -1)
-                    (bolp)))
-             (newline)
-           (when (bolp)
-             (open-line 1)))
-         (yank)
-         (when (and (lispy-right-p)
-                    (lispy-left-p))
-           (insert " ")))))
+         (yank))))
 
 (defalias 'lispy-font-lock-ensure
     (if (fboundp 'font-lock-ensure)
