@@ -1859,28 +1859,30 @@ See [[#lispy-shifttab][=lispy-shifttab=]] for more info.
 
 Bound to ~I~.
 
-Toggles on/off an =org-mode=-like outline (actually calls
-=org-overview=).
+Toggles on/off an =org-mode=-like outline.
 
-=outline-regexp= has to be set in order for this to work.
-To see how to set it locally for each file, see
-[[https://github.com/abo-abo/lispy/blob/master/lispy.el][the last lines of lispy.el]].
+To make this work, =lispy-mode= will modify =outline-regexp= and
+=outline-level-function= for the current buffer while it's on.
 
-I'm using this [[https://github.com/capitaomorte/yasnippet][yasnippet]] to insert the outline comments:
+To give an example of the recommended outline syntax:
 
-#+begin_src text
-# -*- mode: snippet -*-
-# name: long comment
-# key: cc
-# type: command
-# --
-(yas-expand-snippet
- (format
-  ";; ——— $1 ${1:$(repeat-char (- 72 %d (length yas-text)) \"—\")}$0"
-  (current-column)))
+#+begin_src elisp
+;;* Level 1
+;;** Level 2
+;;*** Level 3
 #+end_src
 
-Useful together with
+You can create new outlines with ~M-RET~ (=lispy-meta-return=).
+
+You can promote the current outline with:
+- ~M-right~ (=lispy-meta-right=),
+- ~l~ (=lispy-right=).
+
+You can demote the current outline with:
+- ~M-left~ (=lispy-meta-left=),
+- ~h~ (=lispy-left=).
+
+Useful together with:
 
 | key | function name      |
 |-----+--------------------|
