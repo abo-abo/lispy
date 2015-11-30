@@ -2465,7 +2465,8 @@ Also works from inside the list."
                                (cons (point-min) (point-max)))))
                      bnd2)
                  (goto-char (cdr bnd1))
-                 (if (re-search-forward "[^ \t\n]" (1- (cdr bnd0)) t)
+                 (if (re-search-forward "[^ \t\n]" (max (1- (cdr bnd0))
+                                                        (point)) t)
                      (progn
                        (deactivate-mark)
                        (if (lispy--in-comment-p)

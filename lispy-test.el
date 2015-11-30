@@ -940,6 +940,8 @@ Insert KEY if there's no command."
                    "('(b) '|(a) '(c))"))
   (should (string= (lispy-with "('(a)| '(b) '(c))" "s")
                    "('(b) '(a)| '(c))"))
+  (should (string= (lispy-with "(a)\n|(b)" "s")
+                   "(a)\n|(b)"))
   (unless (version<= emacs-version "24.3.1")
     (should (string= (lispy-with "|;;; a\n(foo)\n;;; b\n(bar)\n;;; c\n(baz)" "s")
                      ";;; b\n(bar)\n|;;; a\n(foo)\n;;; c\n(baz)"))
