@@ -2367,8 +2367,41 @@ When ARG is more than 1, pull ARGth expression to enclose current sexp."
 
 ;;* Locals: more transformations
 (defun lispy-move-up (arg)
-  "Move current expression up ARG times.  Don't exit parent list."
+  "Move current expression up ARG times.  Don't exit parent list.
+Also works from inside the list."
   (interactive "p")
+  (if (or (lispy-left-p)
+          (lispy-right-p)
+          (region-active-p)
+          (looking-at lispy-outline))
+      (lispy--move-up-special arg)
+    (let ((offset (-
+                   (point)
+                   (progn
+                     (lispy--out-backward 1)
+                     (point)))))
+      (lispy--move-up-special arg)
+      (forward-char offset))))
+
+(defun lispy-move-down (arg)
+  "Move current expression down ARG times.  Don't exit parent list.
+Also works from inside the list."
+  (interactive "p")
+  (if (or (lispy-left-p)
+          (lispy-right-p)
+          (region-active-p)
+          (looking-at lispy-outline))
+      (lispy--move-down-special arg)
+    (let ((offset (-
+                   (point)
+                   (progn
+                     (lispy--out-backward 1)
+                     (point)))))
+      (lispy--move-down-special arg)
+      (forward-char offset))))
+
+(defun lispy--move-up-special (arg)
+  "Move current expression up ARG times.  Don't exit parent list."
   (let ((at-start (lispy--leftp)))
     (unless at-start (lispy-different))
     (cond ((region-active-p)
@@ -2417,9 +2450,8 @@ When ARG is more than 1, pull ARGth expression to enclose current sexp."
            (lispy-different)))
     (unless at-start (lispy-different))))
 
-(defun lispy-move-down (arg)
+(defun lispy--move-down-special (arg)
   "Move current expression down ARG times.  Don't exit parent list."
-  (interactive "p")
   (let ((at-start (lispy--leftp)))
     (unless at-start (lispy-different))
     (cond ((region-active-p)
