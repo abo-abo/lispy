@@ -1373,6 +1373,8 @@ Insert KEY if there's no command."
                    "|(setq x '())"))
   (should (string= (lispy-with "|(eq (char-before) ?\\()" "i")
                    "|(eq (char-before) ?\\()"))
+  (should (string= (lispy-with "`|[1  2  3]" "i")
+                   "`|[1 2 3]"))
   (should (string= (lispy-with-clojure "|[#{}]" "i")
                    "|[#{}]"))
   (should (string= (lispy-with-clojure "|{\\a   \\b}" "i")

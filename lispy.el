@@ -5572,7 +5572,7 @@ Ignore the matches in strings and comments."
                 (goto-char (point-min))
                 (while (re-search-forward "\\(?:[^\\]\\|^\\)`" nil t)
                   (unless (lispy--in-string-or-comment-p)
-                    (when (looking-at "(")
+                    (when (looking-at lispy-left)
                       (delete-char -1)
                       (insert "(ly-raw \\` ")
                       (forward-list 1)
