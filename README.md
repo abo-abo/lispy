@@ -168,6 +168,9 @@ situation.
     - <kbd>j</kbd> moves down
     - <kbd>k</kbd> moves up
     - <kbd>l</kbd> moves right
+    - <kbd>f</kbd> steps inside the list
+    - <kbd>b</kbd> moves back in history for all above commands
+
 - Paredit transformations, callable by plain letters:
     - <kbd>></kbd> slurps
     - <kbd><</kbd> barfs
