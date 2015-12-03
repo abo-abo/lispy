@@ -51,7 +51,7 @@ kbd {
     -webkit-border-radius:3px;
     border-radius:3px;
     display:inline-block;
-    margin:0 0.1em;
+    margin:-0.2em 0.1em;
     text-shadow:0 1px 0 #fff;
     line-height:1.4;
     white-space:nowrap;
@@ -96,6 +96,10 @@ h4 {
 
 table, td, th {
     border: 0px;
+}
+
+td {
+    vertical-align:top;
 }
 
 th.org-left {
