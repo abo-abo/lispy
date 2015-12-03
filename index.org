@@ -41,7 +41,8 @@
         (replace-regexp-in-string
          "~[^|~]+|\\(?:.\\|$\\)"
          #'make-html-region--replace-2
-         str))
+         str
+         nil t))
   (replace-regexp-in-string
    "|\\(.\\|\n\\)"
    #'make-html-cursor--replace
@@ -131,39 +132,39 @@
 :PROPERTIES:
 :CUSTOM_ID: a-z
 :END:
-| key    | function name                 |
-|--------+-------------------------------|
-| a      | [[#lispy-ace-symbol][lispy-ace-symbol]]              |
-| b      | [[#lispy-store-region-and-buffer][lispy-store-region-and-buffer]] |
-| c      | [[#lispy-clone][lispy-clone]]                   |
-| d      | [[#lispy-different][lispy-different]]               |
-| e      | [[#lispy-eval][lispy-eval]]                    |
-| f      | [[#lispy-flow][lispy-flow]]                    |
-| g      | [[#lispy-goto][lispy-goto]]                    |
-| h      | [[#lispy-left][lispy-left]]                    |
-| i      | [[#lispy-tab][lispy-tab]]                     |
-| j      | [[#lispy-down][lispy-down]]                    |
-| k      | [[#lispy-up][lispy-up]]                      |
-| l      | [[#lispy-right][lispy-right]]                   |
-| m      | [[#lispy-mark-list][lispy-mark-list]]               |
-| n      | [[#lispy-new-copy][lispy-new-copy]]                |
-| o      | [[#lispy-other-mode][lispy-other-mode]]              |
-| p      | [[#lispy-eval-other-window][lispy-eval-other-window]]       |
-| q      | [[#lispy-ace-paren][lispy-ace-paren]]               |
-| r      | [[#lispy-raise][lispy-raise]]                   |
-| s      | [[#lispy-move-down][lispy-move-down]]               |
-| t      | [[#lispy-teleport][lispy-teleport]]                |
-| u      | [[#lispy-undo][lispy-undo]]                    |
-| v      | [[#lispy-view][lispy-view]]                    |
-| w      | [[#lispy-move-up][lispy-move-up]]                 |
-| x      | [[#x-bindings][see]]                           |
-| y      | [[#lispy-occur][lispy-occur]]                   |
-| z      | unbound                       |
-| >      | [[#lispy-slurp][lispy-slurp]]                   |
-| <      | [[#lispy-barf][lispy-barf]]                    |
-| -      | [[#lispy-ace-subword][lispy-ace-subword]]             |
-| \slash | [[#lispy-splice][lispy-splice]]                  |
-|--------+-------------------------------|
+| key    | function name           |
+|--------+-------------------------|
+| a      | [[#lispy-ace-symbol][lispy-ace-symbol]]        |
+| b      | [[#lispy-back][lispy-back]]              |
+| c      | [[#lispy-clone][lispy-clone]]             |
+| d      | [[#lispy-different][lispy-different]]         |
+| e      | [[#lispy-eval][lispy-eval]]              |
+| f      | [[#lispy-flow][lispy-flow]]              |
+| g      | [[#lispy-goto][lispy-goto]]              |
+| h      | [[#lispy-left][lispy-left]]              |
+| i      | [[#lispy-tab][lispy-tab]]               |
+| j      | [[#lispy-down][lispy-down]]              |
+| k      | [[#lispy-up][lispy-up]]                |
+| l      | [[#lispy-right][lispy-right]]             |
+| m      | [[#lispy-mark-list][lispy-mark-list]]         |
+| n      | [[#lispy-new-copy][lispy-new-copy]]          |
+| o      | [[#lispy-other-mode][lispy-other-mode]]        |
+| p      | [[#lispy-eval-other-window][lispy-eval-other-window]] |
+| q      | [[#lispy-ace-paren][lispy-ace-paren]]         |
+| r      | [[#lispy-raise][lispy-raise]]             |
+| s      | [[#lispy-move-down][lispy-move-down]]         |
+| t      | [[#lispy-teleport][lispy-teleport]]          |
+| u      | [[#lispy-undo][lispy-undo]]              |
+| v      | [[#lispy-view][lispy-view]]              |
+| w      | [[#lispy-move-up][lispy-move-up]]           |
+| x      | [[#x-bindings][see]]                     |
+| y      | [[#lispy-occur][lispy-occur]]             |
+| z      | unbound                 |
+| >      | [[#lispy-slurp][lispy-slurp]]             |
+| <      | [[#lispy-barf][lispy-barf]]              |
+| -      | [[#lispy-ace-subword][lispy-ace-subword]]       |
+| \slash | [[#lispy-splice][lispy-splice]]            |
+|--------+-------------------------|
 * [[#global-bindings][G]] [[#a-z][az]] [[#A-Z][AZ]] [[#x-bindings][x]] [A-Z] local bindings
 :PROPERTIES:
 :CUSTOM_ID: A-Z
@@ -203,19 +204,19 @@
 :PROPERTIES:
 :CUSTOM_ID: x-bindings
 :END:
-| key | function name          |
-|-----+------------------------|
-| xc  | [[#lispy-to-cond][lispy-to-cond]]          |
-| xd  | [[#lispy-to-defun][lispy-to-defun]]         |
-| xf  | [[#lispy-flatten][lispy-flatten]]          |
-| xi  | [[#lispy-to-ifs][lispy-to-ifs]]           |
-| xl  | [[#lispy-to-lambda][lispy-to-lambda]]        |
-| xe  | [[#lispy-edebug][lispy-edebug]]           |
-| xh  | [[#lispy-describe][lispy-describe]]         |
-| xj  | [[#lispy-debug-step-in][lispy-debug-step-in]]    |
-| xr  | [[#lispy-eval-and-replace][lispy-eval-and-replace]] |
-| xu  | [[#lispy-unbind-variable][lispy-unbind-variable]]  |
-
+| key | function name                 |
+|-----+-------------------------------|
+| xc  | [[#lispy-to-cond][lispy-to-cond]]                 |
+| xd  | [[#lispy-to-defun][lispy-to-defun]]                |
+| xf  | [[#lispy-flatten][lispy-flatten]]                 |
+| xi  | [[#lispy-to-ifs][lispy-to-ifs]]                  |
+| xl  | [[#lispy-to-lambda][lispy-to-lambda]]               |
+| xe  | [[#lispy-edebug][lispy-edebug]]                  |
+| xh  | [[#lispy-describe][lispy-describe]]                |
+| xj  | [[#lispy-debug-step-in][lispy-debug-step-in]]           |
+| xr  | [[#lispy-eval-and-replace][lispy-eval-and-replace]]        |
+| xu  | [[#lispy-unbind-variable][lispy-unbind-variable]]         |
+| xB  | [[#lispy-store-region-and-buffer][lispy-store-region-and-buffer]] |
 
 * Function reference
 ** =lispy-forward=
@@ -443,6 +444,75 @@ file.
 Find the next =lispy-right= not in comment or string going up the
 file.
 -----
+
+** =lispy-back=
+:PROPERTIES:
+:CUSTOM_ID: lispy-back
+:END:
+
+Bound to ~b~.
+
+Move point to the previous position in =lispy-back= history.
+The following functions write to this history:
+
+| key | function name   |
+|-----+-----------------|
+| ~l~ | [[#lispy-right][lispy-right]]     |
+| ~h~ | [[#lispy-left][lispy-left]]      |
+| ~f~ | [[#lispy-flow][lispy-flow]]      |
+| ~j~ | [[#lispy-down][lispy-down]]      |
+| ~k~ | [[#lispy-up][lispy-up]]        |
+| ~m~ | [[#lispy-mark-list][lispy-mark-list]] |
+| ~q~ | [[#lispy-ace-paren][lispy-ace-paren]] |
+| ~i~ | [[#lispy-mark-car][lispy-mark-car]]  |
+-----
+
+** =lispy-mark-car=
+:PROPERTIES:
+:CUSTOM_ID: lispy-mark-car
+:END:
+
+Bound to ~i~ while the region is active.
+
+Mark the first element of the currently selected list.
+#+HTML: <table><tbody><tr><td>
+#+begin_src elisp
+~(defun lispy-right (arg)
+  "Move outside list forwards ARG times.
+Return nil on failure, t otherwise."
+  (interactive "p")
+  (if (region-active-p)
+      (lispy-mark-right arg)
+    (lispy--out-forward arg)))|
+#+end_src
+#+HTML: </td><td>
+-> ~i~ ->
+#+HTML: </td><td>
+#+begin_src elisp
+(~defun| lispy-right (arg)
+  "Move outside list forwards ARG times.
+Return nil on failure, t otherwise."
+  (interactive "p")
+  (if (region-active-p)
+      (lispy-mark-right arg)
+    (lispy--out-forward arg)))
+#+end_src
+#+HTML: </td></tr></tbody></table>
+
+When a string is marked, mark its inner contents.
+#+HTML: <table><tbody><tr><td>
+#+begin_src elisp
+(list ~"spam spam spam"|)
+#+end_src
+#+HTML: </td><td>
+-> ~i~ ->
+#+HTML: </td><td>
+#+begin_src elisp
+(list "~spam spam spam|")
+#+end_src
+#+HTML: </td></tr></tbody></table>
+
+
 ** =lispy-clockwise=
 :PROPERTIES:
 :CUSTOM_ID: lispy-clockwise
@@ -1098,14 +1168,15 @@ Eval current expression and replace it at point.
 :CUSTOM_ID: lispy-store-region-and-buffer
 :END:
 
-Bound to ~b~.
+Bound to ~xB~.
 
 Store current buffer and region for further usage.  When
 region isn't active, store the bounds of current expression instead.
 
 Currently, these functions make use of stored info:
-| B  | [[#lispy-ediff-regions][lispy-ediff-regions]] |
-| xf | [[#lispy-flatten][lispy-flatten]]       |
+| key | function name       |
+|-----+---------------------|
+| B   | [[#lispy-ediff-regions][lispy-ediff-regions]] |
 -----
 
 ** =lispy-ediff-regions=

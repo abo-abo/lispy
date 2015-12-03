@@ -108,9 +108,11 @@ th {
 
 tr:nth-child(odd) {
     background-color:#fff;
+    border-bottom: 1pt solid black;
 }
 tr:nth-child(even) {
     background-color:#d6d8ec;
+    border-bottom: 1pt solid black;
 }
 
 .region {
