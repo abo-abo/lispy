@@ -2240,17 +2240,23 @@ The outcome when ahead of sexps is different from when behind."
     (cond ((region-active-p))
 
           ((lispy-left-p)
-           (lispy--out-forward 1)
-           (backward-char 1)
-           (set-mark (point))
-           (goto-char pt))
+           (if (null (lispy--out-forward 1))
+               (progn
+                 (goto-char pt)
+                 (lispy-complain "Not enough depth to raise"))
+             (backward-char 1)
+             (set-mark (point))
+             (goto-char pt)))
 
           ((lispy-right-p)
-           (lispy--out-forward 1)
-           (backward-list)
-           (forward-char 1)
-           (set-mark (point))
-           (goto-char pt))
+           (if (null (lispy--out-forward 1))
+               (progn
+                 (goto-char pt)
+                 (lispy-complain "Not enough depth to raise"))
+             (backward-list)
+             (forward-char 1)
+             (set-mark (point))
+             (goto-char pt)))
 
           (t
            (error "Unexpected")))
@@ -5903,7 +5909,7 @@ Defaults to `error'."
 ;;* Utilities: error reporting
 (defun lispy-complain (msg)
   "Display MSG if `lispy-verbose' is t."
-  (when lispy-verbose
+  (when (and lispy-verbose (null noninteractive))
     (message "%s: %s"
              (propertize
               (prin1-to-string

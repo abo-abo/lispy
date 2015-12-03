@@ -809,7 +809,11 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "(progn\n  |(foo)\n  nil)" "R")
                    "|(foo)\nnil"))
   (should (string= (lispy-with "(a\n b\n (foo)|\n c)" "R")
-                   "a\nb\n(foo)|")))
+                   "a\nb\n(foo)|"))
+  (should (string= (lispy-with "|(foo)" "R")
+                   "|(foo)"))
+  (should (string= (lispy-with "(foo)|" "R")
+                   "(foo)|")))
 
 (ert-deftest lispy-convolute ()
   (should (string= (lispy-with "(when (pred)\n  (let ((x 1))\n    |(foo)\n    (bar)))" "C")
