@@ -101,33 +101,36 @@
 :PROPERTIES:
 :CUSTOM_ID: global-bindings
 :END:
-| key   | function name          |
-|-------+------------------------|
-| ]     | [[#lispy-forward][lispy-forward]]          |
-| [     | [[#lispy-backward][lispy-backward]]         |
-| (     | [[#lispy-parens][lispy-parens]]           |
-| {     | [[#lispy-braces][lispy-braces]]           |
-| }     | [[#lispy-brackets][lispy-brackets]]         |
-| "     | [[#lispy-quotes][lispy-quotes]]           |
-| )     | [[#lispy-right-nostring][lispy-right-nostring]]   |
-| ;     | [[#lispy-comment][lispy-comment]]          |
-| DEL   | [[#lispy-delete-backward][lispy-delete-backward]]  |
-| C-d   | [[#lispy-delete][lispy-delete]]           |
-| C-k   | [[#lispy-kill][lispy-kill]]             |
-| C-y   | [[#lispy-yank][lispy-yank]]             |
-| C-e   | [[#lispy-move-end-of-line][lispy-move-end-of-line]] |
-| C-,   | [[#lispy-kill-at-point][lispy-kill-at-point]]    |
-| C-M-, | [[#lispy-mark][lispy-mark]]             |
-| M-m   | [[#lispy-mark-symbol][lispy-mark-symbol]]      |
-| M-o   | [[#lispy-string-oneline][lispy-string-oneline]]   |
-| C-1   | [[#lispy-describe-inline][lispy-describe-inline]]  |
-| C-2   | [[#lispy-arglist-inline][lispy-arglist-inline]]   |
-| C-3   | [[#lispy-right][lispy-right]]            |
-| C-4   | [[#lispy-x][lispy-x]]                |
-| C-8   | [[#lispy-parens-down][lispy-parens-down]]      |
-| M-.   | [[#lispy-goto-symbol][lispy-goto-symbol]]      |
-| M-,   | [[#pop-tag-mark][pop-tag-mark]]           |
-|-------+------------------------|
+| key   | function name            |
+|-------+--------------------------|
+| ]     | [[#lispy-forward][lispy-forward]]            |
+| [     | [[#lispy-backward][lispy-backward]]           |
+| (     | [[#lispy-parens][lispy-parens]]             |
+| {     | [[#lispy-braces][lispy-braces]]             |
+| }     | [[#lispy-brackets][lispy-brackets]]           |
+| "     | [[#lispy-quotes][lispy-quotes]]             |
+| )     | [[#lispy-right-nostring][lispy-right-nostring]]     |
+| ;     | [[#lispy-comment][lispy-comment]]            |
+| DEL   | [[#lispy-delete-backward][lispy-delete-backward]]    |
+| C-d   | [[#lispy-delete][lispy-delete]]             |
+| C-k   | [[#lispy-kill][lispy-kill]]               |
+| C-y   | [[#lispy-yank][lispy-yank]]               |
+| C-e   | [[#lispy-move-end-of-line][lispy-move-end-of-line]]   |
+| C-,   | [[#lispy-kill-at-point][lispy-kill-at-point]]      |
+| C-M-, | [[#lispy-mark][lispy-mark]]               |
+| C-1   | [[#lispy-describe-inline][lispy-describe-inline]]    |
+| C-2   | [[#lispy-arglist-inline][lispy-arglist-inline]]     |
+| C-3   | [[#lispy-right][lispy-right]]              |
+| C-4   | [[#lispy-x][lispy-x]]                  |
+| C-8   | [[#lispy-parens-down][lispy-parens-down]]        |
+| M-d   | [[#lispy-kill-word][lispy-kill-word]]          |
+| M-k   | [[#lispy-kill-sentence][lispy-kill-sentence]]      |
+| M-m   | [[#lispy-mark-symbol][lispy-mark-symbol]]        |
+| M-o   | [[#lispy-string-oneline][lispy-string-oneline]]     |
+| M-DEL | [[#lispy-backward-kill-word][lispy-backward-kill-word]] |
+| M-.   | [[#lispy-goto-symbol][lispy-goto-symbol]]        |
+| M-,   | [[#pop-tag-mark][pop-tag-mark]]             |
+|-------+--------------------------|
 * [[#global-bindings][G]] [[#a-z][az]] [[#A-Z][AZ]] [[#x-bindings][x]] [a-z] local bindings
 :PROPERTIES:
 :CUSTOM_ID: a-z
@@ -159,7 +162,7 @@
 | w      | [[#lispy-move-up][lispy-move-up]]           |
 | x      | [[#x-bindings][see]]                     |
 | y      | [[#lispy-occur][lispy-occur]]             |
-| z      | unbound                 |
+| z      | [[#lispy-knight][lispy-knight]]            |
 | >      | [[#lispy-slurp][lispy-slurp]]             |
 | <      | [[#lispy-barf][lispy-barf]]              |
 | -      | [[#lispy-ace-subword][lispy-ace-subword]]       |
@@ -206,6 +209,7 @@
 :END:
 | key | function name                 |
 |-----+-------------------------------|
+| xb  | [[#lispy-bind-variable][lispy-bind-variable]]           |
 | xc  | [[#lispy-to-cond][lispy-to-cond]]                 |
 | xd  | [[#lispy-to-defun][lispy-to-defun]]                |
 | xf  | [[#lispy-flatten][lispy-flatten]]                 |
@@ -232,8 +236,9 @@ Takes a numeric prefix =arg= and moves forward list =arg= times or
 until error.
 
 Unlike =forward-list=, no error will be reported if it's not possible
-to move =arg= times.
-It that case, move as many times as possible.
+to move =arg= times.  It that case, move as many times as possible.
+To facilitate entering a very large =arg=, =arg= 0 is interpreted as
+=arg= 2000.
 
 Return =t= if could move at least once, otherwise
 call [[#lispy-right][=lispy-right=]] and return =nil=.
@@ -253,8 +258,9 @@ Takes a numeric prefix =arg= and moves backward list =arg= times or
 until error.
 
 Unlike =backward-list=, no error will be reported if it's not possible
-to move =arg= times.
-It that case, move as many times as possible.
+to move =arg= times.  It that case, move as many times as possible.
+To facilitate entering a very large =arg=, =arg= 0 is interpreted as
+=arg= 2000.
 
 Return =t= if could move at least once, otherwise
 call [[#lispy-left][=lispy-left=]] return =nil=.
@@ -273,12 +279,10 @@ Bound to ~C-3~ and ~l~.
 Takes a numeric prefix =arg= and moves up forward list =arg= times or
 until error.
 
-Unlike =up-list=, no error will be reported if it's not possible
-to move up =arg= times.
-It that case, move as many times as possible.
+Unlike =up-list=, no error will be reported if it's not possible to
+move up =arg= times.  It that case, move as many times as possible.
 
-Return point if could move at least once, otherwise
-do nothing and return =nil=.
+Return point if could move =arg= times, otherwise return =nil=.
 
 Unlike =up-list=, parens in strings and comments are ignored.
 -----
@@ -302,6 +306,7 @@ other pair functions that always insert the whole pair:
 | ~"~ | [[#lispy-quotes][lispy-quotes]]   | ""      |
 
 When you want to insert a single character from the pair, use ~C-q~.
+Or insert a pair and delete the other character.
 -----
 ** =lispy-left=
 :PROPERTIES:
@@ -453,6 +458,22 @@ The following functions write to this history:
 | ~q~ | [[#lispy-ace-paren][lispy-ace-paren]] |
 | ~i~ | [[#lispy-mark-car][lispy-mark-car]]  |
 -----
+** =lispy-knight=
+:PROPERTIES:
+:CUSTOM_ID: lispy-knight
+:END:
+
+Bound to ~z~.
+
+~zj~ and ~zk~ are bound in a hydra that allows to move through the
+leftmost parens on each line.
+
+This is useful if you want to navigate disregarding syntax: since ~j~
+and ~k~ can't exit the parent list they're not suitable for this.
+
+~zj~ and ~zk~ move like the knight figure in chess, in a combination
+of horizontal and vertical movement.
+-----
 ** =lispy-mark-car=
 :PROPERTIES:
 :CUSTOM_ID: lispy-mark-car
@@ -460,7 +481,9 @@ The following functions write to this history:
 
 Bound to ~i~ while the region is active.
 
-Mark the first element of the currently selected list.
+Mark the first element (car) of the currently selected thing (list or
+region).
+*** when at list boundary
 #+HTML: <table><tbody><tr><td>
 #+begin_src elisp
 ~(defun lispy-right (arg)
@@ -484,8 +507,8 @@ Return nil on failure, t otherwise."
     (lispy--out-forward arg)))
 #+end_src
 #+HTML: </td></tr></tbody></table>
-
-When a string is marked, mark its inner contents.
+*** when at string boundary
+Mark its inner contents.
 #+HTML: <table><tbody><tr><td>
 #+begin_src elisp
 (list ~"spam spam spam"|)
@@ -495,6 +518,34 @@ When a string is marked, mark its inner contents.
 #+HTML: </td><td>
 #+begin_src elisp
 (list "~spam spam spam|")
+#+end_src
+#+HTML: </td></tr></tbody></table>
+*** when at region boundary
+#+HTML: <table><tbody><tr><td>
+#+begin_src elisp
+(list "~spam spam spam|")
+#+end_src
+#+HTML: </td><td>
+-> ~i~ ->
+#+HTML: </td><td>
+#+begin_src elisp
+(list "~spam| spam spam")
+#+end_src
+#+HTML: </td></tr></tbody></table>
+*** when a quoted symbol is marked
+Select the unquoted part, it's useful for a subsequent ~e~
+(=lispy-eval=).
+#+HTML: <table><tbody><tr><td>
+#+begin_src elisp
+(add-to-list ~'auto-mode-alist|
+             '("\\.\\(h\\)\\'" . c++-mode))
+#+end_src
+#+HTML: </td><td>
+-> ~i~ ->
+#+HTML: </td><td>
+#+begin_src elisp
+(add-to-list '~auto-mode-alist|
+             '("\\.\\(h\\)\\'" . c++-mode))
 #+end_src
 #+HTML: </td></tr></tbody></table>
 -----
@@ -1058,6 +1109,32 @@ after the evaluated expression.
 - Starting with an active region, the region will be
   deactivated and result will be inserted at point.
 -----
+** =lispy-bind-variable=
+:PROPERTIES:
+:CUSTOM_ID: lispy-bind-variable
+:END:
+Bound to ~xb~.
+
+Transform the current list expression into a let-bound variable;
+=iedit-mode= is used to name the new variable.  Use ~M-m~ to finish
+naming the variable.
+
+#+HTML: <table><tbody><tr><td>
+#+begin_src elisp
+(defun my-forward-line (arg)
+  (message "%S lines"
+           |(forward-line arg)))
+#+end_src
+#+HTML: </td><td>
+-> ~xbln M-m ChO~->
+#+HTML: </td><td>
+#+begin_src elisp
+(defun my-forward-line (arg)
+  (let ((ln (forward-line arg)))
+    |(message "%S lines" ln)))
+#+end_src
+#+HTML: </td></tr></tbody></table>
+-----
 ** =lispy-unbind-variable=
 :PROPERTIES:
 :CUSTOM_ID: lispy-unbind-variable
@@ -1350,16 +1427,18 @@ Bound to ~C-8~.
 
 Exit current list and insert a newline and a pair of parens.
 
-Starting with
+#+HTML: <table><tbody><tr><td>
 #+begin_src elisp
 (foo|)
 #+end_src
-
-pressing ~C-8~ will give:
+#+HTML: </td><td>
+-> ~C-8~ ->
+#+HTML: </td><td>
 #+begin_src elisp
 (foo)
 (|)
 #+end_src
+#+HTML: </td></tr></tbody></table>
 -----
 ** =lispy-space=
 :PROPERTIES:
@@ -1792,6 +1871,10 @@ Kill the smallest comment or string or list that includes point.
 Bound to ~M-m~.
 
 {{{cond}}}
+*** [[#lispy-bind-variable][=lispy-bind-variable=]] in progress
+Exit =iedit-mode= and mark the newly bound variable with a region.
+This allows to use [[#lispy-convolute][=lispy-convolute=]] to place the new =let= binding
+into an appropriate place.
 *** in comment
 Mark comment.
 
@@ -1911,20 +1994,7 @@ Bound to ~i~.
 Hide/show outline.
 
 *** region is active
-Go to the car of the region:
-
-#+HTML: <table><tbody><tr><td>
-#+begin_src elisp
-~(head neck body tail)|
-#+end_src
-#+HTML: </td><td>
--> ~i~ ->
-#+HTML: </td><td>
-#+begin_src elisp
-(~head| neck body tail)
-#+end_src
-#+HTML: </td></tr></tbody></table>
-
+Forward to [[#lispy-mark-car][=lispy-mark-car=]].
 *** otherwise
 Indent and prettify code.
 Prettify means to remove hanging closing parens, extra spaces,
@@ -2867,6 +2937,7 @@ Forward to =yank= otherwise.
 Bound to ~xe~.
 
 [[http://www.gnu.org/software/emacs/manual/html_node/elisp/Using-Edebug.html][=edebug=]] current defun.
+Or =cider-debug-defun-at-point= for Clojure.
 
 ~2xe~ will eval current defun instead.
 -----
@@ -2877,22 +2948,23 @@ Bound to ~xe~.
 
 Bound to ~xj~.
 
-1. Evaluate the arguments at current function's call
-2. Jump to function's definition
-3. Set the result of evaluation to function's arguments
+1. Evaluate the arguments at the current function's call
+2. Jump to the function's definition
+3. Set the result of evaluation to the function's arguments
 
 For example, starting with:
 
 #+begin_src elisp
 |(do-stuff 1 (+ 1 1) (+ 2 2))
 #+end_src
-after pressing ~xj~ you'll jump to the definition of =do-stuff=:
+after pressing ~xj~ you will jump to the definition of =do-stuff=:
 #+begin_src elisp
 |(defun do-stuff (x y z &optional a &rest b)
   (foo)
   (bar))
 #+end_src
-At this point:
+At this point the following global variables will be set to their
+corresponding values:
 | var | val |
 |-----+-----|
 | x   | 1   |
@@ -2926,9 +2998,10 @@ Kill =arg= words backward, keeping parens and quotes consistent.
 
 Bound to ~M-k~.
 
-Kill until the end of current string of list.
-If located exactly at the beginning of the string of list,
-forward to [[#lispy-delete][=lispy-delete=]].
+Kill until the end of the current list or string.
+
+If located exactly at the beginning of the list or string, kill only
+that list or string instead.
 
 #+HTML: <table><tbody><tr><td>
 #+begin_src elisp
