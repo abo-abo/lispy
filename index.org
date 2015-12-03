@@ -261,7 +261,6 @@ call [[#lispy-left][=lispy-left=]] return =nil=.
 
 Unlike =backward-list=, parens in strings and comments are ignored.
 -----
-
 ** =lispy-right=
 :PROPERTIES:
 :CUSTOM_ID: lispy-right
@@ -283,7 +282,6 @@ do nothing and return =nil=.
 
 Unlike =up-list=, parens in strings and comments are ignored.
 -----
-
 ** =lispy-right-nostring=
 :PROPERTIES:
 :CUSTOM_ID: lispy-right-nostring
@@ -299,13 +297,12 @@ other pair functions that always insert the whole pair:
 
 | key | function       | inserts |
 |-----+----------------+---------|
-| {   | [[#lispy-braces][lispy-braces]]   | {}      |
-| }   | [[#lispy-brackets][lispy-brackets]] | []      |
-| "   | [[#lispy-quotes][lispy-quotes]]   | ""      |
+| ~{~ | [[#lispy-braces][lispy-braces]]   | {}      |
+| ~}~ | [[#lispy-brackets][lispy-brackets]] | []      |
+| ~"~ | [[#lispy-quotes][lispy-quotes]]   | ""      |
 
 When you want to insert a single character from the pair, use ~C-q~.
 -----
-
 ** =lispy-left=
 :PROPERTIES:
 :CUSTOM_ID: lispy-left
@@ -360,10 +357,6 @@ each element of current list, otherwise it's down or left.
 ~j~ maintains a guarantee that it will not exit the current list, so
 you can use e.g. ~99j~ to move to the last element of the current list.
 
-When it's not possible to move down any more, ~j~ will
-behave as [[#lispy-different][=lispy-different=]]. This allows to traverse the current
-list's elements with just ~j~ and ~k~.
-
 When region is active, ~j~ will move the region by =forward-sexp=,
 i.e. move the point and the mark by =forward-sexp=.
 
@@ -407,10 +400,6 @@ each element of current list, otherwise it's up or right.
 ~k~ maintains a guarantee that it will not exit the current list, so
 you can use e.g. ~99k~ to move to the first element of current list.
 
-When it's not possible to move up any more, ~k~ will
-behave as [[#lispy-different][=lispy-different=]]. This allows to traverse the current
-list's elements with just ~j~ and ~k~.
-
 When region is active, ~k~ will move the region by =backward-sexp=,
 i.e. move the point and the mark by =backward-sexp=.
 -----
@@ -426,7 +415,6 @@ Switch to the different side of current sexp.
 
 When region is active, equivalent to =exchange-point-and-mark=.
 -----
-
 ** =lispy-flow=
 :PROPERTIES:
 :CUSTOM_ID: lispy-flow
@@ -444,7 +432,6 @@ file.
 Find the next =lispy-right= not in comment or string going up the
 file.
 -----
-
 ** =lispy-back=
 :PROPERTIES:
 :CUSTOM_ID: lispy-back
@@ -466,7 +453,6 @@ The following functions write to this history:
 | ~q~ | [[#lispy-ace-paren][lispy-ace-paren]] |
 | ~i~ | [[#lispy-mark-car][lispy-mark-car]]  |
 -----
-
 ** =lispy-mark-car=
 :PROPERTIES:
 :CUSTOM_ID: lispy-mark-car
@@ -511,23 +497,7 @@ When a string is marked, mark its inner contents.
 (list "~spam spam spam|")
 #+end_src
 #+HTML: </td></tr></tbody></table>
-
-
-** =lispy-clockwise=
-:PROPERTIES:
-:CUSTOM_ID: lispy-clockwise
-:END:
-
-Move clockwise within current list.
 -----
-** =lispy-counterclockwise=
-:PROPERTIES:
-:CUSTOM_ID: lispy-counterclockwise
-:END:
-
-Move counterclockwise within current list.
------
-
 ** =lispy-move-end-of-line=
 :PROPERTIES:
 :CUSTOM_ID: lispy-move-end-of-line
@@ -548,7 +518,6 @@ Move to the end of the string.
 *** otherwise
 Return to the starting position.
 -----
-
 ** =lispy-ace-paren=
 :PROPERTIES:
 :CUSTOM_ID: lispy-ace-paren
@@ -650,7 +619,6 @@ by pressing ~q~ you get this:
 Now you can change the point position by pressing a letter or
 cancel with ~C-g~.
 -----
-
 ** =lispy-ace-symbol=
 :PROPERTIES:
 :CUSTOM_ID: lispy-ace-symbol
@@ -816,19 +784,17 @@ If there are none within the parent list, move to the parent list in appropriate
 #+end_src
 #+HTML: </td></tr></tbody></table>
 -----
-
-
-
 ** =lispy-occur=
 :PROPERTIES:
 :CUSTOM_ID: lispy-occur
 :END:
 Bound to ~y~.
 
-Do an occur for the current top-level sexp with helm.
-Go back-to-paren afterwards.
-------
+Do an occur for the current top-level sexp. Go back-to-paren afterwards.
 
+This is useful e.g. to see where a particular variable is used within
+the current defun.
+------
 ** =lispy-follow=
 :PROPERTIES:
 :CUSTOM_ID: lispy-follow
@@ -843,8 +809,6 @@ Use ~D~ or ~M-,~ to go back.
 
 Elisp, Clojure and Common Lisp are supported.
 -----
-
-
 *** TODO Add support for Scheme                                                     :noexport:
 *** TODO Add jump to symbol support for Common Lisp                                 :noexport:
 ** =lispy-goto-symbol=
@@ -857,7 +821,6 @@ Bound to ~M-.~.
 Goto definition of symbol at point.
 You can go back with ~M-,~ ([[#pop-tag-mark][=pop-tag-mark=]]).
 -----
-
 ** =pop-tag-mark=
 :PROPERTIES:
 :CUSTOM_ID: pop-tag-mark
@@ -873,7 +836,6 @@ This is a standard Emacs function that reverses:
 It's bound to ~M-*~ in the default Emacs. I like to bind it to ~M-,~
 everywhere.
 -----
-
 ** =lispy-describe-inline=
 :PROPERTIES:
 :CUSTOM_ID: lispy-describe-inline
@@ -961,7 +923,6 @@ marked symbol (see [[#lispy-ace-symbol][=lispy-ace-symbol=]]).
 </html>
 #+END_HTML
 -----
-
 ** =lispy-arglist-inline=
 :PROPERTIES:
 :CUSTOM_ID: lispy-arglist-inline
@@ -1050,7 +1011,6 @@ Show the argument list for current function.
 </html>
 #+END_HTML
 -----
-
 ** =lispy-eval=
 :PROPERTIES:
 :CUSTOM_ID: lispy-eval
@@ -1080,8 +1040,6 @@ Will do a =setq= in addition to =defvar= (i.e. the behavior of ~C-M-x~).
 
 Same as for =defvar=.
 -----
-
-
 ** =lispy-eval-and-insert=
 :PROPERTIES:
 :CUSTOM_ID: lispy-eval-and-insert
@@ -1100,7 +1058,6 @@ after the evaluated expression.
 - Starting with an active region, the region will be
   deactivated and result will be inserted at point.
 -----
-
 ** =lispy-unbind-variable=
 :PROPERTIES:
 :CUSTOM_ID: lispy-unbind-variable
@@ -1139,8 +1096,6 @@ Unbind a let-bound variable.
 #+end_src
 #+HTML: </td></tr></tbody></table>
 -----
-
-
 ** =lispy-eval-and-replace=
 :PROPERTIES:
 :CUSTOM_ID: lispy-eval-and-replace
@@ -1178,7 +1133,6 @@ Currently, these functions make use of stored info:
 |-----+---------------------|
 | B   | [[#lispy-ediff-regions][lispy-ediff-regions]] |
 -----
-
 ** =lispy-ediff-regions=
 :PROPERTIES:
 :CUSTOM_ID: lispy-ediff-regions
@@ -1204,7 +1158,6 @@ function. This is helpful if =ediff-buffers= isn't what you want.
 Another scenario is to compare two different functions that have similar code,
 for instance =lispy-move-down= and =lispy-move-up=.
 -----
-
 ** =lispy-to-lambda=
 :PROPERTIES:
 :CUSTOM_ID: lispy-to-lambda
@@ -1239,8 +1192,6 @@ by pressing ~xl~ you will get this:
 #+end_src
 -----
 *** TODO Add Clojure support                                                        :noexport:
-
-
 ** =lispy-to-defun=
 :PROPERTIES:
 :CUSTOM_ID: lispy-to-defun
@@ -1280,7 +1231,6 @@ by pressing ~xd~ you'll get this:
   |)
 #+end_src
 -----
-
 ** =lispy-parens=
 :PROPERTIES:
 :CUSTOM_ID: lispy-parens
@@ -1290,7 +1240,6 @@ Bound to ~(~.
 
 Call [[#lispy-pair][=lispy-pair=]] specialized with =()=.
 -----
-
 ** =lispy-braces=
 :PROPERTIES:
 :CUSTOM_ID: lispy-braces
@@ -1300,7 +1249,6 @@ Bound to ~{~.
 
 Call [[#lispy-pair][=lispy-pair=]] specialized with ={}=.
 -----
-
 ** =lispy-brackets=
 :PROPERTIES:
 :CUSTOM_ID: lispy-brackets
@@ -1310,7 +1258,6 @@ Bound to ~}~.
 
 Call [[#lispy-pair][=lispy-pair=]] specialized with =[]=.
 -----
-
 ** =lispy-quotes=
 :PROPERTIES:
 :CUSTOM_ID: lispy-quotes
@@ -1394,7 +1341,6 @@ pressing @@html:<kbd>@@"@@html:</kbd>@@ will give:
 (message "|")
 #+end_src
 -----
-
 ** =lispy-parens-down=
 :PROPERTIES:
 :CUSTOM_ID: lispy-parens-down
@@ -1414,7 +1360,7 @@ pressing ~C-8~ will give:
 (foo)
 (|)
 #+end_src
-
+-----
 ** =lispy-space=
 :PROPERTIES:
 :CUSTOM_ID: lispy-space
@@ -1437,7 +1383,7 @@ Behave differently in this situation:
 (| (foo))
 #+end_src
 #+HTML: </td></tr></tbody></table>
-
+-----
 ** =lispy-pair=
 :PROPERTIES:
 :CUSTOM_ID: lispy-pair
@@ -1519,7 +1465,6 @@ pressing ~2(~ will give:
 
 ~2~ here is responsible to setting =arg= to 2.
 -----
-
 ** =lispy-x=
 :PROPERTIES:
 :CUSTOM_ID: lispy-x
@@ -1529,7 +1474,6 @@ Bound to ~x~ (locally) or ~C-4~ (globally).
 
 Just a prefix to calling other commands,  [[#x-bindings][see]].
 -----
-
 ** =lispy-kill=
 :PROPERTIES:
 :CUSTOM_ID: lispy-kill
@@ -1564,7 +1508,6 @@ Delete from point to end of list.
 *** otherwise
 Delete current sexp.
 -----
-
 ** =lispy-new-copy=
 :PROPERTIES:
 :CUSTOM_ID: lispy-new-copy
@@ -1600,7 +1543,6 @@ whereas a regular =yank= would give:
 "(message "test")|"
 #+end_src
 -----
-
 ** =lispy-delete=
 :PROPERTIES:
 :CUSTOM_ID: lispy-delete
@@ -1715,7 +1657,6 @@ Delete containing sexp.
 *** otherwise
 Call =delete-char=.
 -----
-
 ** =lispy-delete-backward=
 :PROPERTIES:
 :CUSTOM_ID: lispy-delete-backward
@@ -1823,7 +1764,6 @@ Delete string.
 *** otherwise
 Call =backward-delete-char=.
 -----
-
 ** =lispy-mark=
 :PROPERTIES:
 :CUSTOM_ID: lispy-mark
@@ -1894,7 +1834,6 @@ doesn't have a body). First produce the body with =symbol-function=,
 then prettify the body with ~M~ and ~M-o~, then =edebug= with ~x e~.
 For instance, =(symbol-function 'lispy-parens)= ~E~ ~M~ ~a p~ ~M-o~.
 -----
-
 ** =lispy-outline-next=
 :PROPERTIES:
 :CUSTOM_ID: lispy-outline-next
@@ -1908,7 +1847,6 @@ past the last =outline-regexp=.
 
 See [[#lispy-shifttab][=lispy-shifttab=]] for more info.
 -----
-
 ** =lispy-outline-prev=
 :PROPERTIES:
 :CUSTOM_ID: lispy-outline-prev
@@ -1922,7 +1860,6 @@ past the first =outline-regexp=.
 
 See [[#lispy-shifttab][=lispy-shifttab=]] for more info.
 -----
-
 ** =lispy-shifttab=
 :PROPERTIES:
 :CUSTOM_ID: lispy-shifttab
@@ -1961,7 +1898,6 @@ Useful together with:
 | K   | [[#lispy-outline-prev][lispy-outline-prev]] |
 | i   | [[#lispy-tab][lispy-tab]]          |
 -----
-
 ** =lispy-tab=
 :PROPERTIES:
 :CUSTOM_ID: lispy-tab
@@ -2022,7 +1958,6 @@ and to add space where it's needed, e.g. =(lambda (x))= instead of
 #+end_src
 #+HTML: </td></tr></tbody></table>
 -----
-
 ** =lispy-edebug-stop=
 :PROPERTIES:
 :CUSTOM_ID: lispy-edebug-stop
@@ -2039,7 +1974,6 @@ This allows to continue debugging with [[#lispy-eval][=lispy-eval=]] (~e~) from
 The advantage is that you can edit the code as you debug, as =edebug=
 puts your code in read-only mode.
 -----
-
 ** =lispy-flatten=
 :PROPERTIES:
 :CUSTOM_ID: lispy-flatten
@@ -2048,10 +1982,7 @@ puts your code in read-only mode.
 Bound to ~xf~.
 
 Inline current function or macro call, i.e. replace it with function
-body.
-The function should be interned and its body findable.
-Alternatively call it with prefix argument to use a function
-body stored with [[#lispy-store-region-and-buffer][=lispy-store-region-and-buffer=]].
+body. The function should be interned and its body find-able.
 
 #+HTML: <table><tbody><tr><td>
 #+begin_src elisp
@@ -2065,9 +1996,6 @@ body stored with [[#lispy-store-region-and-buffer][=lispy-store-region-and-buffe
 #+end_src
 #+HTML: </td></tr></tbody></table>
 -----
-
-*** TODO make use of =symbol-function= instead                                      :noexport:
-
 ** =lispy-to-ifs=
 :PROPERTIES:
 :CUSTOM_ID: lispy-to-ifs
@@ -2139,7 +2067,6 @@ The reverse is [[#lispy-to-cond][=lispy-to-cond=]].
 #+end_src
 #+HTML: </td></tr></tbody></table>
 -----
-
 ** =lispy-to-cond=
 :PROPERTIES:
 :CUSTOM_ID: lispy-to-cond
@@ -2211,18 +2138,18 @@ The reverse is [[#lispy-to-ifs][=lispy-to-ifs=]].
 #+end_src
 #+HTML: </td></tr></tbody></table>
 -----
-
 ** =lispy-visit=
 :PROPERTIES:
 :CUSTOM_ID: lispy-visit
 :END:
+Bound to ~V~.
 
-Visit another file within this project using [[https://github.com/bbatsov/projectile][=projectile=]].
+Visit another file within this project using [[https://github.com/bbatsov/projectile][=projectile=]] or
+[[https://github.com/technomancy/find-file-in-project][=find-file-in-project=]] (customize =lispy-visit-method= to choose).
 
 Use ~V~ to call =projectile-find-file=.
 Use ~2V~ to call =projectile-find-file-other-window=.
 -----
-
 ** =lispy-narrow=
 :PROPERTIES:
 :CUSTOM_ID: lispy-narrow
@@ -2232,7 +2159,6 @@ Bound to ~N~.
 [[http://www.gnu.org/software/emacs/manual/html_node/emacs/Narrowing.html][Narrow]] to current sexp or region.
 
 -----
-
 ** =lispy-widen=
 :PROPERTIES:
 :CUSTOM_ID: lispy-widen
@@ -2241,7 +2167,6 @@ Bound to ~W~.
 
 Forward to =widen=.
 -----
-
 ** =lispy-oneline=
 :PROPERTIES:
 :CUSTOM_ID: lispy-oneline
@@ -2264,7 +2189,6 @@ Turn current sexp into one line.
 #+end_src
 #+HTML: </td></tr></tbody></table>
 -----
-
 ** =lispy-multiline=
 :PROPERTIES:
 :CUSTOM_ID: lispy-multiline
@@ -2290,7 +2214,6 @@ Turn current sexp into one line.
 #+end_src
 #+HTML: </td></tr></tbody></table>
 -----
-
 ** =lispy-view=
 :PROPERTIES:
 :CUSTOM_ID: lispy-view
@@ -2303,7 +2226,6 @@ When called twice in a row, recenter back to the original position.
 
 It's just a slightly modified shorthand for the standard ~C-l~ (=recenter-top-bottom=).
 -----
-
 ** =lispy-slurp=
 :PROPERTIES:
 :CUSTOM_ID: lispy-slurp
@@ -2354,7 +2276,6 @@ Example 3:
 #+end_src
 #+HTML: </td></tr></tbody></table>
 -----
-
 ** =lispy-barf=
 :PROPERTIES:
 :CUSTOM_ID: lispy-barf
@@ -2404,7 +2325,6 @@ Example 3:
 #+end_src
 #+HTML: </td></tr></tbody></table>
 -----
-
 ** =lispy-other-mode=
 :PROPERTIES:
 :CUSTOM_ID: lispy-other-mode
@@ -2427,7 +2347,6 @@ mind about calling the modified ~hjkl~.
 | ~SPC~ |                  |
 | ~g~   |                  |
 -----
-
 ** =lispy-move-left=
 :PROPERTIES:
 :CUSTOM_ID: lispy-move-left
@@ -2455,7 +2374,6 @@ Move current expression to the left, outside the current list.
 #+end_src
 #+HTML: </td></tr></tbody></table>
 -----
-
 ** =lispy-down-slurp=
 :PROPERTIES:
 :CUSTOM_ID: lispy-down-slurp
@@ -2479,7 +2397,6 @@ below.
 #+end_src
 #+HTML: </td></tr></tbody></table>
 -----
-
 ** =lispy-up-slurp=
 :PROPERTIES:
 :CUSTOM_ID: lispy-up-slurp
@@ -2609,7 +2526,6 @@ Bound to ~G~.
 Similar to [[#lispy-goto][=lispy-goto=]], but only current file's tags are used instead
 of whole directory's tags.
 -----
-
 ** =lispy-goto-recursive=
 :PROPERTIES:
 :CUSTOM_ID: lispy-goto-recursive
@@ -2620,7 +2536,6 @@ Bound to ~ogr~.
 Similar to [[#lispy-goto][=lispy-goto=]], but all sub-directories' tags are used in
 addition to directory's tags.
 -----
-
 ** =lispy-goto-projectile=
 :PROPERTIES:
 :CUSTOM_ID: lispy-goto-projectile
@@ -2631,7 +2546,6 @@ Bound to ~0g~ and ~ogp~.
 Similar to [[#lispy-goto-recursive][=lispy-goto-recursive=]], but =projectile-project-root= is
 used as the base directory.
 -----
-
 ** =lispy-mark-list=
 :PROPERTIES:
 :CUSTOM_ID: lispy-mark-list
@@ -2703,8 +2617,6 @@ Move current sexp or region up arg times. Don't exit the parent list.
 
 It's the reciprocal of [[#lispy-move-down][=lispy-move-down=]].
 -----
-
-
 ** =lispy-teleport=
 :PROPERTIES:
 :CUSTOM_ID: lispy-teleport
@@ -2714,7 +2626,6 @@ Bound to ~t~.
 
 Move the current sexp or region to a location specified by [[#lispy-ace-paren][=lispy-ace-paren=]].
 -----
-
 ** =lispy-undo=
 :PROPERTIES:
 :CUSTOM_ID: lispy-undo
@@ -2779,7 +2690,6 @@ Special behavior in =cond= (what gets evaled is on the right):
   (message "cond: nil"))
 #+end_src
 #+HTML: </td></tr></tbody></table>
-
 -----
 ** =lispy-describe=
 :PROPERTIES:
@@ -2802,7 +2712,6 @@ From special:
 Globally:
 
 - ~M-m~ to mark symbol at point with [[#lispy-mark-symbol][=lispy-mark-symbol=]]
-
 -----
 ** =lispy-beginning-of-defun=
 :PROPERTIES:
@@ -2817,8 +2726,6 @@ the previous point and mark positions.
 A useful combo while debugging is ~Aa~ to select symbol, and ~eA~ to
 look at its value and go back. Repeat when needed.
 -----
-
-
 ** =lispy-convolute=
 :PROPERTIES:
 :CUSTOM_ID: lispy-convolute
@@ -2854,6 +2761,7 @@ See [[file:images/lispy-convolute.gif][gif]].
 :END:
 
 Bound to ~Q~.
+
 Call =ace-jump-mode=, while narrowed to current list.
 -----
 ** =lispy-raise-some=
@@ -3011,7 +2919,6 @@ Bound to ~M-DEL~.
 
 Kill =arg= words backward, keeping parens and quotes consistent.
 -----
-
 ** =lispy-kill-sentence=
 :PROPERTIES:
 :CUSTOM_ID: lispy-kill-sentence
@@ -3037,9 +2944,7 @@ and the number of the counting shall be three.")
 (message "Then shalt thou count to three|")
 #+end_src
 #+HTML: </td></tr></tbody></table>
-
 -----
-
 ** =digit-argument=
 :PROPERTIES:
 :CUSTOM_ID: digit-argument
@@ -3053,9 +2958,6 @@ globally with e.g. ~M-2~, you can call it locally with just e.g. ~2~.
 Many lispy commands take a prefix arg, e.g. ~3j~ is equivalent to
 ~jjj~.
 -----
-
-
-
 #+BEGIN_HTML
 <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
 <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
