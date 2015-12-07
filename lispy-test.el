@@ -606,6 +606,10 @@ Insert KEY if there's no command."
                    "((a) |(c))"))
   (should (string= (lispy-with ";; foo\n|\n(bar)" "\C-?")
                    ";; foo|\n(bar)"))
+  (should (string= (lispy-with "(foo ?{|)" "\C-?")
+                   "(foo ?|)"))
+  (should (string= (lispy-with "(foo ?}|)" "\C-?")
+                   "(foo ?|)"))
   (should (string= (lispy-with "(list \"string\" |[1 2])" "\C-?")
                    "(list |[1 2])")))
 

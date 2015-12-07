@@ -1166,7 +1166,8 @@ Otherwise (`backward-delete-char-untabify' ARG)."
                 (looking-at " *$"))
            (backward-delete-char-untabify arg))
 
-          ((or (lispy-right-p)
+          ((or (and (lispy-right-p)
+                    (not (lispy-looking-back "[\\?].")))
                (and (lispy-looking-back (concat lispy-right " "))
                     (or (lispy-left-p) (looking-at "\""))))
            (let ((pt (point)))
@@ -1192,7 +1193,7 @@ Otherwise (`backward-delete-char-untabify' ARG)."
                (indent-for-tab-command))))
 
           ((and (lispy-looking-back lispy-left)
-                (not (lispy-looking-back "\\\\.")))
+                (not (lispy-looking-back "[\\?].")))
            (lispy--out-forward 1)
            (lispy-delete-backward 1))
 
