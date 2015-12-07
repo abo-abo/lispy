@@ -532,6 +532,10 @@ Insert KEY if there's no command."
                    "(progn\n  |\n  (test))"))
   (should (string= (lispy-with "|;; a comment\n(test))" "\C-d")
                    "|\n(test))"))
+  (should (string= (lispy-with "(defun foobar |()   \n  (this-and-that))" "\C-d")
+                   "(defun foobar |\n  (this-and-that))"))
+  (should (string= (lispy-with "(defun foobar |\n  (this-and-that))" "\C-d")
+                   "(defun foobar |(this-and-that))"))
   (should (string= (lispy-with "((a) |\"foo\" (c))"
                                (lispy-delete -1))
                    "(|\"foo\" (c))")))

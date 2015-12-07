@@ -1096,7 +1096,8 @@ If position isn't special, move to previous or error."
              (delete-region pt (point))
              (unless (or (eolp)
                          (bolp)
-                         (lispy-bolp))
+                         (lispy-bolp)
+                         (eq (char-before) ?\ ))
                (insert " "))))
 
           (t
@@ -4014,6 +4015,9 @@ With ARG, use the contents of `lispy-store-region-and-buffer' instead."
     (deactivate-mark)
     (lispy-left 1)
     (lispy-delete 1)
+    (when (looking-at "[ \n]*")
+      (delete-region (match-beginning 0)
+                     (match-end 0)))
     (save-excursion
       (lispy--out-backward 2)
       (lispy--normalize-1))))
@@ -6018,9 +6022,9 @@ Unless inside string or comment, or `looking-back' at CONTEXT."
            (delete-region (match-beginning 0)
                           (1- (match-end 0))))
           ((looking-at "\n\n+"))
-          ((looking-at "[\n ]+")
-           (delete-region (match-beginning 0)
-                          (match-end 0)))
+          ((looking-at "\\([ ]*\\)\n")
+           (delete-region (match-beginning 1)
+                          (match-end 1)))
           ((looking-at lispy-right))
           ((eolp))
           (t
