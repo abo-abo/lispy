@@ -1975,7 +1975,8 @@ Return the amount of successful grow steps, nil instead of zero."
           (cond ((or (looking-at "\\s_")
                      (save-excursion
                        (goto-char (region-beginning))
-                       (lispy-looking-back "\\s_")))
+                       (and (not (lispy-left-p))
+                            (lispy-looking-back "\\s_"))))
                  (lispy--sub-slurp-forward arg))
                 ((looking-at "[\n ]+;")
                  (goto-char (match-end 0))
@@ -1983,7 +1984,8 @@ Return the amount of successful grow steps, nil instead of zero."
                 (t
                  (lispy-dotimes arg
                    (forward-sexp 1))))
-        (cond ((or (lispy-looking-back "\\s_")
+        (cond ((or (and (not (lispy-left-p))
+                        (lispy-looking-back "\\s_"))
                    (save-excursion
                      (goto-char (region-end))
                      (looking-at "\\s_")))
