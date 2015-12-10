@@ -266,7 +266,11 @@ Insert KEY if there's no command."
 
 (ert-deftest lispy-down-slurp ()
   (should (string= (lispy-with "(progn\n\n  |(sexp1)\n  (sexp2))" "oj")
-                   "(progn\n\n  (|(sexp1)\n   sexp2))")))
+                   "(progn\n\n  (|(sexp1)\n   sexp2))"))
+  (should (string= (lispy-with "|(fee) (fi) [fo]" "oj")
+                   "(|(fee)\n fi) [fo]"))
+  (should (string= (lispy-with "(fee) |(fi) [fo]" "oj")
+                   "(fee) [|(fi)\n       fo]")))
 
 (ert-deftest lispy-left ()
   (should (string= (lispy-with "(|(a) (b) (c))" "h")
