@@ -1379,6 +1379,8 @@ Insert KEY if there's no command."
                    "(progn\n  (foo)\n  |(bar)~)"))
   (should (string= (lispy-with "(progn\n  (foo))\n|(bar)\n(baz)~" "ok")
                    "(progn\n  (foo)\n  |(bar)\n  (baz)~)"))
+  (should (string= (lispy-with "[foo] |(bar)" "ok")
+                   "[foo |(bar)]"))
   (should (string= (lispy-with "(progn\n  (foo))\n~(bar)\n(baz)|" "ok")
                    "(progn\n  (foo)\n  ~(bar)\n  (baz)|)")))
 

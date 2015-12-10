@@ -2058,7 +2058,7 @@ Return the amount of successful grow steps, nil instead of zero."
       (setq bsize (buffer-size))
       (lispy-save-excursion
         (goto-char (cdr bnd))
-        (insert ")")
+        (insert (char-before p-end))
         (goto-char p-end)
         (backward-delete-char 1)
         (goto-char p-beg)
