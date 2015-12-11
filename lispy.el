@@ -1692,6 +1692,9 @@ When ARG is nagative, add them above instead"
       (newline (- arg))
       (indent-for-tab-command))))
 
+(defvar-local lispy-outline-header ";;"
+  "Store the buffer-local outline start.")
+
 (defun lispy-meta-return ()
   "Insert a new heading."
   (interactive)
@@ -1714,7 +1717,7 @@ When ARG is nagative, add them above instead"
                  (newline))
              (newline)
              (backward-char 1)))))
-  (insert ";;"
+  (insert lispy-outline-header
           (make-string (max (lispy-outline-level) 1)
                        ?\*)
           " ")
