@@ -6900,6 +6900,7 @@ FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)."
           (number-sequence 0 9))
     map))
 (eldoc-remove-command 'special-lispy-eval)
+(eldoc-remove-command 'special-lispy-x)
 
 ;;* Paredit compat
 (defun lispy-close-round-and-newline (arg)
