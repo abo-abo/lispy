@@ -3351,7 +3351,7 @@ SYMBOL is a string."
                          (lispy--fetch-this-file-tags)))
                   (goto-char (aref (nth 4 rsymbol) 0)))
                  (t
-                  (error "Couldn't fild definition of %s"
+                  (error "Couldn't find definition of %s"
                          symbol))))
           ((eq major-mode 'clojure-mode)
            (require 'le-clojure)
