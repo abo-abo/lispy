@@ -6617,7 +6617,8 @@ PLIST currently accepts:
              ((or (lispy-left-p)
                   (lispy-right-p)
                   (and (lispy-bolp)
-                       (looking-at ";")))
+                       (or (looking-at ";")
+                           (looking-at lispy-outline))))
               (call-interactively ',def))
 
              (t
