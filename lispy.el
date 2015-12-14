@@ -322,7 +322,12 @@ backward through lists, which is useful to move into special.
         (setq lispy-old-outline-settings
               (cons outline-regexp outline-level))
         (setq-local outline-level 'lispy-outline-level)
-        (setq-local outline-regexp (substring lispy-outline 1))
+        (if (eq major-mode 'latex-mode)
+            (progn
+              (setq-local lispy-outline "^\\(?:%\\*+\\|\\\\\\(?:sub\\)?section{\\)")
+              (setq lispy-outline-header "%")
+              (setq-local outline-regexp "\\(?:%\\*+\\|\\\\\\(?:sub\\)?section{\\)"))
+          (setq-local outline-regexp (substring lispy-outline 1)))
         (when (called-interactively-p 'any)
           (mapc #'lispy-raise-minor-mode
                 (cons 'lispy-mode lispy-known-verbs))))
