@@ -431,7 +431,9 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "(foo)\n;; comment\n|(bar)~" "k")
                    "(foo)\n|;; comment~\n(bar)"))
   (should (string= (lispy-with "(foo)\n;; comment\n|(bar)~" "kk")
-                   "|(foo)~\n;; comment\n(bar)")))
+                   "|(foo)~\n;; comment\n(bar)"))
+  (should (string= (lispy-with "(~foo| bar)" "k")
+                   "(~foo| bar)")))
 
 (ert-deftest lispy-different ()
   (should (string= (lispy-with "((a) (b) (c)|)" "d")

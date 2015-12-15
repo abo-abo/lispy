@@ -739,7 +739,8 @@ Return nil if can't move."
                     (bobp)))
                  ((looking-back "^ *\\(;\\)[^\n]*[\n ]*"
                                 (save-excursion
-                                  (backward-sexp 1)
+                                  (ignore-errors
+                                    (backward-sexp 1))
                                   (point)))
                   (deactivate-mark)
                   (goto-char (match-beginning 1))
