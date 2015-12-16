@@ -888,7 +888,11 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "(defun charge! ()\n  |(message \"[mayham]\")\n  (run-away))" (kbd "M-j"))
                    "(defun charge! ())\n|((message \"[mayham]\")\n (run-away))"))
   (should (string= (lispy-with "\"this|\nand that\"" (kbd "M-j"))
-                   "\"this\"\n|\"and that\"")))
+                   "\"this\"\n|\"and that\""))
+  (should (string= (lispy-with-clojure "[1 2 |5]" (kbd "M-j"))
+                   "[1 2]\n|[5]"))
+  (should (string= (lispy-with-clojure "{:chapter 2 |:verse 9}" (kbd "M-j"))
+                   "{:chapter 2}\n|{:verse 9}")))
 
 (ert-deftest lispy-move-up ()
   (should (string= (lispy-with "((a) (b) |(c))" "w")
