@@ -2371,7 +2371,9 @@ When ARG is more than 1, pull ARGth expression to enclose current sexp."
 (defun lispy-split ()
   "Split sexps."
   (interactive)
-  (let (bnd)
+  (let (bnd
+        char-left
+        char-right)
     (cond ((lispy--in-comment-p)
            (indent-new-comment-line))
           ((and (setq bnd (lispy--bounds-string))
@@ -2383,8 +2385,11 @@ When ARG is more than 1, pull ARGth expression to enclose current sexp."
            (newline-and-indent))
           (t
            (when (save-excursion
-                   (lispy--out-forward 1))
-             (insert ")(")
+                   (prog1 (lispy--out-forward 1)
+                     (setq char-right (char-before))
+                     (forward-list -1)
+                     (setq char-left (char-after))))
+             (insert (string char-right char-left))
              (backward-char 2)
              (lispy-right 1))
            (newline-and-indent)
