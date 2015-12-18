@@ -1334,19 +1334,40 @@ When ARG is more than 1, mark ARGth element."
            (lispy--mark bnd))
 
           ((looking-at " *[[({]")
-           (let ((pt (point)))
-             (skip-chars-forward "(){}[] \n")
-             (set-mark-command nil)
+           (if (and (lispy-looking-back "\\sw\\|\\s_")
+                    (not (region-active-p)))
+               (progn
+                 (set-mark-command nil)
+                 (forward-sexp -1)
+                 (exchange-point-and-mark))
+             (let ((pt (point)))
+               (skip-chars-forward "(){}[] \n")
+               (set-mark-command nil)
+               (condition-case nil
+                   (progn
+                     (re-search-forward "[][(){} \n]")
+                     (while (lispy--in-string-or-comment-p)
+                       (re-search-forward "[() \n]"))
+                     (backward-char 1))
+                 (error
+                  (message "No further symbols found")
+                  (deactivate-mark)
+                  (goto-char pt))))))
+
+          ((region-active-p)
+           (let ((bnd (lispy--bounds-string)))
              (condition-case nil
                  (progn
-                   (re-search-forward "[][(){} \n]")
-                   (while (lispy--in-string-or-comment-p)
-                     (re-search-forward "[() \n]"))
-                   (backward-char 1))
+                   (forward-sexp)
+                   (when (and bnd (> (point) (cdr bnd)))
+                     (goto-char (cdr bnd))
+                     (error "`forward-sexp' went through string bounds")))
                (error
-                (message "No further symbols found")
                 (deactivate-mark)
-                (goto-char pt)))))
+                (re-search-forward "\\sw\\|\\s_")
+                (forward-char -1)
+                (set-mark-command nil)
+                (forward-sexp)))))
 
           ((lispy-right-p)
            (skip-chars-backward "}]) \n")
@@ -1355,10 +1376,6 @@ When ARG is more than 1, mark ARGth element."
            (while (lispy--in-string-or-comment-p)
              (re-search-backward "[() \n]"))
            (forward-char 1))
-
-          ((region-active-p)
-           (ignore-errors
-             (forward-sexp)))
 
           ((looking-at lispy-right)
            (lispy--mark
@@ -1403,11 +1420,11 @@ When this function is called:
      (cond ((region-active-p)
             (lispy--surround-region ,left ,right)
             (when (and (lispy-left-p)
-                       (looking-back lispy-left))
+                       (lispy-looking-back lispy-left))
               (insert " "))
             (backward-char 1))
            ((and (lispy--in-string-p)
-                 (looking-back "\\\\\\\\"))
+                 (lispy-looking-back "\\\\\\\\"))
             (insert ,left "\\\\" ,right)
             (backward-char 3))
            ((lispy--in-string-or-comment-p)
@@ -1416,7 +1433,7 @@ When this function is called:
                 (insert "(")
               (insert ,left ,right)
               (backward-char 1)))
-           ((looking-back "?\\\\")
+           ((lispy-after-string-p "?\\\\")
             (self-insert-command 1))
            ((= arg 1)
             (lispy--indent-for-tab)
@@ -2034,9 +2051,9 @@ Return the amount of successful grow steps, nil instead of zero."
         (lispy--teleport (car bnd) (cdr bnd) (not leftp) regionp)
         (save-excursion
           (backward-char 1)
-          (when (looking-back (concat lispy-right " +"))
+          (when (lispy-looking-back (concat lispy-right " +"))
             (just-one-space))
-          (when (and bolp (looking-back "^ +"))
+          (when (and bolp (lispy-looking-back "^ +"))
             (delete-region (match-beginning 0)
                            (match-end 0)))
           (indent-sexp))))))

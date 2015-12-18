@@ -1242,7 +1242,9 @@ Insert KEY if there's no command."
   (should (string= (lispy-with ";; See `plu|mage'." (kbd "M-m"))
                    ";; See ~`plumage'|."))
   (should (string= (lispy-with "(list {:key args})|" (kbd "M-m"))
-                   "(list {:key |args~})")))
+                   "(list {:key |args~})"))
+  (should (string= (lispy-with "(:keyword| (form))" (kbd "M-m"))
+                   "(~:keyword| (form))")))
 
 (ert-deftest lispy--read ()
   (should (equal (lispy--read "(progn
