@@ -1348,6 +1348,8 @@ Insert KEY if there's no command."
                    "(foo (| bar))"))
   (should (string= (lispy-with "(foo bar| )" "2(")
                    "(foo (| bar) )"))
+  (should (string= (lispy-with "{|}" "(")
+                   "{(|)}"))
   (should (string= (lispy-with "(defun foo (x)\n  |)" "2(")
                    "(defun foo (x)\n  (| ))")))
 
