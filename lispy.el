@@ -1566,7 +1566,7 @@ If jammed between parens, \"(|(\" unjam: \"( |(\"."
         (t
          (insert " ")
          (when (and (lispy-left-p)
-                    (lispy-after-string-p "( "))
+                    (lispy-looking-back "[[({] "))
            (backward-char)))))
 
 (defvar lispy-colon-no-space-regex

@@ -1634,6 +1634,10 @@ Insert KEY if there's no command."
                    "(progn\n  (foo)\n  |)"))
   (should (string= (lispy-with "(progn\n  (foo)\n  )|" "4 ")
                    "(progn\n  (foo)\n  |)"))
+  (should (string= (lispy-with "[|()]" " ")
+                   "[| ()]"))
+  (should (string= (lispy-with "{|()}" " ")
+                   "{| ()}"))
   (should (string= (lispy-with "|(cdr )" "3 ")
                    "(cdr |)")))
 
