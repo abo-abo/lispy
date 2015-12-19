@@ -1341,18 +1341,20 @@ When ARG is more than 1, mark ARGth element."
                  (forward-sexp -1)
                  (exchange-point-and-mark))
              (let ((pt (point)))
-               (skip-chars-forward "(){}[] \n")
+               (skip-chars-forward "(){}[] \"\n")
                (set-mark-command nil)
-               (condition-case nil
-                   (progn
-                     (re-search-forward "[][(){} \n]")
-                     (while (lispy--in-string-or-comment-p)
-                       (re-search-forward "[() \n]"))
-                     (backward-char 1))
-                 (error
-                  (message "No further symbols found")
-                  (deactivate-mark)
-                  (goto-char pt))))))
+               (if (looking-at "\\sw\\|\\s_")
+                   (forward-sexp)
+                 (condition-case nil
+                     (progn
+                       (re-search-forward "[][(){} \n]")
+                       (while (lispy--in-string-or-comment-p)
+                         (re-search-forward "[() \n]"))
+                       (backward-char 1))
+                   (error
+                    (message "No further symbols found")
+                    (deactivate-mark)
+                    (goto-char pt)))))))
 
           ((region-active-p)
            (let ((bnd (lispy--bounds-string)))
