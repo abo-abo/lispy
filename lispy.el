@@ -1333,6 +1333,12 @@ When ARG is more than 1, mark ARGth element."
                (cdr bnd)))
            (lispy--mark bnd))
 
+          ((and (lispy-after-string-p "\"")
+                (not (lispy--in-string-or-comment-p)))
+           (set-mark-command nil)
+           (forward-sexp -1)
+           (exchange-point-and-mark))
+
           ((looking-at " *[[({]")
            (if (and (lispy-looking-back "\\sw\\|\\s_")
                     (not (region-active-p)))

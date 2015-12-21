@@ -1247,6 +1247,10 @@ Insert KEY if there's no command."
                    "[\"~string| with spaces\"]"))
   (should (string= (lispy-with-clojure "|{\"string with spaces\"}" (kbd "M-m"))
                    "{\"~string| with spaces\"}"))
+  (should (string= (lispy-with "(defn fname \"string\"| )" (kbd "M-m"))
+                   "(defn fname ~\"string\"| )"))
+  (should (string= (lispy-with "(defn fname \"string\"| [] (symbols in a form))" (kbd "M-m"))
+                   "(defn fname ~\"string\"| [] (symbols in a form))"))
   (should (string= (lispy-with "(:keyword| (form))" (kbd "M-m"))
                    "(~:keyword| (form))")))
 
