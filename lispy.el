@@ -3646,14 +3646,6 @@ When ARG is non-nil, force select the window."
          (lispy-complain
           (format "%s isn't supported currently" major-mode)))))
 
-(defun lispy-arglist ()
-  "Display arglist for `lispy--current-function'."
-  (interactive)
-  (let ((sym (intern-soft (lispy--current-function))))
-    (cond ((fboundp sym)
-           (let ((args (car (help-split-fundoc (documentation sym t) sym))))
-             (message "%s" args))))))
-
 (defvar lispy-bof-last-point 1)
 
 (defun lispy-beginning-of-defun (&optional arg)
