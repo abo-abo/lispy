@@ -1188,7 +1188,10 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "|(foo     \n bar)" (lispy--normalize-1))
                    "|(foo\n bar)"))
   (should (string= (lispy-with "|(require' foo)" (lispy--normalize-1))
-                   "|(require 'foo)")))
+                   "|(require 'foo)"))
+  (should (string= (lispy-with-clojure
+                    "|(expr ~(expr) ~'expr '~(expr) ~'(expr) ~@(expr))" (lispy--normalize-1))
+                   "|(expr ~(expr) ~'expr '~(expr) ~'(expr) ~@(expr))")))
 
 (ert-deftest lispy--sexp-normalize ()
   (should (equal
