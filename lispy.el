@@ -6361,7 +6361,8 @@ The outer delimiters are stripped."
                    (current-column)))
          (was-left (lispy-left-p)))
     (if (or (and (memq major-mode lispy-clojure-modes)
-                 (string-match "\\^" str))
+                 (or (string-match "\\^" str)
+                     (string-match "~" str)))
             (> (length str) 10000))
 
         (lispy-from-left
