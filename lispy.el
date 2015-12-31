@@ -7174,6 +7174,43 @@ When ARG is non-nil, unquote the current string."
     (define-key map (kbd "C-M-n") 'lispy-right)
     map))
 
+(defvar lispy-mode-map-evilcp
+  (let ((map (copy-keymap lispy-mode-map-base)))
+    (define-key map (kbd "M-)") 'lispy-close-round-and-newline)
+    (define-key map (kbd "[") 'lispy-open-square)
+    (define-key map (kbd "]") 'lispy-close-square)
+    (define-key map (kbd "{") 'lispy-open-curly)
+    (define-key map (kbd "}") 'lispy-close-curly)
+    (define-key map (kbd ")") 'lispy-right-nostring)
+    (define-key map (kbd "\"") 'lispy-doublequote)
+    (define-key map (kbd "M-\"") 'lispy-meta-doublequote)
+    (define-key map (kbd "DEL") 'lispy-backward-delete)
+    (define-key map (kbd "M-s") 'lispy-splice)
+    (define-key map (kbd "M-<up>") 'lispy-splice-sexp-killing-backward)
+    (define-key map (kbd "M-<down>") 'lispy-splice-sexp-killing-backward)
+    (define-key map (kbd "M-r") 'lispy-raise-sexp)
+    (define-key map (kbd "M-?") 'lispy-convolute-sexp)
+    (define-key map (kbd "M-S") 'lispy-split)
+    (define-key map (kbd "M-J") 'lispy-join)
+    (define-key map (kbd "{") 'lispy-braces)			
+    (define-key map (kbd "}") 'lispy-brackets)          
+    (define-key map (kbd "]") 'lispy-forward)           
+    (define-key map (kbd "[") 'lispy-backward)          
+    (define-key map (kbd "M-(") 'evil-cp-wrap-next-round)
+    (define-key map (kbd "M-{") 'evil-cp-wrap-next-curly)
+    (define-key map (kbd "M-}") 'evil-cp-wrap-next-square)
+    (define-key map (kbd "<") 'evil-cp-<)               
+    (define-key map (kbd ">") 'evil-cp->)               
+    (define-key map (kbd "y") 'special-lispy-new-copy)  
+    (define-key map (kbd "<C-return>") 'lispy-open-line)
+    (define-key map (kbd "<M-return>") 'lispy-meta-return)
+    (define-key map (kbd "M-k") 'special-lispy-move-up)
+    (define-key map (kbd "M-j") 'special-lispy-move-down)
+    (define-key map (kbd "M-o") 'lispy-string-oneline)
+    (define-key map (kbd "M-p") 'lispy-clone)
+    (define-key map (kbd "M-\"") 'paredit-meta-doublequote)
+    map))
+
 (defvar lispy-mode-map-c-digits
   (let ((map (make-sparse-keymap)))
     (define-key map (kbd "C-1") 'lispy-describe-inline)
@@ -7240,7 +7277,7 @@ When ARG is non-nil, unquote the current string."
 
 (defun lispy-set-key-theme (theme)
   "Set `lispy-mode-map' for according to THEME.
-THEME is a list of choices: 'special, 'lispy, 'paredit, 'c-digits."
+THEME is a list of choices: 'special, 'lispy, 'paredit, 'evilcp, 'c-digits."
   (setq lispy-mode-map
         (make-composed-keymap
          (delq nil
@@ -7248,6 +7285,7 @@ THEME is a list of choices: 'special, 'lispy, 'paredit, 'c-digits."
                 (when (memq 'special theme) lispy-mode-map-special)
                 (when (memq 'lispy theme) lispy-mode-map-lispy)
                 (when (memq 'paredit theme) lispy-mode-map-paredit)
+                (when (memq 'evilcp theme) lispy-mode-map-evilcp)
                 (when (memq 'c-digits theme) lispy-mode-map-c-digits)
                 (when (memq 'oleh theme) lispy-mode-map-oleh)))))
   (setcdr
