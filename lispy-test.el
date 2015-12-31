@@ -1428,7 +1428,9 @@ Insert KEY if there's no command."
   (should (string= (lispy-with-clojure "|[#{}]" "i")
                    "|[#{}]"))
   (should (string= (lispy-with-clojure "|{\\a   \\b}" "i")
-                   "|{\\a \\b}")))
+                   "|{\\a \\b}"))
+  (should (string= (lispy-with-clojure "#?(:cljs   1   :clj 2)|" "i")
+                   "#?(:cljs 1 :clj 2)|")))
 
 (defun lispy-test-normalize ()
   (interactive)
