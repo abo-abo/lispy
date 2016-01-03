@@ -90,6 +90,16 @@ The caller of `lispy--show' might use a substitute e.g. `describe-function'."
   :type 'float
   :group 'lispy)
 
+(defcustom lispy-restore-windows t
+  "If not nil, `lispy-describe-inline' will restore the window configuration.
+An extra help window is used when the description is to long for the inline overlay."
+  :type 'bool
+  :group 'lispy)
+
+(defvar lispy-help-window-register :lispy-help-window-register
+  "The register in which the window configuration is saved before
+  the help window is displayed.")
+
 (defvar lispy-elisp-modes
   '(emacs-lisp-mode lisp-interaction-mode eltex-mode minibuffer-inactive-mode)
   "Modes for which `lispy--eval-elisp' and related functions are appropriate.")
@@ -159,12 +169,27 @@ Return t if at least one was deleted."
           (window-list))
     deleted))
 
+(defun lispy--describe-sym (fn sym)
+  "Describe SYM using FN.
+Saves current window configuration in register `lispy-help-window-register'
+if `lispy-restore-windows' is not nil."
+  (when lispy-restore-windows
+    (window-configuration-to-register lispy-help-window-register)
+    (delete-other-windows))
+  (funcall fn sym)
+  nil)
+
 (defun lispy-describe-inline ()
   "Display documentation for `lispy--current-function' inline."
   (interactive)
   (let ((deleted (lispy--delete-help-windows))
         (sym (lispy--current-function))
         (pt (point)))
+    (when (and deleted
+               lispy-restore-windows
+               (get-register lispy-help-window-register))
+      (jump-to-register lispy-help-window-register)
+      (set-register lispy-help-window-register nil))
     (when (overlayp lispy-overlay)
       (delete-overlay lispy-overlay)
       (setq lispy-overlay nil)
@@ -186,8 +211,7 @@ Return t if at least one was deleted."
                                               "undocumented")))
                                 dc
                               (goto-char pt)
-                              (describe-function sym)
-                              nil))
+                              (lispy--describe-sym 'describe-function sym)))
                            ((boundp sym)
                             (if (lispy--show-fits-p
                                  (setq dc (or (documentation-property
@@ -195,8 +219,7 @@ Return t if at least one was deleted."
                                               "undocumented")))
                                 dc
                               (goto-char pt)
-                              (describe-variable sym)
-                              nil))
+                              (lispy--describe-sym 'describe-variable sym)))
                            (t "unbound"))))
                   ((or (memq major-mode lispy-clojure-modes)
                        (memq major-mode '(cider-repl-mode)))
