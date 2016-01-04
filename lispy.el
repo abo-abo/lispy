@@ -921,7 +921,8 @@ If position isn't special, move to previous or error."
                             (cdr bnd))
              (narrow-to-region (car bnd) (line-end-position))
              (let ((pt (point)))
-               (while (and (lispy-forward 1)
+               (while (and (ignore-errors
+                             (forward-list))
                            (> (point) pt))
                  (setq pt (point)))
                (when (looking-at "[\t ]*;[^\n]*$")
@@ -4926,6 +4927,8 @@ Otherwise return cons of current string, symbol or list bounds."
                 (or (eq (point) (car bnd))
                     (eq (point) (1- (cdr bnd)))))
            bnd)
+          ((looking-at ";;")
+           (lispy--bounds-comment))
           (t
            (let ((res (ignore-errors
                         (bounds-of-thing-at-point
