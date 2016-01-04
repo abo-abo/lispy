@@ -52,6 +52,14 @@
   (remove-hook 'nrepl-connected-hook
                'lispy--clojure-eval-hook-lambda))
 
+(defun lispy--clojure-pretty-string (str)
+  "Return STR fontified in `clojure-mode'."
+  (with-temp-buffer
+    (clojure-mode)
+    (insert str)
+    (font-lock-ensure)
+    (buffer-string)))
+
 (defun lispy--eval-clojure (str &optional add-output lax)
   "Eval STR as Clojure code.
 The result is a string.
@@ -108,13 +116,13 @@ Generate an appropriate def from for that let binding and eval it."
                            (propertize
                             out 'face 'font-lock-string-face)
                            val)
-                 val))
+                 (lispy--clojure-pretty-string val)))
 
               (lispy-do-pprint
                (read res))
 
               (t
-               val))))))
+               (lispy--clojure-pretty-string val)))))))
 
 (defvar cider--debug-mode-response)
 (declare-function cider--debug-mode "ext:cider-debug")
