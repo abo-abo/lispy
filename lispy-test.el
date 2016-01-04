@@ -29,7 +29,7 @@
               (goto-char (point-max))
               (search-backward "|")
               (delete-char 1)
-              (setq current-prefix-arg)
+              (setq current-prefix-arg nil)
               ,@(mapcar (lambda (x)
                           (cond ((equal x '(kbd "C-u"))
                                  `(setq current-prefix-arg (list 4)))

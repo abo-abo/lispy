@@ -4191,7 +4191,7 @@ Second region and buffer are the current ones."
                  nil ediff-regions-linewise nil nil))
       (add-hook 'ediff-after-quit-hook-internal
                 `(lambda ()
-                   (setq ediff-after-quit-hook-internal)
+                   (setq ediff-after-quit-hook-internal nil)
                    (set-window-configuration ,wnd))))))
 
 ;;* Locals: marking
