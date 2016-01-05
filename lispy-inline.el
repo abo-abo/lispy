@@ -198,7 +198,8 @@ Return t if at least one was deleted."
                                   dc
                                 (setq lispy--di-window-config (current-window-configuration))
                                 (goto-char pt)
-                                (describe-function sym)
+                                (save-selected-window
+                                 (describe-function sym))
                                 nil))
                              ((boundp sym)
                               (if (lispy--show-fits-p
@@ -208,7 +209,8 @@ Return t if at least one was deleted."
                                   dc
                                 (setq lispy--di-window-config (current-window-configuration))
                                 (goto-char pt)
-                                (describe-variable sym)
+                                (save-selected-window
+                                  (describe-variable sym))
                                 nil))
                              (t "unbound"))))
                     ((or (memq major-mode lispy-clojure-modes)
