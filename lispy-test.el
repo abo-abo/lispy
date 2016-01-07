@@ -1013,6 +1013,8 @@ Insert KEY if there's no command."
                    ";; comment\n|(defun foo () (bar) (baz))"))
   (should (string= (lispy-with "(progn\n  |;; comment 1\n  ;; comment 2\n  (foo))" "O")
                    "(progn\n  |;; comment 1 comment 2\n  (foo))"))
+  (should (string= (lispy-with "|(defun test ()\n  ;; comment 1\n  ;; comment 2\n  ;; comment 3\n  (foo))" "O")
+                   ";; comment 1\n;; comment 2\n;; comment 3\n|(defun test () (foo))"))
   (should (string= (lispy-with "[1\n 2\n 3\n 4\n 5]|" "O")
                    "[1 2 3 4 5]|")))
 

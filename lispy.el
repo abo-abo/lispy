@@ -2757,7 +2757,7 @@ Comments will be moved ahead of sexp."
             (mapc (lambda (x)
                     (lispy--insert x)
                     (newline))
-                  (nreverse lispy--oneline-comments))
+                  lispy--oneline-comments)
             (lispy--insert expr))
         (let ((no-comment "")
               comments)
