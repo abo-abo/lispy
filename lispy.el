@@ -6370,24 +6370,26 @@ The outer delimiters are stripped."
                    (goto-char (car bnd))
                    (current-column)))
          (was-left (lispy-left-p)))
-    (if (or (and (memq major-mode lispy-clojure-modes)
-                 (or (string-match "\\^" str)
-                     (string-match "~" str)))
-            (> (length str) 10000))
+    (cond ((or (and (memq major-mode lispy-clojure-modes)
+                    (or (string-match "\\^" str)
+                        (string-match "~" str)))
+               (> (length str) 10000))
 
-        (lispy-from-left
-         (indent-sexp))
-      (let* ((max-lisp-eval-depth 10000)
-             (max-specpdl-size 10000)
-             (res (lispy--sexp-normalize
-                   (lispy--read str)))
-             (new-str (lispy--prin1-to-string res offset major-mode)))
-        (unless (string= str new-str)
-          (delete-region (car bnd)
-                         (cdr bnd))
-          (insert new-str)
-          (when was-left
-            (backward-list)))))))
+           (lispy-from-left
+            (indent-sexp)))
+          ((looking-at ";;"))
+          (t
+           (let* ((max-lisp-eval-depth 10000)
+                  (max-specpdl-size 10000)
+                  (res (lispy--sexp-normalize
+                        (lispy--read str)))
+                  (new-str (lispy--prin1-to-string res offset major-mode)))
+             (unless (string= str new-str)
+               (delete-region (car bnd)
+                              (cdr bnd))
+               (insert new-str)
+               (when was-left
+                 (backward-list))))))))
 
 (defun lispy--sexp-trim-leading-newlines (expr comment)
   "Trim leading (ly-raw newline) from EXPR.
