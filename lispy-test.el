@@ -140,6 +140,7 @@ Insert KEY if there's no command."
     (if (or (and cmd (or (looking-at lispy-left)
                          (lispy-looking-back lispy-right)
                          (looking-at lispy-outline)
+                         (looking-at ";;")
                          (region-active-p)
                          (and (bolp) (looking-at ";"))))
             (progn
@@ -1009,7 +1010,9 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "(defun abc (x)\n  \"def.\"\n  (+ x\n     x\n     x))|" "O")
                    "(defun abc (x) \"def.\" (+ x x x))|"))
   (should (string= (lispy-with "|(defun foo ()\n  ;; comment\n  (bar)\n  (baz))" "O")
-                                        ";; comment\n|(defun foo () (bar) (baz))"))
+                   ";; comment\n|(defun foo () (bar) (baz))"))
+  (should (string= (lispy-with "(progn\n  |;; comment 1\n  ;; comment 2\n  (foo))" "O")
+                   "(progn\n  |;; comment 1 comment 2\n  (foo))"))
   (should (string= (lispy-with "[1\n 2\n 3\n 4\n 5]|" "O")
                    "[1 2 3 4 5]|")))
 

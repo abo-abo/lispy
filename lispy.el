@@ -2729,38 +2729,48 @@ Instead keep them, with a newline after each comment."
   "Squeeze current sexp into one line.
 Comments will be moved ahead of sexp."
   (interactive)
-  (unless (or (lispy-left-p)
-              (lispy-right-p))
-    (lispy--out-backward 1))
-  (let* ((bnd (lispy--bounds-dwim))
-         (str (lispy--string-dwim bnd))
-         (from-left (lispy-left-p))
-         expr)
-    (delete-region (car bnd) (cdr bnd))
-    (when (region-active-p)
-      (deactivate-mark))
-    (setq lispy--oneline-comments nil)
-    (if (setq expr (ignore-errors
-                     (lispy--oneline
-                      (lispy--read str))))
-        (progn
-          (mapc (lambda (x)
-                  (lispy--insert x)
-                  (newline))
-                (nreverse lispy--oneline-comments))
-          (lispy--insert expr))
-      (let ((no-comment "")
-            comments)
-        (loop for s in (split-string str "\n" t)
-           do (if (string-match "^ *\\(;\\)" s)
-                  (push (substring s (match-beginning 1)) comments)
-                (setq no-comment (concat no-comment "\n" s))))
-        (when comments
-          (insert (mapconcat #'identity comments "\n") "\n"))
-        (insert (substring
-                 (replace-regexp-in-string "\n *" " " no-comment) 1))))
-    (when from-left
-      (backward-list))))
+  (if (lispy--in-comment-p)
+      (let* ((bnd (lispy--bounds-comment))
+             (str (lispy--string-dwim bnd)))
+        (delete-region (car bnd) (cdr bnd))
+        (insert ";; "
+                (mapconcat #'identity
+                           (split-string str "[ \n]*;;[ \n]*" t)
+                           " "))
+        (beginning-of-line)
+        (back-to-indentation))
+    (unless (or (lispy-left-p)
+                (lispy-right-p))
+      (lispy--out-backward 1))
+    (let* ((bnd (lispy--bounds-dwim))
+           (str (lispy--string-dwim bnd))
+           (from-left (lispy-left-p))
+           expr)
+      (delete-region (car bnd) (cdr bnd))
+      (when (region-active-p)
+        (deactivate-mark))
+      (setq lispy--oneline-comments nil)
+      (if (setq expr (ignore-errors
+                       (lispy--oneline
+                        (lispy--read str))))
+          (progn
+            (mapc (lambda (x)
+                    (lispy--insert x)
+                    (newline))
+                  (nreverse lispy--oneline-comments))
+            (lispy--insert expr))
+        (let ((no-comment "")
+              comments)
+          (loop for s in (split-string str "\n" t)
+             do (if (string-match "^ *\\(;\\)" s)
+                    (push (substring s (match-beginning 1)) comments)
+                  (setq no-comment (concat no-comment "\n" s))))
+          (when comments
+            (insert (mapconcat #'identity comments "\n") "\n"))
+          (insert (substring
+                   (replace-regexp-in-string "\n *" " " no-comment) 1))))
+      (when from-left
+        (backward-list)))))
 
 (defun lispy-multiline (&optional arg)
   "Spread current sexp over multiple lines.
