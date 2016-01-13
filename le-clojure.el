@@ -57,7 +57,7 @@
   (with-temp-buffer
     (clojure-mode)
     (insert str)
-    (font-lock-ensure)
+    (lispy-font-lock-ensure)
     (buffer-string)))
 
 (defun lispy--eval-clojure (str &optional add-output lax)
