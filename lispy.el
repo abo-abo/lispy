@@ -3366,7 +3366,7 @@ Sexp is obtained by exiting list ARG times."
 (defun lispy-goto-symbol (symbol)
   "Go to definition of SYMBOL.
 SYMBOL is a string."
-  (interactive (list (or (thing-at-point 'symbol)
+  (interactive (list (or (thing-at-point 'symbol t)
                          (lispy--current-function))))
   (let (rsymbol)
     (deactivate-mark)
