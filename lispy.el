@@ -699,7 +699,8 @@ Return nil if can't move."
 
         ((lispy-left-p)
          (lispy-forward arg)
-         (let ((pt (point)))
+         (let ((pt (point))
+               (lispy-ignore-whitespace t))
            (if (lispy-forward 1)
                (lispy-backward 1)
              (goto-char pt)
