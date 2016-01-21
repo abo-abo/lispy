@@ -1097,6 +1097,12 @@ Insert KEY if there's no command."
                    "((foo) (bar)\n ;; |\n )"))
   (should (string= (lispy-with "|\n(defun foo ())" ";;")
                    ";;;###autoload\n|(defun foo ())"))
+  (should (string= (lispy-with "(list\n |foo)" ";")
+                   "(list\n |;; foo\n )"))
+  (should (string= (lispy-with "(list\n| foo)" ";")
+                   "(list\n |;; foo\n )"))
+  (should (string= (lispy-with "(list\n |foo\n bar)" ";")
+                   "(list\n |;; foo\n bar)"))
   (should (string= (lispy-with "(defun foo ()|\n  (bar))" ";")
                    "(defun foo ()\n  ;; |\n  (bar))")))
 
