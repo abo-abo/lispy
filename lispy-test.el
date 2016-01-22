@@ -1267,6 +1267,8 @@ Insert KEY if there's no command."
                    "(defn fname ~\"string\"| )"))
   (should (string= (lispy-with "(defn fname \"string\"| [] (symbols in a form))" (kbd "M-m"))
                    "(defn fname ~\"string\"| [] (symbols in a form))"))
+  (should (string= (lispy-with "|(\"a\")" (kbd "M-m"))
+                   "(\"~a|\")"))
   (should (string= (lispy-with "(:keyword| (form))" (kbd "M-m"))
                    "(~:keyword| (form))")))
 
