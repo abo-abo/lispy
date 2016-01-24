@@ -3116,10 +3116,13 @@ When SILENT is non-nil, don't issue messages."
                (insert " "))
               ((lispy-bolp)
                (let ((bnd (lispy--bounds-list)))
-                 (if (<= (cdr bnd) (line-end-position))
-                     (comment-region (point)
-                                     (1- (cdr bnd)))
-                   (comment-region (point) (line-end-position)))
+                 (cond ((null bnd)
+                        (comment-region (point) (line-end-position)))
+                       ((<= (cdr bnd) (line-end-position))
+                        (comment-region (point)
+                                        (1- (cdr bnd))))
+                       (t
+                        (comment-region (point) (line-end-position))))
                  (skip-chars-forward " ")))
               ((setq bnd (save-excursion
                            (and (lispy--out-forward 1)
