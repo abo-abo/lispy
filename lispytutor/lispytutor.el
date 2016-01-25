@@ -183,13 +183,14 @@
 ;;
 ;; All four pairs will wrap the current thing when the region is active.
 ;; All four pairs will wrap the current symbol when prefixed with =C-u=.
+;;
 ;;** Lesson 1.5: LISP EDITING - APPENDING
 ;;
 ;; You can append the current list:
 ;;
-;; - from the front with =2 =
-;; - from the back with =3 =
-;; - from the back with a newline =4 =
+;; - from the front with =2 SPC=
+;; - from the back with =3 SPC=
+;; - from the back with a newline =4 SPC=
 ;;** Lesson 1.6: OUTLINE NAVIGATION
 ;;
 ;; Here, several bindings depend on conditions additional to being in
@@ -207,6 +208,7 @@
 ;; - fold and unfold the outline with =i=,
 ;; - promote the outline with =h=,
 ;; - demote the outline with =l=,
+;; - recenter / undo recenter with =v=,
 ;; - create a new outline with =a=,
 ;; - move to the end of the oneline heading with =t=,
 ;; - narrow to the outline with =N=,
