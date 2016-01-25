@@ -1,4 +1,31 @@
-;;* Welcome to the `lispy-mode' Tutor
+() ;; Welcome to the `lispy-mode' Tutor
+;;
+;; A quick note before we begin:
+;;
+;; `lispy-mode' enables many important short keybindings once your
+;; cursor is placed at the beginning or end of a lisp expression(a
+;; sexp).  The behavior of those keybindings will change depending on
+;; whether you are at the beginning or end of the expression.
+;;
+;; These shortcuts will be explained in more detail later in the
+;; tutorial, but we should go over a few so you can navigate this
+;; document with `lispy-mode'.
+;;
+;; Your cursor should be on the first line at the beginning of an
+;; empty sexp.  If it isn't, you can press =M-<= to get there.
+;;
+;; When the cursor is at the beginning of a sexp:
+;; Pressing =v= will re-position the cursor in the buffer.
+;; Pressing =k= will move to the previous sexp.
+;; Pressing =j= will move to the next sexp.
+;;
+;; Go ahead and press =j= now to move to the PREFACE.
+
+
+
+
+
+() ;; PREFACE
 ;;
 ;; `lispy-mode' is a very powerful way to edit LISP code that has many
 ;; commands, too many to explain in a tutor such as this. This tutor
@@ -23,15 +50,13 @@
 ;; bindings so don't be surprised if you find stuff inconvenient after
 ;; rebinding without thinking it through.
 ;;
-;; Your point should now be at beginning of line, use =C-a= if it isn't.
-;;
-;; Press =j= to move to the next outline downwards.
-;;
-;; You should now be at Lesson 1.1.
-;;
-;; Press =N= to narrow to the current outline.
-;;
-;;** Lesson 1.1: MOVING THE CURSOR
+;; Press =j= to move to Lesson 1.1
+
+
+
+
+
+() ;; Lesson 1.1: MOVING THE CURSOR
 ;;
 ;; You can undo the narrow with `widen' command bound to =C-x nw=.  You
 ;; don't need to do this now, as this lesson is designed with narrowing in
@@ -103,7 +128,12 @@
 ;; and =k= have a guarantee not to leave the parent list.
 ;;
 ;; <--- To end the lesson, move the point here and press =W= (`widen').
-;;** Lesson 1.2: EXITING AND ENTERING SPECIAL
+
+
+
+
+
+() ;; Lesson 1.2: EXITING AND ENTERING SPECIAL
 ;;
 ;; This is actually very straightforward: just press =C-f= or =C-n= or
 ;; =C-p= or anything else that makes the point not special.
@@ -125,7 +155,12 @@
 ;;   region. When the region is already active, try to extend it by
 ;;   one symbol.
 ;;
-;;** Lesson 1.3: LISP EDITING - DELETION
+
+
+
+
+
+() ;; Lesson 1.3: LISP EDITING - DELETION
 ;;
 ;; To delete things, first you need to have a lot of them.
 ;;
@@ -165,7 +200,12 @@
                     ", and "))
   (princ ", and large chu...")
   (princ "\n\nSkip a bit, Brother..."))
-;;** Lesson 1.4: LISP EDITING - INSERTION
+
+
+
+
+
+() ;; Lesson 1.4: LISP EDITING - INSERTION
 ;;
 ;; Basic insertion bindings:
 ;;
@@ -183,15 +223,24 @@
 ;;
 ;; All four pairs will wrap the current thing when the region is active.
 ;; All four pairs will wrap the current symbol when prefixed with =C-u=.
-;;
-;;** Lesson 1.5: LISP EDITING - APPENDING
+
+
+
+
+
+() ;; Lesson 1.5: LISP EDITING - APPENDING
 ;;
 ;; You can append the current list:
 ;;
 ;; - from the front with =2 SPC=
 ;; - from the back with =3 SPC=
 ;; - from the back with a newline =4 SPC=
-;;** Lesson 1.6: OUTLINE NAVIGATION
+
+
+
+
+
+() ;; Lesson 1.6: OUTLINE NAVIGATION
 ;;
 ;; Here, several bindings depend on conditions additional to being in
 ;; special.  Some of them are a superset of others, for example
@@ -225,4 +274,6 @@
 ;; even when not is special. It mirrors the popular `org-mode'
 ;; package, with the difference that it's a two-way toggle instead of
 ;; three-way. You can get the third option with a prefix argument.
-;;** Lesson 1.7: MOVING THE REGION
+() ;; Lesson 1.7: MOVING THE REGION
+;;
+
