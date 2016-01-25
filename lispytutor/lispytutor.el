@@ -3,7 +3,7 @@
 ;; `lispy-mode' is a very powerful way to edit LISP code that has many
 ;; commands, too many to explain in a tutor such as this. This tutor
 ;; is designed to describe enough of the commands that you will be
-;; able to easily use `lispy-mode' as all-purpose LISP editor.
+;; able to easily use `lispy-mode' as an all-purpose LISP editor.
 ;;
 ;; The approximate time required to complete the tutor is 25-30
 ;; minutes, depending upon how much time is spent with
@@ -19,8 +19,8 @@
 ;; commands!
 ;;
 ;; Remember that this is Emacs, you can rebind any binding that you
-;; don't like. However, I've put a lot of thought into the current
-;; bindings: don't be surprised if you find stuff inconvenient after
+;; don't like. However, a lot of thought has been put into the current
+;; bindings so don't be surprised if you find stuff inconvenient after
 ;; rebinding without thinking it through.
 ;;
 ;; Your point should now be at beginning of line, use =C-a= if it isn't.
