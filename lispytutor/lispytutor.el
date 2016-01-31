@@ -93,15 +93,15 @@
 ;;
 ;;   Def. 1: Point - The current cursor position.
 ;;
-;;   Def. 2: Special - A state the point can be in under certain
-;;   conditions.
+;;   Def. 2: Opener - A term for the characters ( and [ and {.
 ;;
-;;   Def. 3: Opener - A term for the characters ( and [ and {.
+;;   Def. 3: Closer - A term for the characters ) and ] and }.
 ;;
-;;   Def. 4: Closer - A term for the characters ) and ] and }.
-;;
-;;   Def. 5: Short Binding - A command called by an uppercase or
+;;   Def. 4: Short Binding - A command called by an uppercase or
 ;;   lowercase letter.
+;;
+;;   Def. 5: Special - A state the point can be in under certain
+;;   conditions.
 ;;
 ;; The point is 'special' when any of the conditions below are true:
 ;;
