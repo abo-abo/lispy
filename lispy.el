@@ -1818,14 +1818,16 @@ to all the functions, while maintaining the parens in a pretty state."
     (delete-region (car bnd) (cdr bnd))
     (insert (replace-regexp-in-string "\n" "\\\\n" str))))
 
-(defun lispy-iedit ()
+(defun lispy-iedit (&optional arg)
   "Wrap around `iedit'."
-  (interactive)
+  (interactive "P")
   (if iedit-mode
       (iedit-mode nil)
     (when (lispy-left-p)
       (forward-char 1))
-    (iedit-mode 0)))
+    (if arg
+        (iedit-mode 0)
+      (iedit-mode))))
 
 ;;* Locals: navigation
 ;;** Occur
