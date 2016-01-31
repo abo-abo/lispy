@@ -88,23 +88,37 @@
 ;;
 ;;** Lesson 1.2: MOVING THE CURSOR
 ;;
-;; You can undo the narrow with `widen' command bound to =C-x nw=.  You
-;; don't need to do this now, as this lesson is designed with narrowing in
-;; place.
+;; Before we learn about moving the cursor, let's get some terminology
+;; out the way:
 ;;
-;; Def. 1: The current cursor position, referred to further as point,
-;; is called special when either of the conditions holds true:
-;;   - the point is before ( or [ or {, referred to further as left paren
-;;   - the point is after ) or ] or }, referred to further as right paren
+;;   Def. 1: Point - The current cursor position.
+;;
+;;   Def. 2: Special - A state the point can be in under certain
+;;   conditions.
+;;
+;;   Def. 3: Opener - A term for the characters ( and [ and {.
+;;
+;;   Def. 4: Closer - A term for the characters ) and ] and }.
+;;
+;;   Def. 5: Short Binding - A command called by an uppercase or
+;;   lowercase letter.
+;;
+;; The point is 'special' when any of the conditions below are true:
+;;
+;;   - the point is on an opener
+;;   - the point is on a closer
 ;;   - the point is at the start of a comment
 ;;   - the region is active
 ;;
-;; When the point is special, lower and upper case letters will call
-;; commands instead of self-inserting (these commands can depend on
-;; the particular variation of special as described above), and the
-;; digit keys will call `digit-argument'.
+;; When the point is special, lowercase and uppercase letters will
+;; call short bindings instead of inserting characters.  The digit
+;; keys will call `digit-argument'.  The behavior of these commands
+;; can depend on the particular variation of special as described
+;; above.
 ;;
-;; ** To test =f=, bound to `lispy-flow' **
+;;*** Exercise 1
+;;
+;; Let's test =f=, which is bound to `lispy-flow'.
 ;;
 ;; 1. Move into the special position: the first char of the line
 ;; indicated below.
@@ -113,7 +127,7 @@
 ;;
 ;; Hold =f= to move repeatedly until you reach "Skip a bit, Brother..."
 (with-output-to-string
-  (defvar weapon "hand granade")
+  (defvar weapon "hand grenade")
   (let ((name "Saint Atilla"))
     (princ (format "And %s raised the %s up on high, saying, " name weapon)))
   (defun cite (str)
@@ -135,7 +149,7 @@
 ;; side of the list. Press it a few times to get the feeling.
 ;;
 ;; 2. Making sure that you are at the right paren, press and hold =f= until
-;; you reach "hand granade".
+;; you reach "hand grenade".
 ;;
 ;; 3. Press =d= and hold =f=, making circles around the expressions until
 ;; you're comfortable.
@@ -153,9 +167,12 @@
 ;; reached the last expression of the parent list. The typical follow-up is
 ;; on =h= followed by either =j= or =k=.
 ;;
+;; When on an outline, =j= and =k= are equivalent to =J= and =K=, respectively.
+;;
 ;; Use your knowledge of =f= and =d= to setup the point in various places
-;; and see what the arrow keys do there. But it's actually very simple: =j=
-;; and =k= have a guarantee not to leave the parent list.
+;; and see what the arrow keys do there.  Remember, the arrow keys will
+;; behave differently depending on the side of the expression your cursor
+;; is at.
 ;;
 ;; <--- To end the lesson, move the point here and press =W= (`widen').
 ;;** Lesson 1.3: EXITING AND ENTERING SPECIAL
