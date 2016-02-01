@@ -177,25 +177,114 @@
 ;; <--- To end the lesson, move the point here and press =W= (`widen').
 ;;** Lesson 1.3: EXITING AND ENTERING SPECIAL
 ;;
-;; This is actually very straightforward: just press =C-f= or =C-n= or
-;; =C-p= or anything else that makes the point not special.
+;; There are a few ways to exit special.
+;; If you're on an opener, closer, or comment character, just press
+;; =C-f= or =C-n= or =C-p= or anything that will move your cursor away
+;; from the special condition character.
 ;;
-;; The bindings that only work in special are futher referred to as
-;; local. All the rest are global - they work everywhere, regardless
-;; of the point. Here are the global bindings that are particularly
-;; useful for entering special.
+;;*** Exercise 1:
 ;;
-;; - =[= calls `lispy-backward': when not in special, move to the left
-;;   paren of the containing list. Otherwise, behave similar to
-;;   `backward-list'.
+;; Let's quickly try exiting special.
 ;;
-;; - =]= calls `lispy-forward': when not in special, move to the right
-;;   paren of the containing list. Otherwise, behavir similar to
-;;   `forward-list'.
+;; Hold =f= to move repeatedly until you reach "Skip a bit, Brother..."
+(with-output-to-string
+  (defvar weapon "hand grenade")
+  (let ((name "Saint Atilla"))
+    (princ (format "And %s raised the %s up on high, saying, " name weapon)))
+  (defun cite (str)
+    (format "\"%s\"" str))
+  (princ (cite (concat
+                "O Lord, bless this thy "
+                weapon
+                ", that with it thou mayst blow thine "
+                "enemies to tiny bits, in thy mercy.")))
+  (princ " And the Lord did grin. ")
+  (princ "And the people did feast upon ")
+  (princ (mapconcat (lambda (x) (format "the %ss" x))
+                    '("lamb" "sloth" "carp" "anchovie" "orangutan"
+                      "breakfast cereal" "fruit bat")
+                    ", and "))
+  (princ ", and large chu...")
+  (princ "\n\nSkip a bit, Brother..."))
+;; Now press =C-f= to exit special mode.
+;; You'll notice that pressing =f= now just self-inserts the character.
 ;;
-;; - =M-m= calls `lispy-mark-symbol': mark the current symbol with the
-;;   region. When the region is already active, try to extend it by
-;;   one symbol.
+;; Proceed to the next outline, LOCAL AND GLOBAL BINDINGS.
+;;
+;;*** LOCAL AND GLOBAL BINDINGS
+;;
+;; You've seen how lispy's short bindings provide a concise way to
+;; navigate lisp code, but they can only be used when the point is
+;; special.  These bindings are referred to as 'local'.
+;;
+;; Def. 6: Local - Bindings that only work in special.
+;;
+;; Lispy provides other bindings that can be used anytime when `lispy-mode'
+;; is active.  These bindings are referred to as 'global'.
+;;
+;; Def. 7: Global - Bindings that work anywhere, regardless of the
+;; point location.
+;;
+;; Proceed to the next exercise.
+;;
+;;**** Exercise 2:
+;;
+;; Let's experiment with some lispy globals.  Below are some global
+;; bindings that are particularly useful for entering special:
+;;
+;; - =[= calls `lispy-backward': when not in special, this command moves to the
+;;   left paren of the containing list. Otherwise, its behavior is similar to
+;;   the Emacs command `backward-list'.
+;;
+;; - =]= calls `lispy-forward': when not in special, this command moves to the
+;;   right paren of the containing list. Otherwise, its behavior is similar to
+;;   the Emacs command `forward-list'.
+;;
+;; - =M-m= calls `lispy-mark-symbol': This command marks the current symbol with
+;;   the region. When the region is already active, try to extend it by one
+;;   symbol.
+;;
+;; Hold =f= to move repeatedly until you reach "Skip a bit, Brother..."
+(with-output-to-string
+  (defvar weapon "hand grenade")
+  (let ((name "Saint Atilla"))
+    (princ (format "And %s raised the %s up on high, saying, " name weapon)))
+  (defun cite (str)
+    (format "\"%s\"" str))
+  (princ (cite (concat
+                "O Lord, bless this thy "
+                weapon
+                ", that with it thou mayst blow thine "
+                "enemies to tiny bits, in thy mercy.")))
+  (princ " And the Lord did grin. ")
+  (princ "And the people did feast upon ")
+  (princ (mapconcat (lambda (x) (format "the %ss" x))
+                       '("lamb" "sloth" "carp" "anchovie" "orangutan"
+                         "breakfast cereal" "fruit bat")
+                       ", and "))
+  (princ ", and large chu...")
+  (princ "\n\nSkip a bit, Brother..."))
+;; Press =C-f= to exit special and move forward one character.
+;; Edit the text in the string to your liking and then press =[= twice.
+;;
+;; Your point should be on the previous expression and it should be special.
+;; Verify by moving around with =j= and =k=.
+;;
+;; Now navigate your point so you're on the expression with ", and large chu..."
+;; Press =C-f= again to exit special.
+;; Edit the string to your liking and then press =]= twice.
+;;
+;; Your point should now be at the end of the last expression.
+;;
+;; Take some time to experiment with =[= and =]= and the commands you've learned
+;; previously.
+;;
+;; When you're finished, place your cursor back on "Skip a bit, Brother...".
+;; Press =C-f= to exit special.
+;; Press =M-m=.  This should mark the current symbol `princ'.
+;;
+;; Marking will be covered in more detail later, but for now, take some time to
+;; experiment with =M-m= then proceed to Lesson 1.3.
 ;;
 ;;** Lesson 1.4: LISP EDITING - DELETION
 ;;
