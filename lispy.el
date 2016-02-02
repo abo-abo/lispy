@@ -1170,7 +1170,7 @@ Otherwise (`backward-delete-char-untabify' ARG)."
                (progn
                  (delete-region (1- (match-beginning 0))
                                 (match-end 0))
-                 (indent-for-tab-command))
+                 (lispy--indent-for-tab))
              (backward-delete-char-untabify arg)))
 
           ((lispy-looking-back "\\\\.")
@@ -1204,7 +1204,7 @@ Otherwise (`backward-delete-char-untabify' ARG)."
                     (lispy-right-p)))
                  (delete-region (point) pt)
                (goto-char pt)
-               (indent-for-tab-command))))
+               (lispy--indent-for-tab))))
 
           ((and (lispy-looking-back lispy-left)
                 (not (lispy-looking-back "[\\?].")))
@@ -1219,7 +1219,7 @@ Otherwise (`backward-delete-char-untabify' ARG)."
              (lispy--delete-whitespace-backward)
              (unless (looking-at " ")
                (insert " "))
-             (indent-for-tab-command)))
+             (lispy--indent-for-tab)))
 
           ((and (lispy-after-string-p "\" ")
                 (not (looking-at lispy-right)))
@@ -1229,7 +1229,7 @@ Otherwise (`backward-delete-char-untabify' ARG)."
            (lispy--delete-whitespace-backward)
            (unless (lispy-looking-back lispy-left)
              (just-one-space))
-           (indent-for-tab-command))
+           (lispy--indent-for-tab))
 
           ((lispy-bolp)
            (delete-region
@@ -1250,7 +1250,7 @@ Otherwise (`backward-delete-char-untabify' ARG)."
                            (looking-at lispy-right)
                            (lispy-looking-back lispy-left))
                  (just-one-space)))
-             (indent-for-tab-command)))
+             (lispy--indent-for-tab)))
 
           ((lispy-looking-back "[^ ]  +")
            (delete-region (+ (match-beginning 0) 2) (point)))
@@ -1465,7 +1465,7 @@ When this function is called:
               (backward-char))
             (backward-char))
            ((lispy-bolp)
-            (indent-for-tab-command)
+            (lispy--indent-for-tab)
             (insert ,left)
             (unless (eolp)
               (just-one-space))
@@ -1729,7 +1729,7 @@ When ARG is nagative, add them above instead"
         (newline arg)
       (forward-list -1)
       (newline (- arg))
-      (indent-for-tab-command))))
+      (lispy--indent-for-tab))))
 
 (defvar-local lispy-outline-header ";;"
   "Store the buffer-local outline start.")
@@ -2656,7 +2656,7 @@ When the sexp is top level, insert an additional newline."
                       (save-excursion
                         (newline)
                         (insert str)
-                        (indent-for-tab-command)))))
+                        (lispy--indent-for-tab)))))
                (if (= (point) (region-end))
                    (doit)
                  (exchange-point-and-mark)
@@ -4630,7 +4630,7 @@ When ARG is given, paste at that place in the current list."
         ((lispy-left-p)
          (newline-and-indent)
          (forward-line -1)
-         (indent-for-tab-command)
+         (lispy--indent-for-tab)
          (yank))
         (t
          (yank))))
