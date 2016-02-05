@@ -6163,7 +6163,7 @@ ACTION is called for the selected candidate."
     (cond ((eq lispy-completion-method 'helm)
            (require 'helm-help)
            ;; allows restriction with space
-           (require 'helm-match-plugin)
+           (require 'helm-multi-match)
            (let (helm-update-blacklist-regexps
                  helm-candidate-number-limit)
              (helm :sources
