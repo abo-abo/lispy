@@ -2069,6 +2069,9 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "(dynamic-wind in |body out)"
                                (kbd "M-r"))
                    "|body"))
+  (should (string= (lispy-with "(foo bar\n     (baz 1 2 3\n          (+ 2 3)|))"
+                               (kbd "M-r"))
+                   "(foo bar\n     (+ 2 3)|)"))
   (lispy-set-key-theme '(special lispy c-digits oleh)))
 
 (ert-deftest lispy-paredit-convolute-sexp ()

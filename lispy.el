@@ -7093,7 +7093,8 @@ When ARG is non-nil, unquote the current string."
 (defun lispy-raise-sexp ()
   "Forward to `lispy-raise'."
   (interactive)
-  (if (lispy-left-p)
+  (if (or (lispy-left-p)
+          (lispy-right-p))
       (lispy-raise 1)
     (lispy-mark-symbol)
     (lispy-different)
