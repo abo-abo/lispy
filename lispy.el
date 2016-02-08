@@ -3124,7 +3124,14 @@ When SILENT is non-nil, don't issue messages."
                         (comment-region (point)
                                         (1- (cdr bnd))))
                        (t
-                        (comment-region (point) (line-end-position))))
+                        (let ((beg (point))
+                              (ln-start (line-number-at-pos)))
+                          (forward-sexp)
+                          (while (and (= (line-number-at-pos) ln-start)
+                                      (not (eolp)))
+                            (forward-sexp))
+                          (comment-region beg (point))
+                          (goto-char beg))))
                  (skip-chars-forward " ")))
               ((setq bnd (save-excursion
                            (and (lispy--out-forward 1)
