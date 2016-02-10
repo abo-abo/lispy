@@ -7087,6 +7087,16 @@ When ARG is non-nil, unquote the current string."
   (interactive)
   (lispy-parens 2))
 
+(defun lispy-wrap-brackets ()
+  "Forward to `lispy-brackets'"
+  (interactive)
+  (lispy-brackets 2))
+
+(defun lispy-wrap-braces ()
+  "Forward to `lispy-braces'"
+  (interactive)
+  (lispy-braces 2))
+
 (defun lispy-splice-sexp-killing-backward ()
   "Forward to `lispy-raise'."
   (interactive)
