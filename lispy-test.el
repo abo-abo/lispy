@@ -1619,6 +1619,9 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "(invent 'wheel|)"
                                (lispy-alt-line))
                    "(invent 'wheel\n        |)"))
+  (should (string= (lispy-with "(message |\"hello %s\" name)"
+                               (lispy-alt-line))
+                   "(message \"hello %s\" name\n         |)"))
   (should (string= (lispy-with "(invent 'wheel|)"
                                (lispy-alt-line 2))
                    "(invent 'wheel)\n|"))
