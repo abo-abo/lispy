@@ -1308,10 +1308,9 @@ Insert KEY if there's no command."
                                              (ly-raw newline)
                                              (lambda (x))))))))
   (should (equal
-           (lispy--prin1-to-string
-            (lispy--read "(fn* [p1__7041#] (+ 1 p1__7041#))")
-            0 'clojure-mode)
-           "(fn* [p1__7041#] (+ 1 p1__7041#))"))
+           (lispy-with-clojure
+            "|(fn* [p1__7041#] (+ 1 p1__7041#))" "i")
+           "|(fn* [p1__7041#] (+ 1 p1__7041#))"))
   (should (equal
            (lispy--prin1-to-string
             (lispy--read "#<marker (moves after insertion) at 280 in *Customize Group: Lispy Faces*>")

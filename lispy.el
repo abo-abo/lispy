@@ -5719,14 +5719,15 @@ Ignore the matches in strings and comments."
                     (insert "\")")))
                 ;; ——— cons cell syntax ———————
                 (lispy--replace-regexp-in-code " \\. " " (ly-raw dot) ")
-                ;; Clojure # in the middle of the symbol
+                ;; Clojure # in a symbol
                 (goto-char (point-min))
-                (while (re-search-forward "\\(?:\\sw\\|\\s_\\)#" nil t)
+                (while (re-search-forward "\\_<\\(?:\\sw\\|\\s_\\)+\\_>" nil t)
                   (unless (lispy--in-string-p)
-                    (let* ((bnd (lispy--bounds-dwim))
-                           (str (lispy--string-dwim bnd)))
-                      (delete-region (car bnd) (cdr bnd))
-                      (insert (format "(ly-raw symbol %S)" str)))))
+                    (when (cl-position ?# (match-string 0))
+                      (let* ((bnd (lispy--bounds-dwim))
+                             (str (lispy--string-dwim bnd)))
+                        (delete-region (car bnd) (cdr bnd))
+                        (insert (format "(ly-raw symbol %S)" str))))))
                 ;; ———  ———————————————————————
                 (buffer-substring-no-properties
                  (point-min)
