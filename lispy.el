@@ -2476,7 +2476,8 @@ Also works from inside the list."
 (defun lispy--move-up-special (arg)
   "Move current expression up ARG times.  Don't exit parent list."
   (let ((at-start (lispy--leftp)))
-    (unless at-start (lispy-different))
+    (unless (or at-start (looking-at lispy-outline))
+      (lispy-different))
     (cond ((region-active-p)
            (if (= arg 1)
                (let ((pt (point))
@@ -2514,8 +2515,19 @@ Also works from inside the list."
                   bnd1 (lispy--bounds-dwim))))
                (exchange-point-and-mark))))
           ((looking-at lispy-outline)
-           (let ((org-outline-regexp outline-regexp))
-             (org-metaup arg)))
+           (lispy-dotimes arg
+             (let ((bnd1 (lispy--bounds-outline))
+                   (bnd2 (progn
+                           (backward-char)
+                           (lispy--bounds-outline))))
+               (if (or (equal bnd1 bnd2)
+                       (and (eq (car bnd2) (point-min))
+                            (not (save-excursion
+                                   (goto-char (point-min))
+                                   (looking-at lispy-outline)))))
+                   (goto-char (car bnd1))
+                 (lispy--swap-regions bnd1 bnd2)
+                 (goto-char (car bnd2))))))
           (t
            (lispy--mark (lispy--bounds-dwim))
            (lispy-move-up arg)
@@ -2526,7 +2538,8 @@ Also works from inside the list."
 (defun lispy--move-down-special (arg)
   "Move current expression down ARG times.  Don't exit parent list."
   (let ((at-start (lispy--leftp)))
-    (unless at-start (lispy-different))
+    (unless (or at-start (looking-at lispy-outline))
+      (lispy-different))
     (cond ((region-active-p)
            (if (= arg 1)
                (let ((pt (point))
@@ -2561,14 +2574,16 @@ Also works from inside the list."
                   bnd1 (lispy--bounds-dwim))))
                (lispy-different))))
           ((looking-at lispy-outline)
-           (save-restriction
-             (narrow-to-region (point) (point-max))
-             (let ((org-outline-regexp outline-regexp))
-               (org-metadown arg))
-             (save-excursion
-               (goto-char (point-min))
-               (when (looking-at "\n")
-                 (delete-char 1)))))
+           (lispy-dotimes arg
+             (let ((bnd1 (lispy--bounds-outline))
+                   bnd2)
+               (goto-char (1+ (cdr bnd1)))
+               (if (and (setq bnd2 (lispy--bounds-outline))
+                        (not (equal bnd1 bnd2)))
+                   (progn
+                     (lispy--swap-regions bnd1 bnd2)
+                     (forward-char (1+ (- (cdr bnd2) (car bnd2)))))
+                 (goto-char (car bnd1))))))
           (t
            (lispy--mark (lispy--bounds-dwim))
            (lispy-move-down arg)
@@ -5055,6 +5070,27 @@ First, try to return `lispy--bounds-string'."
                (goto-char pt)
                (end-of-line)
                (cons beg (point))))))))
+
+(defun lispy--bounds-outline ()
+  "Return bounds of current outline."
+  (cons (lispy--outline-beg)
+        (lispy--outline-end)))
+
+(defun lispy--outline-beg ()
+  "Return the current outline start."
+  (save-excursion
+    (condition-case nil
+        (progn
+          (outline-back-to-heading)
+          (point))
+      (error (point-min)))))
+
+(defun lispy--outline-end ()
+  "Return the current outline end."
+  (save-excursion
+    (if (outline-next-heading)
+        (1- (point))
+      (point-max))))
 
 (defun lispy--string-dwim (&optional bounds)
   "Return the string that corresponds to BOUNDS.

@@ -938,10 +938,12 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "('(b) '(a)| '(c))" "w")
                    "('(a)| '(b) '(c))"))
   (unless (version<= emacs-version "24.3.1")
-    (should (string= (lispy-with ";;; b\n(bar)\n;;; c\n(baz)\n|;;; a\n(foo)\n" "w")
-                     ";;; b\n(bar)\n|;;; a\n(foo)\n;;; c\n(baz)\n"))
-    (should (string= (lispy-with ";;; b\n(bar)\n;;; c\n(baz)\n|;;; a\n(foo)\n" "2w")
-                     "|;;; a\n(foo)\n;;; b\n(bar)\n;;; c\n(baz)\n")))
+
+    (should (string= (lispy-with ";;; b\n(bar)\n;;; c\n(baz)\n|;;; a\n(foo)" "w")
+                     ";;; b\n(bar)\n|;;; a\n(foo)\n;;; c\n(baz)"))
+    (should (string= (let ((lispy-outline ";;;"))
+                       (lispy-with ";;; b\n(bar)\n;;; c\n(baz)\n|;;; a\n(foo)" "2w"))
+                     "|;;; a\n(foo)\n;;; b\n(bar)\n;;; c\n(baz)")))
   (should (string= (lispy-with "(sexp (one)\n      ;; comment\n      |(two))" "w")
                    "(sexp (one)\n      |(two)\n      ;; comment\n      )")))
 
@@ -982,7 +984,7 @@ Insert KEY if there's no command."
     (should (string= (lispy-with "|;;; a\n(foo)\n;;; b\n(bar)\n;;; c\n(baz)" "s")
                      ";;; b\n(bar)\n|;;; a\n(foo)\n;;; c\n(baz)"))
     (should (string= (lispy-with "|;;; a\n(foo)\n;;; b\n(bar)\n;;; c\n(baz)" "2s")
-                     ";;; b\n(bar)\n;;; c\n(baz)\n|;;; a\n(foo)\n"))))
+                     ";;; b\n(bar)\n;;; c\n(baz)\n|;;; a\n(foo)"))))
 
 (ert-deftest lispy-clone ()
   (should (string= (lispy-with "(foo)|" "c")
