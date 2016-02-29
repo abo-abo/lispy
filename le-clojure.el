@@ -26,8 +26,8 @@
 (declare-function nrepl-sync-request:eval "nrepl-client")
 (declare-function nrepl-dict-get "nrepl-client")
 (declare-function nrepl-send-sync-request "nrepl-client")
-(declare-function nrepl-current-session "nrepl-client")
-(declare-function nrepl-current-connection-buffer "nrepl-client")
+(declare-function cider-current-session "cider-client")
+(declare-function cider-default-connection "cider-client")
 (declare-function cider-current-ns "cider-interaction")
 (declare-function cider-find-file "cider-interaction")
 
@@ -70,7 +70,7 @@ When LAX is non-nil, expect STR to be two sexps from a let binding.
 Generate an appropriate def from for that let binding and eval it."
   (require 'cider)
   (let (deactivate-mark)
-    (if (null (nrepl-current-connection-buffer t))
+    (if (null (cider-default-connection t))
         (progn
           (setq lispy--clojure-hook-lambda
                 `(lambda ()
@@ -270,7 +270,7 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
   (let* ((dict (nrepl-send-sync-request
                 (list
                  "op" "info"
-                 "session" (nrepl-current-session)
+                 "session" (cider-current-session)
                  "ns" (cider-current-ns)
                  "symbol" symbol)
                 (cider-current-connection)))
