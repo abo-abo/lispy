@@ -292,6 +292,23 @@ using those packages."
   "Store the old values of `outline-regexp' and `outline-level'.
 `lispy-mode' overrides those while it's on.")
 
+(defcustom lispy-safe-delete nil
+  "When non-nil, `lispy-delete' keeps delimiters balanced for an active region."
+  :group 'lispy
+  :type 'boolean)
+
+(defcustom lispy-safe-copy nil
+  "When non-nil, `lispy-new-copy' won't copy unbalanced delimiters in a region."
+  :group 'lispy
+  :type 'boolean)
+
+(defcustom lispy-safe-threshold 1500
+  "The max size of an active region that lispy will try to keep balanced.
+This only applies when `lispy-safe-delete' and/or `lispy-safe-copy' are
+non-nil."
+  :group 'lispy
+  :type 'number)
+
 ;;;###autoload
 (define-minor-mode lispy-mode
   "Minor mode for navigating and editing LISP dialects.
@@ -1054,8 +1071,14 @@ If position isn't special, move to previous or error."
            (lispy-delete-backward (- arg)))
 
           ((region-active-p)
-           (delete-region
-            (region-beginning) (region-end)))
+           (if lispy-safe-delete
+               (let ((safe-regions (lispy--find-safe-regions
+                                    (region-beginning)
+                                    (region-end))))
+                 (dolist (safe-region safe-regions)
+                   (delete-region (car safe-region) (cdr safe-region))))
+             (delete-region
+              (region-beginning) (region-end))))
 
           ((setq bnd (lispy--bounds-string))
            (cond ((eq (1+ (point)) (cdr bnd))
@@ -1417,7 +1440,17 @@ When ARG is more than 1, mark ARGth element."
 (defun lispy-new-copy ()
   "Copy marked region or sexp to kill ring."
   (interactive)
-  (let ((str (lispy--string-dwim)))
+  (let ((str
+         (if (and (region-active-p)
+                  lispy-safe-copy)
+             (let ((safe-regions (lispy--find-safe-regions
+                                  (region-beginning)
+                                  (region-end)))
+                   safe-strings)
+               (dolist (safe-region safe-regions)
+                 (push (lispy--string-dwim safe-region) safe-strings))
+               (apply #'concat safe-strings))
+           (lispy--string-dwim))))
     (unless (equal str (ignore-errors
                          (current-kill 0)))
       (kill-new str))))
@@ -6875,6 +6908,46 @@ Return an appropriate `setq' expression when in `let', `dolist',
                        (list 'setq x nil))
                      (delq '&key (delq '&optional (delq '&rest tsexp))))))))
           (t tsexp))))))
+
+(defun lispy--find-unmatched-delimiters (beg end)
+  "Return the positions of unmatched delimiters between BEG and END."
+  (save-excursion
+    (goto-char beg)
+    (let ((lispy-delimiters (concat (substring lispy-right 0 -1)
+                                    "\""
+                                    (substring lispy-left 1)))
+          left-positions
+          right-positions)
+      (while (re-search-forward lispy-delimiters end t)
+        (unless (looking-back "\\\\." (- (point) 2))
+          (let* ((match-beginning (match-beginning 0))
+                 (matched-delimiter (buffer-substring-no-properties
+                                     match-beginning
+                                     (match-end 0))))
+            (if (or (string-match lispy-left matched-delimiter)
+                    (and (string= matched-delimiter "\"")
+                         (lispy--in-string-p)))
+                (push match-beginning left-positions)
+              (if (> (length left-positions) 0)
+                  (pop left-positions)
+                (push match-beginning right-positions))))))
+      (nreverse (append left-positions right-positions)))))
+
+(defun lispy--find-safe-regions (beg end)
+  "Return a list of safe regions between BEG and END.
+The regions are returned in reverse order so that they can be easily deleted
+without recalculation.  When the region is a greater size than
+`lispy-safe-threshold', it will be returned as-is without checks."
+  (if (> (- end beg) lispy-safe-threshold)
+      (list (cons beg end))
+    (let ((unmatched-delimiters (lispy--find-unmatched-delimiters beg end))
+          (maybe-safe-pos beg)
+          safe-positions)
+      (dolist (unsafe-pos unmatched-delimiters)
+        (unless (= maybe-safe-pos unsafe-pos)
+          (push (cons maybe-safe-pos unsafe-pos) safe-positions))
+        (setq maybe-safe-pos (1+ unsafe-pos)))
+      (push (cons maybe-safe-pos end) safe-positions))))
 
 ;;* Key definitions
 (defvar ac-trigger-commands '(self-insert-command))
