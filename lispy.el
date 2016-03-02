@@ -3821,6 +3821,23 @@ When ARG is non-nil, force select the window."
 
 (defvar lispy-bof-last-point 1)
 
+(defun lispy-pam-store (sym)
+  "Store point and mark to SYM."
+  (if (region-active-p)
+      (progn
+        (set sym (cons (point) (mark)))
+        (deactivate-mark))
+    (set sym (point))))
+
+(defun lispy-pam-restore (sym)
+  "Restore point and mark from FROM."
+  (let ((val (symbol-value sym)))
+    (if (consp val)
+        (progn
+          (goto-char (car val))
+          (set-mark (cdr val)))
+      (goto-char val))))
+
 (defun lispy-beginning-of-defun (&optional arg)
   "Forward to `beginning-of-defun' with ARG.  Deactivate region.
 When called twice in a row, restore point and mark."
@@ -3829,20 +3846,11 @@ When called twice in a row, restore point and mark."
               (memq last-command
                     '(lispy-beginning-of-defun
                       special-lispy-beginning-of-defun)))
-         (if (consp lispy-bof-last-point)
-             (progn
-               (goto-char (car lispy-bof-last-point))
-               (set-mark (cdr lispy-bof-last-point)))
-           (goto-char lispy-bof-last-point)))
+         (lispy-pam-restore 'lispy-bof-last-point))
         ((looking-at "^(")
          (setq lispy-bof-last-point (point)))
         (t
-         (if (region-active-p)
-             (progn
-               (setq lispy-bof-last-point
-                     (cons (point) (mark)))
-               (deactivate-mark))
-           (setq lispy-bof-last-point (point)))
+         (lispy-pam-store 'lispy-bof-last-point)
          (beginning-of-defun arg))))
 
 ;;* Locals: avy-jump
