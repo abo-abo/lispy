@@ -65,7 +65,7 @@
   :group 'lispy-faces)
 
 (defface lispy-face-opt-nosel
-  '((t (:inherit lispy-face-hint :foreground "#666666" :slant italic)))
+  '((t (:inherit lispy-face-hint :slant italic)))
   "Face for optional unselected args."
   :group 'lispy-faces)
 
