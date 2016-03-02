@@ -1707,6 +1707,7 @@ When the region is active, toggle a ~ at the start of the region."
     (insert "#")))
 
 (declare-function cider-eval-print-last-sexp "ext:cider-interaction")
+(declare-function ielm-return "ielm")
 (defun lispy-newline-and-indent ()
   "Insert newline."
   (interactive)
@@ -3440,72 +3441,70 @@ Sexp is obtained by exiting list ARG times."
   (eval-after-load 'etags
     '(add-to-list 'byte-compile-not-obsolete-vars 'find-tag-marker-ring)))
 
-(declare-function slime-edit-definition "ext:slime")
-(declare-function lispy--clojure-resolve "le-clojure")
-(declare-function lispy--clojure-jump "le-clojure")
-(declare-function lispy--clojure-debug-step-in "le-clojure")
-(declare-function geiser-edit-symbol "geiser-edit")
+(defvar lispy-goto-symbol-alist
+  '((clojure-mode lispy-goto-symbol-clojure le-clojure)
+    (scheme-mode lispy-goto-symbol-scheme le-scheme)
+    (lisp-mode slime-edit-definition slime)
+    (python-mode lispy-goto-symbol-python le-python))
+  "An alist of `major-mode' to function for jumping to symbol.
+
+Each element is: (MAJOR-MODE FUNC &optional LIB).
+
+FUNC should take a string argument - a symbol to jump to.
+When LIB is non-nil, `require' it prior to calling FUNC.")
+
 (defun lispy-goto-symbol (symbol)
   "Go to definition of SYMBOL.
 SYMBOL is a string."
   (interactive (list (or (thing-at-point 'symbol t)
                          (lispy--current-function))))
-  (let (rsymbol)
-    (deactivate-mark)
-    (ring-insert find-tag-marker-ring (point-marker))
-    (cond ((and (memq major-mode lispy-elisp-modes)
-                (setq symbol (intern-soft symbol)))
-           (cond ((and current-prefix-arg (boundp symbol))
-                  (find-variable symbol))
-                 ((fboundp symbol)
-                  (condition-case nil
-                      (find-function symbol)
-                    (error
-                     (goto-char (point-min))
-                     (if (re-search-forward (format "^(def.*%S" symbol) nil t)
-                         (move-beginning-of-line 1)
-                       (lispy-complain
-                        (format "Don't know where `%S' is defined" symbol))
-                       (pop-tag-mark)))))
-                 ((boundp symbol)
-                  (find-variable symbol))
-                 ((or (featurep symbol)
-                      (locate-library
-                       (prin1-to-string symbol)))
-                  (find-library (prin1-to-string symbol)))
-                 ((setq rsymbol
-                        (cl-find-if
-                         `(lambda (x)
-                            (equal (car x)
-                                   ,(symbol-name symbol)))
-                         (lispy--fetch-this-file-tags)))
-                  (goto-char (aref (nth 4 rsymbol) 0)))
-                 (t
-                  (error "Couldn't find definition of %s"
-                         symbol))))
-          ((eq major-mode 'clojure-mode)
-           (require 'le-clojure)
-           (setq rsymbol (lispy--clojure-resolve symbol))
-           (cond ((stringp rsymbol)
-                  (lispy--clojure-jump rsymbol))
-                 ((eq rsymbol 'special)
-                  (error "Can't jump to '%s because it's special" symbol))
-                 ((eq rsymbol 'keyword)
-                  (error "Can't jump to keywords"))
-                 ((and (listp rsymbol)
-                       (eq (car rsymbol) 'variable))
-                  (error "Can't jump to Java variables"))
-                 (t
-                  (error "Could't resolve '%s" symbol)))
-           (lispy--back-to-paren))
-          ((eq major-mode 'lisp-mode)
-           (require 'slime)
-           (slime-edit-definition symbol))
-          ((eq major-mode 'scheme-mode)
-           (require 'geiser)
-           (geiser-edit-symbol (make-symbol symbol)))))
+  (deactivate-mark)
+  (ring-insert find-tag-marker-ring (point-marker))
+  (if (memq major-mode lispy-elisp-modes)
+      (lispy-goto-symbol-elisp symbol)
+    (let ((handler (cdr (assoc major-mode lispy-goto-symbol-alist)))
+          lib)
+      (if (null handler)
+          (error "no handler for %S in `lispy-goto-symbol-alist'" major-mode)
+        (when (setq lib (cadr handler))
+          (require lib))
+        (funcall (car handler) symbol))))
   ;; in case it's hidden in an outline
   (lispy--ensure-visible))
+
+(defun lispy-goto-symbol-elisp (symbol)
+  "Goto definition of an Elisp SYMBOL."
+  (let (rsymbol)
+    (if (null (setq symbol (intern-soft symbol)))
+        (error "symbol not interned")
+      (cond ((and current-prefix-arg (boundp symbol))
+             (find-variable symbol))
+            ((fboundp symbol)
+             (condition-case nil
+                 (find-function symbol)
+               (error
+                (goto-char (point-min))
+                (if (re-search-forward (format "^(def.*%S" symbol) nil t)
+                    (move-beginning-of-line 1)
+                  (lispy-complain
+                   (format "Don't know where `%S' is defined" symbol))
+                  (pop-tag-mark)))))
+            ((boundp symbol)
+             (find-variable symbol))
+            ((or (featurep symbol)
+                 (locate-library
+                  (prin1-to-string symbol)))
+             (find-library (prin1-to-string symbol)))
+            ((setq rsymbol
+                   (cl-find-if
+                    `(lambda (x)
+                       (equal (car x)
+                              ,(symbol-name symbol)))
+                    (lispy--fetch-this-file-tags)))
+             (goto-char (aref (nth 4 rsymbol) 0)))
+            (t
+             (error "Couldn't find definition of %s"
+                    symbol))))))
 
 ;;* Locals: dialect-related
 (defcustom lispy-eval-display-style 'message

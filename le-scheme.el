@@ -34,6 +34,7 @@
 (declare-function geiser-eval--send/wait "geiser-eval")
 (declare-function geiser-eval--retort-error "geiser-eval")
 (declare-function geiser-mode "geiser-mode")
+(declare-function geiser-edit-symbol "geiser-edit")
 
 (defun lispy--eval-scheme (str)
   "Eval STR as Scheme code."
@@ -50,6 +51,9 @@
       (if err
           (format "Error: %s" (string-trim (cdr (assoc 'output ret))))
         (format "%s" (cadr (assoc 'result ret)))))))
+
+(defun lispy-goto-symbol-scheme (symbol)
+  (geiser-edit-symbol (make-symbol symbol)))
 
 (provide 'le-scheme)
 

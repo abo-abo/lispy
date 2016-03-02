@@ -23,13 +23,9 @@
 ;;; Code:
 
 (require 'lispy)
-(declare-function nrepl-sync-request:eval "nrepl-client")
-(declare-function nrepl-dict-get "nrepl-client")
-(declare-function nrepl-send-sync-request "nrepl-client")
-(declare-function cider-current-session "cider-client")
-(declare-function cider-default-connection "cider-client")
-(declare-function cider-current-ns "cider-interaction")
-(declare-function cider-find-file "cider-interaction")
+(require 'nrepl-client)
+(require 'cider-client)
+(require 'cider-interaction)
 
 (defun lispy--clojure-lax (str)
   "Possibly transform STR into a more convenient Clojure expression."
@@ -357,6 +353,22 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
         (lispy-down 1)
         (lispy-flow 1))
       (lispy-down 1))))
+
+(defun lispy-goto-symbol-clojure (symbol)
+  "Goto SYMBOL."
+  (let ((rsymbol (lispy--clojure-resolve symbol)))
+    (cond ((stringp rsymbol)
+           (lispy--clojure-jump rsymbol))
+          ((eq rsymbol 'special)
+           (error "Can't jump to '%s because it's special" symbol))
+          ((eq rsymbol 'keyword)
+           (error "Can't jump to keywords"))
+          ((and (listp rsymbol)
+                (eq (car rsymbol) 'variable))
+           (error "Can't jump to Java variables"))
+          (t
+           (error "Could't resolve '%s" symbol))))
+  (lispy--back-to-paren))
 
 (provide 'le-clojure)
 
