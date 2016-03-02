@@ -90,9 +90,13 @@
         func-args (first func-body)
         func-impl (rest func-body)]
     (cons 'let
-          (cons (vec (if (some #{'&} func-args)
+          (cons (vec (if (some #{'&} [func-args])
                        (vector func-args (vec args))
-                       (interleave func-args args)))
+                       (apply concat
+                              (filter (fn [[a b]]
+                                        (not (= a b)))
+                                      (partition
+                                       2 (interleave func-args args))))))
                 func-impl))))
 
 (defn quote-maybe
