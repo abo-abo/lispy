@@ -3981,6 +3981,7 @@ Sexp is obtained by exiting the list ARG times."
 (defun lispy-outline-next (arg)
   "Call `outline-next-visible-heading' ARG times."
   (interactive "p")
+  (lispy--remember)
   (lispy-dotimes arg
     (let ((pt (point)))
       (outline-next-visible-heading 1)
@@ -3988,20 +3989,17 @@ Sexp is obtained by exiting the list ARG times."
         (goto-char pt)
         (error "Past last outline")))))
 
-(defvar lispy-pre-outline-pos 1
-  "Point position before moving to outline with `lispy-outline-prev'.")
-
 (defun lispy-outline-prev (arg)
   "Call `outline-previous-visible-heading' ARG times."
   (interactive "p")
-  (unless (looking-at lispy-outline)
-    (setq lispy-pre-outline-pos (point)))
+  (lispy--remember)
+  (deactivate-mark)
   (lispy-dotimes arg
-    (let ((pt (point)))
-      (outline-previous-visible-heading 1)
-      (unless (looking-at outline-regexp)
-        (goto-char pt)
-        (error "Past first outline")))))
+                 (let ((pt (point)))
+                   (outline-previous-visible-heading 1)
+                   (unless (looking-at outline-regexp)
+                     (goto-char pt)
+                     (error "Past first outline")))))
 
 (defun lispy-outline-right ()
   "Promote current outline level by one."
@@ -4020,7 +4018,7 @@ Sexp is obtained by exiting the list ARG times."
     (when (looking-at lispy-outline)
       (if (<= (- (match-end 0)
                  (match-beginning 0))
-              3)
+              (1+ (length lispy-outline-header)))
           (progn
             (setq this-command 'lispy-outline-left)
             (lispy-complain "Can't demote outline"))
