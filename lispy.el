@@ -3515,22 +3515,37 @@ SYMBOL is a string."
 
 (defvar cider-eval-result-duration)
 
+(defvar lispy-eval-alist
+  '((python-mode lispy-eval-python le-python)
+    (julia-mode lispy-eval-julia le-julia)))
+
+(defvar lispy-eval-error nil
+  "The eval function may set this when there's an error.")
+
 (defun lispy-eval (arg)
   "Eval last sexp.
 When ARG is 2, insert the result as a comment."
   (interactive "p")
-  (if (eq arg 2)
-      (lispy-eval-and-comment)
-    (save-excursion
-      (unless (or (lispy-right-p) (region-active-p))
-        (lispy-forward 1))
-      (let ((result (replace-regexp-in-string
-                     "%" "%%" (lispy--eval (lispy--string-dwim) t))))
-        (if (eq lispy-eval-display-style 'message)
-            (lispy-message result)
-          (if (fboundp 'cider--display-interactive-eval-result)
-              (cider--display-interactive-eval-result result (point))
-            (error "Please install CIDER 0.10 to display overlay")))))))
+  (let (handler)
+    (cond ((eq arg 2)
+           (lispy-eval-and-comment))
+          ((looking-at lispy-outline)
+           (lispy-eval-outline))
+          ((setq handler (cdr (assoc major-mode lispy-eval-alist)))
+           (when (cadr handler)
+             (require (cadr handler)))
+           (funcall (car handler)))
+          (t
+           (save-excursion
+             (unless (or (lispy-right-p) (region-active-p))
+               (lispy-forward 1))
+             (let ((result (replace-regexp-in-string
+                            "%" "%%" (lispy--eval (lispy--string-dwim) t))))
+               (if (eq lispy-eval-display-style 'message)
+                   (lispy-message result)
+                 (if (fboundp 'cider--display-interactive-eval-result)
+                     (cider--display-interactive-eval-result result (point))
+                   (error "Please install CIDER 0.10 to display overlay")))))))))
 
 (defun lispy-message (str)
   "Display STR in the echo area.
