@@ -1739,6 +1739,8 @@ When the region is active, toggle a ~ at the start of the region."
      (cider-repl-return))
     (slime-repl-mode
      (slime-repl-return))
+    (python-mode
+     (newline-and-indent))
     (t
      (if (and (not (lispy--in-string-or-comment-p))
               (if (memq major-mode lispy-clojure-modes)
