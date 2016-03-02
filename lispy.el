@@ -3547,6 +3547,48 @@ When ARG is 2, insert the result as a comment."
                      (cider--display-interactive-eval-result result (point))
                    (error "Please install CIDER 0.10 to display overlay")))))))))
 
+(defun lispy-forward-outline ()
+  (let ((pt (point)))
+    (outline-next-visible-heading 1)
+    (if (looking-at lispy-outline)
+        (when (> (point) pt)
+          (point))
+      (goto-char pt)
+      nil)))
+
+(defun lispy-eval-outline ()
+  (let ((lvl (lispy-outline-level)))
+    (lispy-eval-single-outline)
+    (while (and (lispy-forward-outline)
+                (> (lispy-outline-level) lvl))
+      (lispy-eval-single-outline))))
+
+(defun lispy-eval-single-outline ()
+  (let* ((outline-start (point))
+         bnd
+         (outline-end
+          (save-excursion
+            (forward-char)
+            (if (re-search-forward lispy-outline nil t)
+                (goto-char (match-beginning 0))
+              (goto-char (point-max)))
+            (skip-chars-backward "\n")
+            (when (setq bnd (lispy--bounds-comment))
+              (goto-char (1- (car bnd))))
+            (point)))
+         (res (lispy--eval
+               (buffer-substring-no-properties
+                (1+ (line-end-position))
+                outline-end))))
+    (cond ((null res)
+           (lispy-message lispy-eval-error))
+          ((= ?: (char-before (line-end-position)))
+           (goto-char outline-end)
+           (lispy--insert-eval-result res)
+           (goto-char outline-start))
+          (t
+           (message res)))))
+
 (defun lispy-message (str)
   "Display STR in the echo area.
 If STR is too large, pop it to a buffer instead."
@@ -3571,8 +3613,12 @@ When ARG isn't nil, try to pretty print the sexp."
   (let ((lispy-do-pprint arg))
     (cl-labels
         ((doit ()
-           (unless (or (lispy-right-p) (region-active-p))
-             (lispy-forward 1))
+           (cond ((region-active-p)
+                  (when (= (point) (region-beginning))
+                    (exchange-point-and-mark)))
+                 ((lispy-right-p))
+                 (t
+                  (lispy-forward 1)))
            (let ((str (lispy--eval (lispy--string-dwim))))
              (newline-and-indent)
              (insert str)
@@ -3587,33 +3633,52 @@ When ARG isn't nil, try to pretty print the sexp."
   "Eval last sexp and insert the result as a comment."
   (interactive)
   (let ((str (lispy--eval (lispy--string-dwim)))
-        bnd)
+        re-bnd)
     (save-excursion
-      (when (lispy-left-p)
-        (lispy-different))
-      (if (not (looking-at "\n *\\(;+\\) ?=>"))
-          (newline-and-indent)
-        (goto-char (1+ (match-beginning 1)))
-        (setq bnd (lispy--bounds-comment))
-        (delete-region (car bnd) (cdr bnd)))
-      (save-restriction
-        (narrow-to-region (point) (point))
-        (insert str)
-        (save-excursion
-          (if (lispy-right-p)
-              (progn
-                ;; avoid "Lisp nesting exceeds `max-lisp-eval-depth'"
-                (ignore-errors
-                  (lispy-alt-multiline t))
-                (goto-char (point-min))
-                (insert "=>\n"))
-            (goto-char (point-min))
-            (insert "=> ")))
-        (comment-region (point-min) (point-max))
-        (goto-char (point-max)))
+      (cond ((region-active-p)
+             (setq re-bnd (cons (region-beginning)
+                                (region-end)))
+             (when (= (point) (region-beginning))
+               (exchange-point-and-mark)))
+            ((lispy-left-p)
+             (lispy-different))
+            ((eq major-mode 'python-mode)
+             (end-of-line)))
+      (lispy--insert-eval-result str)
       (unless (eolp)
         (newline)))
-    (lispy--reindent 1)))
+    (lispy--reindent 1)
+    (when re-bnd
+      (lispy--mark re-bnd))))
+
+(defun lispy--insert-eval-result (str)
+  (let (bound)
+    (if (not (looking-at
+              (format "\n *\\(%s\\) ?=>" lispy-outline-header)))
+        (newline)
+      (goto-char (1+ (match-beginning 1)))
+      (setq bound (lispy--bounds-comment))
+      (delete-region (car bound) (cdr bound)))
+    (save-restriction
+      (narrow-to-region (point) (point))
+      (insert str)
+      (save-excursion
+        (if (and (lispy-right-p)
+                 (not (memq major-mode '(python-mode julia-mode))))
+            (progn
+              ;; avoid "Lisp nesting exceeds `max-lisp-eval-depth'"
+              (ignore-errors
+                (lispy-alt-multiline t))
+              (goto-char (point-min))
+              (insert "=>\n"))
+          (goto-char (point-min))
+          (insert "=> ")
+          (forward-line 1)
+          (while (< (point) (point-max))
+            (insert "   ")
+            (forward-line 1))))
+      (comment-region (point-min) (point-max))
+      (goto-char (point-max)))))
 
 (defun lispy-eval-and-replace ()
   "Eval last sexp and replace it with the result."
