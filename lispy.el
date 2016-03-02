@@ -4047,21 +4047,31 @@ Sexp is obtained by exiting the list ARG times."
   "Indent code and hide/show outlines.
 When region is active, call `lispy-mark-car'."
   (interactive)
-  (if (region-active-p)
-      (lispy-mark-car)
-    (if (looking-at lispy-outline)
-        (progn
-          (outline-minor-mode 1)
-          (condition-case e
-              (lispy-flet (org-unlogged-message (&rest _x))
-                (require 'org)
-                (let ((org-outline-regexp outline-regexp))
-                  (org-cycle-internal-local)))
-            (error
-             (if (string= (error-message-string e) "before first heading")
-                 (outline-next-visible-heading 1)
-               (signal (car e) (cdr e))))))
-      (lispy--normalize-1))))
+  (let (outline-eval-tag)
+    (cond ((region-active-p)
+           (lispy-mark-car))
+          ((looking-at lispy-outline)
+           (outline-minor-mode 1)
+           (condition-case e
+               (lispy-flet (org-unlogged-message (&rest _x))
+                 (require 'org)
+                 (let ((org-outline-regexp outline-regexp)
+                       (orgstruct-mode t))
+                   (org-cycle-internal-local)))
+             (error
+              (if (string= (error-message-string e) "before first heading")
+                  (outline-next-visible-heading 1)
+                (signal (car e) (cdr e))))))
+          ((looking-at (setq outline-eval-tag (format "^%s =>" lispy-outline-header)))
+           (let* ((bnd (lispy--bounds-comment))
+                  (beg (car bnd))
+                  (end (cdr bnd)))
+             (if (overlays-in beg end)
+                 (remove-overlays beg end)
+               (outline-flag-region
+                (+ beg (1- (length outline-eval-tag))) end 'visible))))
+          (t
+           (lispy--normalize-1)))))
 
 (defun lispy-shifttab (arg)
   "Hide/show outline summary.
