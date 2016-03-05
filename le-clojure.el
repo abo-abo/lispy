@@ -23,7 +23,6 @@
 ;;; Code:
 
 (require 'lispy)
-(require 'nrepl-client)
 (require 'cider-client)
 (require 'cider-interaction)
 
