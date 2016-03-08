@@ -1061,13 +1061,13 @@ If position isn't special, move to previous or error."
    ((and (region-active-p)
          (bound-and-true-p delete-selection-mode))
     (delete-active-region)
-    (lispy--maybe-safe-yank))
+    (insert (lispy--maybe-safe-current-kill)))
    ((and (eq (char-after) ?\")
          (eq (char-before) ?\"))
     (insert (replace-regexp-in-string "\"" "\\\\\""
-                                      (lispy--maybe-safe-yank t))))
+                                      (lispy--maybe-safe-current-kill))))
    (t
-    (lispy--maybe-safe-yank))))
+    (insert (lispy--maybe-safe-current-kill)))))
 
 (defun lispy-delete (arg)
   "Delete ARG sexps."
@@ -4784,26 +4784,26 @@ When ARG is given, paste at that place in the current list."
            (deactivate-mark)
            (delete-region (car bnd)
                           (cdr bnd))
-           (lispy--maybe-safe-yank)))
+           (insert (lispy--maybe-safe-current-kill))))
         ((> arg 1)
          (lispy-mark-car)
          (lispy-down (- arg 2))
          (deactivate-mark)
          (just-one-space)
-         (lispy--maybe-safe-yank)
+         (insert (lispy--maybe-safe-current-kill))
          (unless (or (eolp) (looking-at lispy-right))
            (just-one-space)
            (forward-char -1)))
         ((lispy-right-p)
          (newline-and-indent)
-         (lispy--maybe-safe-yank))
+         (insert (lispy--maybe-safe-current-kill)))
         ((lispy-left-p)
          (newline-and-indent)
          (forward-line -1)
          (lispy--indent-for-tab)
-         (lispy--maybe-safe-yank))
+         (insert (lispy--maybe-safe-current-kill)))
         (t
-         (lispy--maybe-safe-yank))))
+         (insert (lispy--maybe-safe-current-kill)))))
 
 (defalias 'lispy-font-lock-ensure
     (if (fboundp 'font-lock-ensure)
@@ -7087,16 +7087,12 @@ possible to infer which side the missing quote should be added to."
         (insert (apply #'concat add-to-end)))
       (buffer-substring (point-min) (point-max)))))
 
-(defun lispy--maybe-safe-yank (&optional no-yank)
-  "Like `yank' but adds missing delimiters if `lispy-safe-paste' is non-nil.
-When NO-YANK is non-nil, the potentially altered text will be returned instead
-of inserted."
-  (let ((text (if lispy-safe-paste
-                  (lispy--balance (current-kill 0))
-                (current-kill 0))))
-    (if no-yank
-        text
-      (insert text))))
+(defun lispy--maybe-safe-current-kill ()
+  "Return the most recent kill.
+If `lispy-safe-paste' is non-nil, any unmatched delimiters will be added to it."
+  (if lispy-safe-paste
+      (lispy--balance (current-kill 0))
+    (current-kill 0)))
 
 ;;* Key definitions
 (defvar ac-trigger-commands '(self-insert-command))
