@@ -501,7 +501,15 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "\"|\"" (kill-new "foo") (lispy-yank))
                    "\"foo|\""))
   (should (string= (lispy-with "\"|\"" (kill-new "\"foo\"") (lispy-yank))
-                   "\"\\\"foo\\\"|\"")))
+                   "\"\\\"foo\\\"|\""))
+  (let ((lispy-safe-paste t))
+    (should (string= (lispy-with "\"|\"" (kill-new "{([\"a\"") (lispy-yank))
+                     "\"{([\\\"a\\\"])}|\""))
+    (should (string= (lispy-with "\"|\"" (kill-new "\"a\")}]") (lispy-yank))
+                     "\"[{(\\\"a\\\")}]|\""))
+    (should (string= (lispy-with "\"|\"" (kill-new "\"a\")]} ({[\"b\"")
+                                 (lispy-yank))
+                     "\"{[(\\\"a\\\")]} ({[\\\"b\\\"]})|\""))))
 
 (ert-deftest lispy-delete ()
   (should (string= (lispy-with "(|(a) (b) (c))" "\C-d")
@@ -2207,6 +2215,20 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "(progn\n  (one)|\n  (two)\n  (three))"
                                "njjP")
                    "(progn\n  (one)\n  (two)\n  (three)\n  (one)|)")))
+
+(ert-deftest lispy--balance ()
+  (should (string= (lispy--balance "(a")
+                   "(a)"))
+  (should (string= (lispy--balance "a)")
+                   "(a)"))
+  (should (string= (lispy--balance "a)(b")
+                   "(a)(b)"))
+  (should (string= (lispy--balance "({[a b] c")
+                   "({[a b] c})"))
+  (should (string= (lispy--balance "a [b c]})")
+                   "({a [b c]})"))
+  (should (string= (lispy--balance "a)]}({[b")
+                   "{[(a)]}({[b]})")))
 
 (ert-deftest lispy-reverse ()
   (should (string= (lispy-with "|(read-string slurp clojure.java.io/resource path)"

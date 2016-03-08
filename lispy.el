@@ -302,6 +302,11 @@ using those packages."
   :group 'lispy
   :type 'boolean)
 
+(defcustom lispy-safe-paste nil
+  "When non-nil, `lispy-paste' and `lispy-yank' will add missing delimiters."
+  :group 'lispy
+  :type 'boolean)
+
 (defcustom lispy-safe-threshold 1500
   "The max size of an active region that lispy will try to keep balanced.
 This only applies when `lispy-safe-delete' and/or `lispy-safe-copy' are
@@ -1053,15 +1058,16 @@ If position isn't special, move to previous or error."
   "Like regular `yank', but quotes body when called from \"|\"."
   (interactive)
   (cond
-    ((and (region-active-p)
-          (bound-and-true-p delete-selection-mode))
-     (delete-active-region)
-     (yank))
-    ((and (eq (char-after) ?\")
-          (eq (char-before) ?\"))
-     (insert (replace-regexp-in-string "\"" "\\\\\"" (current-kill 0))))
-    (t
-     (yank))))
+   ((and (region-active-p)
+         (bound-and-true-p delete-selection-mode))
+    (delete-active-region)
+    (lispy--maybe-safe-yank))
+   ((and (eq (char-after) ?\")
+         (eq (char-before) ?\"))
+    (insert (replace-regexp-in-string "\"" "\\\\\""
+                                      (lispy--maybe-safe-yank t))))
+   (t
+    (lispy--maybe-safe-yank))))
 
 (defun lispy-delete (arg)
   "Delete ARG sexps."
@@ -4778,26 +4784,26 @@ When ARG is given, paste at that place in the current list."
            (deactivate-mark)
            (delete-region (car bnd)
                           (cdr bnd))
-           (yank)))
+           (lispy--maybe-safe-yank)))
         ((> arg 1)
          (lispy-mark-car)
          (lispy-down (- arg 2))
          (deactivate-mark)
          (just-one-space)
-         (yank)
+         (lispy--maybe-safe-yank)
          (unless (or (eolp) (looking-at lispy-right))
            (just-one-space)
            (forward-char -1)))
         ((lispy-right-p)
          (newline-and-indent)
-         (yank))
+         (lispy--maybe-safe-yank))
         ((lispy-left-p)
          (newline-and-indent)
          (forward-line -1)
          (lispy--indent-for-tab)
-         (yank))
+         (lispy--maybe-safe-yank))
         (t
-         (yank))))
+         (lispy--maybe-safe-yank))))
 
 (defalias 'lispy-font-lock-ensure
     (if (fboundp 'font-lock-ensure)
@@ -7007,34 +7013,37 @@ Return an appropriate `setq' expression when in `let', `dolist',
           (t tsexp))))))
 
 (defun lispy--find-unmatched-delimiters (beg end)
-  "Return the positions of unmatched delimiters between BEG and END."
-  (save-excursion
-    (goto-char beg)
-    (let ((lispy-delimiters (concat (substring lispy-right 0 -1)
-                                    "\""
-                                    (substring lispy-left 1)))
-          left-positions
-          right-positions)
-      (while (re-search-forward lispy-delimiters end t)
-        (unless (looking-back "\\\\." (- (point) 2))
-          (let* ((match-beginning (match-beginning 0))
-                 (matched-delimiter (buffer-substring-no-properties
-                                     match-beginning
-                                     (match-end 0))))
-            (if (or (string-match lispy-left matched-delimiter)
-                    (and (string= matched-delimiter "\"")
-                         (lispy--in-string-p)))
-                (push match-beginning left-positions)
-              (if (> (length left-positions) 0)
-                  (pop left-positions)
-                (push match-beginning right-positions))))))
-      (nreverse (append left-positions right-positions)))))
+  "Return the positions of unmatched delimiters between BEG and END.
+When the region is a greater size than `lispy-safe-threshold', it will not be
+checked and nil will be returned."
+  (if (> (- end beg) lispy-safe-threshold)
+      nil
+    (save-excursion
+      (goto-char beg)
+      (let ((lispy-delimiters (concat (substring lispy-right 0 -1)
+                                      "\""
+                                      (substring lispy-left 1)))
+            left-positions
+            right-positions)
+        (while (re-search-forward lispy-delimiters end t)
+          (unless (looking-back "\\\\." (- (point) 2))
+            (let* ((match-beginning (match-beginning 0))
+                   (matched-delimiter (buffer-substring-no-properties
+                                       match-beginning
+                                       (match-end 0))))
+              (if (or (string-match lispy-left matched-delimiter)
+                      (and (string= matched-delimiter "\"")
+                           (lispy--in-string-p)))
+                  (push match-beginning left-positions)
+                (if (> (length left-positions) 0)
+                    (pop left-positions)
+                  (push match-beginning right-positions))))))
+        (nreverse (append left-positions right-positions))))))
 
 (defun lispy--find-safe-regions (beg end)
   "Return a list of safe regions between BEG and END.
 The regions are returned in reverse order so that they can be easily deleted
-without recalculation.  When the region is a greater size than
-`lispy-safe-threshold', it will be returned as-is without checks."
+without recalculation."
   (if (> (- end beg) lispy-safe-threshold)
       (list (cons beg end))
     (let ((unmatched-delimiters (lispy--find-unmatched-delimiters beg end))
@@ -7045,6 +7054,49 @@ without recalculation.  When the region is a greater size than
           (push (cons maybe-safe-pos unsafe-pos) safe-positions))
         (setq maybe-safe-pos (1+ unsafe-pos)))
       (push (cons maybe-safe-pos end) safe-positions))))
+
+(defvar lispy--pairs
+  '(("(" . ")")
+    ("[" . "]")
+    ("{" . "}")))
+
+(defun lispy--balance (text)
+  "Return TEXT with unmatched delimiters added to the beginning or end.
+This does not attempt to deal with unbalanced double quotes as it is not always
+possible to infer which side the missing quote should be added to."
+  (with-temp-buffer
+    (insert text)
+    (let ((unmatched-positions
+           (lispy--find-unmatched-delimiters (point-min) (point-max)))
+          add-to-beginning
+          add-to-end
+          delim)
+      (dolist (pos unmatched-positions)
+        (setq delim (buffer-substring pos (1+ pos)))
+        (cond ((string-match lispy-left delim)
+               (push (cdr (assoc delim lispy--pairs))
+                     add-to-end))
+              ((string-match lispy-right delim)
+               (push (car (rassoc delim lispy--pairs))
+                     add-to-beginning))))
+      (when add-to-beginning
+        (goto-char (point-min))
+        (insert (apply #'concat add-to-beginning)))
+      (when add-to-end
+        (goto-char (point-max))
+        (insert (apply #'concat add-to-end)))
+      (buffer-substring (point-min) (point-max)))))
+
+(defun lispy--maybe-safe-yank (&optional no-yank)
+  "Like `yank' but adds missing delimiters if `lispy-safe-paste' is non-nil.
+When NO-YANK is non-nil, the potentially altered text will be returned instead
+of inserted."
+  (let ((text (if lispy-safe-paste
+                  (lispy--balance (current-kill 0))
+                (current-kill 0))))
+    (if no-yank
+        text
+      (insert text))))
 
 ;;* Key definitions
 (defvar ac-trigger-commands '(self-insert-command))
