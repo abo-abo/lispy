@@ -2104,6 +2104,119 @@ Return the amount of successful grow steps, nil instead of zero."
             (lispy--slurp-backward))))
     (lispy--reindent)))
 
+(defun lispy-slurp-or-barf-right (arg)
+  "Barfs or slurps current sexp so that visually, the delimiter at point moves to the right.
+When cursor is at lispy-right, will slurp ARG sexps forwards.
+
+  ((a)| b c) -> ((a b)| c)
+
+When lispy-left, will barf ARG sexps forwards.
+
+  (|(a b) c) -> (a |(b) c)"
+  (interactive "p")
+  (cond ((region-active-p)
+         (let* ((bnd (lispy--bounds-dwim))
+                (str (lispy--string-dwim bnd))
+                (one-symbolp (lispy--symbolp str)))
+           (if (= (point) (region-end))
+               (cond ((or (looking-at "\\s_")
+                          (save-excursion
+                            (goto-char (region-beginning))
+                            (and (not (lispy-left-p))
+                                 (lispy-looking-back "\\s_"))))
+                      (lispy--sub-slurp-forward arg))
+                     ((looking-at "[\n ]+;")
+                      (goto-char (match-end 0))
+                      (goto-char (cdr (lispy--bounds-comment))))
+                     (t
+                      (lispy-dotimes arg
+                        (forward-sexp 1))))
+             (cond (one-symbolp
+                    (lispy-dotimes arg
+                      (if (re-search-forward "\\s_+\\sw" (region-end) t)
+                          (backward-char 1)
+                        (throw 'result i))))
+                   ((lispy--in-comment-p)
+                    (goto-char (cdr (lispy--bounds-comment)))
+                    (if (= (region-beginning) (region-end))
+                        (goto-char (car bnd))
+                      (skip-chars-forward " \n")))
+                   (t
+                    (save-restriction
+                      (narrow-to-region (point-min) (region-end))
+                      (incf arg)
+                      (lispy-dotimes arg
+                        (lispy--forward-sexp-or-comment))
+                      (if (lispy--in-comment-p)
+                          (goto-char (car (lispy--bounds-comment)))
+                        (forward-sexp -1))
+                      (widen)))))))
+
+        ((lispy-right-p)
+         (lispy-dotimes arg
+           (lispy--slurp-forward))
+         (lispy--reindent))
+
+        ((lispy-left-p)
+         (lispy-dotimes arg
+           (lispy--barf-forward)))))
+
+(defun lispy-slurp-or-barf-left (arg)
+  "Barfs or slurps current sexp so that visually, the delimiter at point moves to the left.
+When cursor is at lispy-right, will barf ARG sexps backwards.
+
+  (a (b c)|) -> (a (b)| c)
+
+When lispy-left, will slurp ARG sexps forwards.
+
+  (a |(b) c) -> (|(a b) c)"
+  (interactive "p")
+  (cond ((region-active-p)
+         (let* ((bnd (lispy--bounds-dwim))
+                (str (lispy--string-dwim bnd))
+                (one-symbolp (lispy--symbolp str)))
+           (if (= (point) (region-end))
+               (cond (one-symbolp
+                      (lispy-dotimes arg
+                        (if (re-search-backward "\\sw\\s_+" (region-beginning) t)
+                            (forward-char 1)
+                          (throw 'result i))))
+                     ((lispy--in-comment-p)
+                      (goto-char (car (lispy--bounds-comment)))
+                      (if (= (point) (region-beginning))
+                          (goto-char (cdr (lispy--bounds-comment)))
+                        (skip-chars-backward " \n")))
+                     (t
+                      (incf arg)
+                      (lispy-dotimes arg
+                        (lispy--backward-sexp-or-comment))
+                      (when (< (point) (car bnd))
+                        (goto-char (car bnd)))
+                      (lispy--forward-sexp-or-comment)))
+             (cond ((or (and (not (lispy-left-p))
+                             (lispy-looking-back "\\s_"))
+                        (save-excursion
+                          (goto-char (region-end))
+                          (looking-at "\\s_")))
+                    (lispy--sub-slurp-backward arg))
+                   ((save-excursion
+                      (skip-chars-backward " \n")
+                      (lispy--in-comment-p))
+                    (skip-chars-backward " \n")
+                    (goto-char (car (lispy--bounds-comment))))
+                   (t
+                    (lispy-dotimes arg
+                      (forward-sexp -1)))))))
+
+        ((lispy-right-p)
+         (lispy-dotimes arg
+           (lispy--barf-backward)))
+
+        ((lispy-left-p)
+         (lispy-dotimes arg
+           (lispy--slurp-backward)
+           (lispy--reindent)))))
+
 (defun lispy-down-slurp ()
   "Move current sexp or region into the next sexp."
   (interactive)
