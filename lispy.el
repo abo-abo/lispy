@@ -2254,6 +2254,34 @@ Otherwise, move to the next sexp."
          (lispy-dotimes arg
            (lispy--barf-forward)))))
 
+(defun lispy-slurp-or-barf-right (arg)
+  "Barfs or slurps current sexp so that visually, the delimiter at point moves to the right.
+When cursor is at lispy-right, will slurp ARG sexps forwards.
+
+  ((a)| b c) -> ((a b)| c)
+
+When lispy-left, will barf ARG sexps forwards.
+
+  (|(a b) c) -> (a |(b) c)"
+  (interactive "p")
+  (if (lispy-right-p)
+      (lispy-slurp arg)
+    (lispy-barf arg)))
+
+(defun lispy-slurp-or-barf-left (arg)
+  "Barfs or slurps current sexp so that visually, the delimiter at point moves to the left.
+When cursor is at lispy-right, will barf ARG sexps backwards.
+
+  (a (b c)|) -> (a (b)| c)
+
+When lispy-left, will slurp ARG sexps forwards.
+
+  (a |(b) c) -> (|(a b) c)"
+  (interactive "p")
+  (if (lispy-left-p)
+      (lispy-slurp arg)
+    (lispy-barf arg)))
+
 (defun lispy-splice (arg)
   "Splice ARG sexps into containing list."
   (interactive "p")
