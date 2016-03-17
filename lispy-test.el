@@ -2639,45 +2639,46 @@ Insert KEY if there's no command."
   (lispy-set-key-theme '(special lispy c-digits oleh)))
 
 (ert-deftest lispy-paredit-forward-delete ()
-  (lispy-set-key-theme '(special paredit))
-  (should (string= (lispy-with "(quu|x \"zot\")"
-                               (kbd "C-d"))
+  (should (string= (lispy-with "(quu|x \"zot\")" (lispy-forward-delete 1))
                    "(quu| \"zot\")"))
-  (should (string= (lispy-with "(foo (|) bar)"
-                               (kbd "C-d"))
+  (should (string= (lispy-with "(foo (|) bar)" (lispy-forward-delete 1))
                    "(foo | bar)"))
-  (should (string= (lispy-with "|(foo bar)"
-                               (kbd "C-d"))
+  (should (string= (lispy-with "|(foo bar)" (lispy-forward-delete 1))
                    "(|foo bar)"))
-  (should (string= (lispy-with "(quux |\"zot\")"
-                               (kbd "C-d"))
+  (should (string= (lispy-with "(quux |\"zot\")" (lispy-forward-delete 1))
                    "(quux \"|zot\")"))
-  (should (string= (lispy-with "(quux \"|zot\")"
-                               (kbd "C-d"))
+  (should (string= (lispy-with "(quux \"|zot\")" (lispy-forward-delete 1))
                    "(quux \"|ot\")"))
-  (lispy-set-key-theme '(special lispy c-digits oleh)))
+  (should (string= (lispy-with "(foo (|))" (lispy-forward-delete 1))
+                   "(foo |)"))
+  (should (string= (lispy-with "\"|\"" (lispy-forward-delete 1))
+                   "|"))
+  (should (string= (lispy-with "(baz \"foobar|\")" (lispy-forward-delete 1))
+                   "(baz |)"))
+  (should (string= (lispy-with "(foo (bar|))" (lispy-forward-delete 1))
+                   "(foo |)")))
 
 (ert-deftest lispy-paredit-backward-delete ()
-  (lispy-set-key-theme '(special paredit))
-  (should (string= (lispy-with "(\"zot\" q|uux)"
-                               (kbd "DEL"))
+  (should (string= (lispy-with "(\"zot\" q|uux)" (lispy-backward-delete 1))
                    "(\"zot\" |uux)"))
-  (should (string= (lispy-with "(\"zot\"| quux)"
-                               (kbd "DEL"))
+  (should (string= (lispy-with "(\"zot\"| quux)" (lispy-backward-delete 1))
                    "(\"zot|\" quux)"))
-  (should (string= (lispy-with "(\"zot|\" quux)"
-                               (kbd "DEL"))
+  (should (string= (lispy-with "(\"zot|\" quux)" (lispy-backward-delete 1))
                    "(\"zo|\" quux)"))
-  (should (string= (lispy-with "(foo (|) bar)"
-                               (kbd "DEL"))
+  (should (string= (lispy-with "(foo (|) bar)" (lispy-backward-delete 1))
                    "(foo | bar)"))
-  (should (string= (lispy-with "(foo bar)|"
-                               (kbd "DEL"))
+  (should (string= (lispy-with "(foo bar)|" (lispy-backward-delete 1))
                    "(foo bar|)"))
-  (should (string= (lispy-with "(|)"
-                               (kbd "DEL"))
+  (should (string= (lispy-with "(|)" (lispy-backward-delete 1))
                    "|"))
-  (lispy-set-key-theme '(special lispy c-digits oleh)))
+  (should (string= (lispy-with "(foo (|))" (lispy-backward-delete 1))
+                   "(foo |)"))
+  (should (string= (lispy-with "\"|\"" (lispy-backward-delete 1))
+                   "|"))
+  (should (string= (lispy-with "(baz \"|foobar\")" (lispy-backward-delete 1))
+                   "(baz |)"))
+  (should (string= (lispy-with "(foo (|bar))" (lispy-backward-delete 1))
+                   "(foo |)")))
 
 (ert-deftest lispy-paredit-kill ()
   (lispy-set-key-theme '(special paredit))
