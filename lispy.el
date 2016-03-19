@@ -1463,21 +1463,34 @@ When ARG is more than 1, mark ARGth element."
 
 ;;* Globals: pairs
 (defun lispy-pair (left right space-unless)
-  "Return (lambda (arg)(interactive \"p\")...) using LEFT RIGHT SPACE-UNLESS.
+  "Return (lambda (arg)(interactive \"P\")...) using LEFT RIGHT SPACE-UNLESS.
 When this function is called:
 - with region active:
   Wrap region with LEFT RIGHT.
-- with arg 1:
+- with region active and arg 1:
+  Wrap region with LEFT RIGHT and put the point after LEFT followed by a space.
+- with arg nil:
   Insert LEFT RIGHT.
-- else:
-  Wrap current sexp with LEFT RIGHT."
+- with arg negative:
+  Wrap as many sexps as possible with LEFT RIGHT.
+- with arg 0:
+  Wrap as many sexps as possible until the end of the line with LEFT RIGHT.
+- with the universal arg:
+  Wrap one sexp with LEFT RIGHT.
+- with arg positive:
+  Wrap that number of sexps with LEFT RIGHT or as many as possible."
   `(lambda (arg)
-     (interactive "p")
+     (interactive "P")
+     (cond ((not current-prefix-arg))
+           ((listp current-prefix-arg)
+            (setq arg 1))
+           (t
+            (setq arg (prefix-numeric-value arg))))
      (cond ((region-active-p)
             (lispy--surround-region ,left ,right)
             (when (and (lispy-looking-back lispy-left)
                        (or (lispy-left-p)
-                           (> arg 1)))
+                           (> (or arg 0) 0)))
               (insert " "))
             (backward-char 1))
            ((and (lispy--in-string-p)
@@ -1492,7 +1505,7 @@ When this function is called:
               (backward-char 1)))
            ((lispy-after-string-p "?\\\\")
             (self-insert-command 1))
-           ((= arg 1)
+           ((not arg)
             (lispy--indent-for-tab)
             (lispy--space-unless ,space-unless)
             (insert ,left ,right)
@@ -1505,26 +1518,20 @@ When this function is called:
               (insert " ")
               (backward-char))
             (backward-char))
-           ((lispy-bolp)
-            (lispy--indent-for-tab)
-            (insert ,left)
-            (unless (eolp)
-              (just-one-space))
-            ;; when (looking-at lispy-right) `forward-sexp' will error
-            (ignore-errors (forward-sexp))
-            (insert ,right)
-            (backward-sexp)
-            (indent-sexp)
-            (forward-char 1))
            (t
-            (let ((bnd (lispy--bounds-dwim)))
-              (goto-char (car bnd))
-              (insert ,left)
-              (just-one-space)
-              (forward-sexp)
-              (insert ,right)
-              (goto-char (car bnd))
-              (forward-char 1))))))
+            (unless (lispy-bolp)
+              (goto-char (car (lispy--bounds-dwim))))
+            (lispy--indent-for-tab)
+            (insert ,left ,right)
+            (save-excursion
+              (lispy-slurp arg))
+            (cond ((looking-at lispy-right)
+                   (left-char)
+                   (just-one-space)
+                   (backward-char))
+                  ((not (eolp))
+                   (just-one-space)
+                   (backward-char)))))))
 
 (defalias 'lispy-parens
     (lispy-pair "(" ")" "^\\|\\(?:> \\|#\\?\\)\\|\\s-\\|\\[\\|[{(`'#@~_%,]")
@@ -7347,7 +7354,7 @@ Insert \")\" in strings and comments."
 (defun lispy-open-square (arg)
   "Forward to (`lispy-brackets' ARG).
 Insert \"[\" in strings and comments."
-  (interactive "p")
+  (interactive "P")
   (if (lispy--in-string-or-comment-p)
       (insert "[")
     (lispy-brackets arg)))
@@ -7355,7 +7362,7 @@ Insert \"[\" in strings and comments."
 (defun lispy-open-curly (arg)
   "Forward to( `lispy-braces' ARG).
 Insert \"{\" in strings and comments."
-  (interactive "p")
+  (interactive "P")
   (if (lispy--in-string-or-comment-p)
       (insert "{")
     (lispy-braces arg)))
@@ -7454,17 +7461,17 @@ When ARG is non-nil, unquote the current string."
 (defun lispy-wrap-round ()
   "Forward to `lispy-parens'."
   (interactive)
-  (lispy-parens 2))
+  (lispy-parens 1))
 
 (defun lispy-wrap-brackets ()
   "Forward to `lispy-brackets'"
   (interactive)
-  (lispy-brackets 2))
+  (lispy-brackets 1))
 
 (defun lispy-wrap-braces ()
   "Forward to `lispy-braces'"
   (interactive)
-  (lispy-braces 2))
+  (lispy-braces 1))
 
 (defun lispy-splice-sexp-killing-backward ()
   "Forward to `lispy-raise'."
