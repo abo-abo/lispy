@@ -2066,11 +2066,19 @@ Return the amount of successful grow steps, nil instead of zero."
           (throw 'result (1- i)))))))
 
 (defun lispy-slurp (arg)
-  "Grow current sexp by ARG sexps."
+  "Grow current sexp by ARG sexps.
+If ARG is zero, grow as far as possible. If ARG is -1, grow until the end or
+beginning of the line or as far as possible on the current line."
   (interactive "p")
   (if (region-active-p)
       (if (= (point) (region-end))
-          (cond ((or (looking-at "\\s_")
+          (cond ((= arg 0)
+                 (while (and (lispy-dotimes 1 (forward-sexp 1))
+                             (not (looking-at "\\'")))))
+                ((= arg -1)
+                 (while (and (not (looking-at (concat lispy-right "*$")))
+                             (lispy-dotimes 1 (forward-sexp 1)))))
+                ((or (looking-at "\\s_")
                      (save-excursion
                        (goto-char (region-beginning))
                        (and (not (lispy-left-p))
@@ -2082,7 +2090,13 @@ Return the amount of successful grow steps, nil instead of zero."
                 (t
                  (lispy-dotimes arg
                    (forward-sexp 1))))
-        (cond ((or (and (not (lispy-left-p))
+        (cond ((= arg 0)
+               (while (and (lispy-dotimes 1 (forward-sexp -1))
+                           (not (looking-at "\\`")))))
+              ((= arg -1)
+               (while (and (not (looking-back "^[[:space:]]*"))
+                           (lispy-dotimes 1 (forward-sexp -1)))))
+              ((or (and (not (lispy-left-p))
                         (lispy-looking-back "\\s_"))
                    (save-excursion
                      (goto-char (region-end))
@@ -2097,11 +2111,35 @@ Return the amount of successful grow steps, nil instead of zero."
                (lispy-dotimes arg
                  (forward-sexp -1)))))
     (if (lispy-right-p)
-        (lispy-dotimes arg
-          (lispy--slurp-forward))
+        (cond ((= arg 0)
+               (let ((last-pos (point)))
+                 (while (and (lispy-dotimes 1
+                               (lispy--slurp-forward)
+                               (lispy--reindent))
+                             (not (= (point) last-pos)))
+                   (setq last-pos (point)))))
+              ((= arg -1)
+               (while (and (not (looking-at (concat "\\("
+                                                    lispy-right
+                                                    "\\|$\\)")))
+                           (lispy-dotimes 1
+                             (lispy--slurp-forward)))))
+              (t
+               (lispy-dotimes arg
+                 (lispy--slurp-forward))))
       (if (lispy-left-p)
-          (lispy-dotimes arg
-            (lispy--slurp-backward))))
+          (cond ((= arg 0)
+                 ;; lispy--slurp-backward errors when reaching another delimiter
+                 (while (and (lispy-dotimes 1
+                               (lispy--slurp-backward))
+                             (not (looking-back "\\`")))))
+                ((= arg -1)
+                 (while (and (not (looking-back "^[[:space:]]*"))
+                             (lispy-dotimes 1
+                               (lispy--slurp-backward)))))
+                (t
+                 (lispy-dotimes arg
+                   (lispy--slurp-backward))))))
     (lispy--reindent)))
 
 (defun lispy-down-slurp ()
