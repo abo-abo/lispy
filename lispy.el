@@ -1601,7 +1601,7 @@ otherwise the whole string is unquoted."
   "Insert one space, with position depending on ARG.
 If ARG is 2, amend the current list with a space from current side.
 If ARG is 3, switch to the different side beforehand.
-If jammed between parens, \"(|(\" unjam: \"( |(\"."
+If jammed between parens, \"(|(\" unjam: \"(| (\"."
   (interactive "p")
   (cond ((region-active-p)
          (goto-char (region-end))
@@ -1625,6 +1625,9 @@ If jammed between parens, \"(|(\" unjam: \"( |(\"."
                (backward-char))
            (backward-char)
            (just-one-space)))
+        ((lispy-looking-back lispy-left)
+         (insert " ")
+         (backward-char))
         (t
          (insert " ")
          (when (and (lispy-left-p)
@@ -7207,7 +7210,7 @@ If `lispy-safe-paste' is non-nil, any unmatched delimiters will be added to it."
 ;;* Key definitions
 (defvar ac-trigger-commands '(self-insert-command))
 (defvar company-begin-commands '(self-insert-command))
-(defvar company-no-begin-commands '(special-lispy-space))
+(defvar company-no-begin-commands nil)
 (defvar mc/cmds-to-run-for-all nil)
 (defvar mc/cmds-to-run-once nil)
 (mapc (lambda (x) (add-to-list 'mc/cmds-to-run-once x))
@@ -7312,7 +7315,7 @@ FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)."
     (lispy-define-key map "A" 'lispy-beginning-of-defun)
     (lispy-define-key map "_" 'lispy-underscore)
     ;; miscellanea
-    (lispy-define-key map "SPC" 'lispy-space)
+    (define-key map (kbd "SPC") 'lispy-space)
     (lispy-define-key map "i" 'lispy-tab)
     (lispy-define-key map "I" 'lispy-shifttab)
     (lispy-define-key map "N" 'lispy-narrow)

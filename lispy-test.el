@@ -1899,6 +1899,8 @@ Insert KEY if there's no command."
                    "(quote ~foo|)")))
 
 (ert-deftest lispy-space ()
+  (should (string= (lispy-with "(|foo" " ")
+                   "(| foo"))
   (should (string= (lispy-with "|(foo bar)" "2 ")
                    "(| foo bar)"))
   (should (string= (lispy-with "(foo bar)|" "2 ")
