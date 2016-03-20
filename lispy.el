@@ -7710,7 +7710,8 @@ THEME is a list of choices: 'special, 'lispy, 'paredit, 'evilcp, 'c-digits."
    (assq 'lispy-mode minor-mode-map-alist)
    lispy-mode-map))
 
-(if (equal user-mail-address "ohwoeowho@gmail.com")
+(if (member user-mail-address '("ohwoeowho@gmail.com"
+                                "oleh@oremacs.com"))
     (lispy-set-key-theme '(oleh special lispy c-digits))
   (lispy-set-key-theme '(special lispy c-digits)))
 
