@@ -316,6 +316,12 @@ non-nil."
   :group 'lispy
   :type 'number)
 
+(defcustom lispy-insert-space-after-wrap t
+  "When non-nil, insert a space after the point when wrapping.
+This applies to the commands that use `lispy-pair'."
+  :group 'lispy
+  :type 'boolean)
+
 ;;;###autoload
 (define-minor-mode lispy-mode
   "Minor mode for navigating and editing LISP dialects.
@@ -1527,13 +1533,12 @@ When this function is called:
             (insert ,left ,right)
             (save-excursion
               (lispy-slurp arg))
-            (cond ((looking-at lispy-right)
-                   (left-char)
-                   (just-one-space)
-                   (backward-char))
-                  ((not (eolp))
-                   (just-one-space)
-                   (backward-char)))))))
+            (when (looking-at lispy-right)
+              (backward-char))
+            (when (and lispy-insert-space-after-wrap
+                       (not (eolp)))
+              (just-one-space)
+              (backward-char))))))
 
 (defalias 'lispy-parens
     (lispy-pair "(" ")" "^\\|\\(?:> \\|#\\?\\)\\|\\s-\\|\\[\\|[{(`'#@~_%,]")
