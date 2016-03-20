@@ -706,7 +706,10 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "|(a b c)\n(d e f)" (setq current-prefix-arg -1) "(")
                    "(| (a b c))\n(d e f)"))
   (should (string= (lispy-with "|(a b c)\n(d e f)" (setq current-prefix-arg 0) "(")
-                   "(| (a b c)\n (d e f))")))
+                   "(| (a b c)\n (d e f))"))
+  (let (lispy-insert-space-after-wrap)
+    (should (string= (lispy-with "a| b c" (kbd "C-u") "(")
+                     "(|a) b c"))))
 
 (ert-deftest lispy--sub-slurp-forward ()
   (should (eq (lispy-with-value "(progn\n  ~foo|-bar-baz-flip-flop)"
