@@ -2094,7 +2094,7 @@ beginning of the line or as far as possible on the current line."
                (while (and (lispy-dotimes 1 (forward-sexp -1))
                            (not (looking-at "\\`")))))
               ((= arg -1)
-               (while (and (not (looking-back "^[[:space:]]*"))
+               (while (and (not (lispy-looking-back "^[[:space:]]*"))
                            (lispy-dotimes 1 (forward-sexp -1)))))
               ((or (and (not (lispy-left-p))
                         (lispy-looking-back "\\s_"))
@@ -2132,9 +2132,9 @@ beginning of the line or as far as possible on the current line."
                  ;; lispy--slurp-backward errors when reaching another delimiter
                  (while (and (lispy-dotimes 1
                                (lispy--slurp-backward))
-                             (not (looking-back "\\`")))))
+                             (not (lispy-looking-back "\\`")))))
                 ((= arg -1)
-                 (while (and (not (looking-back "^[[:space:]]*"))
+                 (while (and (not (lispy-looking-back "^[[:space:]]*"))
                              (lispy-dotimes 1
                                (lispy--slurp-backward)))))
                 (t
@@ -4628,6 +4628,8 @@ ARG is 4: `eval-defun' on the function from this sexp."
                          (t
                           (error "Argument = %s isn't supported" arg)))))
              (error "%s isn't bound" fun))))))
+
+(declare-function lispy--clojure-debug-step-in "le-clojure")
 
 (defun lispy-debug-step-in ()
   "Eval current function arguments and jump to definition."
@@ -7625,7 +7627,7 @@ When ARG is non-nil, unquote the current string."
     (define-key map (kbd "C-1") 'lispy-describe-inline)
     (define-key map (kbd "C-2") 'lispy-arglist-inline)
     (define-key map (kbd "C-3") 'lispy-right)
-    (define-key map (kbd "C-4") lispy-mode-map-x)
+    (define-key map (kbd "C-4") 'lispy-x)
     (define-key map (kbd "C-7") 'lispy-cursor-down)
     (define-key map (kbd "C-8") 'lispy-parens-down)
     (define-key map (kbd "C-9") 'lispy-out-forward-newline)
