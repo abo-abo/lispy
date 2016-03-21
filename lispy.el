@@ -197,7 +197,8 @@ The hint will consist of the possible nouns that apply to the verb."
 
 (defcustom lispy-helm-columns '(70 80)
   "Max lengths of tag and tag+filename when completing with `helm'."
-  :group 'lispy)
+  :group 'lispy
+  :type '(list integer integer))
 
 (defcustom lispy-no-permanent-semantic nil
   "When t, `lispy' will not enable function `semantic-mode' when it's off."
@@ -246,7 +247,8 @@ The hint will consist of the possible nouns that apply to the verb."
           (const :tag "Post" post)))
 
 (defcustom lispy-avy-keys (number-sequence ?a ?z)
-  "Keys for jumping.")
+  "Keys for jumping."
+  :type '(repeat :tag "Keys" (character :tag "char")))
 
 (defface lispy-command-name-face
   '((((class color) (background light))
@@ -3064,7 +3066,8 @@ When STEP is non-nil, insert in between each STEP elements instead."
     (nreverse res)))
 
 (defcustom lispy-multiline-threshold 32
-  "Don't multiline expresssions shorter than this when printed as a string.")
+  "Don't multiline expresssions shorter than this when printed as a string."
+  :type 'integer)
 
 (defun lispy--translate-newlines (str)
   "Replace quoted newlines with real ones in STR."
@@ -3578,7 +3581,8 @@ SYMBOL is a string."
   (interactive (list (or (thing-at-point 'symbol t)
                          (lispy--current-function))))
   (deactivate-mark)
-  (ring-insert find-tag-marker-ring (point-marker))
+  (with-no-warnings
+    (ring-insert find-tag-marker-ring (point-marker)))
   (if (memq major-mode lispy-elisp-modes)
       (lispy-goto-symbol-elisp symbol)
     (let ((handler (cdr (assoc major-mode lispy-goto-symbol-alist)))
