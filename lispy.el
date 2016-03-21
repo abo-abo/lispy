@@ -295,7 +295,10 @@ using those packages."
 `lispy-mode' overrides those while it's on.")
 
 (defcustom lispy-safe-delete nil
-  "When non-nil, `lispy-delete' keeps delimiters balanced for an active region."
+  "When non-nil, killing/deleting an active region keeps delimiters balanced.
+This applies to `lispy-delete', `lispy-kill-at-point', `lispy-paste', and
+`lispy-delete-backward'. This also applies to `lispy-yank' when
+`delete-selection-mode' is non-nil."
   :group 'lispy
   :type 'boolean)
 
@@ -1066,16 +1069,16 @@ If position isn't special, move to previous or error."
   "Like regular `yank', but quotes body when called from \"|\"."
   (interactive)
   (cond
-   ((and (region-active-p)
-         (bound-and-true-p delete-selection-mode))
-    (delete-active-region)
-    (insert (lispy--maybe-safe-current-kill)))
-   ((and (eq (char-after) ?\")
-         (eq (char-before) ?\"))
-    (insert (replace-regexp-in-string "\"" "\\\\\""
-                                      (lispy--maybe-safe-current-kill))))
-   (t
-    (insert (lispy--maybe-safe-current-kill)))))
+    ((and (region-active-p)
+          (bound-and-true-p delete-selection-mode))
+     (lispy--maybe-safe-delete-region (region-beginning) (region-end))
+     (insert (lispy--maybe-safe-current-kill)))
+    ((and (eq (char-after) ?\")
+          (eq (char-before) ?\"))
+     (insert (replace-regexp-in-string "\"" "\\\\\""
+                                       (lispy--maybe-safe-current-kill))))
+    (t
+     (insert (lispy--maybe-safe-current-kill)))))
 
 (defun lispy-delete (arg)
   "Delete ARG sexps."
@@ -1085,14 +1088,7 @@ If position isn't special, move to previous or error."
            (lispy-delete-backward (- arg)))
 
           ((region-active-p)
-           (if lispy-safe-delete
-               (let ((safe-regions (lispy--find-safe-regions
-                                    (region-beginning)
-                                    (region-end))))
-                 (dolist (safe-region safe-regions)
-                   (delete-region (car safe-region) (cdr safe-region))))
-             (delete-region
-              (region-beginning) (region-end))))
+           (lispy--maybe-safe-delete-region (region-beginning) (region-end)))
 
           ((setq bnd (lispy--bounds-string))
            (cond ((eq (1+ (point)) (cdr bnd))
@@ -1174,8 +1170,8 @@ Otherwise (`backward-delete-char-untabify' ARG)."
            (lispy-delete (- arg)))
 
           ((region-active-p)
-           (delete-region (region-beginning)
-                          (region-end)))
+           (lispy--maybe-safe-delete-region (region-beginning)
+                                            (region-end)))
           ((bobp))
 
           ((and (setq bnd (lispy--bounds-string))
@@ -1444,8 +1440,8 @@ When ARG is more than 1, mark ARGth element."
   "Kill the quoted string or the list that includes the point."
   (interactive)
   (if (region-active-p)
-      (kill-region (region-beginning)
-                   (region-end))
+      (lispy--maybe-safe-kill-region (region-beginning)
+                                     (region-end))
     (let ((bounds (or (lispy--bounds-comment)
                       (lispy--bounds-string)
                       (lispy--bounds-list))))
@@ -1454,17 +1450,10 @@ When ARG is more than 1, mark ARGth element."
 (defun lispy-new-copy ()
   "Copy marked region or sexp to kill ring."
   (interactive)
-  (let ((str
-         (if (and (region-active-p)
-                  lispy-safe-copy)
-             (let ((safe-regions (lispy--find-safe-regions
-                                  (region-beginning)
-                                  (region-end)))
-                   safe-strings)
-               (dolist (safe-region safe-regions)
-                 (push (lispy--string-dwim safe-region) safe-strings))
-               (apply #'concat safe-strings))
-           (lispy--string-dwim))))
+  (let ((str (if (region-active-p)
+                 (lispy--maybe-safe-region (region-beginning)
+                                           (region-end))
+               (lispy--string-dwim))))
     (unless (equal str (ignore-errors
                          (current-kill 0)))
       (kill-new str))))
@@ -4962,8 +4951,8 @@ When ARG is given, paste at that place in the current list."
   (cond ((region-active-p)
          (let ((bnd (lispy--bounds-dwim)))
            (deactivate-mark)
-           (delete-region (car bnd)
-                          (cdr bnd))
+           (lispy--maybe-safe-delete-region (car bnd)
+                                            (cdr bnd))
            (insert (lispy--maybe-safe-current-kill))))
         ((> arg 1)
          (lispy-mark-car)
@@ -7246,6 +7235,38 @@ without recalculation."
           (push (cons maybe-safe-pos unsafe-pos) safe-positions))
         (setq maybe-safe-pos (1+ unsafe-pos)))
       (push (cons maybe-safe-pos end) safe-positions))))
+
+(defun lispy--maybe-safe-delete-region (beg end)
+  "Delete the region from BEG to END.
+If `lispy-safe-delete' is non-nil, exclude unmatched delimiters."
+  (if lispy-safe-delete
+      (let ((safe-regions (lispy--find-safe-regions beg end)))
+        (dolist (safe-region safe-regions)
+          (delete-region (car safe-region) (cdr safe-region))))
+    (delete-region beg end)))
+
+(defun lispy--maybe-safe-kill-region (beg end)
+  "Kill the region from BEG to END.
+If `lispy-safe-delete' is non-nil, exclude unmatched delimiters."
+  (if lispy-safe-delete
+      (let ((safe-regions (lispy--find-safe-regions beg end))
+            safe-strings)
+        (dolist (safe-region safe-regions)
+          (push (lispy--string-dwim safe-region) safe-strings)
+          (delete-region (car safe-region) (cdr safe-region)))
+        (kill-new (apply #'concat safe-strings)))
+    (kill-region beg end)))
+
+(defun lispy--maybe-safe-region (beg end)
+  "Return the text from BEG to END.
+If `lispy-safe-copy' is non-nil, exclude unmatched delimiters."
+  (if lispy-safe-copy
+      (let ((safe-regions (lispy--find-safe-regions beg end))
+            safe-strings)
+        (dolist (safe-region safe-regions)
+          (push (lispy--string-dwim safe-region) safe-strings))
+        (apply #'concat safe-strings))
+    (lispy--string-dwim (cons beg end))))
 
 (defvar lispy--pairs
   '(("(" . ")")
