@@ -2186,18 +2186,35 @@ beginning of the line or as far as possible on the current line."
           (indent-sexp))))))
 
 (defun lispy-up-slurp ()
-  "Move current sexp or region into the previous sexp."
+  "Move current sexp or region into the previous sexp.
+If the point is by itself on a line or followed only by right delimiters, slurp
+the point into the previous list. This can be of thought as indenting the code
+to the next level and adjusting the parentheses accordingly."
   (interactive)
-  (let ((bnd (lispy--bounds-dwim))
-        (regionp (region-active-p))
-        (endp (or (lispy-right-p)
-                  (and (region-active-p) (= (point) (region-end)))))
-        p-beg p-end
-        (deactivate-mark nil)
-        bsize)
+  (let* ((empty-line-p (lispy--empty-line-p))
+         (list-start (when (eq empty-line-p 'right)
+                       (save-excursion
+                         (re-search-forward lispy-right)
+                         (lispy-different)
+                         (point))))
+         (failp (when list-start
+                  (= list-start
+                     (save-excursion
+                       (re-search-backward lispy-left)
+                       (point)))))
+         (bnd (if empty-line-p
+                  (cons (point) (point))
+                (lispy--bounds-dwim)))
+         (regionp (region-active-p))
+         (endp (or (lispy-right-p)
+                   (and (region-active-p) (= (point) (region-end)))))
+         p-beg p-end
+         (deactivate-mark nil)
+         bsize)
     (deactivate-mark)
     (goto-char (car bnd))
-    (if (not (lispy-backward 1))
+    (if (or failp
+            (not (lispy-backward 1)))
         (progn
           (lispy-complain "No list above to slurp into")
           (if regionp
@@ -2232,6 +2249,23 @@ beginning of the line or as far as possible on the current line."
         (if (region-active-p)
             (lispy-different)
           (goto-char (car bnd)))))))
+
+(defun lispy-indent-adjust-parens (arg)
+  "Indent the line if it is incorrectly indented or act as `lispy-up-slurp'.
+If the region is indented properly, call `lispy-up-slurp' ARG times."
+  (interactive "p")
+  (let* ((beg (if (region-active-p)
+                  (region-beginning)
+                (line-beginning-position)))
+         (end (if (region-active-p)
+                  (region-end)
+                (line-end-position)))
+         (text (buffer-substring-no-properties beg end)))
+    (indent-for-tab-command)
+    (when (and (not (> end (point-max)))
+               (string= text (buffer-substring-no-properties beg end)))
+      (dotimes (_ arg)
+        (lispy-up-slurp)))))
 
 (defun lispy--backward-sexp-or-comment ()
   "When in comment, move to the comment start.
@@ -2829,6 +2863,30 @@ Also works from inside the list."
                 (exchange-point-and-mark)))
           (when leftp
             (lispy-different)))))))
+
+(defun lispy-dedent-adjust-parens (arg)
+  "Move region or all the following sexps in the current list right.
+This can be of thought as dedenting the code to the previous level and adjusting
+the parentheses accordingly."
+  (interactive "p")
+  (let ((line-type (lispy--empty-line-p)))
+    (cond ((eq line-type 'right)
+           (unless (looking-at lispy-right)
+             (re-search-forward lispy-right)
+             (backward-char))
+           (lispy-dotimes arg
+             (unless (looking-at "$")
+               (lispy-delete-backward 1)
+               (forward-char)
+               (newline-and-indent))))
+          ((region-active-p)
+           (lispy-move-right arg))
+          ((not line-type)
+           (lispy-mark-list 1)
+           (lispy-slurp 0)
+           (lispy-move-right arg)
+           (lispy-different)
+           (deactivate-mark)))))
 
 (defun lispy-clone (arg)
   "Clone sexp ARG times.
@@ -5222,6 +5280,18 @@ Return start of string it is."
      1)
     (point))
    str))
+
+(defun lispy--empty-line-p ()
+  "Test whether the point is on an \"empty\" line.
+Return t if the point is by itself on a line with optional whitespace.
+Return 'right if the point is on a line with only right delimiters and
+whitespace."
+  (if (and (looking-at (concat "[[:space:]]*" lispy-right "*$"))
+           (lispy-looking-back "^[[:space:]]*"))
+      (if (looking-at (concat "[[:space:]]*" lispy-right))
+          'right
+        t)
+    nil))
 
 ;;* Pure
 (defun lispy--bounds-dwim ()

@@ -268,6 +268,41 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "(progn\n\n  |(sexp1)\n  (sexp2))" "ol")
                    "(progn\n\n  (sexp2))\n|(sexp1)")))
 
+(ert-deftest lispy-dedent-adjust-parens ()
+  ;; test reverse of lispy-up-slurp on line with only closing parens
+  (should (string= (lispy-with "(let ((a (1+\n          |))))"
+                               (lispy-dedent-adjust-parens 1))
+                   "(let ((a (1+)\n        |)))"))
+  (should (string= (lispy-with "(let ((a (1+)\n        |)))"
+                               (lispy-dedent-adjust-parens 1))
+                   "(let ((a (1+))\n      |))"))
+  (should (string= (lispy-with "(let ((a (1+))\n      |))"
+                               (lispy-dedent-adjust-parens 1))
+                   "(let ((a (1+)))\n  |)"))
+  (should (string= (lispy-with "(let ((a (1+)))\n  |)"
+                               (lispy-dedent-adjust-parens 1))
+                   "(let ((a (1+))))\n|"))
+  ;; test when in a list with sexps after the current one
+  (should (string= (lispy-with "(((a)\n  |(b)\n  (c)\n  (d)))"
+                               (lispy-dedent-adjust-parens 1))
+                   "(((a))\n |(b)\n (c)\n (d))"))
+  (should (string= (lispy-with "(((a))\n |(b)\n (c)\n (d))"
+                               (lispy-dedent-adjust-parens 1))
+                   "(((a)))\n|(b)\n(c)\n(d)"))
+  ;; behave the same even if whitespace after point
+  (should (string= (lispy-with "(a\n| )" (lispy-dedent-adjust-parens 1))
+                   "(a)\n|"))
+  ;; test counts
+  (should (string= (lispy-with "(let ((a (1+\n          |))))"
+                               (lispy-dedent-adjust-parens 3))
+                   "(let ((a (1+)))\n  |)"))
+  (should (string= (lispy-with "(let ((a (1+\n          |))))"
+                               (lispy-dedent-adjust-parens 20))
+                   "(let ((a (1+))))\n|"))
+  (should (string= (lispy-with "(((a)\n  |(b)\n  (c)\n  (d)))"
+                               (lispy-dedent-adjust-parens 2))
+                   "(((a)))\n|(b)\n(c)\n(d)")))
+
 (ert-deftest lispy-move-left ()
   (should (string= (lispy-with "(progn\n |(sexp1)\n (sexp2))" "oh")
                    "|(sexp1)\n(progn\n  (sexp2))")))
@@ -1684,7 +1719,43 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "[foo] |(bar)" "ok")
                    "[foo |(bar)]"))
   (should (string= (lispy-with "(progn\n  (foo))\n~(bar)\n(baz)|" "ok")
-                   "(progn\n  (foo)\n  ~(bar)\n  (baz)|)")))
+                   "(progn\n  (foo)\n  ~(bar)\n  (baz)|)"))
+  (should (string= (lispy-with "(let ((a (1+))))\n|" (lispy-up-slurp))
+                   "(let ((a (1+)))\n  |)"))
+  (should (string= (lispy-with "(let ((a (1+)))\n  |)" (lispy-up-slurp))
+                   "(let ((a (1+))\n      |))"))
+  (should (string= (lispy-with "(let ((a (1+))\n      |))" (lispy-up-slurp))
+                   "(let ((a (1+)\n        |)))"))
+  (should (string= (lispy-with "(let ((a (1+)\n        |)))" (lispy-up-slurp))
+                   "(let ((a (1+\n          |))))"))
+  ;; no change should be made here
+  (should (string= (lispy-with "(let ((a (1+\n          |))))" (lispy-up-slurp))
+                   "(let ((a (1+\n          |))))")))
+
+(ert-deftest lispy-indent-adjust-parens ()
+  ;; fix incorrect indentation
+  (should (string= (lispy-with "(a\n|)" (lispy-indent-adjust-parens 1))
+                   "(a\n |)"))
+  (should (string= (lispy-with "(a\n  |  )\n" (lispy-indent-adjust-parens 1))
+                   "(a\n |)\n"))
+  (should (string= (lispy-with "(a\n  ~(b c)\n   (d e)\n    (|f g)"
+                               (lispy-indent-adjust-parens 1)
+                               (deactivate-mark))
+                   "(a\n (b c)\n (d e)\n (|f g)"))
+  ;; otherwise call lispy-up-slurp
+  (should (string= (lispy-with "(let ((a (1+))))\n|"
+                               (lispy-indent-adjust-parens 1))
+                   "(let ((a (1+)))\n  |)"))
+  (should (string= (lispy-with "(progn\n  (foo))\n~(bar)\n(baz)|"
+                               (lispy-indent-adjust-parens 1))
+                   "(progn\n  (foo)\n  ~(bar)\n  (baz)|)"))
+  ;; test counts
+  (should (string= (lispy-with "(let ((a (1+))))\n|"
+                               (lispy-indent-adjust-parens 3))
+                   "(let ((a (1+)\n        |)))"))
+  (should (string= (lispy-with "(let ((a (1+))))\n|"
+                               (lispy-indent-adjust-parens 20))
+                   "(let ((a (1+\n          |))))")))
 
 (ert-deftest lispy-tab ()
   (should (string= (lispy-with "|(defun test?  (x) x)" "i")
