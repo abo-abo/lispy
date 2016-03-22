@@ -316,6 +316,20 @@ non-nil."
   :group 'lispy
   :type 'number)
 
+(defcustom lispy-safe-actions-ignore-strings t
+  "When non-nil, don't try to act safely in strings.
+Any unmatched delimiters inside of strings will be copied or deleted. This only
+applies when `lispy-safe-delete' and/or `lispy-safe-copy' are non-nil."
+  :group 'lispy
+  :type 'boolean)
+
+(defcustom lispy-safe-actions-ignore-comments t
+  "When non-nil, don't try to act safely in comments.
+Any unmatched delimiters inside of comments will be copied or deleted. This only
+applies when `lispy-safe-delete' and/or `lispy-safe-copy' are non-nil."
+  :group 'lispy
+  :type 'boolean)
+
 (defcustom lispy-insert-space-after-wrap t
   "When non-nil, insert a space after the point when wrapping.
 This applies to the commands that use `lispy-pair'."
@@ -7145,37 +7159,64 @@ checked and nil will be returned."
       (let ((lispy-delimiters (concat (substring lispy-right 0 -1)
                                       "\""
                                       (substring lispy-left 1)))
+            matched-left-quote-p
+            string-bounds
+            string-end
+            comment-end
             left-positions
             right-positions)
         (while (re-search-forward lispy-delimiters end t)
-          (unless (looking-back "\\\\." (- (point) 2))
-            (let* ((match-beginning (match-beginning 0))
-                   (matched-delimiter (buffer-substring-no-properties
-                                       match-beginning
-                                       (match-end 0))))
-              (if (or (string-match lispy-left matched-delimiter)
-                      (and (string= matched-delimiter "\"")
-                           (lispy--in-string-p)))
-                  (push match-beginning left-positions)
-                (if (> (length left-positions) 0)
-                    (pop left-positions)
-                  (push match-beginning right-positions))))))
+          (let* ((match-beginning (match-beginning 0))
+                 (matched-delimiter (buffer-substring-no-properties
+                                     match-beginning
+                                     (match-end 0))))
+            (cond
+              ((and lispy-safe-actions-ignore-strings
+                    (save-excursion
+                      (backward-char)
+                      (setq string-bounds (lispy--bounds-string))
+                      (setq string-end (cdr string-bounds))))
+               (setq matched-left-quote-p (= (1- (point))
+                                             (car string-bounds)))
+               (cond ((< string-end end)
+                      (goto-char string-end)
+                      ;; when skipping strings, will only match right quote
+                      ;; if left quote is not in the region
+                      (when (not matched-left-quote-p)
+                        (push (1- string-end) right-positions)))
+                     (t
+                      (when matched-left-quote-p
+                        ;; unmatched left quote
+                        (push match-beginning left-positions))
+                      (goto-char end))))
+              ((and lispy-safe-actions-ignore-comments
+                    (setq comment-end (cdr (lispy--bounds-comment))))
+               (if (< comment-end end)
+                   (goto-char comment-end)
+                 (goto-char end)))
+              (t
+               (unless (looking-back "\\\\." (- (point) 2))
+                 (if (or (string-match lispy-left matched-delimiter)
+                         (and (string= matched-delimiter "\"")
+                              (lispy--in-string-p)))
+                     (push match-beginning left-positions)
+                   (if (> (length left-positions) 0)
+                       (pop left-positions)
+                     (push match-beginning right-positions))))))))
         (nreverse (append left-positions right-positions))))))
 
 (defun lispy--find-safe-regions (beg end)
   "Return a list of safe regions between BEG and END.
 The regions are returned in reverse order so that they can be easily deleted
 without recalculation."
-  (if (> (- end beg) lispy-safe-threshold)
-      (list (cons beg end))
-    (let ((unmatched-delimiters (lispy--find-unmatched-delimiters beg end))
-          (maybe-safe-pos beg)
-          safe-positions)
-      (dolist (unsafe-pos unmatched-delimiters)
-        (unless (= maybe-safe-pos unsafe-pos)
-          (push (cons maybe-safe-pos unsafe-pos) safe-positions))
-        (setq maybe-safe-pos (1+ unsafe-pos)))
-      (push (cons maybe-safe-pos end) safe-positions))))
+  (let ((unmatched-delimiters (lispy--find-unmatched-delimiters beg end))
+        (maybe-safe-pos beg)
+        safe-positions)
+    (dolist (unsafe-pos unmatched-delimiters)
+      (unless (= maybe-safe-pos unsafe-pos)
+        (push (cons maybe-safe-pos unsafe-pos) safe-positions))
+      (setq maybe-safe-pos (1+ unsafe-pos)))
+    (push (cons maybe-safe-pos end) safe-positions)))
 
 (defvar lispy--pairs
   '(("(" . ")")

@@ -599,7 +599,36 @@ Insert KEY if there's no command."
     (should (string= (lispy-with "~(1 (2 (3 \"a |duck\")))" "\C-d")
                      "~(((\"|duck\")))"))
     (should (string= (lispy-with "(((\"a ~duck\" 3) 2) 1)|" "\C-d")
-                     "(((\"a ~\")))|"))))
+                     "(((\"a ~\")))|"))
+    (let ((lispy-safe-actions-ignore-strings t)
+          (lispy-safe-actions-ignore-comments t))
+      ;; test ignoring delimiters in strings
+      (should (string= (lispy-with "\"~( is a left paren.|\"" "\C-d")
+                       "\"~|\""))
+      (should (string= (lispy-with "~a \"([[{b |c\"" "\C-d")
+                       "~\"|c\""))
+      (should (string= (lispy-with "\"a ~b)]}\" c|" "\C-d")
+                       "\"a ~\"|"))
+      (should (string= (lispy-with "~a \"(b {c]\" d|" "\C-d")
+                       "~|"))
+      (should (string= (lispy-with "a \"~(\"\"]\" \"((|)\" b" "\C-d")
+                       "a \"~\"\"|)\" b"))
+      ;; mixed
+      (should (string= (lispy-with "~{[(a b \"(c|\" d)]}" "\C-d")
+                       "~{[(\"|\" d)]}"))
+      ;; test ignoring delimiters in comments
+      (should (string= (lispy-with "~;; ([[{{|" "\C-d")
+                       "~|"))
+      (should (string= (lispy-with ";; ~([[{{\n a|" "\C-d")
+                       ";; ~|"))
+      (should (string= (lispy-with "~{[(a\n b\n ;; ]{](\n| d)]}" "\C-d")
+                       "~{[(| d)]}"))
+      (should (string= (lispy-with "{[(a~\n b\n ;; ]{](\n d)]}|" "\C-d")
+                       "{[(a~)]}|"))
+      ;; both mixed
+      (should (string= (lispy-with "{[(a\n~   b \"c [(d e}\"\n   ;;({]\n|   f)]}"
+                                   "\C-d")
+                       "{[(a\n~|   f)]}")))))
 
 (ert-deftest lispy-delete-backward ()
   (should (string= (lispy-with "((a) (b) (c)|)" "\C-?")
