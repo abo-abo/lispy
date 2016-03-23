@@ -1530,15 +1530,20 @@ When this function is called:
               (backward-char))
             (backward-char))
            (t
-            (unless (lispy-bolp)
+            ;; don't jump out of a list when not at a sexp
+            (unless (lispy--not-at-sexp-p)
               (goto-char (car (lispy--bounds-dwim))))
             (lispy--indent-for-tab)
             (insert ,left ,right)
             (save-excursion
               (lispy-slurp arg))
-            (when (looking-at lispy-right)
+            (when (or (looking-at lispy-right)
+                      (and (eolp)
+                           (looking-back lispy-right (1- (point)))))
+              ;; failed to wrap anything
               (backward-char))
             (when (and lispy-insert-space-after-wrap
+                       (not (lispy--in-empty-list-p))
                        (not (eolp)))
               (just-one-space)
               (backward-char))))))
@@ -5295,6 +5300,30 @@ whitespace."
           'right
         t)
     nil))
+
+(defun lispy--in-empty-list-p ()
+  "Test whether the point is in a list with no sexps."
+  (and (looking-at (concat "[[:space:]]*" lispy-right))
+       (lispy-looking-back (concat "[[:space:]]*" lispy-left))))
+
+(defun lispy--not-at-sexp-p ()
+  "Test whether the point is at a \"free\" spot and not at a wrappable sexp."
+  (let ((space "[[:space:]]")
+        (special-syntax "[`'#@~_%,]"))
+    (or (lispy--in-empty-list-p)
+        ;; top level
+        (and (looking-at (concat space "*$"))
+             (lispy-looking-back (concat "^" space "*" special-syntax "*")))
+        ;; empty position at end of list or line
+        (and (looking-at (concat space "*" lispy-right "*$"))
+             (lispy-looking-back (concat space "+" special-syntax "*")))
+        ;; empty position at beginning of list
+        (and (looking-at (concat "\\(" space "+\\|" space "*$\\)"))
+             (lispy-looking-back (concat lispy-left space "*" special-syntax
+                                         "*")))
+        ;; empty position in middle
+        (and (looking-at (concat space "+"))
+             (lispy-looking-back (concat space "+" special-syntax "*"))))))
 
 ;;* Pure
 (defun lispy--bounds-dwim ()
