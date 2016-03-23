@@ -1492,8 +1492,8 @@ When this function is called:
   Wrap that number of sexps with LEFT RIGHT or as many as possible."
   `(lambda (arg)
      (interactive "P")
-     (cond ((not current-prefix-arg))
-           ((listp current-prefix-arg)
+     (cond ((not arg))
+           ((listp arg)
             (setq arg 1))
            (t
             (setq arg (prefix-numeric-value arg))))
@@ -7516,6 +7516,56 @@ FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)."
 (eldoc-remove-command 'special-lispy-eval)
 (eldoc-remove-command 'special-lispy-x)
 
+;;* Parinfer compat
+(defun lispy-parens-auto-wrap (arg)
+  "Like `lispy-parens' but wrap to the end of the line by default.
+With an arg of -1, never wrap."
+  (interactive "P")
+  (cond ((not arg)
+         (setq arg -1))
+        ((or (eq arg '-)
+             (and (numberp arg)
+                  (= arg -1)))
+         (setq arg nil)))
+  (lispy-parens arg))
+
+(defun lispy-brackets-auto-wrap (arg)
+  "Like `lispy-brackets' but wrap to the end of the line by default.
+With an arg of -1, never wrap."
+  (interactive "P")
+  (cond ((not arg)
+         (setq arg -1))
+        ((or (eq arg '-)
+             (and (numberp arg)
+                  (= arg -1)))
+         (setq arg nil)))
+  (lispy-brackets arg))
+
+(defun lispy-braces-auto-wrap (arg)
+  "Like `lispy-braces' but wrap to the end of the line by default.
+With an arg of -1, never wrap."
+  (interactive "P")
+  (cond ((not arg)
+         (setq arg -1))
+        ((or (eq arg '-)
+             (and (numberp arg)
+                  (= arg -1)))
+         (setq arg nil)))
+  (lispy-braces arg))
+
+(defun lispy-delete-backward-or-splice-or-slurp (arg)
+  "Call `lispy-delete-backward' unless after a delimiter
+After an opening delimiter, splice. After a closing delimiter, slurp to the end
+of the line without moving the point."
+  (interactive "p")
+  (cond ((looking-back lispy-left)
+         (lispy-splice arg))
+        ((looking-back lispy-right)
+         (save-excursion
+           (lispy-slurp -1)))
+        (t
+         (lispy-delete-backward arg))))
+
 ;;* Paredit compat
 (defun lispy-close-round-and-newline (arg)
   "Forward to (`lispy-out-forward-newline' ARG).
@@ -7765,6 +7815,23 @@ When ARG is non-nil, unquote the current string."
     (define-key map (kbd "C-M-n") 'lispy-right)
     map))
 
+(defvar lispy-mode-map-parinfer
+  (let ((map (copy-keymap lispy-mode-map-base)))
+    (define-key map (kbd "(") 'lispy-parens-auto-wrap)
+    (define-key map (kbd "[") 'lispy-brackets-auto-wrap)
+    (define-key map (kbd "{") 'lispy-braces-auto-wrap)
+    (define-key map (kbd "\"") 'lispy-quotes)
+    (define-key map (kbd ")") 'lispy-barf-to-point)
+    (define-key map (kbd "TAB") 'lispy-indent-adjust-parens)
+    (define-key map (kbd "<backtab>") 'lispy-dedent-adjust-parens)
+    (define-key map (kbd "DEL") 'lispy-delete-backward-or-splice-or-slurp)
+    (define-key map (kbd ":") 'lispy-colon)
+    (define-key map (kbd "^") 'lispy-hat)
+    (define-key map (kbd "'") 'lispy-tick)
+    (define-key map (kbd "`") 'lispy-backtick)
+    (define-key map (kbd "#") 'lispy-hash)
+    map))
+
 (defvar lispy-mode-map-evilcp
   (let ((map (copy-keymap lispy-mode-map-base)))
     (define-key map (kbd "M-)") 'lispy-close-round-and-newline)
@@ -7876,6 +7943,7 @@ THEME is a list of choices: 'special, 'lispy, 'paredit, 'evilcp, 'c-digits."
                 (when (memq 'special theme) lispy-mode-map-special)
                 (when (memq 'lispy theme) lispy-mode-map-lispy)
                 (when (memq 'paredit theme) lispy-mode-map-paredit)
+                (when (memq 'parinfer theme) lispy-mode-map-parinfer)
                 (when (memq 'evilcp theme) lispy-mode-map-evilcp)
                 (when (memq 'c-digits theme) lispy-mode-map-c-digits)
                 (when (memq 'oleh theme) lispy-mode-map-oleh)))))
