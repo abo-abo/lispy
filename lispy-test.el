@@ -2213,6 +2213,41 @@ Insert KEY if there's no command."
                                (execute-kbd-macro (kbd "Hg")))
                    "(progn (setq type 'norwegian-blue)\n       (setq plumage-type |))")))
 
+;;* Parinfer compatibility tests
+(ert-deftest lispy-parens-auto-wrap ()
+  (lispy-set-key-theme '(parinfer))
+  (should (string= (lispy-with "|a" "(")
+                   "(| a)"))
+  (should (string= (lispy-with "|a" (setq current-prefix-arg '-) "(")
+                   "(|) a"))
+  (lispy-set-key-theme '(special lispy c-digits oleh)))
+
+(ert-deftest lispy-brackets-auto-wrap ()
+  (lispy-set-key-theme '(parinfer))
+  (should (string= (lispy-with "|a" "[")
+                   "[| a]"))
+  (should (string= (lispy-with "|a" (setq current-prefix-arg '-) "[")
+                   "[|] a"))
+  (lispy-set-key-theme '(special lispy c-digits oleh)))
+
+(ert-deftest lispy-braces-auto-wrap ()
+  (lispy-set-key-theme '(parinfer))
+  (should (string= (lispy-with "|a" "{")
+                   "{| a}"))
+  (should (string= (lispy-with "|a" (setq current-prefix-arg '-) "{")
+                   "{|} a"))
+  (lispy-set-key-theme '(special lispy c-digits oleh)))
+
+(ert-deftest lispy-delete-backward-or-splice-or-slurp ()
+  (lispy-set-key-theme '(parinfer))
+  (should (string= (lispy-with "(|a b c)" (kbd "DEL"))
+                   "|a b c"))
+  (should (string= (lispy-with "(a |b c)" (kbd "DEL") (kbd "DEL"))
+                   "(|b c)"))
+  (should (string= (lispy-with "(a b)| c" (kbd "DEL"))
+                   "(a b| c)"))
+  (lispy-set-key-theme '(special lispy c-digits oleh)))
+
 ;;* Paredit compatibility tests
 (ert-deftest lispy-paredit-open-round ()
   (should (string= (lispy-with "(a b |c d)"
