@@ -2435,30 +2435,33 @@ When lispy-left, will slurp ARG sexps forwards.
   "Barf to the closest sexp before the point.
 When ARG is non-nil, barf from the left."
   (interactive "P")
-  (unless (or (not (cadr (syntax-ppss)))
-              (let ((str (lispy--bounds-string)))
-                (and str
-                     (not (= (car str) (point))))))
-    (let ((line-number (line-number-at-pos))
-          split-moved-point-down)
-      (lispy-split)
-      (when (and arg
-                 (not (= (line-number-at-pos) line-number)))
-        (setq split-moved-point-down t))
-      (lispy--normalize-1)
-      (cond (arg
-             (save-excursion
-               (lispy-up 1)
-               (lispy-splice 1))
-             (when split-moved-point-down
-               (lispy-delete-backward 1)))
-            (t
-             (save-excursion
-               (lispy-splice 1))
-             (join-line)
-             (when (looking-at " $")
-               (delete-char 1))))
-      (lispy--reindent 1))))
+  (if (and (not arg)
+           (looking-at lispy-right))
+      (forward-char)
+    (unless (or (not (cadr (syntax-ppss)))
+                (let ((str (lispy--bounds-string)))
+                  (and str
+                       (not (= (car str) (point))))))
+      (let ((line-number (line-number-at-pos))
+            split-moved-point-down)
+        (lispy-split)
+        (when (and arg
+                   (not (= (line-number-at-pos) line-number)))
+          (setq split-moved-point-down t))
+        (lispy--normalize-1)
+        (cond (arg
+               (save-excursion
+                 (lispy-up 1)
+                 (lispy-splice 1))
+               (when split-moved-point-down
+                 (lispy-delete-backward 1)))
+              (t
+               (save-excursion
+                 (lispy-splice 1))
+               (join-line)
+               (when (looking-at " $")
+                 (delete-char 1))))
+        (lispy--reindent 1)))))
 
 (defun lispy-reverse ()
   "Reverse the current list or region selection."
