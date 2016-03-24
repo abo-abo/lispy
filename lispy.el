@@ -2262,16 +2262,9 @@ to the next level and adjusting the parentheses accordingly."
   "Indent the line if it is incorrectly indented or act as `lispy-up-slurp'.
 If the region is indented properly, call `lispy-up-slurp' ARG times."
   (interactive "p")
-  (let* ((beg (if (region-active-p)
-                  (region-beginning)
-                (line-beginning-position)))
-         (end (if (region-active-p)
-                  (region-end)
-                (line-end-position)))
-         (text (buffer-substring-no-properties beg end)))
+  (let ((tick (buffer-chars-modified-tick)))
     (indent-for-tab-command)
-    (when (and (not (> end (point-max)))
-               (string= text (buffer-substring-no-properties beg end)))
+    (when (= tick (buffer-chars-modified-tick))
       (dotimes (_ arg)
         (lispy-up-slurp)))))
 
