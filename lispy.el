@@ -7516,41 +7516,37 @@ FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)."
 (eldoc-remove-command 'special-lispy-x)
 
 ;;* Parinfer compat
-(defun lispy-parens-auto-wrap (arg)
-  "Like `lispy-parens' but wrap to the end of the line by default.
-With an arg of -1, never wrap."
-  (interactive "P")
+(defun lispy--auto-wrap (func arg)
+  "Helper to create versions of the `lispy-pair' commands that wrap by default."
   (cond ((not arg)
          (setq arg -1))
         ((or (eq arg '-)
              (and (numberp arg)
                   (= arg -1)))
          (setq arg nil)))
-  (lispy-parens arg))
+  (when (and (numberp arg)
+             (= arg -1)
+             (= (point) (cdr (lispy--bounds-dwim))))
+    (insert " "))
+  (funcall func arg))
+
+(defun lispy-parens-auto-wrap (arg)
+  "Like `lispy-parens' but wrap to the end of the line by default.
+With an arg of -1, never wrap."
+  (interactive "P")
+  (lispy--auto-wrap #'lispy-parens arg))
 
 (defun lispy-brackets-auto-wrap (arg)
   "Like `lispy-brackets' but wrap to the end of the line by default.
 With an arg of -1, never wrap."
   (interactive "P")
-  (cond ((not arg)
-         (setq arg -1))
-        ((or (eq arg '-)
-             (and (numberp arg)
-                  (= arg -1)))
-         (setq arg nil)))
-  (lispy-brackets arg))
+  (lispy--auto-wrap #'lispy-brackets arg))
 
 (defun lispy-braces-auto-wrap (arg)
   "Like `lispy-braces' but wrap to the end of the line by default.
 With an arg of -1, never wrap."
   (interactive "P")
-  (cond ((not arg)
-         (setq arg -1))
-        ((or (eq arg '-)
-             (and (numberp arg)
-                  (= arg -1)))
-         (setq arg nil)))
-  (lispy-braces arg))
+  (lispy--auto-wrap #'lispy-braces arg))
 
 (defun lispy-barf-to-point-nostring (arg)
   "Call `lispy-barf-to-point' with ARG unless in string or comment.
