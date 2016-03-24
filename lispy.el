@@ -7574,7 +7574,7 @@ comments and strings, call `lispy-delete-backward'."
   (interactive "p")
   (cond ((lispy--in-string-or-comment-p)
          (lispy-delete-backward arg))
-        ((looking-back lispy-left)
+        ((lispy-looking-back lispy-left)
          (save-excursion
            (backward-char)
            (lispy-splice arg)))
