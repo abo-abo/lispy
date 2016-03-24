@@ -2250,10 +2250,24 @@ Insert KEY if there's no command."
   (lispy-set-key-theme '(parinfer))
   (should (string= (lispy-with "(|a b c)" (kbd "DEL"))
                    "|a b c"))
+  (should (string= (lispy-with "(|(a b c))" (kbd "DEL"))
+                   "|(a b c)"))
   (should (string= (lispy-with "(a |b c)" (kbd "DEL") (kbd "DEL"))
                    "(|b c)"))
-  (should (string= (lispy-with "(a b)| c" (kbd "DEL"))
-                   "(a b| c)"))
+  (should (string= (lispy-with "((a b)| c)" (kbd "DEL"))
+                   "((a b| c))"))
+  (should (string= (lispy-with "(a)| (b)" (kbd "DEL"))
+                   "(a|) (b)"))
+  (should (string= (lispy-with "(((a)))|" (kbd "DEL") (kbd "DEL") (kbd "DEL"))
+                   "(((a|)))"))
+  (should (string= (lispy-with ";; (a (b)| c)"
+                               (setq current-prefix-arg 4)
+                               (kbd "DEL"))
+                   ";; (a| c)"))
+  (should (string= (lispy-with "\"(a (b)| c)\""
+                               (setq current-prefix-arg 4)
+                               (kbd "DEL"))
+                   "\"(a| c)\""))
   (lispy-set-key-theme '(special lispy c-digits oleh)))
 
 ;;* Paredit compatibility tests
