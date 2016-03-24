@@ -1564,7 +1564,7 @@ Insert KEY if there's no command."
 
 (ert-deftest clojure-thread-macro ()
   ;; changes indentation
-  (require 'cider)
+  (require 'cider nil t)
   (should (string= (lispy-with-clojure "|(map sqr (filter odd? [1 2 3 4 5]))" "2(->>]<]<]wwlM")
                    "(->>\n [1 2 3 4 5]\n (map sqr)\n (filter odd?))|")))
 

@@ -6,13 +6,12 @@
 (files "*.el" (:exclude "init.el" "lispy-test.el"))
 
 (development
- (depends-on "helm")
  (depends-on "iedit")
  (depends-on "multiple-cursors")
- (depends-on "cider")
- (depends-on "slime")
- (depends-on "geiser")
- (depends-on "projectile")
+ ;; (depends-on "cider")
+ ;; (depends-on "slime")
+ ;; (depends-on "geiser")
+ ;; (depends-on "projectile")
  (depends-on "clojure-mode")
  (depends-on "swiper")
  (depends-on "hydra")
