@@ -7566,15 +7566,26 @@ Self-insert otherwise."
     (lispy-barf-to-point arg)))
 
 (defun lispy-delete-backward-or-splice-or-slurp (arg)
-  "Call `lispy-delete-backward' unless after a delimiter
+  "Call `lispy-delete-backward' unless after a delimiter.
 After an opening delimiter, splice. After a closing delimiter, slurp to the end
-of the line without moving the point."
+of the line without moving the point unless at the top-level. When at the final
+delimiters of a top-level form or at the end of the line, move backward. In
+comments and strings, call `lispy-delete-backward'."
   (interactive "p")
-  (cond ((looking-back lispy-left)
-         (lispy-splice arg))
-        ((looking-back lispy-right)
+  (cond ((lispy--in-string-or-comment-p)
+         (lispy-delete-backward arg))
+        ((looking-back lispy-left)
          (save-excursion
-           (lispy-slurp -1)))
+           (backward-char)
+           (lispy-splice arg)))
+        ((looking-back lispy-right (1- (point)))
+         (if (= 0 (syntax-ppss-depth (syntax-ppss)))
+             (backward-char)
+           (let ((tick (buffer-chars-modified-tick)))
+             (save-excursion
+               (lispy-slurp -1))
+             (when (= tick (buffer-chars-modified-tick))
+               (backward-char arg)))))
         (t
          (lispy-delete-backward arg))))
 
