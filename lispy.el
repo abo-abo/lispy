@@ -7553,6 +7553,15 @@ With an arg of -1, never wrap."
          (setq arg nil)))
   (lispy-braces arg))
 
+(defun lispy-barf-to-point-nostring (arg)
+  "Call `lispy-barf-to-point' with ARG unless in string or comment.
+Self-insert otherwise."
+  (interactive "P")
+  (if (or (lispy--in-string-or-comment-p)
+          (lispy-looking-back "?\\\\"))
+      (self-insert-command (prefix-numeric-value arg))
+    (lispy-barf-to-point arg)))
+
 (defun lispy-delete-backward-or-splice-or-slurp (arg)
   "Call `lispy-delete-backward' unless after a delimiter
 After an opening delimiter, splice. After a closing delimiter, slurp to the end
@@ -7821,7 +7830,9 @@ When ARG is non-nil, unquote the current string."
     (define-key map (kbd "[") 'lispy-brackets-auto-wrap)
     (define-key map (kbd "{") 'lispy-braces-auto-wrap)
     (define-key map (kbd "\"") 'lispy-quotes)
-    (define-key map (kbd ")") 'lispy-barf-to-point)
+    (define-key map (kbd ")") 'lispy-barf-to-point-nostring)
+    (define-key map (kbd "]") 'lispy-barf-to-point-nostring)
+    (define-key map (kbd "}") 'lispy-barf-to-point-nostring)
     (define-key map (kbd "TAB") 'lispy-indent-adjust-parens)
     (define-key map (kbd "<backtab>") 'lispy-dedent-adjust-parens)
     (define-key map (kbd "DEL") 'lispy-delete-backward-or-splice-or-slurp)
