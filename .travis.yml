@@ -1,3 +1,5 @@
+sudo: true
+dist: precise
 language: emacs-lisp
 env:
   matrix:
