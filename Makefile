@@ -10,7 +10,7 @@ cask:
 	$(shell EMACS=$(emacs) $(CASK) --verbose --debug)
 
 update:
-	$(shell EMACS=$(emacs) $(CASK) update --debug)
+	$(emacs) -batch -l targets/install-deps.el
 
 compile:
 	$(BEMACS) $(LOAD) -l targets/compile.el
