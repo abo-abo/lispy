@@ -2886,7 +2886,7 @@ the parentheses accordingly."
           ((region-active-p)
            (lispy-move-right arg))
           ((not line-type)
-           (lispy-mark-list 1)
+           (set-mark (point))
            (lispy-slurp 0)
            (lispy-move-right arg)
            (lispy-different)

@@ -301,7 +301,10 @@ Insert KEY if there's no command."
                    "(let ((a (1+))))\n|"))
   (should (string= (lispy-with "(((a)\n  |(b)\n  (c)\n  (d)))"
                                (lispy-dedent-adjust-parens 2))
-                   "(((a)))\n|(b)\n(c)\n(d)")))
+                   "(((a)))\n|(b)\n(c)\n(d)"))
+  (should (string= (lispy-with "(\n|a)"
+                               (lispy-dedent-adjust-parens 1))
+                   "()\n|a")))
 
 (ert-deftest lispy-move-left ()
   (should (string= (lispy-with "(progn\n |(sexp1)\n (sexp2))" "oh")
