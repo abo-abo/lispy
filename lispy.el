@@ -5310,11 +5310,11 @@ whitespace."
   (let ((space "[[:space:]]")
         (special-syntax "[`'#@~_%,]"))
     (or (lispy--in-empty-list-p)
-        ;; top level
+        ;; empty line
         (and (looking-at (concat space "*$"))
              (lispy-looking-back (concat "^" space "*" special-syntax "*")))
         ;; empty position at end of list or line
-        (and (looking-at (concat space "*" lispy-right "*$"))
+        (and (looking-at (concat space "*" lispy-right "*" space "*$"))
              (lispy-looking-back (concat space "+" special-syntax "*")))
         ;; empty position at beginning of list
         (and (looking-at (concat "\\(" space "+\\|" space "*$\\)"))
