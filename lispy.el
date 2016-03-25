@@ -7568,9 +7568,9 @@ Self-insert otherwise."
 (defun lispy-delete-backward-or-splice-or-slurp (arg)
   "Call `lispy-delete-backward' unless after a delimiter.
 After an opening delimiter, splice. After a closing delimiter, slurp to the end
-of the line without moving the point unless at the top-level. When at the final
-delimiters of a top-level form or at the end of the line, move backward. In
-comments and strings, call `lispy-delete-backward'."
+of the line without moving the point. When in a position where slurping will
+not have an effect such as after the final delimiters before the end of a line,
+move backward. In comments and strings, call `lispy-delete-backward'."
   (interactive "p")
   (cond ((lispy--in-string-or-comment-p)
          (lispy-delete-backward arg))
@@ -7578,16 +7578,36 @@ comments and strings, call `lispy-delete-backward'."
          (save-excursion
            (backward-char)
            (lispy-splice arg)))
-        ((looking-back lispy-right (1- (point)))
-         (if (= 0 (syntax-ppss-depth (syntax-ppss)))
-             (backward-char)
-           (let ((tick (buffer-chars-modified-tick)))
-             (save-excursion
-               (lispy-slurp -1))
-             (when (= tick (buffer-chars-modified-tick))
-               (backward-char arg)))))
+        ((lispy-looking-back lispy-right)
+         (let ((tick (buffer-chars-modified-tick)))
+           (save-excursion
+             (lispy-slurp -1))
+           (when (= tick (buffer-chars-modified-tick))
+             (backward-char arg))))
         (t
          (lispy-delete-backward arg))))
+
+(defun lispy-delete-or-splice-or-slurp (arg)
+  "Call `lispy-delete' unless before a delimiter.
+Before an opening delimiter, splice. Before a closing delimiter, slurp to the
+end of the line without moving the point. When in a position where slurping will
+not have an effect such as at the final delimiters before the end of a line,
+move forward. In comments and strings, call `lispy-delete'."
+  (interactive "p")
+  (cond ((lispy--in-string-or-comment-p)
+         (lispy-delete arg))
+        ((looking-at lispy-left)
+         (save-excursion
+           (lispy-splice arg)))
+        ((looking-at lispy-right)
+         (let ((tick (buffer-chars-modified-tick)))
+           (save-excursion
+             (forward-char)
+             (lispy-slurp -1))
+           (when (= tick (buffer-chars-modified-tick))
+             (forward-char arg))))
+        (t
+         (lispy-delete arg))))
 
 ;;* Paredit compat
 (defun lispy-close-round-and-newline (arg)
@@ -7850,6 +7870,7 @@ When ARG is non-nil, unquote the current string."
     (define-key map (kbd "TAB") 'lispy-indent-adjust-parens)
     (define-key map (kbd "<backtab>") 'lispy-dedent-adjust-parens)
     (define-key map (kbd "DEL") 'lispy-delete-backward-or-splice-or-slurp)
+    (define-key map (kbd "C-d") 'lispy-delete-or-splice-or-slurp)
     (define-key map (kbd ":") 'lispy-colon)
     (define-key map (kbd "^") 'lispy-hat)
     (define-key map (kbd "'") 'lispy-tick)
