@@ -2281,7 +2281,7 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "((a b)| c)" (kbd "DEL"))
                    "((a b| c))"))
   (should (string= (lispy-with "(a)| (b)" (kbd "DEL"))
-                   "(a|) (b)"))
+                   "(a| (b))"))
   (should (string= (lispy-with "(((a)))|" (kbd "DEL") (kbd "DEL") (kbd "DEL"))
                    "(((a|)))"))
   (should (string= (lispy-with ";; (a (b)| c)"
@@ -2292,6 +2292,30 @@ Insert KEY if there's no command."
                                (setq current-prefix-arg 4)
                                (kbd "DEL"))
                    "\"(a| c)\""))
+  (lispy-set-key-theme '(special lispy c-digits oleh)))
+
+(ert-deftest lispy-delete-or-splice-or-slurp ()
+  (lispy-set-key-theme '(parinfer))
+  (should (string= (lispy-with "|(a b c)" (kbd "C-d"))
+                   "|a b c"))
+  (should (string= (lispy-with "(|(a b c))" (kbd "C-d"))
+                   "(|a b c)"))
+  (should (string= (lispy-with "(a |b c)" (kbd "C-d") (kbd "C-d"))
+                   "(a |c)"))
+  (should (string= (lispy-with "((a b|) c)" (kbd "C-d"))
+                   "((a b| c))"))
+  (should (string= (lispy-with "(a|) (b)" (kbd "C-d"))
+                   "(a| (b))"))
+  (should (string= (lispy-with "(((a|)))" (kbd "C-d") (kbd "C-d") (kbd "C-d"))
+                   "(((a)))|"))
+  (should (string= (lispy-with ";; (a |(b) c)"
+                               (setq current-prefix-arg 4)
+                               (kbd "C-d"))
+                   ";; (a |c)"))
+  (should (string= (lispy-with "\"(a |(b) c)\""
+                               (setq current-prefix-arg 4)
+                               (kbd "C-d"))
+                   "\"(a |c)\""))
   (lispy-set-key-theme '(special lispy c-digits oleh)))
 
 ;;* Paredit compatibility tests
