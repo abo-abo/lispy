@@ -2262,11 +2262,23 @@ to the next level and adjusting the parentheses accordingly."
   "Indent the line if it is incorrectly indented or act as `lispy-up-slurp'.
 If the region is indented properly, call `lispy-up-slurp' ARG times."
   (interactive "p")
-  (let ((tick (buffer-chars-modified-tick)))
+  (let ((tick (buffer-chars-modified-tick))
+        (bnd (when (region-active-p)
+               (cons (region-beginning)
+                     (region-end)))))
     (indent-for-tab-command)
     (when (= tick (buffer-chars-modified-tick))
+      (if bnd
+          (lispy--mark bnd)
+        (unless (lispy--empty-line-p)
+          (set-mark (point))
+          (lispy-slurp -1)))
       (dotimes (_ arg)
-        (lispy-up-slurp)))))
+        (lispy-up-slurp))
+      (when (and (not bnd)
+                 (region-active-p))
+        (lispy-different)
+        (deactivate-mark)))))
 
 (defun lispy--backward-sexp-or-comment ()
   "When in comment, move to the comment start.

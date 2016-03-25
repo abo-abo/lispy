@@ -1806,9 +1806,16 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "(let ((a (1+))))\n|"
                                (lispy-indent-adjust-parens 1))
                    "(let ((a (1+)))\n  |)"))
-  ;; (should (string= (lispy-with "(progn\n  (foo))\n~(bar)\n(baz)|"
-  ;;                              (lispy-indent-adjust-parens 1))
-  ;;                  "(progn\n  (foo)\n  ~(bar)\n  (baz)|)"))
+  (should (string= (lispy-with "(progn\n  (foo))\n~(bar)\n(baz)|"
+                               (lispy-indent-adjust-parens 1))
+                   "(progn\n  (foo)\n  ~(bar)\n  (baz)|)"))
+  ;; multiple symbols on same line
+  (should (string= (lispy-with "(progn)\n|(foo) (bar)"
+                               (lispy-indent-adjust-parens 1))
+                   "(progn\n  |(foo) (bar))"))
+  (should (string= (lispy-with "(foo (bar))\n|baz bif"
+                               (lispy-indent-adjust-parens 1))
+                   "(foo (bar)\n     |baz bif)"))
   ;; test counts
   (should (string= (lispy-with "(let ((a (1+))))\n|"
                                (lispy-indent-adjust-parens 3))
