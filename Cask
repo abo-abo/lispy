@@ -8,7 +8,7 @@
 (development
  (depends-on "iedit")
  (depends-on "multiple-cursors")
- ;; (depends-on "cider")
+ (depends-on "cider")
  ;; (depends-on "slime")
  ;; (depends-on "geiser")
  ;; (depends-on "projectile")

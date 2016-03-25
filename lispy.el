@@ -4685,6 +4685,8 @@ Second region and buffer are the current ones."
         ((eq major-mode 'clojure-mode)
          (lispy--clojure-debug-quit))))
 
+(declare-function cider-debug-defun-at-point "ext:cider-debug")
+
 (defun lispy-edebug (arg)
   "Start/stop edebug of current thing depending on ARG.
 ARG is 1: `edebug-defun' on this function.
@@ -4911,6 +4913,7 @@ X is an item of a radio- or choice-type defcustom."
 
 (declare-function projectile-find-file "ext:projectile")
 (declare-function projectile-find-file-other-window "ext:projectile")
+(declare-function projectile-global-mode "ext:projectile")
 (declare-function projectile-project-root "ext:projectile")
 (defvar projectile-mode)
 (declare-function find-file-in-project "ext:find-file-in-project")

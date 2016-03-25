@@ -121,6 +121,7 @@ Generate an appropriate def from for that let binding and eval it."
 
 (defvar cider--debug-mode-response)
 (declare-function cider--debug-mode "ext:cider-debug")
+(defvar nrepl-ongoing-sync-request)
 
 (defun lispy--clojure-debug-quit ()
   (let ((pt (save-excursion
