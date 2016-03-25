@@ -789,6 +789,8 @@ Insert KEY if there's no command."
                    "(a\n (|))"))
   (should (string= (lispy-with "(a '|)" (setq current-prefix-arg -1) "(")
                    "(a '(|))"))
+  (should (string= (lispy-with "(a |) " (setq current-prefix-arg -1) "(")
+                   "(a (|)) "))
   (let (lispy-insert-space-after-wrap)
     (should (string= (lispy-with "a| b c" (kbd "C-u") "(")
                      "(|a) b c"))))
