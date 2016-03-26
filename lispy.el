@@ -2093,7 +2093,9 @@ Return the amount of successful grow steps, nil instead of zero."
 (defun lispy-slurp (arg)
   "Grow current sexp by ARG sexps.
 If ARG is zero, grow as far as possible. If ARG is -1, grow until the end or
-beginning of the line or as far as possible on the current line."
+beginning of the line. If it is not possible to slurp to the end of the line,
+slurp as far as possible within the line. If before a multi-line list, slurp to
+the end of the line where that list ends."
   (interactive "p")
   (if (region-active-p)
       (if (= (point) (region-end))

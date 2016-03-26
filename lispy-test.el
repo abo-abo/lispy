@@ -922,7 +922,12 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "a b |c~" (lispy-slurp -1))
                    "|a b c~"))
   (should (string= (lispy-with "a b |c~" (lispy-slurp 0))
-                   "|a b c~")))
+                   "|a b c~"))
+  ;; before a multi-line list
+  (should (string= (lispy-with "()| (a\n    b)" (lispy-slurp -1))
+                   "((a\n  b))|"))
+  (should (string= (lispy-with "~|(a\n b)" (lispy-slurp -1))
+                   "~(a\n b)|")))
 
 (ert-deftest lispy-barf ()
   (should (string= (lispy-with "((a) (b) (c))|" "<")
@@ -1816,6 +1821,9 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "(foo (bar))\n|baz bif"
                                (lispy-indent-adjust-parens 1))
                    "(foo (bar)\n     |baz bif)"))
+  ;; multi-line list
+  (should (string= (lispy-with "(a)\n|(b\n c)" (lispy-indent-adjust-parens 1))
+                   "(a\n |(b\n  c))"))
   ;; test counts
   (should (string= (lispy-with "(let ((a (1+))))\n|"
                                (lispy-indent-adjust-parens 3))
