@@ -2290,6 +2290,60 @@ Insert KEY if there's no command."
                    ";; )|"))
   (lispy-set-key-theme '(special lispy c-digits oleh)))
 
+(ert-deftest lispy-parens-barf-to-point-or-jump-nostring ()
+  (should (string= (lispy-with
+                    "(a| b)"
+                    (lispy-parens-barf-to-point-or-jump-nostring nil))
+                   "(a)| b"))
+  (should (string= (lispy-with
+                    "(a |b)"
+                    (lispy-parens-barf-to-point-or-jump-nostring t))
+                   "a |(b)"))
+  (should (string= (lispy-with
+                    "([a |b] c)"
+                    (lispy-parens-barf-to-point-or-jump-nostring nil))
+                   "([a b] c)|"))
+  (should (string= (lispy-with
+                    "(a [b |c])"
+                    (lispy-parens-barf-to-point-or-jump-nostring t))
+                   "|(a [b c])")))
+
+(ert-deftest lispy-brackets-barf-to-point-or-jump-nostring ()
+  (should (string= (lispy-with
+                    "[a| b]"
+                    (lispy-brackets-barf-to-point-or-jump-nostring nil))
+                   "[a]| b"))
+  (should (string= (lispy-with
+                    "[a |b]"
+                    (lispy-brackets-barf-to-point-or-jump-nostring t))
+                   "a |[b]"))
+  (should (string= (lispy-with
+                    "[(a |b) c]"
+                    (lispy-brackets-barf-to-point-or-jump-nostring nil))
+                   "[(a b) c]|"))
+  (should (string= (lispy-with
+                    "[a (b |c)]"
+                    (lispy-brackets-barf-to-point-or-jump-nostring t))
+                   "|[a (b c)]")))
+
+(ert-deftest lispy-braces-barf-to-point-or-jump-nostring ()
+  (should (string= (lispy-with-clojure
+                    "{a| b}"
+                    (lispy-braces-barf-to-point-or-jump-nostring nil))
+                   "{a}| b"))
+  (should (string= (lispy-with-clojure
+                    "{a |b}"
+                    (lispy-braces-barf-to-point-or-jump-nostring t))
+                   "a |{b}"))
+  (should (string= (lispy-with-clojure
+                    "{(a |b) c}"
+                    (lispy-braces-barf-to-point-or-jump-nostring nil))
+                   "{(a b) c}|"))
+  (should (string= (lispy-with-clojure
+                    "{a (b |c)}"
+                    (lispy-braces-barf-to-point-or-jump-nostring t))
+                   "|{a (b c)}")))
+
 (ert-deftest lispy-delete-backward-or-splice-or-slurp ()
   (lispy-set-key-theme '(parinfer))
   (should (string= (lispy-with "(|a b c)" (kbd "DEL"))

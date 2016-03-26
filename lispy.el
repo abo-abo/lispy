@@ -7576,6 +7576,56 @@ Self-insert otherwise."
       (self-insert-command (prefix-numeric-value arg))
     (lispy-barf-to-point arg)))
 
+(defun lispy--barf-to-point-or-jump (delimiter arg)
+  "If possible, barf to the point for DELIMITER.
+Otherwise, jump to the next occurrence of DELIMITER. If ARG is non-nil, barf
+from the left or jump to the previous occurrence of DELIMITER."
+  (if (save-excursion
+        (if arg
+            (re-search-backward lispy-left nil t)
+          (re-search-forward lispy-right nil t))
+        (goto-char (match-beginning 0))
+        (looking-at delimiter))
+      (lispy-barf-to-point arg)
+    (if arg
+        (re-search-backward delimiter nil t)
+      (re-search-forward delimiter nil t))))
+
+(defun lispy--barf-to-point-or-jump-nostring (delimiter arg)
+  "Call `lispy--barf-to-point-or-jump' with DELIMITER and ARG.
+Self-insert when in a string or a comment."
+  (if (or (lispy--in-string-or-comment-p)
+          (lispy-looking-back "?\\\\"))
+      (self-insert-command (prefix-numeric-value arg))
+    (lispy--barf-to-point-or-jump delimiter arg)))
+
+(defun lispy-parens-barf-to-point-or-jump-nostring (arg)
+  "Barf to the point when directly inside a \"(...)\" block.
+Otherwise, jump to the next \")\". When ARG is non-nil, barf from the left or
+jump to the previous \"(\". Self-insert when in a string or a comment."
+  (interactive "P")
+  (if arg
+      (lispy--barf-to-point-or-jump "(" arg)
+    (lispy--barf-to-point-or-jump-nostring ")" arg)))
+
+(defun lispy-brackets-barf-to-point-or-jump-nostring (arg)
+  "Barf to the point when directly inside a \"[...]\" block.
+Otherwise, jump to the next \"]\". When ARG is non-nil, barf from the left or
+jump to the previous \"[\". Self-insert when in a string or a comment."
+  (interactive "P")
+  (if arg
+      (lispy--barf-to-point-or-jump "\\[" arg)
+    (lispy--barf-to-point-or-jump-nostring "\\]" arg)))
+
+(defun lispy-braces-barf-to-point-or-jump-nostring (arg)
+  "Barf to the point when directly inside a \"{...}\" block.
+Otherwise, jump to the next \"}\". When ARG is non-nil, barf from the left or
+jump to the previous \"{\". Self-insert when in a string or a comment."
+  (interactive "P")
+  (if arg
+      (lispy--barf-to-point-or-jump "{" arg)
+    (lispy--barf-to-point-or-jump-nostring "}" arg)))
+
 (defun lispy-delete-backward-or-splice-or-slurp (arg)
   "Call `lispy-delete-backward' unless after a delimiter.
 After an opening delimiter, splice. After a closing delimiter, slurp to the end
