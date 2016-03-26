@@ -7581,11 +7581,11 @@ move backward. In comments and strings, call `lispy-delete-backward'."
   (interactive "p")
   (cond ((lispy--in-string-or-comment-p)
          (lispy-delete-backward arg))
-        ((lispy-looking-back lispy-left)
+        ((looking-back lispy-left (1- (point)))
          (save-excursion
            (backward-char)
            (lispy-splice arg)))
-        ((lispy-looking-back lispy-right)
+        ((looking-back lispy-right (1- (point)))
          (let ((tick (buffer-chars-modified-tick)))
            (save-excursion
              (lispy-slurp -1))
