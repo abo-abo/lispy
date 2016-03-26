@@ -4827,8 +4827,9 @@ An equivalent of `cl-destructuring-bind'."
 (defun lispy-x ()
   "Forward to `lispy-mode-map-x'."
   (interactive)
-  (hydra-set-transient-map lispy-mode-map-x (lambda ()))
-  (setq unread-command-events (list (cons t ?x))))
+  (unless (window-minibuffer-p)
+    (hydra-set-transient-map lispy-mode-map-x (lambda ()))
+    (setq unread-command-events (list (cons t ?x)))))
 
 (defun lispy-ert ()
   "Call (`ert' t)."
