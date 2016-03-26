@@ -2246,6 +2246,8 @@ Insert KEY if there's no command."
 ;;* Parinfer compatibility tests
 (ert-deftest lispy-parens-auto-wrap ()
   (lispy-set-key-theme '(parinfer))
+  (should (string= (lispy-with "|" "(")
+                   "(|)"))
   (should (string= (lispy-with "|a" "(")
                    "(| a)"))
   (should (string= (lispy-with "|a" (setq current-prefix-arg '-) "(")
