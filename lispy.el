@@ -5375,6 +5375,10 @@ Otherwise return cons of current string, symbol or list bounds."
                (or
                 (ignore-errors
                   (bounds-of-thing-at-point 'symbol))
+                (and (lispy-looking-back "\" *")
+                     (save-excursion
+                       (goto-char (match-beginning 0))
+                       (lispy--bounds-string)))
                 (ignore-errors
                   (bounds-of-thing-at-point 'sentence))
                 (ignore-errors
