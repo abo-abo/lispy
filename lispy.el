@@ -1163,10 +1163,20 @@ If position isn't special, move to previous or error."
           (t
            (delete-char arg)))))
 
+(defvar lispy-quote-regexp-alist
+  '((emacs-lisp-mode . "`',@")
+    (t . "`',@"))
+  "An alist of `major-mode' to a string.
+The regexp describes the possible quoting characters in front of
+the list.  When the list is deleted, these quotes, that are
+assumed to belong to the list are also deleted.")
+
 (defun lispy--delete-quote-garbage ()
   "Delete any combination of `',@ preceeding point."
-  (let ((pt (point)))
-    (skip-chars-backward "`',@")
+  (let ((str (or (cdr (assoc major-mode lispy-quote-regexp-alist))
+                 (cdr (assoc t lispy-quote-regexp-alist))))
+        (pt (point)))
+    (skip-chars-backward str)
     (delete-region (point) pt)))
 
 (defun lispy--delete-whitespace-backward ()
