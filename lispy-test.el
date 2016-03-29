@@ -2368,6 +2368,17 @@ Insert KEY if there's no command."
                                (setq current-prefix-arg 4)
                                (kbd "DEL"))
                    "\"(a| c)\""))
+  ;; keep newline
+  (should (string= (lispy-with "(foo\n (|))" (kbd "DEL"))
+                   "(foo\n |)"))
+  ;; behavior at string boundaries
+  (should (string= (lispy-with "\"a b c\"|" (kbd "DEL"))
+                   "\"a b c|\""))
+  (should (string= (lispy-with "\"|a b c\"" (kbd "DEL"))
+                   "|"))
+  ;; space cleanup
+  (should (string= (lispy-with "(foo (| (bar) baz))" (kbd "DEL"))
+                   "(foo |(bar) baz)"))
   (lispy-set-key-theme '(special lispy c-digits oleh)))
 
 (ert-deftest lispy-delete-or-splice-or-slurp ()
@@ -2392,6 +2403,14 @@ Insert KEY if there's no command."
                                (setq current-prefix-arg 4)
                                (kbd "C-d"))
                    "\"(a |c)\""))
+  ;; keep newline
+  (should (string= (lispy-with "(foo\n |())" (kbd "C-d"))
+                   "(foo\n |)"))
+  ;; behavior at string boundaries
+  (should (string= (lispy-with "\"a b c|\"" (kbd "C-d"))
+                   "\"a b c\"|"))
+  (should (string= (lispy-with "|\"a b c\"" (kbd "C-d"))
+                   "|"))
   (lispy-set-key-theme '(special lispy c-digits oleh)))
 
 ;;* Paredit compatibility tests
