@@ -7880,6 +7880,7 @@ When ARG is non-nil, unquote the current string."
     ;; navigation
     (define-key map (kbd "C-a") 'lispy-move-beginning-of-line)
     (define-key map (kbd "C-e") 'lispy-move-end-of-line)
+    (define-key map (kbd "M-n") 'lispy-left)
     ;; killing
     (define-key map (kbd "C-k") 'lispy-kill)
     (define-key map (kbd "M-d") 'lispy-kill-word)
