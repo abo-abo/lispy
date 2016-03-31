@@ -5587,6 +5587,9 @@ When ADD-OUTPUT is t, append the output to the result."
          ((eq major-mode 'lisp-mode)
           (require 'le-lisp)
           'lispy--eval-lisp)
+         ((eq major-mode 'hy-mode)
+          (require 'le-hy)
+          'lispy--eval-hy)
          (t (error "%s isn't supported currently" major-mode)))
    e-str))
 
