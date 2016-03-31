@@ -59,7 +59,7 @@
                       (goto-char (point-max))
                       (beginning-of-line)
                       (looking-at
-                       "=> \\s-*$"))))
+                       "[. ]*=> \\s-*$"))))
         (accept-process-output (get-buffer-process buffer))
         (goto-char (point-max)))
       ;; save output to string
