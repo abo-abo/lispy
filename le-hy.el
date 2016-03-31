@@ -78,7 +78,10 @@
 
 (defun lispy--eval-hy (str)
   "Eval STR as Hy code."
-  (lispy--comint-eval str))
+  (let ((res (lispy--comint-eval str)))
+    (if (member res '("" "\n"))
+        "(ok)"
+      res)))
 
 (provide 'le-hy)
 
