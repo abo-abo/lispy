@@ -4740,6 +4740,7 @@ ARG is 4: `eval-defun' on the function from this sexp."
              (error "%s isn't bound" fun))))))
 
 (declare-function lispy--clojure-debug-step-in "le-clojure")
+(declare-function lispy--python-debug-step-in "le-python")
 
 (defun lispy-debug-step-in ()
   "Eval current function arguments and jump to definition."
@@ -4791,6 +4792,9 @@ ARG is 4: `eval-defun' on the function from this sexp."
         ((eq major-mode 'clojure-mode)
          (require 'le-clojure)
          (lispy--clojure-debug-step-in))
+        ((eq major-mode 'python-mode)
+         (require 'le-python)
+         (lispy--python-debug-step-in))
         (t
          (lispy-complain
           (format "%S isn't currently supported" major-mode)))))
@@ -5376,6 +5380,18 @@ Otherwise return cons of current string, symbol or list bounds."
            (backward-list)
            (prog1 (bounds-of-thing-at-point 'sexp)
              (forward-list)))
+          ((looking-at lispy-outline)
+           (save-excursion
+             (cons
+              (progn
+                (outline-end-of-heading)
+                (1+ (point)))
+              (progn
+                (outline-end-of-subtree)
+                (skip-chars-backward "\n")
+                (when (setq bnd (lispy--bounds-comment))
+                  (goto-char (1- (car bnd))))
+                (point)))))
           ((or (looking-at (format "[`'#]*%s" lispy-left))
                (looking-at "[`'#]"))
            (bounds-of-thing-at-point 'sexp))
@@ -5385,6 +5401,9 @@ Otherwise return cons of current string, symbol or list bounds."
            bnd)
           ((looking-at ";;")
            (lispy--bounds-comment))
+          ((and (eq major-mode 'python-mode)
+                (lispy-bolp))
+           (lispy--bounds-c-toplevel))
           (t
            (let ((res (ignore-errors
                         (bounds-of-thing-at-point
@@ -5414,6 +5433,16 @@ Otherwise return cons of current string, symbol or list bounds."
                   (save-excursion
                     (forward-word 1)
                     (bounds-of-thing-at-point 'symbol))))))))))
+
+(defun lispy--bounds-c-toplevel ()
+  "Return a cons of the bounds of a C-like top-level expression."
+  (cons
+   (point)
+   (save-excursion
+     (let ((end (line-end-position)))
+       (while (< (point) end)
+         (forward-sexp 1)))
+     (point))))
 
 (defun lispy--bounds-list ()
   "Return the bounds of smallest list that includes the point.
@@ -5605,6 +5634,9 @@ When ADD-OUTPUT is t, append the output to the result."
          ((eq major-mode 'hy-mode)
           (require 'le-hy)
           'lispy--eval-hy)
+         ((eq major-mode 'python-mode)
+          (require 'le-python)
+          'lispy--eval-python)
          (t (error "%s isn't supported currently" major-mode)))
    e-str))
 
@@ -7136,7 +7168,7 @@ PLIST currently accepts:
              ((or (lispy-left-p)
                   (lispy-right-p)
                   (and (lispy-bolp)
-                       (or (looking-at ";")
+                       (or (looking-at lispy-outline-header)
                            (looking-at lispy-outline))))
               (call-interactively ',def))
 
