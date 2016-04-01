@@ -1628,7 +1628,9 @@ If ARG is 2, amend the current list with a space from current side.
 If ARG is 3, switch to the different side beforehand.
 If jammed between parens, \"(|(\" unjam: \"(| (\"."
   (interactive "p")
-  (cond ((region-active-p)
+  (cond ((bound-and-true-p edebug-active)
+         (edebug-step-mode))
+        ((region-active-p)
          (goto-char (region-end))
          (deactivate-mark)
          (insert " "))
