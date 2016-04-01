@@ -532,6 +532,30 @@ Works out of the box for Elisp, Scheme and Common Lisp.
 [clojure-semantic](https://github.com/kototama/clojure-semantic) is
 required for Clojure.
 
+**`lispy-eval`**
+
+There's a feature similar to `ipython-notebook` available. Here's how
+it works: evaluating an Emacs outline will evaluate all of the
+outline's code and echo the result of the last expression. When an
+outline ends with a colon (`:`), the result will instead be inserted
+into the buffer. If the evaluation result changes for whatever reason,
+it will be replaced after each subsequent <kbd>e</kbd>.
+
+Python and Julia currently have a slightly better notebook support,
+pressing <kbd>e</kbd> on the parent outline will evaluate all the
+children outlines sequentially. This allows to arrange scripts
+hierarchically, with relatively few top-level outlines and relatively
+many total outlines. Each outline's output can be examined by adding a
+`:` to the title of the outline.
+
+The following example shows a buffer before and after pressing <kbd>e</kbd>.
+
+![lispy-python-notebook.png](https://raw.githubusercontent.com/wiki/abo-abo/lispy/images/lispy-python-notebook.png)
+
+There is one top-level outline, with one level-2 child, which in turn
+has a four level-3 children. Three of these children end in `:`, so
+their output will be updated after the eval.
+
 # Demos
 
 ## [Demo 1: Practice generating code](http://abo-abo.github.io/lispy/demo-1)
