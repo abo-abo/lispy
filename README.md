@@ -178,7 +178,7 @@ situation.
     - <kbd>C</kbd> convolutes
     - <kbd>s</kbd> moves down
     - <kbd>w</kbd> moves up
-- IDE-like features for Elisp, Clojure, Scheme and Common Lisp:
+- IDE-like features for Elisp, Clojure, Scheme, Common Lisp, Hy, Python and Julia:
     - <kbd>e</kbd> evals
     - <kbd>E</kbd> evals and inserts
     - <kbd>g</kbd> jumps to any tag in the current directory with semantic
@@ -485,8 +485,13 @@ child of marked list, use <kbd>i</kbd> - `lispy-tab`.
 
 These features are specific to the Lisp dialect used.  Currently Elisp
 and Clojure (via `cider`) are supported.  There's also basic
-evaluation support for Scheme (via `geiser`) and Common lisp (via
-`slime`).
+evaluation support for:
+
+- Scheme (via `geiser`)
+- Common lisp (via `slime`).
+- Hy (via `comint`).
+- Python (via `comint` and `jedi`).
+- Julia (via `julia-shell`).
 
 **`lispy-describe-inline`**
 
