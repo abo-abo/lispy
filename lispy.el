@@ -5637,6 +5637,9 @@ When ADD-OUTPUT is t, append the output to the result."
          ((eq major-mode 'python-mode)
           (require 'le-python)
           'lispy--eval-python)
+         ((eq major-mode 'julia-mode)
+          (require 'le-julia)
+          'lispy--eval-julia)
          (t (error "%s isn't supported currently" major-mode)))
    e-str))
 
