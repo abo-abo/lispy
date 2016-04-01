@@ -2797,6 +2797,14 @@ Insert KEY if there's no command."
                                        (execute-kbd-macro "xdsquare x["))
                    "(defn square [x]\n  (* x x))\n\n(defn cube [x]\n  (* x |(square x)))")))
 
+(ert-deftest lispy-debug-step-in ()
+  (should (equal (lispy-with-value
+                  "|(mapcar\n (lambda (x))\n (mapcar\n  (lambda (y) (expt y 3))\n  (number-sequence 10 42)))"
+                  (setq x "42")
+                  (lispy-debug-step-in)
+                  x)
+                 1000)))
+
 (provide 'lispy-test)
 
 ;;; lispy-test.el ends here
