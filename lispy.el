@@ -8119,10 +8119,8 @@ When ARG is non-nil, unquote the current string."
     (define-key map (kbd "C-φ") 'lispy-parens-down)
     (define-key map (kbd "χ") 'lispy-right)
     (define-key map (kbd "C-M-a") 'lispy-beginning-of-defun)
-    (define-key map (kbd "C-x C-j") 'lispy-debug-step-in)
     (define-key map (kbd "<return>") 'lispy-alt-line)
     (define-key map (kbd "RET") 'lispy-newline-and-indent-plain)
-    (lispy-define-key map "Y" 'swiper)
     map))
 
 (defun lispy-set-key-theme (theme)
