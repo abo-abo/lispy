@@ -488,7 +488,7 @@ and Clojure (via `cider`) are supported.  There's also basic
 evaluation support for:
 
 - Scheme (via `geiser`)
-- Common lisp (via `slime`).
+- Common lisp (via `slime` or `sly`).
 - Hy (via `comint`).
 - Python (via `comint` and `jedi`).
 - Julia (via `julia-shell`).
