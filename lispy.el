@@ -5056,57 +5056,59 @@ When ARG is given, paste at that place in the current list."
         (setq mk (point))
         (when (< mk pt)
           (decf pt)))
-      (goto-char pt)
-      (cond ((lispy-right-p)
-             (setq p2 (1- (point)))
-             (lispy-different)
-             (setq p1 (point)))
-            ((lispy-left-p)
-             (setq p1 (point))
-             (lispy-different)
-             (setq p2 (1- (point)))))
-      (setq str (buffer-string))
-      (add-face-text-property 0 (length str) '(face 'lispy-test-face) t str)
-      (when pt
-        (when mk
-          (if (< mk pt)
-              (progn
-                (add-text-properties (1- mk) (1- pt) '(face region) str)
-                (set-text-properties (1- pt) pt '(face cursor) str))
-            (add-text-properties (1- (min pt mk)) (1- (max pt mk)) '(face region) str)
-            (set-text-properties (1- pt) pt '(face cursor) str)))
-        (when p1
-          (add-text-properties
-           (1- p1) p1
-           `(face (:background
-                   ,color-paren
-                   :foreground
-                   ,(if (and mk
-                             (>= p1 (min pt mk))
-                             (<= p1 (max pt mk)))
-                        color-cursor-fg
-                        color-cursor-bg))) str))
-        (when p2
-          (add-text-properties
-           (1- p2) p2
-           `(face (:background
-                   ,color-paren
-                   :foreground
-                   ,(if (and mk
-                             (>= p2 (min pt mk))
-                             (<= p2 (max pt mk)))
-                        color-cursor-fg
-                        color-cursor-bg)))
-           str))
-        (add-text-properties
-         (1- pt) pt
-         `(face (:background
-                 ,color-cursor-bg
-                 :foreground
-                 ,(if (eq pt p1)
-                      color-paren
-                      color-cursor-fg)))
-         str)
+      (if pt
+          (progn
+            (goto-char pt)
+            (cond ((lispy-right-p)
+                   (setq p2 (1- (point)))
+                   (lispy-different)
+                   (setq p1 (point)))
+                  ((lispy-left-p)
+                   (setq p1 (point))
+                   (lispy-different)
+                   (setq p2 (1- (point)))))
+            (setq str (buffer-string))
+            (add-face-text-property 0 (length str) '(face 'lispy-test-face) t str)
+            (when mk
+              (if (< mk pt)
+                  (progn
+                    (add-text-properties (1- mk) (1- pt) '(face region) str)
+                    (set-text-properties (1- pt) pt '(face cursor) str))
+                (add-text-properties (1- (min pt mk)) (1- (max pt mk)) '(face region) str)
+                (set-text-properties (1- pt) pt '(face cursor) str)))
+            (when p1
+              (add-text-properties
+               (1- p1) p1
+               `(face (:background
+                       ,color-paren
+                       :foreground
+                       ,(if (and mk
+                                 (>= p1 (min pt mk))
+                                 (<= p1 (max pt mk)))
+                            color-cursor-fg
+                          color-cursor-bg))) str))
+            (when p2
+              (add-text-properties
+               (1- p2) p2
+               `(face (:background
+                       ,color-paren
+                       :foreground
+                       ,(if (and mk
+                                 (>= p2 (min pt mk))
+                                 (<= p2 (max pt mk)))
+                            color-cursor-fg
+                          color-cursor-bg)))
+               str))
+            (add-text-properties
+             (1- pt) pt
+             `(face (:background
+                     ,color-cursor-bg
+                     :foreground
+                     ,(if (eq pt p1)
+                          color-paren
+                        color-cursor-fg)))
+             str)
+            str)
         str))))
 
 (defun lispy-view-test ()
@@ -5117,7 +5119,7 @@ When ARG is given, paste at that place in the current list."
          (delete-overlay lispy-overlay)
          (setq lispy-overlay nil))
 
-        ((looking-at "(should (string=")
+        ((looking-at "(should (\\(?:string=\\|equal\\)")
          (setq lispy-hint-pos (point))
          (let* ((expr (cadr (read (lispy--string-dwim))))
                 (str1 (cadr (cadr expr)))
@@ -5139,7 +5141,9 @@ When ARG is given, paste at that place in the current list."
                     "\n" sep "\n"
                     (substring (prin1-to-string keys) 1 -1)
                     "\n" sep "\n"
-                    (lispy--fontify str2 mode)
+                    (lispy--fontify (if (stringp str2)
+                                        str2
+                                      (prin1-to-string str2)) mode)
                     "\n"))))
 
         (t
