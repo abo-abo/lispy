@@ -591,7 +591,7 @@ Starting with this:
 #+end_src
 by pressing ~q~ you get this:
 
-#+BEGIN_HTML
+#+BEGIN_EXPORT html
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
 <!-- Created by htmlize-1.47 in css mode. -->
 <html>
@@ -665,7 +665,7 @@ by pressing ~q~ you get this:
     </span><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">t</span></span><span class="ace-jump-face-background">define-key keymap </span><span class="ace-jump-face-background"><span class="ace-jump-face-foreground">u</span></span><span class="ace-jump-face-background">kbd key) func)))</span></pre>
   </body>
 </html>
-#+END_HTML
+#+END_EXPORT
 
 Now you can change the point position by pressing a letter or
 cancel with ~C-g~.
@@ -696,7 +696,7 @@ by pressing ~a~ you get this:
 #   (lispy-ace-symbol)
 #   (htmlize-buffer))
 
-#+BEGIN_HTML
+#+BEGIN_EXPORT html
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
 <!-- Created by htmlize-1.47 in css mode. -->
 <html>
@@ -770,7 +770,7 @@ by pressing ~a~ you get this:
     (define-key keymap (kbd key) func)))</span></pre>
   </body>
 </html>
-#+END_HTML
+#+END_EXPORT
 
 Now you can mark a symbol by pressing a letter, or cancel with ~C-g~.
 
@@ -897,7 +897,7 @@ Bound to ~C-1~.
 Show the documentation for current function or currently
 marked symbol (see [[#lispy-ace-symbol][=lispy-ace-symbol=]]).
 
-#+BEGIN_HTML
+#+BEGIN_EXPORT html
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
 <!-- Created by htmlize-1.47 in css mode. -->
 <html>
@@ -972,7 +972,7 @@ marked symbol (see [[#lispy-ace-symbol][=lispy-ace-symbol=]]).
     (define-key keymap (kbd key) func)))</pre>
   </body>
 </html>
-#+END_HTML
+#+END_EXPORT
 -----
 ** =lispy-arglist-inline=
 :PROPERTIES:
@@ -983,7 +983,7 @@ Bound to ~C-2~.
 
 Show the argument list for current function.
 
-#+BEGIN_HTML
+#+BEGIN_EXPORT html
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
 <!-- Created by htmlize-1.47 in css mode. -->
 <html>
@@ -1060,7 +1060,7 @@ Show the argument list for current function.
     (define-key keymap (kbd key) func)))</pre>
   </body>
 </html>
-#+END_HTML
+#+END_EXPORT
 -----
 ** =lispy-eval=
 :PROPERTIES:
@@ -3031,8 +3031,9 @@ globally with e.g. ~M-2~, you can call it locally with just e.g. ~2~.
 Many lispy commands take a prefix arg, e.g. ~3j~ is equivalent to
 ~jjj~.
 -----
-#+BEGIN_HTML
+#+BEGIN_EXPORT html
 <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
 <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
 <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
-#+END_HTML
+#+END_EXPORT
+
