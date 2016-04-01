@@ -4747,39 +4747,47 @@ ARG is 4: `eval-defun' on the function from this sexp."
   (cond ((memq major-mode lispy-elisp-modes)
          (let* ((ldsi-sxp (lispy--setq-expression))
                 (ldsi-fun (car ldsi-sxp)))
-           (if (or (functionp ldsi-fun)
-                   (macrop ldsi-fun))
-               (let ((ldsi-args
-                      (copy-seq
-                       (help-function-arglist
-                        (if (ad-is-advised ldsi-fun)
-                            (ad-get-orig-definition ldsi-fun)
-                          ldsi-fun)
-                        t)))
-                     (ldsi-vals (cdr ldsi-sxp))
-                     ldsi-arg
-                     ldsi-val)
-                 (catch 'done
-                   (while (setq ldsi-arg (pop ldsi-args))
-                     (cond ((eq ldsi-arg '&optional)
-                            (setq ldsi-arg (pop ldsi-args))
-                            (set ldsi-arg (eval (pop ldsi-vals))))
-                           ((eq ldsi-arg '&rest)
-                            (setq ldsi-arg (pop ldsi-args))
-                            (set ldsi-arg
-                                 (if (functionp ldsi-fun)
-                                     (mapcar #'eval ldsi-vals)
-                                   ldsi-vals))
-                            (throw 'done t))
-                           (t
-                            (setq ldsi-val (pop ldsi-vals))
-                            (set ldsi-arg
-                                 (if (functionp ldsi-fun)
-                                     (eval ldsi-val)
-                                   ldsi-val))))))
-                 (lispy-goto-symbol ldsi-fun))
-             (lispy-complain
-              (format "%S isn't a function" ldsi-fun)))))
+           (cond
+             ((memq ldsi-fun '(mapcar mapc))
+              (let ((fn (nth 1 ldsi-sxp))
+                    (lst (nth 2 ldsi-sxp)))
+                (when (eq (car-safe fn) 'lambda)
+                  (set (car (cadr fn)) (car (eval lst)))
+                  (lispy-flow 2))))
+             ((or (functionp ldsi-fun)
+                  (macrop ldsi-fun))
+              (let ((ldsi-args
+                     (copy-seq
+                      (help-function-arglist
+                       (if (ad-is-advised ldsi-fun)
+                           (ad-get-orig-definition ldsi-fun)
+                         ldsi-fun)
+                       t)))
+                    (ldsi-vals (cdr ldsi-sxp))
+                    ldsi-arg
+                    ldsi-val)
+                (catch 'done
+                  (while (setq ldsi-arg (pop ldsi-args))
+                    (cond ((eq ldsi-arg '&optional)
+                           (setq ldsi-arg (pop ldsi-args))
+                           (set ldsi-arg (eval (pop ldsi-vals))))
+                          ((eq ldsi-arg '&rest)
+                           (setq ldsi-arg (pop ldsi-args))
+                           (set ldsi-arg
+                                (if (functionp ldsi-fun)
+                                    (mapcar #'eval ldsi-vals)
+                                  ldsi-vals))
+                           (throw 'done t))
+                          (t
+                           (setq ldsi-val (pop ldsi-vals))
+                           (set ldsi-arg
+                                (if (functionp ldsi-fun)
+                                    (eval ldsi-val)
+                                  ldsi-val))))))
+                (lispy-goto-symbol ldsi-fun)))
+             (t
+              (lispy-complain
+               (format "%S isn't a function" ldsi-fun))))))
         ((eq major-mode 'clojure-mode)
          (require 'le-clojure)
          (lispy--clojure-debug-step-in))
