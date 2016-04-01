@@ -23,26 +23,49 @@
 ;;; Code:
 
 (eval-and-compile
-  (ignore-errors (require 'slime)))
+  (ignore-errors (require 'slime))
+  (ignore-errors (require 'sly)))
 
 (declare-function slime-output-buffer "ext:slime-repl")
 (declare-function slime "ext:slime")
 (declare-function slime-current-connection "ext:slime")
 (declare-function slime-eval "ext:slime")
+(declare-function slime-edit-definition "ext:slime")
+(declare-function sly-mrepl--find-buffer "ext:sly-mrepl")
+(declare-function sly "ext:sly")
+(declare-function sly-current-connection "ext:sly")
+(declare-function sly-eval "ext:sly")
+(declare-function sly-edit-definition "ext:sly")
+
+(defcustom lispy-use-sly nil
+  "Whether to use SLY instead of SLIME."
+  :group 'lispy
+  :type 'boolean)
 
 (defun lispy--eval-lisp (str)
   "Eval STR as Common Lisp code."
-  (require 'slime-repl)
-  (unless (slime-current-connection)
+  (unless lispy-use-sly
+    (require 'slime-repl))
+  (unless (if lispy-use-sly
+              (sly-current-connection)
+            (slime-current-connection))
     (let ((wnd (current-window-configuration)))
-      (slime)
-      (while (not (and (slime-current-connection)
-                       (get-buffer-window (slime-output-buffer))))
+      (if lispy-use-sly
+          (sly)
+        (slime))
+      (while (not (if lispy-use-sly
+                      (when-let ((connection (sly-current-connection)))
+                        (sly-mrepl--find-buffer connection))
+                    (and
+                     (slime-current-connection)
+                     (get-buffer-window (slime-output-buffer)))))
         (sit-for 0.2))
       (set-window-configuration wnd)))
   (let* ((deactivate-mark nil)
          (result (with-current-buffer (process-buffer (slime-current-connection))
-                   (slime-eval `(swank:eval-and-grab-output ,str)))))
+                   (if lispy-use-sly
+                       (sly-eval `(slynk:eval-and-grab-output ,str))
+                     (slime-eval `(swank:eval-and-grab-output ,str))))))
     (if (equal (car result) "")
         (cadr result)
       (concat (propertize (substring (car result) 1)
@@ -57,7 +80,10 @@
           (mapconcat
            #'prin1-to-string
            (read (lispy--eval-lisp
-                  (format "(swank-backend:arglist #'%s)" symbol)))
+                  (format (if lispy-use-sly
+                              "(slynk-backend:arglist #'%s)"
+                            "(swank-backend:arglist #'%s)")
+                          symbol)))
            " "))))
     (if (listp args)
         (format
@@ -102,6 +128,10 @@
              (body (lispy--flatten-function fexpr e-args)))
         (lispy--insert body)))))
 
+(defun lispy-goto-symbol-lisp (symbol)
+  (if lispy-use-sly
+      (sly-edit-definition symbol)
+    (slime-edit-definition symbol)))
 
 (provide 'le-lisp)
 
