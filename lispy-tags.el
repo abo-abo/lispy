@@ -40,6 +40,17 @@
            (lambda (x) (string-match "\\(?:^\\.?#\\|~$\\|loaddefs.el\\)" x))
            (file-expand-wildcards (format "*.%s" ext)))))))
 
+(defun lispy--fetch-this-file-tags (&optional file)
+  "Fetch tags for FILE."
+  (setq file (or file (buffer-file-name)))
+  (semantic-new-buffer-fcn)
+  (let ((tags (semantic-parse-region (point-min) (point-max))))
+    (when (memq major-mode (cons 'lisp-mode lispy-elisp-modes))
+      (lexical-let ((arity (cdr (assoc major-mode lispy-tag-arity)))
+                    (tag-regex (lispy--tag-regexp)))
+        (mapc (lambda (x) (lispy--modify-tag x tag-regex arity file)) tags)))
+    tags))
+
 (defun lispy-build-semanticdb (&optional dir)
   "Build and save semanticdb for DIR."
   (interactive)
@@ -55,6 +66,9 @@
              (kill-buffer))))))
   (let ((db (semanticdb-directory-loaded-p dir)))
     (or (semanticdb-save-db db) db)))
+
+(defvar lispy-completion-method)
+(defvar lispy-helm-columns)
 
 (defun lispy--format-tag-line (x)
   "Add file name to (`lispy--tag-name' X)."

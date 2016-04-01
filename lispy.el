@@ -5711,17 +5711,6 @@ so that no other packages disturb the match data."
      (defhydra . 1)))
   "Alist of tag arities for supported modes.")
 
-(defun lispy--fetch-this-file-tags (&optional file)
-  "Fetch tags for FILE."
-  (setq file (or file (buffer-file-name)))
-  (semantic-new-buffer-fcn)
-  (let ((tags (semantic-parse-region (point-min) (point-max))))
-    (when (memq major-mode (cons 'lisp-mode lispy-elisp-modes))
-      (lexical-let ((arity (cdr (assoc major-mode lispy-tag-arity)))
-                    (tag-regex (lispy--tag-regexp)))
-        (mapc (lambda (x) (lispy--modify-tag x tag-regex arity file)) tags)))
-    tags))
-
 (defun lispy--tag-regexp (&optional mode)
   "Return tag regexp based on MODE."
   (setq mode (or mode major-mode))
