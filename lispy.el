@@ -7292,9 +7292,11 @@ Return an appropriate `setq' expression when in `let', `dolist',
                   (int-form
                    (and (fboundp fn-name)
                         (interactive-form fn-name)))
-                  (int-form (when (and (eq (car int-form) 'interactive)
-                                       (listp (cadr int-form)))
-                              (cadr int-form))))
+                  (int-form (when (eq (car int-form) 'interactive)
+                              (cond ((listp (cadr int-form))
+                                     (cadr int-form))
+                                    ((equal (cadr int-form) "p")
+                                     ''(1))))))
              (if int-form
                  `(lispy-destructuring-setq ,tsexp
                       ,int-form)
