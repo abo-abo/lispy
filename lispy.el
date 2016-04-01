@@ -5753,7 +5753,9 @@ so that no other packages disturb the match data."
      ;; lispy-specific
      (lispy-defverb . 1)
      ;; misc
-     (defhydra . 1)))
+     (defhydra . 1)
+     (ivy-set-actions . 1)
+     (ivy-set-sources . 1)))
   "Alist of tag arities for supported modes.")
 
 (defun lispy--tag-regexp (&optional mode)
