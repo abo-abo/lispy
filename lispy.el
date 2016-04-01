@@ -3798,6 +3798,7 @@ When ARG is 2, insert the result as a comment."
                 outline-end))))
     (cond ((null res)
            (lispy-message lispy-eval-error))
+          ((equal res ""))
           ((= ?: (char-before (line-end-position)))
            (goto-char outline-end)
            (lispy--insert-eval-result res)
