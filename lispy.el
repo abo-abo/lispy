@@ -124,7 +124,7 @@
 ;;
 ;; Some Clojure support depends on `cider'.
 ;; Some Scheme support depends on `geiser'.
-;; Some Common Lisp support depends on `slime'.
+;; Some Common Lisp support depends on `slime' or `sly'.
 ;; You can get them from MELPA.
 ;;
 ;; See http://abo-abo.github.io/lispy/ for a detailed documentation.
@@ -1773,6 +1773,7 @@ When the region is active, toggle a ~ at the start of the region."
 
 (declare-function cider-repl-return "ext:cider-repl")
 (declare-function slime-repl-return "ext:slime-repl")
+(declare-function sly-mrepl-return "ext:sly-mrepl")
 (defun lispy-newline-and-indent-plain ()
   "When in minibuffer, exit it.  Otherwise forward to `newline-and-indent'."
   (interactive)
@@ -1783,6 +1784,8 @@ When the region is active, toggle a ~ at the start of the region."
      (cider-repl-return))
     (slime-repl-mode
      (slime-repl-return))
+    (sly-mrepl-mode
+     (sly-mrepl-return))
     (python-mode
      (newline-and-indent))
     (t
@@ -3659,7 +3662,7 @@ Sexp is obtained by exiting list ARG times."
 (defvar lispy-goto-symbol-alist
   '((clojure-mode lispy-goto-symbol-clojure le-clojure)
     (scheme-mode lispy-goto-symbol-scheme le-scheme)
-    (lisp-mode slime-edit-definition slime)
+    (lisp-mode lispy-goto-symbol-lisp le-lisp)
     (python-mode lispy-goto-symbol-python le-python))
   "An alist of `major-mode' to function for jumping to symbol.
 
@@ -5711,13 +5714,14 @@ so that no other packages disturb the match data."
      (in-package . 1)
      (load . 1)
      (setq . 2)
-     ;; SLIME specific
+     ;; SLIME/SLY specific
      (definterface . 1)
      (defimplementation . 1)
      (define-caller-pattern . 1)
      (define-variable-pattern . 1)
      (define-pattern-substitution . 1)
-     (defslimefun . 1))
+     (defslimefun . 1)
+     (defslyfun . 1))
     (emacs-lisp-mode
      (setq . 2)
      (csetq . 2)
