@@ -3,7 +3,7 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2016-04-02 Sat 13:24 -->
+<!-- 2016-04-02 Sat 18:51 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>lispy.el function reference</title>
@@ -2488,6 +2488,7 @@ This function, taking arguments <code>left</code> and <code>right</code>, is use
 <a href="#lispy-parens"><code>lispy-parens</code></a>,
 <a href="#lispy-braces"><code>lispy-braces</code></a>
 and <a href="#lispy-brackets"><code>lispy-brackets</code></a>, which in turn take prefix <code>arg</code>.
+The arguments align with those of <a href="#lispy-slurp"><code>lispy-slurp</code></a>.
 </p>
 
 <p>
@@ -2625,7 +2626,7 @@ they should be inserted with <kbd>C-q [</kbd> and <kbd>C-q ]</kbd>.
 </div>
 
 <div id="outline-container-foobar" class="outline-4">
-<h4 id="foobar"><code>arg</code> is 1</h4>
+<h4 id="foobar">no <code>arg</code> is explicitly specified</h4>
 <div class="outline-text-4" id="text-foobar">
 <ol class="org-ol">
 <li>Re-indent and insert space according to <code>lispy--space-unless</code>.</li>
@@ -2636,10 +2637,10 @@ they should be inserted with <kbd>C-q [</kbd> and <kbd>C-q ]</kbd>.
 </div>
 
 <div id="outline-container-foobar" class="outline-4">
-<h4 id="foobar">otherwise</h4>
+<h4 id="foobar"><code>arg</code> is positive</h4>
 <div class="outline-text-4" id="text-foobar">
 <p>
-Wrap current sexp with <code>left</code> and <code>right</code>.
+Wrap that number of sexps with <code>left</code> and <code>right</code>.
 </p>
 
 <p>
@@ -2653,7 +2654,7 @@ Starting with:
 </div>
 
 <p>
-pressing <kbd>2(</kbd> will give:
+pressing <kbd>1(</kbd> will give:
 </p>
 <div class="org-src-container">
 
@@ -2663,8 +2664,73 @@ pressing <kbd>2(</kbd> will give:
 </div>
 
 <p>
-<kbd>2</kbd> here is responsible to setting <code>arg</code> to 2.
+<kbd>1</kbd> here is responsible to setting <code>arg</code> to 1. <kbd>C-u</kbd> will also cause a
+single sexp to be wrapped.
 </p>
+</div>
+</div>
+
+<div id="outline-container-foobar" class="outline-4">
+<h4 id="foobar"><code>arg</code> is 0</h4>
+<div class="outline-text-4" id="text-foobar">
+<p>
+Wrap as many sexps as possible.
+</p>
+
+<p>
+Starting with:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(foo
+ <cursor>b</cursor>ar baz
+ quux)
+</pre>
+</div>
+
+<p>
+pressing <kbd>M-0(</kbd> will give:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(foo
+ (<cursor> </cursor>bar baz
+       quux))
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-foobar" class="outline-4">
+<h4 id="foobar"><code>arg</code> is -1</h4>
+<div class="outline-text-4" id="text-foobar">
+<p>
+Wrap to the end of the line where the current sexp ends or as far as
+possible before that position.
+</p>
+
+<p>
+Starting with:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(foo
+ <cursor>b</cursor>ar baz
+ quux)
+</pre>
+</div>
+
+<p>
+pressing <kbd>M--(</kbd> will give:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(foo
+ (<cursor> </cursor>bar baz)
+ quux)
+</pre>
+</div>
+
 <hr  />
 </div>
 </div>
@@ -3939,7 +4005,10 @@ Bound to <kbd>&gt;</kbd>.
 
 <p>
 Grow either current sexp or region (if it's active) in appropriate
-direction. Opposite of <a href="#lispy-barf"><code>lispy-barf</code></a>.
+direction. Opposite of <a href="#lispy-barf"><code>lispy-barf</code></a>. With an arg of
+<kbd>0</kbd>, grow as far as possible. With an arg of <kbd>-1</kbd>, grow until the end
+of the line where the current sexp ends or as far as possible before
+that position.
 </p>
 
 <p>
@@ -4002,6 +4071,54 @@ Example 3:
 <div class="org-src-container">
 
 <pre class="src src-elisp">(foo <span class="region">bar baz</span><cursor>)</cursor>
+</pre>
+</div>
+</td></tr></tbody></table>
+
+<p>
+Example 4:
+</p>
+
+<table><tbody><tr><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp">((foo)<cursor> </cursor>bar baz
+ quux)
+</pre>
+</div>
+</td><td>
+<p>
+-&gt; <kbd>0&gt;</kbd> -&gt;
+</p>
+</td><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp">((foo bar baz
+      quux)<span style="color: #FF0000;"><cursor>)</cursor></span>
+</pre>
+</div>
+</td></tr></tbody></table>
+
+<p>
+Example 5:
+</p>
+
+<table><tbody><tr><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp">((foo)<cursor> </cursor>bar baz
+ quux)
+</pre>
+</div>
+</td><td>
+<p>
+-&gt; <kbd>M--&gt;</kbd> -&gt;
+</p>
+</td><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp">((foo bar baz)<cursor> </cursor>
+ quux)
 </pre>
 </div>
 </td></tr></tbody></table>
