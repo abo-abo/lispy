@@ -3,12 +3,11 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2016-04-02 Sat 13:24 -->
+<!-- 2016-04-02 Sat 12:20 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>lispy.el function reference</title>
 <meta name="generator" content="Org-mode" />
-<meta name="author" content="oleh" />
 <link rel="stylesheet" type="text/css" href="style.css"/>
 <script type="text/x-mathjax-config">
     MathJax.Hub.Config({
@@ -805,11 +804,11 @@ backward <code>arg</code> times:
 <table><tbody><tr><td>
 <div class="org-src-container">
 
-<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">lispy-right</span> (arg)
-  <span style="color: #2A00FF;">"Move outside list forwards ARG times.</span>
-<span style="color: #2A00FF;">Return nil on failure, t otherwise."</span>
-  (<span style="color: #7F0055; font-weight: bold;">interactive</span> <span style="color: #2A00FF;">"p"</span>)
-  (<span style="color: #7F0055; font-weight: bold;">if</span> (region-active-p)
+<pre class="src src-elisp">(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">lispy-right</span> (arg)
+  <span style="color: #8b2252;">"Move outside list forwards ARG times.</span>
+<span style="color: #8b2252;">Return nil on failure, t otherwise."</span>
+  (<span style="color: #a020f0;">interactive</span> <span style="color: #8b2252;">"p"</span>)
+  (<span style="color: #a020f0;">if</span> (region-active-p)
       <cursor>(</cursor><span class="region">lispy-mark-right arg)</span>
     (lispy--out-forward arg)))
 </pre>
@@ -821,13 +820,13 @@ backward <code>arg</code> times:
 </td><td>
 <div class="org-src-container">
 
-<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">lispy-right</span> (arg)
-  <span style="color: #2A00FF;">"Move outside list forwards ARG times.</span>
-<span style="color: #2A00FF;">Return nil on failure, t otherwise."</span>
-  (<span style="color: #7F0055; font-weight: bold;">interactive</span> <span style="color: #2A00FF;">"p"</span>)
-  <cursor>(</cursor><span class="region"><span style="color: #7F0055; font-weight: bold;">if</span> (region-active-p)
+<pre class="src src-elisp">(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">lispy-right</span> (arg)
+  <span style="color: #8b2252;">"Move outside list forwards ARG times.</span>
+<span style="color: #8b2252;">Return nil on failure, t otherwise."</span>
+  (<span style="color: #a020f0;">interactive</span> <span style="color: #8b2252;">"p"</span>)
+  <cursor>(</cursor><span class="region"><span style="color: #a020f0;">if</span> (region-active-p)
       (lispy-mark-right arg)
-    (lispy--out-forward arg))<span style="color: #FF0000;"></span>)</span>
+    (lispy--out-forward arg))<span style="color: #ff0000; font-weight: bold;"></span>)</span>
 </pre>
 </div>
 </td></tr></tbody></table>
@@ -1098,13 +1097,13 @@ region).
 <table><tbody><tr><td>
 <div class="org-src-container">
 
-<pre class="src src-elisp"><span class="region">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">lispy-right</span> (arg)
-  <span style="color: #2A00FF;">"Move outside list forwards ARG times\.</span>
-<span style="color: #2A00FF;">Return nil on failure, t otherwise\."</span>
-  (<span style="color: #7F0055; font-weight: bold;">interactive</span> <span style="color: #2A00FF;">"p"</span>)
-  (<span style="color: #7F0055; font-weight: bold;">if</span> (region-active-p)
+<pre class="src src-elisp"><span class="region">(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">lispy-right</span> (arg)
+  <span style="color: #8b2252;">"Move outside list forwards ARG times\.</span>
+<span style="color: #8b2252;">Return nil on failure, t otherwise\."</span>
+  (<span style="color: #a020f0;">interactive</span> <span style="color: #8b2252;">"p"</span>)
+  (<span style="color: #a020f0;">if</span> (region-active-p)
       (lispy-mark-right arg)
-    (lispy--out-forward arg)))<span style="color: #FF0000;"></span><cursor><</cursor>/span>
+    (lispy--out-forward arg)))<span style="color: #ff0000; font-weight: bold;"></span><cursor><</cursor>/span>
 </pre>
 </div>
 </td><td>
@@ -1115,10 +1114,10 @@ region).
 <div class="org-src-container">
 
 <pre class="src src-elisp">(<span class="region">defun</span><cursor> </cursor>lispy-right (arg)
-  <span style="color: #2A00FF;">"Move outside list forwards ARG times.</span>
-<span style="color: #2A00FF;">Return nil on failure, t otherwise."</span>
-  (<span style="color: #7F0055; font-weight: bold;">interactive</span> <span style="color: #2A00FF;">"p"</span>)
-  (<span style="color: #7F0055; font-weight: bold;">if</span> (region-active-p)
+  <span style="color: #8b2252;">"Move outside list forwards ARG times.</span>
+<span style="color: #8b2252;">Return nil on failure, t otherwise."</span>
+  (<span style="color: #a020f0;">interactive</span> <span style="color: #8b2252;">"p"</span>)
+  (<span style="color: #a020f0;">if</span> (region-active-p)
       (lispy-mark-right arg)
     (lispy--out-forward arg)))
 </pre>
@@ -1135,7 +1134,7 @@ Mark its inner contents.
 <table><tbody><tr><td>
 <div class="org-src-container">
 
-<pre class="src src-elisp">(list <span class="region"><span style="color: #2A00FF;">"spam spam spam"</span></span><cursor>)</cursor>
+<pre class="src src-elisp">(list <span class="region"><span style="color: #8b2252;">"spam spam spam"</span></span><cursor>)</cursor>
 </pre>
 </div>
 </td><td>
@@ -1145,7 +1144,7 @@ Mark its inner contents.
 </td><td>
 <div class="org-src-container">
 
-<pre class="src src-elisp">(list <span style="color: #2A00FF;">"<span class="region">spam spam spam</span><cursor>"</cursor></span>)
+<pre class="src src-elisp">(list <span style="color: #8b2252;">"<span class="region">spam spam spam</span><cursor>"</cursor></span>)
 </pre>
 </div>
 </td></tr></tbody></table>
@@ -1157,7 +1156,7 @@ Mark its inner contents.
 <table><tbody><tr><td>
 <div class="org-src-container">
 
-<pre class="src src-elisp">(list <span style="color: #2A00FF;">"<span class="region">spam spam spam</span><cursor>"</cursor></span>)
+<pre class="src src-elisp">(list <span style="color: #8b2252;">"<span class="region">spam spam spam</span><cursor>"</cursor></span>)
 </pre>
 </div>
 </td><td>
@@ -1167,7 +1166,7 @@ Mark its inner contents.
 </td><td>
 <div class="org-src-container">
 
-<pre class="src src-elisp">(list <span style="color: #2A00FF;">"<span class="region">spam</span><cursor> </cursor>spam spam"</span>)
+<pre class="src src-elisp">(list <span style="color: #8b2252;">"<span class="region">spam</span><cursor> </cursor>spam spam"</span>)
 </pre>
 </div>
 </td></tr></tbody></table>
@@ -1184,7 +1183,7 @@ Select the unquoted part, it's useful for a subsequent <kbd>e</kbd>
 <div class="org-src-container">
 
 <pre class="src src-elisp">(add-to-list <span class="region">'auto-mode-alist</span><cursor> </cursor>
-             '(<span style="color: #2A00FF;">"\\.</span><span style="color: #7F0055;">\\</span><span style="color: #7F0055;">(</span><span style="color: #2A00FF;">h</span><span style="color: #7F0055;">\\</span><span style="color: #7F0055;">)</span><span style="color: #2A00FF;">\\'"</span> . c++-mode))
+             '(<span style="color: #8b2252;">"\\.</span><span style="color: #8b2252; font-weight: bold;">\\</span><span style="color: #8b2252; font-weight: bold;">(</span><span style="color: #8b2252;">h</span><span style="color: #8b2252; font-weight: bold;">\\</span><span style="color: #8b2252; font-weight: bold;">)</span><span style="color: #8b2252;">\\'"</span> . c++-mode))
 </pre>
 </div>
 </td><td>
@@ -1195,7 +1194,7 @@ Select the unquoted part, it's useful for a subsequent <kbd>e</kbd>
 <div class="org-src-container">
 
 <pre class="src src-elisp">(add-to-list '<span class="region">auto-mode-alist</span><cursor> </cursor>
-             '(<span style="color: #2A00FF;">"\\.</span><span style="color: #7F0055;">\\</span><span style="color: #7F0055;">(</span><span style="color: #2A00FF;">h</span><span style="color: #7F0055;">\\</span><span style="color: #7F0055;">)</span><span style="color: #2A00FF;">\\'"</span> . c++-mode))
+             '(<span style="color: #8b2252;">"\\.</span><span style="color: #8b2252; font-weight: bold;">\\</span><span style="color: #8b2252; font-weight: bold;">(</span><span style="color: #8b2252;">h</span><span style="color: #8b2252; font-weight: bold;">\\</span><span style="color: #8b2252; font-weight: bold;">)</span><span style="color: #8b2252;">\\'"</span> . c++-mode))
 </pre>
 </div>
 </td></tr></tbody></table>
@@ -1255,14 +1254,14 @@ Starting with this:
 </p>
 <div class="org-src-container">
 
-<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">lispy-define-key</span> (keymap key def <span style="color: #000000; font-style: italic; text-decoration: underline;">&amp;optional</span> from-start)
-  <span style="color: #2A00FF;">"Forward to (`</span><span style="color: #110099;">define-key</span><span style="color: #2A00FF;">' KEYMAP KEY (`</span><span style="color: #110099;">lispy-defun</span><span style="color: #2A00FF;">' DEF FROM-START))."</span>
-  (<span style="color: #7F0055; font-weight: bold;">let</span> ((func (<span style="color: #7F0055; font-weight: bold;">defalias</span> (intern (concat <span style="color: #2A00FF;">"special-"</span> (symbol-name def)))
+<pre class="src src-elisp">(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">lispy-define-key</span> (keymap key def <span style="color: #228b22;">&amp;optional</span> from-start)
+  <span style="color: #8b2252;">"Forward to (`</span><span style="color: #008b8b;">define-key</span><span style="color: #8b2252;">' KEYMAP KEY (`</span><span style="color: #008b8b;">lispy-defun</span><span style="color: #8b2252;">' DEF FROM-START))."</span>
+  (<span style="color: #a020f0;">let</span> ((func (<span style="color: #a020f0;">defalias</span> (intern (concat <span style="color: #8b2252;">"special-"</span> (symbol-name def)))
                   (lispy--insert-or-call def from-start))))
-    <cursor>(</cursor><span style="color: #7F0055; font-weight: bold;">unless</span> (member func ac-trigger-commands)
-      (<span style="color: #7F0055; font-weight: bold;">push</span> func ac-trigger-commands))
-    (<span style="color: #7F0055; font-weight: bold;">unless</span> (member func company-begin-commands)
-      (<span style="color: #7F0055; font-weight: bold;">push</span> func company-begin-commands))
+    <cursor>(</cursor><span style="color: #a020f0;">unless</span> (member func ac-trigger-commands)
+      (<span style="color: #a020f0;">push</span> func ac-trigger-commands))
+    (<span style="color: #a020f0;">unless</span> (member func company-begin-commands)
+      (<span style="color: #a020f0;">push</span> func company-begin-commands))
     (eldoc-add-command func)
     (define-key keymap (kbd key) func)))
 </pre>
@@ -1364,14 +1363,14 @@ Starting with this:
 </p>
 <div class="org-src-container">
 
-<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">lispy-define-key</span> (keymap key def <span style="color: #000000; font-style: italic; text-decoration: underline;">&amp;optional</span> from-start)
-  <span style="color: #2A00FF;">"Forward to (`</span><span style="color: #110099;">define-key</span><span style="color: #2A00FF;">' KEYMAP KEY (`</span><span style="color: #110099;">lispy-defun</span><span style="color: #2A00FF;">' DEF FROM-START))."</span>
-  (<span style="color: #7F0055; font-weight: bold;">let</span> ((func (<span style="color: #7F0055; font-weight: bold;">defalias</span> (intern (concat <span style="color: #2A00FF;">"special-"</span> (symbol-name def)))
+<pre class="src src-elisp">(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">lispy-define-key</span> (keymap key def <span style="color: #228b22;">&amp;optional</span> from-start)
+  <span style="color: #8b2252;">"Forward to (`</span><span style="color: #008b8b;">define-key</span><span style="color: #8b2252;">' KEYMAP KEY (`</span><span style="color: #008b8b;">lispy-defun</span><span style="color: #8b2252;">' DEF FROM-START))."</span>
+  (<span style="color: #a020f0;">let</span> ((func (<span style="color: #a020f0;">defalias</span> (intern (concat <span style="color: #8b2252;">"special-"</span> (symbol-name def)))
                   (lispy--insert-or-call def from-start))))
-    <cursor>(</cursor><span style="color: #7F0055; font-weight: bold;">unless</span> (member func ac-trigger-commands)
-      (<span style="color: #7F0055; font-weight: bold;">push</span> func ac-trigger-commands))
-    (<span style="color: #7F0055; font-weight: bold;">unless</span> (member func company-begin-commands)
-      (<span style="color: #7F0055; font-weight: bold;">push</span> func company-begin-commands))
+    <cursor>(</cursor><span style="color: #a020f0;">unless</span> (member func ac-trigger-commands)
+      (<span style="color: #a020f0;">push</span> func ac-trigger-commands))
+    (<span style="color: #a020f0;">unless</span> (member func company-begin-commands)
+      (<span style="color: #a020f0;">push</span> func company-begin-commands))
     (eldoc-add-command func)
     (define-key keymap (kbd key) func)))
 </pre>
@@ -1464,14 +1463,14 @@ Here's the end result of <kbd>ad</kbd>:
 
 <div class="org-src-container">
 
-<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">lispy-define-key</span> (keymap key def <span style="color: #000000; font-style: italic; text-decoration: underline;">&amp;optional</span> from-start)
-  <span style="color: #2A00FF;">"Forward to (`</span><span style="color: #110099;">define-key</span><span style="color: #2A00FF;">' KEYMAP KEY (`</span><span style="color: #110099;">lispy-defun</span><span style="color: #2A00FF;">' DEF FROM-START))."</span>
-  (<span style="color: #7F0055; font-weight: bold;">let</span> ((func (<span style="color: #7F0055; font-weight: bold;">defalias</span> (intern (concat <span style="color: #2A00FF;">"special-"</span> (symbol-name def)))
+<pre class="src src-elisp">(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">lispy-define-key</span> (keymap key def <span style="color: #228b22;">&amp;optional</span> from-start)
+  <span style="color: #8b2252;">"Forward to (`</span><span style="color: #008b8b;">define-key</span><span style="color: #8b2252;">' KEYMAP KEY (`</span><span style="color: #008b8b;">lispy-defun</span><span style="color: #8b2252;">' DEF FROM-START))."</span>
+  (<span style="color: #a020f0;">let</span> ((func (<span style="color: #a020f0;">defalias</span> (intern (concat <span style="color: #8b2252;">"special-"</span> (symbol-name def)))
                   (lispy--insert-or-call def from-start))))
-    (<span style="color: #7F0055; font-weight: bold;">unless</span> (member func <span class="region">ac-trigger-commands</span><cursor>)</cursor>
-      (<span style="color: #7F0055; font-weight: bold;">push</span> func ac-trigger-commands))
-    (<span style="color: #7F0055; font-weight: bold;">unless</span> (member func company-begin-commands)
-      (<span style="color: #7F0055; font-weight: bold;">push</span> func company-begin-commands))
+    (<span style="color: #a020f0;">unless</span> (member func <span class="region">ac-trigger-commands</span><cursor>)</cursor>
+      (<span style="color: #a020f0;">push</span> func ac-trigger-commands))
+    (<span style="color: #a020f0;">unless</span> (member func company-begin-commands)
+      (<span style="color: #a020f0;">push</span> func company-begin-commands))
     (eldoc-add-command func)
     (define-key keymap (kbd key) func)))
 </pre>
@@ -1928,8 +1927,8 @@ naming the variable.
 <table><tbody><tr><td>
 <div class="org-src-container">
 
-<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">my-forward-line</span> (arg)
-  (message <span style="color: #2A00FF;">"%S lines"</span>
+<pre class="src src-elisp">(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-forward-line</span> (arg)
+  (message <span style="color: #8b2252;">"%S lines"</span>
            <cursor>(</cursor>forward-line arg)))
 </pre>
 </div>
@@ -1940,9 +1939,9 @@ naming the variable.
 </td><td>
 <div class="org-src-container">
 
-<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">my-forward-line</span> (arg)
-  (<span style="color: #7F0055; font-weight: bold;">let</span> ((ln (forward-line arg)))
-    <cursor>(</cursor>message <span style="color: #2A00FF;">"%S lines"</span> ln)))
+<pre class="src src-elisp">(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">my-forward-line</span> (arg)
+  (<span style="color: #a020f0;">let</span> ((ln (forward-line arg)))
+    <cursor>(</cursor>message <span style="color: #8b2252;">"%S lines"</span> ln)))
 </pre>
 </div>
 </td></tr></tbody></table>
@@ -1963,8 +1962,8 @@ Unbind a let-bound variable.
 <table><tbody><tr><td>
 <div class="org-src-container">
 
-<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">foobar</span> ()
-  (<span style="color: #7F0055; font-weight: bold;">let</span> (<cursor>(</cursor>x 10)
+<pre class="src src-elisp">(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">foobar</span> ()
+  (<span style="color: #a020f0;">let</span> (<cursor>(</cursor>x 10)
         (y 20)
         (z 30))
     (foo1 x y z)
@@ -1982,8 +1981,8 @@ Unbind a let-bound variable.
 </td><td>
 <div class="org-src-container">
 
-<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">foobar</span> ()
-  (<span style="color: #7F0055; font-weight: bold;">let</span> (<cursor>(</cursor>y 20)
+<pre class="src src-elisp">(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">foobar</span> ()
+  (<span style="color: #a020f0;">let</span> (<cursor>(</cursor>y 20)
         (z 30))
     (foo1 10 y z)
     (foo2 10 z y)
@@ -2130,9 +2129,9 @@ Starting with this:
 
 <div class="org-src-container">
 
-<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">helm-owiki-action</span> (x)
+<pre class="src src-elisp">(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">helm-owiki-action</span> (x)
   (find-file (expand-file-name
-              (format <span style="color: #2A00FF;">"%s.org"</span> x)<cursor> </cursor>
+              (format <span style="color: #8b2252;">"%s.org"</span> x)<cursor> </cursor>
               helm-owiki-directory)))
 </pre>
 </div>
@@ -2143,9 +2142,9 @@ by pressing <kbd>xl</kbd> you will get this:
 
 <div class="org-src-container">
 
-<pre class="src src-elisp"><cursor>(</cursor><span style="color: #7F0055; font-weight: bold;">lambda</span> (x)
+<pre class="src src-elisp"><cursor>(</cursor><span style="color: #a020f0;">lambda</span> (x)
   (find-file (expand-file-name
-              (format <span style="color: #2A00FF;">"%s.org"</span> x)
+              (format <span style="color: #8b2252;">"%s.org"</span> x)
               helm-owiki-directory)))
 </pre>
 </div>
@@ -2170,7 +2169,7 @@ Starting with this:
 </p>
 <div class="org-src-container">
 
-<pre class="src src-elisp">(mapcar <cursor>(</cursor><span style="color: #7F0055; font-weight: bold;">lambda</span> (x) (* x x))
+<pre class="src src-elisp">(mapcar <cursor>(</cursor><span style="color: #a020f0;">lambda</span> (x) (* x x))
         (number-sequence 1 10))
 </pre>
 </div>
@@ -2183,7 +2182,7 @@ you'll get this:
 
 <pre class="src src-elisp">(mapcar #'square
         (number-sequence 1 10))
-(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">square</span> (x) (* x x))<cursor> </cursor>
+(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">square</span> (x) (* x x))<cursor> </cursor>
 </pre>
 </div>
 
@@ -2206,7 +2205,7 @@ by pressing <kbd>xd</kbd> you'll get this:
 </p>
 <div class="org-src-container">
 
-<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">foo-delete-region</span> (beg end)
+<pre class="src src-elisp">(<span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">foo-delete-region</span> (beg end)
   <cursor>)</cursor>
 </pre>
 </div>
@@ -2280,7 +2279,7 @@ Wrap the region with quoted quotes:
 <table><tbody><tr><td>
 <div class="org-src-container">
 
-<pre class="src src-elisp">(message <span style="color: #2A00FF;">"We are the Knights who say <cursor>N</cursor><span class="region">i</span>"</span>)
+<pre class="src src-elisp">(message <span style="color: #8b2252;">"We are the Knights who say <cursor>N</cursor><span class="region">i</span>"</span>)
 </pre>
 </div>
 </td><td>
@@ -2290,7 +2289,7 @@ Wrap the region with quoted quotes:
 </td><td>
 <div class="org-src-container">
 
-<pre class="src src-elisp">(message <span style="color: #2A00FF;">"We are the Knights who say \"<cursor>N</cursor>i\""</span>)
+<pre class="src src-elisp">(message <span style="color: #8b2252;">"We are the Knights who say \"<cursor>N</cursor>i\""</span>)
 </pre>
 </div>
 </td></tr></tbody></table>
@@ -2316,7 +2315,7 @@ Wrap the region with quotes.
 </td><td>
 <div class="org-src-container">
 
-<pre class="src src-elisp">(list 'foo <span style="color: #2A00FF;">"<cursor>b</cursor>ar"</span>)
+<pre class="src src-elisp">(list 'foo <span style="color: #8b2252;">"<cursor>b</cursor>ar"</span>)
 </pre>
 </div>
 </td></tr></tbody></table>
@@ -2332,7 +2331,7 @@ Unquote current string.
 <table><tbody><tr><td>
 <div class="org-src-container">
 
-<pre class="src src-elisp">(list 'foo <span style="color: #2A00FF;">"<cursor>b</cursor>ar"</span>)
+<pre class="src src-elisp">(list 'foo <span style="color: #8b2252;">"<cursor>b</cursor>ar"</span>)
 </pre>
 </div>
 </td><td>
@@ -2361,7 +2360,7 @@ Starting with
 </p>
 <div class="org-src-container">
 
-<pre class="src src-elisp"><span style="color: #2A00FF;">"We are the Knights who say <cursor>"</cursor></span>
+<pre class="src src-elisp"><span style="color: #8b2252;">"We are the Knights who say <cursor>"</cursor></span>
 </pre>
 </div>
 
@@ -2370,7 +2369,7 @@ pressing <kbd>"</kbd> will give:
 </p>
 <div class="org-src-container">
 
-<pre class="src src-elisp"><span style="color: #2A00FF;">"We are the Knights who say \"<cursor>\</cursor>""</span>
+<pre class="src src-elisp"><span style="color: #8b2252;">"We are the Knights who say \"<cursor>\</cursor>""</span>
 </pre>
 </div>
 </div>
@@ -2406,7 +2405,7 @@ pressing <kbd>"</kbd> will give:
 </p>
 <div class="org-src-container">
 
-<pre class="src src-elisp">(message <span style="color: #2A00FF;">"<cursor>"</cursor></span>)
+<pre class="src src-elisp">(message <span style="color: #8b2252;">"<cursor>"</cursor></span>)
 </pre>
 </div>
 <hr  />
@@ -2488,6 +2487,7 @@ This function, taking arguments <code>left</code> and <code>right</code>, is use
 <a href="#lispy-parens"><code>lispy-parens</code></a>,
 <a href="#lispy-braces"><code>lispy-braces</code></a>
 and <a href="#lispy-brackets"><code>lispy-brackets</code></a>, which in turn take prefix <code>arg</code>.
+The arguments align with those of <a href="#lispy-slurp"><code>lispy-slurp</code></a>.
 </p>
 
 <p>
@@ -2625,7 +2625,7 @@ they should be inserted with <kbd>C-q [</kbd> and <kbd>C-q ]</kbd>.
 </div>
 
 <div id="outline-container-foobar" class="outline-4">
-<h4 id="foobar"><code>arg</code> is 1</h4>
+<h4 id="foobar">no <code>arg</code> is explicitly specified</h4>
 <div class="outline-text-4" id="text-foobar">
 <ol class="org-ol">
 <li>Re-indent and insert space according to <code>lispy--space-unless</code>.</li>
@@ -2636,10 +2636,10 @@ they should be inserted with <kbd>C-q [</kbd> and <kbd>C-q ]</kbd>.
 </div>
 
 <div id="outline-container-foobar" class="outline-4">
-<h4 id="foobar">otherwise</h4>
+<h4 id="foobar"><code>arg</code> is positive</h4>
 <div class="outline-text-4" id="text-foobar">
 <p>
-Wrap current sexp with <code>left</code> and <code>right</code>.
+Wrap that number of sexps with <code>left</code> and <code>right</code>.
 </p>
 
 <p>
@@ -2653,7 +2653,7 @@ Starting with:
 </div>
 
 <p>
-pressing <kbd>2(</kbd> will give:
+pressing <kbd>1(</kbd> will give:
 </p>
 <div class="org-src-container">
 
@@ -2663,8 +2663,73 @@ pressing <kbd>2(</kbd> will give:
 </div>
 
 <p>
-<kbd>2</kbd> here is responsible to setting <code>arg</code> to 2.
+<kbd>1</kbd> here is responsible to setting <code>arg</code> to 1. <kbd>C-u</kbd> will also cause a
+single sexp to be wrapped.
 </p>
+</div>
+</div>
+
+<div id="outline-container-foobar" class="outline-4">
+<h4 id="foobar"><code>arg</code> is 0</h4>
+<div class="outline-text-4" id="text-foobar">
+<p>
+Wrap as many sexps as possible.
+</p>
+
+<p>
+Starting with:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(foo
+ <cursor>b</cursor>ar baz
+ quux)
+</pre>
+</div>
+
+<p>
+pressing <kbd>M-0(</kbd> will give:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(foo
+ (<cursor> </cursor>bar baz
+       quux))
+</pre>
+</div>
+</div>
+</div>
+
+<div id="outline-container-foobar" class="outline-4">
+<h4 id="foobar"><code>arg</code> is -1</h4>
+<div class="outline-text-4" id="text-foobar">
+<p>
+Wrap to the end of the line where the current sexp ends or as far as
+possible before that position.
+</p>
+
+<p>
+Starting with:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(foo
+ <cursor>b</cursor>ar baz
+ quux)
+</pre>
+</div>
+
+<p>
+pressing <kbd>M--(</kbd> will give:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(foo
+ (<cursor> </cursor>bar baz)
+ quux)
+</pre>
+</div>
+
 <hr  />
 </div>
 </div>
@@ -2801,7 +2866,7 @@ Starting with:
 </p>
 <div class="org-src-container">
 
-<pre class="src src-elisp"><cursor>(</cursor>message <span style="color: #2A00FF;">"test"</span>)
+<pre class="src src-elisp"><cursor>(</cursor>message <span style="color: #8b2252;">"test"</span>)
 </pre>
 </div>
 
@@ -2810,7 +2875,7 @@ pressing <kbd>C-k</kbd> <kbd>"</kbd> <kbd>C-y</kbd> will give:
 </p>
 <div class="org-src-container">
 
-<pre class="src src-elisp"><span style="color: #2A00FF;">"(message \"test\")<cursor>"</cursor></span>
+<pre class="src src-elisp"><span style="color: #8b2252;">"(message \"test\")<cursor>"</cursor></span>
 </pre>
 </div>
 
@@ -2819,7 +2884,7 @@ whereas a regular <code>yank</code> would give:
 </p>
 <div class="org-src-container">
 
-<pre class="src src-elisp"><span style="color: #2A00FF;">"(message "</span>test<span style="color: #2A00FF;">")<cursor>"</cursor></span>
+<pre class="src src-elisp"><span style="color: #8b2252;">"(message "</span>test<span style="color: #8b2252;">")<cursor>"</cursor></span>
 </pre>
 </div>
 <hr  />
@@ -2859,7 +2924,7 @@ Delete \".
 <table><tbody><tr><td>
 <div class="org-src-container">
 
-<pre class="src src-elisp"><span style="color: #2A00FF;">"say <cursor>\</cursor>"hi\""</span>
+<pre class="src src-elisp"><span style="color: #8b2252;">"say <cursor>\</cursor>"hi\""</span>
 </pre>
 </div>
 </td><td>
@@ -2869,7 +2934,7 @@ Delete \".
 </td><td>
 <div class="org-src-container">
 
-<pre class="src src-elisp"><span style="color: #2A00FF;">"say <cursor>h</cursor>i\""</span>
+<pre class="src src-elisp"><span style="color: #8b2252;">"say <cursor>h</cursor>i\""</span>
 </pre>
 </div>
 </td></tr></tbody></table>
@@ -3436,9 +3501,9 @@ To give an example of the recommended outline syntax:
 
 <div class="org-src-container">
 
-<pre class="src src-elisp"><span style="color: #3F7F5F;">;;</span><span style="color: #3F7F5F;">* Level 1</span>
-<span style="color: #3F7F5F;">;;</span><span style="color: #3F7F5F;">** Level 2</span>
-<span style="color: #3F7F5F;">;;</span><span style="color: #3F7F5F;">*** Level 3</span>
+<pre class="src src-elisp"><span style="color: #b22222;">;;</span><span style="color: #b22222;">* Level 1</span>
+<span style="color: #b22222;">;;</span><span style="color: #b22222;">** Level 2</span>
+<span style="color: #b22222;">;;</span><span style="color: #b22222;">*** Level 3</span>
 </pre>
 </div>
 
@@ -3542,14 +3607,14 @@ and to add space where it's needed, e.g. <code>(lambda (x))</code> instead of
 <table><tbody><tr><td>
 <div class="org-src-container">
 
-<pre class="src src-elisp"><cursor>(</cursor><span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">test-function</span> ()
-  (message  <span style="color: #2A00FF;">"testing: %s"</span>
+<pre class="src src-elisp"><cursor>(</cursor><span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">test-function</span> ()
+  (message  <span style="color: #8b2252;">"testing: %s"</span>
             (mapconcat
-             (<span style="color: #7F0055; font-weight: bold;">lambda</span>(x) (prin1-to-string
+             (<span style="color: #a020f0;">lambda</span>(x) (prin1-to-string
                     (* x x)
                     ))
              (list 0 1 2 3 4 5)
-             <span style="color: #2A00FF;">","</span>)
+             <span style="color: #8b2252;">","</span>)
             )
   )
 </pre>
@@ -3561,13 +3626,13 @@ and to add space where it's needed, e.g. <code>(lambda (x))</code> instead of
 </td><td>
 <div class="org-src-container">
 
-<pre class="src src-elisp"><cursor>(</cursor><span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">test-function</span> ()
-  (message <span style="color: #2A00FF;">"testing: %s"</span>
+<pre class="src src-elisp"><cursor>(</cursor><span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">test-function</span> ()
+  (message <span style="color: #8b2252;">"testing: %s"</span>
            (mapconcat
-            (<span style="color: #7F0055; font-weight: bold;">lambda</span> (x) (prin1-to-string
+            (<span style="color: #a020f0;">lambda</span> (x) (prin1-to-string
                          (* x x)))
             (list 0 1 2 3 4 5)
-            <span style="color: #2A00FF;">","</span>)))
+            <span style="color: #8b2252;">","</span>)))
 </pre>
 </div>
 </td></tr></tbody></table>
@@ -3614,7 +3679,7 @@ body. The function should be interned and its body find-able.
 <table><tbody><tr><td>
 <div class="org-src-container">
 
-<pre class="src src-elisp"><cursor>(</cursor><span style="color: #7F0055; font-weight: bold;">setq-local</span> foo 10)
+<pre class="src src-elisp"><cursor>(</cursor><span style="color: #a020f0;">setq-local</span> foo 10)
 </pre>
 </div>
 </td><td>
@@ -3651,24 +3716,24 @@ The reverse is <a href="#lispy-to-cond"><code>lispy-to-cond</code></a>.
 <table><tbody><tr><td>
 <div class="org-src-container">
 
-<pre class="src src-elisp"><cursor>(</cursor><span style="color: #7F0055; font-weight: bold;">cond</span> ((region-active-p)
+<pre class="src src-elisp"><cursor>(</cursor><span style="color: #a020f0;">cond</span> ((region-active-p)
        (dotimes-protect arg
-         (<span style="color: #7F0055; font-weight: bold;">if</span> (= (point) (region-beginning))
-             (<span style="color: #7F0055; font-weight: bold;">progn</span>
+         (<span style="color: #a020f0;">if</span> (= (point) (region-beginning))
+             (<span style="color: #a020f0;">progn</span>
                (forward-sexp 1)
-               (skip-chars-forward <span style="color: #2A00FF;">" \n"</span>))
+               (skip-chars-forward <span style="color: #8b2252;">" \n"</span>))
            (forward-sexp 1))))
 
       ((looking-at lispy-left)
        (lispy-forward arg)
-       (<span style="color: #7F0055; font-weight: bold;">let</span> ((pt (point)))
-         (<span style="color: #7F0055; font-weight: bold;">if</span> (lispy-forward 1)
+       (<span style="color: #a020f0;">let</span> ((pt (point)))
+         (<span style="color: #a020f0;">if</span> (lispy-forward 1)
              (lispy-backward 1)
            (goto-char pt))))
 
       ((looking-back lispy-right)
-       (<span style="color: #7F0055; font-weight: bold;">let</span> ((pt (point)))
-         (<span style="color: #7F0055; font-weight: bold;">unless</span> (lispy-forward arg)
+       (<span style="color: #a020f0;">let</span> ((pt (point)))
+         (<span style="color: #a020f0;">unless</span> (lispy-forward arg)
            (goto-char pt)
            (lispy-backward 1))))
 
@@ -3684,25 +3749,25 @@ The reverse is <a href="#lispy-to-cond"><code>lispy-to-cond</code></a>.
 </td><td>
 <div class="org-src-container">
 
-<pre class="src src-elisp"><cursor>(</cursor><span style="color: #7F0055; font-weight: bold;">if</span> (region-active-p)
+<pre class="src src-elisp"><cursor>(</cursor><span style="color: #a020f0;">if</span> (region-active-p)
     (dotimes-protect arg
-      (<span style="color: #7F0055; font-weight: bold;">if</span> (= (point) (region-beginning))
-          (<span style="color: #7F0055; font-weight: bold;">progn</span>
+      (<span style="color: #a020f0;">if</span> (= (point) (region-beginning))
+          (<span style="color: #a020f0;">progn</span>
             (forward-sexp 1)
-            (skip-chars-forward <span style="color: #2A00FF;">" \n"</span>))
+            (skip-chars-forward <span style="color: #8b2252;">" \n"</span>))
         (forward-sexp 1)))
 
-  (<span style="color: #7F0055; font-weight: bold;">if</span> (looking-at lispy-left)
-      (<span style="color: #7F0055; font-weight: bold;">progn</span>
+  (<span style="color: #a020f0;">if</span> (looking-at lispy-left)
+      (<span style="color: #a020f0;">progn</span>
         (lispy-forward arg)
-        (<span style="color: #7F0055; font-weight: bold;">let</span> ((pt (point)))
-          (<span style="color: #7F0055; font-weight: bold;">if</span> (lispy-forward 1)
+        (<span style="color: #a020f0;">let</span> ((pt (point)))
+          (<span style="color: #a020f0;">if</span> (lispy-forward 1)
               (lispy-backward 1)
             (goto-char pt))))
 
-    (<span style="color: #7F0055; font-weight: bold;">if</span> (looking-back lispy-right)
-        (<span style="color: #7F0055; font-weight: bold;">let</span> ((pt (point)))
-          (<span style="color: #7F0055; font-weight: bold;">unless</span> (lispy-forward arg)
+    (<span style="color: #a020f0;">if</span> (looking-back lispy-right)
+        (<span style="color: #a020f0;">let</span> ((pt (point)))
+          (<span style="color: #a020f0;">unless</span> (lispy-forward arg)
             (goto-char pt)
             (lispy-backward 1)))
 
@@ -3734,25 +3799,25 @@ The reverse is <a href="#lispy-to-ifs"><code>lispy-to-ifs</code></a>.
 <table><tbody><tr><td>
 <div class="org-src-container">
 
-<pre class="src src-elisp"><cursor>(</cursor><span style="color: #7F0055; font-weight: bold;">if</span> (region-active-p)
+<pre class="src src-elisp"><cursor>(</cursor><span style="color: #a020f0;">if</span> (region-active-p)
     (dotimes-protect arg
-      (<span style="color: #7F0055; font-weight: bold;">if</span> (= (point) (region-beginning))
-          (<span style="color: #7F0055; font-weight: bold;">progn</span>
+      (<span style="color: #a020f0;">if</span> (= (point) (region-beginning))
+          (<span style="color: #a020f0;">progn</span>
             (forward-sexp 1)
-            (skip-chars-forward <span style="color: #2A00FF;">" \n"</span>))
+            (skip-chars-forward <span style="color: #8b2252;">" \n"</span>))
         (forward-sexp 1)))
 
-  (<span style="color: #7F0055; font-weight: bold;">if</span> (looking-at lispy-left)
-      (<span style="color: #7F0055; font-weight: bold;">progn</span>
+  (<span style="color: #a020f0;">if</span> (looking-at lispy-left)
+      (<span style="color: #a020f0;">progn</span>
         (lispy-forward arg)
-        (<span style="color: #7F0055; font-weight: bold;">let</span> ((pt (point)))
-          (<span style="color: #7F0055; font-weight: bold;">if</span> (lispy-forward 1)
+        (<span style="color: #a020f0;">let</span> ((pt (point)))
+          (<span style="color: #a020f0;">if</span> (lispy-forward 1)
               (lispy-backward 1)
             (goto-char pt))))
 
-    (<span style="color: #7F0055; font-weight: bold;">if</span> (looking-back lispy-right)
-        (<span style="color: #7F0055; font-weight: bold;">let</span> ((pt (point)))
-          (<span style="color: #7F0055; font-weight: bold;">unless</span> (lispy-forward arg)
+    (<span style="color: #a020f0;">if</span> (looking-back lispy-right)
+        (<span style="color: #a020f0;">let</span> ((pt (point)))
+          (<span style="color: #a020f0;">unless</span> (lispy-forward arg)
             (goto-char pt)
             (lispy-backward 1)))
 
@@ -3767,24 +3832,24 @@ The reverse is <a href="#lispy-to-ifs"><code>lispy-to-ifs</code></a>.
 </td><td>
 <div class="org-src-container">
 
-<pre class="src src-elisp"><cursor>(</cursor><span style="color: #7F0055; font-weight: bold;">cond</span> ((region-active-p)
+<pre class="src src-elisp"><cursor>(</cursor><span style="color: #a020f0;">cond</span> ((region-active-p)
        (dotimes-protect arg
-         (<span style="color: #7F0055; font-weight: bold;">if</span> (= (point) (region-beginning))
-             (<span style="color: #7F0055; font-weight: bold;">progn</span>
+         (<span style="color: #a020f0;">if</span> (= (point) (region-beginning))
+             (<span style="color: #a020f0;">progn</span>
                (forward-sexp 1)
-               (skip-chars-forward <span style="color: #2A00FF;">" \n"</span>))
+               (skip-chars-forward <span style="color: #8b2252;">" \n"</span>))
            (forward-sexp 1))))
 
       ((looking-at lispy-left)
        (lispy-forward arg)
-       (<span style="color: #7F0055; font-weight: bold;">let</span> ((pt (point)))
-         (<span style="color: #7F0055; font-weight: bold;">if</span> (lispy-forward 1)
+       (<span style="color: #a020f0;">let</span> ((pt (point)))
+         (<span style="color: #a020f0;">if</span> (lispy-forward 1)
              (lispy-backward 1)
            (goto-char pt))))
 
       ((looking-back lispy-right)
-       (<span style="color: #7F0055; font-weight: bold;">let</span> ((pt (point)))
-         (<span style="color: #7F0055; font-weight: bold;">unless</span> (lispy-forward arg)
+       (<span style="color: #a020f0;">let</span> ((pt (point)))
+         (<span style="color: #a020f0;">unless</span> (lispy-forward arg)
            (goto-char pt)
            (lispy-backward 1))))
 
@@ -3856,7 +3921,7 @@ Turn current sexp into one line.
 <table><tbody><tr><td>
 <div class="org-src-container">
 
-<pre class="src src-elisp"><cursor>(</cursor><span style="color: #7F0055; font-weight: bold;">progn</span>
+<pre class="src src-elisp"><cursor>(</cursor><span style="color: #a020f0;">progn</span>
   (foo)
   (bar))
 </pre>
@@ -3868,7 +3933,7 @@ Turn current sexp into one line.
 </td><td>
 <div class="org-src-container">
 
-<pre class="src src-elisp"><cursor>(</cursor><span style="color: #7F0055; font-weight: bold;">progn</span> (foo) (bar))
+<pre class="src src-elisp"><cursor>(</cursor><span style="color: #a020f0;">progn</span> (foo) (bar))
 </pre>
 </div>
 </td></tr></tbody></table>
@@ -3893,7 +3958,7 @@ Turn current sexp into one line.
 <table><tbody><tr><td>
 <div class="org-src-container">
 
-<pre class="src src-elisp"><cursor>(</cursor><span style="color: #7F0055; font-weight: bold;">progn</span> (foo) (bar) (baz))
+<pre class="src src-elisp"><cursor>(</cursor><span style="color: #a020f0;">progn</span> (foo) (bar) (baz))
 </pre>
 </div>
 </td><td>
@@ -3903,7 +3968,7 @@ Turn current sexp into one line.
 </td><td>
 <div class="org-src-container">
 
-<pre class="src src-elisp"><cursor>(</cursor><span style="color: #7F0055; font-weight: bold;">progn</span> (foo)
+<pre class="src src-elisp"><cursor>(</cursor><span style="color: #a020f0;">progn</span> (foo)
        (bar)
        (baz))
 </pre>
@@ -3939,7 +4004,10 @@ Bound to <kbd>&gt;</kbd>.
 
 <p>
 Grow either current sexp or region (if it's active) in appropriate
-direction. Opposite of <a href="#lispy-barf"><code>lispy-barf</code></a>.
+direction. Opposite of <a href="#lispy-barf"><code>lispy-barf</code></a>. With an arg of
+<kbd>0</kbd>, grow as far as possible. With an arg of <kbd>-1</kbd>, grow until the end
+of the line where the current sexp ends or as far as possible before
+that position.
 </p>
 
 <p>
@@ -3948,7 +4016,7 @@ Example 1:
 <table><tbody><tr><td>
 <div class="org-src-container">
 
-<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">progn</span>)<cursor> </cursor>(foo) (bar)
+<pre class="src src-elisp">(<span style="color: #a020f0;">progn</span>)<cursor> </cursor>(foo) (bar)
 </pre>
 </div>
 </td><td>
@@ -3958,7 +4026,7 @@ Example 1:
 </td><td>
 <div class="org-src-container">
 
-<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">progn</span> (foo))<cursor> </cursor>(bar)
+<pre class="src src-elisp">(<span style="color: #a020f0;">progn</span> (foo))<cursor> </cursor>(bar)
 </pre>
 </div>
 </td></tr></tbody></table>
@@ -3969,7 +4037,7 @@ Example 2:
 <table><tbody><tr><td>
 <div class="org-src-container">
 
-<pre class="src src-elisp"><span style="color: #2A00FF;">"foo"</span> <cursor>(</cursor>bar)
+<pre class="src src-elisp"><span style="color: #8b2252;">"foo"</span> <cursor>(</cursor>bar)
 </pre>
 </div>
 </td><td>
@@ -3979,7 +4047,7 @@ Example 2:
 </td><td>
 <div class="org-src-container">
 
-<pre class="src src-elisp"><cursor>(</cursor><span style="color: #2A00FF;">"foo"</span> bar)
+<pre class="src src-elisp"><cursor>(</cursor><span style="color: #8b2252;">"foo"</span> bar)
 </pre>
 </div>
 </td></tr></tbody></table>
@@ -4005,6 +4073,54 @@ Example 3:
 </pre>
 </div>
 </td></tr></tbody></table>
+
+<p>
+Example 4:
+</p>
+
+<table><tbody><tr><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp">((foo)<cursor> </cursor>bar baz
+ quux)
+</pre>
+</div>
+</td><td>
+<p>
+-&gt; <kbd>0&gt;</kbd> -&gt;
+</p>
+</td><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp">((foo bar baz
+      quux)<span style="color: #ff0000; font-weight: bold;"><cursor>)</cursor></span>
+</pre>
+</div>
+</td></tr></tbody></table>
+
+<p>
+Example 5:
+</p>
+
+<table><tbody><tr><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp">((foo)<cursor> </cursor>bar baz
+ quux)
+</pre>
+</div>
+</td><td>
+<p>
+-&gt; <kbd>M--&gt;</kbd> -&gt;
+</p>
+</td><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp">((foo bar baz)<cursor> </cursor>
+ quux)
+</pre>
+</div>
+</td></tr></tbody></table>
 <hr  />
 </div>
 </div>
@@ -4026,7 +4142,7 @@ Example 1:
 <table><tbody><tr><td>
 <div class="org-src-container">
 
-<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">progn</span> (foo))<cursor> </cursor>(bar)
+<pre class="src src-elisp">(<span style="color: #a020f0;">progn</span> (foo))<cursor> </cursor>(bar)
 </pre>
 </div>
 </td><td>
@@ -4036,7 +4152,7 @@ Example 1:
 </td><td>
 <div class="org-src-container">
 
-<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">progn</span>)<cursor> </cursor>(foo) (bar)
+<pre class="src src-elisp">(<span style="color: #a020f0;">progn</span>)<cursor> </cursor>(foo) (bar)
 </pre>
 </div>
 </td></tr></tbody></table>
@@ -4047,7 +4163,7 @@ Example 2:
 <table><tbody><tr><td>
 <div class="org-src-container">
 
-<pre class="src src-elisp"><cursor>(</cursor><span style="color: #2A00FF;">"foo"</span> bar)
+<pre class="src src-elisp"><cursor>(</cursor><span style="color: #8b2252;">"foo"</span> bar)
 </pre>
 </div>
 </td><td>
@@ -4057,7 +4173,7 @@ Example 2:
 </td><td>
 <div class="org-src-container">
 
-<pre class="src src-elisp"><span style="color: #2A00FF;">"foo"</span> <cursor>(</cursor>bar)
+<pre class="src src-elisp"><span style="color: #8b2252;">"foo"</span> <cursor>(</cursor>bar)
 </pre>
 </div>
 </td></tr></tbody></table>
@@ -4163,10 +4279,10 @@ Move current expression to the left, outside the current list.
 <table><tbody><tr><td>
 <div class="org-src-container">
 
-<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">require</span> '<span style="color: #110099;">ob-python</span>)
-(<span style="color: #7F0055; font-weight: bold;">let</span> ((color <span style="color: #2A00FF;">"Blue"</span>))
-  <cursor>(</cursor>message <span style="color: #2A00FF;">"What... is your favorite color?"</span>)
-  (message <span style="color: #2A00FF;">"%s. No yel..."</span> color))
+<pre class="src src-elisp">(<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">ob-python</span>)
+(<span style="color: #a020f0;">let</span> ((color <span style="color: #8b2252;">"Blue"</span>))
+  <cursor>(</cursor>message <span style="color: #8b2252;">"What... is your favorite color?"</span>)
+  (message <span style="color: #8b2252;">"%s. No yel..."</span> color))
 </pre>
 </div>
 </td><td>
@@ -4176,10 +4292,10 @@ Move current expression to the left, outside the current list.
 </td><td>
 <div class="org-src-container">
 
-<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">require</span> '<span style="color: #110099;">ob-python</span>)
-<cursor>(</cursor>message <span style="color: #2A00FF;">"What... is your favorite color?"</span>)
-(<span style="color: #7F0055; font-weight: bold;">let</span> ((color <span style="color: #2A00FF;">"Blue"</span>))
-  (message <span style="color: #2A00FF;">"%s. No yel..."</span> color))
+<pre class="src src-elisp">(<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">ob-python</span>)
+<cursor>(</cursor>message <span style="color: #8b2252;">"What... is your favorite color?"</span>)
+(<span style="color: #a020f0;">let</span> ((color <span style="color: #8b2252;">"Blue"</span>))
+  (message <span style="color: #8b2252;">"%s. No yel..."</span> color))
 </pre>
 </div>
 </td></tr></tbody></table>
@@ -4270,11 +4386,11 @@ Move current expression to the right, outside the current list.
 <table><tbody><tr><td>
 <div class="org-src-container">
 
-<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">require</span> '<span style="color: #110099;">ob-python</span>)
-(message <span style="color: #2A00FF;">"What... is your favorite color?"</span>)
-(<span style="color: #7F0055; font-weight: bold;">let</span> ((color <span style="color: #2A00FF;">"Blue"</span>))
+<pre class="src src-elisp">(<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">ob-python</span>)
+(message <span style="color: #8b2252;">"What... is your favorite color?"</span>)
+(<span style="color: #a020f0;">let</span> ((color <span style="color: #8b2252;">"Blue"</span>))
   (message color)
-  <cursor>(</cursor>message <span style="color: #2A00FF;">"Go on. Off you go."</span>))
+  <cursor>(</cursor>message <span style="color: #8b2252;">"Go on. Off you go."</span>))
 </pre>
 </div>
 </td><td>
@@ -4284,11 +4400,11 @@ Move current expression to the right, outside the current list.
 </td><td>
 <div class="org-src-container">
 
-<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">require</span> '<span style="color: #110099;">ob-python</span>)
-(message <span style="color: #2A00FF;">"What... is your favorite color?"</span>)
-(<span style="color: #7F0055; font-weight: bold;">let</span> ((color <span style="color: #2A00FF;">"Blue"</span>))
+<pre class="src src-elisp">(<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">ob-python</span>)
+(message <span style="color: #8b2252;">"What... is your favorite color?"</span>)
+(<span style="color: #a020f0;">let</span> ((color <span style="color: #8b2252;">"Blue"</span>))
   (message color))
-<cursor>(</cursor>message <span style="color: #2A00FF;">"Go on. Off you go."</span>)
+<cursor>(</cursor>message <span style="color: #8b2252;">"Go on. Off you go."</span>)
 </pre>
 </div>
 </td></tr></tbody></table>
@@ -4311,9 +4427,9 @@ With a prefix arg and already inside comment, uncomment instead.
 <table><tbody><tr><td>
 <div class="org-src-container">
 
-<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">require</span> '<span style="color: #110099;">ob-python</span>)
-<cursor>(</cursor><span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">cheeseshop</span> (kind)
-  (message <span style="color: #2A00FF;">"Do you have any %s?"</span> kind))
+<pre class="src src-elisp">(<span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">ob-python</span>)
+<cursor>(</cursor><span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">cheeseshop</span> (kind)
+  (message <span style="color: #8b2252;">"Do you have any %s?"</span> kind))
 </pre>
 </div>
 </td><td>
@@ -4323,9 +4439,9 @@ With a prefix arg and already inside comment, uncomment instead.
 </td><td>
 <div class="org-src-container">
 
-<pre class="src src-elisp"><cursor>(</cursor><span style="color: #7F0055; font-weight: bold;">require</span> '<span style="color: #110099;">ob-python</span>)
-<span style="color: #3F7F5F;">;; </span><span style="color: #3F7F5F;">(defun cheeseshop (kind)</span>
-<span style="color: #3F7F5F;">;;   </span><span style="color: #3F7F5F;">(message "Do you have any %s?" kind))</span>
+<pre class="src src-elisp"><cursor>(</cursor><span style="color: #a020f0;">require</span> '<span style="color: #008b8b;">ob-python</span>)
+<span style="color: #b22222;">;; </span><span style="color: #b22222;">(defun cheeseshop (kind)</span>
+<span style="color: #b22222;">;;   </span><span style="color: #b22222;">(message "Do you have any %s?" kind))</span>
 </pre>
 </div>
 </td></tr></tbody></table>
@@ -4351,7 +4467,7 @@ With a prefix arg, copy that many times.
 <table><tbody><tr><td>
 <div class="org-src-container">
 
-<pre class="src src-elisp"><cursor>(</cursor>message <span style="color: #2A00FF;">"A witch!"</span>)
+<pre class="src src-elisp"><cursor>(</cursor>message <span style="color: #8b2252;">"A witch!"</span>)
 </pre>
 </div>
 </td><td>
@@ -4361,10 +4477,10 @@ With a prefix arg, copy that many times.
 </td><td>
 <div class="org-src-container">
 
-<pre class="src src-elisp"><cursor>(</cursor>message <span style="color: #2A00FF;">"A witch!"</span>)
-(message <span style="color: #2A00FF;">"A witch!"</span>)
-(message <span style="color: #2A00FF;">"A witch!"</span>)
-(message <span style="color: #2A00FF;">"A witch!"</span>)
+<pre class="src src-elisp"><cursor>(</cursor>message <span style="color: #8b2252;">"A witch!"</span>)
+(message <span style="color: #8b2252;">"A witch!"</span>)
+(message <span style="color: #8b2252;">"A witch!"</span>)
+(message <span style="color: #8b2252;">"A witch!"</span>)
 </pre>
 </div>
 </td></tr></tbody></table>
@@ -4455,7 +4571,7 @@ Use current sexp or region as replacement for its parent.
 <table><tbody><tr><td>
 <div class="org-src-container">
 
-<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">let</span> ((foo 1))
+<pre class="src src-elisp">(<span style="color: #a020f0;">let</span> ((foo 1))
   <cursor>(</cursor>+ bar baz))
 </pre>
 </div>
@@ -4488,7 +4604,7 @@ list.
 <table><tbody><tr><td>
 <div class="org-src-container">
 
-<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">progn</span>
+<pre class="src src-elisp">(<span style="color: #a020f0;">progn</span>
   <cursor>(</cursor>foo)
   (bar)
   (baz))
@@ -4501,7 +4617,7 @@ list.
 </td><td>
 <div class="org-src-container">
 
-<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">progn</span>
+<pre class="src src-elisp">(<span style="color: #a020f0;">progn</span>
   (bar)
   <cursor>(</cursor>foo)
   (baz))
@@ -4591,7 +4707,7 @@ Special behavior in <code>let</code> (what gets evaled is on the right):
 <table><tbody><tr><td>
 <div class="org-src-container">
 
-<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">let</span> (<cursor>(</cursor>foo 10))
+<pre class="src src-elisp">(<span style="color: #a020f0;">let</span> (<cursor>(</cursor>foo 10))
   (bar))
 </pre>
 </div>
@@ -4602,7 +4718,7 @@ Special behavior in <code>let</code> (what gets evaled is on the right):
 </td><td>
 <div class="org-src-container">
 
-<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">setq</span> foo 10)
+<pre class="src src-elisp">(<span style="color: #a020f0;">setq</span> foo 10)
 </pre>
 </div>
 </td></tr></tbody></table>
@@ -4613,7 +4729,7 @@ Special behavior in <code>cond</code> (what gets evaled is on the right):
 <table><tbody><tr><td>
 <div class="org-src-container">
 
-<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">cond</span> <cursor>(</cursor>(foo-1)
+<pre class="src src-elisp">(<span style="color: #a020f0;">cond</span> <cursor>(</cursor>(foo-1)
        (bar-1))
       ((foo-2)
        (bar-2)))
@@ -4626,10 +4742,10 @@ Special behavior in <code>cond</code> (what gets evaled is on the right):
 </td><td>
 <div class="org-src-container">
 
-<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">if</span> (foo-1)
-    (<span style="color: #7F0055; font-weight: bold;">progn</span>
+<pre class="src src-elisp">(<span style="color: #a020f0;">if</span> (foo-1)
+    (<span style="color: #a020f0;">progn</span>
       (bar-1))
-  (message <span style="color: #2A00FF;">"cond: nil"</span>))
+  (message <span style="color: #8b2252;">"cond: nil"</span>))
 </pre>
 </div>
 </td></tr></tbody></table>
@@ -4706,9 +4822,9 @@ to current expression or region.
 <table><tbody><tr><td>
 <div class="org-src-container">
 
-<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">if</span> (= (weight person) standard-duck-weight)
-    (<span style="color: #7F0055; font-weight: bold;">unless</span> (sinks-in-water person)
-      <cursor>(</cursor>message <span style="color: #2A00FF;">"Burn her!"</span>)))
+<pre class="src src-elisp">(<span style="color: #a020f0;">if</span> (= (weight person) standard-duck-weight)
+    (<span style="color: #a020f0;">unless</span> (sinks-in-water person)
+      <cursor>(</cursor>message <span style="color: #8b2252;">"Burn her!"</span>)))
 </pre>
 </div>
 </td><td>
@@ -4718,9 +4834,9 @@ to current expression or region.
 </td><td>
 <div class="org-src-container">
 
-<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">unless</span> (sinks-in-water person)
-  (<span style="color: #7F0055; font-weight: bold;">if</span> (= (weight person) standard-duck-weight)
-      <cursor>(</cursor>message <span style="color: #2A00FF;">"Burn her!"</span>)))
+<pre class="src src-elisp">(<span style="color: #a020f0;">unless</span> (sinks-in-water person)
+  (<span style="color: #a020f0;">if</span> (= (weight person) standard-duck-weight)
+      <cursor>(</cursor>message <span style="color: #8b2252;">"Burn her!"</span>)))
 </pre>
 </div>
 </td></tr></tbody></table>
@@ -4765,10 +4881,10 @@ Example 1:
 <table><tbody><tr><td>
 <div class="org-src-container">
 
-<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">progn</span>
-  (message <span style="color: #2A00FF;">"one"</span>)
-  <cursor>(</cursor>message <span style="color: #2A00FF;">"two"</span>)
-  (message <span style="color: #2A00FF;">"three"</span>))
+<pre class="src src-elisp">(<span style="color: #a020f0;">progn</span>
+  (message <span style="color: #8b2252;">"one"</span>)
+  <cursor>(</cursor>message <span style="color: #8b2252;">"two"</span>)
+  (message <span style="color: #8b2252;">"three"</span>))
 </pre>
 </div>
 </td><td>
@@ -4778,8 +4894,8 @@ Example 1:
 </td><td>
 <div class="org-src-container">
 
-<pre class="src src-elisp"><cursor>(</cursor>message <span style="color: #2A00FF;">"two"</span>)
-(message <span style="color: #2A00FF;">"three"</span>)
+<pre class="src src-elisp"><cursor>(</cursor>message <span style="color: #8b2252;">"two"</span>)
+(message <span style="color: #8b2252;">"three"</span>)
 </pre>
 </div>
 </td></tr></tbody></table>
@@ -4791,10 +4907,10 @@ Example 2:
 <table><tbody><tr><td>
 <div class="org-src-container">
 
-<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">progn</span>
-  (message <span style="color: #2A00FF;">"one"</span>)
-  (message <span style="color: #2A00FF;">"two"</span>)<cursor> </cursor>
-  (message <span style="color: #2A00FF;">"three"</span>))
+<pre class="src src-elisp">(<span style="color: #a020f0;">progn</span>
+  (message <span style="color: #8b2252;">"one"</span>)
+  (message <span style="color: #8b2252;">"two"</span>)<cursor> </cursor>
+  (message <span style="color: #8b2252;">"three"</span>))
 </pre>
 </div>
 </td><td>
@@ -4805,8 +4921,8 @@ Example 2:
 <div class="org-src-container">
 
 <pre class="src src-elisp">progn
-(message <span style="color: #2A00FF;">"one"</span>)
-(message <span style="color: #2A00FF;">"two"</span>)
+(message <span style="color: #8b2252;">"one"</span>)
+(message <span style="color: #8b2252;">"two"</span>)
 </pre>
 </div>
 </td></tr></tbody></table>
@@ -4841,10 +4957,10 @@ isn't 1.
 <table><tbody><tr><td>
 <div class="org-src-container">
 
-<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">progn</span>
-  (message <span style="color: #2A00FF;">"one"</span>)
-  <cursor>(</cursor>message <span style="color: #2A00FF;">"two"</span>)
-  (message <span style="color: #2A00FF;">"three"</span>))
+<pre class="src src-elisp">(<span style="color: #a020f0;">progn</span>
+  (message <span style="color: #8b2252;">"one"</span>)
+  <cursor>(</cursor>message <span style="color: #8b2252;">"two"</span>)
+  (message <span style="color: #8b2252;">"three"</span>))
 </pre>
 </div>
 </td><td>
@@ -4854,10 +4970,10 @@ isn't 1.
 </td><td>
 <div class="org-src-container">
 
-<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">progn</span>
-  (message <span style="color: #2A00FF;">"one"</span>)
-  <span style="color: #2A00FF;">"(message \"two\")"</span>
-  <cursor>(</cursor>message <span style="color: #2A00FF;">"three"</span>))
+<pre class="src src-elisp">(<span style="color: #a020f0;">progn</span>
+  (message <span style="color: #8b2252;">"one"</span>)
+  <span style="color: #8b2252;">"(message \"two\")"</span>
+  <cursor>(</cursor>message <span style="color: #8b2252;">"three"</span>))
 </pre>
 </div>
 </td></tr></tbody></table>
@@ -4923,7 +5039,7 @@ after pressing <kbd>xj</kbd> you will jump to the definition of <code>do-stuff</
 </p>
 <div class="org-src-container">
 
-<pre class="src src-elisp"><cursor>(</cursor><span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">do-stuff</span> (x y z <span style="color: #000000; font-style: italic; text-decoration: underline;">&amp;optional</span> a <span style="color: #000000; font-style: italic; text-decoration: underline;">&amp;rest</span> b)
+<pre class="src src-elisp"><cursor>(</cursor><span style="color: #a020f0;">defun</span> <span style="color: #0000ff;">do-stuff</span> (x y z <span style="color: #228b22;">&amp;optional</span> a <span style="color: #228b22;">&amp;rest</span> b)
   (foo)
   (bar))
 </pre>
@@ -5021,10 +5137,10 @@ that list or string instead.
 <table><tbody><tr><td>
 <div class="org-src-container">
 
-<pre class="src src-elisp">(message <span style="color: #2A00FF;">"Then shalt thou count to three<cursor>,</cursor></span>
-<span style="color: #2A00FF;">no more, no less.</span>
-<span style="color: #2A00FF;">Three shall be the number thou shalt count,</span>
-<span style="color: #2A00FF;">and the number of the counting shall be three."</span>)
+<pre class="src src-elisp">(message <span style="color: #8b2252;">"Then shalt thou count to three<cursor>,</cursor></span>
+<span style="color: #8b2252;">no more, no less.</span>
+<span style="color: #8b2252;">Three shall be the number thou shalt count,</span>
+<span style="color: #8b2252;">and the number of the counting shall be three."</span>)
 </pre>
 </div>
 </td><td>
@@ -5034,7 +5150,7 @@ that list or string instead.
 </td><td>
 <div class="org-src-container">
 
-<pre class="src src-elisp">(message <span style="color: #2A00FF;">"Then shalt thou count to three<cursor>"</cursor></span>)
+<pre class="src src-elisp">(message <span style="color: #8b2252;">"Then shalt thou count to three<cursor>"</cursor></span>)
 </pre>
 </div>
 </td></tr></tbody></table>
