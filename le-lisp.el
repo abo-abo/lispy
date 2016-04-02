@@ -85,6 +85,23 @@
             \"undocumented\"))"
       symbol)))))
 
+(defun lispy-flatten--lisp ()
+  (let* ((bnd (lispy--bounds-list))
+         (str (lispy--string-dwim bnd))
+         (expr (read str))
+         (fexpr (read (lispy--eval-lisp
+                       (format "(function-lambda-expression #'%S)" (car expr))))))
+    (if (not (eq (car-safe fexpr) 'SB-INT:NAMED-LAMBDA))
+        (error "Could not find the body of %S" (car expr))
+      (setq fexpr (downcase
+                   (prin1-to-string
+                    `(lambda ,(nth 2 fexpr) ,(caddr (nth 3 fexpr))))))
+      (goto-char (car bnd))
+      (delete-region (car bnd) (cdr bnd))
+      (let* ((e-args (cdr expr))
+             (body (lispy--flatten-function fexpr e-args)))
+        (lispy--insert body)))))
+
 
 (provide 'le-lisp)
 

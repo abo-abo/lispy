@@ -4361,6 +4361,7 @@ When ARG isn't nil, show table of contents."
            (lispy-extract-block)))))
 
 (declare-function lispy-flatten--clojure "le-clojure")
+(declare-function lispy-flatten--lisp "le-lisp")
 (defun lispy-flatten (arg)
   "Inline a function at the point of its call.
 Pass the ARG along."
@@ -4373,6 +4374,9 @@ Pass the ARG along."
                                 cider-clojure-interaction-mode)))
          (require 'le-clojure)
          (lispy-flatten--clojure arg))
+
+        ((eq major-mode 'lisp-mode)
+         (lispy-flatten--lisp))
 
         (t
          (lispy-complain
