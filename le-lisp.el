@@ -44,25 +44,8 @@
 
 (defun lispy--eval-lisp (str)
   "Eval STR as Common Lisp code."
-  (unless lispy-use-sly
-    (require 'slime-repl))
-  (unless (if lispy-use-sly
-              (sly-current-connection)
-            (slime-current-connection))
-    (let ((wnd (current-window-configuration)))
-      (if lispy-use-sly
-          (sly)
-        (slime))
-      (while (not (if lispy-use-sly
-                      (when-let ((connection (sly-current-connection)))
-                        (sly-mrepl--find-buffer connection))
-                    (and
-                     (slime-current-connection)
-                     (get-buffer-window (slime-output-buffer)))))
-        (sit-for 0.2))
-      (set-window-configuration wnd)))
   (let* ((deactivate-mark nil)
-         (result (with-current-buffer (process-buffer (slime-current-connection))
+         (result (with-current-buffer (process-buffer (lispy--cl-process))
                    (if lispy-use-sly
                        (sly-eval `(slynk:eval-and-grab-output ,str))
                      (slime-eval `(swank:eval-and-grab-output ,str))))))
@@ -72,6 +55,27 @@
                           'face 'font-lock-string-face)
               "\n\n"
               (cadr result)))))
+
+(defun lispy--cl-process ()
+  (unless lispy-use-sly
+    (require 'slime-repl))
+  (or (if lispy-use-sly
+          (sly-current-connection)
+        (slime-current-connection))
+      (let (conn)
+        (let ((wnd (current-window-configuration)))
+          (if lispy-use-sly
+              (sly)
+            (slime))
+          (while (not (if lispy-use-sly
+                          (and (setq conn (sly-current-connection))
+                               (sly-mrepl--find-buffer conn))
+                        (and
+                         (setq conn (slime-current-connection))
+                         (get-buffer-window (slime-output-buffer)))))
+            (sit-for 0.2))
+          (set-window-configuration wnd)
+          conn))))
 
 (defun lispy--lisp-args (symbol)
   "Return a pretty string with arguments for SYMBOL."
