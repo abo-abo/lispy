@@ -4005,13 +4005,15 @@ When ARG is non-nil, force select the window."
               (setq lispy-eval-other--cfg nil)
               (selected-window))))
          res)
-    (with-selected-window target-window
-      (setq res (lispy--eval-elisp-form expr lexical-binding))
-      (if (equal res lispy--eval-cond-msg)
-          (message res)
-        (if (and (fboundp 'object-p) (object-p res))
-            (message "(eieio object length %d)" (length res))
-          (message "%S" res))))))
+    (if (eq major-mode 'lisp-mode)
+        (message (lispy--eval (prin1-to-string expr)))
+      (with-selected-window target-window
+        (setq res (lispy--eval-elisp-form expr lexical-binding))
+        (if (equal res lispy--eval-cond-msg)
+            (message res)
+          (if (and (fboundp 'object-p) (object-p res))
+              (message "(eieio object length %d)" (length res))
+            (message "%S" res)))))))
 
 (defun lispy-follow ()
   "Follow to `lispy--current-function'."
