@@ -1472,6 +1472,7 @@ This function, taking arguments =left= and =right=, is used to generate
 [[#lispy-parens][=lispy-parens=]],
 [[#lispy-braces][=lispy-braces=]]
 and [[#lispy-brackets][=lispy-brackets=]], which in turn take prefix =arg=.
+The arguments align with those of [[#lispy-slurp][=lispy-slurp=]].
 
 {{{cond}}}
 *** region active
@@ -1522,13 +1523,13 @@ This also works for ~)~, ~{~, ~}~.
 This doesn't work for ~[~ and ~]~,
 they should be inserted with ~C-q [~ and ~C-q ]~.
 
-*** =arg= is 1
+*** no =arg= is explicitly specified
 1. Re-indent and insert space according to =lispy--space-unless=.
 2. Insert =left=, =right= and put the point between them.
 3. Insert a space after =right= if it's appropriate.
 
-*** otherwise
-Wrap current sexp with =left= and =right=.
+*** =arg= is positive
+Wrap that number of sexps with =left= and =right=.
 
 Starting with:
 #+begin_src elisp
@@ -1536,13 +1537,50 @@ Starting with:
 (do-other-thing)
 #+end_src
 
-pressing ~2(~ will give:
+pressing ~1(~ will give:
 #+begin_src elisp
 (| (do-some-thing))
 (do-other-thing)
 #+end_src
 
-~2~ here is responsible to setting =arg= to 2.
+~1~ here is responsible to setting =arg= to 1. ~C-u~ will also cause a
+single sexp to be wrapped.
+
+*** =arg= is 0
+Wrap as many sexps as possible.
+
+Starting with:
+#+begin_src elisp
+(foo
+ |bar baz
+ quux)
+#+end_src
+
+pressing ~M-0(~ will give:
+#+begin_src elisp
+(foo
+ (| bar baz
+       quux))
+#+end_src
+
+*** =arg= is -1
+Wrap to the end of the line where the current sexp ends or as far as
+possible before that position.
+
+Starting with:
+#+begin_src elisp
+(foo
+ |bar baz
+ quux)
+#+end_src
+
+pressing ~M--(~ will give:
+#+begin_src elisp
+(foo
+ (| bar baz)
+ quux)
+#+end_src
+
 -----
 ** =lispy-x=
 :PROPERTIES:
@@ -2304,7 +2342,10 @@ It's just a slightly modified shorthand for the standard ~C-l~ (=recenter-top-bo
 Bound to ~>~.
 
 Grow either current sexp or region (if it's active) in appropriate
-direction. Opposite of [[#lispy-barf][=lispy-barf=]].
+direction. Opposite of [[#lispy-barf][=lispy-barf=]]. With an arg of
+~0~, grow as far as possible. With an arg of ~-1~, grow until the end
+of the line where the current sexp ends or as far as possible before
+that position.
 
 Example 1:
 #+HTML: <table><tbody><tr><td>
@@ -2343,6 +2384,38 @@ Example 3:
 #+HTML: </td><td>
 #+begin_src elisp
 (foo ~bar baz|)
+#+end_src
+#+HTML: </td></tr></tbody></table>
+
+Example 4:
+
+#+HTML: <table><tbody><tr><td>
+#+begin_src elisp
+((foo)| bar baz
+ quux)
+#+end_src
+#+HTML: </td><td>
+-> ~0>~ ->
+#+HTML: </td><td>
+#+begin_src elisp
+((foo bar baz
+      quux)|)
+#+end_src
+#+HTML: </td></tr></tbody></table>
+
+Example 5:
+
+#+HTML: <table><tbody><tr><td>
+#+begin_src elisp
+((foo)| bar baz
+ quux)
+#+end_src
+#+HTML: </td><td>
+-> ~M-->~ ->
+#+HTML: </td><td>
+#+begin_src elisp
+((foo bar baz)|
+ quux)
 #+end_src
 #+HTML: </td></tr></tbody></table>
 -----
