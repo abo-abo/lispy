@@ -33,16 +33,16 @@
 ;; Press =i= to show the lesson.
 ;; Press =N= to narrow to the lesson.
 ;;
-;;** Lesson 1.1: TUTORIAL NAVIGATION
+;;* Lesson 1.1: TUTORIAL NAVIGATION
 ;; This tutorial uses lispy outlines for navigation.
 ;;
 ;; Outlines provide a way of navigating code in a tree-like fashion.
 ;; The outlines themselves form the nodes of the tree.
 ;;
-;; An outline begins with a comment ";;" followed by or more asterisks.
-;; The number of asterisks determines the outline's depth in the tree.
-;; Your cursor should be at the start of the outline:
-;; ";;** Lesson 1.1: TUTORIAL NAVIGATION"
+;; An outline begins with a comment ";;" followed by one or more
+;; asterisks.  The number of asterisks determines the outline's depth
+;; in the tree.  Your cursor should be at the start of the outline:
+;; ";;* Lesson 1.1: TUTORIAL NAVIGATION"
 ;;
 ;; Place it there if it isn't already.
 ;;
@@ -59,7 +59,7 @@
 ;;
 ;; When you're finished proceed to Exercise 1.
 ;;
-;;*** Exercise 1
+;;** Exercise 1
 ;; Lispy can "narrow" or "widen" outlines.
 ;;
 ;; Narrowing an outline hides all the outlines in the buffer except
@@ -77,7 +77,7 @@
 ;; Move to Exercise 2, show it, and narrow to it using the
 ;; shortcuts you've learned.
 ;;
-;;*** Exercise 2
+;;** Exercise 2
 ;; Let's wrap up this lesson with one final shortcut.
 ;;
 ;; =2-I= will show the condensed outline structure for all the visible
@@ -86,7 +86,7 @@
 ;; Press =W= to show the hidden outlines.
 ;; Press =2-I= and proceed to Lesson 1.2
 ;;
-;;** Lesson 1.2: MOVING THE CURSOR
+;;* Lesson 1.2: MOVING THE CURSOR
 ;;
 ;; Before we learn about moving the cursor, let's get some terminology
 ;; out the way:
@@ -116,7 +116,7 @@
 ;; can depend on the particular variation of special as described
 ;; above.
 ;;
-;;*** Exercise 1
+;;** Exercise 1
 ;;
 ;; Let's test =f=, which is bound to `lispy-flow'.
 ;;
@@ -175,14 +175,14 @@
 ;; is at.
 ;;
 ;; <--- To end the lesson, move the point here and press =W= (`widen').
-;;** Lesson 1.3: EXITING AND ENTERING SPECIAL
+;;* Lesson 1.3: EXITING AND ENTERING SPECIAL
 ;;
 ;; There are a few ways to exit special.
 ;; If you're on an opener, closer, or comment character, just press
 ;; =C-f= or =C-n= or =C-p= or anything that will move your cursor away
 ;; from the special condition character.
 ;;
-;;*** Exercise 1:
+;;** Exercise 1:
 ;;
 ;; Let's quickly try exiting special.
 ;;
@@ -211,7 +211,7 @@
 ;;
 ;; Proceed to the next outline, LOCAL AND GLOBAL BINDINGS.
 ;;
-;;*** LOCAL AND GLOBAL BINDINGS
+;;** LOCAL AND GLOBAL BINDINGS
 ;;
 ;; You've seen how lispy's short bindings provide a concise way to
 ;; navigate lisp code, but they can only be used when the point is
@@ -227,7 +227,7 @@
 ;;
 ;; Proceed to the next exercise.
 ;;
-;;**** Exercise 2:
+;;** Exercise 2:
 ;;
 ;; Let's experiment with some lispy globals.  Below are some global
 ;; bindings that are particularly useful for entering special:
@@ -286,7 +286,7 @@
 ;; Marking will be covered in more detail later, but for now, take some time to
 ;; experiment with =M-m= then proceed to Lesson 1.3.
 ;;
-;;** Lesson 1.4: LISP EDITING - DELETION
+;;* Lesson 1.4: LISP EDITING - DELETION
 ;;
 ;; To delete things, first you need to have a lot of them.
 ;;
@@ -326,7 +326,7 @@
                     ", and "))
   (princ ", and large chu...")
   (princ "\n\nSkip a bit, Brother..."))
-;;** Lesson 1.5: LISP EDITING - INSERTION
+;;* Lesson 1.5: LISP EDITING - INSERTION
 ;;
 ;; Basic insertion bindings:
 ;;
@@ -345,14 +345,14 @@
 ;; All four pairs will wrap the current thing when the region is active.
 ;; All four pairs will wrap the current symbol when prefixed with =C-u=.
 ;;
-;;** Lesson 1.6: LISP EDITING - APPENDING
+;;* Lesson 1.6: LISP EDITING - APPENDING
 ;;
 ;; You can append the current list:
 ;;
 ;; - from the front with =2 SPC=
 ;; - from the back with =3 SPC=
 ;; - from the back with a newline =4 SPC=
-;;** Lesson 1.7: OUTLINE NAVIGATION
+;;* Lesson 1.7: OUTLINE NAVIGATION
 ;;
 ;; Here, several bindings depend on conditions additional to being in
 ;; special.  Some of them are a superset of others, for example
@@ -386,4 +386,4 @@
 ;; even when not is special. It mirrors the popular `org-mode'
 ;; package, with the difference that it's a two-way toggle instead of
 ;; three-way. You can get the third option with a prefix argument.
-;;** Lesson 1.8: MOVING THE REGION
+;;* Lesson 1.8: MOVING THE REGION
