@@ -133,6 +133,8 @@
         (lispy--insert body)))))
 
 (defun lispy-goto-symbol-lisp (symbol)
+  ;; start SLY or SLIME if necessary
+  (lispy--cl-process)
   (if lispy-use-sly
       (sly-edit-definition symbol)
     (slime-edit-definition symbol)))
