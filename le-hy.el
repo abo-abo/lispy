@@ -47,39 +47,28 @@
             (buffer-substring (point) (line-end-position)))
       (setq last-cmd (replace-regexp-in-string
                       "=> " "" last-cmd-with-prompt))
-      (delete-region (point) (line-end-position))
       ;; send the command
-      (setq command-output-begin (point))
+      (setq command-output-begin (search-forward "=> "))
       (comint-simple-send (get-buffer-process (current-buffer))
                           command)
       ;; collect the output
-      (goto-char (point-max))
-      (while (not (save-excursion
-                    (let ((inhibit-field-text-motion t))
-                      (goto-char (point-max))
-                      (beginning-of-line)
-                      (looking-at
-                       "[. ]*=> \\s-*$"))))
-        (accept-process-output (get-buffer-process buffer))
-        (goto-char (point-max)))
+      (accept-process-output (get-buffer-process buffer))
       ;; save output to string
       (forward-line -1)
       (setq str (buffer-substring-no-properties command-output-begin (line-end-position)))
       ;; delete the output from the command line
-      (delete-region command-output-begin (point-max))
-      ;; restore prompt and insert last command
+      (unless (string-equal str "\n=> ")
+        (delete-region command-output-begin (point)))
+      ;; insert last-cmd
+      (insert-string command)
       (goto-char (point-max))
-      (delete-blank-lines)
-      (beginning-of-line)
-      (comint-send-string (get-buffer-process (current-buffer)) "\n")
-      (insert-string last-cmd)
       ;; return the shell output
       str)))
 
 (defun lispy--eval-hy (str)
   "Eval STR as Hy code."
   (let ((res (lispy--comint-eval str)))
-    (if (member res '("" "\n"))
+    (if (string= res "\n=> ")
         "(ok)"
       res)))
 
