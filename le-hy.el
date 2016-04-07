@@ -38,40 +38,41 @@
         (str nil)
         (last-cmd nil)
         (last-cmd-with-prompt nil)
-        (inhibit-field-text-motion t)
         (buffer (process-buffer (lispy--hy-proc))))
     (with-current-buffer buffer
-      ;; save the last command and delete the old prompt
-      (beginning-of-line)
-      (setq last-cmd-with-prompt
-            (buffer-substring (point) (line-end-position)))
-      (setq last-cmd (replace-regexp-in-string
-                      "=> " "" last-cmd-with-prompt))
-      (delete-region (point) (line-end-position))
-      ;; send the command
-      (setq command-output-begin (point))
-      (comint-simple-send (get-buffer-process (current-buffer))
-                          command)
-      ;; collect the output
-      (while (null (save-excursion
-                     (let ((inhibit-field-text-motion t))
-                       (goto-char command-output-begin)
-                       (re-search-forward "^[. ]*=> \\s-*$" nil t))))
-        (accept-process-output (get-buffer-process buffer))
-        (goto-char (point-max)))
-      (goto-char (point-max))
-      (when (looking-back "^[. ]*=> *" (line-beginning-position))
-        (goto-char (1- (match-beginning 0))))
-      ;; save output to string
-      (setq str (buffer-substring-no-properties command-output-begin (point)))
-      ;; delete the output from the command line
-      (delete-region command-output-begin (point-max))
-      ;; restore prompt and insert last command
-      (goto-char (point-max))
-      (comint-send-string (get-buffer-process (current-buffer)) "\n")
-      (insert-string last-cmd)
-      ;; return the shell output
-      str)))
+      (let ((inhibit-field-text-motion t)
+            (inhibit-read-only t))
+        ;; save the last command and delete the old prompt
+        (beginning-of-line)
+        (setq last-cmd-with-prompt
+              (buffer-substring (point) (line-end-position)))
+        (setq last-cmd (replace-regexp-in-string
+                        "=> " "" last-cmd-with-prompt))
+        (delete-region (point) (line-end-position))
+        ;; send the command
+        (setq command-output-begin (point))
+        (comint-simple-send (get-buffer-process (current-buffer))
+                            command)
+        ;; collect the output
+        (while (null (save-excursion
+                       (let ((inhibit-field-text-motion t))
+                         (goto-char command-output-begin)
+                         (re-search-forward "^[. ]*=> \\s-*$" nil t))))
+          (accept-process-output (get-buffer-process buffer))
+          (goto-char (point-max)))
+        (goto-char (point-max))
+        (when (looking-back "^[. ]*=> *" (line-beginning-position))
+          (goto-char (1- (match-beginning 0))))
+        ;; save output to string
+        (setq str (buffer-substring-no-properties command-output-begin (point)))
+        ;; delete the output from the command line
+        (delete-region command-output-begin (point-max))
+        ;; restore prompt and insert last command
+        (goto-char (point-max))
+        (comint-send-string (get-buffer-process (current-buffer)) "\n")
+        (insert-string last-cmd)
+        ;; return the shell output
+        str))))
 
 (defun lispy--eval-hy (str)
   "Eval STR as Hy code."
