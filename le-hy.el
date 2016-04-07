@@ -53,24 +53,21 @@
       (comint-simple-send (get-buffer-process (current-buffer))
                           command)
       ;; collect the output
-      (goto-char (point-max))
-      (while (not (save-excursion
-                    (let ((inhibit-field-text-motion t))
-                      (goto-char (point-max))
-                      (beginning-of-line)
-                      (looking-at
-                       "[. ]*=> \\s-*$"))))
+      (while (null (save-excursion
+                     (let ((inhibit-field-text-motion t))
+                       (goto-char command-output-begin)
+                       (re-search-forward "^[. ]*=> \\s-*$" nil t))))
         (accept-process-output (get-buffer-process buffer))
         (goto-char (point-max)))
+      (goto-char (point-max))
+      (when (looking-back "^[. ]*=> *" (line-beginning-position))
+        (goto-char (1- (match-beginning 0))))
       ;; save output to string
-      (forward-line -1)
-      (setq str (buffer-substring-no-properties command-output-begin (line-end-position)))
+      (setq str (buffer-substring-no-properties command-output-begin (point)))
       ;; delete the output from the command line
       (delete-region command-output-begin (point-max))
       ;; restore prompt and insert last command
       (goto-char (point-max))
-      (delete-blank-lines)
-      (beginning-of-line)
       (comint-send-string (get-buffer-process (current-buffer)) "\n")
       (insert-string last-cmd)
       ;; return the shell output

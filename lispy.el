@@ -3812,7 +3812,7 @@ When ARG is 2, insert the result as a comment."
 (defun lispy-message (str)
   "Display STR in the echo area.
 If STR is too large, pop it to a buffer instead."
-  (if (> (cl-count ?\n str) 20)
+  (if (> (cl-count ?\n str) 15)
       (progn
         (pop-to-buffer "*lispy-message*")
         (special-mode)
