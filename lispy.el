@@ -1970,7 +1970,7 @@ to all the functions, while maintaining the parens in a pretty state."
 (defvar helm-input)
 (declare-function helm "ext:helm")
 
-(defun lispy--occur-action (x)
+(defun lispy-occur-action-goto-paren (x)
   "Goto line X for `lispy-occur'."
   (setq x (read x))
   (goto-char lispy--occur-beg)
@@ -2001,6 +2001,36 @@ to all the functions, while maintaining the parens in a pretty state."
           (t
            (back-to-indentation)))))
 
+(defun lispy-occur-action-goto-end (x)
+  "Goto line X for `lispy-occur'."
+  (setq x (read x))
+  (goto-char lispy--occur-beg)
+  (forward-line x)
+  (re-search-forward (ivy--regex ivy-text) (line-end-position) t))
+
+(defun lispy-occur-action-goto-beg (x)
+  "Goto line X for `lispy-occur'."
+  (when (lispy-occur-action-goto-end x)
+    (goto-char (match-beginning 0))))
+
+(defun lispy-occur-action-mc (_x)
+  "Make a fake cursor for each `lispy-occur' candidate."
+  (let ((cands (nreverse ivy--old-cands))
+        cand)
+    (while (setq cand (pop cands))
+      (goto-char lispy--occur-beg)
+      (forward-line (read cand))
+      (re-search-forward (ivy--regex ivy-text) (line-end-position) t)
+      (when cands
+        (mc/create-fake-cursor-at-point))))
+  (multiple-cursors-mode 1))
+
+(ivy-set-actions
+ 'lispy-occur
+ '(("m" lispy-occur-action-mc "multiple-cursors")
+   ("j" lispy-occur-action-goto-beg "goto start")
+   ("k" lispy-occur-action-goto-end "goto end")))
+
 (defun lispy-occur ()
   "Select a line within current top level sexp.
 See `lispy-occur-backend' for the selection back end."
@@ -2016,7 +2046,7 @@ See `lispy-occur-backend' for the selection back end."
               (helm :sources
                     `((name . "this defun")
                       (candidates . ,(lispy--occur-candidates))
-                      (action . lispy--occur-action)
+                      (action . lispy-occur-action-goto-paren)
                       (match-strict .
                                     (lambda (x)
                                       (ignore-errors
@@ -2038,7 +2068,8 @@ See `lispy-occur-backend' for the selection back end."
                         :update-fn (lambda ()
                                      (lispy--occur-update-input
                                       ivy-text ivy--current))
-                        :action #'lispy--occur-action)
+                        :action #'lispy-occur-action-goto-paren
+                        :caller 'lispy-occur)
            (swiper--cleanup)
            (when (null ivy-exit)
              (goto-char swiper--opoint))))
