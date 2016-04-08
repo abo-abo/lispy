@@ -6659,6 +6659,11 @@ Try to refresh if nil is returned."
 (defvar lispy-tag-history nil
   "History for tags.")
 
+(defvar lispy-select-candidate-mode-map
+  (let ((map (make-sparse-keymap)))
+    (define-key map (kbd "C-.") 'ivy-done)
+    map))
+
 (defun lispy--select-candidate (candidates action)
   "Select from CANDIDATES list with `helm'.
 ACTION is called for the selected candidate."
@@ -6679,6 +6684,7 @@ ACTION is called for the selected candidate."
              (setq strs (mapcar #'car candidates))
              (eq lispy-completion-method 'ivy))
            (ivy-read "tag: " strs
+                     :keymap lispy-select-candidate-mode-map
                      :require-match t
                      :preselect (lispy--current-tag)
                      :action (lambda (x)
