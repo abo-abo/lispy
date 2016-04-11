@@ -4096,13 +4096,15 @@ When ARG is non-nil, force select the window."
   "Forward to `beginning-of-defun' with ARG.  Deactivate region.
 When called twice in a row, restore point and mark."
   (interactive "p")
-  (cond ((and (looking-at "^(")
-              (memq last-command
-                    '(lispy-beginning-of-defun
-                      special-lispy-beginning-of-defun)))
+  (cond ((and (called-interactively-p 'any)
+              (looking-at "^(")
+              (let ((pt (if (consp lispy-bof-last-point)
+                            (car lispy-bof-last-point)
+                          lispy-bof-last-point)))
+                (> pt (point))
+                (<= pt (save-excursion (forward-list) (point)))))
          (lispy-pam-restore 'lispy-bof-last-point))
-        ((looking-at "^(")
-         (setq lispy-bof-last-point (point)))
+        ((looking-at "^("))
         (t
          (lispy-pam-store 'lispy-bof-last-point)
          (beginning-of-defun arg))))
