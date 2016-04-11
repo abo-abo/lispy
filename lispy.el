@@ -4054,7 +4054,7 @@ When ARG is non-nil, force select the window."
   (interactive)
   (lispy-goto-symbol (lispy--current-function)))
 
-(declare-function cider-doc-lookup "ext:cider-interaction")
+(declare-function cider-doc-lookup "ext:cider-doc")
 
 (defun lispy-describe ()
   "Display documentation for `lispy--current-function'."
@@ -4066,6 +4066,7 @@ When ARG is non-nil, force select the window."
                  ((boundp symbol)
                   (describe-variable symbol)))))
         ((memq major-mode lispy-clojure-modes)
+         (require 'cider-doc)
          (cider-doc-lookup (lispy--current-function)))
 
         (t

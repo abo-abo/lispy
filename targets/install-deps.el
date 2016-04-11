@@ -12,11 +12,15 @@
     multiple-cursors
     cider
     slime
+    sly
     geiser
     clojure-mode
     swiper
     hydra
     ace-window
+    helm
+    projectile
+    find-file-in-project
     undercover))
 
 (dolist (package lispy-dev-packages)
@@ -26,9 +30,10 @@
 
 (save-window-excursion
   (package-list-packages t)
-  (package-menu-mark-upgrades)
   (condition-case nil
-      (package-menu-execute t)
+      (progn
+        (package-menu-mark-upgrades)
+        (package-menu-execute t))
     (error
-     (package-menu-execute))))
+     (message "All packages up to date"))))
 

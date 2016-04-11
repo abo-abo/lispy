@@ -28,16 +28,8 @@ test:
 elisp:
 	$(QEMACS) lispy.el
 
-clojure:
-	$(QEMACS) ~/git/incanter/modules/incanter-core/src/incanter/bayes.clj
-
-scheme:
-	$(QEMACS) ~/Dropbox/source/scheme/script3.scm -f lispy-mode
-
-lisp:
-	$(QEMACS) ~/Dropbox/source/site-lisp/git/slime/metering.lisp
 
 clean:
 	rm -f *.elc
 
-.PHONY: all clean cask elisp clojure lisp scheme check-declare
+.PHONY: all clean cask elisp check-declare
