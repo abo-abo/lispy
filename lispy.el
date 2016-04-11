@@ -4797,6 +4797,9 @@ ARG is 4: `eval-defun' on the function from this sexp."
                   (lispy-flow 2))))
              ((or (functionp ldsi-fun)
                   (macrop ldsi-fun))
+              (when (eq ldsi-fun 'funcall)
+                (setq ldsi-fun (eval (cadr ldsi-sxp)))
+                (setq ldsi-sxp (cons ldsi-fun (cddr ldsi-sxp))))
               (let ((ldsi-args
                      (copy-seq
                       (help-function-arglist
