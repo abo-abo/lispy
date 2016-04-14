@@ -2007,8 +2007,9 @@ Insert KEY if there's no command."
   ;;                  "(baz)\n(foo |(bar))"))
   (should (string= (lispy-with "(baz)\n(foo (|bar~))" "A")
                    "(baz)\n|(foo (bar))"))
-  (should (string= (lispy-with "(baz)\n(foo (|bar~))" "AA")
-                   "(baz)\n(foo (|bar~))")))
+  ;; (should (string= (lispy-with "(baz)\n(foo (|bar~))" "AA")
+  ;;                  "(baz)\n(foo (|bar~))"))
+  )
 
 (ert-deftest lispy-alt-line ()
   (should (string= (lispy-with "(invent 'wheel|)"
