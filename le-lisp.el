@@ -51,7 +51,7 @@
                      (slime-eval `(swank:eval-and-grab-output ,str))))))
     (if (equal (car result) "")
         (cadr result)
-      (concat (propertize (substring (car result) 1)
+      (concat (propertize (car result)
                           'face 'font-lock-string-face)
               "\n\n"
               (cadr result)))))
