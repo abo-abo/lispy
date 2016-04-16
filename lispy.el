@@ -7519,8 +7519,7 @@ If `lispy-safe-paste' is non-nil, any unmatched delimiters will be added to it."
 
 ;;* Key definitions
 (defvar ac-trigger-commands '(self-insert-command))
-(defvar company-begin-commands '(self-insert-command))
-(defvar company-no-begin-commands nil)
+
 (defvar mc/cmds-to-run-for-all nil)
 (defvar mc/cmds-to-run-once nil)
 (mapc (lambda (x) (add-to-list 'mc/cmds-to-run-once x))
@@ -7543,8 +7542,6 @@ FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)."
     (add-to-list 'ac-trigger-commands func)
     (unless (memq func mc/cmds-to-run-once)
       (add-to-list 'mc/cmds-to-run-for-all func))
-    (unless (memq func company-no-begin-commands)
-      (add-to-list 'company-begin-commands func))
     (eldoc-add-command func)
     (define-key keymap (kbd key) func)))
 
