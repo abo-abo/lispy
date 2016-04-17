@@ -23,7 +23,7 @@
 ;;; Code:
 
 (eval-and-compile
-  (ignore-errors (require 'geiser-eval)))
+  (require 'geiser-eval nil t))
 
 (require 'lispy-inline)
 

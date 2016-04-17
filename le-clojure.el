@@ -23,8 +23,8 @@
 ;;; Code:
 
 (require 'lispy)
-(require 'cider-client)
-(require 'cider-interaction)
+(require 'cider-client nil t)
+(require 'cider-interaction nil t)
 
 (defun lispy--clojure-lax (str)
   "Possibly transform STR into a more convenient Clojure expression."

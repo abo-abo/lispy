@@ -22,7 +22,7 @@
 
 ;;; Code:
 
-(require 'hy-mode)
+(require 'hy-mode nil t)
 (require 'inf-lisp)
 
 (defun lispy--hy-proc ()

@@ -22,8 +22,8 @@
 
 ;;; Code:
 
-(require 'julia-mode)
-(require 'julia-shell)
+(require 'julia-mode nil t)
+(require 'julia-shell nil t)
 
 (defun lispy--eval-julia (str &optional _plain)
   "Eval STR as Julia code."

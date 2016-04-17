@@ -23,8 +23,8 @@
 ;;; Code:
 
 (eval-and-compile
-  (ignore-errors (require 'slime))
-  (ignore-errors (require 'sly)))
+  (require 'slime nil t)
+  (require 'sly nil t))
 
 (declare-function slime-output-buffer "ext:slime-repl")
 (declare-function slime "ext:slime")
