@@ -8167,6 +8167,7 @@ When ARG is non-nil, unquote the current string."
     (define-key map (kbd "M-J") 'lispy-join)
     (define-key map (kbd "<C-return>") 'lispy-open-line)
     (define-key map (kbd "<M-return>") 'lispy-meta-return)
+    (define-key map (kbd "M-RET") 'lispy-meta-return)
     ;; misc
     (define-key map (kbd "M-o") 'lispy-string-oneline)
     (define-key map (kbd "M-i") 'lispy-iedit)
