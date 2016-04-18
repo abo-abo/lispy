@@ -1185,6 +1185,10 @@ assumed to belong to the list are also deleted.")
     (skip-chars-backward " ")
     (delete-region (point) pt)))
 
+(defvar lispy-delete-backward-recenter -20
+  "When cursor is near top of screen when calling
+  lispy-delete-backward, recenter cursor with arg.")
+
 (defun lispy-delete-backward (arg)
   "From \")|\", delete ARG sexps backwards.
 Otherwise (`backward-delete-char-untabify' ARG)."
@@ -1319,9 +1323,10 @@ Otherwise (`backward-delete-char-untabify' ARG)."
   (when (and (buffer-file-name)
              (< (- (line-number-at-pos (point))
                    (line-number-at-pos (window-start)))
-                5))
+                5)
+             lispy-delete-backward-recenter)
     (ignore-errors
-      (recenter -20)))
+      (recenter lispy-delete-backward-recenter)))
   (when (and (lispy-left-p)
              (not (lispy--in-string-or-comment-p)))
     (indent-sexp)))
