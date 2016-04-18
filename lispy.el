@@ -4106,8 +4106,9 @@ When called twice in a row, restore point and mark."
               (let ((pt (if (consp lispy-bof-last-point)
                             (car lispy-bof-last-point)
                           lispy-bof-last-point)))
-                (> pt (point))
-                (<= pt (save-excursion (forward-list) (point)))))
+                (and
+                 (> pt (point))
+                 (<= pt (save-excursion (forward-list) (point))))))
          (lispy-pam-restore 'lispy-bof-last-point))
         ((looking-at "^("))
         (t
