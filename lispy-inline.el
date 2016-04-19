@@ -185,6 +185,8 @@ Return t if at least one was deleted."
             (goto-char (region-beginning))
           (lispy--back-to-paren))
         (when (or (not deleted) (not (= lispy-hint-pos (point))))
+          (when (= 0 (count-lines (window-start) (point)))
+            (recenter 1))
           (setq lispy-hint-pos (point))
           (let* ((doc
                   (cond
@@ -199,7 +201,7 @@ Return t if at least one was deleted."
                                 (setq lispy--di-window-config (current-window-configuration))
                                 (goto-char pt)
                                 (save-selected-window
-                                 (describe-function sym))
+                                  (describe-function sym))
                                 nil))
                              ((boundp sym)
                               (if (lispy--show-fits-p
