@@ -4931,13 +4931,13 @@ An equivalent of `cl-destructuring-bind'."
   (undo))
 
 (defun lispy-view ()
-  "Recenter current sexp to first screen line.
+  "Recenter current sexp to first screen line, accounting for scroll-margin.
 If already there, return it to previous position."
   (interactive)
   (lispy-from-left
    (let ((window-line (count-lines (window-start) (point))))
      (if (or (= window-line 0)
-             (and (not (bolp)) (= window-line 1)))
+             (and (not (bolp)) (= window-line (1+ scroll-margin))))
          (recenter (or (get 'lispy-recenter :line) 0))
        (put 'lispy-recenter :line window-line)
        (recenter 0)))))
