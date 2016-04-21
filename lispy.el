@@ -7237,6 +7237,7 @@ PLIST currently accepts:
               (call-interactively ',def))
 
              ((lispy--in-string-or-comment-p)
+              (setq this-command 'self-insert-command)
               (call-interactively 'self-insert-command))
 
              ((or (lispy-left-p)
