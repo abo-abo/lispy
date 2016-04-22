@@ -2759,7 +2759,7 @@ Also works from inside the list."
                                (cons (point-min) (point-max)))))
                      bnd2)
                  (goto-char (car bnd1))
-                 (if (re-search-backward "[^ \t\n`'#(]" (car bnd0) t)
+                 (if (re-search-backward "[^ \t\n`'#({[]" (car bnd0) t)
                      (progn
                        (deactivate-mark)
                        (if (lispy--in-comment-p)

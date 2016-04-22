@@ -1273,6 +1273,10 @@ Insert KEY if there's no command."
                    "(~bar| foo)"))
   (should (string= (lispy-with "(~foo| bar)" "w")
                    "(~foo| bar)"))
+  (should (string= (lispy-with-clojure "{~foo| bar}" "w")
+                   "{~foo| bar}"))
+  (should (string= (lispy-with-clojure "[~foo| bar]" "w")
+                   "[~foo| bar]"))
   (should (string= (lispy-with "(put :foo 1\n     :bar 2\n     |:baz '(1 2 3)~)"
                                (lispy-move-up 2))
                    "(put :foo 1\n     |:baz '(1 2 3)~\n     :bar 2)"))
