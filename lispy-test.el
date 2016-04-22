@@ -1271,6 +1271,8 @@ Insert KEY if there's no command."
                                (kbd "M-m")
                                "w")
                    "(~bar| foo)"))
+  (should (string= (lispy-with "(~foo| bar)" "w")
+                   "(~foo| bar)"))
   (should (string= (lispy-with "(put :foo 1\n     :bar 2\n     |:baz '(1 2 3)~)"
                                (lispy-move-up 2))
                    "(put :foo 1\n     |:baz '(1 2 3)~\n     :bar 2)"))
@@ -1312,6 +1314,8 @@ Insert KEY if there's no command."
                                (kbd "M-m")
                                "s")
                    "(bar ~foo|)"))
+  (should (string= (lispy-with "(foo ~bar|)" "s")
+                   "(foo ~bar|)"))
   (should (string= (lispy-with "(put :foo 1\n     ~:baz '(1 2 3)|\n     :bar 2)"
                                (lispy-move-down 2))
                    "(put :foo 1\n     :bar 2\n     ~:baz '(1 2 3)|)"))

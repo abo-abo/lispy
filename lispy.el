@@ -2774,16 +2774,16 @@ Also works from inside the list."
                        (setq deactivate-mark nil)
                        (goto-char (car bnd2))
                        (set-mark (point))
-                       (forward-char (- (cdr bnd1) (car bnd1)))
-                       (exchange-point-and-mark))
-                   (goto-char pt)))
+                       (forward-char (- (cdr bnd1) (car bnd1))))
+                   (setq deactivate-mark nil)
+                   (lispy--mark bnd1)))
              (let ((bnd1 (lispy--bounds-dwim)))
                (lispy-up arg)
                (lispy--mark
                 (car
                  (lispy--swap-regions
-                  bnd1 (lispy--bounds-dwim))))
-               (exchange-point-and-mark))))
+                  bnd1 (lispy--bounds-dwim))))))
+           (exchange-point-and-mark))
           ((looking-at lispy-outline)
            (lispy-dotimes arg
              (let ((bnd1 (lispy--bounds-outline))
@@ -2835,7 +2835,8 @@ Also works from inside the list."
                        (goto-char (cdr bnd2))
                        (set-mark (point))
                        (backward-char (- (cdr bnd1) (car bnd1))))
-                   (goto-char pt)))
+                   (lispy--mark bnd1)
+                   (exchange-point-and-mark)))
              (let ((bnd1 (lispy--bounds-dwim)))
                (lispy-down arg)
                (lispy--mark
