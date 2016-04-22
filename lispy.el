@@ -2750,8 +2750,7 @@ Also works from inside the list."
       (lispy-different))
     (cond ((region-active-p)
            (if (= arg 1)
-               (let ((pt (point))
-                     (bnd1 (lispy--bounds-dwim))
+               (let ((bnd1 (lispy--bounds-dwim))
                      (bnd0 (save-excursion
                              (deactivate-mark)
                              (if (ignore-errors (up-list) t)
@@ -2812,8 +2811,7 @@ Also works from inside the list."
       (lispy-different))
     (cond ((region-active-p)
            (if (= arg 1)
-               (let ((pt (point))
-                     (bnd1 (lispy--bounds-dwim))
+               (let ((bnd1 (lispy--bounds-dwim))
                      (bnd0 (save-excursion
                              (deactivate-mark)
                              (if (ignore-errors (up-list) t)
@@ -6761,6 +6759,8 @@ ACTION is called for the selected candidate."
         (when (and (eq major-mode 'clojure-mode)
                    (not (looking-at "(")))
           (forward-char -1))
+        (require 'find-func)
+        (recenter find-function-recenter-line)
         (lispy--ensure-visible))
     (error "Unexpected tag: %S" tag)))
 
