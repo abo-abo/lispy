@@ -651,6 +651,9 @@ Insert KEY if there's no command."
                        "~|"))
       (should (string= (lispy-with "a \"~(\"\"]\" \"((|)\" b" "\C-d")
                        "a \"~\"\"|)\" b"))
+      ;; test that a right quote at end of the region is not deleted
+      (should (string= (lispy-with "\"a ~string\"|" "\C-d")
+                       "\"a ~\"|"))
       ;; mixed
       (should (string= (lispy-with "~{[(a b \"(c|\" d)]}" "\C-d")
                        "~{[(\"|\" d)]}"))

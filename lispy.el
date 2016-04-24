@@ -7411,7 +7411,7 @@ checked and nil will be returned."
                       (setq string-end (cdr string-bounds))))
                (setq matched-left-quote-p (= (1- (point))
                                              (car string-bounds)))
-               (cond ((< string-end end)
+               (cond ((< (1- string-end) end)
                       (goto-char string-end)
                       ;; when skipping strings, will only match right quote
                       ;; if left quote is not in the region
