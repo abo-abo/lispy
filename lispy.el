@@ -4162,21 +4162,23 @@ Sexp is obtained by exiting the list ARG times."
    (if (region-active-p)
        (progn (deactivate-mark) arg)
      (1- arg)))
-  (let ((avy-keys lispy-avy-keys))
+  (let ((avy-keys lispy-avy-keys)
+        res)
     (avy-with lispy-ace-symbol
       (let ((avy--overlay-offset (if (eq lispy-avy-style-symbol 'at) -1 0)))
-        (lispy--avy-do
-         "[([{ ]\\(?:\\sw\\|\\s_\\|[\"'`#~,@]\\)"
-         (lispy--bounds-dwim)
-         (lambda ()
-           (not (save-excursion
-                  (forward-char -1)
-                  (lispy--in-string-or-comment-p))))
-         lispy-avy-style-symbol))))
-  (unless (or (eq (char-after) ?\")
-              (looking-at ". "))
-    (forward-char 1))
-  (lispy-mark-symbol))
+        (setq res (lispy--avy-do
+                   "[([{ ]\\(?:\\sw\\|\\s_\\|[\"'`#~,@]\\)"
+                   (lispy--bounds-dwim)
+                   (lambda ()
+                     (not (save-excursion
+                            (forward-char -1)
+                            (lispy--in-string-or-comment-p))))
+                   lispy-avy-style-symbol))))
+    (unless (eq res t)
+      (unless (or (eq (char-after) ?\")
+                  (looking-at ". "))
+        (forward-char 1))
+      (lispy-mark-symbol))))
 
 (defun lispy-ace-subword (arg)
   "Mark sub-word within a sexp.
@@ -4227,7 +4229,8 @@ Use STYLE function to update the overlays."
 Sexp is obtained by exiting the list ARG times."
   (interactive "p")
   (lispy-ace-symbol arg)
-  (lispy-delete 1))
+  (when (region-active-p)
+    (lispy-delete 1)))
 
 ;;* Locals: outline
 (defun lispy-outline-level ()
