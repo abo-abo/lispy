@@ -70,7 +70,7 @@
         ;; restore prompt and insert last command
         (goto-char (point-max))
         (comint-send-string (get-buffer-process (current-buffer)) "\n")
-        (insert-string last-cmd)
+        (insert last-cmd)
         ;; return the shell output
         str))))
 
