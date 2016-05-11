@@ -1805,7 +1805,10 @@ When the region is active, toggle a ~ at the start of the region."
      (let ((lispy-ignore-whitespace t))
        (save-excursion
          (lispy--out-backward 1)
-         (indent-sexp))))))
+         (unless (< 50000
+                    (- (save-excursion (forward-list 1))
+                       (point)))
+           (indent-sexp)))))))
 
 (defun lispy-open-line (arg)
   "Add ARG lines after the current expression.
