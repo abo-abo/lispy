@@ -25,6 +25,8 @@
 (require 'julia-mode nil t)
 (require 'julia-shell nil t)
 
+(declare-function julia-shell-collect-command-output "ext:julia-shell")
+
 (defun lispy--eval-julia (str &optional _plain)
   "Eval STR as Julia code."
   (string-trim-right (julia-shell-collect-command-output str)))
