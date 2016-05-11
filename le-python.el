@@ -209,7 +209,7 @@
                                         nil)
                              fn-defaults)))
          (fn-alist-x fn-alist)
-         dmg-cmd)
+         dbg-cmd)
     (dolist (arg args-normal)
       (setcdr (pop fn-alist-x) arg))
     (dolist (arg args-key)
@@ -233,7 +233,7 @@
       (goto-char p-ar-beg)
       (message lispy-eval-error))))
 
-(defun lispy-goto-symbol-python (symbol)
+(defun lispy-goto-symbol-python (_symbol)
   (save-restriction
     (widen)
     (deferred:sync!
