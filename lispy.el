@@ -4560,6 +4560,7 @@ With ARG, use the contents of `lispy-store-region-and-buffer' instead."
 
 ;;* Locals: multiple cursors
 (declare-function mc/create-fake-cursor-at-point "ext:multiple-cursors-core")
+(declare-function multiple-cursors-mode "ext:multiple-cursors-core")
 (declare-function mc/all-fake-cursors "ext:multiple-cursors-core")
 (declare-function mc/maybe-multiple-cursors-mode "ext:multiple-cursors-core")
 (declare-function mc/mark-lines "ext:mc-mark-more")
