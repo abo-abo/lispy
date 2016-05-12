@@ -1144,7 +1144,7 @@ If position isn't special, move to previous or error."
            (lispy-left 1))
 
           ((lispy-left-p)
-           (lispy--delete-quote-garbage)
+           (lispy--delete-leading-garbage)
            (lispy-dotimes arg
              (lispy--delete)))
 
@@ -1162,20 +1162,15 @@ If position isn't special, move to previous or error."
           (t
            (delete-char arg)))))
 
-(defvar lispy-quote-regexp-alist
-  '((emacs-lisp-mode . "`',@")
-    (t . "`',@"))
-  "An alist of `major-mode' to a string.
-The regexp describes the possible quoting characters in front of
-the list.  When the list is deleted, these quotes, that are
-assumed to belong to the list are also deleted.")
-
-(defun lispy--delete-quote-garbage ()
-  "Delete any combination of `',@ preceeding point."
-  (let ((str (or (cdr (assoc major-mode lispy-quote-regexp-alist))
-                 (cdr (assoc t lispy-quote-regexp-alist))))
-        (pt (point)))
-    (skip-chars-backward str)
+(defun lispy--delete-leading-garbage ()
+  "Delete any syntax before an opening delimiter such as '.
+Delete backwards to the closest whitespace char or opening delimiter or to the
+beginning of the line."
+  (let ((pt (point)))
+    (re-search-backward (concat "[[:space:]]" "\\|"
+                                lispy-left "\\|"
+                                "^"))
+    (goto-char (match-end 0))
     (delete-region (point) pt)))
 
 (defun lispy--delete-whitespace-backward ()
@@ -2467,7 +2462,7 @@ When lispy-left, will slurp ARG sexps forwards.
              (save-excursion
                (goto-char (cdr bnd))
                (delete-char -1))
-             (lispy--delete-quote-garbage)
+             (lispy--delete-leading-garbage)
              (delete-char 1)
              (lispy-forward 1)
              (lispy-backward 1))
@@ -7809,7 +7804,7 @@ quote of a string, move backward."
            (save-excursion
              (lispy-different)
              (delete-char -1))
-           (lispy--delete-quote-garbage)
+           (lispy--delete-leading-garbage)
            (delete-char 1))
           ((looking-back lispy-right (1- (point)))
            (let ((tick (buffer-chars-modified-tick)))
@@ -7842,7 +7837,7 @@ quote of a string, move forward."
            (save-excursion
              (lispy-different)
              (delete-char -1))
-           (lispy--delete-quote-garbage)
+           (lispy--delete-leading-garbage)
            (delete-char 1))
           ((looking-at lispy-right)
            (let ((tick (buffer-chars-modified-tick)))
