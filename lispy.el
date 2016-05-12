@@ -5506,9 +5506,13 @@ Otherwise return cons of current string, symbol or list bounds."
                 (when (setq bnd (lispy--bounds-comment))
                   (goto-char (1- (car bnd))))
                 (point)))))
-          ((or (looking-at (format "[`'#]*%s" lispy-left))
+          ((or (looking-at (concat "[^[:space:]]*" lispy-left))
                (looking-at "[`'#]"))
-           (bounds-of-thing-at-point 'sexp))
+           (setq bnd (bounds-of-thing-at-point 'sexp))
+           (save-excursion
+             (goto-char (car bnd))
+             (lispy--skip-delimiter-preceding-syntax-backward)
+             (cons (point) (cdr bnd))))
           ((looking-at ";;")
            (lispy--bounds-comment))
           ((and (eq major-mode 'python-mode)
@@ -5718,6 +5722,15 @@ Move to the end of line."
   (while (not (lispy--in-comment-p))
     (forward-line dir)
     (end-of-line)))
+
+(defun lispy--skip-delimiter-preceding-syntax-backward ()
+  "Move backwards past syntax that could precede an opening delimiter such as '.
+Specifically, move backwards to the closest whitespace char or opening delimiter
+or to the beginning of the line."
+  (re-search-backward (concat "[[:space:]]" "\\|"
+                              lispy-left "\\|"
+                              "^"))
+  (goto-char (match-end 0)))
 
 ;;* Utilities: evaluation
 (declare-function lispy--eval-clojure "le-clojure")
