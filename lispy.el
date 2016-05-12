@@ -145,7 +145,6 @@
 (require 'outline)
 (require 'semantic)
 (require 'semantic/db)
-(require 'semantic/bovine/el)
 (require 'avy)
 (require 'newcomment)
 (require 'lispy-inline)
