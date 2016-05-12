@@ -601,6 +601,13 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "((a) |\"foo\" (c))"
                                (lispy-delete -1))
                    "(|\"foo\" (c))"))
+  ;; test that quotes also get deleted
+  (should (string= (lispy-with "'|()" "\C-d")
+                   "|"))
+  (should (string= (lispy-with "(,@|())" "\C-d")
+                   "(|)"))
+  (should (string= (lispy-with "#2A|((a b) (0 1))" "\C-d")
+                   "|"))
   (let ((lispy-safe-delete t))
     ;; region is already safe
     (should (string= (lispy-with "((a) ~(b (c (d)))|)" "\C-d")
@@ -1092,7 +1099,14 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "(asdf)\n(progn\n  |(foo)\n  (bar))\n(asdf)" "//")
                    "(asdf)\n|(progn\n  foo\n  bar)\n(asdf)"))
   (should (string= (lispy-with "(asdf)\n(progn\n  (foo)\n  (bar)|)\n(asdf)" "//")
-                   "(asdf)\n(progn\n  foo\n  bar)|\n(asdf)")))
+                   "(asdf)\n(progn\n  foo\n  bar)|\n(asdf)"))
+  ;; test that quotes also get deleted
+  (should (string= (lispy-with "'|(a)" "/")
+                   "|a"))
+  (should (string= (lispy-with "(,@|(a))" "/")
+                   "|(a)"))
+  (should (string= (lispy-with "#2A|((a b) (0 1))" "/")
+                   "|(a b) (0 1)")))
 
 (ert-deftest lispy-barf-to-point ()
   (should (string= (lispy-with "((a) (b)| (c))" (lispy-barf-to-point nil))
@@ -2409,6 +2423,13 @@ Insert KEY if there's no command."
   ;; space cleanup
   (should (string= (lispy-with "(foo (| (bar) baz))" (kbd "DEL"))
                    "(foo |(bar) baz)"))
+  ;; test that quotes also get deleted
+  (should (string= (lispy-with "'(|)" (kbd "DEL"))
+                   "|"))
+  (should (string= (lispy-with "(,@(|))" (kbd "DEL"))
+                   "(|)"))
+  (should (string= (lispy-with "#2A(|(a b) (0 1))" (kbd "DEL"))
+                   "|(a b) (0 1)"))
   (lispy-set-key-theme '(special lispy c-digits oleh)))
 
 (ert-deftest lispy-delete-or-splice-or-slurp ()
@@ -2441,6 +2462,13 @@ Insert KEY if there's no command."
                    "\"a b c\"|"))
   (should (string= (lispy-with "|\"a b c\"" (kbd "C-d"))
                    "|"))
+  ;; test that quotes also get deleted
+  (should (string= (lispy-with "'|()" (kbd "C-d"))
+                   "|"))
+  (should (string= (lispy-with "(,@|())" (kbd "C-d"))
+                   "(|)"))
+  (should (string= (lispy-with "#2A|((a b) (0 1))" (kbd "C-d"))
+                   "|(a b) (0 1)"))
   (lispy-set-key-theme '(special lispy c-digits oleh)))
 
 ;;* Paredit compatibility tests
