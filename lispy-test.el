@@ -1741,23 +1741,40 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "{|}" "(")
                    "{(|)}"))
   (should (string= (lispy-with "(defun foo (x)\n  |)" "1(")
-                   "(defun foo (x)\n  (|))")))
+                   "(defun foo (x)\n  (|))"))
+  ;; test space-unless behavior
+  (should (string= (lispy-with "a|" "(")
+                   "a (|)"))
+  (should (string= (lispy-with ",@|" "(")
+                   ",@(|)"))
+  (should (string= (lispy-with-clojure "#|" "(")
+                   "#(|)"))
+  (should (string= (lispy-with-clojure "#?@|" "(")
+                   "#?@(|)")))
 
 (ert-deftest lispy-braces ()
   (should (string= (lispy-with "\"a regex \\\\|\"" "{")
                    "\"a regex \\\\{|\\\\}\""))
   (should (string= (lispy-with "\"a string |" "{")
                    "\"a string {|}"))
+  ;; test space-unless behavior
   (should (string= (lispy-with "`|" "{")
-                   "`{|}")))
+                   "`{|}"))
+  (should (string= (lispy-with-clojure "^|" "{")
+                   "^{|}"))
+  (should (string= (lispy-with-clojure "#my.record|" "{")
+                   "#my.record{|}")))
 
 (ert-deftest lispy-brackets ()
   (should (string= (lispy-with "\"a regex \\\\|\"" "}")
                    "\"a regex \\\\[|\\\\]\""))
   (should (string= (lispy-with "\"a string |" "}")
                    "\"a string [|]"))
+  ;; test space-unless behavior
   (should (string= (lispy-with "`|" "}")
-                   "`[|]")))
+                   "`[|]"))
+  (should (string= (lispy-with-clojure "#my.klass_or_type_or_record|" "}")
+                   "#my.klass_or_type_or_record[|]")))
 
 (ert-deftest lispy-to-ifs ()
   (should (or (version<= emacs-version "24.3.1") (string= (lispy-with "|(cond ((looking-at \" *;\"))\n      ((and (looking-at \"\\n\")\n            (looking-back \"^ *\"))\n       (delete-blank-lines))\n      ((looking-at \"\\\\([\\n ]+\\\\)[^\\n ;]\")\n       (delete-region (match-beginning 1)\n                      (match-end 1))))"

@@ -1532,7 +1532,7 @@ When this function is called:
             (self-insert-command 1))
            ((not arg)
             (lispy--indent-for-tab)
-            (lispy--space-unless ,space-unless)
+            (funcall (function ,space-unless))
             (insert ,left ,right)
             (unless (or (eolp)
                         (lispy--in-string-p)
@@ -1562,16 +1562,54 @@ When this function is called:
               (just-one-space)
               (backward-char))))))
 
+(defvar lispy-parens-preceding-syntax-alist
+  '((lisp-mode . ("[#`',.@]+" "#[0-9]*" "#[.,Ss+-]" "#[0-9]+[=Aa]"))
+    (emacs-lisp-mode . ("[#`',@]+" "#s" "#[0-9]+="))
+    (clojure-mode . ("[`'~@]+" "#" "#\\?@?"))
+    (t . ("[`',@]+")))
+  "An alist of `major-mode' to a list of regexps.
+Each regexp describes valid syntax that can precede an opening paren in that
+major mode. These regexps are used to determine whether to insert a space for
+`lispy-parens'.")
+
+(defvar lispy-brackets-preceding-syntax-alist
+  '((clojure-mode . ("[`']" "#[A-z.]*"))
+    (t . nil))
+  "An alist of `major-mode' to a list of regexps.
+Each regexp describes valid syntax that can precede an opening bracket in that
+major mode. These regexps are used to determine whether to insert a space for
+`lispy-brackets'.")
+
+(defvar lispy-braces-preceding-syntax-alist
+  '((clojure-mode . ("[^`']" "#[A-z.]*"))
+    (t . nil))
+  "An alist of `major-mode' to a list of regexps.
+Each regexp describes valid syntax that can precede an opening brace in that
+major mode. These regexps are used to determine whether to insert a space for
+`lispy-braces'.")
+
+(defun lispy--parens-space-unless ()
+  "The space-unless function used for `lispy-parens'."
+  (lispy--delimiter-space-unless lispy-parens-preceding-syntax-alist))
+
+(defun lispy--brackets-space-unless ()
+  "The space-unless function used for `lispy-brackets'."
+  (lispy--delimiter-space-unless lispy-brackets-preceding-syntax-alist))
+
+(defun lispy--braces-space-unless ()
+  "The space-unless function used for `lispy-braces'."
+  (lispy--delimiter-space-unless lispy-braces-preceding-syntax-alist))
+
 (defalias 'lispy-parens
-    (lispy-pair "(" ")" "^\\|\\(?:> \\|#\\?\\)\\|\\s-\\|\\[\\|[{(`'#@~_%,]")
+    (lispy-pair "(" ")" #'lispy--parens-space-unless)
   "`lispy-pair' with ().")
 
 (defalias 'lispy-brackets
-    (lispy-pair "[" "]" "^\\|\\s-\\|\\s(\\|[`']")
+    (lispy-pair "[" "]" #'lispy--brackets-space-unless)
   "`lispy-pair' with [].")
 
 (defalias 'lispy-braces
-    (lispy-pair "{" "}" "^\\|\\s-\\|\\s(\\|[{#^`']")
+    (lispy-pair "{" "}" #'lispy--braces-space-unless)
   "`lispy-pair' with {}.")
 
 (defun lispy-quotes (arg)
@@ -6632,6 +6670,18 @@ Unless inside string or comment, or `looking-back' at CONTEXT."
                 (lispy--in-string-or-comment-p)
                 (lispy-looking-back context))
       (insert " "))))
+
+(defun lispy--delimiter-space-unless (preceding-syntax-alist)
+  "Like `lispy--space-unless' but use PRECEDING-SYNTAX-ALIST for decision.
+PRECEDING-SYNTAX-ALIST should be an alist of `major-mode' to a list of regexps.
+When `looking-back' at any of these regexps, whitespace, or a delimiter, do not
+insert a space."
+  (lispy--space-unless
+   (apply #'concat "^\\|\\s-\\|" lispy-left "\\|"
+          (lispy-interleave
+           "\\|"
+           (or (cdr (assoc major-mode preceding-syntax-alist))
+               (cdr (assoc t preceding-syntax-alist)))))))
 
 (defun lispy--reindent (&optional arg)
   "Reindent current sexp.  Up-list ARG times before that."
