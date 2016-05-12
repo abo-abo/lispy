@@ -3698,6 +3698,7 @@ Sexp is obtained by exiting list ARG times."
 
 (defvar lispy-goto-symbol-alist
   '((clojure-mode lispy-goto-symbol-clojure le-clojure)
+    (clojurescript-mode lispy-goto-symbol-clojure le-clojure)
     (scheme-mode lispy-goto-symbol-scheme le-scheme)
     (lisp-mode lispy-goto-symbol-lisp le-lisp)
     (python-mode lispy-goto-symbol-python le-python))
