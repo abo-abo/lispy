@@ -5510,9 +5510,9 @@ Otherwise return cons of current string, symbol or list bounds."
                 (when (setq bnd (lispy--bounds-comment))
                   (goto-char (1- (car bnd))))
                 (point)))))
-          ((or (looking-at (concat "[^[:space:]]*" lispy-left))
-               (looking-at "[`'#]"))
-           (setq bnd (bounds-of-thing-at-point 'sexp))
+          ((and (or (looking-at (concat "[^[:space:]\n]*" lispy-left))
+                    (looking-at "[`'#]"))
+                (setq bnd (bounds-of-thing-at-point 'sexp)))
            (save-excursion
              (goto-char (car bnd))
              (lispy--skip-delimiter-preceding-syntax-backward)
