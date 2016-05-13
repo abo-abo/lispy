@@ -2315,14 +2315,18 @@ to the next level and adjusting the parentheses accordingly."
 
 (defun lispy-indent-adjust-parens (arg)
   "Indent the line if it is incorrectly indented or act as `lispy-up-slurp'.
-If the region is indented properly, call `lispy-up-slurp' ARG times."
+If indenting does not adjust indentation or move the point, call
+`lispy-up-slurp' ARG times."
   (interactive "p")
   (let ((tick (buffer-chars-modified-tick))
+        (pt (point))
         (bnd (when (region-active-p)
                (cons (region-beginning)
-                     (region-end)))))
+                     (region-end))))
+        up-slurp-success)
     (indent-for-tab-command)
-    (when (= tick (buffer-chars-modified-tick))
+    (when (and (= tick (buffer-chars-modified-tick))
+               (= pt (point)))
       (if bnd
           (lispy--mark bnd)
         (unless (lispy--empty-line-p)
@@ -2332,7 +2336,7 @@ If the region is indented properly, call `lispy-up-slurp' ARG times."
         (lispy-up-slurp))
       (when (and (not bnd)
                  (region-active-p))
-        (lispy-different)
+        (ignore-errors (lispy-different))
         (deactivate-mark)))))
 
 (defun lispy--backward-sexp-or-comment ()
