@@ -1851,6 +1851,12 @@ Insert KEY if there's no command."
                                (lispy-indent-adjust-parens 1)
                                (deactivate-mark))
                    "(a\n (b c)\n (d e)\n (|f g)"))
+  ;; just move point
+  (should (string= (lispy-with "((a)\n| )" (lispy-indent-adjust-parens 1))
+                   "((a)\n |)"))
+  ;; don't do anything; shouldn't error or move point
+  (should (string= (lispy-with "(a|)" (lispy-indent-adjust-parens 1))
+                   "(a|)"))
   ;; otherwise call lispy-up-slurp
   (should (string= (lispy-with "(let ((a (1+))))\n|"
                                (lispy-indent-adjust-parens 1))
