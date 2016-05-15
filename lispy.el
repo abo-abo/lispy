@@ -1576,7 +1576,7 @@ major mode. These regexps are used to determine whether to insert a space for
 `lispy-brackets'.")
 
 (defvar lispy-braces-preceding-syntax-alist
-  '((clojure-mode . ("[^`']" "#[A-z.]*"))
+  '((clojure-mode . ("[`'^]" "#[A-z.]*"))
     (t . nil))
   "An alist of `major-mode' to a list of regexps.
 Each regexp describes valid syntax that can precede an opening brace in that

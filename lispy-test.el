@@ -1777,7 +1777,9 @@ Insert KEY if there's no command."
   (should (string= (lispy-with-clojure "^|" "{")
                    "^{|}"))
   (should (string= (lispy-with-clojure "#my.record|" "{")
-                   "#my.record{|}")))
+                   "#my.record{|}"))
+  (should (string= (lispy-with-clojure "symbol|" "{")
+                   "symbol {|}")))
 
 (ert-deftest lispy-brackets ()
   (should (string= (lispy-with "\"a regex \\\\|\"" "}")
