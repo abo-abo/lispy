@@ -1680,10 +1680,10 @@ If jammed between parens, \"(|(\" unjam: \"(| (\"."
            (backward-char)
            (just-one-space)))
         ((lispy-looking-back lispy-left)
-         (insert " ")
+         (call-interactively 'self-insert-command)
          (backward-char))
         (t
-         (insert " ")
+         (call-interactively 'self-insert-command)
          (when (and (lispy-left-p)
                     (lispy-looking-back "[[({] "))
            (backward-char)))))
