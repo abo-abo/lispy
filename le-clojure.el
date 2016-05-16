@@ -356,19 +356,7 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
 
 (defun lispy-goto-symbol-clojure (symbol)
   "Goto SYMBOL."
-  (let ((rsymbol (lispy--clojure-resolve symbol)))
-    (cond ((stringp rsymbol)
-           (lispy--clojure-jump rsymbol))
-          ((eq rsymbol 'special)
-           (error "Can't jump to '%s because it's special" symbol))
-          ((eq rsymbol 'keyword)
-           (error "Can't jump to keywords"))
-          ((and (listp rsymbol)
-                (eq (car rsymbol) 'variable))
-           (error "Can't jump to Java variables"))
-          (t
-           (error "Could't resolve '%s" symbol))))
-  (lispy--back-to-paren))
+  (cider-find-var nil symbol))
 
 (provide 'le-clojure)
 
