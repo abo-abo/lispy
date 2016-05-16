@@ -370,6 +370,10 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
            (error "Could't resolve '%s" symbol))))
   (lispy--back-to-paren))
 
+(defun lispy-goto-symbol-clojurescript (symbol)
+  "Goto SYMBOL."
+  (cider-find-var nil symbol))
+
 (provide 'le-clojure)
 
 ;;; le-clojure.el ends here
