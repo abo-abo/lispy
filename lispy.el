@@ -1482,8 +1482,10 @@ When ARG is more than 1, mark ARGth element."
       (kill-new str))))
 
 ;;* Globals: pairs
-(defun lispy-pair (left right space-unless)
-  "Return (lambda (arg)(interactive \"P\")...) using LEFT RIGHT SPACE-UNLESS.
+(defun lispy-pair (left right preceding-syntax-alist)
+  "Return (lambda (arg)(interactive \"P\")...) using LEFT RIGHT.
+PRECEDING-SYNTAX-ALIST should be an alist of `major-mode' to a list of regexps.
+The regexps correspond to valid syntax that can precede LEFT in each major mode.
 When this function is called:
 - with region active:
   Wrap region with LEFT RIGHT.
@@ -1527,7 +1529,7 @@ When this function is called:
             (self-insert-command 1))
            ((not arg)
             (lispy--indent-for-tab)
-            (funcall (function ,space-unless))
+            (lispy--delimiter-space-unless ,preceding-syntax-alist)
             (insert ,left ,right)
             (unless (or (eolp)
                         (lispy--in-string-p)
@@ -1539,8 +1541,8 @@ When this function is called:
               (backward-char))
             (backward-char))
            (t
-            ;; don't jump out of a list when not at a sexp
-            (unless (lispy--not-at-sexp-p)
+            ;; don't jump backwards or out of a list when not at a sexp
+            (unless (lispy--not-at-sexp-p ,preceding-syntax-alist)
               (goto-char (car (lispy--bounds-dwim))))
             (lispy--indent-for-tab)
             (insert ,left ,right)
@@ -1583,28 +1585,16 @@ Each regexp describes valid syntax that can precede an opening brace in that
 major mode. These regexps are used to determine whether to insert a space for
 `lispy-braces'.")
 
-(defun lispy--parens-space-unless ()
-  "The space-unless function used for `lispy-parens'."
-  (lispy--delimiter-space-unless lispy-parens-preceding-syntax-alist))
-
-(defun lispy--brackets-space-unless ()
-  "The space-unless function used for `lispy-brackets'."
-  (lispy--delimiter-space-unless lispy-brackets-preceding-syntax-alist))
-
-(defun lispy--braces-space-unless ()
-  "The space-unless function used for `lispy-braces'."
-  (lispy--delimiter-space-unless lispy-braces-preceding-syntax-alist))
-
 (defalias 'lispy-parens
-    (lispy-pair "(" ")" #'lispy--parens-space-unless)
+    (lispy-pair "(" ")" 'lispy-parens-preceding-syntax-alist)
   "`lispy-pair' with ().")
 
 (defalias 'lispy-brackets
-    (lispy-pair "[" "]" #'lispy--brackets-space-unless)
+    (lispy-pair "[" "]" 'lispy-brackets-preceding-syntax-alist)
   "`lispy-pair' with [].")
 
 (defalias 'lispy-braces
-    (lispy-pair "{" "}" #'lispy--braces-space-unless)
+    (lispy-pair "{" "}" 'lispy-braces-preceding-syntax-alist)
   "`lispy-pair' with {}.")
 
 (defun lispy-quotes (arg)
@@ -5463,10 +5453,20 @@ whitespace."
   (and (looking-at (concat "[[:space:]]*" lispy-right))
        (lispy-looking-back (concat "[[:space:]]*" lispy-left))))
 
-(defun lispy--not-at-sexp-p ()
-  "Test whether the point is at a \"free\" spot and not at a wrappable sexp."
+(defun lispy--not-at-sexp-p (preceding-syntax-alist)
+  "Test whether the point is at a \"free\" spot and not at a wrappable sexp.
+PRECEDING-SYNTAX-ALIST should be an alist of `major-mode' to a list of regexps.
+The regexps correspond to valid syntax that can precede an opening delimiter in
+each major mode."
   (let ((space "[[:space:]]")
-        (special-syntax "[`'#@~_%,]"))
+        (special-syntax
+         (concat "\\(?:"
+                 (apply #'concat
+                        (lispy-interleave
+                         "\\|"
+                         (or (cdr (assoc major-mode preceding-syntax-alist))
+                             (cdr (assoc t preceding-syntax-alist)))))
+                 "\\)")))
     (or (lispy--in-empty-list-p)
         ;; empty line
         (and (looking-at (concat space "*$"))
@@ -7750,7 +7750,7 @@ FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)."
 (eldoc-remove-command 'special-lispy-x)
 
 ;;* Parinfer compat
-(defun lispy--auto-wrap (func arg)
+(defun lispy--auto-wrap (func arg preceding-syntax-alist)
   "Helper to create versions of the `lispy-pair' commands that wrap by default."
   (cond ((not arg)
          (setq arg -1))
@@ -7763,26 +7763,26 @@ FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)."
                (= arg -1)
                (setq bounds (lispy--bounds-dwim))
                (= (point) (cdr bounds)))
-      (insert " ")))
+      (lispy--delimiter-space-unless preceding-syntax-alist)))
   (funcall func arg))
 
 (defun lispy-parens-auto-wrap (arg)
   "Like `lispy-parens' but wrap to the end of the line by default.
 With an arg of -1, never wrap."
   (interactive "P")
-  (lispy--auto-wrap #'lispy-parens arg))
+  (lispy--auto-wrap #'lispy-parens arg lispy-parens-preceding-syntax-alist))
 
 (defun lispy-brackets-auto-wrap (arg)
   "Like `lispy-brackets' but wrap to the end of the line by default.
 With an arg of -1, never wrap."
   (interactive "P")
-  (lispy--auto-wrap #'lispy-brackets arg))
+  (lispy--auto-wrap #'lispy-brackets arg lispy-brackets-preceding-syntax-alist))
 
 (defun lispy-braces-auto-wrap (arg)
   "Like `lispy-braces' but wrap to the end of the line by default.
 With an arg of -1, never wrap."
   (interactive "P")
-  (lispy--auto-wrap #'lispy-braces arg))
+  (lispy--auto-wrap #'lispy-braces arg lispy-braces-preceding-syntax-alist))
 
 (defun lispy-barf-to-point-nostring (arg)
   "Call `lispy-barf-to-point' with ARG unless in string or comment.

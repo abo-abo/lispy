@@ -2314,6 +2314,15 @@ Insert KEY if there's no command."
                    "(a) (| (b))"))
   (should (string= (lispy-with "\"a\"|" "(")
                    "\"a\" (|)"))
+  ;; test space-unless behavior
+  (should (string= (lispy-with "a|" "(")
+                   "a (|)"))
+  (should (string= (lispy-with ",@|" "(")
+                   ",@(|)"))
+  (should (string= (lispy-with-clojure "#|" "(")
+                   "#(|)"))
+  (should (string= (lispy-with-clojure "#?@|" "(")
+                   "#?@(|)"))
   (lispy-set-key-theme '(special lispy c-digits oleh)))
 
 (ert-deftest lispy-brackets-auto-wrap ()
@@ -2322,6 +2331,11 @@ Insert KEY if there's no command."
                    "[| a]"))
   (should (string= (lispy-with "|a" (setq current-prefix-arg '-) "[")
                    "[|] a"))
+  ;; test space-unless behavior
+  (should (string= (lispy-with-clojure "`|" "[")
+                   "`[|]"))
+  (should (string= (lispy-with-clojure "#my.klass_or_type_or_record|" "[")
+                   "#my.klass_or_type_or_record[|]"))
   (lispy-set-key-theme '(special lispy c-digits oleh)))
 
 (ert-deftest lispy-braces-auto-wrap ()
@@ -2330,6 +2344,15 @@ Insert KEY if there's no command."
                    "{| a}"))
   (should (string= (lispy-with "|a" (setq current-prefix-arg '-) "{")
                    "{|} a"))
+  ;; test space-unless behavior
+  (should (string= (lispy-with-clojure "`|" "{")
+                   "`{|}"))
+  (should (string= (lispy-with-clojure "^|" "{")
+                   "^{|}"))
+  (should (string= (lispy-with-clojure "#my.record|" "{")
+                   "#my.record{|}"))
+  (should (string= (lispy-with-clojure "symbol|" "{")
+                   "symbol {|}"))
   (lispy-set-key-theme '(special lispy c-digits oleh)))
 
 (ert-deftest lispy-barf-to-point-nostring ()
