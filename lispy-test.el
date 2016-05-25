@@ -1481,7 +1481,21 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "(list\n foo\n |1 (2\n    3)\n bar)" ";")
                    "(list\n foo\n |;; 1 (2\n ;;    3)\n bar)"))
   (should (string= (lispy-with "(defun foo ()|\n  (bar))" ";")
-                   "(defun foo ()\n  ;; |\n  (bar))")))
+                   "(defun foo ()\n  ;; |\n  (bar))"))
+  ;; With single semicolons
+  (setq lispy-comment-use-single-semicolon t)
+  (should (string= (lispy-with "(foo)|" ";")
+                   "(foo)                                   ; |"))
+  (should (string= (lispy-with "(foo)                                   ; |" ";")
+                   "(foo) ;; |"))
+  (should (string= (lispy-with "((a)| (b))" ";")
+                   "((a)                                    ; |\n (b))"))
+  (should (string= (lispy-with "((a)                                    ; |\n (b))" ";")
+                   "((a) ;; |\n (b))"))
+  (should (string= (lispy-with "(foo|)" ";")
+                   "(foo                                    ; |\n )"))
+  (should (string= (lispy-with "(foo                                    ; |\n )" ";")
+                   "(foo ;; |\n )")))
 
 (ert-deftest lispy-move-end-of-line ()
   ;; (should (string= (lispy-with "(foo (bar #\\x \"|baz \\\\ quux\") zot)"

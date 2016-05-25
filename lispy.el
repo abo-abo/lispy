@@ -3477,7 +3477,8 @@ When SILENT is non-nil, don't issue messages."
                    (progn
                      (newline-and-indent)
                      (skip-chars-backward "\n\t ")
-                     (comment-dwim nil))
+                     (comment-dwim nil)
+                     (just-one-space))
                  (progn
                    (newline-and-indent)
                    (insert ";;")
