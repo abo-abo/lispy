@@ -3415,6 +3415,19 @@ When SILENT is non-nil, don't issue messages."
         (lispy--normalize-1))
     (fill-paragraph)))
 
+(defcustom lispy-move-after-commenting t
+  "When non-nil, adjust point to next sexp after commenting out a
+  sexp. If at last sexp in list, move out and backwards to
+  enclosing sexp."
+  :type 'boolean
+  :group 'lispy)
+
+(defcustom lispy-comment-use-single-semicolon nil
+  "When non-nil, prefer single semicolons for comments at the
+  right of the source code (after lispy-right or at eol)."
+  :type 'boolean
+  :group 'lispy)
+
 (defun lispy-comment (&optional arg)
   "Comment ARG sexps."
   (interactive "p")
@@ -3440,22 +3453,44 @@ When SILENT is non-nil, don't issue messages."
                    (lispy--reindent))))
               ((lispy-left-p)
                (setq bnd (lispy--bounds-dwim))
-               (lispy-down 1)
-               (comment-region (car bnd) (cdr bnd)))
+               (comment-region (car bnd) (cdr bnd))
+               (when lispy-move-after-commenting
+                 (lispy-down 1)
+                 (when (or (lispy--in-string-or-comment-p)
+                           (looking-at ";"))
+                   (lispy--out-backward 1))))
+              ((eolp)
+               (if (or lispy-comment-use-single-semicolon (lispy-bolp))
+                   (comment-dwim nil)
+                 (progn
+                   (newline-and-indent)
+                   (insert ";; "))))
+              ((lispy-right-p)
+               (if lispy-comment-use-single-semicolon
+                   (progn
+                     (newline-and-indent)
+                     (skip-chars-backward "\n\t ")
+                     (comment-dwim nil))
+                 (progn
+                   (newline-and-indent)
+                   (insert ";; \n")
+                   (lispy--reindent)
+                   (skip-chars-backward "\n\t ")
+                   (forward-char 1))))
               ((looking-at " *[])}]")
-               (if (lispy-bolp)
-                   (insert ";;\n")
-                 (insert ";\n"))
+               (if lispy-comment-use-single-semicolon
+                   (if (lispy-bolp)
+                       (insert ";;\n")
+                     (insert ";\n"))
+                 (progn
+                   (unless (lispy-bolp)
+                     (insert "\n"))
+                   (insert ";;\n")))
                (when (lispy--out-forward 1)
                  (lispy--normalize-1))
-               (move-end-of-line 0))
-              ((eolp)
-               (comment-dwim nil))
-              ((lispy-right-p)
-               (newline)
-               (lispy--reindent 1)
-               (skip-chars-backward "\n\t ")
-               (comment-dwim nil))
+               (move-end-of-line 0)
+               (when (not lispy-comment-use-single-semicolon)
+                 (insert " ")))
               ((lispy-bolp)
                (let ((bnd (lispy--bounds-list)))
                  (cond ((null bnd)
