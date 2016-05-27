@@ -50,11 +50,13 @@
                     (lispy--string-dwim
                      (lispy--bounds-dwim))))
                   ((python-info-beginning-of-block-p)
-                   (string-trim-right
-                    (buffer-substring-no-properties
-                     (point)
-                     (save-excursion
-                       (python-nav-forward-block)))))
+                   (concat
+                    (string-trim-right
+                     (buffer-substring-no-properties
+                      (point)
+                      (save-excursion
+                        (python-nav-end-of-block))))
+                    "\n"))
                   ((lispy-bolp)
                    (lispy--string-dwim
                     (lispy--bounds-c-toplevel)))
