@@ -49,13 +49,19 @@
                    (string-trim-right
                     (lispy--string-dwim
                      (lispy--bounds-dwim))))
-                  ((python-info-beginning-of-block-p)
+                  ((save-excursion
+                     (when (looking-at " ")
+                       (forward-char))
+                     (python-info-beginning-of-block-p))
                    (concat
                     (string-trim-right
                      (buffer-substring-no-properties
                       (point)
                       (save-excursion
-                        (python-nav-end-of-block))))
+                        (python-nav-end-of-block)
+                        (while (looking-at "[\n ]*\\(except\\)")
+                          (goto-char (match-beginning 1))
+                          (python-nav-end-of-block)))))
                     "\n"))
                   ((lispy-bolp)
                    (lispy--string-dwim
