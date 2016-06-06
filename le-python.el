@@ -61,7 +61,8 @@
                         (python-nav-end-of-block)
                         (while (looking-at "[\n ]*\\(except\\)")
                           (goto-char (match-beginning 1))
-                          (python-nav-end-of-block)))))
+                          (python-nav-end-of-block))
+                        (point))))
                     "\n"))
                   ((lispy-bolp)
                    (lispy--string-dwim
