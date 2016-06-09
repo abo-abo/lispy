@@ -3464,14 +3464,14 @@ When SILENT is non-nil, don't issue messages."
                  (when (or (lispy--in-string-or-comment-p)
                            (looking-at ";"))
                    (lispy--out-backward 1))))
+              ((and (eolp) (lispy-right-p) (not lispy-comment-use-single-semicolon))
+               (newline-and-indent)
+               (insert ";;")
+               (just-one-space))
               ((eolp)
-               (if (or lispy-comment-use-single-semicolon (lispy-bolp))
-                   (progn
-                     (comment-dwim nil)
-                     (just-one-space))
-                 (progn
-                   (newline-and-indent)
-                   (insert ";; "))))
+               (comment-dwim nil)
+               (when (or lispy-comment-use-single-semicolon (lispy-bolp))
+                 (just-one-space)))
               ((lispy-right-p)
                (if lispy-comment-use-single-semicolon
                    (progn
