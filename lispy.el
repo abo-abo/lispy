@@ -1091,6 +1091,7 @@ If position isn't special, move to previous or error."
      (insert (replace-regexp-in-string "\"" "\\\\\""
                                        (lispy--maybe-safe-current-kill))))
     (t
+     (push-mark (point))
      (insert (lispy--maybe-safe-current-kill)))))
 
 (defun lispy-delete (arg)
