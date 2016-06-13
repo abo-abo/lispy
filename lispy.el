@@ -3415,6 +3415,19 @@ When SILENT is non-nil, don't issue messages."
         (lispy--normalize-1))
     (fill-paragraph)))
 
+(defcustom lispy-move-after-commenting t
+  "When non-nil, adjust point to next sexp after commenting out a
+  sexp. If at last sexp in list, move out and backwards to
+  enclosing sexp."
+  :type 'boolean
+  :group 'lispy)
+
+(defcustom lispy-comment-use-single-semicolon nil
+  "When non-nil, prefer single semicolons for comments at the
+  right of the source code (after lispy-right or at eol)."
+  :type 'boolean
+  :group 'lispy)
+
 (defun lispy-comment (&optional arg)
   "Comment ARG sexps."
   (interactive "p")
@@ -3429,34 +3442,59 @@ When SILENT is non-nil, don't issue messages."
                (when (lispy--in-string-or-comment-p)
                  (lispy--out-backward 1)))
               ((lispy--in-string-or-comment-p)
-               (if (and (eq major-mode 'emacs-lisp-mode)
-                        (lispy-after-string-p ";; "))
-                   (progn
-                     (delete-char -1)
-                     (insert ";###autoload")
-                     (forward-char 1))
-                 (self-insert-command 1)))
+               (cond ((and (eq major-mode 'emacs-lisp-mode)
+                           (lispy-after-string-p ";; "))
+                      (delete-char -1)
+                      (insert ";###autoload")
+                      (forward-char 1))
+                     ((lispy-after-string-p "; ")
+                      (delete-char -1)
+                      (self-insert-command 1)
+                      (lispy--reindent)
+                      (just-one-space))
+                     (t
+                      (progn
+                        (self-insert-command 1)
+                        (lispy--reindent)))))
               ((lispy-left-p)
                (setq bnd (lispy--bounds-dwim))
-               (lispy-down 1)
                (comment-region (car bnd) (cdr bnd))
-               (when (or (lispy--in-string-or-comment-p)
-                         (looking-at ";"))
-                 (lispy--out-backward 1)))
-              ((lispy-right-p)
+               (when lispy-move-after-commenting
+                 (lispy-down 1)
+                 (when (or (lispy--in-string-or-comment-p)
+                           (looking-at ";"))
+                   (lispy--out-backward 1))))
+              ((and (eolp) (lispy-right-p) (not lispy-comment-use-single-semicolon))
                (newline-and-indent)
-               (insert ";; ")
-               (unless (eolp)
-                 (newline)
-                 (lispy--reindent 1)
-                 (skip-chars-backward "\n\t ")
-                 (forward-char 1)))
+               (insert ";;")
+               (just-one-space))
               ((eolp)
-               (comment-dwim nil))
+               (comment-dwim nil)
+               (when (or lispy-comment-use-single-semicolon (lispy-bolp))
+                 (just-one-space)))
+              ((lispy-right-p)
+               (if lispy-comment-use-single-semicolon
+                   (progn
+                     (newline-and-indent)
+                     (skip-chars-backward "\n\t ")
+                     (comment-dwim nil)
+                     (just-one-space))
+                 (progn
+                   (newline-and-indent)
+                   (insert ";;")
+                   (newline-and-indent)
+                   (lispy--reindent)
+                   (skip-chars-backward "\n\t ")
+                   (just-one-space))))
               ((looking-at " *[])}]")
-               (unless (lispy-bolp)
-                 (insert "\n"))
-               (insert ";;\n")
+               (if lispy-comment-use-single-semicolon
+                   (if (lispy-bolp)
+                       (insert ";;\n")
+                     (insert ";\n"))
+                 (progn
+                   (unless (lispy-bolp)
+                     (insert "\n"))
+                   (insert ";;\n")))
                (when (lispy--out-forward 1)
                  (lispy--normalize-1))
                (move-end-of-line 0)
