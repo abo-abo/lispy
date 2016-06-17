@@ -1564,6 +1564,7 @@ When this function is called:
   '((lisp-mode . ("[#`',.@]+" "#[0-9]*" "#[.,Ss+-]" "#[0-9]+[=Aa]"))
     (emacs-lisp-mode . ("[#`',@]+" "#s" "#[0-9]+="))
     (clojure-mode . ("[`'~@]+" "#" "#\\?@?"))
+    (clojurescript-mode . ("[`'~@]+" "#" "#\\?@?"))
     (t . ("[`',@]+")))
   "An alist of `major-mode' to a list of regexps.
 Each regexp describes valid syntax that can precede an opening paren in that
@@ -1572,6 +1573,7 @@ major mode. These regexps are used to determine whether to insert a space for
 
 (defvar lispy-brackets-preceding-syntax-alist
   '((clojure-mode . ("[`']" "#[A-z.]*"))
+    (clojurescript-mode . ("[`']" "#[A-z.]*"))
     (t . nil))
   "An alist of `major-mode' to a list of regexps.
 Each regexp describes valid syntax that can precede an opening bracket in that
@@ -1580,6 +1582,7 @@ major mode. These regexps are used to determine whether to insert a space for
 
 (defvar lispy-braces-preceding-syntax-alist
   '((clojure-mode . ("[`'^]" "#[A-z.]*"))
+    (clojurescript-mode . ("[`'^]" "#[A-z.]*"))
     (t . nil))
   "An alist of `major-mode' to a list of regexps.
 Each regexp describes valid syntax that can precede an opening brace in that
@@ -3325,14 +3328,14 @@ When QUOTED is not nil, assume that EXPR is quoted and ignore some rules."
                   (push '(ly-raw newline) res)))
                ((and (memq elt '(let let*))
                      expr
-                     (or (eq major-mode 'clojure-mode)
+                     (or (memq major-mode lispy-clojure-modes)
                          (and
                           (listp (car expr))
                           (listp (cdar expr)))))
                 (push elt res)
                 (let ((body (pop expr)))
                   (push
-                   (if (eq major-mode 'clojure-mode)
+                   (if (memq major-mode lispy-clojure-modes)
                        (apply #'vector
                               (lispy-interleave '(ly-raw newline)
                                                 (mapcar #'lispy--multiline-1 body) 2))
@@ -5948,7 +5951,7 @@ so that no other packages disturb the match data."
                    (cdr (assoc mode lispy-tag-arity))))
           "\\)"
           "\\_>"))
-        ((eq major-mode 'clojure-mode)
+        ((memq major-mode lispy-clojure-modes)
          "^(\\([a-z-A-Z0-0]+\\)")
         (t (error "%s isn't supported" mode))))
 
@@ -6080,7 +6083,7 @@ This is `semantic-tag-name', amended with extra info.
 For example, a `setq' statement is amended with variable name that it uses."
   (let ((str (cond ((memq major-mode lispy-elisp-modes)
                     (lispy--tag-name-elisp x file))
-                   ((eq major-mode 'clojure-mode)
+                   ((memq major-mode lispy-clojure-modes)
                     (lispy--tag-name-clojure x))
                    ((eq major-mode 'scheme-mode)
                     ;; (lispy--tag-name-scheme x)
@@ -6325,7 +6328,7 @@ Ignore the matches in strings and comments."
                 (while (re-search-forward "[^\\],[^@\"]" nil t)
                   (unless (lispy--in-string-or-comment-p)
                     (backward-char 2)
-                    (if (eq major-mode 'clojure-mode)
+                    (if (memq major-mode lispy-clojure-modes)
                         (progn
                           (delete-char 1)
                           (insert "(ly-raw clojure-comma)"))
@@ -6884,7 +6887,7 @@ ACTION is called for the selected candidate."
            (if (overlayp ov)
                (overlay-start ov)
              (aref ov 0))))
-        (when (and (eq major-mode 'clojure-mode)
+        (when (and (memq major-mode lispy-clojure-modes)
                    (not (looking-at "(")))
           (forward-char -1))
         (require 'find-func)
