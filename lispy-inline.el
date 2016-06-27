@@ -303,9 +303,15 @@ Return t if at least one was deleted."
 
 (defun lispy--pretty-args (symbol)
   "Return a vector of fontified strings for function SYMBOL."
-  (let* ((args (cdr (split-string (lispy--arglist symbol) "[( )]" t)))
-         (p-opt (cl-position "&optional" args :test 'equal))
-         (p-rst (cl-position "&rest" args :test 'equal))
+  (let* ((args (cdr (read (lispy--arglist symbol))))
+         (p-opt (cl-position '&optional args :test 'equal))
+         (p-rst (or (cl-position '&rest args :test 'equal)
+                    (cl-position-if (lambda (x)
+                                      (and (symbolp x)
+                                           (string-match
+                                            "\\.\\.\\.\\'"
+                                            (symbol-name x))))
+                                    args)))
          (a-req (cl-subseq args 0 (or p-opt p-rst (length args))))
          (a-opt (and p-opt
                      (cl-subseq args (1+ p-opt) (or p-rst (length args)))))
@@ -318,15 +324,18 @@ Return t if at least one was deleted."
        (list (propertize (symbol-name symbol) 'face 'lispy-face-hint))
        (mapcar
         (lambda (x)
-          (propertize (downcase x) 'face 'lispy-face-req-nosel))
+          (propertize (downcase (prin1-to-string x)) 'face 'lispy-face-req-nosel))
         a-req)
        (mapcar
         (lambda (x)
-          (propertize (downcase x) 'face 'lispy-face-opt-nosel))
+          (propertize (downcase (prin1-to-string x)) 'face 'lispy-face-opt-nosel))
         a-opt)
        (mapcar
         (lambda (x)
-          (propertize (concat (downcase x) "...") 'face 'lispy-face-rst-nosel))
+          (setq x (downcase (symbol-name x)))
+          (unless (string-match "\\.\\.\\.$" x)
+            (setq x (concat x "...")))
+          (propertize x 'face 'lispy-face-rst-nosel))
         a-rst))
       " "))))
 

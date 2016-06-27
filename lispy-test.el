@@ -2910,6 +2910,27 @@ Insert KEY if there's no command."
                   x)
                  1000)))
 
+(ert-deftest lispy--pretty-args ()
+  (should (equal (lispy--pretty-args 'dotimes)
+                 #("(dotimes (var count [result]) body...)"
+                   1 8 (face lispy-face-hint)
+                   9 29 (face lispy-face-req-nosel)
+                   30 37 (face lispy-face-rst-nosel))))
+  (should (equal (lispy--pretty-args 'defun)
+                 #("(defun name arglist docstring decl body...)"
+                   1 6 (face lispy-face-hint)
+                   7 11 (face lispy-face-req-nosel)
+                   12 19 (face lispy-face-req-nosel)
+                   20 29 (face lispy-face-opt-nosel)
+                   30 34 (face lispy-face-opt-nosel)
+                   35 42 (face lispy-face-rst-nosel))))
+  (should (equal (lispy--pretty-args 'defvar)
+                 #("(defvar symbol initvalue docstring)"
+                   1 7 (face lispy-face-hint)
+                   8 14 (face lispy-face-req-nosel)
+                   15 24 (face lispy-face-opt-nosel)
+                   25 34 (face lispy-face-opt-nosel)))))
+
 (provide 'lispy-test)
 
 ;;; lispy-test.el ends here
