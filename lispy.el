@@ -2775,46 +2775,67 @@ Also works from inside the list."
       (lispy--move-down-special arg)
       (forward-char offset))))
 
+(defun lispy--move-up-region (arg)
+  "Swap the marked region ARG positions up.
+Precondition: the region is active and the point is at `region-beginning'."
+  (cond
+    ((and (looking-at "\\_<")
+          (save-excursion
+            (goto-char (region-end))
+            (looking-at "-"))))
+    ((lispy-after-string-p "-")
+     (let ((bnd1 (lispy--bounds-dwim))
+           bnd2)
+       (lispy-up arg)
+       (setq bnd2 (lispy--bounds-dwim))
+       (lispy--swap-regions bnd1 bnd2)
+       (setq deactivate-mark nil)
+       (set-mark (point))
+       (forward-char (- (cdr bnd1) (car bnd1)))))
+    ((= arg 1)
+     (let ((bnd1 (lispy--bounds-dwim))
+           (bnd0 (save-excursion
+                   (deactivate-mark)
+                   (if (ignore-errors (up-list) t)
+                       (lispy--bounds-dwim)
+                     (cons (point-min) (point-max)))))
+           bnd2)
+       (goto-char (car bnd1))
+       (if (re-search-backward "[^ \t\n`'#({[]" (car bnd0) t)
+           (progn
+             (deactivate-mark)
+             (if (lispy--in-comment-p)
+                 (setq bnd2 (lispy--bounds-comment))
+               (when (eq (char-after) ?\")
+                 (forward-char)
+                 (backward-sexp))
+               (when (memq (char-after) '(?\) ?\] ?\}))
+                 (forward-char))
+               (setq bnd2 (lispy--bounds-dwim)))
+             (lispy--swap-regions bnd1 bnd2)
+             (setq deactivate-mark nil)
+             (goto-char (car bnd2))
+             (set-mark (point))
+             (forward-char (- (cdr bnd1) (car bnd1))))
+         (setq deactivate-mark nil)
+         (lispy--mark bnd1)))
+     (exchange-point-and-mark))
+    (t
+     (let ((bnd1 (lispy--bounds-dwim)))
+       (lispy-up arg)
+       (lispy--mark
+        (car
+         (lispy--swap-regions
+          bnd1 (lispy--bounds-dwim)))))
+     (exchange-point-and-mark))))
+
 (defun lispy--move-up-special (arg)
   "Move current expression up ARG times.  Don't exit parent list."
   (let ((at-start (lispy--leftp)))
     (unless (or at-start (looking-at lispy-outline))
       (lispy-different))
     (cond ((region-active-p)
-           (if (= arg 1)
-               (let ((bnd1 (lispy--bounds-dwim))
-                     (bnd0 (save-excursion
-                             (deactivate-mark)
-                             (if (ignore-errors (up-list) t)
-                                 (lispy--bounds-dwim)
-                               (cons (point-min) (point-max)))))
-                     bnd2)
-                 (goto-char (car bnd1))
-                 (if (re-search-backward "[^ \t\n`'#({[]" (car bnd0) t)
-                     (progn
-                       (deactivate-mark)
-                       (if (lispy--in-comment-p)
-                           (setq bnd2 (lispy--bounds-comment))
-                         (when (eq (char-after) ?\")
-                           (forward-char)
-                           (backward-sexp))
-                         (when (memq (char-after) '(?\) ?\] ?\}))
-                           (forward-char))
-                         (setq bnd2 (lispy--bounds-dwim)))
-                       (lispy--swap-regions bnd1 bnd2)
-                       (setq deactivate-mark nil)
-                       (goto-char (car bnd2))
-                       (set-mark (point))
-                       (forward-char (- (cdr bnd1) (car bnd1))))
-                   (setq deactivate-mark nil)
-                   (lispy--mark bnd1)))
-             (let ((bnd1 (lispy--bounds-dwim)))
-               (lispy-up arg)
-               (lispy--mark
-                (car
-                 (lispy--swap-regions
-                  bnd1 (lispy--bounds-dwim))))))
-           (exchange-point-and-mark))
+           (lispy--move-up-region arg))
           ((looking-at lispy-outline)
            (lispy-dotimes arg
              (let ((bnd1 (lispy--bounds-outline))
@@ -2836,44 +2857,67 @@ Also works from inside the list."
            (lispy-different)))
     (unless at-start (lispy-different))))
 
+(defun lispy--move-down-region (arg)
+  "Swap the marked region ARG positions down.
+Precondition: the region is active and the point is at `region-beginning'."
+  (cond
+    ((and (lispy-after-string-p "-")
+          (save-excursion
+            (goto-char (region-end))
+            (looking-at "\\_>"))))
+    ((save-excursion
+       (goto-char (region-end))
+       (looking-at "-"))
+     (let ((bnd1 (lispy--bounds-dwim))
+           bnd2)
+       (lispy-down arg)
+       (setq bnd2 (lispy--bounds-dwim))
+       (lispy--swap-regions bnd1 bnd2)
+       (goto-char (cdr bnd2))
+       (setq deactivate-mark nil)
+       (set-mark (point))
+       (forward-char (- (car bnd1) (cdr bnd1)))))
+    ((= arg 1)
+     (let ((bnd1 (lispy--bounds-dwim))
+           (bnd0 (save-excursion
+                   (deactivate-mark)
+                   (if (ignore-errors (up-list) t)
+                       (lispy--bounds-dwim)
+                     (cons (point-min) (point-max)))))
+           bnd2)
+       (goto-char (cdr bnd1))
+       (if (re-search-forward "[^ \t\n]" (max (1- (cdr bnd0))
+                                              (point)) t)
+           (progn
+             (deactivate-mark)
+             (if (lispy--in-comment-p)
+                 (setq bnd2 (lispy--bounds-comment))
+               (when (memq (char-before) '(?\( ?\" ?\[ ?\{))
+                 (backward-char))
+               (setq bnd2 (lispy--bounds-dwim)))
+             (lispy--swap-regions bnd1 bnd2)
+             (setq deactivate-mark nil)
+             (goto-char (cdr bnd2))
+             (set-mark (point))
+             (backward-char (- (cdr bnd1) (car bnd1))))
+         (lispy--mark bnd1)
+         (exchange-point-and-mark))))
+    (t
+     (let ((bnd1 (lispy--bounds-dwim)))
+       (lispy-down arg)
+       (lispy--mark
+        (cdr
+         (lispy--swap-regions
+          bnd1 (lispy--bounds-dwim))))
+       (lispy-different)))))
+
 (defun lispy--move-down-special (arg)
   "Move current expression down ARG times.  Don't exit parent list."
   (let ((at-start (lispy--leftp)))
     (unless (or at-start (looking-at lispy-outline))
       (lispy-different))
     (cond ((region-active-p)
-           (if (= arg 1)
-               (let ((bnd1 (lispy--bounds-dwim))
-                     (bnd0 (save-excursion
-                             (deactivate-mark)
-                             (if (ignore-errors (up-list) t)
-                                 (lispy--bounds-dwim)
-                               (cons (point-min) (point-max)))))
-                     bnd2)
-                 (goto-char (cdr bnd1))
-                 (if (re-search-forward "[^ \t\n]" (max (1- (cdr bnd0))
-                                                        (point)) t)
-                     (progn
-                       (deactivate-mark)
-                       (if (lispy--in-comment-p)
-                           (setq bnd2 (lispy--bounds-comment))
-                         (when (memq (char-before) '(?\( ?\" ?\[ ?\{))
-                           (backward-char))
-                         (setq bnd2 (lispy--bounds-dwim)))
-                       (lispy--swap-regions bnd1 bnd2)
-                       (setq deactivate-mark nil)
-                       (goto-char (cdr bnd2))
-                       (set-mark (point))
-                       (backward-char (- (cdr bnd1) (car bnd1))))
-                   (lispy--mark bnd1)
-                   (exchange-point-and-mark)))
-             (let ((bnd1 (lispy--bounds-dwim)))
-               (lispy-down arg)
-               (lispy--mark
-                (cdr
-                 (lispy--swap-regions
-                  bnd1 (lispy--bounds-dwim))))
-               (lispy-different))))
+           (lispy--move-down-region arg))
           ((looking-at lispy-outline)
            (lispy-dotimes arg
              (let ((bnd1 (lispy--bounds-outline))
