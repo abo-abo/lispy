@@ -47,10 +47,20 @@
   (with-current-buffer (geiser-repl--buffer-name geiser-impl--implementation)
     (let* ((code `(:eval (:scm ,str)))
            (ret (geiser-eval--send/wait code))
-           (err (geiser-eval--retort-error ret)))
-      (if err
-          (format "Error: %s" (string-trim (cdr (assoc 'output ret))))
-        (format "%s" (cadr (assoc 'result ret)))))))
+           (err (geiser-eval--retort-error ret))
+           (output-str (cdr (assoc 'output ret)))
+           (result-str (cadr (assoc 'result ret))))
+      (cond (err
+             (format "Error: %s" (string-trim output-str)))
+            ((not (equal "" output-str))
+             (concat
+              (propertize
+               output-str
+               'face 'font-lock-string-face)
+              "\n"
+              result-str))
+            (t
+             result-str)))))
 
 (defun lispy-goto-symbol-scheme (symbol)
   (geiser-edit-symbol (make-symbol symbol)))
