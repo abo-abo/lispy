@@ -4819,6 +4819,11 @@ Second region and buffer are the current ones."
            (set-mark (match-end 1))
            (goto-char (cdr bnd-1)))
 
+          ((and (region-active-p)
+                (or (and (= (point) (region-end))
+                         (looking-at "\\_>"))
+                    (and (= (point) (region-beginning))
+                         (looking-at "\\_<")))))
           (t
            (goto-char (car bnd-1))
            (while (and (equal bnd-1 (setq bnd-2 (bounds-of-thing-at-point 'sexp)))
