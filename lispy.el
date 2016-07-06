@@ -1104,15 +1104,15 @@ See also the command `yank-pop' (\\[yank-pop])."
             (bound-and-true-p delete-selection-mode))
        (lispy--maybe-safe-delete-region (region-beginning) (region-end))
        (push-mark (point))
-       (insert (lispy--maybe-safe-current-kill entry)))
+       (insert-for-yank (lispy--maybe-safe-current-kill entry)))
       ((and (eq (char-after) ?\")
             (eq (char-before) ?\"))
        (push-mark (point))
-       (insert (replace-regexp-in-string "\"" "\\\\\""
+       (insert-for-yank (replace-regexp-in-string "\"" "\\\\\""
                                          (lispy--maybe-safe-current-kill entry))))
       (t
        (push-mark (point))
-       (insert (lispy--maybe-safe-current-kill entry)))))
+       (insert-for-yank (lispy--maybe-safe-current-kill entry)))))
   (if (consp arg)
       ;; This is like exchange-point-and-mark, but doesn't activate the mark.
       ;; It is cleaner to avoid activation, even though the command
