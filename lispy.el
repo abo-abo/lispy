@@ -6303,6 +6303,10 @@ Ignore the matches in strings and comments."
   "Read STR including comments and newlines."
   (let* ((deactivate-mark nil)
          (mode major-mode)
+         (scheme-mode-hook
+          (and (bound-and-true-p scheme-mode-hook)
+               (delete 'geiser-mode--maybe-activate
+                       scheme-mode-hook)))
          cbnd
          (str (with-temp-buffer
                 (funcall mode)
