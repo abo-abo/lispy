@@ -7786,7 +7786,7 @@ If `lispy-safe-paste' is non-nil, any unmatched delimiters will be added to it.
 With optional argument N, return the Nth most recent kill."
   (if lispy-safe-paste
       (lispy--balance (current-kill (if arg arg 0)))
-    (current-kill 0)))
+    (current-kill (if arg arg 0))))
 
 ;;* Key definitions
 (defvar ac-trigger-commands '(self-insert-command))
