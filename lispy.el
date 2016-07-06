@@ -4540,6 +4540,56 @@ Pass the ARG along."
          (lispy-complain
           (format "%S isn't currently supported" major-mode)))))
 
+(defun lispy-let-flatten ()
+  "Inline a function at the point of its call using `let'."
+  (interactive)
+  (let* ((begp (if (lispy-left-p)
+                   t
+                 (if (lispy-right-p)
+                     (progn (backward-list) nil)
+                   (lispy-left 1))))
+         (bnd (lispy--bounds-list))
+         (str (lispy--string-dwim bnd))
+         (expr (lispy--read str))
+         (fstr (condition-case e
+                   (lispy--function-str
+                    (car expr))
+                 (unsupported-mode-error
+                  (lispy-complain
+                   (format
+                    "Can't flatten: symbol `%s' is defined in `%s'"
+                    (lispy--prin1-fancy (car expr))
+                    (lispy--prin1-fancy (cdr e))))
+                  nil))))
+    (when fstr
+      (goto-char (car bnd))
+      (delete-region
+       (car bnd)
+       (cdr bnd))
+      (if (macrop (car expr))
+          (error "macros not yet supported")
+        (let* ((e-args (cl-remove-if
+                        #'lispy--whitespacep
+                        (cdr expr)))
+               (body (read fstr))
+               (p-body (lispy--function-parse fstr))
+               (f-args (car p-body))
+               (body (cadr p-body))
+               (print-quoted t)
+               (body
+                (cond (e-args
+                       `(let ,(cl-mapcar #'list f-args e-args)
+                          (ly-raw newline)
+                          ,@body))
+                      ((= 1 (length body))
+                       (car body))
+                      (t
+                       (cons 'progn body)))))
+          (lispy--insert body)))
+      (lispy-multiline)
+      (when begp
+        (goto-char (car bnd))))))
+
 (defun lispy-flatten--elisp (arg)
   "Inline an Elisp function at the point of its call.
 The function body is obtained from `find-function-noselect'.
@@ -5012,6 +5062,7 @@ An equivalent of `cl-destructuring-bind'."
   ("d" lispy-to-defun "to defun")
   ("e" lispy-edebug "edebug")
   ("f" lispy-flatten "flatten")
+  ("F" lispy-let-flatten "let-flatten")
   ;; ("g" nil)
   ("h" lispy-describe "describe")
   ("i" lispy-to-ifs "to ifs")
