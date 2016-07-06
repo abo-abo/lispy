@@ -1078,21 +1078,50 @@ If position isn't special, move to previous or error."
                     (lispy--bounds-list)))
       (kill-region (point) (1- (cdr bnd))))))
 
-(defun lispy-yank ()
-  "Like regular `yank', but quotes body when called from \"|\"."
-  (interactive)
-  (cond
-    ((and (region-active-p)
-          (bound-and-true-p delete-selection-mode))
-     (lispy--maybe-safe-delete-region (region-beginning) (region-end))
-     (insert (lispy--maybe-safe-current-kill)))
-    ((and (eq (char-after) ?\")
-          (eq (char-before) ?\"))
-     (insert (replace-regexp-in-string "\"" "\\\\\""
-                                       (lispy--maybe-safe-current-kill))))
-    (t
-     (push-mark (point))
-     (insert (lispy--maybe-safe-current-kill)))))
+(defun lispy-yank (&optional arg)
+  "Like regular `yank', but quotes body when called from \"|\".
+
+ Put point at the end, and set mark at the beginning without
+activating it. With just \\[universal-argument] as argument, put
+point at beginning, and mark at end. With argument N, reinsert
+the Nth most recent kill.
+
+When this command inserts text into the buffer, it honors the
+`yank-handled-properties' and `yank-excluded-properties'
+variables, and the `yank-handler' text property.  See
+`insert-for-yank-1' for details.
+
+See also the command `yank-pop' (\\[yank-pop])."
+  (interactive "*P")
+  (setq this-command t)
+  (let ((entry (cond
+                 ((listp arg) 0)
+                 ((eq arg '-) -2)
+                 (t (1- arg)))
+          ))
+    (cond
+      ((and (region-active-p)
+            (bound-and-true-p delete-selection-mode))
+       (lispy--maybe-safe-delete-region (region-beginning) (region-end))
+       (push-mark (point))
+       (insert-for-yank (lispy--maybe-safe-current-kill entry)))
+      ((and (eq (char-after) ?\")
+            (eq (char-before) ?\"))
+       (push-mark (point))
+       (insert-for-yank (replace-regexp-in-string "\"" "\\\\\""
+                                         (lispy--maybe-safe-current-kill entry))))
+      (t
+       (push-mark (point))
+       (insert-for-yank (lispy--maybe-safe-current-kill entry)))))
+  (if (consp arg)
+      ;; This is like exchange-point-and-mark, but doesn't activate the mark.
+      ;; It is cleaner to avoid activation, even though the command
+      ;; loop would deactivate the mark because we inserted text.
+      (goto-char (prog1 (mark t)
+                   (set-marker (mark-marker) (point) (current-buffer)))))
+  (if (eq this-command t)
+      (setq this-command 'yank))
+  nil)
 
 (defun lispy-delete (arg)
   "Delete ARG sexps."
@@ -7750,12 +7779,14 @@ possible to infer which side the missing quote should be added to."
         (insert (apply #'concat add-to-end)))
       (buffer-substring (point-min) (point-max)))))
 
-(defun lispy--maybe-safe-current-kill ()
+(defun lispy--maybe-safe-current-kill (&optional arg)
   "Return the most recent kill.
-If `lispy-safe-paste' is non-nil, any unmatched delimiters will be added to it."
+If `lispy-safe-paste' is non-nil, any unmatched delimiters will be added to it.
+
+With optional argument N, return the Nth most recent kill."
   (if lispy-safe-paste
-      (lispy--balance (current-kill 0))
-    (current-kill 0)))
+      (lispy--balance (current-kill (if arg arg 0)))
+    (current-kill (if arg arg 0))))
 
 ;;* Key definitions
 (defvar ac-trigger-commands '(self-insert-command))
