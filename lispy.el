@@ -1565,6 +1565,7 @@ When this function is called:
     (emacs-lisp-mode . ("[#`',@]+" "#s" "#[0-9]+="))
     (clojure-mode . ("[`'~@]+" "#" "#\\?@?"))
     (clojurescript-mode . ("[`'~@]+" "#" "#\\?@?"))
+    (clojurec-mode . ("[`'~@]+" "#" "#\\?@?"))
     (t . ("[`',@]+")))
   "An alist of `major-mode' to a list of regexps.
 Each regexp describes valid syntax that can precede an opening paren in that
