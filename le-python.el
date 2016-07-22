@@ -25,6 +25,19 @@
 (require 'python)
 (require 'json)
 
+(defun lispy-trim-python (str)
+  "Trim extra Python indentation from STR.
+
+STR is a string copied from Python code. It can be that each line
+of STR is prefixed by e.g. 4 or 8 or 12 spaces.
+Stripping them will produce code that's valid for an eval."
+  (if (string-match "\\`\\( +\\)" str)
+      (let* ((indent (match-string 1 str))
+             (re (concat "^" indent)))
+        (apply #'concat
+               (split-string str re t)))
+    str))
+
 (defun lispy-eval-python ()
   (let (str bnd res)
     (setq str
@@ -54,15 +67,16 @@
                        (forward-char))
                      (python-info-beginning-of-block-p))
                    (concat
-                    (string-trim-right
-                     (buffer-substring-no-properties
-                      (point)
-                      (save-excursion
-                        (python-nav-end-of-block)
-                        (while (looking-at "[\n ]*\\(except\\)")
-                          (goto-char (match-beginning 1))
-                          (python-nav-end-of-block))
-                        (point))))
+                    (lispy-trim-python
+                     (string-trim-right
+                      (buffer-substring-no-properties
+                       (line-beginning-position)
+                       (save-excursion
+                         (python-nav-end-of-block)
+                         (while (looking-at "[\n ]*\\(except\\|else\\)")
+                           (goto-char (match-beginning 1))
+                           (python-nav-end-of-block))
+                         (point)))))
                     "\n"))
                   ((lispy-bolp)
                    (lispy--string-dwim
