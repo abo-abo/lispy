@@ -5042,10 +5042,11 @@ An equivalent of `cl-destructuring-bind'."
     (cl--do-arglist (or args (quote (&aux))) expr)
     (setq res
           (nreverse cl--bind-lets))
-    (cons 'progn
-          (mapcar (lambda (x)
-                    (cons 'setq x))
-                  res))))
+    `(with-no-warnings
+       (progn
+         ,@(mapcar (lambda (x)
+                     (cons 'setq x))
+                   res)))))
 
 ;;* Locals: miscellanea
 (defun lispy-describe-bindings-C-4 ()
