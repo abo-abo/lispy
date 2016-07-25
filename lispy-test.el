@@ -81,6 +81,26 @@
          (and (buffer-name temp-buffer)
               (kill-buffer temp-buffer))))))
 
+(defmacro lispy-with-python (in &rest body)
+  `(let ((temp-buffer (generate-new-buffer " *temp*")))
+     (save-window-excursion
+       (unwind-protect
+            (progn
+              (switch-to-buffer temp-buffer)
+              (setq python-indent-offset 4)
+              (python-mode)
+              (lispy-mode)
+              (insert ,in)
+              (when (search-backward "~" nil t)
+                (delete-char 1)
+                (set-mark (point))
+                (goto-char (point-max)))
+              (search-backward "|")
+              (delete-char 1)
+              ,@body)
+         (and (buffer-name temp-buffer)
+              (kill-buffer temp-buffer))))))
+
 (defmacro lispy-with-value (in &rest body)
   `(with-temp-buffer
      (emacs-lisp-mode)
@@ -2950,6 +2970,13 @@ Insert KEY if there's no command."
                    8 14 (face lispy-face-req-nosel)
                    15 24 (face lispy-face-opt-nosel)
                    25 34 (face lispy-face-opt-nosel)))))
+
+(ert-deftest lispy-eval-python-str ()
+  (require 'le-python)
+  (should (equal (lispy-with-python
+                  "\nif cond1:\n   |if cond2:\n        expr1\n        if cond3:\n            expr2\n        else:\n            expr3\n    else:\n        expr4\nelse:\n    expr5"
+                  (lispy-eval-python-str))
+                 "if cond2:\n     expr1\n     if cond3:\n         expr2\n     else:\n         expr3\n else:\n     expr4\n")))
 
 (provide 'lispy-test)
 

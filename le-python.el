@@ -66,18 +66,19 @@ Stripping them will produce code that's valid for an eval."
                      (when (looking-at " ")
                        (forward-char))
                      (python-info-beginning-of-block-p))
-                   (concat
-                    (lispy-trim-python
-                     (string-trim-right
-                      (buffer-substring-no-properties
-                       (line-beginning-position)
-                       (save-excursion
-                         (python-nav-end-of-block)
-                         (while (looking-at "[\n ]*\\(except\\|else\\)")
-                           (goto-char (match-beginning 1))
-                           (python-nav-end-of-block))
-                         (point)))))
-                    "\n"))
+                   (let ((indent (1+ (- (point) (line-beginning-position)))))
+                     (concat
+                      (lispy-trim-python
+                       (string-trim-right
+                        (buffer-substring-no-properties
+                         (line-beginning-position)
+                         (save-excursion
+                           (python-nav-end-of-block)
+                           (while (looking-at (format "[\n ]\\{%d,\\}\\(except\\|else\\)" indent))
+                             (goto-char (match-beginning 1))
+                             (python-nav-end-of-block))
+                           (point)))))
+                      "\n")))
                   ((lispy-bolp)
                    (lispy--string-dwim
                     (lispy--bounds-c-toplevel)))
