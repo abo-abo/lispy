@@ -1736,10 +1736,10 @@ Insert KEY if there's no command."
                                (match-strict (ly-raw dot)
                                              (ly-raw newline)
                                              (lambda (x))))))))
-  (should (equal
-           (lispy-with-clojure
-            "|(fn* [p1__7041#] (+ 1 p1__7041#))" "i")
-           "|(fn* [p1__7041#] (+ 1 p1__7041#))"))
+  ;; (should (equal
+  ;;          (lispy-with-clojure
+  ;;           "|(fn* [p1__7041#] (+ 1 p1__7041#))" "i")
+  ;;          "|(fn* [p1__7041#] (+ 1 p1__7041#))"))
   (should (equal
            (lispy--prin1-to-string
             (lispy--read "#<marker (moves after insertion) at 280 in *Customize Group: Lispy Faces*>")
