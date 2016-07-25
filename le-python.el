@@ -61,23 +61,11 @@ Stripping them will produce code that's valid for an eval."
              (string-trim-right
               (lispy--string-dwim
                (lispy--bounds-dwim))))
-            ((save-excursion
-               (when (looking-at " ")
-                 (forward-char))
-               (python-info-beginning-of-block-p))
-             (let ((indent (1+ (- (point) (line-beginning-position)))))
-               (concat
-                (lispy-trim-python
-                 (string-trim-right
-                  (buffer-substring-no-properties
-                   (line-beginning-position)
-                   (save-excursion
-                     (python-nav-end-of-block)
-                     (while (looking-at (format "[\n ]\\{%d,\\}\\(except\\|else\\)" indent))
-                       (goto-char (match-beginning 1))
-                       (python-nav-end-of-block))
-                     (point)))))
-                "\n")))
+            ((setq bnd (lispy-bounds-python-block))
+             (concat
+              (lispy-trim-python
+               (lispy--string-dwim bnd))
+              "\n"))
             ((lispy-bolp)
              (lispy--string-dwim
               (lispy--bounds-c-toplevel)))
@@ -94,6 +82,21 @@ Stripping them will produce code that's valid for an eval."
                (backward-sexp))
              (setcar bnd (point))
              (lispy--string-dwim bnd))))))
+
+(defun lispy-bounds-python-block ()
+  (when (save-excursion
+          (when (looking-at " ")
+            (forward-char))
+          (python-info-beginning-of-block-p))
+    (let ((indent (1+ (- (point) (line-beginning-position)))))
+      (cons
+       (line-beginning-position)
+       (save-excursion
+         (python-nav-end-of-block)
+         (while (looking-at (format "[\n ]\\{%d,\\}\\(except\\|else\\)" indent))
+           (goto-char (match-beginning 1))
+           (python-nav-end-of-block))
+         (point))))))
 
 (defun lispy-eval-python ()
   (let ((res (lispy--eval-python
