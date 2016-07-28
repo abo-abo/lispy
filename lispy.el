@@ -1371,6 +1371,8 @@ When ARG is more than 1, mark ARGth element."
 (defvar-local lispy-bind-var-in-progress nil
   "When t, `lispy-mark-symbol' will exit `iedit'.")
 
+(defvar iedit-current-symbol)
+
 (defun lispy-mark-symbol ()
   "Mark current symbol."
   (interactive)
@@ -6302,6 +6304,8 @@ Ignore the matches in strings and comments."
     (modify-syntax-entry ?\) ")(  " table)
     table)
   "Syntax table for paired braces.")
+
+(defvar scheme-mode-hook)
 
 (defun lispy--read (str)
   "Read STR including comments and newlines."
