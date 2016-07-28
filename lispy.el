@@ -5700,6 +5700,8 @@ Otherwise return cons of current string, symbol or list bounds."
    (point)
    (save-excursion
      (let ((end (line-end-position)))
+       (while (= ?\\ (char-before end))
+         (setq end (line-end-position 2)))
        (while (< (point) end)
          (forward-sexp 1)))
      (point))))
