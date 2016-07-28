@@ -4573,7 +4573,6 @@ Pass the ARG along."
         (let* ((e-args (cl-remove-if
                         #'lispy--whitespacep
                         (cdr expr)))
-               (body (read fstr))
                (p-body (lispy--function-parse fstr))
                (f-args (car p-body))
                (body (cadr p-body))
