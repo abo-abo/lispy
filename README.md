@@ -33,7 +33,7 @@
         - [Reversible commands](#reversible-commands)
         - [Keys that modify whitespace](#keys-that-modify-whitespace)
         - [Command chaining](#command-chaining)
-        - [Navigating with `ace-jump-mode`-related commands](#navigating-with-ace-jump-mode-related-commands)
+        - [Navigating with `avy`-related commands](#navigating-with-ace-jump-mode-related-commands)
 - [Operating on regions](#operating-on-regions)
     - [Ways to activate region](#ways-to-activate-region)
     - [Move region around](#move-region-around)
@@ -253,8 +253,7 @@ in the minibuffer during `eval-expression`:
 ```cl
 (defun conditionally-enable-lispy ()
   (when (eq this-command 'eval-expression)
-    (lispy-mode 1)
-    (local-set-key "β" 'helm-lisp-completion-at-point)))
+    (lispy-mode 1)))
 (add-hook 'minibuffer-setup-hook 'conditionally-enable-lispy)
 ```
 
@@ -396,7 +395,7 @@ continuously by holding the key.  Some useful hold-able keys are
 Not so useful, but fun is <kbd>/</kbd>: start it from `|(` position and hold
 until all your Lisp code is turned into Python :).
 
-### Navigating with `ace-jump-mode`-related commands
+### Navigating with `avy`-related commands
 
  key            | command
 ----------------|--------------------------
@@ -408,7 +407,7 @@ until all your Lisp code is turned into Python :).
 
 <kbd>q</kbd> - `lispy-ace-paren` jumps to a "(" character within current
 top-level form (e.g. `defun`). It's much faster than typing in the
-`ace-jump-mode` binding + selecting "(", and there's less candidates,
+`avy` binding + selecting "(", and there's less candidates,
 since they're limited to the current top-level form.
 
 <kbd>a</kbd> - `lispy-ace-symbol` will let you select which symbol to
@@ -525,8 +524,7 @@ different face. Here's how it looks for Clojure:
 
 Bound to <kbd>g</kbd>.
 
-Use `helm` to select a symbol to jump to from all top-level symbols in
-the in current directory.
+Use completion to select a symbol to jump to from all top-level symbols in the in current directory.
 
 Works out of the box for Elisp, Scheme and Common Lisp.
 [clojure-semantic](https://github.com/kototama/clojure-semantic) is
@@ -534,12 +532,12 @@ required for Clojure.
 
 **`lispy-eval`**
 
-There's a feature similar to `ipython-notebook` available. Here's how
-it works: evaluating an Emacs outline will evaluate all of the
-outline's code and echo the result of the last expression. When an
-outline ends with a colon (`:`), the result will instead be inserted
-into the buffer. If the evaluation result changes for whatever reason,
-it will be replaced after each subsequent <kbd>e</kbd>.
+There's a feature similar to `ipython-notebook`. Evaluating an Emacs
+outline will evaluate all of the outline's code and echo the result of
+the last expression. When an outline ends with a colon (`:`), the
+result will instead be inserted into the buffer. If the evaluation
+result changes for whatever reason, it will be replaced after each
+subsequent <kbd>e</kbd>.
 
 Python and Julia currently have a slightly better notebook support,
 pressing <kbd>e</kbd> on the parent outline will evaluate all the
