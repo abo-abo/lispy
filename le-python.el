@@ -124,7 +124,7 @@ Stripping them will produce code that's valid for an eval."
       (setq str (string-trim-left str))
       (when (and single-line-p
                  (string-match "\\`\\(\\(?:[., ]\\|\\sw\\|\\s_\\|[][]\\)+\\) += " str))
-        (setq str (concat str (format "; print (repr ((%s)))" (match-string 1 str))))))
+        (setq str (concat str (format "\nprint (repr ((%s)))" (match-string 1 str))))))
     (let ((res
            (if (or single-line-p
                    (string-match "\n .*\\'" str))
