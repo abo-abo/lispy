@@ -4382,7 +4382,7 @@ Sexp is obtained by exiting the list ARG times."
                      (goto-char pt)
                      (error "Past first outline")))))
 
-(defun lispy-outline-right ()
+(defun lispy-outline-promote ()
   "Promote current outline level by one."
   (interactive)
   (save-excursion
@@ -4391,7 +4391,7 @@ Sexp is obtained by exiting the list ARG times."
       (goto-char (match-end 0))
       (insert "*"))))
 
-(defun lispy-outline-left ()
+(defun lispy-outline-demote ()
   "Demote current outline level by one."
   (interactive)
   (save-excursion
@@ -4406,6 +4406,31 @@ Sexp is obtained by exiting the list ARG times."
         (goto-char (match-end 0))
         (delete-char -1))
       t)))
+
+(defun lispy-outline-left ()
+  "Move left."
+  (interactive)
+  (when (looking-at lispy-outline)
+    (lispy--remember)
+    (let ((level-up (1- (funcall outline-level))))
+      (when (> level-up 0)
+        (re-search-backward (format "^#\\*\\{1,%d\\} " level-up) nil t)))))
+
+(defun lispy-outline-right ()
+  "Move right."
+  (interactive)
+  (let ((pt (point))
+        result)
+    (save-restriction
+      (org-narrow-to-subtree)
+      (forward-char)
+      (if (re-search-forward lispy-outline nil t)
+          (progn
+            (goto-char (match-beginning 0))
+            (setq result t))
+        (goto-char pt)))
+    (lispy--ensure-visible)
+    result))
 
 (defun lispy-outline-goto-child ()
   "Goto the first variable `lispy-left' of the current outline."
@@ -8421,8 +8446,8 @@ When ARG is non-nil, unquote the current string."
     (define-key map (kbd "M-i") 'lispy-iedit)
     (define-key map (kbd "<backtab>") 'lispy-shifttab)
     ;; outline
-    (define-key map (kbd "M-<left>") 'lispy-outline-left)
-    (define-key map (kbd "M-<right>") 'lispy-outline-right)
+    (define-key map (kbd "M-<left>") 'lispy-outline-demote)
+    (define-key map (kbd "M-<right>") 'lispy-outline-promote)
     map))
 
 (defvar lispy-mode-map-oleh
