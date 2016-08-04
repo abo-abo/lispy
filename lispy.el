@@ -5690,7 +5690,7 @@ Otherwise return cons of current string, symbol or list bounds."
            (lispy--bounds-comment))
           ((and (eq major-mode 'python-mode)
                 (lispy-bolp))
-           (lispy--bounds-c-toplevel))
+           (lispy-bounds-python-block))
           (t
            (let ((res (ignore-errors
                         (bounds-of-thing-at-point
@@ -5730,7 +5730,9 @@ Otherwise return cons of current string, symbol or list bounds."
        (while (= ?\\ (char-before end))
          (setq end (line-end-position 2)))
        (while (< (point) end)
-         (forward-sexp 1)))
+         (if (looking-at " \\*")
+             (forward-char 2)
+           (forward-sexp 1))))
      (point))))
 
 (defun lispy--bounds-list ()
