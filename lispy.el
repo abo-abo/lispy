@@ -2495,6 +2495,7 @@ When lispy-left, will slurp ARG sexps forwards.
                (goto-char (car bnd))
                (re-search-forward lispy-left)
                (delete-region (car bnd) (point))))
+            ((lispy-splice-let))
 
             ((lispy-left-p)
              (save-excursion
@@ -2523,6 +2524,53 @@ When lispy-left, will slurp ARG sexps forwards.
              (save-excursion
                (goto-char (car bnd))
                (delete-char 1)))))))
+
+(defun lispy-find (item tree)
+  (cond ((null tree)
+         nil)
+        ((consp tree)
+         (or (cl-find-recur item (car tree))
+             (cl-find-recur item (cdr tree))))
+        (t
+         (eq item tree))))
+
+(defun lispy-splice-let ()
+  "Join the current `let' into the parent `let'."
+  (when (and (looking-at "(let")
+             (save-excursion
+               (lispy-left 1)
+               (looking-at "(let")))
+    (let ((child-binds (save-excursion
+                         (lispy-flow 2)
+                         (lispy--read (lispy--string-dwim))))
+          (parent-binds
+           (mapcar #'car
+                   (save-excursion
+                     (lispy-up 1)
+                     (lispy--read (lispy--string-dwim)))))
+          (end (save-excursion
+                 (lispy-flow 2)
+                 (point)))
+          (beg (save-excursion
+                 (lispy-up 1)
+                 (lispy-different)
+                 (lispy-flow 1)
+                 (point))))
+      (save-excursion
+        (forward-list)
+        (delete-char -1))
+      (delete-region beg end)
+      (newline-and-indent)
+      (lispy-left 2)
+      (when (cl-find-if (lambda (v) (lispy-find v child-binds))
+                        parent-binds)
+        (if (looking-at "(\\(let\\)")
+            (progn
+              (replace-match "(let*")
+              (lispy--out-backward 1)
+              (indent-sexp))
+          (error "unexpected"))))
+    t))
 
 (defun lispy-barf-to-point (arg)
   "Barf to the closest sexp before the point.
