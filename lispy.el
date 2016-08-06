@@ -2707,6 +2707,16 @@ When ARG is more than 1, pull ARGth expression to enclose current sexp."
            (lispy--reindent (1+ arg))))
       (error "Not enough depth to convolute"))))
 
+(defun lispy-convolute-left ()
+  "Convolute and move left.
+Useful for propagating `let' bindings."
+  (interactive)
+  (if (region-active-p)
+      (progn
+        (lispy-convolute 1)
+        (lispy-left 1))
+    (user-error "region must be active")))
+
 (defvar lispy-repeat--command nil
   "Command to use with `lispy-repeat'.")
 
@@ -7924,6 +7934,7 @@ FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)."
     (lispy-define-key map "+" 'lispy-join)
     ;; more transformations
     (lispy-define-key map "C" 'lispy-convolute)
+    (lispy-define-key map "X" 'lispy-convolute-left)
     (lispy-define-key map "w" 'lispy-move-up)
     (lispy-define-key map "s" 'lispy-move-down)
     (lispy-define-key map "O" 'lispy-oneline)
