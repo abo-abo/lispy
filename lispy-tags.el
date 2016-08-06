@@ -22,6 +22,7 @@
 
 ;;; Code:
 
+(require 'cl-lib)
 (defvar lispy-db (make-hash-table :test 'equal)
   "An alist of file to a pretty list of tags.")
 
