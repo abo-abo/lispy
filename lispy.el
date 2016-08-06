@@ -2529,8 +2529,8 @@ When lispy-left, will slurp ARG sexps forwards.
   (cond ((null tree)
          nil)
         ((consp tree)
-         (or (cl-find-recur item (car tree))
-             (cl-find-recur item (cdr tree))))
+         (or (lispy-find item (car tree))
+             (lispy-find item (cdr tree))))
         (t
          (eq item tree))))
 
