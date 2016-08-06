@@ -4801,7 +4801,7 @@ With ARG, use the contents of `lispy-store-region-and-buffer' instead."
     (backward-char 1)
     (newline-and-indent)
     (insert "foobar")
-    (iedit-mode 1)
+    (iedit-mode 0)
     (backward-delete-char 6)))
 
 ;;* Locals: multiple cursors
