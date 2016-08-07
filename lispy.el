@@ -285,6 +285,7 @@ using those packages."
   :type '(repeat
           (choice
            (const :tag "god-mode" god-mode)
+           (const :tag "magit-blame-mode" magit-blame-mode)
            (const :tag "edebug" edebug)
            (const :tag "cider" cider)
            (const :tag "macrostep" macrostep))))
@@ -7560,6 +7561,11 @@ PLIST currently accepts:
              ,@(when (memq 'macrostep lispy-compat)
                      '(((and (bound-and-true-p macrostep-mode)
                          (setq lispy--compat-cmd (lookup-key macrostep-keymap (this-command-keys))))
+                        (call-interactively lispy--compat-cmd))))
+
+             ,@(when (memq 'magit-blame-mode lispy-compat)
+                     '(((and (bound-and-true-p magit-blame-mode)
+                         (setq lispy--compat-cmd (lookup-key magit-blame-mode-map (this-command-keys))))
                         (call-interactively lispy--compat-cmd))))
 
              ((region-active-p)
