@@ -1081,6 +1081,7 @@ If position isn't special, move to previous or error."
 (defun lispy-yank ()
   "Like regular `yank', but quotes body when called from \"|\"."
   (interactive)
+  (setq this-command 'yank)
   (cond
     ((and (region-active-p)
           (bound-and-true-p delete-selection-mode))
