@@ -1096,6 +1096,15 @@ If position isn't special, move to previous or error."
      (push-mark (point))
      (insert (lispy--maybe-safe-current-kill)))))
 
+(defun lispy-buffer-kill-ring-save ()
+  "Save the current buffer string for writing a test."
+  (interactive)
+  (insert "|")
+  (kill-new (format "%S"
+                    (buffer-substring-no-properties
+                     (point-min) (point-max))))
+  (delete-char -1))
+
 (defun lispy-delete (arg)
   "Delete ARG sexps."
   (interactive "p")
