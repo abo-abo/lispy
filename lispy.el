@@ -5795,14 +5795,18 @@ Otherwise return cons of current string, symbol or list bounds."
   (cons
    (point)
    (save-excursion
-     (let ((end (line-end-position)))
+     (let ((end (line-end-position))
+           pt)
        (while (= ?\\ (char-before end))
          (setq end (line-end-position 2)))
        (while (< (point) end)
+         (setq pt (point))
          (if (looking-at " \\*")
              (forward-char 2)
-           (forward-sexp 1))))
-     (point))))
+           (forward-sexp 1)))
+       (if (<= (point) end)
+           (point)
+         pt)))))
 
 (defun lispy--bounds-list ()
   "Return the bounds of smallest list that includes the point.
