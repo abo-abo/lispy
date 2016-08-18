@@ -5721,6 +5721,8 @@ each major mode."
              (lispy-looking-back (concat space "+" special-syntax "*"))))))
 
 ;;* Pure
+(declare-function lispy-bounds-python-block "le-python")
+
 (defun lispy--bounds-dwim ()
   "Return a cons of region bounds if it's active.
 Otherwise return cons of current string, symbol or list bounds."
@@ -5906,10 +5908,12 @@ First, try to return `lispy--bounds-string'."
         (if (string-match "\\`[#'`]*\\(.*?\\)'?\\'" str)
             (match-string 1 str)
           nil))
-    (save-excursion
-      (lispy--back-to-paren)
-      (when (looking-at "(\\([^ \n)]+\\)[ )\n]")
-        (match-string-no-properties 1)))))
+    (if (eq major-mode 'python-mode)
+        (lispy--string-dwim (bounds-of-thing-at-point 'symbol))
+      (save-excursion
+        (lispy--back-to-paren)
+        (when (looking-at "(\\([^ \n)]+\\)[ )\n]")
+          (match-string-no-properties 1))))))
 
 (defun lispy--prin1-fancy (x)
   "Return a propertized `prin1-to-string'-ed X."

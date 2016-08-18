@@ -181,9 +181,11 @@ Return t if at least one was deleted."
         (setq lispy-overlay nil)
         (setq deleted t))
       (save-excursion
-        (if (region-active-p)
-            (goto-char (region-beginning))
-          (lispy--back-to-paren))
+        (cond ((region-active-p)
+               (goto-char (region-beginning)))
+              ((eq major-mode 'python-mode))
+              (t
+               (lispy--back-to-paren)))
         (when (or (not deleted) (not (= lispy-hint-pos (point))))
           (when (= 0 (count-lines (window-start) (point)))
             (recenter 1))
@@ -241,10 +243,18 @@ Return t if at least one was deleted."
                     ((eq major-mode 'lisp-mode)
                      (require 'le-lisp)
                      (lispy--lisp-describe sym))
+                    ((eq major-mode 'python-mode)
+                     (require 'jedi)
+                     (plist-get (car (deferred:sync!
+                                         (jedi:call-deferred 'get_definition)))
+                                :doc))
                     (t
                      (format "%s isn't supported currently" major-mode)))))
             (when doc
               (lispy--show (propertize doc 'face 'lispy-face-hint)))))))))
+
+(declare-function deferred:sync! "ext:deferred")
+(declare-function jedi:call-deferred "ext:jedi-core")
 
 ;; ——— Utilities ———————————————————————————————————————————————————————————————
 (defun lispy--arglist (symbol)
