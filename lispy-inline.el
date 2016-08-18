@@ -121,12 +121,9 @@ The caller of `lispy--show' might use a substitute e.g. `describe-function'."
   (interactive)
   (save-excursion
     (lispy--back-to-paren)
-    (unless (and (when (overlayp lispy-overlay)
-                   (delete-overlay lispy-overlay)
-                   (setq lispy-overlay nil)
+    (unless (and (prog1 (lispy--cleanup-overlay)
                    (when (window-minibuffer-p)
-                     (window-resize (selected-window) -1))
-                   t)
+                     (window-resize (selected-window) -1)))
                  (= lispy-hint-pos (point)))
       (cond ((memq major-mode lispy-elisp-modes)
              (let ((sym (intern-soft (lispy--current-function))))
@@ -173,22 +170,30 @@ Return t if at least one was deleted."
            (lispy--back-to-paren)))
     (point)))
 
+(defun lispy--cleanup-overlay ()
+  "Delete `lispy-overlay' if it's valid and return t."
+  (when (overlayp lispy-overlay)
+    (delete-overlay lispy-overlay)
+    (setq lispy-overlay nil)
+    t))
+
 (defun lispy--describe-inline ()
   "Toggle the overlay hint."
-  (let ((new-hint-pos (lispy--hint-pos)))
-    (if (and (eq lispy-hint-pos new-hint-pos)
-             (overlayp lispy-overlay))
-        (progn
-          (delete-overlay lispy-overlay)
-          (setq lispy-overlay nil))
-      (save-excursion
-        (when (= 0 (count-lines (window-start) (point)))
-          (recenter 1))
-        (setq lispy-hint-pos new-hint-pos)
-        (let* ((doc (lispy--docstring (lispy--current-function))))
-          (when doc
-            (goto-char lispy-hint-pos)
-            (lispy--show (propertize doc 'face 'lispy-face-hint))))))))
+  (condition-case nil
+      (let ((new-hint-pos (lispy--hint-pos))
+            doc)
+        (if (and (eq lispy-hint-pos new-hint-pos)
+                 (overlayp lispy-overlay))
+            (lispy--cleanup-overlay)
+          (save-excursion
+            (when (= 0 (count-lines (window-start) (point)))
+              (recenter 1))
+            (setq lispy-hint-pos new-hint-pos)
+            (when (setq doc (lispy--docstring (lispy--current-function)))
+              (goto-char lispy-hint-pos)
+              (lispy--show (propertize doc 'face 'lispy-face-hint))))))
+    (error
+     (lispy--cleanup-overlay))))
 
 (defun lispy--docstring (sym)
   "Get the docstring for SYM."
@@ -243,12 +248,17 @@ Return t if at least one was deleted."
      (require 'le-lisp)
      (lispy--lisp-describe sym))
     ((eq major-mode 'python-mode)
-     (require 'jedi)
-     (plist-get (car (deferred:sync!
-                         (jedi:call-deferred 'get_definition)))
-                :doc))
+     (let ((sym (semantic-ctxt-current-symbol)))
+       (if sym
+           (progn
+             (require 'le-python)
+             (lispy--python-docstring
+              (mapconcat #'identity sym ".")))
+         (error "The point is not on a symbol"))))
     (t
      (format "%s isn't supported currently" major-mode))))
+
+(declare-function semantic-ctxt-current-symbol "ctxt")
 
 (defun lispy-describe-inline ()
   "Display documentation for `lispy--current-function' inline."
@@ -263,8 +273,7 @@ Return t if at least one was deleted."
         (lispy--delete-help-windows))
     (lispy--describe-inline)))
 
-(declare-function deferred:sync! "ext:deferred")
-(declare-function jedi:call-deferred "ext:jedi-core")
+(declare-function lispy--python-docstring "le-python")
 
 ;; ——— Utilities ———————————————————————————————————————————————————————————————
 (defun lispy--arglist (symbol)

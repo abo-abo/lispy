@@ -277,6 +277,23 @@ Stripping them will produce code that's valid for an eval."
     (unless (looking-back "def " (line-beginning-position))
       (jedi:goto-definition))))
 
+(defun lispy--python-docstring (symbol)
+  "Look up the docstring for SYMBOL.
+
+First, try to see if SYMBOL.__doc__ returns a string in the
+current REPL session (dynamic).
+
+Otherwise, fall back to Jedi (static)."
+  (let ((dynamic-result (lispy--eval-python (concat symbol ".__doc__"))))
+    (if dynamic-result
+        (mapconcat #'string-trim-left
+                   (split-string (substring dynamic-result 1 -1) "\\\\n")
+                   "\n")
+      (require 'jedi)
+      (plist-get (car (deferred:sync!
+                          (jedi:call-deferred 'get_definition)))
+                 :doc))))
+
 (provide 'le-python)
 
 ;;; le-python.el ends here
