@@ -153,7 +153,7 @@ Stripping them will produce code that's valid for an eval."
              (setq lispy-eval-error "(ok)")
              "")
             (t
-             res)))))
+             (replace-regexp-in-string "\\\\n" "\n" res))))))
 
 (defun lispy--python-array-to-elisp (array-str)
   "Transform a Python string ARRAY-STR to an Elisp string array."
