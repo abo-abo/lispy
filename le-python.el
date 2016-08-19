@@ -127,7 +127,8 @@ Stripping them will produce code that's valid for an eval."
         (setq str (concat str (format "\nprint (repr ((%s)))" (match-string 1 str))))))
     (let ((res
            (if (or single-line-p
-                   (string-match "\n .*\\'" str))
+                   (string-match "\n .*\\'" str)
+                   (string-match "\"\"\"" str))
                (python-shell-send-string-no-output
                 str (lispy--python-proc))
              (if (string-match "\\`\\([\0-\377[:nonascii:]]*\\)\n\\([^\n]*\\)\\'" str)
