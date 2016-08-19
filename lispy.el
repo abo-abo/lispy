@@ -5801,6 +5801,7 @@ Otherwise return cons of current string, symbol or list bounds."
      (let ((end (line-end-position))
            pt)
        (while (= ?\\ (char-before end))
+         (goto-char end)
          (setq end (line-end-position 2)))
        (while (< (point) end)
          (setq pt (point))
