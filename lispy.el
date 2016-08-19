@@ -1013,7 +1013,8 @@ If position isn't special, move to previous or error."
                         (memq (char-syntax (char-after))
                               '(?w ?_))))
           (forward-char 1))
-        (delete-horizontal-space)
+        (unless (lispy-bolp)
+          (delete-horizontal-space))
         (if (setq bnd (lispy--bounds-string))
             (save-restriction
               (narrow-to-region (1+ (car bnd)) (1- (cdr bnd)))
