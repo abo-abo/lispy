@@ -248,6 +248,7 @@ Return t if at least one was deleted."
      (require 'le-lisp)
      (lispy--lisp-describe sym))
     ((eq major-mode 'python-mode)
+     (semantic-mode 1)
      (let ((sym (semantic-ctxt-current-symbol)))
        (if sym
            (progn
