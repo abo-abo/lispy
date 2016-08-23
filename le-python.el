@@ -286,7 +286,7 @@ current REPL session (dynamic).
 
 Otherwise, fall back to Jedi (static)."
   (let ((dynamic-result (lispy--eval-python (concat symbol ".__doc__"))))
-    (if dynamic-result
+    (if (> (length dynamic-result) 0)
         (mapconcat #'string-trim-left
                    (split-string (substring dynamic-result 1 -1) "\\\\n")
                    "\n")
