@@ -252,9 +252,13 @@ Return t if at least one was deleted."
      (let ((sym (semantic-ctxt-current-symbol)))
        (if sym
            (progn
+             (setq sym (mapconcat #'identity sym "."))
              (require 'le-python)
-             (lispy--python-docstring
-              (mapconcat #'identity sym ".")))
+             (or
+              (lispy--python-docstring sym)
+              (progn
+                (message "no doc: %s" sym)
+                nil)))
          (error "The point is not on a symbol"))))
     (t
      (format "%s isn't supported currently" major-mode))))
