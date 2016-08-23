@@ -303,33 +303,41 @@ Return t if at least one was deleted."
   "Show STR hint when `lispy--show-fits-p' is t."
   (let ((last-point (point))
         (strs (lispy--show-fits-p str)))
-    (when strs
-      (setq str (lispy--join-pad
-                 strs
-                 (+ (if (window-minibuffer-p)
-                        (- (minibuffer-prompt-end) (point-min))
-                      0)
-                    (string-width (buffer-substring
-                                   (line-beginning-position)
-                                   (point))))))
-      (save-excursion
-        (goto-char lispy-hint-pos)
-        (if (= -1 (forward-line -1))
-            (setq str (concat str "\n"))
-          (end-of-line)
-          (setq str (concat "\n" str)))
-        (setq str (concat str
-                          (buffer-substring (point) (1+ (point)))))
-        (if lispy-overlay
-            (progn
-              (move-overlay lispy-overlay (point) (+ (point) 1))
-              (overlay-put lispy-overlay 'invisible nil))
-          (setq lispy-overlay (make-overlay (point) (+ (point) 1)))
-          (overlay-put lispy-overlay 'priority 9999))
-        (overlay-put lispy-overlay 'display str)
-        (overlay-put lispy-overlay 'after-string "")
-        (put 'lispy-overlay 'last-point last-point))
-      t)))
+    (if strs
+        (progn
+          (setq str (lispy--join-pad
+                     strs
+                     (+ (if (window-minibuffer-p)
+                            (- (minibuffer-prompt-end) (point-min))
+                          0)
+                        (string-width (buffer-substring
+                                       (line-beginning-position)
+                                       (point))))))
+          (save-excursion
+            (goto-char lispy-hint-pos)
+            (if (= -1 (forward-line -1))
+                (setq str (concat str "\n"))
+              (end-of-line)
+              (setq str (concat "\n" str)))
+            (setq str (concat str
+                              (buffer-substring (point) (1+ (point)))))
+            (if lispy-overlay
+                (progn
+                  (move-overlay lispy-overlay (point) (+ (point) 1))
+                  (overlay-put lispy-overlay 'invisible nil))
+              (setq lispy-overlay (make-overlay (point) (+ (point) 1)))
+              (overlay-put lispy-overlay 'priority 9999))
+            (overlay-put lispy-overlay 'display str)
+            (overlay-put lispy-overlay 'after-string "")
+            (put 'lispy-overlay 'last-point last-point)))
+      (setq lispy--di-window-config (current-window-configuration))
+      (save-selected-window
+        (pop-to-buffer (get-buffer-create "*lispy-help*"))
+        (let ((inhibit-read-only t))
+          (delete-region (point-min) (point-max))
+          (insert str)
+          (goto-char (point-min))
+          (help-mode))))))
 
 (defun lispy--pretty-args (symbol)
   "Return a vector of fontified strings for function SYMBOL."
