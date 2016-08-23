@@ -5798,7 +5798,7 @@ Otherwise return cons of current string, symbol or list bounds."
   (cons
    (point)
    (save-excursion
-     (if (looking-at "^\\(\\sw\\|\\s_\\)+ *=")
+     (if (looking-at " *\\(\\sw\\|\\s_\\)+ *=")
          (progn
            (python-nav-end-of-statement)
            (point))
