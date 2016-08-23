@@ -4118,8 +4118,18 @@ When ARG isn't nil, try to pretty print the sexp."
           (while (< (point) (point-max))
             (insert "   ")
             (forward-line 1))))
-      (comment-region (point-min) (point-max))
+      (lispy-comment-region (point-min) (point-max))
       (goto-char (point-max)))))
+
+(defun lispy-comment-region (beg end)
+  "Comment the region between BEG and END.
+Unlike `comment-region', ensure a contiguous comment."
+  (interactive "r")
+  (goto-char beg)
+  (beginning-of-line)
+  (while (< (point) end)
+    (insert lispy-outline-header " ")
+    (beginning-of-line 2)))
 
 (defun lispy-eval-and-replace ()
   "Eval last sexp and replace it with the result."
