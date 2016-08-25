@@ -2918,6 +2918,7 @@ Precondition: the region is active and the point is at `region-beginning'."
            (lispy-different)))
     (unless at-start (lispy-different))))
 
+(declare-function zo-up "zoutline")
 (defun lispy-move-outline-up (arg)
   (interactive)
   (require 'zoutline)
@@ -4144,7 +4145,9 @@ Unlike `comment-region', ensure a contiguous comment."
   (goto-char beg)
   (beginning-of-line)
   (while (< (point) end)
-    (insert lispy-outline-header " ")
+    (insert lispy-outline-header)
+    (unless (eolp)
+      (insert " "))
     (beginning-of-line 2)))
 
 (defun lispy-eval-and-replace ()
@@ -5819,6 +5822,7 @@ Otherwise return cons of current string, symbol or list bounds."
                     (forward-word 1)
                     (bounds-of-thing-at-point 'symbol))))))))))
 
+(declare-function python-nav-end-of-statement "python")
 (defun lispy--bounds-c-toplevel ()
   "Return a cons of the bounds of a C-like top-level expression."
   (cons
@@ -5908,8 +5912,29 @@ First, try to return `lispy--bounds-string'."
 
 (defun lispy--bounds-outline ()
   "Return bounds of current outline."
-  (cons (lispy--outline-beg)
-        (lispy--outline-end)))
+  (save-excursion
+    (save-match-data
+      (condition-case e
+          (cons
+           (progn
+             (org-back-to-heading t)
+             (point))
+           (progn
+             (org-end-of-subtree t t)
+             (when (and (org-at-heading-p)
+                        (not (eobp)))
+               (backward-char 1))
+             (point)))
+        (error
+         (if (string-match
+              "^Before first headline"
+              (error-message-string e))
+             (cons (point-min)
+                   (or (ignore-errors
+                         (org-speed-move-safe 'outline-next-visible-heading)
+                         (point))
+                       (point-max)))
+           (signal (car e) (cdr e))))))))
 
 (defun lispy--outline-beg ()
   "Return the current outline start."
@@ -5999,8 +6024,10 @@ Return nil on failure, t otherwise."
   (end-of-line)
   (comment-beginning)
   (let ((cs (comment-search-backward (line-beginning-position) t)))
-    (when cs
-      (goto-char cs))))
+    (or
+     (when cs
+       (goto-char cs))
+     (looking-at (concat "^" lispy-outline-header)))))
 
 (defun lispy--comment-search-forward (dir)
   "Search for a first comment in direction DIR.
@@ -6049,6 +6076,8 @@ When ADD-OUTPUT is t, append the output to the result."
          ((eq major-mode 'julia-mode)
           (require 'le-julia)
           'lispy--eval-julia)
+         ((eq major-mode 'matlab-mode)
+          'matlab-eval)
          (t (error "%s isn't supported currently" major-mode)))
    e-str))
 
