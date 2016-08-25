@@ -4113,9 +4113,14 @@ When ARG isn't nil, try to pretty print the sexp."
     (save-restriction
       (narrow-to-region (point) (point))
       (insert str)
+      (delete-trailing-whitespace)
+      (while (lispy-after-string-p "\n")
+        (delete-char -1))
       (save-excursion
         (if (and (lispy-right-p)
-                 (not (memq major-mode '(python-mode julia-mode))))
+                 (memq major-mode (append lispy-elisp-modes
+                                          lispy-clojure-modes
+                                          '(scheme-mode lisp-mode))))
             (progn
               ;; avoid "Lisp nesting exceeds `max-lisp-eval-depth'"
               (ignore-errors
@@ -4126,7 +4131,8 @@ When ARG isn't nil, try to pretty print the sexp."
           (insert "=> ")
           (forward-line 1)
           (while (< (point) (point-max))
-            (insert "   ")
+            (unless (eolp)
+              (insert "   "))
             (forward-line 1))))
       (lispy-comment-region (point-min) (point-max))
       (goto-char (point-max)))))
