@@ -5100,7 +5100,10 @@ ARG is 4: `eval-defun' on the function from this sexp."
          (let* ((ldsi-sxp (lispy--setq-expression))
                 (ldsi-fun (car ldsi-sxp)))
            (cond
-             ((memq ldsi-fun '(mapcar mapc cl-find-if))
+             ((memq ldsi-fun '(mapcar mapc mapcan
+                               cl-remove-if cl-remove-if-not
+                               cl-find-if cl-find-if-not
+                               cl-some cl-every cl-any cl-notany))
               (let ((fn (nth 1 ldsi-sxp))
                     (lst (nth 2 ldsi-sxp)))
                 (when (eq (car-safe fn) 'lambda)
