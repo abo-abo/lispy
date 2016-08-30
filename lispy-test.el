@@ -2981,7 +2981,13 @@ Insert KEY if there's no command."
                   "|x = 42 # comment\n# comment\ny = 43"
                   (let ((forward-sexp-function nil))
                     (lispy-eval-python-str)))
-                 "x = 42 # comment")))
+                 "x = 42 # comment"))
+
+  (should (equal (progn
+                   ;; skip initialization msg
+                   (lispy--eval-python "")
+                   (lispy--eval-python "print \"one\"\nprint \"two\"\nx = 2 + 1"))
+                 "one\ntwo\n3")))
 
 (provide 'lispy-test)
 

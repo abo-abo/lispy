@@ -126,22 +126,29 @@ Stripping them will produce code that's valid for an eval."
                  (string-match "\\`\\(\\(?:[., ]\\|\\sw\\|\\s_\\|[][]\\)+\\) += " str))
         (setq str (concat str (format "\nprint (repr ((%s)))" (match-string 1 str))))))
     (let ((res
-           (if (or single-line-p
-                   (string-match "\n .*\\'" str)
-                   (string-match "\"\"\"" str))
-               (python-shell-send-string-no-output
-                str (lispy--python-proc))
-             (if (string-match "\\`\\([\0-\377[:nonascii:]]*\\)\n\\([^\n]*\\)\\'" str)
-                 (let* ((p1 (match-string 1 str))
-                        (p2 (match-string 2 str))
-                        (p1-output (python-shell-send-string-no-output
-                                    p1 (lispy--python-proc))))
-                   (concat
-                    (if (string= p1-output "")
-                        ""
-                      (concat p1-output "\n"))
-                    (lispy--eval-python p2)))
-               (error "unexpected")))))
+           (cond ((or single-line-p
+                      (string-match "\n .*\\'" str)
+                      (string-match "\"\"\"" str))
+                  (python-shell-send-string-no-output
+                   str (lispy--python-proc)))
+                 ((string-match "\\`\\([\0-\377[:nonascii:]]*\\)\n\\([^\n]*\\)\\'" str)
+                  (let* ((p1 (match-string 1 str))
+                         (p2 (match-string 2 str))
+                         (p1-output (python-shell-send-string-no-output
+                                     p1 (lispy--python-proc)))
+                         p2-output)
+                    (cond ((null p1-output)
+                           (lispy-message lispy-eval-error))
+                          ((null (setq p2-output (lispy--eval-python p2)))
+                           (lispy-message lispy-eval-error))
+                          (t
+                           (concat
+                            (if (string= p1-output "")
+                                ""
+                              (concat p1-output "\n"))
+                            p2-output)))))
+                 (t
+                  (error "unexpected")))))
       (cond ((string-match "^Traceback.*:" res)
              (set-text-properties
               (match-beginning 0)
