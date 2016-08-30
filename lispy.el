@@ -5707,7 +5707,7 @@ Return start of string it is."
    (buffer-substring
     (max
      (- (point) (length str))
-     1)
+     (point-min))
     (point))
    str))
 
