@@ -2982,12 +2982,13 @@ Insert KEY if there's no command."
                   (let ((forward-sexp-function nil))
                     (lispy-eval-python-str)))
                  "x = 42 # comment"))
-
-  (should (equal (progn
-                   ;; skip initialization msg
-                   (lispy--eval-python "")
-                   (lispy--eval-python "print \"one\"\nprint \"two\"\nx = 2 + 1"))
-                 "one\ntwo\n3")))
+  (unless (version< emacs-version "24.4.1")
+    (should (equal (progn
+                     ;; skip initialization msg
+                     (lispy--eval-python "")
+                     (sit-for 0.1)
+                     (lispy--eval-python "print \"one\"\nprint \"two\"\nx = 2 + 1"))
+                   "one\ntwo\n3"))))
 
 (provide 'lispy-test)
 
