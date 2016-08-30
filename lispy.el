@@ -8609,7 +8609,6 @@ When ARG is non-nil, unquote the current string."
     (define-key map (kbd "σ") 'lispy-braces)
     (define-key map (kbd "ρ") 'lispy-brackets)
     (define-key map (kbd "θ") 'lispy-quotes)
-    (define-key map (kbd "C-φ") 'lispy-parens-down)
     (define-key map (kbd "χ") 'lispy-right)
     (define-key map (kbd "C-M-a") 'lispy-beginning-of-defun)
     (define-key map (kbd "<return>") 'lispy-alt-line)
