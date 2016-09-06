@@ -17,4 +17,5 @@
  (depends-on "swiper")
  (depends-on "hydra")
  (depends-on "ace-window")
- (depends-on "undercover"))
+ (depends-on "undercover")
+ (depends-on "zoutline"))
