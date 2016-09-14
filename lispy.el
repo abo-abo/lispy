@@ -4272,7 +4272,9 @@ When ARG is non-nil, force select the window."
           (lispy-message res)
         (if (and (fboundp 'object-p) (object-p res))
             (message "(eieio object length %d)" (length res))
-          (lispy-message (format "%S" res)))))))
+          (lispy-message
+           (replace-regexp-in-string "%" "%%"
+                                     (format "%S" res))))))))
 
 (defun lispy-follow ()
   "Follow to `lispy--current-function'."
