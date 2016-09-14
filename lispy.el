@@ -3985,7 +3985,7 @@ When ARG is 2, insert the result as a comment."
           ((setq handler (cdr (assoc major-mode lispy-eval-alist)))
            (when (cadr handler)
              (require (cadr handler)))
-           (funcall (car handler)))
+           (funcall (car handler) (eq arg 3)))
           (t
            (save-excursion
              (unless (or (lispy-right-p) (region-active-p))

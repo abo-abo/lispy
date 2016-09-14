@@ -2981,7 +2981,7 @@ Insert KEY if there's no command."
                   "|x = 42 # comment\n# comment\ny = 43"
                   (let ((forward-sexp-function nil))
                     (lispy-eval-python-str)))
-                 "x = 42 # comment"))
+                 "x = 42 # comment\n"))
   (unless (version< emacs-version "24.4.1")
     (should (equal (progn
                      ;; skip initialization msg

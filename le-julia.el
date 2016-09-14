@@ -32,7 +32,7 @@
   (string-trim-right (julia-shell-collect-command-output str)))
 
 ;; TODO: simplify
-(defun lispy-eval-julia ()
+(defun lispy-eval-julia (&optional _plain)
   (let (str bnd res)
     (setq str
           (save-excursion

@@ -67,8 +67,9 @@ Stripping them will produce code that's valid for an eval."
                (lispy--string-dwim bnd))
               "\n"))
             ((lispy-bolp)
-             (lispy--string-dwim
-              (lispy--bounds-c-toplevel)))
+             (string-trim-left
+              (lispy--string-dwim
+               (lispy--bounds-c-toplevel))))
             (t
              (cond ((lispy-left-p))
                    ((lispy-right-p)
@@ -84,23 +85,25 @@ Stripping them will produce code that's valid for an eval."
              (lispy--string-dwim bnd))))))
 
 (defun lispy-bounds-python-block ()
-  (when (save-excursion
-          (when (looking-at " ")
-            (forward-char))
-          (python-info-beginning-of-block-p))
-    (let ((indent (1+ (- (point) (line-beginning-position)))))
-      (cons
-       (line-beginning-position)
-       (save-excursion
-         (python-nav-end-of-block)
-         (while (looking-at (format "[\n ]\\{%d,\\}\\(except\\|else\\)" indent))
-           (goto-char (match-beginning 1))
-           (python-nav-end-of-block))
-         (point))))))
+  (if (save-excursion
+        (when (looking-at " ")
+          (forward-char))
+        (python-info-beginning-of-block-p))
+      (let ((indent (1+ (- (point) (line-beginning-position)))))
+        (cons
+         (line-beginning-position)
+         (save-excursion
+           (python-nav-end-of-block)
+           (while (looking-at (format "[\n ]\\{%d,\\}\\(except\\|else\\)" indent))
+             (goto-char (match-beginning 1))
+             (python-nav-end-of-block))
+           (point))))
+    (cons (point) (line-end-position))))
 
-(defun lispy-eval-python ()
+(defun lispy-eval-python (&optional plain)
   (let ((res (lispy--eval-python
-              (lispy-eval-python-str))))
+              (lispy-eval-python-str)
+              plain)))
     (if (and res (not (equal res "")))
         (lispy-message
          (replace-regexp-in-string
