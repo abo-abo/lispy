@@ -62,10 +62,8 @@ Stripping them will produce code that's valid for an eval."
               (lispy--string-dwim
                (lispy--bounds-dwim))))
             ((setq bnd (lispy-bounds-python-block))
-             (concat
-              (lispy-trim-python
-               (lispy--string-dwim bnd))
-              "\n"))
+             (lispy-trim-python
+              (lispy--string-dwim bnd)))
             ((lispy-bolp)
              (string-trim-left
               (lispy--string-dwim

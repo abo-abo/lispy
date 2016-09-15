@@ -2976,12 +2976,12 @@ Insert KEY if there's no command."
   (should (equal (lispy-with-python
                   "\nif cond1:\n   |if cond2:\n        expr1\n        if cond3:\n            expr2\n        else:\n            expr3\n    else:\n        expr4\nelse:\n    expr5"
                   (lispy-eval-python-str))
-                 "if cond2:\n     expr1\n     if cond3:\n         expr2\n     else:\n         expr3\n else:\n     expr4\n"))
+                 "if cond2:\n     expr1\n     if cond3:\n         expr2\n     else:\n         expr3\n else:\n     expr4"))
   (should (equal (lispy-with-python
                   "|x = 42 # comment\n# comment\ny = 43"
                   (let ((forward-sexp-function nil))
                     (lispy-eval-python-str)))
-                 "x = 42 # comment\n"))
+                 "x = 42 # comment"))
   (unless (version< emacs-version "24.4.1")
     (should (equal (progn
                      ;; skip initialization msg
