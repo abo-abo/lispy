@@ -5048,10 +5048,15 @@ Second region and buffer are the current ones."
                                (cons x!
                                      (let ((expr x!))
                                        (edebug-eval expr))))
-                             (delq '&key
-                                   (delq '&optional
-                                         (delq '&rest
-                                               (lispy--preceding-sexp))))))
+                             (mapcar (lambda (x)
+                                       (if (consp x)
+                                           (car x)
+                                         x))
+                                     (delq '&allow-other-keys
+                                           (delq '&key
+                                                 (delq '&optional
+                                                       (delq '&rest
+                                                             (lispy--preceding-sexp))))))))
                            (wnd (current-window-configuration))
                            (pt (point)))
                        (run-with-timer
