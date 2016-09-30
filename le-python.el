@@ -211,6 +211,8 @@ Stripping them will produce code that's valid for an eval."
     (nreverse res)))
 
 (defun lispy--python-debug-step-in ()
+  (re-search-forward "(" (line-end-position))
+  (backward-char)
   (let* ((p-ar-beg (point))
          (p-ar-end (save-excursion
                      (forward-list)
