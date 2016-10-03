@@ -280,13 +280,28 @@ Stripping them will produce code that's valid for an eval."
       (goto-char p-ar-beg)
       (message lispy-eval-error))))
 
-(defun lispy-goto-symbol-python (_symbol)
+(defun lispy-goto-symbol-python (symbol)
   (save-restriction
     (widen)
-    (deferred:sync!
-        (jedi:goto-definition))
-    (unless (looking-back "def " (line-beginning-position))
-      (jedi:goto-definition))))
+    (let ((res (ignore-errors (deferred:sync!
+                                  (jedi:goto-definition)))))
+      (if (member res '(nil "Definition not found."))
+          (let* ((symbol (python-info-current-symbol))
+                 (file (car
+                        (lispy--python-array-to-elisp
+                         (lispy--eval-python
+                          (format
+                           "import inspect\ninspect.getsourcefile(%s)" symbol))))))
+            (if file
+                (progn
+                  (find-file file)
+                  (goto-char (point-min))
+                  (re-search-forward
+                   (concat "^def.*" (car (last (split-string symbol "\\." t)))))
+                  (beginning-of-line))
+              (error "Both jedi and inspect failed")))
+        (unless (looking-back "def " (line-beginning-position))
+          (jedi:goto-definition))))))
 
 (defun lispy--python-docstring (symbol)
   "Look up the docstring for SYMBOL.
