@@ -191,7 +191,7 @@ Return t if at least one was deleted."
             (setq lispy-hint-pos new-hint-pos)
             (when (setq doc (lispy--docstring (lispy--current-function)))
               (goto-char lispy-hint-pos)
-              (lispy--show (propertize doc 'face 'lispy-face-hint))))))
+              (lispy--show (string-trim-right doc))))))
     (error
      (lispy--cleanup-overlay))))
 
@@ -291,10 +291,14 @@ Return t if at least one was deleted."
 
 (defun lispy--join-pad (strs width)
   "Join STRS padding each line with WIDTH spaces."
-  (let ((padding (make-string width ?\ )))
-    (mapconcat (lambda (x) (concat padding x))
-               strs
-               "\n")))
+  (let* ((maxw (apply #'max (mapcar #'length strs)))
+         (padding (make-string width ?\ ))
+         (fstring (format "%%- %ds" maxw)))
+    (mapconcat
+     (lambda (x)
+       (concat padding (propertize (format fstring x) 'face 'lispy-face-hint)))
+     strs
+     "\n")))
 
 (defun lispy--show-fits-p (str)
   "Return nil if window isn't large enough to display STR whole."
