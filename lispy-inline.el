@@ -120,7 +120,13 @@ The caller of `lispy--show' might use a substitute e.g. `describe-function'."
   "Display arglist for `lispy--current-function' inline."
   (interactive)
   (save-excursion
-    (lispy--back-to-paren)
+    (if (eq major-mode 'python-mode)
+        (let ((pt (point)))
+          (condition-case nil
+              (up-list -1)
+            (error (goto-char pt)))
+          (re-search-backward "\\_<" (line-beginning-position)))
+      (lispy--back-to-paren))
     (unless (and (prog1 (lispy--cleanup-overlay)
                    (when (window-minibuffer-p)
                      (window-resize (selected-window) -1)))
@@ -140,6 +146,12 @@ The caller of `lispy--show' might use a substitute e.g. `describe-function'."
              (require 'le-lisp)
              (setq lispy-hint-pos (point))
              (lispy--show (lispy--lisp-args (lispy--current-function))))
+
+            ((eq major-mode 'python-mode)
+             (require 'le-python)
+             (setq lispy-hint-pos (point))
+             (lispy--show (lispy--python-arglist
+                           (python-info-current-symbol))))
 
             (t (error "%s isn't supported currently" major-mode))))))
 
