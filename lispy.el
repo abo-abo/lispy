@@ -4000,7 +4000,7 @@ When ARG is 2, insert the result as a comment."
 
 (defun lispy-forward-outline ()
   (let ((pt (point)))
-    (outline-next-visible-heading 1)
+    (outline-next-heading)
     (if (looking-at lispy-outline)
         (when (> (point) pt)
           (point))
