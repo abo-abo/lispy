@@ -5871,6 +5871,7 @@ Otherwise return cons of current string, symbol or list bounds."
   "Return the bounds of smallest list that includes the point.
 First, try to return `lispy--bounds-string'."
   (save-excursion
+    (lispy--exit-string)
     (when (memq (char-after) '(?\( ?\[ ?\{))
       (forward-char))
     (ignore-errors
@@ -6031,6 +6032,7 @@ Return nil on failure, t otherwise."
 (defun lispy--back-to-paren ()
   "Move to ( going out backwards."
   (let ((lispy-ignore-whitespace t))
+    (lispy--exit-string)
     (while (and (not (looking-at "("))
                 (lispy--out-backward 1)))))
 
