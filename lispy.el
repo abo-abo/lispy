@@ -8092,6 +8092,7 @@ FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)."
     map))
 (eldoc-remove-command 'special-lispy-eval)
 (eldoc-remove-command 'special-lispy-x)
+(eldoc-add-command 'lispy-space)
 
 ;;* Parinfer compat
 (defun lispy--auto-wrap (func arg preceding-syntax-alist)
