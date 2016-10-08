@@ -1,0 +1,577 @@
+#+TITLE:     lispy.el parinfer function reference
+#+LANGUAGE:  en
+#+OPTIONS:   H:3 num:nil toc:nil
+#+HTML_HEAD: <link rel="stylesheet" type="text/css" href="style.css"/>
+
+| [[https://github.com/abo-abo/lispy][Back to github]] | [[https://raw.githubusercontent.com/abo-abo/lispy/gh-pages/parinfer_index.org][This file in org-mode]] | [[file:./index.html][General function reference]] |
+
+* Setup                                                                               :noexport:
+#+begin_src emacs-lisp :exports results :results silent
+(defun make-html-region--replace-1 (x)
+  (format "<cursor>%c</cursor><span class=\"region\">%s</span>"
+          (aref x 1)
+          (regexp-quote
+           (substring x 2 (- (length x) 1)))))
+
+(defun make-html-region--replace-2 (x)
+  (let ((ch (aref x (- (length x) 1))))
+    (if (eq ch ?|)
+        (format "<span class=\"region\">%s</span><cursor> </cursor>"
+                (regexp-quote (substring x 1 (- (length x) 1))))
+      (format "<span class=\"region\">%s</span><cursor>%c</cursor>"
+          (regexp-quote
+           (substring x 1 (- (length x) 2)))
+          ch))))
+
+(defun make-html-cursor--replace (x)
+  (if (string= "|\n" x)
+      "<cursor> </cursor>\n"
+    (if (string= "|[" x)
+        "<cursor>[</cursor>"
+      (format "<cursor>%s</cursor>"
+              (regexp-quote
+               (substring x 1))))))
+
+(defun make-html-region (str x y)
+  (setq str
+        (replace-regexp-in-string
+         "|[^|~]+~"
+         #'make-html-region--replace-1
+         str))
+  (setq str
+        (replace-regexp-in-string
+         "~[^|~]+|\\(?:.\\|$\\)"
+         #'make-html-region--replace-2
+         str
+         nil t))
+  (replace-regexp-in-string
+   "|\\(.\\|\n\\)"
+   #'make-html-cursor--replace
+   str))
+
+(defun org-src-denote-region (&optional context)
+  (when (and (memq major-mode '(emacs-lisp-mode))
+             (region-active-p))
+    (let ((pt (point))
+          (mk (mark)))
+      (deactivate-mark)
+      (insert "|")
+      (goto-char (if (> pt mk) mk (1+ mk)))
+      (insert "~"))))
+
+(advice-add 'org-edit-src-exit :before #'org-src-denote-region)
+
+(defun org-babel-edit-prep:elisp (info)
+  (when (string-match "[~|][^~|]+[|~]" (cadr info))
+    (let (mk pt deactivate-mark)
+      (goto-char (point-min))
+      (re-search-forward "[|~]")
+      (if (looking-back "~")
+          (progn
+            (backward-delete-char 1)
+            (setq mk (point))
+            (re-search-forward "|")
+            (backward-delete-char 1)
+            (set-mark mk))
+        (backward-delete-char 1)
+        (setq pt (point))
+        (re-search-forward "~")
+        (backward-delete-char 1)
+        (set-mark (point))
+        (goto-char pt)))))
+
+(setq org-export-filter-src-block-functions '(make-html-region))
+(setq org-html-validation-link nil)
+(setq org-html-postamble nil)
+(setq org-html-preamble "<link rel=\"icon\" type=\"image/x-icon\" href=\"https://github.com/favicon.ico\"/>")
+(setq org-html-text-markup-alist
+  '((bold . "<b>%s</b>")
+    (code . "<kbd>%s</kbd>")
+    (italic . "<i>%s</i>")
+    (strike-through . "<del>%s</del>")
+    (underline . "<span class=\"underline\">%s</span>")
+    (verbatim . "<code>%s</code>")))
+(setq org-html-style-default nil)
+(setq org-html-head-include-scripts nil)
+#+end_src
+
+* Macros                                                                              :noexport:
+#+MACRO: cond The result depends on the following conditions:
+* General Notes
+The keybindings here assume that lispy's parinfer key theme is in use. These
+keybindings are modeled after the behavior of the corresponding keys for
+parinfer, but they are adapted to lispy. This means that no inference is used,
+so none of the accompanying problems from that method are present. This also
+means that the functionality is not exactly the same.
+
+Take ~(~ as an example. In parinfer, the wrapping behavior is based on the
+indentation. The lispy equivalent will wrap to the end of the line where the
+current sexp ends by default.
+
+With parinfer, starting with:
+#+begin_src elisp
+(defun foo (a b)
+  |let ((x (+ a b)))
+    (print x))
+#+end_src
+
+pressing ~(~ will give:
+#+begin_src elisp
+(defun foo (a b)
+  (|let ((x (+ a b)))
+    (print x)))
+#+end_src
+
+With lispy, the result will be this:
+#+begin_src elisp
+(defun foo (a b)
+  (| let ((x (+ a b))))
+  (print x))
+#+end_src
+
+This means that you cannot first indent and then expect the wrapping to behave
+based on that indentation as you would with parinfer. However, it could be
+argued that lispy's version of parinfer's ~(~ is actually more powerful since
+setting up the correct indentation may be tedious. To change how many sexps are
+wrapped in lispy, you can simply use a prefix =arg=. To achieve the same result
+as in the parinfer example, you could press ~C-0 (~:
+#+begin_src emacs-lisp
+(defun foo (a b)
+  (| let ((x (+ a b)))
+     (print x)))
+#+end_src
+
+Another thing to note is that lispy will insert a space by default after
+wrapping. This example with missing parens around the =let= is somewhat
+contrived. Often you will want to insert something at the beginning of the sexp
+when wrapping, and in these cases, this behavior is convenient.
+
+See the individual function references for more information.
+
+* Global bindings
+:PROPERTIES:
+:CUSTOM_ID: global-bindings
+:END:
+| key       | function name                                                                           |
+|-----------+-----------------------------------------------------------------------------------------|
+| (         | [[#lispy-parens-auto-wrap][lispy-parens-auto-wrap]]                                     |
+| [         | [[#lispy-brackets-auto-wrap][lispy-brackets-auto-wrap]]                                 |
+| {         | [[#lispy-braces-auto-wrap][lispy-braces-auto-wrap]]                                     |
+| )         | [[#lispy-barf-to-point-nostring][lispy-barf-to-point-nostring]]                         |
+| ]         | [[#lispy-barf-to-point-nostring][lispy-barf-to-point-nostring]]                         |
+| }         | [[#lispy-barf-to-point-nostring][lispy-barf-to-point-nostring]]                         |
+| TAB       | [[#lispy-indent-adjust-parens][lispy-indent-adjust-parens]]                             |
+| <backtab> | [[#lispy-dedent-adjust-parens][lispy-dedent-adjust-parens]]                             |
+| DEL       | [[#lispy-delete-backward-or-splice-or-slurp][lispy-delete-backward-or-splice-or-slurp]] |
+| C-d       | [[#lispy-delete-or-splice-or-slurp][lispy-delete-or-splice-or-slurp]]                   |
+|-----------+-----------------------------------------------------------------------------------------|
+* Function reference
+** =lispy--auto-wrap=
+:PROPERTIES:
+:CUSTOM_ID: lispy--auto-wrap
+:END:
+
+This function is used to generate
+[[#lispy-parens-auto-wrap][=lispy-parens-auto-wrap=]],
+[[#lispy-braces-auto-wrap][=lispy-braces-auto-wrap=]] and
+[[#lispy-brackets-auto-wrap][=lispy-brackets-auto-wrap=]], which in turn take
+prefix =arg=. Each will act as their counterpart (=lispy-parens=,
+=lispy-braces=, and =lispy-brackets= respectively), but the behavior with no
+=arg= and with an =arg= of -1 have been swapped. With no =arg=, each will wrap
+to the end of the line where the current sexp ends or as far as possible before
+then. With an =arg= of -1, each will never wrap.
+
+See the documentation for [[file:./index.html#lispy-pair][=lispy-pair=]] for visual examples.
+-----
+** =lispy-parens-auto-wrap=
+:PROPERTIES:
+:CUSTOM_ID: lispy-parens-auto-wrap
+:END:
+
+Bound to ~(~.
+
+Call [[#lispy--auto-wrap][=lispy--auto-wrap=]] specialized with =()=.
+-----
+** =lispy-braces-auto-wrap=
+:PROPERTIES:
+:CUSTOM_ID: lispy-braces-auto-wrap
+:END:
+
+Bound to ~{~.
+
+Call [[#lispy--auto-wrap][=lispy--auto-wrap=]] specialized with ={}=.
+-----
+** =lispy-brackets-auto-wrap=
+:PROPERTIES:
+:CUSTOM_ID: lispy-brackets-auto-wrap
+:END:
+
+Bound to ~[~.
+
+Call [[#lispy--auto-wrap][=lispy--auto-wrap=]] specialized with =[]=.
+-----
+** =lispy-barf-to-point=
+:PROPERTIES:
+:CUSTOM_ID: lispy-barf-to-point
+:END:
+
+Not bound by default.
+
+Barf to the closest sexp before the point. When prefix =arg= is not =nil=, barf
+from the left.
+
+For the following examples, assume that ~)~ has been bound to
+=lispy-barf-to-point=.
+
+#+HTML: <table><tbody><tr><td>
+#+begin_src elisp
+(foo bar| baz)
+#+end_src
+#+HTML: </td><td>
+-> ~)~ ->
+#+HTML: </td><td>
+#+begin_src elisp
+(foo bar)| baz
+#+end_src
+#+HTML: </td></tr></tbody></table>
+
+#+HTML: <table><tbody><tr><td>
+#+begin_src elisp
+(foo bar| baz)
+#+end_src
+#+HTML: </td><td>
+-> ~C-u )~ ->
+#+HTML: </td><td>
+#+begin_src elisp
+foo bar |(baz)
+#+end_src
+#+HTML: </td></tr></tbody></table>
+-----
+** =lispy-barf-to-point-nostring=
+:PROPERTIES:
+:CUSTOM_ID: lispy-barf-to-point-nostring
+:END:
+
+Bound to ~)~, ~]~, and ~}~.
+
+Like [[#lispy-barf-to-point][=lispy-barf-to-point=]] but
+self-inserts in strings and comments.
+-----
+** =lispy--barf-to-point-or-jump-nostring=
+:PROPERTIES:
+:CUSTOM_ID: lispy--barf-to-point-or-jump-nostring
+:END:
+
+This function is used to generate alternative commands to
+[[#lispy-barf-to-point-nostring][=lispy-barf-to-point-nostring=]] that are
+delimiter specific. When it is not possible to barf for the specified delimiter,
+each command will jump out of the sexp delimited by that delimiter.
+
+For the following examples, assume that ~)~ has been bound to
+[[#lispy-parens-barf-to-point-or-jump-nostring][=lispy-parens-barf-to-point-or-jump-nostring=]].
+
+#+HTML: <table><tbody><tr><td>
+#+begin_src elisp
+[(foo bar| baz)]
+#+end_src
+#+HTML: </td><td>
+-> ~)~ ->
+#+HTML: </td><td>
+#+begin_src elisp
+[(foo bar)| baz]
+#+end_src
+#+HTML: </td></tr></tbody></table>
+
+#+HTML: <table><tbody><tr><td>
+#+begin_src elisp
+[(foo bar| baz)]
+#+end_src
+#+HTML: </td><td>
+-> ~C-u )~ ->
+#+HTML: </td><td>
+#+begin_src elisp
+[foo bar |(baz)]
+#+end_src
+#+HTML: </td></tr></tbody></table>
+
+#+HTML: <table><tbody><tr><td>
+#+begin_src elisp
+([foo bar| baz])
+#+end_src
+#+HTML: </td><td>
+-> ~)~ ->
+#+HTML: </td><td>
+#+begin_src elisp
+([foo bar baz])|
+#+end_src
+#+HTML: </td></tr></tbody></table>
+
+#+HTML: <table><tbody><tr><td>
+#+begin_src elisp
+([foo bar| baz])
+#+end_src
+#+HTML: </td><td>
+-> ~C-u )~ ->
+#+HTML: </td><td>
+#+begin_src elisp
+|([foo bar baz])
+#+end_src
+#+HTML: </td></tr></tbody></table>
+-----
+** =lispy-parens-barf-to-point-or-jump-nostring=
+:PROPERTIES:
+:CUSTOM_ID: lispy-parens-barf-to-point-or-jump-nostring
+:END:
+
+Not bound by default.
+
+Call
+[[#lispy--barf-to-point-or-jump-nostring][=lispy--barf-to-point-or-jump-nostring=]]
+specialized with =()=.
+-----
+** =lispy-brackets-barf-to-point-or-jump-nostring=
+:PROPERTIES:
+:CUSTOM_ID: lispy-brackets-barf-to-point-or-jump-nostring
+:END:
+
+Not bound by default.
+
+Call
+[[#lispy--barf-to-point-or-jump-nostring][=lispy--barf-to-point-or-jump-nostring=]]
+specialized with ={}=.
+-----
+** =lispy-braces-barf-to-point-or-jump-nostring=
+:PROPERTIES:
+:CUSTOM_ID: lispy-braces-barf-to-point-or-jump-nostring
+:END:
+
+Not bound by default.
+
+Call
+[[#lispy--barf-to-point-or-jump-nostring][=lispy--barf-to-point-or-jump-nostring=]]
+specialized with =[]=.
+-----
+** =lispy-indent-adjust-parens=
+:PROPERTIES:
+:CUSTOM_ID: lispy-indent-adjust-parens
+:END:
+
+Bound to ~TAB~.
+
+If the current line is indented incorrectly or the point is before the
+indentation, indent the line correctly and move the point past the indentation.
+Otherwise call [[file:./index.html#lispy-up-slurp][=lispy-up-slurp=]] (see its
+visual examples for more information), which can be thought of as indenting the
+region or current line to the next level and adjusting the parentheses
+accordingly.
+-----
+** =lispy-dedent-adjust-parens=
+:PROPERTIES:
+:CUSTOM_ID: lispy-dedent-adjust-parens
+:END:
+
+Bound to ~<backtab>~.
+
+Move the region or all of the following sexps in the curent sexp to the right
+(out of the current sexp). This can be of thought as dedenting the code to the
+previous level and adjusting the parentheses accordingly.
+
+#+HTML: <table><tbody><tr><td>
+#+begin_src elisp
+(foo
+ |bar
+ baz)
+#+end_src
+#+HTML: </td><td>
+-> ~<backtab>~ ->
+#+HTML: </td><td>
+#+begin_src elisp
+(foo)
+|bar
+baz
+#+end_src
+#+HTML: </td></tr></tbody></table>
+
+#+HTML: <table><tbody><tr><td>
+#+begin_src elisp
+(foo
+ ~bar|
+ baz)
+#+end_src
+#+HTML: </td><td>
+-> ~<backtab>~ ->
+#+HTML: </td><td>
+#+begin_src elisp
+(foo
+ baz)
+~bar|
+#+end_src
+#+HTML: </td></tr></tbody></table>
+-----
+** =lispy-delete-backward-or-splice-or-slurp=
+:PROPERTIES:
+:CUSTOM_ID: lispy-delete-backward-or-splice-or-slurp
+:END:
+
+Bound to ~DEL~.
+
+{{{cond}}}
+*** after =lispy-left=
+Splice.
+
+#+HTML: <table><tbody><tr><td>
+#+begin_src elisp
+(foo (|baz bar))
+#+end_src
+#+HTML: </td><td>
+-> ~DEL~ ->
+#+HTML: </td><td>
+#+begin_src elisp
+(foo |baz bar)
+#+end_src
+#+HTML: </td></tr></tbody></table>
+*** after =lispy-right=
+Slurp to the end of the line where the current sexp ends or as far as possible
+before then without moving the point. If it is not possible to slurp further,
+move the point backward.
+
+#+HTML: <table><tbody><tr><td>
+#+begin_src elisp
+(foo baz)| bar
+#+end_src
+#+HTML: </td><td>
+-> ~DEL~ ->
+#+HTML: </td><td>
+#+begin_src elisp
+(foo baz| bar)
+#+end_src
+#+HTML: </td></tr></tbody></table>
+
+#+HTML: <table><tbody><tr><td>
+#+begin_src elisp
+(foo baz)|
+#+end_src
+#+HTML: </td><td>
+-> ~DEL~ ->
+#+HTML: </td><td>
+#+begin_src elisp
+(foo baz|)
+#+end_src
+#+HTML: </td></tr></tbody></table>
+*** after the opening quote of a string
+Delete the entire string. Since splicing isn't particularly useful for strings,
+this approach was chosen as an alternative to just unbalancing the quotes like
+parinfer does.
+
+#+HTML: <table><tbody><tr><td>
+#+begin_src elisp
+"foo" "|baz"
+#+end_src
+#+HTML: </td><td>
+-> ~DEL~ ->
+#+HTML: </td><td>
+#+begin_src elisp
+"foo" |
+#+end_src
+#+HTML: </td></tr></tbody></table>
+*** after the closing quote of a string
+Move the point back like in case 2 when the point is after a closing delimiter
+and no further slurping can be done. Since slurping isn't particularly useful
+for strings, this approach was chosen as an alternative to just unbalancing the
+quotes like parinfer does.
+
+#+HTML: <table><tbody><tr><td>
+#+begin_src elisp
+"foo"|
+#+end_src
+#+HTML: </td><td>
+-> ~DEL~ ->
+#+HTML: </td><td>
+#+begin_src elisp
+"foo|"
+#+end_src
+#+HTML: </td></tr></tbody></table>
+*** otherwise
+Call [[file:./index.html#lispy-delete-backward][=lispy-delete-backward=]].
+-----
+** =lispy-delete-or-splice-or-slurp=
+:PROPERTIES:
+:CUSTOM_ID: lispy-delete-or-splice-or-slurp
+:END:
+
+Bound to ~C-d~.
+
+
+{{{cond}}}
+*** before =lispy-left=
+Splice.
+
+#+HTML: <table><tbody><tr><td>
+#+begin_src elisp
+(foo |(baz bar))
+#+end_src
+#+HTML: </td><td>
+-> ~C-d~ ->
+#+HTML: </td><td>
+#+begin_src elisp
+(foo |baz bar)
+#+end_src
+#+HTML: </td></tr></tbody></table>
+*** before =lispy-right=
+Slurp to the end of the line where the current sexp ends or as far as possible
+before then without moving the point. If it is not possible to slurp further,
+move the point forward.
+
+#+HTML: <table><tbody><tr><td>
+#+begin_src elisp
+(foo baz|) bar
+#+end_src
+#+HTML: </td><td>
+-> ~C-d~ ->
+#+HTML: </td><td>
+#+begin_src elisp
+(foo baz| bar)
+#+end_src
+#+HTML: </td></tr></tbody></table>
+
+#+HTML: <table><tbody><tr><td>
+#+begin_src elisp
+(foo baz|)
+#+end_src
+#+HTML: </td><td>
+-> ~C-d~ ->
+#+HTML: </td><td>
+#+begin_src elisp
+(foo baz)|
+#+end_src
+#+HTML: </td></tr></tbody></table>
+*** before the opening quote of a string
+Delete the entire string.
+
+#+HTML: <table><tbody><tr><td>
+#+begin_src elisp
+"foo" |"baz"
+#+end_src
+#+HTML: </td><td>
+-> ~C-d~ ->
+#+HTML: </td><td>
+#+begin_src elisp
+"foo" |
+#+end_src
+#+HTML: </td></tr></tbody></table>
+*** before the closing quote of a string
+Move the point forward.
+
+#+HTML: <table><tbody><tr><td>
+#+begin_src elisp
+"foo|"
+#+end_src
+#+HTML: </td><td>
+-> ~C-d~ ->
+#+HTML: </td><td>
+#+begin_src elisp
+"foo"|
+#+end_src
+#+HTML: </td></tr></tbody></table>
+*** otherwise
+Call [[file:./index.html#lispy-delete][=lispy-delete=]].

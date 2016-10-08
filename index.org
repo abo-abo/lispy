@@ -3,7 +3,7 @@
 #+OPTIONS:   H:3 num:nil toc:nil
 #+HTML_HEAD: <link rel="stylesheet" type="text/css" href="style.css"/>
 
-| [[https://github.com/abo-abo/lispy][Back to github]] | [[https://raw.githubusercontent.com/abo-abo/lispy/gh-pages/index.org][This file in org-mode]] |
+| [[https://github.com/abo-abo/lispy][Back to github]] | [[https://raw.githubusercontent.com/abo-abo/lispy/gh-pages/index.org][This file in org-mode]] | [[file:./parinfer_index.html][Parinfer function reference]] |
 * Setup                                                                               :noexport:
 #+begin_src emacs-lisp :exports results :results silent
 (defun make-html-region--replace-1 (x)

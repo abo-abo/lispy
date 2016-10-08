@@ -1,0 +1,829 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<!-- 2016-10-07 Fri 20:01 -->
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>lispy.el parinfer function reference</title>
+<meta name="generator" content="Org-mode" />
+<link rel="stylesheet" type="text/css" href="style.css"/>
+</head>
+<body>
+<div id="preamble" class="status">
+<link rel="icon" type="image/x-icon" href="https://github.com/favicon.ico"/>
+</div>
+<div id="content">
+<h1 class="title">lispy.el parinfer function reference</h1>
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<tbody>
+<tr>
+<td class="org-left"><a href="https://github.com/abo-abo/lispy">Back to github</a></td>
+<td class="org-left"><a href="https://raw.githubusercontent.com/abo-abo/lispy/gh-pages/parinfer_index.org">This file in org-mode</a></td>
+<td class="org-left"><a href="./index.html">General function reference</a></td>
+</tr>
+</tbody>
+</table>
+
+<div id="outline-container-foobar" class="outline-2">
+<h2 id="foobar">General Notes</h2>
+<div class="outline-text-2" id="text-foobar">
+<p>
+The keybindings here assume that lispy's parinfer key theme is in use. These
+keybindings are modeled after the behavior of the corresponding keys for
+parinfer, but they are adapted to lispy. This means that no inference is used,
+so none of the accompanying problems from that method are present. This also
+means that the functionality is not exactly the same.
+</p>
+
+<p>
+Take <kbd>(</kbd> as an example. In parinfer, the wrapping behavior is based on the
+indentation. The lispy equivalent will wrap to the end of the line where the
+current sexp ends by default.
+</p>
+
+<p>
+With parinfer, starting with:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">foo</span> (a b)
+  <cursor>l</cursor>et ((x (+ a b)))
+    (print x))
+</pre>
+</div>
+
+<p>
+pressing <kbd>(</kbd> will give:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">foo</span> (a b)
+  (<cursor>l</cursor>et ((x (+ a b)))
+    (print x)))
+</pre>
+</div>
+
+<p>
+With lispy, the result will be this:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">foo</span> (a b)
+  (<cursor> </cursor>let ((x (+ a b))))
+  (print x))
+</pre>
+</div>
+
+<p>
+This means that you cannot first indent and then expect the wrapping to behave
+based on that indentation as you would with parinfer. However, it could be
+argued that lispy's version of parinfer's <kbd>(</kbd> is actually more powerful since
+setting up the correct indentation may be tedious. To change how many sexps are
+wrapped in lispy, you can simply use a prefix <code>arg</code>. To achieve the same result
+as in the parinfer example, you could press <kbd>C-0 (</kbd>:
+</p>
+<div class="org-src-container">
+
+<pre class="src src-emacs-lisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">foo</span> (a b)
+  (<cursor> </cursor>let ((x (+ a b)))
+     (print x)))
+</pre>
+</div>
+
+<p>
+Another thing to note is that lispy will insert a space by default after
+wrapping. This example with missing parens around the <code>let</code> is somewhat
+contrived. Often you will want to insert something at the beginning of the sexp
+when wrapping, and in these cases, this behavior is convenient.
+</p>
+
+<p>
+See the individual function references for more information.
+</p>
+</div>
+</div>
+
+<div id="outline-container-foobar" class="outline-2">
+<h2 id="global-bindings"><a id="foobar"></a>Global bindings</h2>
+<div class="outline-text-2" id="text-global-bindings">
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+
+
+<colgroup>
+<col  class="org-left" />
+
+<col  class="org-left" />
+</colgroup>
+<thead>
+<tr>
+<th scope="col" class="org-left">key</th>
+<th scope="col" class="org-left">function name</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="org-left">(</td>
+<td class="org-left"><a href="#lispy-parens-auto-wrap">lispy-parens-auto-wrap</a></td>
+</tr>
+
+<tr>
+<td class="org-left">[</td>
+<td class="org-left"><a href="#lispy-brackets-auto-wrap">lispy-brackets-auto-wrap</a></td>
+</tr>
+
+<tr>
+<td class="org-left">{</td>
+<td class="org-left"><a href="#lispy-braces-auto-wrap">lispy-braces-auto-wrap</a></td>
+</tr>
+
+<tr>
+<td class="org-left">)</td>
+<td class="org-left"><a href="#lispy-barf-to-point-nostring">lispy-barf-to-point-nostring</a></td>
+</tr>
+
+<tr>
+<td class="org-left">]</td>
+<td class="org-left"><a href="#lispy-barf-to-point-nostring">lispy-barf-to-point-nostring</a></td>
+</tr>
+
+<tr>
+<td class="org-left">}</td>
+<td class="org-left"><a href="#lispy-barf-to-point-nostring">lispy-barf-to-point-nostring</a></td>
+</tr>
+
+<tr>
+<td class="org-left">TAB</td>
+<td class="org-left"><a href="#lispy-indent-adjust-parens">lispy-indent-adjust-parens</a></td>
+</tr>
+
+<tr>
+<td class="org-left">&lt;backtab&gt;</td>
+<td class="org-left"><a href="#lispy-dedent-adjust-parens">lispy-dedent-adjust-parens</a></td>
+</tr>
+
+<tr>
+<td class="org-left">DEL</td>
+<td class="org-left"><a href="#lispy-delete-backward-or-splice-or-slurp">lispy-delete-backward-or-splice-or-slurp</a></td>
+</tr>
+
+<tr>
+<td class="org-left">C-d</td>
+<td class="org-left"><a href="#lispy-delete-or-splice-or-slurp">lispy-delete-or-splice-or-slurp</a></td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div id="outline-container-foobar" class="outline-2">
+<h2 id="foobar">Function reference</h2>
+<div class="outline-text-2" id="text-foobar">
+</div><div id="outline-container-foobar" class="outline-3">
+<h3 id="lispy--auto-wrap"><a id="foobar"></a><code>lispy--auto-wrap</code></h3>
+<div class="outline-text-3" id="text-lispy--auto-wrap">
+<p>
+This function is used to generate
+<a href="#lispy-parens-auto-wrap"><code>lispy-parens-auto-wrap</code></a>,
+<a href="#lispy-braces-auto-wrap"><code>lispy-braces-auto-wrap</code></a> and
+<a href="#lispy-brackets-auto-wrap"><code>lispy-brackets-auto-wrap</code></a>, which in turn take
+prefix <code>arg</code>. Each will act as their counterpart (<code>lispy-parens</code>,
+<code>lispy-braces</code>, and <code>lispy-brackets</code> respectively), but the behavior with no
+<code>arg</code> and with an <code>arg</code> of -1 have been swapped. With no <code>arg</code>, each will wrap
+to the end of the line where the current sexp ends or as far as possible before
+then. With an <code>arg</code> of -1, each will never wrap.
+</p>
+
+<p>
+See the documentation for <a href="./index.html#lispy-pair"><code>lispy-pair</code></a> for visual examples.
+</p>
+<hr  />
+</div>
+</div>
+<div id="outline-container-foobar" class="outline-3">
+<h3 id="lispy-parens-auto-wrap"><a id="foobar"></a><code>lispy-parens-auto-wrap</code></h3>
+<div class="outline-text-3" id="text-lispy-parens-auto-wrap">
+<p>
+Bound to <kbd>(</kbd>.
+</p>
+
+<p>
+Call <a href="#lispy--auto-wrap"><code>lispy--auto-wrap</code></a> specialized with <code>()</code>.
+</p>
+<hr  />
+</div>
+</div>
+<div id="outline-container-foobar" class="outline-3">
+<h3 id="lispy-braces-auto-wrap"><a id="foobar"></a><code>lispy-braces-auto-wrap</code></h3>
+<div class="outline-text-3" id="text-lispy-braces-auto-wrap">
+<p>
+Bound to <kbd>{</kbd>.
+</p>
+
+<p>
+Call <a href="#lispy--auto-wrap"><code>lispy--auto-wrap</code></a> specialized with <code>{}</code>.
+</p>
+<hr  />
+</div>
+</div>
+<div id="outline-container-foobar" class="outline-3">
+<h3 id="lispy-brackets-auto-wrap"><a id="foobar"></a><code>lispy-brackets-auto-wrap</code></h3>
+<div class="outline-text-3" id="text-lispy-brackets-auto-wrap">
+<p>
+Bound to <kbd>[</kbd>.
+</p>
+
+<p>
+Call <a href="#lispy--auto-wrap"><code>lispy--auto-wrap</code></a> specialized with <code>[]</code>.
+</p>
+<hr  />
+</div>
+</div>
+<div id="outline-container-foobar" class="outline-3">
+<h3 id="lispy-barf-to-point"><a id="foobar"></a><code>lispy-barf-to-point</code></h3>
+<div class="outline-text-3" id="text-lispy-barf-to-point">
+<p>
+Not bound by default.
+</p>
+
+<p>
+Barf to the closest sexp before the point. When prefix <code>arg</code> is not <code>nil</code>, barf
+from the left.
+</p>
+
+<p>
+For the following examples, assume that <kbd>)</kbd> has been bound to
+<code>lispy-barf-to-point</code>.
+</p>
+
+<table><tbody><tr><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(foo bar<cursor> </cursor>baz)
+</pre>
+</div>
+</td><td>
+<p>
+-&gt; <kbd>)</kbd> -&gt;
+</p>
+</td><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(foo bar)<cursor> </cursor>baz
+</pre>
+</div>
+</td></tr></tbody></table>
+
+<table><tbody><tr><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(foo bar<cursor> </cursor>baz)
+</pre>
+</div>
+</td><td>
+<p>
+-&gt; <kbd>C-u )</kbd> -&gt;
+</p>
+</td><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp">foo bar <cursor>(</cursor>baz)
+</pre>
+</div>
+</td></tr></tbody></table>
+<hr  />
+</div>
+</div>
+<div id="outline-container-foobar" class="outline-3">
+<h3 id="lispy-barf-to-point-nostring"><a id="foobar"></a><code>lispy-barf-to-point-nostring</code></h3>
+<div class="outline-text-3" id="text-lispy-barf-to-point-nostring">
+<p>
+Bound to <kbd>)</kbd>, <kbd>]</kbd>, and <kbd>}</kbd>.
+</p>
+
+<p>
+Like <a href="#lispy-barf-to-point"><code>lispy-barf-to-point</code></a> but
+self-inserts in strings and comments.
+</p>
+<hr  />
+</div>
+</div>
+<div id="outline-container-foobar" class="outline-3">
+<h3 id="lispy--barf-to-point-or-jump-nostring"><a id="foobar"></a><code>lispy--barf-to-point-or-jump-nostring</code></h3>
+<div class="outline-text-3" id="text-lispy--barf-to-point-or-jump-nostring">
+<p>
+This function is used to generate alternative commands to
+<a href="#lispy-barf-to-point-nostring"><code>lispy-barf-to-point-nostring</code></a> that are
+delimiter specific. When it is not possible to barf for the specified delimiter,
+each command will jump out of the sexp delimited by that delimiter.
+</p>
+
+<p>
+For the following examples, assume that <kbd>)</kbd> has been bound to
+<a href="#lispy-parens-barf-to-point-or-jump-nostring"><code>lispy-parens-barf-to-point-or-jump-nostring</code></a>.
+</p>
+
+<table><tbody><tr><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp">[(foo bar<cursor> </cursor>baz)]
+</pre>
+</div>
+</td><td>
+<p>
+-&gt; <kbd>)</kbd> -&gt;
+</p>
+</td><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp">[(foo bar)<cursor> </cursor>baz]
+</pre>
+</div>
+</td></tr></tbody></table>
+
+<table><tbody><tr><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp">[(foo bar<cursor> </cursor>baz)]
+</pre>
+</div>
+</td><td>
+<p>
+-&gt; <kbd>C-u )</kbd> -&gt;
+</p>
+</td><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp">[foo bar <cursor>(</cursor>baz)]
+</pre>
+</div>
+</td></tr></tbody></table>
+
+<table><tbody><tr><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp">([foo bar<cursor> </cursor>baz])
+</pre>
+</div>
+</td><td>
+<p>
+-&gt; <kbd>)</kbd> -&gt;
+</p>
+</td><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp">([foo bar baz])<cursor> </cursor>
+</pre>
+</div>
+</td></tr></tbody></table>
+
+<table><tbody><tr><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp">([foo bar<cursor> </cursor>baz])
+</pre>
+</div>
+</td><td>
+<p>
+-&gt; <kbd>C-u )</kbd> -&gt;
+</p>
+</td><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp"><cursor>(</cursor>[foo bar baz])
+</pre>
+</div>
+</td></tr></tbody></table>
+<hr  />
+</div>
+</div>
+<div id="outline-container-foobar" class="outline-3">
+<h3 id="lispy-parens-barf-to-point-or-jump-nostring"><a id="foobar"></a><code>lispy-parens-barf-to-point-or-jump-nostring</code></h3>
+<div class="outline-text-3" id="text-lispy-parens-barf-to-point-or-jump-nostring">
+<p>
+Not bound by default.
+</p>
+
+<p>
+Call
+<a href="#lispy--barf-to-point-or-jump-nostring"><code>lispy--barf-to-point-or-jump-nostring</code></a>
+specialized with <code>()</code>.
+</p>
+<hr  />
+</div>
+</div>
+<div id="outline-container-foobar" class="outline-3">
+<h3 id="lispy-brackets-barf-to-point-or-jump-nostring"><a id="foobar"></a><code>lispy-brackets-barf-to-point-or-jump-nostring</code></h3>
+<div class="outline-text-3" id="text-lispy-brackets-barf-to-point-or-jump-nostring">
+<p>
+Not bound by default.
+</p>
+
+<p>
+Call
+<a href="#lispy--barf-to-point-or-jump-nostring"><code>lispy--barf-to-point-or-jump-nostring</code></a>
+specialized with <code>{}</code>.
+</p>
+<hr  />
+</div>
+</div>
+<div id="outline-container-foobar" class="outline-3">
+<h3 id="lispy-braces-barf-to-point-or-jump-nostring"><a id="foobar"></a><code>lispy-braces-barf-to-point-or-jump-nostring</code></h3>
+<div class="outline-text-3" id="text-lispy-braces-barf-to-point-or-jump-nostring">
+<p>
+Not bound by default.
+</p>
+
+<p>
+Call
+<a href="#lispy--barf-to-point-or-jump-nostring"><code>lispy--barf-to-point-or-jump-nostring</code></a>
+specialized with <code>[]</code>.
+</p>
+<hr  />
+</div>
+</div>
+<div id="outline-container-foobar" class="outline-3">
+<h3 id="lispy-indent-adjust-parens"><a id="foobar"></a><code>lispy-indent-adjust-parens</code></h3>
+<div class="outline-text-3" id="text-lispy-indent-adjust-parens">
+<p>
+Bound to <kbd>TAB</kbd>.
+</p>
+
+<p>
+If the current line is indented incorrectly or the point is before the
+indentation, indent the line correctly and move the point past the indentation.
+Otherwise call <a href="./index.html#lispy-up-slurp"><code>lispy-up-slurp</code></a> (see its
+visual examples for more information), which can be thought of as indenting the
+region or current line to the next level and adjusting the parentheses
+accordingly.
+</p>
+<hr  />
+</div>
+</div>
+<div id="outline-container-foobar" class="outline-3">
+<h3 id="lispy-dedent-adjust-parens"><a id="foobar"></a><code>lispy-dedent-adjust-parens</code></h3>
+<div class="outline-text-3" id="text-lispy-dedent-adjust-parens">
+<p>
+Bound to <kbd>&lt;backtab&gt;</kbd>.
+</p>
+
+<p>
+Move the region or all of the following sexps in the curent sexp to the right
+(out of the current sexp). This can be of thought as dedenting the code to the
+previous level and adjusting the parentheses accordingly.
+</p>
+
+<table><tbody><tr><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(foo
+ <cursor>b</cursor>ar
+ baz)
+</pre>
+</div>
+</td><td>
+<p>
+-&gt; <kbd>&lt;backtab&gt;</kbd> -&gt;
+</p>
+</td><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(foo)
+<cursor>b</cursor>ar
+baz
+</pre>
+</div>
+</td></tr></tbody></table>
+
+<table><tbody><tr><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(foo
+ <span class="region">bar</span><cursor> </cursor>
+ baz)
+</pre>
+</div>
+</td><td>
+<p>
+-&gt; <kbd>&lt;backtab&gt;</kbd> -&gt;
+</p>
+</td><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(foo
+ baz)
+<span class="region">bar</span><cursor> </cursor>
+</pre>
+</div>
+</td></tr></tbody></table>
+<hr  />
+</div>
+</div>
+<div id="outline-container-foobar" class="outline-3">
+<h3 id="lispy-delete-backward-or-splice-or-slurp"><a id="foobar"></a><code>lispy-delete-backward-or-splice-or-slurp</code></h3>
+<div class="outline-text-3" id="text-lispy-delete-backward-or-splice-or-slurp">
+<p>
+Bound to <kbd>DEL</kbd>.
+</p>
+
+<p>
+The result depends on the following conditions:
+</p>
+</div>
+<div id="outline-container-foobar" class="outline-4">
+<h4 id="foobar">after <code>lispy-left</code></h4>
+<div class="outline-text-4" id="text-foobar">
+<p>
+Splice.
+</p>
+
+<table><tbody><tr><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(foo (<cursor>b</cursor>az bar))
+</pre>
+</div>
+</td><td>
+<p>
+-&gt; <kbd>DEL</kbd> -&gt;
+</p>
+</td><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(foo <cursor>b</cursor>az bar)
+</pre>
+</div>
+</td></tr></tbody></table>
+</div>
+</div>
+<div id="outline-container-foobar" class="outline-4">
+<h4 id="foobar">after <code>lispy-right</code></h4>
+<div class="outline-text-4" id="text-foobar">
+<p>
+Slurp to the end of the line where the current sexp ends or as far as possible
+before then without moving the point. If it is not possible to slurp further,
+move the point backward.
+</p>
+
+<table><tbody><tr><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(foo baz)<cursor> </cursor>bar
+</pre>
+</div>
+</td><td>
+<p>
+-&gt; <kbd>DEL</kbd> -&gt;
+</p>
+</td><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(foo baz<cursor> </cursor>bar)
+</pre>
+</div>
+</td></tr></tbody></table>
+
+<table><tbody><tr><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(foo baz)<cursor> </cursor>
+</pre>
+</div>
+</td><td>
+<p>
+-&gt; <kbd>DEL</kbd> -&gt;
+</p>
+</td><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(foo baz<cursor>)</cursor>
+</pre>
+</div>
+</td></tr></tbody></table>
+</div>
+</div>
+<div id="outline-container-foobar" class="outline-4">
+<h4 id="foobar">after the opening quote of a string</h4>
+<div class="outline-text-4" id="text-foobar">
+<p>
+Delete the entire string. Since splicing isn't particularly useful for strings,
+this approach was chosen as an alternative to just unbalancing the quotes like
+parinfer does.
+</p>
+
+<table><tbody><tr><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp"><span style="color: #2A00FF;">"foo"</span> <span style="color: #2A00FF;">"<cursor>b</cursor>az"</span>
+</pre>
+</div>
+</td><td>
+<p>
+-&gt; <kbd>DEL</kbd> -&gt;
+</p>
+</td><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp"><span style="color: #2A00FF;">"foo"</span> <cursor> </cursor>
+</pre>
+</div>
+</td></tr></tbody></table>
+</div>
+</div>
+<div id="outline-container-foobar" class="outline-4">
+<h4 id="foobar">after the closing quote of a string</h4>
+<div class="outline-text-4" id="text-foobar">
+<p>
+Move the point back like in case 2 when the point is after a closing delimiter
+and no further slurping can be done. Since slurping isn't particularly useful
+for strings, this approach was chosen as an alternative to just unbalancing the
+quotes like parinfer does.
+</p>
+
+<table><tbody><tr><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp"><span style="color: #2A00FF;">"foo"</span><cursor> </cursor>
+</pre>
+</div>
+</td><td>
+<p>
+-&gt; <kbd>DEL</kbd> -&gt;
+</p>
+</td><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp"><span style="color: #2A00FF;">"foo<cursor>"</cursor></span>
+</pre>
+</div>
+</td></tr></tbody></table>
+</div>
+</div>
+<div id="outline-container-foobar" class="outline-4">
+<h4 id="foobar">otherwise</h4>
+<div class="outline-text-4" id="text-foobar">
+<p>
+Call <a href="./index.html#lispy-delete-backward"><code>lispy-delete-backward</code></a>.
+</p>
+<hr  />
+</div>
+</div>
+</div>
+<div id="outline-container-foobar" class="outline-3">
+<h3 id="lispy-delete-or-splice-or-slurp"><a id="foobar"></a><code>lispy-delete-or-splice-or-slurp</code></h3>
+<div class="outline-text-3" id="text-lispy-delete-or-splice-or-slurp">
+<p>
+Bound to <kbd>C-d</kbd>.
+</p>
+
+
+<p>
+The result depends on the following conditions:
+</p>
+</div>
+<div id="outline-container-foobar" class="outline-4">
+<h4 id="foobar">before <code>lispy-left</code></h4>
+<div class="outline-text-4" id="text-foobar">
+<p>
+Splice.
+</p>
+
+<table><tbody><tr><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(foo <cursor>(</cursor>baz bar))
+</pre>
+</div>
+</td><td>
+<p>
+-&gt; <kbd>C-d</kbd> -&gt;
+</p>
+</td><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(foo <cursor>b</cursor>az bar)
+</pre>
+</div>
+</td></tr></tbody></table>
+</div>
+</div>
+<div id="outline-container-foobar" class="outline-4">
+<h4 id="foobar">before <code>lispy-right</code></h4>
+<div class="outline-text-4" id="text-foobar">
+<p>
+Slurp to the end of the line where the current sexp ends or as far as possible
+before then without moving the point. If it is not possible to slurp further,
+move the point forward.
+</p>
+
+<table><tbody><tr><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(foo baz<cursor>)</cursor> bar
+</pre>
+</div>
+</td><td>
+<p>
+-&gt; <kbd>C-d</kbd> -&gt;
+</p>
+</td><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(foo baz<cursor> </cursor>bar)
+</pre>
+</div>
+</td></tr></tbody></table>
+
+<table><tbody><tr><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(foo baz<cursor>)</cursor>
+</pre>
+</div>
+</td><td>
+<p>
+-&gt; <kbd>C-d</kbd> -&gt;
+</p>
+</td><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp">(foo baz)<cursor> </cursor>
+</pre>
+</div>
+</td></tr></tbody></table>
+</div>
+</div>
+<div id="outline-container-foobar" class="outline-4">
+<h4 id="foobar">before the opening quote of a string</h4>
+<div class="outline-text-4" id="text-foobar">
+<p>
+Delete the entire string.
+</p>
+
+<table><tbody><tr><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp"><span style="color: #2A00FF;">"foo"</span> <cursor><</cursor>span style="color: #2A00FF;">"baz"</span>
+</pre>
+</div>
+</td><td>
+<p>
+-&gt; <kbd>C-d</kbd> -&gt;
+</p>
+</td><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp"><span style="color: #2A00FF;">"foo"</span> <cursor> </cursor>
+</pre>
+</div>
+</td></tr></tbody></table>
+</div>
+</div>
+<div id="outline-container-foobar" class="outline-4">
+<h4 id="foobar">before the closing quote of a string</h4>
+<div class="outline-text-4" id="text-foobar">
+<p>
+Move the point forward.
+</p>
+
+<table><tbody><tr><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp"><span style="color: #2A00FF;">"foo<cursor>"</cursor></span>
+</pre>
+</div>
+</td><td>
+<p>
+-&gt; <kbd>C-d</kbd> -&gt;
+</p>
+</td><td>
+<div class="org-src-container">
+
+<pre class="src src-elisp"><span style="color: #2A00FF;">"foo"</span><cursor> </cursor>
+</pre>
+</div>
+</td></tr></tbody></table>
+</div>
+</div>
+<div id="outline-container-foobar" class="outline-4">
+<h4 id="foobar">otherwise</h4>
+<div class="outline-text-4" id="text-foobar">
+<p>
+Call <a href="./index.html#lispy-delete"><code>lispy-delete</code></a>.
+</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</body>
+</html>
