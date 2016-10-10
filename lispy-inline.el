@@ -116,16 +116,25 @@ The caller of `lispy--show' might use a substitute e.g. `describe-function'."
 (declare-function lispy--current-function "lispy")
 
 ;; ——— Commands ————————————————————————————————————————————————————————————————
+(defun lispy--back-to-python-function ()
+  "Move point from function call at point to the function name."
+  (let ((pt (point))
+        bnd)
+    (condition-case nil
+        (progn
+          (when (setq bnd (lispy--bounds-string))
+            (goto-char (car bnd)))
+          (up-list -1))
+      (error (goto-char pt)))
+    (unless (looking-at "\\_<")
+      (re-search-backward "\\_<" (line-beginning-position)))))
+
 (defun lispy-arglist-inline ()
   "Display arglist for `lispy--current-function' inline."
   (interactive)
   (save-excursion
     (if (eq major-mode 'python-mode)
-        (let ((pt (point)))
-          (condition-case nil
-              (up-list -1)
-            (error (goto-char pt)))
-          (re-search-backward "\\_<" (line-beginning-position)))
+        (lispy--back-to-python-function)
       (lispy--back-to-paren))
     (unless (and (prog1 (lispy--cleanup-overlay)
                    (when (window-minibuffer-p)
@@ -150,8 +159,14 @@ The caller of `lispy--show' might use a substitute e.g. `describe-function'."
             ((eq major-mode 'python-mode)
              (require 'le-python)
              (setq lispy-hint-pos (point))
-             (lispy--show (lispy--python-arglist
-                           (python-info-current-symbol))))
+             (let ((arglist (lispy--python-arglist
+                             (python-info-current-symbol)
+                             (buffer-file-name)
+                             (line-number-at-pos)
+                             (current-column))))
+               (while (eq (char-before) ?.)
+                 (backward-sexp))
+               (lispy--show arglist)))
 
             (t (error "%s isn't supported currently" major-mode))))))
 

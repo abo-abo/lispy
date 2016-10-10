@@ -332,7 +332,7 @@ Otherwise, fall back to Jedi (static)."
              (expand-file-name "lispy-python.py" lispy-site-directory)))
     (setq lispy--python-middleware-loaded-p t)))
 
-(defun lispy--python-arglist (symbol)
+(defun lispy--python-arglist (symbol filename line column)
   (lispy--python-middleware-load)
   (format "%s (%s)"
           symbol
@@ -340,7 +340,8 @@ Otherwise, fall back to Jedi (static)."
                      (delete "self"
                              (lispy--python-array-to-elisp
                               (lispy--eval-python
-                               (format "lp.arglist(%s)" symbol))))
+                               (format "lp.arglist(%s, '%s', %s, %s)"
+                                       symbol filename line column))))
                      ", ")))
 
 (provide 'le-python)
