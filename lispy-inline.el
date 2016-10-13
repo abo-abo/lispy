@@ -130,14 +130,16 @@ The caller of `lispy--show' might use a substitute e.g. `describe-function'."
   "Move point from function call at point to the function name."
   (let ((pt (point))
         bnd)
-    (condition-case nil
-        (progn
-          (when (setq bnd (lispy--bounds-string))
-            (goto-char (car bnd)))
-          (up-list -1))
-      (error (goto-char pt)))
-    (unless (looking-at "\\_<")
-      (re-search-backward "\\_<" (line-beginning-position)))))
+    (if (lispy--in-comment-p)
+        (error "Not possible in a comment")
+      (condition-case nil
+          (progn
+            (when (setq bnd (lispy--bounds-string))
+              (goto-char (car bnd)))
+            (up-list -1))
+        (error (goto-char pt)))
+      (unless (looking-at "\\_<")
+        (re-search-backward "\\_<" (line-beginning-position))))))
 
 (defun lispy-arglist-inline ()
   "Display arglist for `lispy--current-function' inline."
