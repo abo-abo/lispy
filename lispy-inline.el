@@ -69,9 +69,19 @@
   "Face for optional unselected args."
   :group 'lispy-faces)
 
+(defface lispy-face-key-nosel
+  '((t (:inherit lispy-face-hint :slant italic)))
+  "Face for keyword unselected args."
+  :group 'lispy-faces)
+
 (defface lispy-face-opt-sel
   '((t (:inherit lispy-face-opt-nosel :bold t)))
   "Face for optional selected args."
+  :group 'lispy-faces)
+
+(defface lispy-face-key-sel
+  '((t (:inherit lispy-face-opt-nosel :bold t)))
+  "Face for keyword selected args."
   :group 'lispy-faces)
 
 (defface lispy-face-rst-nosel
