@@ -2982,6 +2982,16 @@ Insert KEY if there's no command."
                   (let ((forward-sexp-function nil))
                     (lispy-eval-python-str)))
                  "x = 42 # comment"))
+  (should (equal (lispy-with-python
+                  "|scores = np.array([[1, 2, 3, 6],\n                   [2, 4, 5, 6],\n                   [3, 8, 7, 6]])"
+                  (let ((forward-sexp-function nil))
+                    (lispy-eval-python-str)))
+                 "scores = np.array([[1, 2, 3, 6],[2, 4, 5, 6],[3, 8, 7, 6]])"))
+  (should (equal (lispy-with-python
+                  "|scores = np.array([[1, 2, 3, 6],\\\n                   [2, 4, 5, 6],\\\n                   [3, 8, 7, 6]])"
+                  (let ((forward-sexp-function nil))
+                    (lispy-eval-python-str)))
+                 "scores = np.array([[1, 2, 3, 6],[2, 4, 5, 6],[3, 8, 7, 6]])"))
   (unless (version< emacs-version "24.4.1")
     (should (equal (progn
                      ;; skip initialization msg
