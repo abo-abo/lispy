@@ -300,8 +300,11 @@ Stripping them will produce code that's valid for an eval."
 (defun lispy-goto-symbol-python (symbol)
   (save-restriction
     (widen)
-    (let ((res (ignore-errors (deferred:sync!
-                                  (jedi:goto-definition)))))
+    (let ((res (ignore-errors
+                 (or
+                  (deferred:sync!
+                      (jedi:goto-definition))
+                  t))))
       (if (member res '(nil "Definition not found."))
           (let* ((symbol (python-info-current-symbol))
                  (file (car
