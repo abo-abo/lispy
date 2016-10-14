@@ -125,10 +125,19 @@ Stripping them will produce code that's valid for an eval."
         (get-process proc-name)
       (setq lispy--python-middleware-loaded-p nil)
       (let ((python-shell-font-lock-enable nil)
-            (inferior-python-mode-hook nil))
+            (inferior-python-mode-hook nil)
+            (python-binary-name (python-shell-calculate-command)))
+        (save-excursion
+          (goto-char (point-min))
+          (when (looking-at "#!\\(.*\\)$")
+            (setq python-binary-name
+                  (concat
+                   (match-string-no-properties 1)
+                   " "
+                   python-shell-interpreter-args))))
         (get-buffer-process
          (python-shell-make-comint
-          (python-shell-calculate-command) proc-name nil t))))))
+          python-binary-name proc-name nil t))))))
 
 (defun lispy--eval-python (str &optional plain)
   "Eval STR as Python code."
