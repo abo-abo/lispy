@@ -1383,8 +1383,6 @@ When ARG is more than 1, mark ARGth element."
 (defvar-local lispy-bind-var-in-progress nil
   "When t, `lispy-mark-symbol' will exit `iedit'.")
 
-(defvar iedit-current-symbol)
-
 (defun lispy-mark-symbol ()
   "Mark current symbol."
   (interactive)
@@ -1393,7 +1391,7 @@ When ARG is more than 1, mark ARGth element."
            (iedit-mode)
            (setq lispy-bind-var-in-progress nil)
            (set-mark (point))
-           (search-backward (funcall iedit-current-symbol)))
+           (search-backward (iedit-default-occurrence)))
 
           ((lispy--in-comment-p)
            (if (and (looking-at "\\(?:\\w\\|\\s_\\)*'")
