@@ -6048,7 +6048,8 @@ Return nil on failure, t otherwise."
     (or
      (when cs
        (goto-char cs))
-     (looking-at (concat "^" lispy-outline-header)))))
+     (and (looking-at (concat "^" lispy-outline-header))
+          (point)))))
 
 (defun lispy--comment-search-forward (dir)
   "Search for a first comment in direction DIR.
