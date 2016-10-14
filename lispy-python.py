@@ -47,6 +47,8 @@ def arglist (sym, filename = None, line = None, column = None):
             args = map (format_arg, zip (arg_info.args, defaults))
         else:
             args = arg_info.args
+            if arg_info.varargs:
+                args += arg_info.varargs
         if arg_info.keywords:
             args.append ("**" + arg_info.keywords)
         return args
