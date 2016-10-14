@@ -2554,7 +2554,7 @@ When lispy-left, will slurp ARG sexps forwards.
                          (lispy-flow 2)
                          (lispy--read (lispy--string-dwim))))
           (parent-binds
-           (mapcar #'car
+           (mapcar (lambda (x) (if (consp x) (car x) x))
                    (save-excursion
                      (lispy-up 1)
                      (lispy--read (lispy--string-dwim)))))
@@ -2564,8 +2564,7 @@ When lispy-left, will slurp ARG sexps forwards.
           (beg (save-excursion
                  (lispy-up 1)
                  (lispy-different)
-                 (lispy-flow 1)
-                 (point))))
+                 (1- (point)))))
       (save-excursion
         (forward-list)
         (delete-char -1))
@@ -2579,7 +2578,8 @@ When lispy-left, will slurp ARG sexps forwards.
               (replace-match "(let*")
               (lispy--out-backward 1)
               (indent-sexp))
-          (error "unexpected"))))
+          (error "unexpected")))
+      (lispy--normalize-1))
     t))
 
 (defun lispy-barf-to-point (arg)

@@ -1126,7 +1126,9 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "(,@|(a))" "/")
                    "|(a)"))
   (should (string= (lispy-with "#2A|((a b) (0 1))" "/")
-                   "|(a b) (0 1)")))
+                   "|(a b) (0 1)"))
+  (should (string= (lispy-with "(let (foo)\n  |(let ((bar (point)))\n    (baz)))" "/")
+                   "|(let (foo\n      (bar (point)))\n  (baz))")))
 
 (ert-deftest lispy-barf-to-point ()
   (should (string= (lispy-with "((a) (b)| (c))" (lispy-barf-to-point nil))
