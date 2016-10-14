@@ -5337,7 +5337,7 @@ X is an item of a radio- or choice-type defcustom."
 
 (declare-function projectile-find-file "ext:projectile")
 (declare-function projectile-find-file-other-window "ext:projectile")
-(declare-function projectile-global-mode "ext:projectile")
+(declare-function projectile-mode "ext:projectile")
 (declare-function projectile-project-root "ext:projectile")
 (defvar projectile-mode)
 (declare-function find-file-in-project "ext:find-file-in-project")
@@ -5348,7 +5348,7 @@ X is an item of a radio- or choice-type defcustom."
   (if (eq lispy-visit-method 'ffip)
       (find-file-in-project)
     (unless projectile-mode
-      (projectile-global-mode 1))
+      (projectile-mode 1))
     (cond ((= arg 1)
            (projectile-find-file nil))
           ((= arg 2)
