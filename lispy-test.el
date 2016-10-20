@@ -302,6 +302,9 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "(let ((a (1+)))\n  |)"
                                (lispy-dedent-adjust-parens 1))
                    "(let ((a (1+))))\n|"))
+  (should (string= (lispy-with "(a\n ;; comment\n |)"
+                               (lispy-dedent-adjust-parens 1))
+                   "(a\n ;; comment\n )\n|"))
   ;; test when in a list with sexps after the current one
   (should (string= (lispy-with "(((a)\n  |(b)\n  (c)\n  (d)))"
                                (lispy-dedent-adjust-parens 1))
@@ -324,7 +327,10 @@ Insert KEY if there's no command."
                    "(((a)))\n|(b)\n(c)\n(d)"))
   (should (string= (lispy-with "(\n|a)"
                                (lispy-dedent-adjust-parens 1))
-                   "()\n|a")))
+                   "()\n|a"))
+  (should (string= (lispy-with "((a\n  ;; comment\n  |))"
+                               (lispy-dedent-adjust-parens 2))
+                   "((a\n  ;; comment\n  ))\n|")))
 
 (ert-deftest lispy-move-left ()
   (should (string= (lispy-with "(progn\n |(sexp1)\n (sexp2))" "oh")
