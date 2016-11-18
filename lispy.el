@@ -4153,11 +4153,13 @@ Unlike `comment-region', ensure a contiguous comment."
   (interactive "r")
   (goto-char beg)
   (beginning-of-line)
-  (while (< (point) end)
-    (insert lispy-outline-header)
-    (unless (eolp)
-      (insert " "))
-    (beginning-of-line 2)))
+  (let ((elen (length lispy-outline-header)))
+    (while (< (point) end)
+      (insert lispy-outline-header)
+      (setq end (+ end elen))
+      (unless (eolp)
+        (insert " "))
+      (beginning-of-line 2))))
 
 (defun lispy-eval-and-replace ()
   "Eval last sexp and replace it with the result."
