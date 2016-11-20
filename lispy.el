@@ -3618,7 +3618,8 @@ When SILENT is non-nil, don't issue messages."
                      (skip-chars-backward "\n\t ")
                      (forward-char 1)))))
               ((eolp)
-               (comment-dwim nil))
+               (comment-dwim nil)
+               (when lispy-comment-use-single-semicolon (just-one-space)))
               ((looking-at " *[])}]")
                (if lispy-comment-use-single-semicolon
                    (if (lispy-bolp)
