@@ -5289,7 +5289,7 @@ If already there, return it to previous position."
   (interactive)
   (lispy-from-left
    (let ((window-line (count-lines (window-start) (point))))
-     (if (or (= window-line 0)
+     (if (or (= window-line scroll-margin)
              (and (not (bolp)) (= window-line (1+ scroll-margin))))
          (recenter (or (get 'lispy-recenter :line) 0))
        (put 'lispy-recenter :line window-line)
