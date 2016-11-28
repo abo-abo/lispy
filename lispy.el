@@ -4017,11 +4017,15 @@ When ARG is 2, insert the result as a comment."
       nil)))
 
 (defun lispy-eval-outline ()
-  (let ((lvl (lispy-outline-level)))
-    (lispy-eval-single-outline)
+  "Evaluate the current outline and its children.
+Return the result of the last evaluation as a string."
+  (let ((lvl (lispy-outline-level))
+        ans)
+    (setq ans (lispy-eval-single-outline))
     (while (and (lispy-forward-outline)
                 (> (lispy-outline-level) lvl))
-      (lispy-eval-single-outline))))
+      (setq ans (lispy-eval-single-outline)))
+    ans))
 
 (defun lispy-eval-single-outline ()
   (let* ((outline-start (point))
