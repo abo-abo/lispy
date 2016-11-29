@@ -4051,7 +4051,8 @@ Return the result of the last evaluation as a string."
           ((= ?: (char-before (line-end-position)))
            (goto-char outline-end)
            (lispy--insert-eval-result res)
-           (goto-char outline-start))
+           (goto-char outline-start)
+           res)
           (t
            (message res)))))
 
