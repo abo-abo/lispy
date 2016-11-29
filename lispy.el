@@ -4165,9 +4165,10 @@ Unlike `comment-region', ensure a contiguous comment."
   (let ((elen (length lispy-outline-header)))
     (while (< (point) end)
       (insert lispy-outline-header)
-      (setq end (+ end elen))
+      (cl-incf end elen)
       (unless (eolp)
-        (insert " "))
+        (insert " ")
+        (cl-incf end 1))
       (beginning-of-line 2))))
 
 (defun lispy-eval-and-replace ()
