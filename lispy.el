@@ -4040,7 +4040,7 @@ Return the result of the last evaluation as a string."
          bnd
          (outline-end
           (save-excursion
-            (forward-char)
+            (end-of-line)
             (if (re-search-forward lispy-outline nil t)
                 (goto-char (match-beginning 0))
               (goto-char (point-max)))
