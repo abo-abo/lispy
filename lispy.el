@@ -1579,6 +1579,8 @@ When this function is called:
     (clojure-mode . ("[`'~@]+" "#" "#\\?@?"))
     (clojurescript-mode . ("[`'~@]+" "#" "#\\?@?"))
     (clojurec-mode . ("[`'~@]+" "#" "#\\?@?"))
+    (cider-repl-mode . ("[`'~@]+" "#" "#\\?@?"))
+    (cider-clojure-interaction-mode . ("[`'~@]+" "#" "#\\?@?"))
     (t . ("[`',@]+")))
   "An alist of `major-mode' to a list of regexps.
 Each regexp describes valid syntax that can precede an opening paren in that
@@ -1588,6 +1590,9 @@ major mode. These regexps are used to determine whether to insert a space for
 (defvar lispy-brackets-preceding-syntax-alist
   '((clojure-mode . ("[`']" "#[A-z.]*"))
     (clojurescript-mode . ("[`']" "#[A-z.]*"))
+    (clojurec-mode . ("[`']" "#[A-z.]*"))
+    (cider-repl-mode . ("[`']" "#[A-z.]*"))
+    (cider-clojure-interaction-mode . ("[`']" "#[A-z.]*"))
     (t . nil))
   "An alist of `major-mode' to a list of regexps.
 Each regexp describes valid syntax that can precede an opening bracket in that
@@ -1597,6 +1602,9 @@ major mode. These regexps are used to determine whether to insert a space for
 (defvar lispy-braces-preceding-syntax-alist
   '((clojure-mode . ("[`'^]" "#[A-z.]*"))
     (clojurescript-mode . ("[`'^]" "#[A-z.]*"))
+    (clojurec-mode . ("[`'^]" "#[A-z.]*"))
+    (cider-repl-mode . ("[`'^]" "#[A-z.]*"))
+    (cider-clojure-interaction-mode . ("[`'^]" "#[A-z.]*"))
     (t . nil))
   "An alist of `major-mode' to a list of regexps.
 Each regexp describes valid syntax that can precede an opening brace in that
