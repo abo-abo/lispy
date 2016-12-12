@@ -1705,7 +1705,8 @@ If jammed between parens, \"(|(\" unjam: \"(| (\"."
                (backward-char))
            (backward-char)
            (just-one-space)))
-        ((lispy-looking-back lispy-left)
+        ((and (lispy-looking-back lispy-left)
+              (not (eq ?\\ (char-before (match-beginning 0)))))
          (call-interactively 'self-insert-command)
          (backward-char))
         (t

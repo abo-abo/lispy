@@ -2192,7 +2192,9 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "{|()}" " ")
                    "{| ()}"))
   (should (string= (lispy-with "|(cdr )" "3 ")
-                   "(cdr |)")))
+                   "(cdr |)"))
+  (should (string= (lispy-with-clojure "(list \\(|)" " ")
+                   "(list \\( |)")))
 
 (ert-deftest lispy-kill-word ()
   (should (string= (lispy-with "|  (require 'cl)" (kbd "M-d"))
