@@ -6446,7 +6446,10 @@ For example, a `setq' statement is amended with variable name that it uses."
         (char (char-before)))
     (skip-chars-forward " \t")
     (delete-region pt (point))
-    (unless (or (lispy-after-string-p "()") (eolp))
+    (unless (or (lispy-after-string-p "()")
+                (lispy-after-string-p "[]")
+                (lispy-after-string-p "{}")
+                (eolp))
       (insert " "))
     (when (ignore-errors
             (forward-sexp) t)
