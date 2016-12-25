@@ -523,6 +523,8 @@ Insert KEY if there's no command."
                    "\n;comment\n|"))
   (should (string= (lispy-with "(|(a) (b) (c))" "\C-k")
                    "(|)"))
+  (should (string= (lispy-with "((a)\n| (b)\n (c))" "\C-k")
+                   "((a)\n|\n (c))"))
   (should (string= (lispy-with "((a) |(b) (c))" "\C-k")
                    "((a) |)"))
   (should (string= (lispy-with "((a) (b) |(c))" "\C-k")

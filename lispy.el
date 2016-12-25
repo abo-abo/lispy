@@ -986,21 +986,12 @@ If position isn't special, move to previous or error."
           (t
            (let ((beg (point))
                  (end (line-end-position)))
-             (if (= (count-matches lispy-left beg end)
-                    (count-matches lispy-right beg end))
-                 (kill-line)
-               (if (let ((lispy-ignore-whitespace t))
-                     (lispy--out-forward 1))
-                   (progn
-                     (backward-char 1)
-                     (if (= beg (point))
-                         (lispy--out-backward 1)
-                       (kill-region beg (point))))
-                 (if (= beg (point))
-                     (progn
-                       (setq bnd (lispy--bounds-dwim))
-                       (kill-region (car bnd) (cdr bnd)))
-                   (kill-region beg (point))))))))))
+             (while (and (< (point) end)
+                         (ignore-errors
+                           (forward-sexp 1)
+                           t)))
+             (skip-chars-forward " \t")
+             (kill-region beg (point)))))))
 
 (defun lispy-kill-word (arg)
   "Kill ARG words, keeping parens consistent."
