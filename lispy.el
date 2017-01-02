@@ -991,6 +991,7 @@ If position isn't special, move to previous or error."
              (while (and (< (point) end)
                          (ignore-errors
                            (forward-sexp 1)
+                           (skip-chars-forward " ")
                            t)))
              (skip-chars-forward " \t")
              (kill-region beg (point)))))))
