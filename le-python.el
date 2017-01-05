@@ -199,7 +199,8 @@ Stripping them will produce code that's valid for an eval."
              "u?'"))))
 
 (defun lispy-python-completion-at-point ()
-  (cond ((looking-back "^\\(import\\|from\\) .*" (line-beginning-position))
+  (cond ((or (looking-back "^\\(import\\|from\\) .*" (line-beginning-position))
+             (looking-back "^ *\\(?:\\sw\\|\\s_\\)+" (line-beginning-position)))
          (let* ((line (buffer-substring-no-properties
                        (line-beginning-position)
                        (point)))
