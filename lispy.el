@@ -5767,26 +5767,30 @@ whitespace."
 PRECEDING-SYNTAX-ALIST should be an alist of `major-mode' to a list of regexps.
 The regexps correspond to valid syntax that can precede an opening delimiter in
 each major mode."
-  (let ((space "[[:space:]]")
-        (special-syntax
-         (concat "\\(?:"
-                 (apply #'concat
-                        (lispy-interleave
-                         "\\|"
-                         (or (cdr (assoc major-mode preceding-syntax-alist))
-                             (cdr (assoc t preceding-syntax-alist)))))
-                 "\\)")))
+  (let* ((space "[[:space:]]")
+         (space-or-eol (concat "\\(" space "+\\|" space "*$\\)"))
+         (right-or-eol (concat "\\(" lispy-right "+\\|" space "*$\\)"))
+         (special-syntax
+           (concat "\\(?:"
+                   (apply #'concat
+                          (lispy-interleave
+                           "\\|"
+                           (or (cdr (assoc major-mode preceding-syntax-alist))
+                               (cdr (assoc t preceding-syntax-alist)))))
+                   "\\)"))
+         (line (buffer-substring-no-properties
+                (line-beginning-position)
+                (line-end-position))))
     (or (lispy--in-empty-list-p)
         ;; empty line
-        (and (looking-at (concat space "*$"))
-             (lispy-looking-back (concat "^" space "*" special-syntax "*")))
+        (string-match (concat "^" space "*" special-syntax "*" space "*$")
+                      line)
         ;; empty position at end of list or line
-        (and (looking-at (concat space "*" lispy-right "*" space "*$"))
+        (and (looking-at right-or-eol)
              (lispy-looking-back (concat space "+" special-syntax "*")))
         ;; empty position at beginning of list
-        (and (looking-at (concat "\\(" space "+\\|" space "*$\\)"))
-             (lispy-looking-back (concat lispy-left space "*" special-syntax
-                                         "*")))
+        (and (looking-at space-or-eol)
+             (lispy-looking-back (concat lispy-left special-syntax "*")))
         ;; empty position in middle
         (and (looking-at (concat space "+"))
              (lispy-looking-back (concat space "+" special-syntax "*"))))))
