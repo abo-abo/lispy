@@ -8563,15 +8563,24 @@ When ARG is non-nil, unquote the current string."
 
 (defvar lispy-mode-map-evilcp
   (let ((map (copy-keymap lispy-mode-map-base)))
-    (define-key map (kbd "M-)") 'lispy-close-round-and-newline)
+    ;; pairs
+    (define-key map (kbd ")") 'lispy-right-nostring)
     (define-key map (kbd "[") 'lispy-open-square)
     (define-key map (kbd "]") 'lispy-close-square)
     (define-key map (kbd "{") 'lispy-open-curly)
     (define-key map (kbd "}") 'lispy-close-curly)
-    (define-key map (kbd ")") 'lispy-right-nostring)
     (define-key map (kbd "\"") 'lispy-doublequote)
-    (define-key map (kbd "M-\"") 'lispy-meta-doublequote)
-    (define-key map (kbd "DEL") 'lispy-backward-delete)
+    ;; wrapping
+    (define-key map (kbd "M-(") 'lispy-wrap-round)
+    (define-key map (kbd "M-{") 'lispy-wrap-braces)
+    (define-key map (kbd "M-[") 'lispy-wrap-brackets)
+    (define-key map (kbd "M-)") 'evil-cp-wrap-previous-round)
+    (define-key map (kbd "M-}") 'evil-cp-wrap-previous-curly)
+    (define-key map (kbd "M-]") 'evil-cp-wrap-previous-square)
+    (define-key map (kbd "M-\"") 'paredit-meta-doublequote)
+    ;; other manipulations
+    (define-key map (kbd "DEL") 'lispy-delete-backward-or-splice-or-slurp)
+    (define-key map (kbd "C-d") 'lispy-delete-or-splice-or-slurp)
     (define-key map (kbd "M-s") 'lispy-splice)
     (define-key map (kbd "M-<up>") 'lispy-splice-sexp-killing-backward)
     (define-key map (kbd "M-<down>") 'lispy-splice-sexp-killing-backward)
@@ -8579,23 +8588,18 @@ When ARG is non-nil, unquote the current string."
     (define-key map (kbd "M-?") 'lispy-convolute-sexp)
     (define-key map (kbd "M-S") 'lispy-split)
     (define-key map (kbd "M-J") 'lispy-join)
-    (define-key map (kbd "{") 'lispy-braces)
-    (define-key map (kbd "}") 'lispy-brackets)
-    (define-key map (kbd "]") 'lispy-forward)
-    (define-key map (kbd "[") 'lispy-backward)
-    (define-key map (kbd "M-(") 'evil-cp-wrap-next-round)
-    (define-key map (kbd "M-{") 'evil-cp-wrap-next-curly)
-    (define-key map (kbd "M-}") 'evil-cp-wrap-next-square)
-    (define-key map (kbd "<") 'evil-cp-<)
-    (define-key map (kbd ">") 'evil-cp->)
-    (define-key map (kbd "y") 'lispy-new-copy)
     (define-key map (kbd "<C-return>") 'lispy-open-line)
     (define-key map (kbd "<M-return>") 'lispy-meta-return)
     (define-key map (kbd "M-k") 'lispy-move-up)
     (define-key map (kbd "M-j") 'lispy-move-down)
     (define-key map (kbd "M-o") 'lispy-string-oneline)
     (define-key map (kbd "M-p") 'lispy-clone)
-    (define-key map (kbd "M-\"") 'paredit-meta-doublequote)
+    map))
+
+(defvar lispy-mode-map-evilcp-special
+  (let ((map (copy-keymap lispy-mode-map-special)))
+    (lispy-define-key map "<" 'lispy-slurp-or-barf-left)
+    (lispy-define-key map ">" 'lispy-slurp-or-barf-right)
     map))
 
 (defvar lispy-mode-map-c-digits
@@ -8668,10 +8672,11 @@ THEME is a list of choices: 'special, 'lispy, 'paredit, 'evilcp, 'c-digits."
          (delq nil
                (list
                 (when (memq 'special theme) lispy-mode-map-special)
+                (when (memq 'evilcp theme) lispy-mode-map-evilcp)
                 (when (memq 'lispy theme) lispy-mode-map-lispy)
                 (when (memq 'paredit theme) lispy-mode-map-paredit)
                 (when (memq 'parinfer theme) lispy-mode-map-parinfer)
-                (when (memq 'evilcp theme) lispy-mode-map-evilcp)
+                (when (memq 'evilcp-special theme) lispy-mode-map-evilcp-special)
                 (when (memq 'c-digits theme) lispy-mode-map-c-digits)
                 (when (memq 'oleh theme) lispy-mode-map-oleh)))))
   (setcdr
