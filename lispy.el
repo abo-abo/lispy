@@ -987,12 +987,15 @@ If position isn't special, move to previous or error."
                (kill-region (point) pt))))
           (t
            (let ((beg (point))
-                 (end (line-end-position)))
+                 (end (line-end-position))
+                 bnd)
              (while (and (< (point) end)
                          (ignore-errors
                            (forward-sexp 1)
                            (skip-chars-forward " ")
-                           t)))
+                           t))
+               (when (setq bnd (lispy--bounds-comment))
+                 (goto-char (cdr bnd))))
              (skip-chars-forward " \t")
              (kill-region beg (point)))))))
 

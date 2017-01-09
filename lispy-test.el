@@ -566,7 +566,10 @@ Insert KEY if there's no command."
                    "(progn\n|\n  (new-code))"))
   (should (equal (lispy-with "(progn\n  |\"test\" \n  (bar))"
                            "\C-k")
-                 "(progn\n  |\n  (bar))")))
+                 "(progn\n  |\n  (bar))"))
+  (should (equal (lispy-with "(progn\n|  \"docs\" ;;  0\n  (one)  ;;  1\n  )"
+                             "\C-k")
+                 "(progn\n|\n  (one)  ;;  1\n  )")))
 
 (ert-deftest lispy-yank ()
   (should (string= (lispy-with "\"|\"" (kill-new "foo") (lispy-yank))
