@@ -104,6 +104,10 @@ Stripping them will produce code that's valid for an eval."
     (cons (point)
           (save-excursion
             (end-of-line)
+            (let (bnd)
+              (when (setq bnd (lispy--bounds-string))
+                (goto-char (cdr bnd))))
+            (end-of-line)
             (while (member (char-before)
                            '(?\\ ?,))
               (end-of-line 2))
