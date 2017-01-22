@@ -21,10 +21,7 @@ import inspect
 import jedi
 
 def arglist_retrieve (sym):
-    try:
-        return inspect.getargspec (sym.__init__)
-    except TypeError:
-        return inspect.getargspec (sym)
+    return inspect.getargspec (sym)
 
 def format_arg (arg_pair):
     name, default_value = arg_pair
