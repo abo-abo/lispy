@@ -192,15 +192,25 @@ Stripping them will produce code that's valid for an eval."
 (defun lispy--python-array-to-elisp (array-str)
   "Transform a Python string ARRAY-STR to an Elisp string array."
   (when (stringp array-str)
-    (mapcar (lambda (s)
-              (if (string-match "\\`\"" s)
-                  (read s)
-                s))
-            (split-string
-             (substring array-str 1 -1)
-             ", "
-             t
-             "u?'"))))
+    (let ((parts (with-temp-buffer
+                   (python-mode)
+                   (insert (substring array-str 1 -1))
+                   (goto-char (point-min))
+                   (let (beg res)
+                     (while (< (point) (point-max))
+                       (setq beg (point))
+                       (forward-sexp)
+                       (push (buffer-substring-no-properties beg (point)) res)
+                       (skip-chars-forward ", "))
+                     (nreverse res)))))
+      (mapcar (lambda (s)
+                (if (string-match "\\`\"" s)
+                    (read s)
+                  (if (string-match "\\`'\\(.*\\)'\\'" s)
+                      (match-string 1 s)
+                    s
+                    )))
+              parts))))
 
 (defun lispy-python-completion-at-point ()
   (cond ((looking-back "^\\(import\\|from\\) .*" (line-beginning-position))
