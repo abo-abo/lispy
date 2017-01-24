@@ -148,9 +148,14 @@ Stripping them will produce code that's valid for an eval."
   (let ((single-line-p (= (cl-count ?\n str) 0)))
     (unless plain
       (setq str (string-trim-left str))
-      (when (and single-line-p
-                 (string-match "\\`\\(\\(?:[., ]\\|\\sw\\|\\s_\\|[][]\\)+\\) += " str))
-        (setq str (concat str (format "\nprint (repr ((%s)))" (match-string 1 str))))))
+      (cond ((and single-line-p
+                  (string-match "\\`\\(\\(?:[., ]\\|\\sw\\|\\s_\\|[][]\\)+\\) += " str))
+             (setq str (concat str (format "\nprint (repr ((%s)))" (match-string 1 str)))))
+            ((and single-line-p
+                  (string-match "\\`\\(.*\\) in \\(.*\\)\\'" str))
+             (let ((vars (match-string 1 str))
+                   (val (match-string 2 str)))
+               (setq str (format "%s = list (%s)[0]\nprint ((%s))" vars val vars))))))
     (let ((res
            (cond ((or single-line-p
                       (string-match "\n .*\\'" str)
