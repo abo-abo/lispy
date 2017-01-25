@@ -234,7 +234,18 @@ Stripping them will produce code that's valid for an eval."
                 (end (if bnd (cdr bnd) (point))))
            (list beg end cands)))
         (t
-         (python-shell-completion-at-point (lispy--python-proc)))))
+         (let ((comp (python-shell-completion-at-point (lispy--python-proc))))
+           (list (nth 0 comp)
+                 (nth 1 comp)
+                 (mapcar (lambda (s)
+                           (if (string-match "(\\'" s)
+                               (substring s 0 (match-beginning 0))
+                             s))
+                         (all-completions
+                          (buffer-substring-no-properties
+                           (nth 0 comp)
+                           (nth 1 comp))
+                          (nth 2 comp))))))))
 
 (defvar lispy--python-arg-key-re "\\`\\(\\(?:\\sw\\|\\s_\\)+\\) ?= ?\\(.*\\)\\'"
   "Constant regexp for matching function keyword spec.")
