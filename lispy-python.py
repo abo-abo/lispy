@@ -21,7 +21,14 @@ import inspect
 import jedi
 
 def arglist_retrieve (sym):
-    return inspect.getargspec (sym)
+    if hasattr(inspect,'getfullargspec'):
+        res = inspect.getfullargspec (sym)
+        return inspect.ArgSpec (args = res.args,
+                                varargs = res.varargs,
+                                defaults = res.defaults,
+                                keywords = res.kwonlydefaults)
+    else:
+        return inspect.getargspec (sym)
 
 def format_arg (arg_pair):
     name, default_value = arg_pair
@@ -55,7 +62,11 @@ def arglist (sym, filename = None, line = None, column = None):
             if arg_info.varargs:
                 args += arg_info.varargs
         if arg_info.keywords:
-            args.append ("**" + arg_info.keywords)
+            if type (arg_info.keywords) is dict:
+                for k, v in arg_info.keywords.items ():
+                    args.append ("%s = %s" % (k, v))
+            else:
+                args.append ("**" + arg_info.keywords)
         return args
     except TypeError:
         script = jedi.Script(None, line, column, filename)
