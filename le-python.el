@@ -152,7 +152,7 @@ Stripping them will produce code that's valid for an eval."
                   (string-match "\\`\\(\\(?:[., ]\\|\\sw\\|\\s_\\|[][]\\)+\\) += " str))
              (setq str (concat str (format "\nprint (repr ((%s)))" (match-string 1 str)))))
             ((and single-line-p
-                  (string-match "\\`\\(.*\\) in \\(.*\\)\\'" str))
+                  (string-match "\\`\\(\\sw\\|\\s_\\)+ in \\(.*\\)\\'" str))
              (let ((vars (match-string 1 str))
                    (val (match-string 2 str)))
                (setq str (format "%s = list (%s)[0]\nprint ((%s))" vars val vars))))))
