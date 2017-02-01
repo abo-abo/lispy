@@ -709,6 +709,9 @@ Insert KEY if there's no command."
                        "~{[(| d)]}"))
       (should (string= (lispy-with "{[(a~\n b\n ;; ]{](\n d)]}|" "\C-d")
                        "{[(a~)]}|"))
+      ;; delimiters before comments shouldn't be considered part of the comment
+      (should (string= (lispy-with "~(;; a\n |b)" "\C-d")
+                       "~(|b)"))
       ;; both mixed
       (should (string= (lispy-with "{[(a\n~   b \"c [(d e}\"\n   ;;({]\n|   f)]}"
                                    "\C-d")
