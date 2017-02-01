@@ -19,6 +19,7 @@
 
 import inspect
 import jedi
+import ast
 
 def arglist_retrieve (sym):
     if hasattr(inspect,'getfullargspec'):
@@ -77,3 +78,7 @@ def arglist (sym, filename = None, line = None, column = None):
             raise TypeError (">1 definitions found")
         else:
             return delete ('', mapcar (lambda x: x.description, defs[0].params))
+
+def is_assignment (code):
+    ops = ast.parse (code).body
+    return len (ops) == 1 and type (ops[0]) is ast.Assign
