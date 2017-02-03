@@ -121,7 +121,9 @@ Stripping them will produce code that's valid for an eval."
         (lispy-message
          (replace-regexp-in-string
           "%" "%%" res))
-      (lispy-message lispy-eval-error))))
+      (lispy-message
+       (replace-regexp-in-string
+        "%" "%%" lispy-eval-error)))))
 
 (defun lispy--python-proc ()
   (let ((proc-name "Python Internal[lispy]"))
