@@ -55,6 +55,19 @@
     (lispy-font-lock-ensure)
     (buffer-string)))
 
+(defun lispy--eval-nrepl-clojure (str namespace)
+  (condition-case nil
+      (nrepl-sync-request:eval
+       str
+       (cider-current-connection)
+       (cider-current-session)
+       namespace)
+    (error
+     (nrepl-sync-request:eval
+      str
+      (cider-current-connection)
+      namespace))))
+
 (defun lispy--eval-clojure (str &optional add-output lax)
   "Eval STR as Clojure code.
 The result is a string.
@@ -84,10 +97,8 @@ Generate an appropriate def from for that let binding and eval it."
                   (format "(clojure.core/let [x %s] (with-out-str (clojure.pprint/pprint x)))"
                           str)
                 str))
-             (res (nrepl-sync-request:eval
+             (res (lispy--eval-nrepl-clojure
                    str
-                   (cider-current-connection)
-                   (cider-current-session)
                    (if lax
                        "user"
                      (cider-current-ns))))
