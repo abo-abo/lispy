@@ -4124,7 +4124,7 @@ When ARG isn't nil, try to pretty print the sexp."
              (lispy-different))
             ((eq major-mode 'python-mode)
              (end-of-line)))
-      (lispy--insert-eval-result str)
+      (lispy--insert-eval-result (or str lispy-eval-error))
       (unless (eolp)
         (newline)))
     (lispy--reindent 1)
