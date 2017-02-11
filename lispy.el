@@ -4135,36 +4135,58 @@ When ARG isn't nil, try to pretty print the sexp."
   (let (bound)
     (if (not (looking-at
               (format "\n *\\(%s\\) ?=>" lispy-outline-header)))
-        (newline)
+        (newline-and-indent)
       (goto-char (1+ (match-beginning 1)))
       (setq bound (lispy--bounds-comment))
       (delete-region (car bound) (cdr bound)))
     (save-restriction
-      (narrow-to-region (point) (point))
-      (insert str)
-      (delete-trailing-whitespace)
-      (while (lispy-after-string-p "\n")
-        (delete-char -1))
-      (save-excursion
-        (if (and (lispy-right-p)
-                 (memq major-mode (append lispy-elisp-modes
-                                          lispy-clojure-modes
-                                          '(scheme-mode lisp-mode))))
-            (progn
-              ;; avoid "Lisp nesting exceeds `max-lisp-eval-depth'"
-              (ignore-errors
-                (lispy-alt-multiline t))
-              (goto-char (point-min))
-              (insert "=>\n"))
-          (goto-char (point-min))
-          (insert "=> ")
-          (forward-line 1)
-          (while (< (point) (point-max))
-            (unless (eolp)
-              (insert "   "))
-            (forward-line 1))))
-      (lispy-comment-region (point-min) (point-max))
-      (goto-char (point-max)))))
+      (let ((indent (buffer-substring-no-properties
+                     (line-beginning-position) (point)))
+            (beg (line-beginning-position)))
+        (delete-region (line-beginning-position) (point))
+        (narrow-to-region (point) (point))
+        (insert str)
+        (delete-trailing-whitespace)
+        (while (lispy-after-string-p "\n")
+          (delete-char -1))
+        (save-excursion
+          (cond ((and (lispy-right-p)
+                      (memq major-mode (append lispy-elisp-modes
+                                               lispy-clojure-modes
+                                               '(scheme-mode lisp-mode))))
+                 (ignore-errors
+                   (lispy-alt-multiline t))
+                 (goto-char (point-min))
+                 (insert "=>\n"))
+                ((and (lispy-right-p)
+                      (eq major-mode 'python-mode))
+                 (if (looking-back "}")
+                     (progn
+                       (while (search-backward "," nil t)
+                         (let ((pt (point)))
+                           (when (looking-at "\\s.")
+                             (forward-char 1)
+                             (newline-and-indent))
+                           (goto-char (1- pt))))
+                       (goto-char (point-max)))
+                   (fill-paragraph))
+                 (let ((ln (line-number-at-pos)))
+                   (goto-char (point-min))
+                   (insert "=>")
+                   (insert (if (= ln 1) " " "\n"))))
+                (t
+                 (goto-char (point-min))
+                 (insert "=> ")
+                 (forward-line 1)
+                 (while (< (point) (point-max))
+                   (unless (eolp)
+                     (insert "   "))
+                   (forward-line 1)))))
+        (lispy-comment-region (point-min) (point-max))
+        (goto-char (point-min))
+        (while (< (point) (point-max))
+          (insert indent)
+          (beginning-of-line 2))))))
 
 (defun lispy-comment-region (beg end)
   "Comment the region between BEG and END.
