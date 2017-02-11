@@ -126,10 +126,10 @@ Stripping them will produce code that's valid for an eval."
         "%" "%%" lispy-eval-error)))))
 
 (defun lispy--python-proc ()
-  (let ((proc-name "Python Internal[lispy]"))
-    (if (process-live-p proc-name)
-        (get-process proc-name)
-      (setq lispy--python-middleware-loaded-p nil)
+  (let* ((proc-name "Python Internal[lispy]")
+         (process (get-process proc-name)))
+    (if (process-live-p process)
+        process
       (let ((python-shell-font-lock-enable nil)
             (inferior-python-mode-hook nil)
             (python-binary-name (python-shell-calculate-command)))
@@ -141,9 +141,12 @@ Stripping them will produce code that's valid for an eval."
                    (match-string-no-properties 1)
                    " "
                    python-shell-interpreter-args))))
-        (get-buffer-process
-         (python-shell-make-comint
-          python-binary-name proc-name nil t))))))
+        (setq process (get-buffer-process
+                       (python-shell-make-comint
+                        python-binary-name proc-name nil t))))
+      (setq lispy--python-middleware-loaded-p nil)
+      (lispy--python-middleware-load)
+      process)))
 
 (defun lispy--eval-python (str &optional plain)
   "Eval STR as Python code."
