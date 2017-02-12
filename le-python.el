@@ -332,9 +332,12 @@ Stripping them will produce code that's valid for an eval."
          (fn-defaults
           (mapcar
            (lambda (x)
-             (if (null x)
-                 "None"
-               (prin1-to-string x)))
+             (cond ((null x)
+                    "None")
+                   ((eq x t)
+                    "True")
+                   (t
+                    (prin1-to-string x))))
            (elt fn-data 3)))
          (fn-alist
           (cl-mapcar #'cons
