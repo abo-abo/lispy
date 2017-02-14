@@ -208,7 +208,8 @@ Stripping them will produce code that's valid for an eval."
 
 (defun lispy--python-array-to-elisp (array-str)
   "Transform a Python string ARRAY-STR to an Elisp string array."
-  (when (stringp array-str)
+  (when (and (stringp array-str)
+             (not (string= array-str "")))
     (let ((parts (with-temp-buffer
                    (python-mode)
                    (insert (substring array-str 1 -1))
