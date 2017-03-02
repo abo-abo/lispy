@@ -47,8 +47,8 @@
   (semantic-new-buffer-fcn)
   (let ((tags (semantic-parse-region (point-min) (point-max))))
     (when (memq major-mode (cons 'lisp-mode lispy-elisp-modes))
-      (lexical-let ((arity (cdr (assoc major-mode lispy-tag-arity)))
-                    (tag-regex (lispy--tag-regexp)))
+      (let ((arity (cdr (assoc major-mode lispy-tag-arity)))
+            (tag-regex (lispy--tag-regexp)))
         (mapc (lambda (x) (lispy--modify-tag x tag-regex arity file)) tags)))
     tags))
 
