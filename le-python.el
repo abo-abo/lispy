@@ -58,10 +58,11 @@ Stripping them will produce code that's valid for an eval."
                           (line-beginning-position)
                           (point))))
                       "" (lispy--string-dwim))))
-                  ((looking-at lispy-outline)
+                  ((and (looking-at lispy-outline)
+                        (looking-at lispy-outline-header))
                    (string-trim-right
                     (lispy--string-dwim
-                     (lispy--bounds-dwim))))
+                     (lispy--bounds-outline))))
                   ((setq bnd (lispy-bounds-python-block))
                    (lispy-trim-python
                     (lispy--string-dwim bnd)))
