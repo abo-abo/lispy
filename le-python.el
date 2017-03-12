@@ -188,7 +188,8 @@ Stripping them will produce code that's valid for an eval."
   (let ((single-line-p (= (cl-count ?\n str) 0)))
     (unless plain
       (setq str (string-trim-left str))
-      (cond ((and (string-match "\\`\\(\\(?:[., ]\\|\\sw\\|\\s_\\|[][]\\)+\\) += " str)
+      (cond ((and (or (string-match "\\`\\(\\(?:[., ]\\|\\sw\\|\\s_\\|[][]\\)+\\) += " str)
+                      (string-match "\\`\\(([^)]+)\\) *=" str))
                   (save-match-data
                     (or single-line-p
                         (and (not (string-match-p "lp\\." str))
@@ -196,6 +197,7 @@ Stripping them will produce code that's valid for an eval."
                               (format "x=lp.is_assignment(\"\"\"%s\"\"\")\nprint (x)" str)
                               t)))))
              (setq str (concat str (format "\nprint (repr ((%s)))" (match-string 1 str)))))
+            ;; match e.g. "x in array" part of  "for x in array:"
             ((and single-line-p
                   (string-match "\\`\\([A-Z_a-z,0-9 ()]+\\) in \\(.*\\)\\'" str))
              (let ((vars (match-string 1 str))
