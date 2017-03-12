@@ -4346,13 +4346,22 @@ When ARG is non-nil, force select the window."
         (lispy-message (lispy--eval (prin1-to-string expr)))
       (with-selected-window target-window
         (setq res (lispy--eval-elisp-form expr lexical-binding)))
-      (if (equal res lispy--eval-cond-msg)
-          (lispy-message res)
-        (if (and (fboundp 'object-p) (object-p res))
-            (message "(eieio object length %d)" (length res))
-          (lispy-message
-           (replace-regexp-in-string "%" "%%"
-                                     (format "%S" res))))))))
+      (cond ((equal res lispy--eval-cond-msg)
+             (lispy-message res))
+            ((and (fboundp 'object-p) (object-p res))
+             (message "(eieio object length %d)" (length res)))
+            ((and (memq major-mode lispy-elisp-modes)
+                  (consp res)
+                  (numberp (car res))
+                  (numberp (cdr res)))
+             (lispy-message
+              (format "%S\n%s" res
+                      (with-selected-window target-window
+                        (lispy--string-dwim res)))))
+            (t
+             (lispy-message
+              (replace-regexp-in-string "%" "%%"
+                                        (format "%S" res))))))))
 
 (defun lispy-follow ()
   "Follow to `lispy--current-function'."
