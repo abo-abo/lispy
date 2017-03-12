@@ -1804,6 +1804,7 @@ When the region is active, toggle a ~ at the start of the region."
     (insert "#")))
 
 (declare-function cider-eval-print-last-sexp "ext:cider-interaction")
+(declare-function cider-repl-newline-and-indent "ext:cider-repl")
 (declare-function ielm-return "ielm")
 (defun lispy-newline-and-indent ()
   "Insert newline."
