@@ -3999,7 +3999,8 @@ When ARG is 2, insert the result as a comment."
   (let (handler)
     (cond ((eq arg 2)
            (lispy-eval-and-comment))
-          ((looking-at lispy-outline)
+          ((and (looking-at lispy-outline)
+                (looking-at lispy-outline-header))
            (lispy-eval-outline))
           ((setq handler (cdr (assoc major-mode lispy-eval-alist)))
            (when (cadr handler)
@@ -4033,7 +4034,7 @@ Return the result of the last evaluation as a string."
         ans)
     (setq ans (lispy-eval-single-outline))
     (while (and (lispy-forward-outline)
-                (> (lispy-outline-level) lvl))
+                (> (funcall outline-level) lvl))
       (setq ans (lispy-eval-single-outline)))
     ans))
 
