@@ -476,10 +476,12 @@ Otherwise, fall back to Jedi (static)."
 (defun lispy--python-middleware-load ()
   "Load the custom Python code in \"lispy-python.py\"."
   (unless lispy--python-middleware-loaded-p
-    (lispy--eval-python
-     (format "import imp;lp=imp.load_source('lispy-python','%s')"
-             (expand-file-name "lispy-python.py" lispy-site-directory)))
-    (setq lispy--python-middleware-loaded-p t)))
+    (let ((r (lispy--eval-python
+              (format "import imp;lp=imp.load_source('lispy-python','%s');__name__='__repl__'"
+                      (expand-file-name "lispy-python.py" lispy-site-directory)))))
+      (if r
+          (setq lispy--python-middleware-loaded-p t)
+        (lispy-message lispy-eval-error)))))
 
 (defun lispy--python-arglist (symbol filename line column)
   (lispy--python-middleware-load)
