@@ -4038,31 +4038,31 @@ Return the result of the last evaluation as a string."
       (setq ans (lispy-eval-single-outline)))
     ans))
 
+(defun lispy--eval-bounds-outline ()
+  (save-excursion
+    (let* ((bnd (lispy--bounds-comment))
+           (beg (if bnd
+                    (save-excursion (goto-char (1+ (cdr bnd))))
+                  (point))))
+      (cons beg
+            (progn
+              (end-of-line)
+              (if (re-search-forward outline-regexp nil t)
+                  (match-beginning 0)
+                (point-max)))))))
+
 (defun lispy-eval-single-outline ()
-  (let* ((outline-start (point))
-         bnd
-         (outline-end
-          (save-excursion
-            (end-of-line)
-            (if (re-search-forward lispy-outline nil t)
-                (goto-char (match-beginning 0))
-              (goto-char (point-max)))
-            (skip-chars-backward "\n")
-            (when (setq bnd (lispy--bounds-comment))
-              (goto-char (1- (car bnd))))
-            (point)))
+  (let* ((bnd (lispy--eval-bounds-outline))
          (res (lispy--eval
-               (buffer-substring-no-properties
-                (1+ (line-end-position))
-                outline-end))))
+               (lispy--string-dwim bnd))))
     (cond ((null res)
            (lispy-message lispy-eval-error))
           ((equal res "")
            (message "(ok)"))
           ((= ?: (char-before (line-end-position)))
-           (goto-char outline-end)
+           (goto-char (cdr bnd))
            (lispy--insert-eval-result res)
-           (goto-char outline-start)
+           (goto-char (car bnd))
            res)
           (t
            (message res)))))
