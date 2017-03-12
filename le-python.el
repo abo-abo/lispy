@@ -124,7 +124,15 @@ Stripping them will produce code that's valid for an eval."
          (line-beginning-position)
          (save-excursion
            (python-nav-end-of-block)
-           (while (looking-at (format "[\n ]\\{%d,\\}\\(except\\|else\\)" indent))
+           (while (let ((pt (point))
+                        bnd)
+                    (skip-chars-forward "\n ")
+                    (when (setq bnd (lispy--bounds-comment))
+                      (goto-char (cdr bnd)))
+                    (if (looking-at (format "[\n ]\\{%d,\\}\\(except\\|else\\|elif\\)" indent))
+                        t
+                      (goto-char pt)
+                      nil))
              (goto-char (match-beginning 1))
              (python-nav-end-of-block))
            (point))))
