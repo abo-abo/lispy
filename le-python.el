@@ -436,19 +436,20 @@ Stripping them will produce code that's valid for an eval."
                   t))))
       (if (member res '(nil "Definition not found."))
           (let* ((symbol (python-info-current-symbol))
-                 (file (car
-                        (lispy--python-array-to-elisp
-                         (lispy--eval-python
-                          (format
-                           "import inspect\ninspect.getsourcefile(%s)" symbol))))))
-            (if file
-                (progn
-                  (find-file file)
-                  (goto-char (point-min))
-                  (re-search-forward
-                   (concat "^def.*" (car (last (split-string symbol "\\." t)))))
-                  (beginning-of-line))
-              (error "Both jedi and inspect failed")))
+                 (symbol-re (concat "^def.*" (car (last (split-string symbol "\\." t)))))
+                 (file (lispy--eval-python
+                        (format
+                         "import inspect\nprint(inspect.getsourcefile(%s))" symbol)))
+                 pt)
+            (cond ((and (equal file "None")
+                        (re-search-backward symbol-re nil t)))
+                  (file
+                   (find-file file)
+                   (goto-char (point-min))
+                   (re-search-forward symbol-re)
+                   (beginning-of-line))
+                  (t
+                   (error "Both jedi and inspect failed"))))
         (unless (looking-back "def " (line-beginning-position))
           (jedi:goto-definition))))))
 
