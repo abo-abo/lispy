@@ -1479,7 +1479,10 @@ When ARG is more than 1, mark ARGth element."
     (let ((bounds (or (lispy--bounds-comment)
                       (lispy--bounds-string)
                       (lispy--bounds-list))))
-      (kill-region (car bounds) (cdr bounds)))))
+      (if buffer-read-only
+          (kill-new (buffer-substring
+                     (car bounds) (cdr bounds)))
+        (kill-region (car bounds) (cdr bounds))))))
 
 (defun lispy-new-copy ()
   "Copy marked region or sexp to kill ring."
