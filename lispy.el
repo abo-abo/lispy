@@ -4114,11 +4114,11 @@ When ARG isn't nil, try to pretty print the sexp."
 (defun lispy-eval-and-comment ()
   "Eval last sexp and insert the result as a comment."
   (interactive)
-  (let ((str (lispy--eval
-              (if (eq major-mode 'python-mode)
-                  (lispy-eval-python-str)
-                (lispy--string-dwim))))
-        re-bnd)
+  (let* ((eval-str (if (eq major-mode 'python-mode)
+                       (lispy-eval-python-str)
+                     (lispy--string-dwim)))
+         (str (lispy--eval eval-str))
+         re-bnd)
     (save-excursion
       (cond ((region-active-p)
              (setq re-bnd (cons (region-beginning)
@@ -4128,7 +4128,19 @@ When ARG isn't nil, try to pretty print the sexp."
             ((lispy-left-p)
              (lispy-different))
             ((eq major-mode 'python-mode)
-             (end-of-line)))
+             (let ((bnd (lispy-eval-python-bnd)))
+               (goto-char (cdr bnd))
+               (unless (looking-at "\n *#")
+                 (newline)
+                 (insert
+                  (save-excursion
+                    (goto-char (car bnd))
+                    (beginning-of-line)
+                    (buffer-substring
+                     (point)
+                     (progn
+                       (back-to-indentation)
+                       (point)))))))))
       (lispy--insert-eval-result (or str lispy-eval-error))
       (unless (eolp)
         (newline)))

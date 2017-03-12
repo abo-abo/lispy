@@ -38,6 +38,32 @@ Stripping them will produce code that's valid for an eval."
                (split-string str re t)))
     str))
 
+(defun lispy-eval-python-bnd ()
+  (let (str res bnd)
+    (save-excursion
+      (cond ((region-active-p)
+             (setq bnd (cons
+                        (region-beginning)
+                        (region-end))))
+            ((looking-at lispy-outline)
+             (lispy--bounds-dwim))
+            ((setq bnd (lispy-bounds-python-block)))
+            ((lispy-bolp)
+             (lispy--bounds-c-toplevel))
+            (t
+             (cond ((lispy-left-p))
+                   ((lispy-right-p)
+                    (backward-list))
+                   (t
+                    (error "Unexpected")))
+             (setq bnd (lispy--bounds-dwim))
+             (ignore-errors (backward-sexp))
+             (while (or (eq (char-before) ?.)
+                        (eq (char-after) ?\())
+               (backward-sexp))
+             (setcar bnd (point))
+             bnd)))))
+
 (defun lispy-eval-python-str ()
   (let (str res bnd)
     (setq str
