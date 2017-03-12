@@ -318,6 +318,8 @@ Return t if at least one was deleted."
     (lispy--describe-inline)))
 
 (declare-function lispy--python-docstring "le-python")
+(declare-function lispy--python-arglist "le-python")
+(declare-function python-info-current-symbol "python")
 
 ;; ——— Utilities ———————————————————————————————————————————————————————————————
 (defun lispy--arglist (symbol)

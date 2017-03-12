@@ -5195,6 +5195,8 @@ ARG is 4: `eval-defun' on the function from this sexp."
 
 (declare-function lispy--clojure-debug-step-in "le-clojure")
 (declare-function lispy--python-debug-step-in "le-python")
+(declare-function lispy-eval-python-bnd "le-python")
+(declare-function lispy-eval-python-str "le-python")
 
 (defun lispy-debug-step-in ()
   "Eval current function arguments and jump to definition."
