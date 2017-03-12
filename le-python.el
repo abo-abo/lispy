@@ -337,6 +337,9 @@ Stripping them will produce code that's valid for an eval."
     (nreverse res)))
 
 (defun lispy--python-debug-step-in ()
+  (when (looking-at " *(")
+    ;; tuple assignment
+    (forward-list 1))
   (re-search-forward "(" (line-end-position))
   (backward-char)
   (let* ((p-ar-beg (point))
