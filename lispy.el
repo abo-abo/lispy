@@ -4592,7 +4592,9 @@ Sexp is obtained by exiting the list ARG times."
     (when (looking-at lispy-outline)
       (if (<= (- (match-end 0)
                  (match-beginning 0))
-              (1+ (length lispy-outline-header)))
+              (1+ (- (length lispy-outline-header)
+                     ;; `sml-mode'
+                     (cl-count ?* lispy-outline-header))))
           (progn
             (setq this-command 'lispy-outline-left)
             (lispy-complain "Can't demote outline"))
