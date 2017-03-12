@@ -349,13 +349,22 @@ Stripping them will produce code that's valid for an eval."
          (p-fn-end (progn
                      (skip-chars-backward " ")
                      (point)))
+         (method-p nil)
          (p-fn-beg (progn
                      (backward-sexp)
+                     (while (eq (char-before) ?.)
+                       (setq method-p t)
+                       (backward-sexp))
                      (point)))
          (fn (buffer-substring-no-properties
               p-fn-beg p-fn-end))
          (args
           (lispy--python-args (1+ p-ar-beg) (1- p-ar-end)))
+         (args (if (and method-p
+                        (string-match "\\`\\(.*?\\)\\.\\([^.]+\\)\\'" fn))
+                   (cons (match-string 1 fn)
+                         args)
+                 args))
          (args-key (cl-remove-if-not
                     (lambda (s)
                       (string-match lispy--python-arg-key-re s))
@@ -387,8 +396,11 @@ Stripping them will produce code that's valid for an eval."
                                            (length fn-defaults))
                                         nil)
                              fn-defaults)))
-         (fn-alist-x fn-alist)
-         dbg-cmd)
+         fn-alist-x dbg-cmd)
+    (when method-p
+      (unless (member '("self") fn-alist)
+        (push '("self") fn-alist)))
+    (setq fn-alist-x fn-alist)
     (dolist (arg args-normal)
       (setcdr (pop fn-alist-x) arg))
     (dolist (arg args-key)
@@ -408,7 +420,9 @@ Stripping them will produce code that's valid for an eval."
                      fn-alist
                      "; "))
     (if (lispy--eval-python dbg-cmd t)
-        (lispy-goto-symbol fn)
+        (progn
+          (goto-char p-fn-end)
+          (lispy-goto-symbol fn))
       (goto-char p-ar-beg)
       (message lispy-eval-error))))
 
