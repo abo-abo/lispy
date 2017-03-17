@@ -42,11 +42,16 @@ Stripping them will produce code that's valid for an eval."
   (let (str res bnd)
     (save-excursion
       (cond ((region-active-p)
-             (setq bnd (cons
-                        (region-beginning)
-                        (region-end))))
-            ((looking-at lispy-outline)
-             (lispy--bounds-dwim))
+             (cons
+              (if (> (count-lines (region-beginning) (region-end)) 1)
+                  (save-excursion
+                    (goto-char (region-beginning))
+                    (line-beginning-position))
+                (region-beginning))
+              (region-end)))
+            ((and (looking-at lispy-outline)
+                  (looking-at lispy-outline-header))
+             (lispy--bounds-outline))
             ((setq bnd (lispy-bounds-python-block)))
             ((lispy-bolp)
              (lispy--bounds-c-toplevel))
@@ -65,61 +70,22 @@ Stripping them will produce code that's valid for an eval."
              bnd)))))
 
 (defun lispy-eval-python-str ()
-  (let (str res bnd)
-    (setq str
-          (save-excursion
-            (cond ((region-active-p)
-                   (setq str (buffer-substring-no-properties
-                              (region-beginning)
-                              (region-end)))
-                   (if (= (cl-count ?\n str) 0)
-                       str
-                     ;; get rid of "unexpected indent"
-                     (replace-regexp-in-string
-                      (concat
-                       "^"
-                       (save-excursion
-                         (goto-char (region-beginning))
-                         (buffer-substring-no-properties
-                          (line-beginning-position)
-                          (point))))
-                      "" (lispy--string-dwim))))
-                  ((and (looking-at lispy-outline)
-                        (looking-at lispy-outline-header))
-                   (string-trim-right
-                    (lispy--string-dwim
-                     (lispy--bounds-outline))))
-                  ((setq bnd (lispy-bounds-python-block))
-                   (lispy-trim-python
-                    (lispy--string-dwim bnd)))
-                  ((lispy-bolp)
-                   (string-trim-left
-                    (lispy--string-dwim
-                     (lispy--bounds-c-toplevel))))
-                  (t
-                   (cond ((lispy-left-p))
-                         ((lispy-right-p)
-                          (backward-list))
-                         (t
-                          (error "Unexpected")))
-                   (setq bnd (lispy--bounds-dwim))
-                   (ignore-errors (backward-sexp))
-                   (while (or (eq (char-before) ?.)
-                              (eq (char-after) ?\())
-                     (backward-sexp))
-                   (setcar bnd (point))
-                   (lispy--string-dwim bnd)))))
+  (let ((bnd (lispy-eval-python-bnd)))
     (replace-regexp-in-string
      ",\n +" ","
      (replace-regexp-in-string
-      "\\\\\n +" "" str))))
+      "\\\\\n +" ""
+      (lispy-trim-python
+       (lispy--string-dwim bnd))))))
 
 (defun lispy-bounds-python-block ()
   (if (save-excursion
         (when (looking-at " ")
           (forward-char))
         (python-info-beginning-of-block-p))
-      (let ((indent (1+ (- (point) (line-beginning-position)))))
+      (let ((indent (if (bolp)
+                        0
+                      (1+ (- (point) (line-beginning-position))))))
         (cons
          (line-beginning-position)
          (save-excursion
@@ -129,6 +95,7 @@ Stripping them will produce code that's valid for an eval."
                     (skip-chars-forward "\n ")
                     (when (setq bnd (lispy--bounds-comment))
                       (goto-char (cdr bnd)))
+                    (beginning-of-line)
                     (if (looking-at (format "[\n ]\\{%d,\\}\\(except\\|else\\|elif\\)" indent))
                         t
                       (goto-char pt)
