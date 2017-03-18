@@ -57,11 +57,12 @@
 
 (defun lispy--eval-nrepl-clojure (str namespace)
   (condition-case nil
-      (nrepl-sync-request:eval
-       str
-       (cider-current-connection)
-       (cider-current-session)
-       namespace)
+      (with-no-warnings
+        (nrepl-sync-request:eval
+         str
+         (cider-current-connection)
+         (cider-current-session)
+         namespace))
     (error
      (nrepl-sync-request:eval
       str
