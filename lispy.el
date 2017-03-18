@@ -7499,7 +7499,8 @@ The outer delimiters are stripped."
            (let* ((max-lisp-eval-depth 10000)
                   (max-specpdl-size 10000)
                   (geiser-active-implementations
-                   (list (car geiser-active-implementations)))
+                   (and (bound-and-true-p geiser-active-implementations)
+                        (list (car geiser-active-implementations))))
                   (res (lispy--sexp-normalize
                         (lispy--read str)))
                   (new-str (lispy--prin1-to-string res offset major-mode)))
