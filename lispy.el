@@ -6598,10 +6598,6 @@ Ignore the matches in strings and comments."
   "Read STR including comments and newlines."
   (let* ((deactivate-mark nil)
          (mode major-mode)
-         (scheme-mode-hook
-          (and (bound-and-true-p scheme-mode-hook)
-               (delete 'geiser-mode--maybe-activate
-                       scheme-mode-hook)))
          cbnd
          (str (with-temp-buffer
                 (funcall mode)
@@ -6764,6 +6760,9 @@ Ignore the matches in strings and comments."
                     (insert "\")")))
                 ;; ——— cons cell syntax ———————
                 (lispy--replace-regexp-in-code " \\. " " (ly-raw dot) ")
+                ;; Racket stuff
+                (lispy--replace-regexp-in-code "#t" "(ly-raw racket-true)")
+                (lispy--replace-regexp-in-code "#f" "(ly-raw racket-false)")
                 ;; Clojure # in a symbol
                 (goto-char (point-min))
                 (while (re-search-forward "\\_<\\(?:\\sw\\|\\s_\\)+\\_>" nil t)
@@ -7395,14 +7394,14 @@ The outer delimiters are stripped."
            (delete-region beg (point))
            (insert (format "{%s}" (lispy--splice-to-str (cl-caddr sxp))))
            (goto-char beg))
-	      (clojure-deref-list
-            (delete-region beg (point))
-            (insert (format "@(%s)" (lispy--splice-to-str (cl-caddr sxp))))
-            (goto-char beg))
+          (clojure-deref-list
+           (delete-region beg (point))
+           (insert (format "@(%s)" (lispy--splice-to-str (cl-caddr sxp))))
+           (goto-char beg))
           (clojure-reader-conditional-splice
-            (delete-region beg (point))
-            (insert (format "#?@(%s)" (lispy--splice-to-str (cl-caddr sxp))))
-            (goto-char beg))
+           (delete-region beg (point))
+           (insert (format "#?@(%s)" (lispy--splice-to-str (cl-caddr sxp))))
+           (goto-char beg))
           (clojure-reader-conditional
            (delete-region beg (point))
            (insert (format "#?(%s)" (lispy--splice-to-str (cl-caddr sxp))))
@@ -7411,6 +7410,12 @@ The outer delimiters are stripped."
            (delete-region beg (point))
            (delete-horizontal-space)
            (insert ", "))
+          (racket-true
+           (delete-region beg (point))
+           (insert "#t"))
+          (racket-false
+           (delete-region beg (point))
+           (insert "#f"))
           (angle
            (delete-region beg (point))
            (insert (format "#<%s>" (cl-caddr sxp)))
@@ -7473,6 +7478,7 @@ The outer delimiters are stripped."
     (indent-sexp)
     (forward-list)))
 
+(defvar geiser-active-implementations)
 (defun lispy--normalize-1 ()
   "Normalize/prettify current sexp."
   (let* ((bnd (lispy--bounds-dwim))
@@ -7492,6 +7498,8 @@ The outer delimiters are stripped."
           (t
            (let* ((max-lisp-eval-depth 10000)
                   (max-specpdl-size 10000)
+                  (geiser-active-implementations
+                   (list (car geiser-active-implementations)))
                   (res (lispy--sexp-normalize
                         (lispy--read str)))
                   (new-str (lispy--prin1-to-string res offset major-mode)))
