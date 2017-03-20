@@ -6766,6 +6766,10 @@ Ignore the matches in strings and comments."
                 ;; Racket stuff
                 (lispy--replace-regexp-in-code "#t" "(ly-raw racket-true)")
                 (lispy--replace-regexp-in-code "#f" "(ly-raw racket-false)")
+                (goto-char (point-min))
+                (while (re-search-forward "#:\\(\\(?:\\sw\\|\\s_\\)+\\)" nil t)
+                  (replace-match (format "(ly-raw racket-option %s)"
+                                         (match-string 1))))
                 ;; Clojure # in a symbol
                 (goto-char (point-min))
                 (while (re-search-forward "\\_<\\(?:\\sw\\|\\s_\\)+\\_>" nil t)
@@ -7419,6 +7423,9 @@ The outer delimiters are stripped."
           (racket-false
            (delete-region beg (point))
            (insert "#f"))
+          (racket-option
+           (delete-region beg (point))
+           (insert (format "#:%S" (cl-caddr sxp))))
           (angle
            (delete-region beg (point))
            (insert (format "#<%s>" (cl-caddr sxp)))
