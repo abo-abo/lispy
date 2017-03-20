@@ -44,7 +44,7 @@
           (run-geiser geiser-impl--implementation)
         (call-interactively 'run-geiser))
       (geiser-mode 1)))
-  (when (string-match "(\\(?:define\\|set!\\)[ (]+\\(\\(?:\\w\\|\\s_\\)+\\)" str)
+  (when (string-match "(\\(?:define\\|set!\\|struct\\)[ (]+\\(\\(?:\\w\\|\\s_\\)+\\)" str)
     (let ((name (match-string 1 str)))
       (setq str (format "(begin %s %s)" str name))))
   (with-current-buffer (geiser-repl--buffer-name geiser-impl--implementation)
