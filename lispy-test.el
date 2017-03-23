@@ -1773,6 +1773,9 @@ Insert KEY if there's no command."
             (lispy--read "(1 2 3 1 2 . #2)")
             0 'emacs-lisp-mode)
            "(1 2 3 1 2 . #2)"))
+  (should (equal (lispy--read "(progn `(lambda () ,(+ 2 2) ,@(number-sequence 1 3)))")
+                 '(progn
+                   (ly-raw \` (lambda (ly-raw empty) (ly-raw \, (+ 2 2)) (ly-raw \,@ (number-sequence 1 3)))))))
   (should (equal
            (lispy--read "#(\"]\" 0 1 (face hydra-face-red))")
            '(ly-raw clojure-lambda ((ly-raw string "\"]\"")
