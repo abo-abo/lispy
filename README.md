@@ -59,18 +59,18 @@ edit LISP code in Emacs.
 
 The killer-feature are the short bindings:
 
-       command                |   binding        |  binding     | command
-------------------------------|------------------|--------------|-------------------
-`paredit-forward`             | <kbd>C-M-f</kbd> | <kbd>j</kbd> | `lispy-down`
-`paredit-backward`            | <kbd>C-M-b</kbd> | <kbd>k</kbd> | `lispy-up`
-`paredit-backward-up`         | <kbd>C-M-u</kbd> | <kbd>h</kbd> | `lispy-left`
-`paredit-forward-up`          | <kbd>C-M-n</kbd> | <kbd>l</kbd> | `lispy-right`
-`paredit-raise-sexp`          | <kbd>M-r</kbd>   | <kbd>r</kbd> | `lispy-raise`
-`paredit-convolute-sexp`      | <kbd>M-?</kbd>   | <kbd>C</kbd> | `lispy-convolute`
-`paredit-forward-slurp-sexp`  | <kbd>C-)</kbd>   | <kbd>></kbd> | `lispy-slurp`
-`paredit-forward-barf-sexp`   | <kbd>C-}</kbd>   | <kbd><</kbd> | `lispy-barf`
-`paredit-backward-slurp-sexp` | <kbd>C-(</kbd>   | <kbd>></kbd> | `lispy-slurp`
-`paredit-backward-barf-sexp`  | <kbd>C-{</kbd>   | <kbd><</kbd> | `lispy-barf`
+|       command                |   binding        |  binding     | command
+|:-----------------------------|:----------------:|:------------:|:------------------
+|`paredit-forward`             | <kbd>C-M-f</kbd> | <kbd>j</kbd> | `lispy-down`
+|`paredit-backward`            | <kbd>C-M-b</kbd> | <kbd>k</kbd> | `lispy-up`
+|`paredit-backward-up`         | <kbd>C-M-u</kbd> | <kbd>h</kbd> | `lispy-left`
+|`paredit-forward-up`          | <kbd>C-M-n</kbd> | <kbd>l</kbd> | `lispy-right`
+|`paredit-raise-sexp`          | <kbd>M-r</kbd>   | <kbd>r</kbd> | `lispy-raise`
+|`paredit-convolute-sexp`      | <kbd>M-?</kbd>   | <kbd>C</kbd> | `lispy-convolute`
+|`paredit-forward-slurp-sexp`  | <kbd>C-)</kbd>   | <kbd>></kbd> | `lispy-slurp`
+|`paredit-forward-barf-sexp`   | <kbd>C-}</kbd>   | <kbd><</kbd> | `lispy-barf`
+|`paredit-backward-slurp-sexp` | <kbd>C-(</kbd>   | <kbd>></kbd> | `lispy-slurp`
+|`paredit-backward-barf-sexp`  | <kbd>C-{</kbd>   | <kbd><</kbd> | `lispy-barf`
 
 Most of more than 100 interactive commands that `lispy` provides are
 bound to <kbd>a</kbd>-<kbd>z</kbd> and <kbd>A</kbd>-<kbd>Z</kbd> in
@@ -116,12 +116,12 @@ Here's a quote from Wikipedia on how vi works, in case you don't know:
 Here's an illustration of Emacs, vi and lispy bindings for inserting a
 char and calling a command:
 
-                  | insert "j"     | forward-list
-------------------|----------------|--------------
-Emacs             | <kbd>j</kbd>   | <kbd>C-M-n</kbd>
-vi in insert mode | <kbd>j</kbd>   | impossible
-vi in normal mode | impossible     | <kbd>j</kbd>
-lispy             | <kbd>j</kbd>   | <kbd>j</kbd>
+|                  | insert "j"     | forward-list
+|------------------|:--------------:|:-------------:
+|Emacs             | <kbd>j</kbd>   | <kbd>C-M-n</kbd>
+|vi in insert mode | <kbd>j</kbd>   | impossible
+|vi in normal mode | impossible     | <kbd>j</kbd>
+|lispy             | <kbd>j</kbd>   | <kbd>j</kbd>
 
 Advantages/disadvantages:
 
