@@ -216,6 +216,8 @@ Return t if at least one was deleted."
     (setq lispy-overlay nil)
     t))
 
+(declare-function geiser-doc-symbol-at-point "geiser-doc")
+
 (defun lispy--describe-inline ()
   "Toggle the overlay hint."
   (condition-case nil
