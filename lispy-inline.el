@@ -230,9 +230,11 @@ Return t if at least one was deleted."
             (when (= 0 (count-lines (window-start) (point)))
               (recenter 1))
             (setq lispy-hint-pos new-hint-pos)
-            (when (setq doc (lispy--docstring (lispy--current-function)))
-              (goto-char lispy-hint-pos)
-              (lispy--show (propertize doc 'face 'lispy-face-hint))))))
+            (if (eq major-mode 'scheme-mode)
+                (geiser-doc-symbol-at-point)
+              (when (setq doc (lispy--docstring (lispy--current-function)))
+                (goto-char lispy-hint-pos)
+                (lispy--show (propertize doc 'face 'lispy-face-hint)))))))
     (error
      (lispy--cleanup-overlay))))
 
