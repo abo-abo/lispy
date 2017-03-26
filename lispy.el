@@ -4088,7 +4088,9 @@ If STR is too large, pop it to a buffer instead."
           (delete-region (point-min) (point-max))
           (insert str)
           (goto-char (point-min))))
-    (message str)))
+    (condition-case nil
+        (message str)
+      (error (message (replace-regexp-in-string "%" "%%" str))))))
 
 (defvar lispy-do-pprint nil
   "Try a pretty-print when this isn't nil.")
