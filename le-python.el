@@ -179,15 +179,16 @@ it at one time."
   "Eval STR as Python code."
   (let ((single-line-p (= (cl-count ?\n str) 0)))
     (unless plain
-      (setq str (string-trim-left str))
+      (setq str (string-trim str))
       (cond ((and (or (string-match "\\`\\(\\(?:[., ]\\|\\sw\\|\\s_\\|[][]\\)+\\) += " str)
                       (string-match "\\`\\(([^)]+)\\) *=" str))
                   (save-match-data
                     (or single-line-p
                         (and (not (string-match-p "lp\\." str))
-                             (lispy--eval-python
-                              (format "x=lp.is_assignment(\"\"\"%s\"\"\")\nprint (x)" str)
-                              t)))))
+                             (equal (lispy--eval-python
+                                     (format "x=lp.is_assignment(\"\"\"%s\"\"\")\nprint (x)" str)
+                                     t)
+                                    "True")))))
              (setq str (concat str (format "\nprint (repr ((%s)))" (match-string 1 str)))))
             ;; match e.g. "x in array" part of  "for x in array:"
             ((and single-line-p
