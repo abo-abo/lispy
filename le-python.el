@@ -46,7 +46,8 @@ Stripping them will produce code that's valid for an eval."
               (if (> (count-lines (region-beginning) (region-end)) 1)
                   (save-excursion
                     (goto-char (region-beginning))
-                    (line-beginning-position))
+                    (skip-chars-backward " ")
+                    (point))
                 (region-beginning))
               (region-end)))
             ((and (looking-at lispy-outline)
@@ -111,7 +112,7 @@ Stripping them will produce code that's valid for an eval."
                 (goto-char (cdr bnd))))
             (end-of-line)
             (while (member (char-before)
-                           '(?\\ ?,))
+                           '(?\\ ?\,))
               (end-of-line 2))
             (point)))))
 
