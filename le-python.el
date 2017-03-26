@@ -128,8 +128,32 @@ Stripping them will produce code that's valid for an eval."
        (replace-regexp-in-string
         "%" "%%" lispy-eval-error)))))
 
-(defun lispy--python-proc ()
-  (let* ((proc-name "Python Internal[lispy]")
+(defvar-local lispy-python-proc nil)
+
+(defun lispy-set-python-process ()
+  "Associate a (possibly new) Python process to the current buffer.
+
+Each buffer can have only a single Python process associated with
+it at one time."
+  (interactive)
+  (let* ((process-names
+          (delq nil
+                (mapcar
+                 (lambda (x)
+                   (when (string-match "^lispy-python-\\(.*\\)" (process-name x))
+                     (match-string 1 (process-name x))))
+                 (process-list)))))
+    (ivy-read "Process: " process-names
+              :action (lambda (x)
+                        (setq lispy-python-proc
+                              (lispy--python-proc (concat "lispy-python-" x))))
+              :caller 'lispy-set-python-process)))
+
+(defun lispy--python-proc (&optional name)
+  (let* ((proc-name (or name
+                        (and (process-live-p lispy-python-proc)
+                             lispy-python-proc)
+                        "lispy-python-default"))
          (process (get-process proc-name)))
     (if (process-live-p process)
         process
@@ -146,7 +170,7 @@ Stripping them will produce code that's valid for an eval."
                    python-shell-interpreter-args))))
         (setq process (get-buffer-process
                        (python-shell-make-comint
-                        python-binary-name proc-name nil t))))
+                        python-binary-name proc-name nil nil))))
       (setq lispy--python-middleware-loaded-p nil)
       (lispy--python-middleware-load)
       process)))
