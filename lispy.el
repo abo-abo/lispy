@@ -1201,7 +1201,7 @@ Otherwise (`backward-delete-char-untabify' ARG)."
     (cond ((< arg 0)
            (lispy-delete (- arg)))
 
-          ((region-active-p)
+          ((use-region-p)
            (lispy--maybe-safe-delete-region (region-beginning)
                                             (region-end)))
           ((bobp))
