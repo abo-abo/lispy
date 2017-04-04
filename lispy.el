@@ -4051,7 +4051,14 @@ Return the result of the last evaluation as a string."
             (progn
               (end-of-line)
               (if (re-search-forward outline-regexp nil t)
-                  (match-beginning 0)
+                  (progn
+                    (goto-char
+                     (match-beginning 0))
+                    (skip-chars-backward "\n")
+                    (let (cbnd)
+                      (when (setq cbnd (lispy--bounds-comment))
+                        (goto-char (1- (car cbnd)))))
+                    (point))
                 (point-max)))))))
 
 (defun lispy-eval-single-outline ()
