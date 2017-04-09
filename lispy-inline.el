@@ -336,8 +336,13 @@ Return t if at least one was deleted."
 
 (defun lispy--join-pad (strs width)
   "Join STRS padding each line with WIDTH spaces."
-  (let ((padding (make-string width ?\ )))
-    (mapconcat (lambda (x) (concat padding x))
+  (let* ((maxw (apply #'max (mapcar #'length strs)))
+         (padding (make-string width ?\ ))
+         (fstring (format "%%- %ds" maxw)))
+    (mapconcat
+     (lambda (x)
+       (concat padding
+               (ivy--add-face (format fstring x) 'lispy-face-hint)))
                strs
                "\n")))
 
