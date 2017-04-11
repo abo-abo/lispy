@@ -4343,21 +4343,23 @@ When ARG is non-nil, force select the window."
   (let* ((expr (lispy--setq-expression))
          (aw-dispatch-always nil)
          (target-window
-          (if (and (null arg) (lispy-eval--last-live-p))
-              lispy-eval-other--window
-            (if (setq lispy-eval-other--window
-                      (aw-select " Ace - Eval in Window"))
-                (progn
-                  (setq lispy-eval-other--buffer
-                        (window-buffer lispy-eval-other--window))
-                  (setq lispy-eval-other--cfg
-                        (cl-mapcan #'window-list (frame-list)))
-                  lispy-eval-other--window)
-              (setq lispy-eval-other--buffer nil)
-              (setq lispy-eval-other--cfg nil)
-              (selected-window))))
+          (cond ((not (memq major-mode lispy-elisp-modes))
+                 (selected-window))
+                ((and (null arg) (lispy-eval--last-live-p))
+                 lispy-eval-other--window)
+                ((setq lispy-eval-other--window
+                       (aw-select " Ace - Eval in Window"))
+                 (setq lispy-eval-other--buffer
+                       (window-buffer lispy-eval-other--window))
+                 (setq lispy-eval-other--cfg
+                       (cl-mapcan #'window-list (frame-list)))
+                 lispy-eval-other--window)
+                (t
+                 (setq lispy-eval-other--buffer nil)
+                 (setq lispy-eval-other--cfg nil)
+                 (selected-window))))
          res)
-    (if (eq major-mode 'lisp-mode)
+    (if (memq major-mode '(lisp-mode scheme-mode))
         (lispy-message (lispy--eval (prin1-to-string expr)))
       (with-selected-window target-window
         (setq res (lispy--eval-elisp-form expr lexical-binding)))
@@ -7898,7 +7900,11 @@ Return an appropriate `setq' expression when in `let', `dolist',
              (looking-back
               "(\\(?:lexical-\\)?let\\(?:\\*\\|-when-compile\\)?[ \t\n]*"
               (line-beginning-position 0)))
-           (cons 'setq tsexp))
+           (cons
+            (if (eq major-mode 'scheme-mode)
+                'define
+              'setq)
+            tsexp))
 
           ((looking-back
             "(\\(?:cl-\\)?labels[ \t\n]*"
