@@ -39,7 +39,7 @@ Stripping them will produce code that's valid for an eval."
     str))
 
 (defun lispy-eval-python-bnd ()
-  (let (str res bnd)
+  (let (bnd)
     (save-excursion
       (cond ((region-active-p)
              (cons
@@ -148,6 +148,9 @@ it at one time."
                         (setq lispy-python-proc
                               (lispy--python-proc (concat "lispy-python-" x))))
               :caller 'lispy-set-python-process)))
+
+(defvar lispy--python-middleware-loaded-p nil
+  "Nil if the Python middleware in \"lispy-python.py\" wasn't loaded yet.")
 
 (defun lispy--python-proc (&optional name)
   (let* ((proc-name (or name
@@ -419,7 +422,11 @@ it at one time."
       (goto-char p-ar-beg)
       (message lispy-eval-error))))
 
-(defun lispy-goto-symbol-python (symbol)
+(declare-function deferred:sync! "ext:deferred")
+(declare-function jedi:goto-definition "ext:jedi-core")
+(declare-function jedi:call-deferred "ext:jedi-core")
+
+(defun lispy-goto-symbol-python (_symbol)
   (save-restriction
     (widen)
     (let ((res (ignore-errors
@@ -432,8 +439,7 @@ it at one time."
                  (symbol-re (concat "^def.*" (car (last (split-string symbol "\\." t)))))
                  (file (lispy--eval-python
                         (format
-                         "import inspect\nprint(inspect.getsourcefile(%s))" symbol)))
-                 pt)
+                         "import inspect\nprint(inspect.getsourcefile(%s))" symbol))))
             (cond ((and (equal file "None")
                         (re-search-backward symbol-re nil t)))
                   (file
@@ -462,9 +468,6 @@ Otherwise, fall back to Jedi (static)."
       (plist-get (car (deferred:sync!
                           (jedi:call-deferred 'get_definition)))
                  :doc))))
-
-(defvar lispy--python-middleware-loaded-p nil
-  "Nil if the Python middleware in \"lispy-python.py\" wasn't loaded yet.")
 
 (defun lispy--python-middleware-load ()
   "Load the custom Python code in \"lispy-python.py\"."
