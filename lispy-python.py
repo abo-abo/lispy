@@ -17,19 +17,38 @@
 # For a full copy of the GNU General Public License
 # see <http://www.gnu.org/licenses/>.
 
+
 import inspect
-import jedi
-import ast
+try:
+    import jedi
+    import ast
+    from codegen import to_source
+except:
+    print ("failed to load some modules in lispy-python.py")
+
+def arglist_retrieve_java (method):
+    name = method.__name__
+    methods = eval ("method.__self__.class.getDeclaredMethods ()")
+    methods_by_name = [m for m in methods if m.getName () == name]
+    assert len (methods_by_name) == 1, "expected only a single method by name %s" % name
+    meta = methods_by_name[0]
+    args = [str (par.getType ().__name__ + " " + par.getName ()) for par in meta.getParameters ()]
+    return inspect.ArgSpec (args, None, None, None)
 
 def arglist_retrieve (sym):
-    if hasattr(inspect,'getfullargspec'):
+    if hasattr (sym, "__self__"):
+        return arglist_retrieve_java (sym)
+    elif hasattr(inspect, "getfullargspec"):
         res = inspect.getfullargspec (sym)
         return inspect.ArgSpec (args = res.args,
                                 varargs = res.varargs,
                                 defaults = res.defaults,
                                 keywords = res.kwonlydefaults)
     else:
-        return inspect.getargspec (sym)
+        try:
+            return inspect.getargspec (inspect.getargspec)
+        except TypeError as er:
+            print (er.message)
 
 def format_arg (arg_pair):
     name, default_value = arg_pair
