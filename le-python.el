@@ -272,6 +272,23 @@ it at one time."
         nil
       (string< a b))))
 
+(defun lispy-python-symbol-bnd ()
+  (let ((bnd (or (bounds-of-thing-at-point 'symbol)
+                 (cons (point) (point)))))
+    (save-excursion
+     (goto-char (car bnd))
+     (while (progn
+              (skip-chars-backward " ")
+              (lispy-after-string-p "."))
+      (backward-char 1)
+      (skip-chars-backward " ")
+      (if (lispy-after-string-p ")")
+          (backward-sexp 2)
+          (backward-sexp)))
+     (skip-chars-forward " ")
+     (setcar bnd (point)))
+    bnd))
+
 (defun lispy-python-completion-at-point ()
   (cond ((looking-back "^\\(import\\|from\\) .*" (line-beginning-position))
          (let* ((line (buffer-substring-no-properties
@@ -300,18 +317,25 @@ it at one time."
                  (cl-sort (delete "./" (all-completions str #'read-file-name-internal))
                           #'lispy-dir-string<))))
         (t
-         (let ((comp (python-shell-completion-at-point (lispy--python-proc))))
-           (list (nth 0 comp)
-                 (nth 1 comp)
+         (let* ((bnd (lispy-python-symbol-bnd))
+                (str (buffer-substring-no-properties
+                      (car bnd) (cdr bnd))))
+           (when (string-match "\\()\\)[^)]*\\'" str)
+             (let ((expr (format "__t__ = %s" (substring str 0 (match-end 1)))))
+               (setq str (concat "__t__" (substring str (match-end 1))))
+               (cl-incf (car bnd) (match-end 1))
+               (lispy--eval-python expr t)))
+           (list (car bnd)
+                 (cdr bnd)
                  (mapcar (lambda (s)
-                           (if (string-match "(\\'" s)
-                               (substring s 0 (match-beginning 0))
-                             s))
-                         (all-completions
-                          (buffer-substring-no-properties
-                           (nth 0 comp)
-                           (nth 1 comp))
-                          (nth 2 comp))))))))
+                           (replace-regexp-in-string
+                            "__t__" ""
+                            (if (string-match "(\\'" s)
+                                (substring s 0 (match-beginning 0))
+                              s)))
+                         (python-shell-completion-get-completions
+                          (lispy--python-proc)
+                          nil str)))))))
 
 (defvar lispy--python-arg-key-re "\\`\\(\\(?:\\sw\\|\\s_\\)+\\) ?= ?\\(.*\\)\\'"
   "Constant regexp for matching function keyword spec.")

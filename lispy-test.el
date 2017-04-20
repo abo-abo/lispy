@@ -3035,6 +3035,16 @@ Insert KEY if there's no command."
                      (lispy--eval-python "print \"one\"\nprint \"two\"\nx = 2 + 1"))
                    "one\ntwo\n3"))))
 
+(ert-deftest lispy-python-symbol-bnd ()
+  (should (equal (lispy-with-python "def test_detector ():\n    detector.getChannelCount ().|"
+                                    (lispy--string-dwim
+                                     (lispy-python-symbol-bnd)))
+                 "detector.getChannelCount ()."))
+  (should (equal (lispy-with-python "def test_detector ():\n    detector.getDetectorProperties ().getOwner ().|"
+                                    (lispy--string-dwim
+                                     (lispy-python-symbol-bnd)))
+                 "detector.getDetectorProperties ().getOwner ().")))
+
 (provide 'lispy-test)
 
 ;;; lispy-test.el ends here
