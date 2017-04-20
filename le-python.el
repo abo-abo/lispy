@@ -493,6 +493,11 @@ Otherwise, fall back to Jedi (static)."
                           (jedi:call-deferred 'get_definition)))
                  :doc))))
 
+(defun lispy-python-middleware-reload ()
+  (interactive)
+  (setq lispy--python-middleware-loaded-p nil)
+  (lispy--python-middleware-load))
+
 (defun lispy--python-middleware-load ()
   "Load the custom Python code in \"lispy-python.py\"."
   (unless lispy--python-middleware-loaded-p
