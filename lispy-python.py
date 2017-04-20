@@ -26,15 +26,19 @@ except:
 
 def arglist_retrieve_java (method):
     name = method.__name__
-    methods = eval ("method.__self__.class.getDeclaredMethods ()")
-    methods_by_name = [m for m in methods if m.getName () == name]
-    assert len (methods_by_name) == 1, "expected only a single method by name %s" % name
-    meta = methods_by_name[0]
-    args = [str (par.getType ().__name__ + " " + par.getName ()) for par in meta.getParameters ()]
+    if hasattr (method, "argslist"):
+        args = [x.__name__ for x in method.argslist[0].args]
+    else:
+        methods = eval ("method.__self__.class.getDeclaredMethods ()")
+        methods_by_name = [m for m in methods if m.getName () == name]
+        assert len (methods_by_name) == 1, "expected only a single method by name %s" % name
+        meta = methods_by_name[0]
+        args = [str (par.getType ().__name__ + " " + par.getName ()) for par in meta.getParameters ()]
     return inspect.ArgSpec (args, None, None, None)
 
 def arglist_retrieve (sym):
-    if hasattr (sym, "__self__"):
+    if hasattr (sym, "__self__") or \
+       hasattr (sym, "argslist"):
         return arglist_retrieve_java (sym)
     elif hasattr(inspect, "getfullargspec"):
         res = inspect.getfullargspec (sym)
