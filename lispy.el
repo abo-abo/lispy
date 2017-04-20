@@ -4042,20 +4042,25 @@ Return the result of the last evaluation as a string."
     ans))
 
 (defun lispy--eval-bounds-outline ()
-  (let* ((end
+  (let* ((beg (1+ (line-end-position)))
+         bnd
+         (end
           (save-excursion
             (forward-char)
             (if (re-search-forward outline-regexp nil t)
                 (progn
-                  (goto-char (match-beginning 0))
-                  (skip-chars-backward "\n")
-                  (1+ (point)))
-              (point-max))))
-         (bnd (lispy--bounds-comment))
-         (beg (1+ (cdr bnd))))
-    (when (> beg end)
-      (setq beg (1+ (line-end-position))))
-    (cons beg end)))
+                  (goto-char (match-beginning 0)))
+              (goto-char (point-max)))
+            (skip-chars-backward "\n")
+            (while (and
+                    (> (point) beg)
+                    (setq bnd (lispy--bounds-comment)))
+              (goto-char (car bnd))
+              (skip-chars-backward "\n"))
+            (point))))
+    (if (> beg end)
+        (cons beg beg)
+      (cons beg end))))
 
 (defun lispy-eval-single-outline ()
   (let* ((bnd (lispy--eval-bounds-outline))
@@ -4067,10 +4072,16 @@ Return the result of the last evaluation as a string."
            (message "(ok)"))
           ((= ?: (char-before (line-end-position)))
            (goto-char (cdr bnd))
-           (when (looking-at outline-regexp)
-             (insert "\n")
-             (backward-char))
-           (lispy--insert-eval-result res)
+           (save-restriction
+             (narrow-to-region
+              (point)
+              (if (re-search-forward outline-regexp nil t)
+                  (1- (match-beginning 0))
+                (point-max)))
+             (goto-char (point-min))
+             (unless (looking-at (concat "\n" lispy-outline-header))
+               (newline))
+             (lispy--insert-eval-result res))
            (goto-char (car bnd))
            res)
           (t
