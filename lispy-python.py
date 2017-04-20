@@ -21,10 +21,8 @@
 import inspect
 try:
     import jedi
-    import ast
-    from codegen import to_source
 except:
-    print ("failed to load some modules in lispy-python.py")
+    print ("failed to load jedi")
 
 def arglist_retrieve_java (method):
     name = method.__name__
@@ -46,7 +44,7 @@ def arglist_retrieve (sym):
                                 keywords = res.kwonlydefaults)
     else:
         try:
-            return inspect.getargspec (inspect.getargspec)
+            return inspect.getargspec (sym)
         except TypeError as er:
             print (er.message)
 
