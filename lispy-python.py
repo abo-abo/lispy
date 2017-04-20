@@ -37,7 +37,7 @@ def arglist_retrieve_java (method):
     return inspect.ArgSpec (args, None, None, None)
 
 def arglist_retrieve (sym):
-    if hasattr (sym, "__self__") or \
+    if hasattr (sym, "__self__") and hasattr (sym.__self__, "class") or \
        hasattr (sym, "argslist"):
         return arglist_retrieve_java (sym)
     elif hasattr(inspect, "getfullargspec"):
