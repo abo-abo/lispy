@@ -4042,24 +4042,20 @@ Return the result of the last evaluation as a string."
     ans))
 
 (defun lispy--eval-bounds-outline ()
-  (save-excursion
-    (let* ((bnd (lispy--bounds-comment))
-           (beg (if bnd
-                    (save-excursion (goto-char (1+ (cdr bnd))))
-                  (point))))
-      (cons beg
-            (progn
-              (end-of-line)
-              (if (re-search-forward outline-regexp nil t)
-                  (progn
-                    (goto-char
-                     (match-beginning 0))
-                    (skip-chars-backward "\n")
-                    (let (cbnd)
-                      (when (setq cbnd (lispy--bounds-comment))
-                        (goto-char (1- (car cbnd)))))
-                    (point))
-                (point-max)))))))
+  (let* ((end
+          (save-excursion
+            (forward-char)
+            (if (re-search-forward outline-regexp nil t)
+                (progn
+                  (goto-char (match-beginning 0))
+                  (skip-chars-backward "\n")
+                  (1+ (point)))
+              (point-max))))
+         (bnd (lispy--bounds-comment))
+         (beg (1+ (cdr bnd))))
+    (when (> beg end)
+      (setq beg (1+ (line-end-position))))
+    (cons beg end)))
 
 (defun lispy-eval-single-outline ()
   (let* ((bnd (lispy--eval-bounds-outline))
