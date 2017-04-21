@@ -184,7 +184,7 @@ it at one time."
     (unless plain
       (setq str (string-trim str))
       (cond ((and (or (string-match "\\`\\(\\(?:[., ]\\|\\sw\\|\\s_\\|[][]\\)+\\) += " str)
-                      (string-match "\\`\\(([^)]+)\\) *=" str))
+                      (string-match "\\`\\(([^)]+)\\) *=[^=]" str))
                   (save-match-data
                     (or single-line-p
                         (and (not (string-match-p "lp\\." str))
