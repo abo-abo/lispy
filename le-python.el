@@ -225,19 +225,29 @@ it at one time."
                             p2-output)))))
                  (t
                   (error "unexpected")))))
-      (cond ((string-match "^Traceback.*:" res)
-             (set-text-properties
-              (match-beginning 0)
-              (match-end 0)
-              '(face error)
-              res)
-             (setq lispy-eval-error res)
-             nil)
-            ((equal res "")
-             (setq lispy-eval-error "(ok)")
-             "")
-            (t
-             (replace-regexp-in-string "\\\\n" "\n" res))))))
+      (cond
+        ((string-match "SyntaxError: 'return' outside function\\'" res)
+         (lispy--eval-python
+          (concat "__return__ = None\n"
+                  (replace-regexp-in-string
+                   "\\(^ *\\)return"
+                   (lambda (x) (concat (match-string 1 x) "__return__ ="))
+                   str)
+                  "\nprint (repr(__return__))")
+          t))
+        ((string-match "^Traceback.*:" res)
+         (set-text-properties
+          (match-beginning 0)
+          (match-end 0)
+          '(face error)
+          res)
+         (setq lispy-eval-error res)
+         nil)
+        ((equal res "")
+         (setq lispy-eval-error "(ok)")
+         "")
+        (t
+         (replace-regexp-in-string "\\\\n" "\n" res))))))
 
 (defun lispy--python-array-to-elisp (array-str)
   "Transform a Python string ARRAY-STR to an Elisp string array."
