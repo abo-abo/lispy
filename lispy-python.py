@@ -17,8 +17,9 @@
 # For a full copy of the GNU General Public License
 # see <http://www.gnu.org/licenses/>.
 
-
 import inspect
+import re
+import platform
 try:
     import jedi
 except:
@@ -27,6 +28,7 @@ except:
 def arglist_retrieve_java (method):
     name = method.__name__
     if hasattr (method, "argslist"):
+        # uses only the first args list...
         args = [x.__name__ for x in method.argslist[0].args]
     else:
         methods = eval ("method.__self__.class.getDeclaredMethods ()")
@@ -37,19 +39,26 @@ def arglist_retrieve_java (method):
     return inspect.ArgSpec (args, None, None, None)
 
 def arglist_retrieve (sym):
-    if hasattr (sym, "__self__") and hasattr (sym.__self__, "class") or \
-       hasattr (sym, "argslist"):
-        return arglist_retrieve_java (sym)
-    elif hasattr(inspect, "getfullargspec"):
-        res = inspect.getfullargspec (sym)
-        return inspect.ArgSpec (args = res.args,
-                                varargs = res.varargs,
-                                defaults = res.defaults,
-                                keywords = res.kwonlydefaults)
-    else:
-        try:
+    try:
+        if hasattr(inspect, "getfullargspec"):
+            res = inspect.getfullargspec (sym)
+            return inspect.ArgSpec (args = res.args,
+                                    varargs = res.varargs,
+                                    defaults = res.defaults,
+                                    keywords = res.kwonlydefaults)
+        else:
             return inspect.getargspec (sym)
-        except TypeError as er:
+    except TypeError as er:
+        if (re.search ("is not a Python function$", er.message)
+            and platform.system () == "Java"):
+            if inspect.isclass (sym):
+                return arglist_retrieve_java (sym.__init__)
+            elif hasattr (sym, "argslist") or \
+                 hasattr (sym, "__self__") and hasattr (sym.__self__, "class"):
+                return arglist_retrieve_java (sym)
+            else:
+                print (er.message)
+        else:
             print (er.message)
 
 def format_arg (arg_pair):
