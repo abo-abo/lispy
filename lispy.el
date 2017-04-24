@@ -4047,7 +4047,7 @@ Return the result of the last evaluation as a string."
          (end
           (save-excursion
             (forward-char)
-            (if (re-search-forward outline-regexp nil t)
+            (if (re-search-forward (concat "^" outline-regexp)  nil t)
                 (progn
                   (goto-char (match-beginning 0)))
               (goto-char (point-max)))
