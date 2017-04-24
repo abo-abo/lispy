@@ -79,35 +79,35 @@ def mapcar (func, lst):
     """
     return list (map (func, lst))
 
-def arglist (sym, filename = None, line = None, column = None):
-    try:
-        arg_info = arglist_retrieve (sym)
-        if "self" in arg_info.args:
-            arg_info.args.remove ("self")
-        if arg_info.defaults:
-            defaults = [None] * (len (arg_info.args) - len (arg_info.defaults)) + \
-                       mapcar (repr, arg_info.defaults)
-            args = mapcar (format_arg, zip (arg_info.args, defaults))
+def arglist (sym):
+    arg_info = arglist_retrieve (sym)
+    if "self" in arg_info.args:
+        arg_info.args.remove ("self")
+    if arg_info.defaults:
+        defaults = [None] * (len (arg_info.args) - len (arg_info.defaults)) + \
+                   mapcar (repr, arg_info.defaults)
+        args = mapcar (format_arg, zip (arg_info.args, defaults))
+    else:
+        args = arg_info.args
+        if arg_info.varargs:
+            args += arg_info.varargs
+    if arg_info.keywords:
+        if type (arg_info.keywords) is dict:
+            for k, v in arg_info.keywords.items ():
+                args.append ("%s = %s" % (k, v))
         else:
-            args = arg_info.args
-            if arg_info.varargs:
-                args += arg_info.varargs
-        if arg_info.keywords:
-            if type (arg_info.keywords) is dict:
-                for k, v in arg_info.keywords.items ():
-                    args.append ("%s = %s" % (k, v))
-            else:
-                args.append ("**" + arg_info.keywords)
-        return args
-    except TypeError:
-        script = jedi.Script(None, line, column, filename)
-        defs = script.goto_definitions ()
-        if len (defs) == 0:
-            raise TypeError ("0 definitions found")
-        elif len (defs) > 1:
-            raise TypeError (">1 definitions found")
-        else:
-            return delete ('', mapcar (lambda x: x.description, defs[0].params))
+            args.append ("**" + arg_info.keywords)
+    return args
+
+def arglist_jedi (line, column, filename):
+    script = jedi.Script(None, line, column, filename)
+    defs = script.goto_definitions ()
+    if len (defs) == 0:
+        raise TypeError ("0 definitions found")
+    elif len (defs) > 1:
+        raise TypeError (">1 definitions found")
+    else:
+        return delete ('', mapcar (lambda x: str (x.name), defs[0].params))
 
 def is_assignment (code):
     ops = ast.parse (code).body

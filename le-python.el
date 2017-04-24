@@ -272,8 +272,7 @@ it at one time."
                     (read s)
                   (if (string-match "\\`'\\(.*\\)'\\'" s)
                       (match-string 1 s)
-                    s
-                    )))
+                    s)))
               parts))))
 
 (defun lispy-dir-string< (a b)
@@ -523,15 +522,18 @@ Otherwise, fall back to Jedi (static)."
 
 (defun lispy--python-arglist (symbol filename line column)
   (lispy--python-middleware-load)
-  (format "%s (%s)"
-          symbol
-          (mapconcat #'identity
-                     (delete "self"
-                             (lispy--python-array-to-elisp
-                              (lispy--eval-python
-                               (format "lp.arglist(%s, '%s', %s, %s)"
-                                       symbol filename line column))))
-                     ", ")))
+  (let* ((boundp (lispy--eval-python symbol))
+         (code (if boundp
+                   (format "lp.arglist(%s)" symbol)
+                 (format "lp.arglist_jedi(%d, %d, '%s')" line column filename)))
+         (args (lispy--python-array-to-elisp
+                (lispy--eval-python
+                 code))))
+    (format "%s (%s)"
+            symbol
+            (mapconcat #'identity
+                       (delete "self" args)
+                       ", "))))
 
 (provide 'le-python)
 
