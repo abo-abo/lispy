@@ -71,13 +71,16 @@ Stripping them will produce code that's valid for an eval."
              bnd)))))
 
 (defun lispy-eval-python-str ()
-  (let ((bnd (lispy-eval-python-bnd)))
+  (let* ((bnd (lispy-eval-python-bnd))
+         (str (lispy-trim-python
+               (lispy--string-dwim bnd))))
+    (when (string-match "\\`([^\0]*)\\'" str)
+      (setq str (replace-regexp-in-string "\n *" " " str)))
     (replace-regexp-in-string
      ",\n +" ","
      (replace-regexp-in-string
       "\\\\\n +" ""
-      (lispy-trim-python
-       (lispy--string-dwim bnd))))))
+      str))))
 
 (defun lispy-bounds-python-block ()
   (if (save-excursion
