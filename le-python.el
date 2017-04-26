@@ -202,6 +202,8 @@ it at one time."
              (let ((vars (match-string 1 str))
                    (val (match-string 2 str)))
                (setq str (format "%s = list (%s)[0]\nprint ((%s))" vars val vars)))))
+      (when (string-match "__file__" str)
+        (lispy--eval-python (format "__file__ = '%s'\n" (buffer-file-name)) t))
       (when (and single-line-p (string-match "\\`return \\(.*\\)\\'" str))
         (setq str (match-string 1 str))))
     (let ((res
