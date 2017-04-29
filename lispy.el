@@ -7800,7 +7800,8 @@ PLIST currently accepts:
                      lispy--cider-debug-command))))
 
              ,@(when (memq 'god-mode lispy-compat)
-                     '(((and (bound-and-true-p god-global-mode))
+                     '(((and (or (bound-and-true-p god-global-mode)
+                                 (bound-and-true-p god-local-mode)))
                         (call-interactively 'god-mode-self-insert))))
 
              ,@(when (memq 'macrostep lispy-compat)
