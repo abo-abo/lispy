@@ -52,7 +52,7 @@ def arglist_retrieve (sym):
         if (re.search ("is not a Python function$", er.message)
             and platform.system () == "Java"):
             if inspect.isclass (sym):
-                return arglist_retrieve_java (sym.__init__)
+                return arglist_retrieve (sym.__init__)
             elif hasattr (sym, "argslist") or \
                  hasattr (sym, "__self__") and hasattr (sym.__self__, "class"):
                 return arglist_retrieve_java (sym)
