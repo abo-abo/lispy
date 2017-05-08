@@ -1998,14 +1998,14 @@ to all the functions, while maintaining the parens in a pretty state."
 (defvar lispy--occur-end 1
   "End position of the top level sexp during `lispy-occur'.")
 
-(defun lispy--occur-candidates ()
+(defun lispy--occur-candidates (&optional bnd)
   "Return the candidates for `lispy-occur'."
-  (let ((bnd (save-excursion
-               (unless (and (bolp)
-                            (lispy-left-p))
-                 (beginning-of-defun))
-               (lispy--bounds-dwim)))
-        (line-number -1)
+  (setq bnd (or bnd (save-excursion
+                      (unless (and (bolp)
+                                   (lispy-left-p))
+                        (beginning-of-defun))
+                      (lispy--bounds-dwim))))
+  (let ((line-number -1)
         candidates)
     (setq lispy--occur-beg (car bnd))
     (setq lispy--occur-end (cdr bnd))
