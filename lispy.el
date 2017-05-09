@@ -7344,14 +7344,16 @@ BND is a cons of start and end points."
 EXPR is indented first, with OFFSET being the column position of
 the first character of EXPR.
 MODE is the major mode for indenting EXPR."
-  (with-temp-buffer
-    (funcall mode)
-    (dotimes (_i offset)
-      (insert ?\ ))
-    (lispy--insert expr)
-    (buffer-substring-no-properties
-     (+ (point-min) offset)
-     (point-max))))
+  (let ((lif lisp-indent-function))
+    (with-temp-buffer
+      (funcall mode)
+      (dotimes (_i offset)
+        (insert ?\ ))
+      (let ((lisp-indent-function lif))
+        (lispy--insert expr))
+      (buffer-substring-no-properties
+       (+ (point-min) offset)
+       (point-max)))))
 
 (defun lispy--splice-to-str (sexp)
   "Return the printed representation of SEXP.
