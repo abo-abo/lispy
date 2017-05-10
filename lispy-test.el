@@ -3033,7 +3033,10 @@ Insert KEY if there's no command."
                      (lispy--eval-python "")
                      (sit-for 0.1)
                      (lispy--eval-python "print \"one\"\nprint \"two\"\nx = 2 + 1"))
-                   "one\ntwo\n3"))))
+                   "one\ntwo\n3")))
+  (should (equal (lispy-with-python "def func ():\n    |v = Foo.bar (\n        Foo.baz,\n        self.comp, xrt)\n    x = 0"
+                                    (lispy-eval-python-str))
+                 "v = Foo.bar (Foo.baz,self.comp, xrt)")))
 
 (ert-deftest lispy-python-symbol-bnd ()
   (should (equal (lispy-with-python "def test_detector ():\n    detector.getChannelCount ().|"

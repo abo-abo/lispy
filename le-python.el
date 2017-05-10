@@ -77,10 +77,12 @@ Stripping them will produce code that's valid for an eval."
     (when (string-match "\\`([^\0]*)\\'" str)
       (setq str (replace-regexp-in-string "\n *" " " str)))
     (replace-regexp-in-string
-     ",\n +" ","
+     "(\n +" "("
      (replace-regexp-in-string
-      "\\\\\n +" ""
-      str))))
+      ",\n +" ","
+      (replace-regexp-in-string
+       "\\\\\n +" ""
+       str)))))
 
 (defun lispy-bounds-python-block ()
   (if (save-excursion
