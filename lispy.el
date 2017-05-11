@@ -1819,8 +1819,7 @@ When the region is active, toggle a ~ at the start of the region."
          (setq this-command 'cider-repl-newline-and-indent)
          (cider-repl-newline-and-indent))
         ((eq major-mode 'inferior-emacs-lisp-mode)
-         (setq this-command 'ielm-return)
-         (ielm-return))
+         (lispy-newline-and-indent-plain))
         ((lispy-left-p)
          (skip-chars-backward ",@'`#")
          (newline-and-indent)
@@ -1846,6 +1845,9 @@ When the region is active, toggle a ~ at the start of the region."
      (sly-mrepl-return))
     (python-mode
      (newline-and-indent))
+    (inferior-emacs-lisp-mode
+     (setq this-command 'ielm-return)
+     (ielm-return))
     (t
      (if (and (not (lispy--in-string-or-comment-p))
               (if (memq major-mode lispy-clojure-modes)
