@@ -420,7 +420,7 @@ Otherwise return the amount of times executed."
   (declare (indent 0))
   `(let ((out (save-excursion
                 ,@body)))
-     (when (bolp)
+     (when (lispy-bolp)
        (back-to-indentation))
      out))
 
