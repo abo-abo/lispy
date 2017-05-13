@@ -1243,12 +1243,22 @@ Otherwise (`backward-delete-char-untabify' ARG)."
              (delete-char -1)))
 
           ((lispy--in-comment-p)
-           (if (lispy-looking-back "^ +")
-               (progn
-                 (delete-region (1- (match-beginning 0))
-                                (match-end 0))
-                 (lispy--indent-for-tab))
-             (backward-delete-char-untabify arg)))
+           (cond ((lispy-looking-back "^ +")
+                  (delete-region (1- (match-beginning 0))
+                                 (match-end 0))
+                  (lispy--indent-for-tab))
+                 ((and (looking-at "$") (looking-back "; +"))
+                  (let ((pt (point)))
+                    (skip-chars-backward " ;")
+                    (delete-region (point) pt)
+                    (if (looking-back "^")
+                        (lispy--indent-for-tab)
+                      (let ((p (point)))
+                        (lispy--out-forward 1)
+                        (lispy--normalize-1)
+                        (goto-char p)))))
+                 (t
+                  (backward-delete-char-untabify arg))))
 
           ((lispy-looking-back "\\\\.")
            (backward-delete-char-untabify arg))
