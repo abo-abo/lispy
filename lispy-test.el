@@ -801,11 +801,20 @@ Insert KEY if there's no command."
                    "(list |[1 2])"))
   (should (string= (lispy-with "#2A((a b) (0 1))|" "\C-?")
                    "|"))
+
   (let ((lispy-delete-atom-from-within t))
     (should (string= (lispy-with "(|)" "\C-?") "|"))
     (should (string= (lispy-with "(|foo)" "\C-?") "|"))
     (should (string= (lispy-with "\"|\"" "\C-?") "|"))
-    (should (string= (lispy-with "\"|foo\"" "\C-?") "|"))))
+    (should (string= (lispy-with "\"|foo\"" "\C-?") "|")))
+
+  (should (string= (lispy-with "(foo                                    ; |\n
+ )" "\C-?")
+                   "(foo|)"))
+  (should (string= (lispy-with ";; |" "\C-?")
+                   "|"))
+  (should (string= (lispy-with "(foo) ;; |" "\C-?")
+                   "(foo)|")))
 
 (ert-deftest lispy-pair ()
   (should (string= (lispy-with "\"\\\\|\"" "(")
