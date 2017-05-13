@@ -5338,7 +5338,7 @@ An equivalent of `cl-destructuring-bind'."
   ("m" lispy-cursor-ace "multi cursor")
   ;; ("n" nil)
   ;; ("o" nil)
-  ;; ("p" nil)
+  ("p" lispy-set-python-process "process")
   ;; ("q" nil)
   ("r" lispy-eval-and-replace "eval and replace")
   ("s" save-buffer)

@@ -134,6 +134,17 @@ Stripping them will produce code that's valid for an eval."
 
 (defvar-local lispy-python-proc nil)
 
+(defun lispy-set-python-process-action (x)
+  (setq lispy-python-proc
+        (cond ((consp x)
+               (cdr x))
+              (t
+               (lispy--python-proc (concat "lispy-python-" x))))))
+
+(defun lispy-short-process-name (x)
+  (when (string-match "^lispy-python-\\(.*\\)" (process-name x))
+    (match-string 1 (process-name x))))
+
 (defun lispy-set-python-process ()
   "Associate a (possibly new) Python process to the current buffer.
 
@@ -144,13 +155,14 @@ it at one time."
           (delq nil
                 (mapcar
                  (lambda (x)
-                   (when (string-match "^lispy-python-\\(.*\\)" (process-name x))
-                     (match-string 1 (process-name x))))
+                   (let ((name (lispy-short-process-name x)))
+                     (when name
+                       (cons name x))))
                  (process-list)))))
     (ivy-read "Process: " process-names
-              :action (lambda (x)
-                        (setq lispy-python-proc
-                              (lispy--python-proc (concat "lispy-python-" x))))
+              :action #'lispy-set-python-process-action
+              :preselect (when (process-live-p lispy-python-proc)
+                           (lispy-short-process-name lispy-python-proc))
               :caller 'lispy-set-python-process)))
 
 (defvar lispy--python-middleware-loaded-p nil
