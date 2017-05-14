@@ -1115,7 +1115,9 @@ If position isn't special, move to previous or error."
 
           ((setq bnd (lispy--bounds-string))
            (cond ((eq (1+ (point)) (cdr bnd))
-                  (goto-char (car bnd)))
+                  (goto-char (car bnd))
+                  (when lispy-delete-atom-from-within
+                    (lispy-delete arg)))
                  ((looking-at "\\\\\"")
                   (if (eq (+ (point) 2) (cdr bnd))
                       (goto-char (car bnd))
@@ -1151,7 +1153,9 @@ If position isn't special, move to previous or error."
              (delete-char arg)))
 
           ((looking-at lispy-right)
-           (lispy-left 1))
+           (lispy-left 1)
+           (when lispy-delete-atom-from-within
+             (lispy-delete arg)))
 
           ((lispy-left-p)
            (lispy--delete-leading-garbage)
@@ -1214,7 +1218,9 @@ Otherwise (`backward-delete-char-untabify' ARG)."
           ((and (setq bnd (lispy--bounds-string))
                 (not (eq (point) (car bnd))))
            (cond ((eq (- (point) (car bnd)) 1)
-                  (goto-char (cdr bnd)))
+                  (goto-char (cdr bnd))
+                  (if lispy-delete-atom-from-within
+                      (lispy-delete-backward arg)))
                  ((or (looking-back "\\\\\\\\(" (car bnd))
                       (looking-back "\\\\\\\\)" (car bnd)))
                   (let ((pt (point)))
