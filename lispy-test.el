@@ -715,7 +715,13 @@ Insert KEY if there's no command."
       ;; both mixed
       (should (string= (lispy-with "{[(a\n~   b \"c [(d e}\"\n   ;;({]\n|   f)]}"
                                    "\C-d")
-                       "{[(a\n~|   f)]}")))))
+                       "{[(a\n~|   f)]}"))))
+
+  (let ((lispy-delete-atom-from-within t))
+    (should (string= (lispy-with "(|)" "\C-d") "|"))
+    (should (string= (lispy-with "(foo|)" "\C-d") "|"))
+    (should (string= (lispy-with "\"|\"" "\C-d") "|"))
+    (should (string= (lispy-with "\"foo|\"" "\C-d") "|"))))
 
 (ert-deftest lispy-delete-backward ()
   (should (string= (lispy-with "((a) (b) (c)|)" "\C-?")
@@ -794,7 +800,12 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "(list \"string\" |[1 2])" "\C-?")
                    "(list |[1 2])"))
   (should (string= (lispy-with "#2A((a b) (0 1))|" "\C-?")
-                   "|")))
+                   "|"))
+  (let ((lispy-delete-atom-from-within t))
+    (should (string= (lispy-with "(|)" "\C-?") "|"))
+    (should (string= (lispy-with "(|foo)" "\C-?") "|"))
+    (should (string= (lispy-with "\"|\"" "\C-?") "|"))
+    (should (string= (lispy-with "\"|foo\"" "\C-?") "|"))))
 
 (ert-deftest lispy-pair ()
   (should (string= (lispy-with "\"\\\\|\"" "(")
