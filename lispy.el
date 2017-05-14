@@ -1191,7 +1191,12 @@ beginning of the line."
 
 (defvar lispy-delete-backward-recenter -20
   "When cursor is near top of screen when calling
-  lispy-delete-backward, recenter cursor with arg.")
+  `lispy-delete-backward', recenter cursor with arg.")
+
+(defvar lispy-delete-atom-from-within nil
+  "When cursor is adjascent to an opening or closing pair,
+  `lispy-delete' or `lispy-delete-backward' toward the delimiter
+  will kill the whole atom (sexp or string).")
 
 (defun lispy-delete-backward (arg)
   "From \")|\", delete ARG sexps backwards.
