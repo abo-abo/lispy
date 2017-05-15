@@ -341,10 +341,14 @@ Return t if at least one was deleted."
          (fstring (format "%%- %ds" maxw)))
     (mapconcat
      (lambda (x)
-       (concat padding
-               (ivy--add-face (format fstring x) 'lispy-face-hint)))
-               strs
-               "\n")))
+       (concat
+        padding
+        (let ((str (format fstring x)))
+          (font-lock-append-text-property
+           0 (length str) 'face 'lispy-face-hint str)
+          str)))
+     strs
+     "\n")))
 
 (defun lispy--show-fits-p (str)
   "Return nil if window isn't large enough to display STR whole."
