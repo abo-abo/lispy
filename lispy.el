@@ -1246,12 +1246,16 @@ Otherwise (`backward-delete-char-untabify' ARG)."
                   (delete-region (1- (match-beginning 0))
                                  (match-end 0))
                   (lispy--indent-for-tab))
-                 ((looking-at "$")
+                 ((and (looking-at "$") (looking-back "; +"))
                   (let ((pt (point)))
                     (skip-chars-backward " ;")
                     (delete-region (point) pt)
-                    (lispy--indent-for-tab)))
-
+                    (if (looking-back "^")
+                        (lispy--indent-for-tab)
+                      (let ((p (point)))
+                        (lispy--out-forward 1)
+                        (lispy--normalize-1)
+                        (goto-char p)))))
                  (t
                   (backward-delete-char-untabify arg))))
 

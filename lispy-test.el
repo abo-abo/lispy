@@ -808,13 +808,11 @@ Insert KEY if there's no command."
     (should (string= (lispy-with "\"|\"" "\C-?") "|"))
     (should (string= (lispy-with "\"|foo\"" "\C-?") "|")))
 
-  (should (string= (lispy-with "(foo                                    ; |\n
- )" "\C-?")
+  (should (string= (lispy-with "(foo                                    ; |\n)" "\C-?")
                    "(foo|)"))
-  (should (string= (lispy-with ";; |" "\C-?")
-                   "|"))
-  (should (string= (lispy-with "(foo) ;; |" "\C-?")
-                   "(foo)|")))
+  (should (string= (lispy-with "(foo\n ;; |\n)" "\C-?") "(foo\n |\n)"))
+  (should (string= (lispy-with "(foo) ;; |" "\C-?") "(foo)|"))
+  (should (string= (lispy-with "(foo ;; |\n)" "\C-?") "(foo|)")))
 
 (ert-deftest lispy-pair ()
   (should (string= (lispy-with "\"\\\\|\"" "(")
