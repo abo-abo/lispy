@@ -148,6 +148,7 @@
 (require 'avy)
 (require 'newcomment)
 (require 'lispy-inline)
+(setq iedit-toggle-key-default nil)
 (require 'iedit)
 (require 'delsel)
 (require 'swiper)
