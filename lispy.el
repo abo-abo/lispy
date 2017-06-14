@@ -7548,29 +7548,31 @@ The outer delimiters are stripped."
                    (goto-char (car bnd))
                    (current-column)))
          (was-left (lispy-left-p)))
-    (cond ((or (and (memq major-mode lispy-clojure-modes)
-                    (or (string-match "\\^" str)
-                        (string-match "~" str)))
-               (> (length str) 10000))
-
-           (lispy-from-left
-            (indent-sexp)))
-          ((looking-at ";;"))
-          (t
-           (let* ((max-lisp-eval-depth 10000)
-                  (max-specpdl-size 10000)
-                  (geiser-active-implementations
-                   (and (bound-and-true-p geiser-active-implementations)
-                        (list (car geiser-active-implementations))))
-                  (res (lispy--sexp-normalize
-                        (lispy--read str)))
-                  (new-str (lispy--prin1-to-string res offset major-mode)))
-             (unless (string= str new-str)
-               (delete-region (car bnd)
-                              (cdr bnd))
-               (insert new-str)
-               (when was-left
-                 (backward-list))))))))
+    (progn (cond ((or (and (memq major-mode lispy-clojure-modes)
+                           (or (string-match "\\^" str)
+                               (string-match "~" str)))
+                      (> (length str) 10000))
+                  (lispy-from-left
+                   (indent-sexp)))
+                 ((looking-at ";;"))
+                 (t
+                  (let* ((max-lisp-eval-depth 10000)
+                         (max-specpdl-size 10000)
+                         (geiser-active-implementations
+                          (and (bound-and-true-p geiser-active-implementations)
+                               (list (car geiser-active-implementations))))
+                         (res (lispy--sexp-normalize
+                               (lispy--read str)))
+                         (new-str (lispy--prin1-to-string res offset major-mode)))
+                    (unless (string= str new-str)
+                      (delete-region (car bnd)
+                                     (cdr bnd))
+                      (insert new-str)
+                      (when was-left
+                        (backward-list))))))
+           (when (and (memq major-mode lispy-clojure-modes)
+                      clojure-align-forms-automatically)
+             (clojure-align (car bnd) (cdr bnd))))))
 
 (defun lispy--sexp-trim-leading-newlines (expr comment)
   "Trim leading (ly-raw newline) from EXPR.

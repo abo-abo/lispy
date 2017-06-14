@@ -1676,7 +1676,11 @@ Insert KEY if there's no command."
                    "|(require 'foo)"))
   (should (string= (lispy-with-clojure
                     "|(expr ~(expr) ~'expr '~(expr) ~'(expr) ~@(expr))" (lispy--normalize-1))
-                   "|(expr ~(expr) ~'expr '~(expr) ~'(expr) ~@(expr))")))
+                   "|(expr ~(expr) ~'expr '~(expr) ~'(expr) ~@(expr))"))
+  (let ((clojure-align-forms-automatically t))
+    (should (string= (lispy-with-clojure
+                      "|{:some-key 10\n :key2 20}" (lispy--normalize-1))
+                     "|{:some-key 10\n :key2     20}"))))
 
 (ert-deftest lispy--sexp-normalize ()
   (should (equal
@@ -1995,10 +1999,11 @@ Insert KEY if there's no command."
                    "|;; comment 1\n;; comment 2"))
   (should (string= (lispy-with-clojure "|[#{}]" "i")
                    "|[#{}]"))
-  (should (string= (lispy-with-clojure "|{\\a   \\b}" "i")
-                   "|{\\a \\b}"))
-  (should (string= (lispy-with-clojure "#?(:cljs   1   :clj 2)|" "i")
-                   "#?(:cljs 1 :clj 2)|")))
+  (let ((clojure-align-forms-automatically nil))
+    (should (string= (lispy-with-clojure "|{\\a   \\b}" "i")
+                     "|{\\a \\b}"))
+    (should (string= (lispy-with-clojure "#?(:cljs   1   :clj 2)|" "i")
+                     "#?(:cljs 1 :clj 2)|"))))
 
 (defun lispy-test-normalize ()
   (interactive)
