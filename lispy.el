@@ -1247,11 +1247,11 @@ Otherwise (`backward-delete-char-untabify' ARG)."
                   (delete-region (1- (match-beginning 0))
                                  (match-end 0))
                   (lispy--indent-for-tab))
-                 ((and (looking-at "$") (looking-back "; +"))
+                 ((and (looking-at "$") (lispy-looking-back "; +"))
                   (let ((pt (point)))
                     (skip-chars-backward " ;")
                     (delete-region (point) pt)
-                    (if (looking-back "^")
+                    (if (lispy-looking-back "^")
                         (lispy--indent-for-tab)
                       (let ((p (point)))
                         (lispy--out-forward 1)
@@ -7540,6 +7540,8 @@ The outer delimiters are stripped."
     (forward-list)))
 
 (defvar geiser-active-implementations)
+(defvar clojure-align-forms-automatically)
+(declare-function clojure-align "ext:clojure-mode")
 (defun lispy--normalize-1 ()
   "Normalize/prettify current sexp."
   (let* ((bnd (lispy--bounds-dwim))
@@ -7548,31 +7550,31 @@ The outer delimiters are stripped."
                    (goto-char (car bnd))
                    (current-column)))
          (was-left (lispy-left-p)))
-    (progn (cond ((or (and (memq major-mode lispy-clojure-modes)
-                           (or (string-match "\\^" str)
-                               (string-match "~" str)))
-                      (> (length str) 10000))
-                  (lispy-from-left
-                   (indent-sexp)))
-                 ((looking-at ";;"))
-                 (t
-                  (let* ((max-lisp-eval-depth 10000)
-                         (max-specpdl-size 10000)
-                         (geiser-active-implementations
-                          (and (bound-and-true-p geiser-active-implementations)
-                               (list (car geiser-active-implementations))))
-                         (res (lispy--sexp-normalize
-                               (lispy--read str)))
-                         (new-str (lispy--prin1-to-string res offset major-mode)))
-                    (unless (string= str new-str)
-                      (delete-region (car bnd)
-                                     (cdr bnd))
-                      (insert new-str)
-                      (when was-left
-                        (backward-list))))))
-           (when (and (memq major-mode lispy-clojure-modes)
-                      clojure-align-forms-automatically)
-             (clojure-align (car bnd) (cdr bnd))))))
+    (cond ((or (and (memq major-mode lispy-clojure-modes)
+                    (or (string-match "\\^" str)
+                        (string-match "~" str)))
+               (> (length str) 10000))
+           (lispy-from-left
+            (indent-sexp)))
+          ((looking-at ";;"))
+          (t
+           (let* ((max-lisp-eval-depth 10000)
+                  (max-specpdl-size 10000)
+                  (geiser-active-implementations
+                   (and (bound-and-true-p geiser-active-implementations)
+                        (list (car geiser-active-implementations))))
+                  (res (lispy--sexp-normalize
+                        (lispy--read str)))
+                  (new-str (lispy--prin1-to-string res offset major-mode)))
+             (unless (string= str new-str)
+               (delete-region (car bnd)
+                              (cdr bnd))
+               (insert new-str)
+               (when was-left
+                 (backward-list))))))
+    (when (and (memq major-mode lispy-clojure-modes)
+               clojure-align-forms-automatically)
+      (clojure-align (car bnd) (cdr bnd)))))
 
 (defun lispy--sexp-trim-leading-newlines (expr comment)
   "Trim leading (ly-raw newline) from EXPR.
