@@ -797,7 +797,8 @@ Insert KEY if there's no command."
   (should (string= (lispy-with " |;;" "\C-?")
                    "|;;"))
   (should (string= (lispy-with "  |;;" "\C-?")
-                   "|;;")))
+                   "|;;"))
+  (should (string= (lispy-with clojure "(foo bar?)|" "\C-?") "|")))
 
 (ert-deftest lispy-pair ()
   (should (string= (lispy-with "\"\\\\|\"" "(")
