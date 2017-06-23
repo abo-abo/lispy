@@ -6722,7 +6722,7 @@ Ignore the matches in strings and comments."
                         (insert "(ly-raw \\,@ ")))))
                 ;; ——— #{ or { or #( or @( or #?( or #?@( ——————————
                 (goto-char (point-min))
-                (while (re-search-forward "#\\?@(\\|@(\\|#(\\|{\\|#{\\|#\\?(" nil t)
+                (while (re-search-forward "#\\?@(\\|@(\\|#(\\|{\\|#{\\|#::{\\|#\\?(" nil t)
                   (let ((class
                          (cond ((string= (match-string 0) "#{")
                                 "clojure-set")
@@ -6736,6 +6736,8 @@ Ignore the matches in strings and comments."
                                 "clojure-reader-conditional-splice")
                                ((string= (match-string 0) "#?(")
                                 "clojure-reader-conditional")
+                               ((string= (match-string 0) "#::{")
+                                "clojure-namespaced-map")
                                (t
                                 (error "Expected set or map or lambda")))))
                     (unless (lispy--in-string-or-comment-p)
@@ -7451,6 +7453,10 @@ The outer delimiters are stripped."
           (clojure-map
            (delete-region beg (point))
            (insert (format "{%s}" (lispy--splice-to-str (cl-caddr sxp))))
+           (goto-char beg))
+          (clojure-namespaced-map
+           (delete-region beg (point))
+           (insert (format "#::{%s}" (lispy--splice-to-str (cl-caddr sxp))))
            (goto-char beg))
           (clojure-deref-list
            (delete-region beg (point))
