@@ -6720,6 +6720,16 @@ Ignore the matches in strings and comments."
                         (goto-char beg)
                         (delete-char 2)
                         (insert "(ly-raw \\,@ ")))))
+                ;; ——— #_ —————————————————————
+                (goto-char (point-min))
+                (while (re-search-forward "#_[({[]" nil t)
+                  (backward-char 1)
+                  (let ((beg (point)))
+                    (forward-list 1)
+                    (insert ")")
+                    (goto-char beg)
+                    (delete-char -2)
+                    (insert "(ly-raw clojure-reader-comment ")))
                 ;; ——— #{ or { or #( or @( or #?( or #?@( ——————————
                 (goto-char (point-min))
                 (while (re-search-forward "#\\?@(\\|@(\\|#(\\|{\\|#{\\|#::{\\|#\\?(" nil t)
@@ -7469,6 +7479,10 @@ The outer delimiters are stripped."
           (clojure-reader-conditional
            (delete-region beg (point))
            (insert (format "#?(%s)" (lispy--splice-to-str (cl-caddr sxp))))
+           (goto-char beg))
+          (clojure-reader-comment
+           (delete-region beg (point))
+           (insert (format "#_%S" (cl-caddr sxp)))
            (goto-char beg))
           (clojure-comma
            (delete-region beg (point))
