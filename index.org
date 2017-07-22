@@ -2448,7 +2448,7 @@ Example 2:
 |("foo" bar)
 #+end_src
 #+HTML: </td><td>
--> ~>~ ->
+-> ~<~ ->
 #+HTML: </td><td>
 #+begin_src elisp
 "foo" |(bar)
