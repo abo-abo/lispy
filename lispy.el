@@ -4790,6 +4790,50 @@ When ARG isn't nil, show table of contents."
           (t
            (lispy-extract-block)))))
 
+(defun lispy-extract-defun ()
+  "Extract the marked block as a defun.
+For the defun to have arguments, capture them with `lispy-bind-variable'."
+  (interactive)
+  (let* ((bnd (lispy--bounds-dwim))
+         (str (lispy--string-dwim bnd))
+         (expr (lispy--read (format "(progn %s)" str)))
+         (name
+          (make-symbol
+           (read-string "Function name: ")))
+         vars
+         expr-without-let
+         expr-defun
+         expr-funcall)
+    (setq vars nil)
+    (setq expr-without-let
+          (lispy-mapcan-tree
+           (lambda (x y)
+             (if (eq (car-safe x) 'let)
+                 (let* ((var-conses (cadr x))
+                        (first-var-cons (car var-conses))
+                        (var-name (car first-var-cons))
+                        (let-body (cddr x)))
+                   (if (equal (list var-name)
+                              (delete '(ly-raw newline) let-body))
+                       (progn
+                         (push (cons var-name (cdr first-var-cons)) vars)
+                         (cons var-name y))
+                     (cons x y)))
+               (cons x y)))
+           expr))
+    (setq expr-defun
+          `(defun ,name ,(or (mapcar 'car vars) '(ly-raw empty))
+             (ly-raw newline)
+             ,@(cdr expr-without-let)))
+    (setq expr-funcall
+          `(,name ,@(mapcar 'cadr vars)))
+    (delete-region (car bnd) (cdr bnd))
+    (lispy--insert expr-funcall)
+    (save-excursion
+      (lispy-beginning-of-defun)
+      (lispy--insert expr-defun)
+      (insert "\n\n"))))
+
 (declare-function lispy-flatten--clojure "le-clojure")
 (declare-function lispy-flatten--lisp "le-lisp")
 (defun lispy-flatten (arg)
@@ -5351,6 +5395,7 @@ An equivalent of `cl-destructuring-bind'."
   ("b" lispy-bind-variable "bind variable")
   ("c" lispy-to-cond "to cond")
   ("d" lispy-to-defun "to defun")
+  ("D" lispy-extract-defun "extract defun")
   ("e" lispy-edebug "edebug")
   ("f" lispy-flatten "flatten")
   ("F" lispy-let-flatten "let-flatten")
