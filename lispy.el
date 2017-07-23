@@ -1407,11 +1407,11 @@ When ARG is more than 1, mark ARGth element."
   "Mark current symbol."
   (interactive)
   (let (bnd)
-    (cond ((and lispy-bind-var-in-progress iedit-mode)
-           (iedit-mode)
+    (cond (lispy-bind-var-in-progress
+           (lispy-map-done)
            (setq lispy-bind-var-in-progress nil)
-           (set-mark (point))
-           (search-backward (iedit-default-occurrence)))
+           (forward-sexp 2)
+           (lispy-mark-symbol))
 
           ((lispy--in-comment-p)
            (if (and (looking-at "\\(?:\\w\\|\\s_\\)*'")
@@ -4984,16 +4984,19 @@ With ARG, use the contents of `lispy-store-region-and-buffer' instead."
   (interactive)
   (let* ((bnd (lispy--bounds-dwim))
          (str (lispy--string-dwim bnd)))
-    (deactivate-mark)
     (setq lispy-bind-var-in-progress t)
-    (delete-region (car bnd)
-                   (cdr bnd))
-    (insert (format "(let ((foobar %s)))" str))
+    (deactivate-mark)
+    (lispy-map-delete-overlay)
+    (delete-region (car bnd) (cdr bnd))
+    (insert (format "(let (( %s))\n)" str))
+    (goto-char (car bnd))
+    (indent-sexp)
+    (forward-sexp)
+    (setq lispy-map-target-beg (+ (car bnd) 7))
+    (setq lispy-map-target-len 0)
     (backward-char 1)
-    (newline-and-indent)
-    (insert "foobar")
-    (iedit-mode 0)
-    (backward-delete-char 6)))
+    (setq lispy-map-format-function 'identity)
+    (lispy-map-make-input-overlay (point) (point))))
 
 ;;* Locals: multiple cursors
 (declare-function mc/create-fake-cursor-at-point "ext:multiple-cursors-core")
@@ -5686,70 +5689,83 @@ When ARG is given, paste at that place in the current list."
          (lispy-complain "should position point before (should (string="))))
 
 ;;* Locals: extract block
-(defvar lispy-eb-input-overlay nil
-  "The input overlay for `lispy-extract-block'.")
+(defvar lispy-map-input-overlay nil
+  "The input overlay for mapping transformations.")
 
-(defvar lispy-eb-target-beg 1
-  "The target start for `lispy-extract-block'.")
+(defvar lispy-map-target-beg 1
+  "The target start for mapping transformations.")
 
-(defvar lispy-eb-target-end 1
-  "The target end for `lispy-extract-block'.")
+(defvar lispy-map-target-len 1
+  "The target end for mapping transformations.")
 
-(defvar lispy-eb-keymap
+(defun lispy-map-done ()
+  (interactive)
+  (lispy-map-delete-overlay)
+  (lispy-backward 1))
+
+(defvar lispy-map-keymap
   (let ((map (make-sparse-keymap)))
-    (define-key map (kbd "[")
-      (lambda () (interactive) (lispy-eb-delete-overlay) (lispy-backward 1)))
+    (define-key map (kbd "[") #'lispy-map-done)
+    (define-key map (kbd "<return>") #'lispy-map-done)
     map)
   "The input overlay keymap for `lispy-extract-block'.")
 
-(defun lispy-eb-make-input-overlay (beg end)
-  "Set `lispy-eb-input-overlay' to an overlay from BEG to END.
+(defun lispy-map-make-input-overlay (beg end)
+  "Set `lispy-map-input-overlay' to an overlay from BEG to END.
 This overlay will automatically extend with modifications.
 
-Each modification inside `lispy-eb-input-overlay' will update the
-area between `lispy-eb-target-beg' and `lispy-eb-target-end'."
-  (when (overlayp lispy-eb-input-overlay)
-    (delete-overlay lispy-eb-input-overlay))
+Each modification inside `lispy-map-input-overlay' will update the
+area between `lispy-map-target-beg' and `lispy-map-target-len'."
+  (when (overlayp lispy-map-input-overlay)
+    (delete-overlay lispy-map-input-overlay))
   (let ((ov (make-overlay beg end (current-buffer) nil t)))
     (overlay-put ov 'face 'iedit-occurrence)
-    (overlay-put ov 'insert-in-front-hooks '(lispy-eb--overlay-update-hook))
-    (overlay-put ov 'insert-behind-hooks '(lispy-eb--overlay-update-hook))
-    (overlay-put ov 'modification-hooks '(lispy-eb--overlay-update-hook))
+    (overlay-put ov 'insert-in-front-hooks '(lispy-map--overlay-update-hook))
+    (overlay-put ov 'insert-behind-hooks '(lispy-map--overlay-update-hook))
+    (overlay-put ov 'modification-hooks '(lispy-map--overlay-update-hook))
     (overlay-put ov 'priority 200)
-    (overlay-put ov 'keymap lispy-eb-keymap)
-    (setq lispy-eb-input-overlay ov)))
+    (overlay-put ov 'keymap lispy-map-keymap)
+    (setq lispy-map-input-overlay ov)))
 
-(defun lispy-eb-delete-overlay ()
-  "Delete `lispy-eb-input-overlay'."
-  (when (overlayp lispy-eb-input-overlay)
-    (delete-overlay lispy-eb-input-overlay)))
+(defun lispy-map-delete-overlay ()
+  "Delete `lispy-map-input-overlay'."
+  (when (overlayp lispy-map-input-overlay)
+    (delete-overlay lispy-map-input-overlay)))
 
-(defun lispy-eb--overlay-update-hook (_occurrence _after _beg _end &optional change)
+(defvar lispy-map-format-function nil)
+
+(defun lispy-map-format-function-extract-block (str)
+  (let* ((fun-and-args (read (format "(%s)" str)))
+         (args (cdr fun-and-args)))
+    (format "%S %s"
+            (car fun-and-args)
+            (if (memq major-mode lispy-clojure-modes)
+                (if args
+                    (format
+                     "[%s]"
+                     (substring (prin1-to-string args)
+                                1 -1))
+                  "[]")
+              (if args
+                  (prin1-to-string args)
+                "()")))))
+
+(defun lispy-map--overlay-update-hook (_occurrence _after _beg _end &optional change)
   (when change
-    (let ((inhibit-modification-hooks t)
-          (str (buffer-substring-no-properties
-                (overlay-start lispy-eb-input-overlay)
-                (overlay-end lispy-eb-input-overlay))))
+    (let* ((inhibit-modification-hooks t)
+           (ovl-beg (overlay-start lispy-map-input-overlay))
+           (ovl-end (overlay-end lispy-map-input-overlay))
+           (str (buffer-substring-no-properties ovl-beg ovl-end)))
       (save-excursion
-        (goto-char lispy-eb-target-beg)
-        (delete-region
-         lispy-eb-target-beg
-         lispy-eb-target-end)
-        (let* ((fun-and-args (read (format "(%s)" str)))
-               (args (cdr fun-and-args)))
-          (insert (format "%S %s"
-                          (car fun-and-args)
-                          (if (memq major-mode lispy-clojure-modes)
-                              (if args
-                                  (format
-                                   "[%s]"
-                                   (substring (prin1-to-string args)
-                                              1 -1))
-                                "[]")
-                            (if args
-                                (prin1-to-string args)
-                              "()")))))
-        (setq lispy-eb-target-end (point))))))
+        (goto-char
+         (+ lispy-map-target-beg
+            (if (> lispy-map-target-beg ovl-beg)
+                (- ovl-end ovl-beg)
+              0)))
+        (delete-char lispy-map-target-len)
+        (let ((new-str (funcall lispy-map-format-function str)))
+          (insert new-str)
+          (setq lispy-map-target-len (length new-str)))))))
 
 (defun lispy-extract-block ()
   "Transform the current sexp or region into a function call.
@@ -5757,15 +5773,15 @@ The newly generated function will be placed above the current function.
 Starts the input for the new function name and arguments.
 To finalize this input, press \"[\"."
   (interactive)
-  (lispy-eb-delete-overlay)
+  (lispy-map-delete-overlay)
   (let* ((bnd (lispy--bounds-dwim))
          (str (lispy--string-dwim bnd)))
     (undo-boundary)
     (delete-region (car bnd) (cdr bnd))
     (insert "()")
     (backward-char)
-    (lispy-eb-make-input-overlay (point)
-                                 (point))
+    (lispy-map-make-input-overlay (point) (point))
+    (setq lispy-map-format-function 'lispy-map-format-function-extract-block)
     (save-excursion
       (lispy-beginning-of-defun)
       (save-excursion
@@ -5779,8 +5795,8 @@ To finalize this input, press \"[\"."
       (forward-char 1)
       (forward-sexp 2)
       (delete-char -1)
-      (setq lispy-eb-target-beg (point))
-      (setq lispy-eb-target-end (+ (point) 3)))))
+      (setq lispy-map-target-beg (point))
+      (setq lispy-map-target-len 3))))
 
 ;;* Predicates
 (defun lispy--in-string-p ()
