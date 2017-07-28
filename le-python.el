@@ -176,9 +176,13 @@ it at one time."
          (process (get-process proc-name)))
     (if (process-live-p process)
         process
-      (let ((python-shell-font-lock-enable nil)
-            (inferior-python-mode-hook nil)
-            (python-binary-name (python-shell-calculate-command)))
+      (let* ((python-shell-font-lock-enable nil)
+             (inferior-python-mode-hook nil)
+             (python-shell-interpreter
+              (if (file-exists-p python-shell-interpreter)
+                  (expand-file-name python-shell-interpreter)
+                python-shell-interpreter))
+             (python-binary-name (python-shell-calculate-command)))
         (save-excursion
           (goto-char (point-min))
           (when (looking-at "#!\\(.*\\)$")
