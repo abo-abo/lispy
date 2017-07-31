@@ -183,14 +183,6 @@ it at one time."
                   (expand-file-name python-shell-interpreter)
                 python-shell-interpreter))
              (python-binary-name (python-shell-calculate-command)))
-        (save-excursion
-          (goto-char (point-min))
-          (when (looking-at "#!\\(.*\\)$")
-            (setq python-binary-name
-                  (concat
-                   (match-string-no-properties 1)
-                   " "
-                   python-shell-interpreter-args))))
         (setq process (get-buffer-process
                        (python-shell-make-comint
                         python-binary-name proc-name nil nil))))
