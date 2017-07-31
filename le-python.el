@@ -138,6 +138,11 @@ Stripping them will produce code that's valid for an eval."
   (setq lispy-python-proc
         (cond ((consp x)
                (cdr x))
+              ((fboundp 'mash-new-lispy-python)
+               (save-window-excursion
+                 (get-buffer-process
+                  (let ((shell-name (format "*python  %s*" x)))
+                    (mash-make-shell shell-name 'mash-new-lispy-python)))))
               (t
                (lispy--python-proc (concat "lispy-python-" x))))))
 
