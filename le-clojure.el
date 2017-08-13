@@ -104,14 +104,17 @@ Generate an appropriate def from for that let binding and eval it."
                        "user"
                      (cider-current-ns))))
              (status (nrepl-dict-get res "status"))
-             (res (if (or (member "namespace-not-found" status)
-                          (member "eval-error" status))
-                      (nrepl-sync-request:eval
-                       str
-                       (cider-current-connection)
-                       (cider-current-session))
-                    res))
-             (val (nrepl-dict-get res "value"))
+             (res (cond ((or (member "namespace-not-found" status))
+                         (nrepl-sync-request:eval
+                          str
+                          (cider-current-connection)
+                          (cider-current-session)))
+                        ((member "eval-error" status)
+                         res)
+                        (t
+                         res)))
+             (val
+              (nrepl-dict-get res "value"))
              out)
         (cond ((null val)
                (error "Eval error: %S"
