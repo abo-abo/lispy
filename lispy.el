@@ -315,22 +315,32 @@ This applies to `lispy-delete', `lispy-kill-at-point', `lispy-paste', and
 
 (defcustom lispy-safe-threshold 1500
   "The max size of an active region that lispy will try to keep balanced.
-This only applies when `lispy-safe-delete' and/or `lispy-safe-copy' are
-non-nil."
+This only applies when `lispy-safe-delete', `lispy-safe-copy', and/or
+`lispy-safe-paste' are non-nil."
   :group 'lispy
   :type 'number)
 
 (defcustom lispy-safe-actions-ignore-strings t
   "When non-nil, don't try to act safely in strings.
 Any unmatched delimiters inside of strings will be copied or deleted. This only
-applies when `lispy-safe-delete' and/or `lispy-safe-copy' are non-nil."
+applies when `lispy-safe-delete', `lispy-safe-copy', and/or `lispy-safe-paste'
+are non-nil."
   :group 'lispy
   :type 'boolean)
 
 (defcustom lispy-safe-actions-ignore-comments t
   "When non-nil, don't try to act safely in comments.
 Any unmatched delimiters inside of comments will be copied or deleted. This only
-applies when `lispy-safe-delete' and/or `lispy-safe-copy' are non-nil."
+applies when `lispy-safe-delete', `lispy-safe-copy', and/or `lispy-safe-paste'
+are non-nil."
+  :group 'lispy
+  :type 'boolean)
+
+(defcustom lispy-safe-actions-no-pull-delimiters-into-comments nil
+  "When non-nil, don't pull unmatched delimiters into comments when deleting.
+This prevents the accidental unbalancing of expressions from commenting out
+delimiters. This only applies when `lispy-safe-delete', `lispy-safe-copy',
+and/or `lispy-safe-paste' are non-nil."
   :group 'lispy
   :type 'boolean)
 
@@ -8141,12 +8151,40 @@ The regions are returned in reverse order so that they can be easily deleted
 without recalculation."
   (let ((unmatched-delimiters (lispy--find-unmatched-delimiters beg end))
         (maybe-safe-pos beg)
-        safe-positions)
-    (dolist (unsafe-pos unmatched-delimiters)
-      (unless (= maybe-safe-pos unsafe-pos)
-        (push (cons maybe-safe-pos unsafe-pos) safe-positions))
-      (setq maybe-safe-pos (1+ unsafe-pos)))
-    (push (cons maybe-safe-pos end) safe-positions)))
+        safe-regions)
+    (cl-flet
+        ((maybe-split-safe-region (beg end &optional end-unsafe-p)
+           ;; already guaranteed that no unmatched delimiters in between BEG and
+           ;; END
+           (let (comment-end-pos)
+             (cond ((and lispy-safe-actions-no-pull-delimiters-into-comments
+                         (save-excursion
+                           (goto-char beg)
+                           (let ((comment-bounds (lispy--bounds-comment)))
+                             (setq comment-end-pos (cdr comment-bounds))
+                             (and comment-bounds
+                                  (not (= beg (car comment-bounds))))))
+                         (save-excursion
+                           (goto-char end)
+                           (and (not (lispy--in-comment-p))
+                                (or end-unsafe-p
+                                    (lispy--find-unmatched-delimiters
+                                     end
+                                     (line-end-position))))))
+                    ;; exclude newline; don't pull END into a comment
+                    (list (cons (1+ comment-end-pos) end)
+                          (cons beg comment-end-pos)))
+                   (t
+                    (list (cons beg end)))))))
+      (dolist (unsafe-pos unmatched-delimiters)
+        (unless (= maybe-safe-pos unsafe-pos)
+          (setq safe-regions
+                (nconc (maybe-split-safe-region maybe-safe-pos unsafe-pos t)
+                       safe-regions)))
+        (setq maybe-safe-pos (1+ unsafe-pos)))
+      (setq safe-regions
+            (nconc (maybe-split-safe-region maybe-safe-pos end)
+                   safe-regions)))))
 
 (defun lispy--maybe-safe-delete-region (beg end)
   "Delete the region from BEG to END.
@@ -8189,28 +8227,33 @@ If `lispy-safe-copy' is non-nil, exclude unmatched delimiters."
   "Return TEXT with unmatched delimiters added to the beginning or end.
 This does not attempt to deal with unbalanced double quotes as it is not always
 possible to infer which side the missing quote should be added to."
-  (with-temp-buffer
-    (insert text)
-    (let ((unmatched-positions
-           (lispy--find-unmatched-delimiters (point-min) (point-max)))
-          add-to-beginning
-          add-to-end
-          delim)
-      (dolist (pos unmatched-positions)
-        (setq delim (buffer-substring pos (1+ pos)))
-        (cond ((string-match lispy-left delim)
-               (push (cdr (assoc delim lispy--pairs))
-                     add-to-end))
-              ((string-match lispy-right delim)
-               (push (car (rassoc delim lispy--pairs))
-                     add-to-beginning))))
-      (when add-to-beginning
-        (goto-char (point-min))
-        (insert (apply #'concat add-to-beginning)))
-      (when add-to-end
-        (goto-char (point-max))
-        (insert (apply #'concat add-to-end)))
-      (buffer-substring (point-min) (point-max)))))
+  (let ((old-major-mode major-mode))
+    (with-temp-buffer
+      (funcall old-major-mode)
+      (insert text)
+      (let ((unmatched-positions
+             (lispy--find-unmatched-delimiters (point-min) (point-max)))
+            add-to-beginning
+            add-to-end
+            delim)
+        (dolist (pos unmatched-positions)
+          (setq delim (buffer-substring pos (1+ pos)))
+          (cond ((string-match lispy-left delim)
+                 (push (cdr (assoc delim lispy--pairs))
+                       add-to-end))
+                ((string-match lispy-right delim)
+                 (push (car (rassoc delim lispy--pairs))
+                       add-to-beginning))))
+        (when add-to-beginning
+          (goto-char (point-min))
+          (insert (apply #'concat add-to-beginning)))
+        (when add-to-end
+          (goto-char (point-max))
+          (when (and lispy-safe-actions-no-pull-delimiters-into-comments
+                     (lispy--in-comment-p))
+            (push "\n" add-to-end))
+          (insert (apply #'concat add-to-end)))
+        (buffer-substring (point-min) (point-max))))))
 
 (defun lispy--maybe-safe-current-kill ()
   "Return the most recent kill.
