@@ -1293,7 +1293,9 @@ Otherwise (`backward-delete-char-untabify' ARG)."
                          (and (lispy-right-p)
                               (not (or (lispy-left-p)
                                        (looking-at "\""))))
-                         (lispy-looking-back lispy-left))
+                         (lispy-looking-back lispy-left)
+                         ;; REPL prompt, e.g. `ielm'
+                         (lispy-after-string-p "> "))
                (just-one-space))
              (setq pt (point))
              (if (and
