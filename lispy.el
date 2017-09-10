@@ -4175,7 +4175,7 @@ When ARG isn't nil, try to pretty print the sexp."
   (let* ((eval-str (if (eq major-mode 'python-mode)
                        (lispy-eval-python-str)
                      (lispy--string-dwim)))
-         (str (lispy--eval eval-str))
+         (str (lispy--eval eval-str t))
          re-bnd)
     (save-excursion
       (cond ((region-active-p)
