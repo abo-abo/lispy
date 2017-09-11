@@ -4101,7 +4101,7 @@ Return the result of the last evaluation as a string."
 (defun lispy-eval-single-outline ()
   (let* ((bnd (lispy--eval-bounds-outline))
          (res (lispy--eval
-               (lispy--string-dwim bnd))))
+               (lispy--string-dwim bnd) t)))
     (cond ((null res)
            (lispy-message lispy-eval-error))
           ((equal res "")

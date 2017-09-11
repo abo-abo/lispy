@@ -93,7 +93,8 @@ Generate an appropriate def from for that let binding and eval it."
           "Starting CIDER...")
       (when lax
         (setq str (lispy--clojure-lax str)))
-      (let* ((str
+      (let* ((str (format "(do %s)" str))
+             (str
               (if lispy-do-pprint
                   (format "(clojure.core/let [x %s] (with-out-str (clojure.pprint/pprint x)))"
                           str)
