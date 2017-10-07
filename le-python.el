@@ -77,16 +77,17 @@ Stripping them will produce code that's valid for an eval."
 (defun lispy-eval-python-str ()
   (let* ((bnd (lispy-eval-python-bnd))
          (str (lispy-trim-python
-               (lispy--string-dwim bnd))))
-    (when (string-match "\\`([^\0]*)\\'" str)
+               (lispy--string-dwim bnd)))
+         (str (replace-regexp-in-string "\\\\\n +" "" str))
+         (first-line (car (split-string str "\n"))))
+    (when (/= (cl-count ?\[ first-line)
+              (cl-count ?\] first-line))
       (setq str (replace-regexp-in-string "\n *" " " str)))
     (replace-regexp-in-string
      "(\n +" "("
      (replace-regexp-in-string
       ",\n +" ","
-      (replace-regexp-in-string
-       "\\\\\n +" ""
-       str)))))
+      str))))
 
 (defun lispy-bounds-python-block ()
   (if (save-excursion
@@ -142,7 +143,7 @@ Stripping them will produce code that's valid for an eval."
   (setq lispy-python-proc
         (cond ((consp x)
                (cdr x))
-              ((fboundp 'mash-new-lispy-python)
+              ((require 'mash-python nil t)
                (save-window-excursion
                  (get-buffer-process
                   (let ((shell-name (format "*python  %s*" x)))
@@ -188,9 +189,15 @@ it at one time."
       (let* ((python-shell-font-lock-enable nil)
              (inferior-python-mode-hook nil)
              (python-shell-interpreter
-              (if (file-exists-p python-shell-interpreter)
-                  (expand-file-name python-shell-interpreter)
-                python-shell-interpreter))
+              (cond
+                ((save-excursion
+                   (goto-char (point-min))
+                   (looking-at "#!\\(?:/usr/bin/env \\)\\(.*\\)$"))
+                 (match-string-no-properties 1))
+                ((file-exists-p python-shell-interpreter)
+                 (expand-file-name python-shell-interpreter))
+                (t
+                 python-shell-interpreter)))
              (python-binary-name (python-shell-calculate-command)))
         (setq process (get-buffer-process
                        (python-shell-make-comint
