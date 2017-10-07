@@ -55,9 +55,9 @@ Stripping them will produce code that's valid for an eval."
              (lispy--bounds-outline))
             ((looking-at "^def")
              (setq bnd (lispy-bounds-python-block)))
+            ((setq bnd (lispy-bounds-python-block)))
             ((bolp)
              (lispy--bounds-c-toplevel))
-            ((setq bnd (lispy-bounds-python-block)))
             ((lispy-bolp)
              (lispy--bounds-c-toplevel))
             (t
