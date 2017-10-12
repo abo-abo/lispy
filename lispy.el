@@ -1278,7 +1278,7 @@ Otherwise (`backward-delete-char-untabify' ARG)."
            (backward-delete-char-untabify arg))
 
           ((or (and (lispy-right-p)
-                    (memq major-mode lispy-elisp-modes)
+                    (not (memq major-mode lispy-clojure-modes))
                     (not (lispy-looking-back "[\\?].")))
                (and (lispy-looking-back (concat lispy-right " "))
                     (or (lispy-left-p) (looking-at "\""))))
