@@ -809,7 +809,8 @@ Insert KEY if there's no command."
                    "(list |[1 2])"))
   (should (string= (lispy-with "#2A((a b) (0 1))|" "\C-?")
                    "|"))
-
+  (should (string= (lispy-with-clojure "(partial filter neg?)|" "\C-?")
+                   "|"))
   (let ((lispy-delete-atom-from-within t))
     (should (string= (lispy-with "(|)" "\C-?") "|"))
     (should (string= (lispy-with "(|foo)" "\C-?") "|"))
