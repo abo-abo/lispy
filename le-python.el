@@ -76,18 +76,12 @@ Stripping them will produce code that's valid for an eval."
 
 (defun lispy-eval-python-str ()
   (let* ((bnd (lispy-eval-python-bnd))
-         (str (lispy-trim-python
-               (lispy--string-dwim bnd)))
-         (str (replace-regexp-in-string "\\\\\n +" "" str))
-         (first-line (car (split-string str "\n"))))
-    (when (/= (cl-count ?\[ first-line)
-              (cl-count ?\] first-line))
-      (setq str (replace-regexp-in-string "\n *" " " str)))
-    (replace-regexp-in-string
-     "(\n +" "("
-     (replace-regexp-in-string
-      ",\n +" ","
-      str))))
+         (str1 (lispy-trim-python
+                (lispy--string-dwim bnd)))
+         (str2 (replace-regexp-in-string "\\\\\n +" "" str1))
+         (str3 (replace-regexp-in-string "\n *\\([])}]\\)" "\\1" str2))
+         (str4 (replace-regexp-in-string "\\([({[,]\\)\n +" "\\1" str3)))
+    str4))
 
 (defun lispy-bounds-python-block ()
   (if (save-excursion
@@ -122,7 +116,9 @@ Stripping them will produce code that's valid for an eval."
                 (goto-char (cdr bnd))))
             (end-of-line)
             (while (member (char-before) '(?\\ ?\( ?\, ?\[ ?\{))
-              (end-of-line 2))
+              (if (member (char-before) '(?\( ?\[ ?\{))
+                  (up-list)
+                (end-of-line 2)))
             (point)))))
 
 (defun lispy-eval-python (&optional plain)
