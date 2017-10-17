@@ -121,7 +121,7 @@ Stripping them will produce code that's valid for an eval."
               (when (setq bnd (lispy--bounds-string))
                 (goto-char (cdr bnd))))
             (end-of-line)
-            (while (member (char-before) '(?\\ ?\( ?\, ?\[))
+            (while (member (char-before) '(?\\ ?\( ?\, ?\[ ?\{))
               (end-of-line 2))
             (point)))))
 
