@@ -293,12 +293,12 @@ represents the point):
 
 |before              | key          | after
 |:-------------------|:------------:|:-----------------------
-|`(looking-at "(")|` | <kbd>c</kbd> |  `(looking-at "(")`
-|                    |              |  `(looking-at "(")|`
+|`(looking-at "(")\|` | <kbd>c</kbd> |  `(looking-at "(")`
+|                    |              |  `(looking-at "(")\|`
 
 |before              | key          | after
 |:-------------------|:------------:|:-----------------------
-|`|(looking-at "(")` | <kbd>c</kbd> |  `|(looking-at "(")`
+|`\|(looking-at "(")` | <kbd>c</kbd> |  `\|(looking-at "(")`
 |                    |              |   ` (looking-at "(")`
 
 You can use plain Emacs navigation commands to get into special, or you can use
