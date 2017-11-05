@@ -78,7 +78,8 @@ Stripping them will produce code that's valid for an eval."
   (let* ((bnd (lispy-eval-python-bnd))
          (str1 (lispy-trim-python
                 (lispy--string-dwim bnd)))
-         (str2 (replace-regexp-in-string "\\\\\n +" "" str1))
+         (str1.5 (replace-regexp-in-string "^ *#[^\n]+\n" "" str1))
+         (str2 (replace-regexp-in-string "\\\\\n +" "" str1.5))
          (str3 (replace-regexp-in-string "\n *\\([])}]\\)" "\\1" str2))
          (str4 (replace-regexp-in-string "\\([({[,]\\)\n +" "\\1" str3)))
     str4))
@@ -117,7 +118,9 @@ Stripping them will produce code that's valid for an eval."
             (end-of-line)
             (while (member (char-before) '(?\\ ?\( ?\, ?\[ ?\{))
               (if (member (char-before) '(?\( ?\[ ?\{))
-                  (up-list)
+                  (progn
+                    (up-list)
+                    (end-of-line))
                 (end-of-line 2)))
             (point)))))
 
