@@ -2202,7 +2202,10 @@ Insert KEY if there's no command."
                    "(progn\n  (take-out the-holy-pin\n            |)\n  (count-to-three))"))
   (should (string= (lispy-with "(progn\n  (take-out |the-holy-pin)\n  (count-to-three))"
                                (lispy-alt-line 2))
-                   "(progn\n  (take-out the-holy-pin)\n  |\n  (count-to-three))")))
+                   "(progn\n  (take-out the-holy-pin)\n  |\n  (count-to-three))"))
+  (should (string= (lispy-with ";; foo|"
+                               (lispy-alt-line))
+                   ";; foo\n|")))
 
 (ert-deftest lispy-outline-add ()
   (should (string= (lispy-with "|;;* Intro" "a")

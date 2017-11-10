@@ -1990,6 +1990,7 @@ to all the functions, while maintaining the parens in a pretty state."
              (if (re-search-forward lispy-right (line-end-position) t)
                  (backward-char 1)
                (move-end-of-line 1)))
+            ((lispy--in-comment-p))
             (t
              (when bnd
                (goto-char (cdr bnd)))
