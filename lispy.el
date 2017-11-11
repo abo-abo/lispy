@@ -4385,7 +4385,7 @@ In case the point is on a let-bound variable, add a `setq'.
 When ARG is non-nil, force select the window."
   (interactive "P")
   (require 'ace-window)
-  (let* ((expr (lispy--setq-expression))
+  (let* ((expr (save-mark-and-excursion (lispy--setq-expression)))
          (aw-dispatch-always nil)
          (target-window
           (cond ((not (memq major-mode lispy-elisp-modes))
@@ -4404,26 +4404,34 @@ When ARG is non-nil, force select the window."
                  (setq lispy-eval-other--cfg nil)
                  (selected-window))))
          res)
-    (if (memq major-mode '(lisp-mode scheme-mode))
-        (lispy-message (lispy--eval (prin1-to-string expr)))
-      (with-selected-window target-window
-        (setq res (lispy--eval-elisp-form expr lexical-binding)))
-      (cond ((equal res lispy--eval-cond-msg)
-             (lispy-message res))
-            ((and (fboundp 'object-p) (object-p res))
-             (message "(eieio object length %d)" (length res)))
-            ((and (memq major-mode lispy-elisp-modes)
-                  (consp res)
-                  (numberp (car res))
-                  (numberp (cdr res)))
-             (lispy-message
-              (format "%S\n%s" res
-                      (with-selected-window target-window
-                        (lispy--string-dwim res)))))
-            (t
-             (lispy-message
-              (replace-regexp-in-string "%" "%%"
-                                        (format "%S" res))))))))
+    (cond ((memq major-mode '(lisp-mode scheme-mode))
+           (lispy-message (lispy--eval (prin1-to-string expr))))
+          ((memq major-mode lispy-clojure-modes)
+           (let ((expr
+                  (save-mark-and-excursion
+                    (lispy-slurp 1)
+                    (lispy--string-dwim))))
+             (lispy-message (lispy--eval-clojure
+                             (format "(do (def %s) %S)" expr (read expr))))))
+          (t
+           (with-selected-window target-window
+             (setq res (lispy--eval-elisp-form expr lexical-binding)))
+           (cond ((equal res lispy--eval-cond-msg)
+                  (lispy-message res))
+                 ((and (fboundp 'object-p) (object-p res))
+                  (message "(eieio object length %d)" (length res)))
+                 ((and (memq major-mode lispy-elisp-modes)
+                       (consp res)
+                       (numberp (car res))
+                       (numberp (cdr res)))
+                  (lispy-message
+                   (format "%S\n%s" res
+                           (with-selected-window target-window
+                             (lispy--string-dwim res)))))
+                 (t
+                  (lispy-message
+                   (replace-regexp-in-string "%" "%%"
+                                             (format "%S" res)))))))))
 
 (defun lispy-follow ()
   "Follow to `lispy--current-function'."
