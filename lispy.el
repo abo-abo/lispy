@@ -4068,6 +4068,12 @@ When ARG is 2, insert the result as a comment."
       (goto-char pt)
       nil)))
 
+(defun lispy-eval-current-outline ()
+  (interactive)
+  (save-excursion
+    (outline-back-to-heading)
+    (lispy-eval-outline)))
+
 (defun lispy-eval-outline ()
   "Evaluate the current outline and its children.
 Return the result of the last evaluation as a string."
@@ -8949,6 +8955,7 @@ When ARG is non-nil, unquote the current string."
     (define-key map (kbd "χ") 'lispy-right)
     (define-key map (kbd "C-M-a") 'lispy-beginning-of-defun)
     (define-key map (kbd "<return>") 'lispy-alt-line)
+    (define-key map (kbd "C-c C-c") 'lispy-eval-current-outline)
     (define-key map (kbd "RET") 'lispy-newline-and-indent-plain)
     map))
 
