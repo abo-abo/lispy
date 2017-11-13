@@ -6784,7 +6784,7 @@ Ignore the matches in strings and comments."
                       (insert (format "(ly-raw char %S)" sexp)))))
                 ;; ——— \ char syntax (Clojure)—
                 (goto-char (point-min))
-                (while (re-search-forward "\\\\\\sw\\b" nil t)
+                (while (re-search-forward "\\\\\\(\\sw\\|space\\|tab\\)\\b" nil t)
                   (unless (lispy--in-string-or-comment-p)
                     (replace-match (format "(ly-raw clojure-char %S)"
                                            (substring-no-properties
