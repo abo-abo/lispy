@@ -6822,7 +6822,7 @@ Ignore the matches in strings and comments."
                     (insert "(ly-raw clojure-reader-comment ")))
                 ;; ——— #{ or { or #( or @( or #?( or #?@( ——————————
                 (goto-char (point-min))
-                (while (re-search-forward "#\\?@(\\|@(\\|#(\\|{\\|#{\\|#::{\\|#\\?(" nil t)
+                (while (re-search-forward "#object\\[\\|#\\?@(\\|@(\\|#(\\|{\\|#{\\|#::{\\|#\\?(" nil t)
                   (let ((class
                          (cond ((string= (match-string 0) "#{")
                                 "clojure-set")
@@ -6838,8 +6838,10 @@ Ignore the matches in strings and comments."
                                 "clojure-reader-conditional")
                                ((string= (match-string 0) "#::{")
                                 "clojure-namespaced-map")
+                               ((string= (match-string 0) "#object[")
+                                "clojure-object")
                                (t
-                                (error "Expected set or map or lambda")))))
+                                (error "Unexpected class %s" (match-string 0))))))
                     (unless (lispy--in-string-or-comment-p)
                       (backward-char 1)
                       (save-excursion
@@ -7553,6 +7555,10 @@ The outer delimiters are stripped."
           (clojure-map
            (delete-region beg (point))
            (insert (format "{%s}" (lispy--splice-to-str (cl-caddr sxp))))
+           (goto-char beg))
+          (clojure-object
+           (delete-region beg (point))
+           (insert (format "#object[%s]" (lispy--splice-to-str (cl-caddr sxp))))
            (goto-char beg))
           (clojure-namespaced-map
            (delete-region beg (point))
