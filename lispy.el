@@ -4072,7 +4072,8 @@ When ARG is 2, insert the result as a comment."
   (interactive)
   (save-excursion
     (outline-back-to-heading)
-    (lispy-eval-outline)))
+    (lispy-eval-outline)
+    (save-buffer)))
 
 (defun lispy-eval-outline ()
   "Evaluate the current outline and its children.
