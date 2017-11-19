@@ -49,11 +49,14 @@
 
 (defun lispy--clojure-pretty-string (str)
   "Return STR fontified in `clojure-mode'."
-  (with-temp-buffer
-    (clojure-mode)
-    (insert str)
-    (lispy-font-lock-ensure)
-    (buffer-string)))
+  (if (string-match "\\`\"error: \\([^\0]+\\)\"\\'" str)
+      (concat (propertize "error: " 'face 'error)
+              (match-string 1 str))
+    (with-temp-buffer
+      (clojure-mode)
+      (insert str)
+      (lispy-font-lock-ensure)
+      (buffer-string))))
 
 (defun lispy--eval-nrepl-clojure (str namespace)
   (condition-case nil
