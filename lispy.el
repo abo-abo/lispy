@@ -4238,8 +4238,9 @@ When ARG isn't nil, try to pretty print the sexp."
                       (memq major-mode (append lispy-elisp-modes
                                                lispy-clojure-modes
                                                '(scheme-mode lisp-mode))))
-                 (ignore-errors
-                   (lispy-alt-multiline t))
+                 (when (> (current-column) 80)
+                   (ignore-errors
+                     (lispy-alt-multiline t)))
                  (goto-char (point-min))
                  (insert "=>\n"))
                 ((and (lispy-right-p)
