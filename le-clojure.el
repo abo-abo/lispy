@@ -72,6 +72,9 @@
       (cider-current-connection)
       namespace))))
 
+(defvar lispy--clojure-ns "user"
+  "Store the last evaluated *ns*.")
+
 (defun lispy--eval-clojure (str &optional add-output lax)
   "Eval STR as Clojure code.
 The result is a string.
@@ -94,49 +97,55 @@ Generate an appropriate def from for that let binding and eval it."
                     'lispy--clojure-eval-hook-lambda t)
           (cider-jack-in)
           "Starting CIDER...")
-      (when lax
-        (setq str (lispy--clojure-lax str)))
-      (let* ((str (format "(do %s)" str))
-             (str
-              (if lispy-do-pprint
-                  (format "(clojure.core/let [x %s] (with-out-str (clojure.pprint/pprint x)))"
-                          str)
-                str))
-             (res (lispy--eval-nrepl-clojure
-                   str
-                   (if lax
-                       "user"
-                     (cider-current-ns))))
-             (status (nrepl-dict-get res "status"))
-             (res (cond ((or (member "namespace-not-found" status))
-                         (nrepl-sync-request:eval
-                          str
-                          (cider-current-connection)
-                          (cider-current-session)))
-                        ((member "eval-error" status)
-                         res)
-                        (t
-                         res)))
-             (val
-              (nrepl-dict-get res "value"))
-             out)
-        (cond ((null val)
-               (error "Eval error: %S"
-                      (nrepl-dict-get res "err")))
+      (if (string-match "\\`(ns \\(.*\\)" str)
+          (progn
+            (setq lispy--clojure-ns (match-string 1 str))
+            (lispy--eval-nrepl-clojure str "user")
+            lispy--clojure-ns)
+        (when lax
+          (setq str (lispy--clojure-lax str)))
+        (let* ((stra (if lispy-do-pprint
+                         (format "(clojure.core/let [x %s] (with-out-str (clojure.pprint/pprint x)))"
+                                 str)
+                       str))
+               (strb
+                (format
+                 "(try (do %s) (catch Exception e (str \"error: \" (.getMessage e))))"
+                 stra))
+               (res (lispy--eval-nrepl-clojure
+                     strb
+                     (if lax
+                         "user"
+                       lispy--clojure-ns)))
+               (status (nrepl-dict-get res "status"))
+               (res (cond ((or (member "namespace-not-found" status))
+                           (nrepl-sync-request:eval
+                            strb
+                            (cider-current-connection)
+                            (cider-current-session)))
+                          ((member "eval-error" status)
+                           res)
+                          (t
+                           res)))
+               (val
+                (nrepl-dict-get res "value"))
+               out)
+          (cond ((null val)
+                 (error "Eval error: %S"
+                        (nrepl-dict-get res "err")))
 
-              (add-output
-               (if (setq out (nrepl-dict-get res "out"))
-                   (format "%s\n%s"
-                           (propertize
-                            out 'face 'font-lock-string-face)
-                           val)
-                 (lispy--clojure-pretty-string val)))
+                (add-output
+                 (concat
+                  (if (setq out (nrepl-dict-get res "out"))
+                      (concat (propertize out 'face 'font-lock-string-face) "\n")
+                    "")
+                  (lispy--clojure-pretty-string val)))
 
-              (lispy-do-pprint
-               (read res))
+                (lispy-do-pprint
+                 (read res))
 
-              (t
-               (lispy--clojure-pretty-string val)))))))
+                (t
+                 (lispy--clojure-pretty-string val))))))))
 
 (defvar cider--debug-mode-response)
 (declare-function cider--debug-mode "ext:cider-debug")
