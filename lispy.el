@@ -5425,6 +5425,7 @@ An equivalent of `cl-destructuring-bind'."
   ;; ("a" nil)
   ("b" lispy-bind-variable "bind variable")
   ("c" lispy-to-cond "to cond")
+  ("C" lispy-cleanup "cleanup")
   ("d" lispy-to-defun "to defun")
   ("D" lispy-extract-defun "extract defun")
   ("e" lispy-edebug "edebug")
@@ -5454,6 +5455,15 @@ An equivalent of `cl-destructuring-bind'."
   ("R" lispy-reverse "reverse")
   ("" lispy-x-more-verbosity :exit nil)
   ("?" lispy-x-more-verbosity "help" :exit nil))
+
+(defun lispy-cleanup ()
+  (interactive)
+  (save-excursion
+    (goto-char (point-min))
+    (while (re-search-forward "^;; =>" nil t)
+      (let ((bnd (lispy--bounds-comment)))
+        (delete-region (car bnd) (1+ (cdr bnd))))))
+  (save-buffer))
 
 (defvar lispy-x--old-hint "")
 
