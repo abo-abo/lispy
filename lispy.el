@@ -6780,7 +6780,7 @@ Ignore the matches in strings and comments."
                   (unless (lispy--in-string-or-comment-p)
                     (let ((pt (point))
                           sexp)
-                      (forward-sexp)
+                      (lispy--skip-elisp-char)
                       (setq sexp (buffer-substring-no-properties pt (point)))
                       (delete-region (1- pt) (point))
                       (insert (format "(ly-raw char %S)" sexp)))))
@@ -6940,6 +6940,13 @@ Ignore the matches in strings and comments."
                  (point-max)))))
     (ignore-errors
       (read str))))
+
+(defun lispy--skip-elisp-char ()
+  (unless (lispy-after-string-p "?")
+    (error "unexpected"))
+  (if (looking-at "\\\\")
+      (forward-char 2)
+    (forward-char 1)))
 
 (defvar lispy--insert-alist
   '((\` . "`")
