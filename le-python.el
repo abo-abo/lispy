@@ -145,8 +145,7 @@ Stripping them will produce code that's valid for an eval."
               ((require 'mash-python nil t)
                (save-window-excursion
                  (get-buffer-process
-                  (let ((shell-name (format "*python  %s*" x)))
-                    (mash-make-shell shell-name 'mash-new-lispy-python)))))
+                  (mash-make-shell x 'mash-new-lispy-python))))
               (t
                (lispy--python-proc (concat "lispy-python-" x))))))
 
