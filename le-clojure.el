@@ -420,7 +420,7 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
     (when obj
       (lispy--clojure-middleware-load)
       (let ((cands (read (lispy--eval-clojure
-                          (format "(lispy-clojure/object-methods %s)" obj))))
+                          (format "(lispy-clojure/object-members %s)" obj))))
             (bnd (bounds-of-thing-at-point 'symbol)))
         (when bnd
           (setq cands (all-completions (lispy--string-dwim bnd) cands)))

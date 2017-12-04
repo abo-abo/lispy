@@ -144,6 +144,14 @@
      (map #(.getName %)
           (.getMethods (type sym))))))
 
+(defn object-fields [sym]
+  (map #(str "-" (.getName %))
+       (.getFields (type sym))))
+
+(defn object-members [sym]
+  (concat (object-fields sym)
+          (object-methods sym)))
+
 (defn get-method [obj method-name]
   (first (filter #(= (.getName %) method-name)
                  (.getMethods (type obj)))))
