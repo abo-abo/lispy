@@ -2012,6 +2012,8 @@ Insert KEY if there's no command."
                    "|(modify-syntax-entry ?' \"\\\"\" table)"))
   (should (string= (lispy-with-clojure "|[#{}]" "i")
                    "|[#{}]"))
+  (should (string= (lispy-with-clojure "|(. object method)" "i")
+                   "|(. object method)"))
   (let ((clojure-align-forms-automatically nil))
     (should (string= (lispy-with-clojure "|{\\a   \\b}" "i")
                      "|{\\a \\b}"))

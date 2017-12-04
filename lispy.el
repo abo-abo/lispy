@@ -6944,6 +6944,12 @@ Ignore the matches in strings and comments."
                              (str (lispy--string-dwim bnd)))
                         (delete-region (car bnd) (cdr bnd))
                         (insert (format "(ly-raw symbol %S)" str))))))
+                ;; Clojure (. object method)
+                (goto-char (point-min))
+                (while (re-search-forward "(\\.[\t\n ]" nil t)
+                  (forward-char -1)
+                  (delete-char -1)
+                  (insert "(ly-raw clojure-dot)"))
                 ;; ———  ———————————————————————
                 (buffer-substring-no-properties
                  (point-min)
@@ -7563,6 +7569,9 @@ The outer delimiters are stripped."
            (delete-region beg (point))
            (insert (format "#'%S" (caddr sxp)))
            (goto-char beg))
+          (clojure-dot
+           (delete-region beg (point))
+           (insert "."))
           (clojure-lambda
            (delete-region beg (point))
            (insert (format "#%S" (cl-caddr sxp)))
