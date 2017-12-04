@@ -140,8 +140,9 @@
 
 (defn object-methods [sym]
   (when (instance? java.lang.Object sym)
-    (map #(.getName %)
-         (.getMethods (type sym)))))
+    (distinct
+     (map #(.getName %)
+          (.getMethods (type sym))))))
 
 (defn get-method [obj method-name]
   (first (filter #(= (.getName %) method-name)
