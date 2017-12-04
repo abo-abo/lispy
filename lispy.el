@@ -384,6 +384,12 @@ backward through lists, which is useful to move into special.
                (setq-local lispy-outline "^\\(?:%\\*+\\|\\\\\\(?:sub\\)?section{\\)")
                (setq lispy-outline-header "%")
                (setq-local outline-regexp "\\(?:%\\*+\\|\\\\\\(?:sub\\)?section{\\)"))
+              ((eq major-mode 'clojure-mode)
+               (require 'le-clojure)
+               (setq completion-at-point-functions
+                     '(lispy-clojure-complete-at-point
+                       cider-complete-at-point))
+               (setq-local outline-regexp (substring lispy-outline 1)))
               ((eq major-mode 'python-mode)
                (setq-local lispy-outline "^#\\*+")
                (setq lispy-outline-header "#")

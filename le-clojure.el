@@ -402,6 +402,23 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
   "Goto SYMBOL."
   (cider-find-var nil symbol))
 
+(defun lispy-clojure-complete-at-point ()
+  (let ((obj (save-excursion
+               (lispy--back-to-paren)
+               (when (looking-at "(\\.[\t\n ]")
+                 (forward-char 1)
+                 (forward-sexp 2)
+                 (lispy--string-dwim)))))
+    (when obj
+      (lispy--clojure-middleware-load)
+      (let ((cands (read (lispy--eval-clojure
+                          (format "(lispy-clojure/object-methods %s)" obj))))
+            (bnd (bounds-of-thing-at-point 'symbol)))
+        (when bnd
+          (setq cands (all-completions (lispy--string-dwim bnd) cands)))
+        (list (or (car bnd) (point))
+              (or (cdr bnd) (point))
+              cands)))))
 (provide 'le-clojure)
 
 ;;; le-clojure.el ends here

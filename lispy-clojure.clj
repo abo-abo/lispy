@@ -137,3 +137,8 @@
                            val
                            (lispy-clojure/quote-maybe ev)))))
                func-args args))))
+
+(defn object-methods [sym]
+  (when (instance? java.lang.Object sym)
+    (map #(.getName %)
+         (.getMethods (type sym)))))
