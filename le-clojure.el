@@ -429,6 +429,7 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
               cands)))))
 
 (defun lispy--clojure-dot-args ()
+  (lispy--clojure-middleware-load)
   (save-excursion
     (lispy--back-to-paren)
     (let* ((object (save-mark-and-excursion
@@ -452,6 +453,7 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
           sig)))))
 
 (defun lispy--clojure-constructor-args (symbol)
+  (lispy--clojure-middleware-load)
   (read (lispy--eval-clojure
          (format "(lispy-clojure/ctor-args %s)" symbol))))
 
