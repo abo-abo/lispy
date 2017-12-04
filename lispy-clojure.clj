@@ -142,3 +142,28 @@
   (when (instance? java.lang.Object sym)
     (map #(.getName %)
          (.getMethods (type sym)))))
+
+(defn get-method [obj method-name]
+  (first (filter #(= (.getName %) method-name)
+                 (.getMethods (type obj)))))
+
+(defn method-signature [obj method-name]
+  (str (get-method obj method-name)))
+
+(defn get-ctors [obj]
+  (. obj getDeclaredConstructors))
+
+(defn format-ctor [s]
+  (let [[_ name args] (re-find #"public (.*)\((.*)\)" s)]
+    (str name
+         "."
+         (if (= args "")
+           ""
+           (str " " (clojure.string/replace args #"," " "))))))
+
+(defn ctor-args [sym]
+  (clojure.string/join
+   "\n"
+   (map #(str "(" % ")")
+        (map format-ctor
+             (map str (get-ctors sym))))))

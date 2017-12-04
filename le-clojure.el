@@ -202,34 +202,37 @@ If it doesn't work, try to resolve in all available namespaces."
         (match-string 1 str)
       (read str))))
 
-(defun lispy--clojure-args (symbol)
-  "Return a pretty string with arguments for SYMBOL.
-Besides functions, handles specials, keywords, maps, vectors and sets."
-  (let* ((sym (lispy--clojure-resolve symbol))
-         (args (cond
-                 ((eq sym 'special)
-                  (read
-                   (lispy--eval-clojure
-                    (format
-                     "(->> (with-out-str (clojure.repl/doc %s))
+(defun lispy--clojure-symbol-to-args (symbol)
+  (cond ((string= symbol ".")
+         (lispy--clojure-dot-args))
+        ((string-match "\\`\\(.*\\)\\.\\'" symbol)
+         (lispy--clojure-constructor-args (match-string 1 symbol)))
+        (t
+         (let ((sym (lispy--clojure-resolve symbol)))
+           (cond
+             ((eq sym 'special)
+              (read
+               (lispy--eval-clojure
+                (format
+                 "(->> (with-out-str (clojure.repl/doc %s))
                        (re-find #\"\\(.*\\)\")
                        read-string rest
                        (map str)
                        (clojure.string/join \" \")
                        (format \"[%%s]\")
                        list)"
-                     symbol))))
-                 ((eq sym 'keyword)
-                  (list "[map]"))
-                 ((eq sym 'undefined)
-                  (error "Undefined"))
-                 ((and (listp sym) (eq (car sym) 'variable))
-                  (list "variable"))
-                 ((null sym)
-                  (read
-                   (lispy--eval-clojure
-                    (format
-                     "(let [[_ cname mname] (re-find #\"(.*)/(.*)\" \"%s\")
+                 symbol))))
+             ((eq sym 'keyword)
+              (list "[map]"))
+             ((eq sym 'undefined)
+              (error "Undefined"))
+             ((and (listp sym) (eq (car sym) 'variable))
+              (list "variable"))
+             ((null sym)
+              (read
+               (lispy--eval-clojure
+                (format
+                 "(let [[_ cname mname] (re-find #\"(.*)/(.*)\" \"%s\")
                            methods (and cname
                                      (try (load-string (format \"(.getMethods %%s)\" cname))
                                           (catch Exception e)))
@@ -244,11 +247,11 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
                               (filter #(java.lang.reflect.Modifier/isStatic
                                         (.getModifiers %%))
                                       methods))))"
-                     symbol))))
-                 (t
-                  (read (lispy--eval-clojure
-                         (format
-                          "(let [args (map str (:arglists (meta #'%s)))]
+                 symbol))))
+             (t
+              (read (lispy--eval-clojure
+                     (format
+                      "(let [args (map str (:arglists (meta #'%s)))]
                             (if (empty? args)
                                 (eval '(list
                                         (condp #(%%1 %%2) %s
@@ -257,8 +260,13 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
                                          vector? \"[idx]\"
                                          \"is uncallable\")))
                               args))"
-                          sym
-                          sym)))))))
+                      sym
+                      sym)))))))))
+
+(defun lispy--clojure-args (symbol)
+  "Return a pretty string with arguments for SYMBOL.
+Besides functions, handles specials, keywords, maps, vectors and sets."
+  (let ((args (lispy--clojure-symbol-to-args symbol)))
     (if (listp args)
         (format
          "(%s %s)"
@@ -266,7 +274,7 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
          (mapconcat
           #'identity
           (mapcar (lambda (x) (propertize (downcase x)
-                                     'face 'lispy-face-req-nosel))
+                                          'face 'lispy-face-req-nosel))
                   args)
           (concat "\n"
                   (make-string (+ 2 (length symbol)) ?\ ))))
@@ -419,6 +427,34 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
         (list (or (car bnd) (point))
               (or (cdr bnd) (point))
               cands)))))
+
+(defun lispy--clojure-dot-args ()
+  (save-excursion
+    (lispy--back-to-paren)
+    (let* ((object (save-mark-and-excursion
+                     (lispy-mark-list 2)
+                     (lispy--string-dwim)))
+           (method (save-mark-and-excursion
+                     (lispy-mark-list 3)
+                     (lispy--string-dwim)))
+           (sig (read
+                 (lispy--eval-clojure
+                  (format "(lispy-clojure/method-signature %s \"%s\")" object method)))))
+      (when (> (length sig) 0)
+        (if (string-match "\\`public \\(.*\\)(\\(.*\\))\\'" sig)
+            (let ((name (match-string 1 sig))
+                  (args (match-string 2 sig)))
+              (format "%s\n(. %s %s%s)"
+                      name object method
+                      (if (> (length args) 0)
+                          (concat " " args)
+                        "")))
+          sig)))))
+
+(defun lispy--clojure-constructor-args (symbol)
+  (read (lispy--eval-clojure
+         (format "(lispy-clojure/ctor-args %s)" symbol))))
+
 (provide 'le-clojure)
 
 ;;; le-clojure.el ends here
