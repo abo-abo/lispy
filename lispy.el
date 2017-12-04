@@ -6953,9 +6953,11 @@ Ignore the matches in strings and comments."
                 ;; Clojure (. object method)
                 (goto-char (point-min))
                 (while (re-search-forward "(\\.[\t\n ]" nil t)
-                  (forward-char -1)
-                  (delete-char -1)
-                  (insert "(ly-raw clojure-dot)"))
+                  (if (setq cbnd (lispy--bounds-string))
+                      (goto-char (cdr cbnd))
+                    (forward-char -1)
+                    (delete-char -1)
+                    (insert "(ly-raw clojure-dot)")))
                 ;; ———  ———————————————————————
                 (buffer-substring-no-properties
                  (point-min)
