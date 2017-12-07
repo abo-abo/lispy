@@ -5149,6 +5149,26 @@ In case it is, return the left window."
               wnd1
             wnd2))))))
 
+(defun lispy--ediff-regions (bnd1 bnd2 &optional buf1 buf2 desc1 desc2)
+  (interactive)
+  (let ((wnd (current-window-configuration))
+        (e1 (lispy--make-ediff-buffer
+             (or buf1 (current-buffer)) (or desc1 "-A-")
+             bnd1))
+        (e2 (lispy--make-ediff-buffer
+             (or buf2 (current-buffer)) (or desc2 "-B-")
+             bnd2)))
+    (apply #'ediff-regions-internal
+           `(,@(if (equal (selected-window)
+                          (lispy--vertical-splitp))
+                   (append e1 e2)
+                 (append e2 e1))
+               nil ediff-regions-linewise nil nil))
+    (add-hook 'ediff-after-quit-hook-internal
+              `(lambda ()
+                 (setq ediff-after-quit-hook-internal nil)
+                 (set-window-configuration ,wnd)))))
+
 (defun lispy-ediff-regions ()
   "Comparable to `ediff-regions-linewise'.
 First region and buffer come from `lispy-store-region-and-buffer'
@@ -5156,23 +5176,11 @@ Second region and buffer are the current ones."
   (interactive)
   (if (null (get 'lispy-store-bounds 'buffer))
       (error "No bounds stored: call `lispy-store-region-and-buffer' for this")
-    (let ((wnd (current-window-configuration))
-          (e1 (lispy--make-ediff-buffer
-               (current-buffer) "-A-"
-               (lispy--bounds-dwim)))
-          (e2 (lispy--make-ediff-buffer
-               (get 'lispy-store-bounds 'buffer) "-B-"
-               (get 'lispy-store-bounds 'region))))
-      (apply #'ediff-regions-internal
-             `(,@(if (equal (selected-window)
-                            (lispy--vertical-splitp))
-                     (append e1 e2)
-                   (append e2 e1))
-                 nil ediff-regions-linewise nil nil))
-      (add-hook 'ediff-after-quit-hook-internal
-                `(lambda ()
-                   (setq ediff-after-quit-hook-internal nil)
-                   (set-window-configuration ,wnd))))))
+    (lispy--ediff-regions
+     (lispy--bounds-dwim)
+     (get 'lispy-store-bounds 'region)
+     (current-buffer)
+     (get 'lispy-store-bounds 'buffer))))
 
 ;;* Locals: marking
 (defun lispy-mark-right (arg)
