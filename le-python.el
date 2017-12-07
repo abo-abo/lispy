@@ -74,10 +74,26 @@ Stripping them will produce code that's valid for an eval."
              (setcar bnd (point))
              bnd)))))
 
+(defun lispy-extended-eval-str (bnd)
+  (let* ((str (lispy--string-dwim bnd))
+         (lp (cl-count ?\( str))
+         (rp (cl-count ?\) str)))
+    (save-excursion
+      (goto-char (cdr bnd))
+      (while (< rp lp)
+        (re-search-forward "[()]" nil t)
+        (cond ((string= (match-string 0) "(")
+               (cl-incf lp))
+              ((string= (match-string 0) ")")
+               (cl-incf rp))
+              (t
+               (error "Unexpected"))))
+      (buffer-substring-no-properties (car bnd) (point)))))
+
 (defun lispy-eval-python-str ()
   (let* ((bnd (lispy-eval-python-bnd))
          (str1 (lispy-trim-python
-                (lispy--string-dwim bnd)))
+                (lispy-extended-eval-str bnd)))
          (str1.5 (replace-regexp-in-string "^ *#[^\n]+\n" "" str1))
          (str2 (replace-regexp-in-string "\\\\\n +" "" str1.5))
          (str3 (replace-regexp-in-string "\n *\\([])}]\\)" "\\1" str2))
