@@ -4081,6 +4081,24 @@ When ARG is 2, insert the result as a comment."
     (lispy-eval-outline)
     (save-buffer)))
 
+(defun lispy-add-outline-title ()
+  (save-excursion
+    (lispy-outline-prev 1)
+    (if (looking-at "\\(;;\\*+ ?:$\\)")
+        (match-string-no-properties 1)
+      (concat ";;" (make-string (1+ (funcall outline-level)) ?*) " :"))))
+
+(defun lispy-insert-outline-below ()
+  (interactive)
+  "Add an unnamed notebook outline at point."
+  (let ((start (point))
+        (title (lispy-add-outline-title)))
+    (skip-chars-backward "\n")
+    (delete-region (point) start)
+    (insert "\n\n" title "\n")
+    (let ((inhibit-message t))
+      (save-buffer))))
+
 (defun lispy-eval-outline ()
   "Evaluate the current outline and its children.
 Return the result of the last evaluation as a string."
@@ -4098,7 +4116,7 @@ Return the result of the last evaluation as a string."
          (end
           (save-excursion
             (forward-char)
-            (if (re-search-forward (concat "^" outline-regexp)  nil t)
+            (if (re-search-forward (concat "^" outline-regexp) nil t)
                 (progn
                   (goto-char (match-beginning 0)))
               (goto-char (point-max)))
