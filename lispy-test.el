@@ -2014,6 +2014,8 @@ Insert KEY if there's no command."
                    "|[#{}]"))
   (should (string= (lispy-with-clojure "|(. object method)" "i")
                    "|(. object method)"))
+  (should (string= (lispy-with-clojure "|(range 1e9)" "i")
+                   "|(range 1e9)"))
   (let ((clojure-align-forms-automatically nil))
     (should (string= (lispy-with-clojure "|{\\a   \\b}" "i")
                      "|{\\a \\b}"))

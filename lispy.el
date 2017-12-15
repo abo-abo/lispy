@@ -6826,6 +6826,12 @@ Ignore the matches in strings and comments."
                         (insert (format "(ly-raw string %S)" str))))))
                 ;; ——— newlines ———————————————
                 (lispy--replace-regexp-in-code "\n" " (ly-raw newline)")
+                ;; ——— numbers ————————————————
+                (goto-char (point-min))
+                (while (re-search-forward "[+-]?[0-9]+\\(?:\\.[0-9]+\\)?\\(?:e[+-]?[0-9]*\\)" nil t)
+                  (let ((s (match-string-no-properties 0)))
+                    (delete-region (match-beginning 0) (match-end 0))
+                    (insert (format "(ly-raw float \"%s\")" s))))
                 ;; ——— () —————————————————————
                 (goto-char (point-min))
                 (while (re-search-forward "\\(?:[^\\]\\|^\\)\\(()\\)" nil t)
@@ -7585,7 +7591,7 @@ The outer delimiters are stripped."
            (delete-char
             (- (skip-chars-backward " ")))
            (insert "\n"))
-          ((string comment symbol)
+          ((string comment symbol float)
            (delete-region beg (point))
            (insert (caddr sxp)))
           (ignore
