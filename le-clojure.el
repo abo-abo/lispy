@@ -131,8 +131,8 @@ Generate an appropriate def from for that let binding and eval it."
                 (nrepl-dict-get res "value"))
                out)
           (cond ((null val)
-                 (error "Eval error: %S"
-                        (nrepl-dict-get res "err")))
+                 (lispy--clojure-pretty-string
+                  (nrepl-dict-get res "err")))
 
                 (add-output
                  (concat
