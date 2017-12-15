@@ -4119,6 +4119,7 @@ When ARG is 2, insert the result as a comment."
 Return the result of the last evaluation as a string."
   (let ((lvl (lispy-outline-level))
         ans)
+    (lispy--remember)
     (setq ans (lispy-eval-single-outline))
     (while (and (lispy-forward-outline)
                 (> (funcall outline-level) lvl))
