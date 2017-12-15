@@ -5507,7 +5507,6 @@ An equivalent of `cl-destructuring-bind'."
 (defun lispy-cleanup ()
   (interactive)
   (save-excursion
-    (goto-char (point-min))
     (while (re-search-forward "^;; =>" nil t)
       (let ((bnd (lispy--bounds-comment)))
         (delete-region (car bnd) (1+ (cdr bnd))))))
