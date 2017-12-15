@@ -97,7 +97,7 @@ Generate an appropriate def from for that let binding and eval it."
                     'lispy--clojure-eval-hook-lambda t)
           (cider-jack-in)
           "Starting CIDER...")
-      (if (string-match "\\`(ns \\([a-z-_0-9]+\\)" str)
+      (if (string-match "\\`(ns \\([a-z-_0-9\\.]+\\)" str)
           (progn
             (setq lispy--clojure-ns (match-string 1 str))
             (lispy--eval-nrepl-clojure str "user")
