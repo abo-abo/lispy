@@ -4107,6 +4107,13 @@ When ARG is 2, insert the result as a comment."
     (let ((inhibit-message t))
       (save-buffer))))
 
+(defun lispy-insert-outline-left ()
+  (interactive)
+  "Add a named notebook outline at point."
+  (lispy-insert-outline-below)
+  (delete-char -4)
+  (insert " "))
+
 (defun lispy-eval-outline ()
   "Evaluate the current outline and its children.
 Return the result of the last evaluation as a string."
