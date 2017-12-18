@@ -112,13 +112,6 @@
       (list 'quote x)
       x)))
 
-(defn eval-maybe [e]
-  (if (or (symbol? e)
-          (and (list? e)
-               (#{'fn 'fn* 'quote} (first e))))
-    e
-    (eval e)))
-
 (defn debug-step-in
   "Evaluate the function call arugments and sub them into function arguments."
   [expr]
@@ -146,8 +139,7 @@
                          `(def ~name ~val))
                        (partition 2 (destructure [func-args 'args]))))
             (map (fn [name val]
-                   (list 'def name
-                         (lispy-clojure/eval-maybe val)))
+                   (list 'def name val))
                  func-args args)))))
 
 (defn object-methods [sym]
