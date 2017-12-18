@@ -180,3 +180,39 @@
    (map #(str "(" % ")")
         (map format-ctor
              (map str (get-ctors sym))))))
+
+(defn resolve-sym [sym]
+  (cond (symbol? sym)
+        (if (special-symbol? sym)
+          'special
+          (or
+           (resolve sym)
+           (first (keep #(ns-resolve % sym) (all-ns)))
+           (if-let [val (try (load-string (str sym)) (catch Exception e))]
+             (list 'variable (str val)))))
+
+        (keyword? sym) 'keyword
+
+        :else 'unknown))
+
+(defn arglist [sym]
+  (let [rsym (resolve-sym sym)]
+    (cond (= 'special rsym)
+          (->> (with-out-str
+                 (eval (list 'clojure.repl/doc sym)))
+               (re-find #"\(.*\)")
+               read-string rest
+               (map str)
+               (clojure.string/join " ")
+               (format "[%s]")
+               list)
+
+          :else
+          (let [args (map str (:arglists (meta rsym)))]
+            (if (empty? args)
+              (condp #(%1 %2) (eval sym)
+                map? "[key]"
+                set? "[key]"
+                vector? "[idx]"
+                "is uncallable")
+              args)))))

@@ -99,7 +99,10 @@ Generate an appropriate def from for that let binding and eval it."
           "Starting CIDER...")
       (lispy--eval-clojure-1 str add-output lax))))
 
+(defvar lispy--clojure-errorp nil)
+
 (defun lispy--eval-clojure-1 (str add-output lax)
+  (setq lispy--clojure-errorp nil)
   (or (lispy--eval-clojure-handle-ns str)
       (progn
         (when lax
@@ -124,6 +127,7 @@ Generate an appropriate def from for that let binding and eval it."
                             (cider-current-connection)
                             (cider-current-session)))
                           ((member "eval-error" status)
+                           (setq lispy--clojure-errorp t)
                            res)
                           (t
                            res)))
@@ -188,28 +192,18 @@ Return 'special or 'keyword appropriately.
 Otherwise try to resolve in current namespace first.
 If it doesn't work, try to resolve in all available namespaces."
   (let ((str (lispy--eval-clojure
-              (format
-               "(if (symbol? '%s)
-                   (if (special-symbol? '%s)
-                       'special
-                     (or (resolve '%s)
-                         (first (keep #(ns-resolve %% '%s) (all-ns)))
-                         (if-let [val (try (load-string \"%s\") (catch Exception e))]
-                                 (list 'variable (str val)))))
-                 (if (keyword? '%s)
-                     'keyword
-                   'unknown))"
-               symbol
-               symbol
-               symbol
-               symbol
-               symbol
-               symbol))))
-    (if (string-match "^#'\\(.*\\)$" str)
-        (match-string 1 str)
-      (read str))))
+              (format "(lispy-clojure/resolve-sym '%s)" symbol))))
+    (cond
+      (lispy--clojure-errorp
+       (user-error str))
+
+      ((string-match "^#'\\(.*\\)$" str)
+       (match-string 1 str))
+      (t
+       (read str)))))
 
 (defun lispy--clojure-symbol-to-args (symbol)
+  (lispy--clojure-middleware-load)
   (cond ((string= symbol ".")
          (lispy--clojure-dot-args))
         ((string-match "\\`\\(.*\\)\\.\\'" symbol)
@@ -220,15 +214,7 @@ If it doesn't work, try to resolve in all available namespaces."
              ((eq sym 'special)
               (read
                (lispy--eval-clojure
-                (format
-                 "(->> (with-out-str (clojure.repl/doc %s))
-                       (re-find #\"\\(.*\\)\")
-                       read-string rest
-                       (map str)
-                       (clojure.string/join \" \")
-                       (format \"[%%s]\")
-                       list)"
-                 symbol))))
+                (format "(lispy-clojure/arglist '%s)" symbol))))
              ((eq sym 'keyword)
               (list "[map]"))
              ((eq sym 'undefined)
@@ -256,19 +242,9 @@ If it doesn't work, try to resolve in all available namespaces."
                                       methods))))"
                  symbol))))
              (t
-              (read (lispy--eval-clojure
-                     (format
-                      "(let [args (map str (:arglists (meta #'%s)))]
-                            (if (empty? args)
-                                (eval '(list
-                                        (condp #(%%1 %%2) %s
-                                         map? \"[key]\"
-                                         set? \"[key]\"
-                                         vector? \"[idx]\"
-                                         \"is uncallable\")))
-                              args))"
-                      sym
-                      sym)))))))))
+              (read
+               (lispy--eval-clojure
+                (format "(lispy-clojure/arglist '%s)" symbol)))))))))
 
 (defun lispy--clojure-args (symbol)
   "Return a pretty string with arguments for SYMBOL.
