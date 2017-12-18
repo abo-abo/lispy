@@ -92,16 +92,16 @@ Generate an appropriate def from for that let binding and eval it."
                    (set-window-configuration
                     ,(current-window-configuration))
                    (message
-                    (lispy--eval-clojure ,str ,add-output ,lax))))
+                    (lispy--eval-clojure-1 ,str ,add-output ,lax))))
           (add-hook 'nrepl-connected-hook
                     'lispy--clojure-eval-hook-lambda t)
           (cider-jack-in)
           "Starting CIDER...")
-      (if (string-match "\\`(ns \\([a-z-_0-9\\.]+\\)" str)
-          (progn
-            (setq lispy--clojure-ns (match-string 1 str))
-            (lispy--eval-nrepl-clojure str "user")
-            lispy--clojure-ns)
+      (lispy--eval-clojure-1 str add-output lax))))
+
+(defun lispy--eval-clojure-1 (str add-output lax)
+  (or (lispy--eval-clojure-handle-ns str)
+      (progn
         (when lax
           (setq str (lispy--clojure-lax str)))
         (let* ((stra (if lispy-do-pprint
@@ -110,7 +110,7 @@ Generate an appropriate def from for that let binding and eval it."
                        str))
                (strb
                 (format
-                 "(try (do %s) (catch Exception e (str \"error: \" (.getMessage e))))"
+                 "(try (do %s) (catch Exception e (clojure.core/str \"error: \" (.getMessage e))))"
                  stra))
                (res (lispy--eval-nrepl-clojure
                      strb
@@ -145,7 +145,14 @@ Generate an appropriate def from for that let binding and eval it."
                  (read res))
 
                 (t
-                 (lispy--clojure-pretty-string val))))))))
+                 (lispy--clojure-pretty-string val)))))))
+
+(defun lispy--eval-clojure-handle-ns (str)
+  (when (or (string-match "\\`(ns \\([a-z-_0-9\\.]+\\)" str)
+            (string-match "\\`(in-ns '\\([a-z-_0-9\\.]+\\)" str))
+    (setq lispy--clojure-ns (match-string 1 str))
+    (lispy--eval-nrepl-clojure str "user")
+    lispy--clojure-ns))
 
 (defvar cider--debug-mode-response)
 (declare-function cider--debug-mode "ext:cider-debug")
