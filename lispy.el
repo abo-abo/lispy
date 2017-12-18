@@ -4092,13 +4092,15 @@ When ARG is 2, insert the result as a comment."
 (defun lispy-insert-outline-below ()
   (interactive)
   "Add an unnamed notebook outline at point."
-  (if (lispy-outline-next 1)
-      (progn
-        (insert "\n\n")
-        (backward-char 2))
-    (goto-char (point-max))
-    (unless (bolp)
-      (insert "\n")))
+  (cond
+    ((bolp))
+    ((lispy-outline-next 1)
+     (insert "\n\n")
+     (backward-char 2))
+    (t
+     (goto-char (point-max))
+     (unless (bolp)
+       (insert "\n"))))
   (let ((start (point))
         (title (lispy-add-outline-title)))
     (skip-chars-backward "\n")
