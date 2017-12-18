@@ -365,9 +365,10 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
 (defun lispy--clojure-debug-step-in ()
   "Inline a Clojure function at the point of its call."
   (lispy--clojure-middleware-load)
-  (let* ((str (lispy--eval-clojure
-               (format "(lispy-clojure/debug-step-in '%s)"
-                       (lispy--string-dwim))))
+  (let* ((e-str (format "(lispy-clojure/debug-step-in\n'%s)"
+                        (lispy--string-dwim)))
+         (str (substring-no-properties
+               (lispy--eval-clojure e-str)))
          (expr (lispy--read str))
          (n-args (1- (length expr))))
     (lispy-follow)
