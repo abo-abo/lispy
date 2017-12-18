@@ -63,6 +63,9 @@
    (source-fn
     sym)))
 
+(defn macro? [x]
+  (:macro (meta (resolve x))))
+
 (defn arity [args]
   (if (some #{'&} args)
     1000
@@ -130,13 +133,17 @@
                                        func-bodies)))
         func-args (first func-body)]
     (cons 'do
-          (map (fn [name val]
-                 (let [ev (eval val)]
-                   (list 'def name
-                         (if (fn? ev)
-                           val
-                           (lispy-clojure/quote-maybe ev)))))
-               func-args args))))
+          (if (macro? func-name)
+            (map (fn [[name val]]
+                   `(def ~name ~val))
+                 (partition 2 (destructure [func-args 'args])))
+            (map (fn [name val]
+                   (let [ev (eval val)]
+                     (list 'def name
+                           (if (fn? ev)
+                             val
+                             (lispy-clojure/quote-maybe ev)))))
+                 func-args args)))))
 
 (defn object-methods [sym]
   (when (instance? java.lang.Object sym)
