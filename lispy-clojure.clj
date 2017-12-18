@@ -156,12 +156,12 @@
   (concat (object-fields sym)
           (object-methods sym)))
 
-(defn get-method [obj method-name]
+(defn get-meth [obj method-name]
   (first (filter #(= (.getName %) method-name)
                  (.getMethods (type obj)))))
 
 (defn method-signature [obj method-name]
-  (str (get-method obj method-name)))
+  (str (get-meth obj method-name)))
 
 (defn get-ctors [obj]
   (. obj getDeclaredConstructors))
