@@ -114,7 +114,7 @@ Generate an appropriate def from for that let binding and eval it."
                  stra))
                (res (lispy--eval-nrepl-clojure
                      strb
-                     (if (and lax (= (length (read (format "(%s)" str))) 2))
+                     (if (and lax (= (length (lispy--read (format "(%s)" str))) 2))
                          "user"
                        lispy--clojure-ns)))
                (status (nrepl-dict-get res "status"))
