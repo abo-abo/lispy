@@ -4282,7 +4282,7 @@ When ARG isn't nil, try to pretty print the sexp."
                    (ignore-errors
                      (lispy-alt-multiline t)))
                  (goto-char (point-min))
-                 (insert "=>\n"))
+                 (insert "=>" (if (> (length str) 70) "\n" " ")))
                 ((and (lispy-right-p)
                       (eq major-mode 'python-mode))
                  (cond ((< (current-column) 100))
@@ -5371,6 +5371,7 @@ ARG is 4: `eval-defun' on the function from this sexp."
 (declare-function lispy--python-debug-step-in "le-python")
 (declare-function lispy-eval-python-bnd "le-python")
 (declare-function lispy-eval-python-str "le-python")
+(declare-function lispy-set-python-process "le-python")
 
 (defun lispy-debug-step-in ()
   "Eval current function arguments and jump to definition."
