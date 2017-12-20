@@ -4093,7 +4093,7 @@ When ARG is 2, insert the result as a comment."
   (interactive)
   "Add an unnamed notebook outline at point."
   (cond
-    ((bolp))
+    ((and (bolp) (eolp)))
     ((lispy-outline-next 1)
      (insert "\n\n")
      (backward-char 2))
