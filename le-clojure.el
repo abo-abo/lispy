@@ -308,7 +308,8 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
 
 (defun lispy--clojure-middleware-unload ()
   "Mark the Clojure middleware in \"lispy-clojure.clj\" as not loaded."
-  (setq lispy--clojure-middleware-loaded-p nil))
+  (setq lispy--clojure-middleware-loaded-p nil)
+  (setq lispy--clojure-ns "user"))
 
 (defun lispy--clojure-middleware-load ()
   "Load the custom Clojure code in \"lispy-clojure.clj\"."
