@@ -223,7 +223,7 @@
   [bindings]
   (let [bs (partition 2 (destructure bindings))
         as (filterv
-            #(not (re-matches #"^vec__.*" (name %)))
+            #(not (re-matches #"^(vec|map)__.*" (name %)))
             (map first bs))]
     (concat '(do)
             (map (fn [[name val]]
@@ -232,12 +232,33 @@
             [(zipmap (map keyword as) as)])))
 
 (deftest dest-test
-  (is (=
-       (eval (dest '[[x y] (list 1 2 3)]))
-       {:x 1, :y 2}))
-  (is (=
-       (eval (dest '[[x & y] [1 2 3]]))
-       {:x 1, :y '(2 3)}))
+  (is (= (eval (dest '[[x y] (list 1 2 3)]))
+         {:x 1, :y 2}))
+  (is (= (eval (dest '[[x & y] [1 2 3]]))
+         {:x 1, :y '(2 3)}))
   (is (= (eval (dest '[[x y] (list 1 2 3) [a b] [y x]]))
-         {:x 1, :y 2, :a 2, :b 1})))
+         {:x 1, :y 2, :a 2, :b 1}))
+  (is (= (eval (dest '[[x y z] [1 2]]))
+         {:x 1, :y 2, :z nil}))
+  (is (= (eval (dest '[[x & tail :as all] [1 2 3]]))
+         {:x 1,
+          :tail '(2 3),
+          :all [1 2 3]}))
+  (is (= (eval (dest '[[x & tail :as all] "Clojure"]))
+         {:x \C,
+          :tail '(\l \o \j \u \r \e),
+          :all "Clojure"}))
+  (is (= (eval (dest '[{x 1 y 2} {1 "one" 2 "two" 3 "three"}]))
+         {:x "one", :y "two"}))
+  (is (= (eval (dest '[{x 1 y 2 :or {x "one" y "two"} :as all} {2 "three"}]))
+         {:all {2 "three"},
+          :x "one",
+          :y "three"}))
+  (is (= (eval (dest '[{:keys [x y]} {:x "one" :z "two"}]))
+         {:x "one", :y nil}))
+  (is (= (eval (dest '[{:strs [x y]} {"x" "one" "z" "two"}]))
+         {:x "one", :y nil}))
+  (is (= (eval (dest '[{:syms [x y]} {'x "one" 'z "two"}]))
+         {:x "one", :y nil})))
+
 ;; (clojure.test/run-tests 'lispy-clojure)
