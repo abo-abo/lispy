@@ -1,6 +1,6 @@
 ;;; lispy-clojure.clj --- lispy support for Clojure.
 
-;; Copyright (C) 2015 Oleh Krehel
+;; Copyright (C) 2015-2017 Oleh Krehel
 
 ;; This file is not part of GNU Emacs
 
@@ -219,23 +219,25 @@
               args)))))
 
 (defn dest
-  "Transform one `let'-style binding into a sequence of `def's."
-  [binding]
-  (cons 'do
-        (map (fn [[name val]]
-               `(def ~name ~val))
-             (partition 2 (destructure binding)))))
+  "Transform `let'-style BINDINGS into a sequence of `def's."
+  [bindings]
+  (let [bs (partition 2 (destructure bindings))
+        as (filterv
+            #(not (re-matches #"^vec__.*" (name %)))
+            (map first bs))]
+    (concat '(do)
+            (map (fn [[name val]]
+                   `(def ~name ~val))
+                 bs)
+            [(zipmap (map keyword as) as)])))
 
-(defmacro dest-test [be r]
-  (concat (dest be) (list r)))
-
-(deftest dest-examples
-  (is
-   (=
-    (dest-test [[x y] (list 1 2 3)] (list x y))
-    '(1 2)))
-  (is
-   (=
-    (dest-test [[x & y] (list 1 2 3)] (list x y))
-    '(1 (2 3)))))
+(deftest dest-test
+  (is (=
+       (eval (dest '[[x y] (list 1 2 3)]))
+       {:x 1, :y 2}))
+  (is (=
+       (eval (dest '[[x & y] [1 2 3]]))
+       {:x 1, :y '(2 3)}))
+  (is (= (eval (dest '[[x y] (list 1 2 3) [a b] [y x]]))
+         {:x 1, :y 2, :a 2, :b 1})))
 ;; (clojure.test/run-tests 'lispy-clojure)
