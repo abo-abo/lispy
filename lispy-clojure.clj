@@ -20,6 +20,7 @@
 (ns lispy-clojure
   (:require [clojure.repl :as repl]
             [clojure.java.io :as io])
+  (:use [clojure.test :only (deftest is)])
   (:import (java.io File LineNumberReader InputStreamReader
                     PushbackReader FileInputStream)
            (clojure.lang RT Reflector)))
@@ -216,3 +217,25 @@
                 vector? "[idx]"
                 "is uncallable")
               args)))))
+
+(defn dest
+  "Transform one `let'-style binding into a sequence of `def's."
+  [binding]
+  (cons 'do
+        (map (fn [[name val]]
+               `(def ~name ~val))
+             (partition 2 (destructure binding)))))
+
+(defmacro dest-test [be r]
+  (concat (dest be) (list r)))
+
+(deftest dest-examples
+  (is
+   (=
+    (dest-test [[x y] (list 1 2 3)] (list x y))
+    '(1 2)))
+  (is
+   (=
+    (dest-test [[x & y] (list 1 2 3)] (list x y))
+    '(1 (2 3)))))
+;; (clojure.test/run-tests 'lispy-clojure)
