@@ -352,28 +352,10 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
   (let* ((e-str (format "(lispy-clojure/debug-step-in\n'%s)"
                         (lispy--string-dwim)))
          (str (substring-no-properties
-               (lispy--eval-clojure e-str)))
-         (expr (lispy--read str))
-         (n-args (1- (length expr))))
+               (lispy--eval-clojure e-str))))
     (lispy-follow)
     (lispy--eval-clojure str)
-    (forward-char 1)
-    (forward-sexp 2)
-    (when (looking-at "[ \t\n]*\"")
-      (goto-char (1- (match-end 0)))
-      (forward-sexp 1))
-    (if (looking-at "[ \t\n]*\\[")
-        (progn
-          (goto-char (1- (match-end 0)))
-          (lispy-flow 1))
-      (lispy-forward 1)
-      (lispy-backward 1)
-      (lispy-flow 1)
-      (while (/= n-args (length (lispy--read (lispy--string-dwim))))
-        (lispy--out-backward 1)
-        (lispy-down 1)
-        (lispy-flow 1))
-      (lispy-down 1))))
+    (lispy-flow 1)))
 
 (defun lispy-goto-symbol-clojure (symbol)
   "Goto SYMBOL."
