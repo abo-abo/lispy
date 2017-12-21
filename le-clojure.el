@@ -112,9 +112,11 @@ Generate an appropriate def from for that let binding and eval it."
                                  str)
                        str))
                (strb
-                (format
-                 "(try (do %s) (catch Exception e (clojure.core/str \"error: \" (.getMessage e))))"
-                 stra))
+                (if (string-match-p "(try" stra)
+                    stra
+                  (format
+                   "(try (do %s) (catch Exception e (clojure.core/str \"error: \" (.getMessage e))))"
+                   stra)))
                (res (lispy--eval-nrepl-clojure
                      strb
                      (if (and lax (= (length (lispy--read (format "(%s)" str))) 2))
