@@ -182,19 +182,6 @@ The caller of `lispy--show' might use a substitute e.g. `describe-function'."
 
             (t (error "%s isn't supported currently" major-mode))))))
 
-(defun lispy--delete-help-windows ()
-  "Delete help windows.
-Return t if at least one was deleted."
-  (let (deleted)
-    (mapc (lambda (window)
-            (when (eq (with-current-buffer (window-buffer window)
-                        major-mode)
-                      'help-mode)
-              (delete-window window)
-              (setq deleted t)))
-          (window-list))
-    deleted))
-
 (defvar lispy--di-window-config nil
   "Store window configuration before `lispy-describe-inline'.")
 
@@ -242,28 +229,15 @@ Return t if at least one was deleted."
   "Get the docstring for SYM."
   (cond
     ((memq major-mode lispy-elisp-modes)
-     (let (dc)
-       (setq sym (intern-soft sym))
-       (cond ((fboundp sym)
-              (if (lispy--show-fits-p
-                   (setq dc (or (documentation sym)
-                                "undocumented")))
-                  dc
-                (setq lispy--di-window-config (current-window-configuration))
-                (save-selected-window
-                  (describe-function sym))
-                nil))
-             ((boundp sym)
-              (if (lispy--show-fits-p
-                   (setq dc (or (documentation-property
-                                 sym 'variable-documentation)
-                                "undocumented")))
-                  dc
-                (setq lispy--di-window-config (current-window-configuration))
-                (save-selected-window
-                  (describe-variable sym))
-                nil))
-             (t "unbound"))))
+     (setq sym (intern-soft sym))
+     (cond ((fboundp sym)
+            (or (documentation sym)
+                "undocumented"))
+           ((boundp sym)
+            (or (documentation-property
+                 sym 'variable-documentation)
+                "undocumented"))
+           (t "unbound")))
     ((or (memq major-mode lispy-clojure-modes)
          (memq major-mode '(cider-repl-mode)))
      (require 'le-clojure)
@@ -311,14 +285,12 @@ Return t if at least one was deleted."
 (defun lispy-describe-inline ()
   "Display documentation for `lispy--current-function' inline."
   (interactive)
-  (if (cl-some (lambda (window)
-                 (eq (with-current-buffer (window-buffer window)
-                       major-mode)
-                     'help-mode))
-               (window-list))
-      (if (window-configuration-p lispy--di-window-config)
-          (set-window-configuration lispy--di-window-config)
-        (lispy--delete-help-windows))
+  (if (cl-some
+       (lambda (window)
+         (equal (buffer-name (window-buffer window)) "*lispy-help*"))
+       (window-list))
+      (when (window-configuration-p lispy--di-window-config)
+        (set-window-configuration lispy--di-window-config))
     (lispy--describe-inline)))
 
 (declare-function lispy--python-docstring "le-python")
