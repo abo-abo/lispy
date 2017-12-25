@@ -261,4 +261,11 @@
   (is (= (eval (dest '[{:syms [x y]} {'x "one" 'z "two"}]))
          {:x "one", :y nil})))
 
+(defmacro ok
+  "On getting an Exception, just print it."
+  [& body]
+  `(try
+     (eval '~@body)
+     (catch Exception ~'e (.getMessage ~'e))))
+
 ;; (clojure.test/run-tests 'lispy-clojure)
