@@ -133,15 +133,13 @@
                                                     (lispy-clojure/arity (first b))))
                                        func-bodies)))
         func-args (first func-body)]
-    (cons 'do
-          (if (lispy-clojure/macro? func-name)
+    (if (lispy-clojure/macro? func-name)
+      (cons 'do
             (cons `(def ~'args ~(lispy-clojure/quote-maybe args))
                   (map (fn [[name val]]
                          `(def ~name ~val))
-                       (partition 2 (destructure [func-args 'args]))))
-            (map (fn [name val]
-                   (list 'def name val))
-                 func-args args)))))
+                       (partition 2 (destructure [func-args 'args])))))
+      (lispy-clojure/dest (vector func-args (vec (rest expr)))))))
 
 (defn object-methods [sym]
   (when (instance? java.lang.Object sym)
@@ -260,6 +258,11 @@
          {:x "one", :y nil}))
   (is (= (eval (dest '[{:syms [x y]} {'x "one" 'z "two"}]))
          {:x "one", :y nil})))
+
+(deftest debug-step-in-test
+  (is (= (eval (debug-step-in
+                '(expand-home (str "/foo" "/bar"))))
+         {:path "/foo/bar"})))
 
 (defmacro ok
   "On getting an Exception, just print it."
