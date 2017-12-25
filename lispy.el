@@ -6832,9 +6832,11 @@ Ignore the matches in strings and comments."
                 ;; ——— numbers ————————————————
                 (goto-char (point-min))
                 (while (re-search-forward "[+-]?[0-9]+\\(?:\\.[0-9]+\\)?\\(?:e[+-]?[0-9]*\\)" nil t)
-                  (let ((s (match-string-no-properties 0)))
-                    (delete-region (match-beginning 0) (match-end 0))
-                    (insert (format "(ly-raw float \"%s\")" s))))
+                  (if (setq cbnd (lispy--bounds-string))
+                      (goto-char (cdr cbnd))
+                    (let ((s (match-string-no-properties 0)))
+                      (delete-region (match-beginning 0) (match-end 0))
+                      (insert (format "(ly-raw float \"%s\")" s)))))
                 ;; ——— () —————————————————————
                 (goto-char (point-min))
                 (while (re-search-forward "\\(?:[^\\]\\|^\\)\\(()\\)" nil t)
