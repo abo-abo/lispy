@@ -91,6 +91,7 @@ Generate an appropriate def from for that let binding and eval it."
                 `(lambda ()
                    (set-window-configuration
                     ,(current-window-configuration))
+                   (lispy--clojure-middleware-load)
                    (message
                     (lispy--eval-clojure-1 ,str ,add-output ,lax))))
           (add-hook 'nrepl-connected-hook
@@ -205,7 +206,6 @@ If it doesn't work, try to resolve in all available namespaces."
        (read str)))))
 
 (defun lispy--clojure-symbol-to-args (symbol)
-  (lispy--clojure-middleware-load)
   (cond ((string= symbol ".")
          (lispy--clojure-dot-args))
         ((string-match "\\`\\(.*\\)\\.\\'" symbol)
@@ -338,7 +338,6 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
                    (lispy--clojure-macrop (symbol-name (car expr))))
               (lispy--eval-clojure
                (format "(macroexpand '%s)" str))
-            (lispy--clojure-middleware-load)
             (lispy--eval-clojure
              (format "(lispy-clojure/flatten-expr '%s)" str)))))
     (goto-char (car bnd))
@@ -350,7 +349,6 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
 
 (defun lispy--clojure-debug-step-in ()
   "Inline a Clojure function at the point of its call."
-  (lispy--clojure-middleware-load)
   (let* ((e-str (format "(lispy-clojure/debug-step-in\n'%s)"
                         (lispy--string-dwim)))
          (str (substring-no-properties
@@ -387,7 +385,6 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
                  (forward-sexp 2)
                  (lispy--string-dwim)))))
     (when obj
-      (lispy--clojure-middleware-load)
       (let ((cands (read (lispy--eval-clojure
                           (format "(lispy-clojure/object-members %s)" obj))))
             (bnd (bounds-of-thing-at-point 'symbol)))
@@ -398,7 +395,6 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
               cands)))))
 
 (defun lispy--clojure-dot-args ()
-  (lispy--clojure-middleware-load)
   (save-excursion
     (lispy--back-to-paren)
     (let* ((object (save-mark-and-excursion
@@ -422,7 +418,6 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
           sig)))))
 
 (defun lispy--clojure-constructor-args (symbol)
-  (lispy--clojure-middleware-load)
   (read (lispy--eval-clojure
          (format "(lispy-clojure/ctor-args %s)" symbol))))
 
