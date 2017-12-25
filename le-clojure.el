@@ -113,7 +113,7 @@ Generate an appropriate def from for that let binding and eval it."
                                  str)
                        str))
                (strb
-                (if (string-match-p "(try" stra)
+                (if (string-match-p "\\`(try" stra)
                     stra
                   (format
                    "(try (do %s) (catch Exception e (clojure.core/str \"error: \" (.getMessage e))))"
