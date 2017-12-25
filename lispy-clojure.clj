@@ -113,6 +113,19 @@
       (list 'quote x)
       x)))
 
+(defn dest
+  "Transform `let'-style BINDINGS into a sequence of `def's."
+  [bindings]
+  (let [bs (partition 2 (destructure bindings))
+        as (filterv
+            #(not (re-matches #"^(vec|map)__.*" (name %)))
+            (map first bs))]
+    (concat '(do)
+            (map (fn [[name val]]
+                   `(def ~name ~val))
+                 bs)
+            [(zipmap (map keyword as) as)])))
+
 (defn debug-step-in
   "Evaluate the function call arugments and sub them into function arguments."
   [expr]
@@ -215,19 +228,6 @@
                 vector? "[idx]"
                 "is uncallable")
               args)))))
-
-(defn dest
-  "Transform `let'-style BINDINGS into a sequence of `def's."
-  [bindings]
-  (let [bs (partition 2 (destructure bindings))
-        as (filterv
-            #(not (re-matches #"^(vec|map)__.*" (name %)))
-            (map first bs))]
-    (concat '(do)
-            (map (fn [[name val]]
-                   `(def ~name ~val))
-                 bs)
-            [(zipmap (map keyword as) as)])))
 
 (deftest dest-test
   (is (= (eval (dest '[[x y] (list 1 2 3)]))
