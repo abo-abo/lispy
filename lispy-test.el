@@ -1760,6 +1760,8 @@ Insert KEY if there's no command."
                    "(~:keyword| (form))")))
 
 (ert-deftest lispy--read ()
+  (should (equal (lispy--read "(mu4e-mail)")
+                 '(mu4e-mail)))
   (should (equal (lispy--read "(progn
                                  #'foo
                                  (ly-raw function foo)
