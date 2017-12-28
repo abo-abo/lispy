@@ -25,6 +25,19 @@
                     PushbackReader FileInputStream)
            (clojure.lang RT Reflector)))
 
+(defmacro xcond [& clauses]
+  "Common Lisp style `cond'.
+
+It's more structured than `cond', thus exprs that use it are lot more
+malleable to refactoring."
+  (when clauses
+    (list 'if (ffirst clauses)
+          (if (next (first clauses))
+            (second (first clauses))
+            (throw (IllegalArgumentException.
+                    "xcond requires an even number of forms")))
+          (cons 'xcond (next clauses)))))
+
 (defn expand-home
   [path]
   (if (.startsWith path "~")
@@ -194,40 +207,41 @@
              (map str (get-ctors sym))))))
 
 (defn resolve-sym [sym]
-  (cond (symbol? sym)
-        (if (special-symbol? sym)
-          'special
-          (or
-           (resolve sym)
-           (first (keep #(ns-resolve % sym) (all-ns)))
-           (if-let [val (try (load-string (str sym)) (catch Exception e))]
-             (list 'variable (str val)))))
+  (xcond
+   [(symbol? sym)
+    (if (special-symbol? sym)
+      'special
+      (or
+       (resolve sym)
+       (first (keep #(ns-resolve % sym) (all-ns)))
+       (if-let [val (try (load-string (str sym)) (catch Exception e))]
+         (list 'variable (str val)))))]
 
-        (keyword? sym) 'keyword
+   [(keyword? sym) 'keyword]
 
-        :else 'unknown))
+   [:else 'unknown]))
 
 (defn arglist [sym]
   (let [rsym (resolve-sym sym)]
-    (cond (= 'special rsym)
-          (->> (with-out-str
-                 (eval (list 'clojure.repl/doc sym)))
-               (re-find #"\(.*\)")
-               read-string rest
-               (map str)
-               (clojure.string/join " ")
-               (format "[%s]")
-               list)
-
-          :else
-          (let [args (map str (:arglists (meta rsym)))]
-            (if (empty? args)
-              (condp #(%1 %2) (eval sym)
-                map? "[key]"
-                set? "[key]"
-                vector? "[idx]"
-                "is uncallable")
-              args)))))
+    (xcond
+     [(= 'special rsym)
+      (->> (with-out-str
+             (eval (list 'clojure.repl/doc sym)))
+           (re-find #"\(.*\)")
+           read-string rest
+           (map str)
+           (clojure.string/join " ")
+           (format "[%s]")
+           list)]
+     [:else
+      (let [args (map str (:arglists (meta rsym)))]
+        (if (empty? args)
+          (condp #(%1 %2) (eval sym)
+            map? "[key]"
+            set? "[key]"
+            vector? "[idx]"
+            "is uncallable")
+          args))])))
 
 (deftest dest-test
   (is (= (eval (dest '[[x y] (list 1 2 3)]))
