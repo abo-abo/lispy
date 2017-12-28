@@ -26,16 +26,6 @@
 (require 'cider-client nil t)
 (require 'cider-interaction nil t)
 
-(defun lispy--clojure-lax (str)
-  "Possibly transform STR into a more convenient Clojure expression."
-  (let ((expr (lispy--read str)))
-    (if (and expr
-             (symbolp expr)
-             (< (length (symbol-name expr))
-                (- (length str) 3)))
-        (setq str (format "(do (def %s) %s)" str str))
-      str)))
-
 (defvar lispy--clojure-hook-lambda nil
   "Store a lambda to call.")
 
@@ -75,14 +65,11 @@
 (defvar lispy--clojure-ns "user"
   "Store the last evaluated *ns*.")
 
-(defun lispy--eval-clojure (str &optional add-output lax)
+(defun lispy--eval-clojure (str &optional add-output)
   "Eval STR as Clojure code.
 The result is a string.
 
-When ADD-OUTPUT is non-nil, add the standard output to the result.
-
-When LAX is non-nil, expect STR to be two sexps from a let binding.
-Generate an appropriate def from for that let binding and eval it."
+When ADD-OUTPUT is non-nil, add the standard output to the result."
   (require 'cider)
   (let (deactivate-mark)
     (if (null (cider-default-connection t))
@@ -93,21 +80,19 @@ Generate an appropriate def from for that let binding and eval it."
                     ,(current-window-configuration))
                    (lispy--clojure-middleware-load)
                    (message
-                    (lispy--eval-clojure-1 ,str ,add-output ,lax))))
+                    (lispy--eval-clojure-1 ,str ,add-output))))
           (add-hook 'nrepl-connected-hook
                     'lispy--clojure-eval-hook-lambda t)
           (cider-jack-in)
           "Starting CIDER...")
-      (lispy--eval-clojure-1 str add-output lax))))
+      (lispy--eval-clojure-1 str add-output))))
 
 (defvar lispy--clojure-errorp nil)
 
-(defun lispy--eval-clojure-1 (str add-output lax)
+(defun lispy--eval-clojure-1 (str add-output)
   (setq lispy--clojure-errorp nil)
   (or (lispy--eval-clojure-handle-ns str)
       (progn
-        (when lax
-          (setq str (lispy--clojure-lax str)))
         (let* ((stra (if lispy-do-pprint
                          (format "(clojure.core/let [x %s] (with-out-str (clojure.pprint/pprint x)))"
                                  str)
@@ -120,9 +105,7 @@ Generate an appropriate def from for that let binding and eval it."
                    stra)))
                (res (lispy--eval-nrepl-clojure
                      strb
-                     (if (and lax (= (length (lispy--read (format "(%s)" str))) 2))
-                         "user"
-                       lispy--clojure-ns)))
+                     lispy--clojure-ns))
                (status (nrepl-dict-get res "status"))
                (res (cond ((or (member "namespace-not-found" status))
                            (nrepl-sync-request:eval
