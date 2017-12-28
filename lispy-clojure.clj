@@ -289,6 +289,47 @@ malleable to refactoring."
   (map #(.getAbsolutePath (java.io.File. (.toURI %)))
        (.getURLs (java.lang.ClassLoader/getSystemClassLoader))))
 
+(defn reader=
+  "Equality accounting for reader-generated symbols."
+  [a b]
+  (try
+    (xcond ((and (symbol? a) (symbol? b))
+            (or
+             (= a b)
+             (and
+              (re-find #"[0-9]+#$" (name a))
+              (re-find #"[0-9]+#$" (name b))
+              true)))
+
+           ((and (empty? a) (empty? b))
+            true)
+
+           (:else
+            (and
+             (reader= (first a) (first b))
+             (reader= (rest a) (rest b)))))
+    (catch Exception e
+      (= a b))))
+
+(deftest reader=-test
+  (is (= (reader= '(map #(* % %) '(1 2 3))
+                  '(map #(* % %) '(1 2 3))))))
+
+(defn position [x coll equality]
+  (letfn [(iter [i coll]
+            (xcond ((empty? coll) nil)
+                   ((equality x (first coll))
+                    i)
+                   (:else
+                    (recur (inc i) (rest coll)))))]
+    (iter 0 coll)))
+
+(deftest position-test
+  (let [x (read-string "(map #(* % %) as)")
+        c (read-string "[as (range 10) bs (map #(* % %) as)]")]
+    (is (= (position x c =) nil))
+    (is (= (position x c reader=) 3))))
+
 (defn reval [e-str context-str
              & {:keys [pretty-print]}]
   (let [full-expr (read-string (format "[%s]" e-str))
@@ -296,7 +337,7 @@ malleable to refactoring."
         context (try
                   (read-string context-str)
                   (catch Exception _))
-        idx (.indexOf context expr)
+        idx (position expr context reader=)
         expr1 (xcond
                ((and (= (count full-expr) 2)
                      (symbol? (first full-expr)))
