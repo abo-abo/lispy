@@ -289,28 +289,39 @@ malleable to refactoring."
   (map #(.getAbsolutePath (java.io.File. (.toURI %)))
        (.getURLs (java.lang.ClassLoader/getSystemClassLoader))))
 
-(defn context-eval [expr context-str]
-  (let [context (try
+(defn reval [e-str context-str
+             & {:keys [pretty-print]}]
+  (let [expr (read-string e-str)
+        context (try
                   (read-string context-str)
-                  (catch Exception _))]
-    (xcond ((nil? context)
-            (eval expr))
+                  (catch Exception _))
+        expr1 (xcond ((or (nil? context)
+                          (= expr context))
+                      expr)
+                     ((#{'-> '->>} (first context))
+                      (take (inc (.indexOf context expr)) context))
+                     (:t
+                      expr))
+        expr2 (if pretty-print
+                `(with-out-str
+                   (clojure.pprint/pprint ~expr1))
+                expr1)
+        expr3 `(try
+                 (do ~expr1)
+                 (catch Exception e#
+                   (clojure.core/str "error: " (.getMessage e#))))]
+    (eval expr3)))
 
-           ((#{'-> '->>} (first context))
-            (eval (take (inc (.indexOf context expr)) context)))
-           (:t
-            (eval expr)))))
-
-(deftest context-eval-test
+(deftest reval-test
   (let [s "(->> 5
                (range)
                (map (fn [x] (* x x)))
                (map (fn [x] (+ x x))))"]
-    (is (= (context-eval '(range) s)
+    (is (= (reval "(range)" s)
            '(0 1 2 3 4)))
-    (is (= (context-eval '(map (fn [x] (* x x))) s)
+    (is (= (reval "(map (fn [x] (* x x)))" s)
            '(0 1 4 9 16)))
-    (is (= (context-eval '(map (fn [x] (+ x x))) s)
+    (is (= (reval "(map (fn [x] (+ x x)))" s)
            '(0 2 8 18 32)))))
 
 ;; (clojure.test/run-tests 'lispy-clojure)

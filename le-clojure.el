@@ -27,17 +27,19 @@
 (require 'cider-interaction nil t)
 
 (defun lispy-eval-clojure (&optional _plain)
-  (let ((e-str (if (and (not (region-active-p))
-                        (save-excursion
-                          (lispy-left 1)
-                          (looking-at "(->>?")))
-                   (concat
-                    (buffer-substring-no-properties
-                     (match-beginning 0)
-                     (point))
-                    ")")
-                 (lispy--string-dwim))))
-    (lispy--eval-clojure e-str t)))
+  (let ((e-str (lispy--string-dwim)))
+    (or (lispy--eval-clojure-handle-ns e-str)
+        (let* ((c-str (let ((deactivate-mark nil))
+                        (save-mark-and-excursion
+                          (lispy--out-backward 1)
+                          (deactivate-mark)
+                          (lispy--string-dwim))))
+               (f-str (format
+                       "(lispy-clojure/reval %S %S :pretty-print %s)"
+                       e-str
+                       c-str
+                       (if lispy-do-pprint "true" "false"))))
+          (lispy--eval-clojure f-str t)))))
 
 (defvar lispy--clojure-hook-lambda nil
   "Store a lambda to call.")
@@ -104,51 +106,39 @@ When ADD-OUTPUT is non-nil, add the standard output to the result."
 
 (defun lispy--eval-clojure-1 (str add-output)
   (setq lispy--clojure-errorp nil)
-  (or (lispy--eval-clojure-handle-ns str)
-      (progn
-        (let* ((stra (if lispy-do-pprint
-                         (format "(clojure.core/let [x %s] (with-out-str (clojure.pprint/pprint x)))"
-                                 str)
-                       str))
-               (strb
-                (if (string-match-p "\\`(try" stra)
-                    stra
-                  (format
-                   "(try (do %s) (catch Exception e (clojure.core/str \"error: \" (.getMessage e))))"
-                   stra)))
-               (res (lispy--eval-nrepl-clojure
-                     strb
-                     lispy--clojure-ns))
-               (status (nrepl-dict-get res "status"))
-               (res (cond ((or (member "namespace-not-found" status))
-                           (nrepl-sync-request:eval
-                            strb
-                            (cider-current-connection)
-                            (cider-current-session)))
-                          ((member "eval-error" status)
-                           (setq lispy--clojure-errorp t)
-                           res)
-                          (t
-                           res)))
-               (val
-                (nrepl-dict-get res "value"))
-               out)
-          (cond ((null val)
-                 (lispy--clojure-pretty-string
-                  (nrepl-dict-get res "err")))
+  (let* ((res (lispy--eval-nrepl-clojure
+               str
+               lispy--clojure-ns))
+         (status (nrepl-dict-get res "status"))
+         (res (cond ((or (member "namespace-not-found" status))
+                     (nrepl-sync-request:eval
+                      str
+                      (cider-current-connection)
+                      (cider-current-session)))
+                    ((member "eval-error" status)
+                     (setq lispy--clojure-errorp t)
+                     res)
+                    (t
+                     res)))
+         (val
+          (nrepl-dict-get res "value"))
+         out)
+    (cond ((null val)
+           (lispy--clojure-pretty-string
+            (nrepl-dict-get res "err")))
 
-                (add-output
-                 (concat
-                  (if (setq out (nrepl-dict-get res "out"))
-                      (concat (propertize out 'face 'font-lock-string-face) "\n")
-                    "")
-                  (lispy--clojure-pretty-string val)))
+          (add-output
+           (concat
+            (if (setq out (nrepl-dict-get res "out"))
+                (concat (propertize out 'face 'font-lock-string-face) "\n")
+              "")
+            (lispy--clojure-pretty-string val)))
 
-                (lispy-do-pprint
-                 (read res))
+          (lispy-do-pprint
+           (read res))
 
-                (t
-                 (lispy--clojure-pretty-string val)))))))
+          (t
+           (lispy--clojure-pretty-string val)))))
 
 (defun lispy--eval-clojure-handle-ns (str)
   (when (or (string-match "\\`(ns \\([a-z-_0-9\\.]+\\)" str)
