@@ -304,7 +304,8 @@ malleable to refactoring."
                ((and (> idx 0)
                      (vector? context)
                      (not (symbol? (context idx)))
-                     (symbol? (context (dec idx))))
+                     (or (symbol? (context (dec idx)))
+                         (vector? (context (dec idx)))))
                 (dest
                  (take 2 (drop (- idx 1) context))))
                ((or (nil? context)
@@ -338,6 +339,8 @@ malleable to refactoring."
            '(0 2 8 18 32))))
   (is (= (deref (reval "x (+ 2 2)" "[x (+ 2 2)]")) 4))
   (is (= (reval "(+ 2 2)" "[x (+ 2 2)]") {:x 4}))
-  (is (= (reval "(+ 2 2)" "[x (+ 1 2) y (+ 2 2)]") {:y 4})))
+  (is (= (reval "(+ 2 2)" "[x (+ 1 2) y (+ 2 2)]") {:y 4}))
+  (is (= (reval "(range 5)" "[[x & y] (range 5)]")
+         {:x 0, :y '(1 2 3 4)})))
 
 ;; (clojure.test/run-tests 'lispy-clojure)
