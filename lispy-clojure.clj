@@ -285,4 +285,8 @@ malleable to refactoring."
      (eval '~@body)
      (catch Exception ~'e (.getMessage ~'e))))
 
+(defn classpath []
+  (map #(.getAbsolutePath (java.io.File. (.toURI %)))
+       (.getURLs (java.lang.ClassLoader/getSystemClassLoader))))
+
 ;; (clojure.test/run-tests 'lispy-clojure)
