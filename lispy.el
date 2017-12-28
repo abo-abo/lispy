@@ -4039,7 +4039,8 @@ SYMBOL is a string."
 
 (defvar lispy-eval-alist
   '((python-mode lispy-eval-python le-python)
-    (julia-mode lispy-eval-julia le-julia)))
+    (julia-mode lispy-eval-julia le-julia)
+    (clojure-mode lispy-eval-clojure le-clojure)))
 
 (defvar lispy-eval-error nil
   "The eval function may set this when there's an error.")
@@ -4048,27 +4049,33 @@ SYMBOL is a string."
   "Eval last sexp.
 When ARG is 2, insert the result as a comment."
   (interactive "p")
-  (let (handler)
-    (cond ((eq arg 2)
-           (lispy-eval-and-comment))
-          ((and (looking-at lispy-outline)
-                (looking-at lispy-outline-header))
-           (lispy-eval-outline))
-          ((setq handler (cdr (assoc major-mode lispy-eval-alist)))
-           (when (cadr handler)
-             (require (cadr handler)))
-           (funcall (car handler) (eq arg 3)))
-          (t
-           (save-excursion
-             (unless (or (lispy-right-p) (region-active-p))
-               (lispy-forward 1))
-             (let ((result (replace-regexp-in-string
-                            "%" "%%" (lispy--eval (lispy--string-dwim) t))))
-               (if (eq lispy-eval-display-style 'message)
-                   (lispy-message result)
-                 (if (fboundp 'cider--display-interactive-eval-result)
-                     (cider--display-interactive-eval-result result (point))
-                   (error "Please install CIDER 0.10 to display overlay")))))))))
+  (cond ((eq arg 2)
+         (lispy-eval-and-comment))
+        ((and (looking-at lispy-outline)
+              (looking-at lispy-outline-header))
+         (lispy-eval-outline))
+        (t
+         (let ((handler (cdr (assoc major-mode lispy-eval-alist)))
+               result)
+           (if handler
+               (progn
+                 (when (cadr handler)
+                   (require (cadr handler)))
+                 (setq result (funcall (car handler) (eq arg 3))))
+             (setq result (lispy--eval-default)))
+           (cond ((eq lispy-eval-display-style 'message)
+                  (lispy-message result))
+                 ((fboundp 'cider--display-interactive-eval-result)
+                  (cider--display-interactive-eval-result result (point)))
+                 (t
+                  (error "Please install CIDER 0.10 to display overlay")))))))
+
+(defun lispy--eval-default ()
+  (save-excursion
+    (unless (or (lispy-right-p) (region-active-p))
+      (lispy-forward 1))
+    (replace-regexp-in-string
+     "%" "%%" (lispy--eval (lispy--string-dwim) t))))
 
 (defun lispy-forward-outline ()
   (let ((pt (point)))

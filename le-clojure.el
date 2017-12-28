@@ -26,6 +26,19 @@
 (require 'cider-client nil t)
 (require 'cider-interaction nil t)
 
+(defun lispy-eval-clojure (&optional _plain)
+  (let ((e-str (if (and (not (region-active-p))
+                        (save-excursion
+                          (lispy-left 1)
+                          (looking-at "(->>?")))
+                   (concat
+                    (buffer-substring-no-properties
+                     (match-beginning 0)
+                     (point))
+                    ")")
+                 (lispy--string-dwim))))
+    (lispy--eval-clojure e-str t)))
+
 (defvar lispy--clojure-hook-lambda nil
   "Store a lambda to call.")
 
