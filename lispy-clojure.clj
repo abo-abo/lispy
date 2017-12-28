@@ -289,4 +289,28 @@ malleable to refactoring."
   (map #(.getAbsolutePath (java.io.File. (.toURI %)))
        (.getURLs (java.lang.ClassLoader/getSystemClassLoader))))
 
+(defn context-eval [expr context-str]
+  (let [context (try
+                  (read-string context-str)
+                  (catch Exception _))]
+    (xcond ((nil? context)
+            (eval expr))
+
+           ((#{'-> '->>} (first context))
+            (eval (take (inc (.indexOf context expr)) context)))
+           (:t
+            (eval expr)))))
+
+(deftest context-eval-test
+  (let [s "(->> 5
+               (range)
+               (map (fn [x] (* x x)))
+               (map (fn [x] (+ x x))))"]
+    (is (= (context-eval '(range) s)
+           '(0 1 2 3 4)))
+    (is (= (context-eval '(map (fn [x] (* x x))) s)
+           '(0 1 4 9 16)))
+    (is (= (context-eval '(map (fn [x] (+ x x))) s)
+           '(0 2 8 18 32)))))
+
 ;; (clojure.test/run-tests 'lispy-clojure)
