@@ -110,13 +110,16 @@ When ADD-OUTPUT is non-nil, add the standard output to the result."
   (or
    (and (stringp add-output)
         (lispy--eval-clojure-handle-ns add-output))
-   (let* ((res (lispy--eval-nrepl-clojure
-                str
+   (let* ((stra (if (string-match-p "\\`(lispy-clojure/reval" str)
+                    str
+                  (format "(do %s)" str)))
+          (res (lispy--eval-nrepl-clojure
+                stra
                 lispy--clojure-ns))
           (status (nrepl-dict-get res "status"))
           (res (cond ((or (member "namespace-not-found" status))
                       (nrepl-sync-request:eval
-                       str
+                       stra
                        (cider-current-connection)
                        (cider-current-session)))
                      ((member "eval-error" status)
