@@ -4182,7 +4182,7 @@ Return the result of the last evaluation as a string."
 (defun lispy-message (str)
   "Display STR in the echo area.
 If STR is too large, pop it to a buffer instead."
-  (if (or (> (length str) 10000)
+  (if (or (> (length str) 4000)
           (> (cl-count ?\n str)
              (or
               14
