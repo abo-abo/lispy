@@ -56,11 +56,13 @@
   (if (string-match "\\`\"error: \\([^\0]+\\)\"\\'" str)
       (concat (propertize "error: " 'face 'error)
               (match-string 1 str))
-    (with-temp-buffer
-      (clojure-mode)
-      (insert str)
-      (lispy-font-lock-ensure)
-      (buffer-string))))
+    (condition-case nil
+        (with-temp-buffer
+          (clojure-mode)
+          (insert str)
+          (lispy-font-lock-ensure)
+          (buffer-string))
+      (error str))))
 
 (defun lispy--eval-nrepl-clojure (str namespace)
   (condition-case nil
