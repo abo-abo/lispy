@@ -27,18 +27,21 @@
 (require 'cider-interaction nil t)
 
 (defun lispy-eval-clojure (&optional _plain)
-  (let* ((e-str (lispy--string-dwim))
-         (c-str (let ((deactivate-mark nil))
-                  (save-mark-and-excursion
-                    (lispy--out-backward 1)
-                    (deactivate-mark)
-                    (lispy--string-dwim))))
-         (f-str (format
-                 "(lispy-clojure/reval %S %S :pretty-print %s)"
-                 e-str
-                 c-str
-                 (if lispy-do-pprint "true" "false"))))
-    (lispy--eval-clojure f-str e-str)))
+  (let ((e-str (lispy--string-dwim))
+        (c-str (let ((deactivate-mark nil))
+                 (save-mark-and-excursion
+                   (lispy--out-backward 1)
+                   (deactivate-mark)
+                   (lispy--string-dwim)))))
+    (if (string= e-str c-str)
+        (lispy--eval-clojure e-str e-str)
+      (lispy--eval-clojure
+       (format
+        "(lispy-clojure/reval %S %S :pretty-print %s)"
+        e-str
+        c-str
+        (if lispy-do-pprint "true" "false"))
+       e-str))))
 
 (defvar lispy--clojure-hook-lambda nil
   "Store a lambda to call.")
