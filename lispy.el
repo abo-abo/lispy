@@ -6393,7 +6393,7 @@ When ADD-OUTPUT is t, append the output to the result."
                                    cider-clojure-interaction-mode)))
             (require 'le-clojure)
             (lambda (x)
-              (lispy--eval-clojure x add-output)))
+              (lispy--eval-clojure x x)))
            ((eq major-mode 'scheme-mode)
             (require 'le-scheme)
             'lispy--eval-scheme)
