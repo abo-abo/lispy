@@ -1776,6 +1776,11 @@ If jammed between parens, \"(|(\" unjam: \"(| (\"."
   (lispy--space-unless "\\s-\\|\\s(\\|[:?]\\|\\\\")
   (insert "^"))
 
+(defun lispy-at ()
+  (interactive)
+  (lispy--space-unless "\\s-\\|\\s(\\|[:?]\\|\\\\")
+  (insert "@"))
+
 (defun lispy-tick (arg)
   "Insert ' ARG times.
 When the region is active and marks a string, unquote it.
@@ -9023,6 +9028,7 @@ When ARG is non-nil, unquote the current string."
     ;; insert
     (define-key map (kbd ":") 'lispy-colon)
     (define-key map (kbd "^") 'lispy-hat)
+    (define-key map (kbd "@") 'lispy-at)
     (define-key map (kbd "'") 'lispy-tick)
     (define-key map (kbd "`") 'lispy-backtick)
     (define-key map (kbd "#") 'lispy-hash)
