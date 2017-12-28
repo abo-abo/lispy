@@ -291,25 +291,38 @@ malleable to refactoring."
 
 (defn reval [e-str context-str
              & {:keys [pretty-print]}]
-  (let [expr (read-string e-str)
+  (let [full-expr (read-string (format "[%s]" e-str))
+        expr (read-string e-str)
         context (try
                   (read-string context-str)
                   (catch Exception _))
-        expr1 (xcond ((or (nil? context)
-                          (= expr context))
-                      expr)
-                     ((#{'-> '->>} (first context))
-                      (take (inc (.indexOf context expr)) context))
-                     (:t
-                      expr))
+        idx (.indexOf context expr)
+        expr1 (xcond
+               ((and (= (count full-expr) 2)
+                     (symbol? (first full-expr)))
+                `(def ~@full-expr))
+               ((and (> idx 0)
+                     (vector? context)
+                     (not (symbol? (context idx)))
+                     (symbol? (context (dec idx))))
+                (dest
+                 (take 2 (drop (- idx 1) context))))
+               ((or (nil? context)
+                    (= expr context))
+                expr)
+               ((and (> idx 0)
+                     (#{'-> '->>} (first context)))
+                (take (inc idx) context))
+               (:t
+                expr))
         expr2 (if pretty-print
                 `(with-out-str
                    (clojure.pprint/pprint ~expr1))
                 expr1)
         expr3 `(try
                  (do ~expr1)
-                 (catch Exception e#
-                   (clojure.core/str "error: " (.getMessage e#))))]
+                 (catch Exception ~'e
+                   (clojure.core/str "error: " (.getMessage ~'e))))]
     (eval expr3)))
 
 (deftest reval-test
@@ -322,6 +335,9 @@ malleable to refactoring."
     (is (= (reval "(map (fn [x] (* x x)))" s)
            '(0 1 4 9 16)))
     (is (= (reval "(map (fn [x] (+ x x)))" s)
-           '(0 2 8 18 32)))))
+           '(0 2 8 18 32))))
+  (is (= (deref (reval "x (+ 2 2)" "[x (+ 2 2)]")) 4))
+  (is (= (reval "(+ 2 2)" "[x (+ 2 2)]") {:x 4}))
+  (is (= (reval "(+ 2 2)" "[x (+ 1 2) y (+ 2 2)]") {:y 4})))
 
 ;; (clojure.test/run-tests 'lispy-clojure)
