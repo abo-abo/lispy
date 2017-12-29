@@ -360,6 +360,12 @@ malleable to refactoring."
                      {~(keyword (first expr)) ~(first expr)})
                 expr)
                ((and idx
+                     (#{'dotimes} (first context))
+                     (vector? expr)
+                     (= 2 (count expr)))
+                `(do (def ~(first expr) 0)
+                     {~(keyword (first expr)) 0}))
+               ((and idx
                      (#{'-> '->>} (first context)))
                 (take (inc idx) context))
                (:t
@@ -390,6 +396,7 @@ malleable to refactoring."
   (is (= (reval "(+ 2 2)" "[x (+ 1 2) y (+ 2 2)]") {:y 4}))
   (is (= (reval "(range 5)" "[[x & y] (range 5)]")
          {:x 0, :y '(1 2 3 4)}))
-  (is (= (reval "[c [(* 2 21) 0]]" "(doseq [c [(* 2 21) 0]]\n  ())") {:c 42})))
+  (is (= (reval "[c [(* 2 21) 0]]" "(doseq [c [(* 2 21) 0]]\n  ())") {:c 42}))
+  (is (= (reval "[i 3]" "(dotimes [i 3])") {:i 0})))
 
 ;; (clojure.test/run-tests 'lispy-clojure)
