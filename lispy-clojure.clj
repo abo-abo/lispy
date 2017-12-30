@@ -145,14 +145,8 @@ malleable to refactoring."
                  bs)
             [(zipmap (map keyword as) as)])))
 
-(defn debug-step-in
-  "Evaluate the function call arugments and sub them into function arguments."
-  [expr]
-  (let [func-name (first expr)
-        func-ns (:ns (meta (resolve func-name)))
-        args (rest expr)
-        func-def (lispy-clojure/symbol-function func-name)
-        func-doc (when (string? (nth func-def 2))
+(defn get-func-args-defn [func-def n-args]
+  (let [func-doc (when (string? (nth func-def 2))
                    (nth func-def 2))
         func-rest (drop (if func-doc 3 2) func-def)
         func-rest (if (map? (first func-rest))
@@ -161,11 +155,34 @@ malleable to refactoring."
         func-bodies (if (vector? (first func-rest))
                       (list func-rest)
                       func-rest)
-        func-body (first (filter #(>= (lispy-clojure/arity (first %)) (count args))
+        func-body (first (filter #(>= (lispy-clojure/arity (first %)) n-args)
                                  (sort (fn [a b] (< (lispy-clojure/arity (first a))
                                                     (lispy-clojure/arity (first b))))
                                        func-bodies)))
-        func-args (first func-body)
+        func-args (first func-body)]
+    func-args))
+
+(defn get-func-args-def [func-def n-args]
+  (get-func-args-defn (nth func-def 2) n-args))
+
+(defn get-func-args [func-def n-args]
+  (xcond ((= (first func-def) 'defn)
+          (get-func-args-defn func-def n-args))
+         ((= (first func-def) 'def)
+          (get-func-args-def func-def n-args))))
+
+(deftest get-func-args-test
+  (is (= (get-func-args (symbol-function 'string?) 1) '[x]))
+  (is (= (get-func-args (symbol-function 'to-array) 1) '[coll])))
+
+(defn debug-step-in
+  "Evaluate the function call arugments and sub them into function arguments."
+  [expr]
+  (let [func-name (first expr)
+        func-ns (:ns (meta (resolve func-name)))
+        args (rest expr)
+        func-def (lispy-clojure/symbol-function func-name)
+        func-args (get-func-args func-def (count args))
         eval-form (if (lispy-clojure/macro? func-name)
                     (cons 'do
                           (cons `(def ~'args ~(lispy-clojure/quote-maybe args))
