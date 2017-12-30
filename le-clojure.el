@@ -407,12 +407,28 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
                      (forward-char 1)
                      (forward-sexp 2)
                      (lispy--string-dwim)))))))
-    (when obj
-      (let ((cands (read (lispy--eval-clojure
-                          (format "(lispy-clojure/object-members %s)" obj)))))
-        (when (> (cdr bnd) (car bnd))
-          (setq cands (all-completions (lispy--string-dwim bnd) cands)))
-        (list (car bnd) (cdr bnd) cands)))))
+    (cond (obj
+           (let ((cands (read (lispy--eval-clojure
+                               (format "(lispy-clojure/object-members %s)" obj)))))
+             (when (> (cdr bnd) (car bnd))
+               (setq cands (all-completions (lispy--string-dwim bnd) cands)))
+             (list (car bnd) (cdr bnd) cands)))
+          ((save-excursion
+             (lispy--out-backward 2)
+             (looking-at "(import"))
+           (let* ((prefix (save-excursion
+                            (lispy--out-backward 1)
+                            (forward-char)
+                            (thing-at-point 'symbol t)))
+                  (cands (read (lispy--eval-clojure
+                                (format
+                                 "(lispy-clojure/complete %S)"
+                                 prefix))))
+                  (len (1+ (length prefix)))
+                  (candsa (mapcar (lambda (s) (substring s len)) cands)))
+             (when (> (cdr bnd) (car bnd))
+               (setq candsa (all-completions (lispy--string-dwim bnd) candsa)))
+             (list (car bnd) (cdr bnd) candsa))))))
 
 (defun lispy--clojure-dot-args ()
   (save-excursion

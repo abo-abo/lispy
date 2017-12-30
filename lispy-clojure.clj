@@ -17,9 +17,15 @@
 ;; For a full copy of the GNU General Public License
 ;; see <http://www.gnu.org/licenses/>.
 
+(use '[cemerick.pomegranate :only (add-dependencies)])
+(add-dependencies :coordinates '[[compliment "0.3.5"]]
+                  :repositories (merge cemerick.pomegranate.aether/maven-central
+                                       {"clojars" "https://clojars.org/repo"}))
+
 (ns lispy-clojure
   (:require [clojure.repl :as repl]
-            [clojure.java.io :as io])
+            [clojure.java.io :as io]
+            [compliment.core :as compliment])
   (:use [clojure.test :only (deftest is)])
   (:import (java.io File LineNumberReader InputStreamReader
                     PushbackReader FileInputStream)
@@ -419,5 +425,10 @@ malleable to refactoring."
            (fn [v]
              (let [m (meta v)]
                (str v "\n" (:arglists m) "\n" (:doc m))))))))
+
+(defn complete [prefix]
+  (compliment/completions
+    prefix
+    {:context :same :plain-candidates true}))
 
 ;; (clojure.test/run-tests 'lispy-clojure)
