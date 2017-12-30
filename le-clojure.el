@@ -35,8 +35,9 @@
     (ivy-read "var: " cands
               :action (lambda (s)
                         (lispy-message
-                         (replace-regexp-in-string
-                          "\\\\n" "\n" s) t)))))
+                         (substring-no-properties
+                          (replace-regexp-in-string
+                           "\\\\n" "\n" s)) t)))))
 
 (defun lispy-eval-clojure (&optional _plain)
   (let ((e-str (lispy--string-dwim))
