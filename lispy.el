@@ -4186,14 +4186,16 @@ Return the result of the last evaluation as a string."
           (t
            (message res)))))
 
-(defun lispy-message (str)
+(defun lispy-message (str &optional popup)
   "Display STR in the echo area.
 If STR is too large, pop it to a buffer instead."
-  (if (or (> (length str) 4000)
-          (> (cl-count ?\n str)
-             (or
-              14
-              (* (window-height (frame-root-window)) max-mini-window-height))))
+  (if (or
+       popup
+       (> (length str) 4000)
+       (> (cl-count ?\n str)
+          (or
+           14
+           (* (window-height (frame-root-window)) max-mini-window-height))))
       (progn
         (pop-to-buffer "*lispy-message*")
         (special-mode)
