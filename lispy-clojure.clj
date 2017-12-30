@@ -408,4 +408,16 @@ malleable to refactoring."
   (is (= (reval "[i 3]" "(dotimes [i 3])") {:i 0}))
   (is (= (reval "[a b] (range 5)" "[[a b] (range 5)]") {:a 0, :b 1})))
 
+(defn all-docs [ns]
+  (clojure.string/join
+    "::"
+    (->> (filter (fn [v]
+                   (and (var? v)
+                        (fn? (deref v))))
+                 (vals (ns-map ns)))
+         (map
+           (fn [v]
+             (let [m (meta v)]
+               (str v "\n" (:arglists m) "\n" (:doc m))))))))
+
 ;; (clojure.test/run-tests 'lispy-clojure)

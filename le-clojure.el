@@ -26,6 +26,18 @@
 (require 'cider-client nil t)
 (require 'cider-interaction nil t)
 
+(defun lispy-clojure-apropos ()
+  (interactive)
+  (let ((cands
+         (split-string (lispy--eval-clojure
+                        "(lispy-clojure/all-docs 'clojure.core)")
+                       "::")))
+    (ivy-read "var: " cands
+              :action (lambda (s)
+                        (lispy-message
+                         (replace-regexp-in-string
+                          "\\\\n" "\n" s) t)))))
+
 (defun lispy-eval-clojure (&optional _plain)
   (let ((e-str (lispy--string-dwim))
         (c-str (let ((deactivate-mark nil))
