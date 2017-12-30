@@ -4197,8 +4197,7 @@ If STR is too large, pop it to a buffer instead."
           (or
            14
            (* (window-height (frame-root-window)) max-mini-window-height))))
-      (progn
-        (pop-to-buffer "*lispy-message*")
+      (with-current-buffer (pop-to-buffer "*lispy-message*")
         (special-mode)
         (let ((inhibit-read-only t))
           (delete-region (point-min) (point-max))
