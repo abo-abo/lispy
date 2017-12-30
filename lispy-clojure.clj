@@ -149,6 +149,7 @@ malleable to refactoring."
   "Evaluate the function call arugments and sub them into function arguments."
   [expr]
   (let [func-name (first expr)
+        func-ns (:ns (meta (resolve func-name)))
         args (rest expr)
         func-def (lispy-clojure/symbol-function func-name)
         func-doc (when (string? (nth func-def 2))
@@ -164,14 +165,21 @@ malleable to refactoring."
                                  (sort (fn [a b] (< (lispy-clojure/arity (first a))
                                                     (lispy-clojure/arity (first b))))
                                        func-bodies)))
-        func-args (first func-body)]
-    (if (lispy-clojure/macro? func-name)
-      (cons 'do
-            (cons `(def ~'args ~(lispy-clojure/quote-maybe args))
-                  (map (fn [[name val]]
-                         `(def ~name ~val))
-                       (partition 2 (destructure [func-args 'args])))))
-      (lispy-clojure/dest (vector func-args (vec (rest expr)))))))
+        func-args (first func-body)
+        eval-form (if (lispy-clojure/macro? func-name)
+                    (cons 'do
+                          (cons `(def ~'args ~(lispy-clojure/quote-maybe args))
+                                (map (fn [[name val]]
+                                       `(def ~name ~val))
+                                     (partition 2 (destructure [func-args 'args])))))
+                    (lispy-clojure/dest (vector func-args (vec (rest expr)))))]
+    (if (= func-ns *ns*)
+      eval-form
+      (let [vals-map (eval eval-form)]
+        `(do
+           (in-ns '~(symbol (str func-ns)))
+           ~@(map (fn [s] `(def ~s ~ ((keyword s) vals-map)))
+                  func-args))))))
 
 (defn object-methods [sym]
   (distinct

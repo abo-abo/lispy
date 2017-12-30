@@ -367,6 +367,8 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
          (str (substring-no-properties
                (lispy--eval-clojure e-str))))
     (lispy-follow)
+    (when (string-match "(clojure.core/in-ns (quote \\([^)]+\\))" str)
+      (setq lispy--clojure-ns (match-string 1 str)))
     (lispy--eval-clojure str)
     (lispy-flow 1)))
 
