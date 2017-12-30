@@ -168,10 +168,14 @@ malleable to refactoring."
       (lispy-clojure/dest (vector func-args (vec (rest expr)))))))
 
 (defn object-methods [sym]
-  (when (instance? java.lang.Object sym)
-    (distinct
-      (map #(.getName %)
-           (.getMethods (type sym))))))
+  (distinct
+    (map #(.getName %)
+         (xcond
+           ((instance? java.lang.Class sym)
+            (. sym getMethods))
+
+           ((instance? java.lang.Object sym)
+            (. (type sym) getMethods))))))
 
 (defn object-fields [sym]
   (map #(str "-" (.getName %))
@@ -180,6 +184,9 @@ malleable to refactoring."
 (defn object-members [sym]
   (concat (object-fields sym)
           (object-methods sym)))
+
+(deftest object-members-test
+  (is ((into #{} (object-members Thread)) "run")))
 
 (defn get-meth [obj method-name]
   (first (filter #(= (.getName %) method-name)
