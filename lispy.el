@@ -152,6 +152,7 @@
 (require 'iedit)
 (require 'delsel)
 (require 'swiper)
+(require 'pcase)
 
 ;;* Customization
 (defgroup lispy nil
@@ -4075,7 +4076,7 @@ When ARG is 2, insert the result as a comment."
     (unless (or (lispy-right-p) (region-active-p))
       (lispy-forward 1))
     (replace-regexp-in-string
-     "%" "%%" (lispy--eval (lispy--string-dwim) t))))
+     "%" "%%" (lispy--eval (lispy--string-dwim)))))
 
 (defun lispy-forward-outline ()
   (let ((pt (point)))
@@ -4164,7 +4165,7 @@ Return the result of the last evaluation as a string."
 (defun lispy-eval-single-outline ()
   (let* ((bnd (lispy--eval-bounds-outline))
          (res (lispy--eval
-               (lispy--string-dwim bnd) t)))
+               (lispy--string-dwim bnd))))
     (cond ((null res)
            (lispy-message lispy-eval-error))
           ((equal res "")
@@ -4240,7 +4241,7 @@ When ARG isn't nil, try to pretty print the sexp."
   (let* ((eval-str (if (eq major-mode 'python-mode)
                        (lispy-eval-python-str)
                      (lispy--string-dwim)))
-         (str (lispy--eval eval-str t))
+         (str (lispy--eval eval-str))
          re-bnd)
     (save-excursion
       (cond ((region-active-p)
@@ -6380,11 +6381,9 @@ or to the beginning of the line."
 
 ;;* Utilities: evaluation
 (declare-function lispy--eval-clojure "le-clojure")
-(defun lispy--eval (e-str &optional add-output)
+(defun lispy--eval (e-str)
   "Eval E-STR according to current `major-mode'.
-The result is a string.
-
-When ADD-OUTPUT is t, append the output to the result."
+The result is a string."
   (if (string= e-str "")
       ""
     (funcall

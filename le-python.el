@@ -154,6 +154,8 @@ Stripping them will produce code that's valid for an eval."
 
 (defvar-local lispy-python-proc nil)
 
+(declare-function mash-make-shell "ext:mash")
+
 (defun lispy-set-python-process-action (x)
   (setq lispy-python-proc
         (cond ((consp x)
