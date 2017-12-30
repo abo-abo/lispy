@@ -5494,6 +5494,7 @@ An equivalent of `cl-destructuring-bind'."
   ("d" lispy-to-defun "to defun")
   ("D" lispy-extract-defun "extract defun")
   ("e" lispy-edebug "edebug")
+  ("E" lispy-eval-expression "eval")
   ("f" lispy-flatten "flatten")
   ("F" lispy-let-flatten "let-flatten")
   ;; ("g" nil)
@@ -6415,6 +6416,12 @@ The result is a string."
             'matlab-eval)
            (t (error "%s isn't supported currently" major-mode)))
      e-str)))
+
+(defun lispy-eval-expression ()
+  "Like `eval-expression', but for current language."
+  (interactive)
+  (let ((form (read-from-minibuffer "Eval: ")))
+    (lispy-message (lispy--eval form))))
 
 (defvar lispy-eval-match-data nil)
 
