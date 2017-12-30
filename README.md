@@ -539,9 +539,9 @@ result will instead be inserted into the buffer. If the evaluation
 result changes for whatever reason, it will be replaced after each
 subsequent <kbd>e</kbd>.
 
-Python and Julia currently have a slightly better notebook support,
-pressing <kbd>e</kbd> on the parent outline will evaluate all the
-children outlines sequentially. This allows to arrange scripts
+Python, Clojure, and Julia currently have a slightly better notebook
+support, pressing <kbd>e</kbd> on the parent outline will evaluate all
+the children outlines sequentially. This allows to arrange scripts
 hierarchically, with relatively few top-level outlines and relatively
 many total outlines. Each outline's output can be examined by adding a
 `:` to the title of the outline.
