@@ -35,7 +35,7 @@ malleable to refactoring."
           (if (next (first clauses))
             (second (first clauses))
             (throw (IllegalArgumentException.
-                    "xcond requires an even number of forms")))
+                     "xcond requires an even number of forms")))
           (cons 'xcond (next clauses)))))
 
 (defn expand-home
@@ -74,8 +74,8 @@ malleable to refactoring."
   "Return the source code for function SYM."
   [sym]
   (read-string
-   (source-fn
-    sym)))
+    (source-fn
+      sym)))
 
 (defn macro? [x]
   (:macro (meta (resolve x))))
@@ -113,7 +113,7 @@ malleable to refactoring."
                               (filter (fn [[a b]]
                                         (not (= a b)))
                                       (partition
-                                       2 (interleave func-args args))))))
+                                        2 (interleave func-args args))))))
                 func-impl))))
 
 (defn quote-maybe
@@ -131,8 +131,8 @@ malleable to refactoring."
   [bindings]
   (let [bs (partition 2 (destructure bindings))
         as (filterv
-            #(not (re-matches #"^(vec|map)__.*" (name %)))
-            (map first bs))]
+             #(not (re-matches #"^(vec|map)__.*" (name %)))
+             (map first bs))]
     (concat '(do)
             (map (fn [[name val]]
                    `(def ~name ~val))
@@ -170,8 +170,8 @@ malleable to refactoring."
 (defn object-methods [sym]
   (when (instance? java.lang.Object sym)
     (distinct
-     (map #(.getName %)
-          (.getMethods (type sym))))))
+      (map #(.getName %)
+           (.getMethods (type sym))))))
 
 (defn object-fields [sym]
   (map #(str "-" (.getName %))
@@ -201,47 +201,47 @@ malleable to refactoring."
 
 (defn ctor-args [sym]
   (clojure.string/join
-   "\n"
-   (map #(str "(" % ")")
-        (map format-ctor
-             (map str (get-ctors sym))))))
+    "\n"
+    (map #(str "(" % ")")
+         (map format-ctor
+              (map str (get-ctors sym))))))
 
 (defn resolve-sym [sym]
   (xcond
-   [(symbol? sym)
-    (if (special-symbol? sym)
-      'special
-      (or
-       (resolve sym)
-       (first (keep #(ns-resolve % sym) (all-ns)))
-       (if-let [val (try (load-string (str sym)) (catch Exception e))]
-         (list 'variable (str val)))))]
+    [(symbol? sym)
+     (if (special-symbol? sym)
+       'special
+       (or
+         (resolve sym)
+         (first (keep #(ns-resolve % sym) (all-ns)))
+         (if-let [val (try (load-string (str sym)) (catch Exception e))]
+           (list 'variable (str val)))))]
 
-   [(keyword? sym) 'keyword]
+    [(keyword? sym) 'keyword]
 
-   [:else 'unknown]))
+    [:else 'unknown]))
 
 (defn arglist [sym]
   (let [rsym (resolve-sym sym)]
     (xcond
-     [(= 'special rsym)
-      (->> (with-out-str
-             (eval (list 'clojure.repl/doc sym)))
-           (re-find #"\(.*\)")
-           read-string rest
-           (map str)
-           (clojure.string/join " ")
-           (format "[%s]")
-           list)]
-     [:else
-      (let [args (map str (:arglists (meta rsym)))]
-        (if (empty? args)
-          (condp #(%1 %2) (eval sym)
-            map? "[key]"
-            set? "[key]"
-            vector? "[idx]"
-            "is uncallable")
-          args))])))
+      [(= 'special rsym)
+       (->> (with-out-str
+              (eval (list 'clojure.repl/doc sym)))
+            (re-find #"\(.*\)")
+            read-string rest
+            (map str)
+            (clojure.string/join " ")
+            (format "[%s]")
+            list)]
+      [:else
+       (let [args (map str (:arglists (meta rsym)))]
+         (if (empty? args)
+           (condp #(%1 %2) (eval sym)
+             map? "[key]"
+             set? "[key]"
+             vector? "[idx]"
+             "is uncallable")
+           args))])))
 
 (deftest dest-test
   (is (= (eval (dest '[[x y] (list 1 2 3)]))
@@ -275,7 +275,7 @@ malleable to refactoring."
 
 (deftest debug-step-in-test
   (is (= (eval (debug-step-in
-                '(expand-home (str "/foo" "/bar"))))
+                 '(expand-home (str "/foo" "/bar"))))
          {:path "/foo/bar"})))
 
 (defmacro ok
@@ -293,21 +293,22 @@ malleable to refactoring."
   "Equality accounting for reader-generated symbols."
   [a b]
   (try
-    (xcond ((and (symbol? a) (symbol? b))
-            (or
-             (= a b)
-             (and
-              (re-find #"[0-9]+#$" (name a))
-              (re-find #"[0-9]+#$" (name b))
-              true)))
+    (xcond
+      ((and (symbol? a) (symbol? b))
+       (or
+         (= a b)
+         (and
+           (re-find #"[0-9]+#$" (name a))
+           (re-find #"[0-9]+#$" (name b))
+           true)))
 
-           ((and (empty? a) (empty? b))
-            true)
+      ((and (empty? a) (empty? b))
+       true)
 
-           (:else
-            (and
-             (reader= (first a) (first b))
-             (reader= (rest a) (rest b)))))
+      (:else
+       (and
+         (reader= (first a) (first b))
+         (reader= (rest a) (rest b)))))
     (catch Exception e
       (= a b))))
 
@@ -317,11 +318,12 @@ malleable to refactoring."
 
 (defn position [x coll equality]
   (letfn [(iter [i coll]
-            (xcond ((empty? coll) nil)
-                   ((equality x (first coll))
-                    i)
-                   (:else
-                    (recur (inc i) (rest coll)))))]
+            (xcond
+              ((empty? coll) nil)
+              ((equality x (first coll))
+               i)
+              (:else
+               (recur (inc i) (rest coll)))))]
     (iter 0 coll)))
 
 (deftest position-test
@@ -339,36 +341,36 @@ malleable to refactoring."
                   (catch Exception _))
         idx (position expr context reader=)
         expr1 (xcond
-               ((= (count full-expr) 2)
-                (dest full-expr))
-               ((and (> idx 0)
-                     (vector? context)
-                     (not (symbol? (context idx)))
-                     (or (symbol? (context (dec idx)))
-                         (vector? (context (dec idx)))))
-                (dest
-                 (take 2 (drop (- idx 1) context))))
-               ((or (nil? context)
-                    (= expr context))
-                expr)
-               ((and idx
-                     (#{'doseq 'for} (first context))
-                     (vector? expr)
-                     (= 2 (count expr)))
-                `(do (def ~(first expr) (first ~(second expr)))
-                     {~(keyword (first expr)) ~(first expr)})
-                expr)
-               ((and idx
-                     (#{'dotimes} (first context))
-                     (vector? expr)
-                     (= 2 (count expr)))
-                `(do (def ~(first expr) 0)
-                     {~(keyword (first expr)) 0}))
-               ((and idx
-                     (#{'-> '->>} (first context)))
-                (take (inc idx) context))
-               (:t
-                expr))
+                ((= (count full-expr) 2)
+                 (dest full-expr))
+                ((and (> idx 0)
+                      (vector? context)
+                      (not (symbol? (context idx)))
+                      (or (symbol? (context (dec idx)))
+                          (vector? (context (dec idx)))))
+                 (dest
+                   (take 2 (drop (- idx 1) context))))
+                ((or (nil? context)
+                     (= expr context))
+                 expr)
+                ((and idx
+                      (#{'doseq 'for} (first context))
+                      (vector? expr)
+                      (= 2 (count expr)))
+                 `(do (def ~(first expr) (first ~(second expr)))
+                      {~(keyword (first expr)) ~(first expr)})
+                 expr)
+                ((and idx
+                      (#{'dotimes} (first context))
+                      (vector? expr)
+                      (= 2 (count expr)))
+                 `(do (def ~(first expr) 0)
+                      {~(keyword (first expr)) 0}))
+                ((and idx
+                      (#{'-> '->>} (first context)))
+                 (take (inc idx) context))
+                (:t
+                 expr))
         expr2 (if pretty-print
                 `(with-out-str
                    (clojure.pprint/pprint ~expr1))
