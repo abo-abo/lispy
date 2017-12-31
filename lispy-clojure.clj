@@ -370,8 +370,7 @@ malleable to refactoring."
     (is (= (position x c =) nil))
     (is (= (position x c reader=) 3))))
 
-(defn reval [e-str context-str
-             & {:keys [pretty-print]}]
+(defn reval [e-str context-str]
   (let [full-expr (read-string (format "[%s]" e-str))
         expr (read-string e-str)
         context (try
@@ -409,15 +408,16 @@ malleable to refactoring."
                  (take (inc idx) context))
                 (:t
                  expr))
-        expr2 (if pretty-print
-                `(with-out-str
-                   (clojure.pprint/pprint ~expr1))
-                expr1)
-        expr3 `(try
-                 (do ~expr2)
+        expr2 `(try
+                 (do ~expr1)
                  (catch Exception ~'e
                    (clojure.core/str "error: " (.getMessage ~'e))))]
-    (eval expr3)))
+    (eval expr2)))
+
+(defn pp [expr]
+  (with-out-str
+    (clojure.pprint/pprint
+      expr)))
 
 (deftest reval-test
   (let [s "(->> 5
@@ -456,4 +456,4 @@ malleable to refactoring."
     prefix
     {:context :same :plain-candidates true}))
 
-;; (clojure.test/run-tests 'lispy-clojure)
+(clojure.test/run-tests 'lispy-clojure)

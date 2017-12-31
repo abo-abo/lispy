@@ -48,19 +48,22 @@
                    (lispy--string-dwim))))
         (lispy-do-pprint (or lispy-do-pprint
                              (eq this-command 'special-lispy-eval))))
-    (if (string= e-str c-str)
-        (lispy--eval-clojure e-str e-str)
-      (let ((f-str (format
-                    "(lispy-clojure/reval %S %S :pretty-print %s)"
-                    e-str
-                    c-str
-                    (if lispy-do-pprint "true" "false"))))
-        (if (eq current-prefix-arg 7)
-            (kill-new f-str)
-          (let ((r (lispy--eval-clojure f-str e-str)))
-            (if lispy-do-pprint
-                (string-trim (read r))
-              r)))))))
+    (let ((f-str
+           (if (string= e-str c-str)
+               e-str
+             (format
+              "(lispy-clojure/reval %S %S)"
+              e-str
+              c-str))))
+      (if (eq current-prefix-arg 7)
+          (kill-new f-str)
+        (if lispy-do-pprint
+            (let ((r (lispy--eval-clojure
+                      (format "(lispy-clojure/pp %s)" f-str) e-str)))
+              (condition-case nil
+                  (string-trim (read r))
+                (error r)))
+          (lispy--eval-clojure f-str e-str))))))
 
 (defvar lispy--clojure-hook-lambda nil
   "Store a lambda to call.")
