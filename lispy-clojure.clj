@@ -414,7 +414,7 @@ malleable to refactoring."
                    (clojure.pprint/pprint ~expr1))
                 expr1)
         expr3 `(try
-                 (do ~expr1)
+                 (do ~expr2)
                  (catch Exception ~'e
                    (clojure.core/str "error: " (.getMessage ~'e))))]
     (eval expr3)))
