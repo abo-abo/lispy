@@ -404,7 +404,7 @@ malleable to refactoring."
                  `(do (def ~(first expr) 0)
                       {~(keyword (first expr)) 0}))
                 ((and idx
-                      (#{'-> '->>} (first context)))
+                      (#{'-> '->> 'doto} (first context)))
                  (take (inc idx) context))
                 (:t
                  expr))
@@ -437,7 +437,10 @@ malleable to refactoring."
          {:x 0, :y '(1 2 3 4)}))
   (is (= (reval "[c [(* 2 21) 0]]" "(doseq [c [(* 2 21) 0]]\n  ())") {:c 42}))
   (is (= (reval "[i 3]" "(dotimes [i 3])") {:i 0}))
-  (is (= (reval "[a b] (range 5)" "[[a b] (range 5)]") {:a 0, :b 1})))
+  (is (= (reval "[a b] (range 5)" "[[a b] (range 5)]") {:a 0, :b 1}))
+  (let [js "(doto (new java.util.HashMap) (.put \"a\" 1) (.put \"b\" 2))"]
+    (is (= (reval "(.put \"a\" 1)" js) {"a" 1}))
+    (is (= (reval "(.put \"b\" 2)" js) {"a" 1, "b" 2}))))
 
 (defn all-docs [ns]
   (clojure.string/join
