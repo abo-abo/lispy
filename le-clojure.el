@@ -115,6 +115,7 @@ The result is a string.
 
 When ADD-OUTPUT is non-nil, add the standard output to the result."
   (require 'cider)
+  (add-hook 'cider-connected-hook #'lispy--clojure-middleware-load)
   (let (deactivate-mark)
     (if (null (cider-default-connection t))
         (progn
@@ -122,7 +123,6 @@ When ADD-OUTPUT is non-nil, add the standard output to the result."
                 `(lambda ()
                    (set-window-configuration
                     ,(current-window-configuration))
-                   (lispy--clojure-middleware-load)
                    (message
                     (lispy--eval-clojure-1 ,str ,add-output))))
           (add-hook 'nrepl-connected-hook
