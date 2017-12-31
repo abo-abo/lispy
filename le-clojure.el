@@ -39,7 +39,17 @@
                           (replace-regexp-in-string
                            "\\\\n" "\n" s)) t)))))
 
+(defun lispy--clojure-detect-ns ()
+  "When there's only one (ns ...) in the buffer, use it."
+  (save-excursion
+    (goto-char (point-min))
+    (when (re-search-forward clojure-namespace-name-regex nil t)
+      (let ((ns (match-string-no-properties 4)))
+        (when (not (re-search-forward clojure-namespace-name-regex nil t))
+          (setq lispy--clojure-ns ns))))))
+
 (defun lispy-eval-clojure (&optional _plain)
+  (lispy--clojure-detect-ns)
   (let ((e-str (lispy--string-dwim))
         (c-str (let ((deactivate-mark nil))
                  (save-mark-and-excursion
