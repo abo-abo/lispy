@@ -45,7 +45,9 @@
                  (save-mark-and-excursion
                    (lispy--out-backward 1)
                    (deactivate-mark)
-                   (lispy--string-dwim)))))
+                   (lispy--string-dwim))))
+        (lispy-do-pprint (or lispy-do-pprint
+                             (eq this-command 'special-lispy-eval))))
     (if (string= e-str c-str)
         (lispy--eval-clojure e-str e-str)
       (let ((f-str (format
@@ -55,7 +57,10 @@
                     (if lispy-do-pprint "true" "false"))))
         (if (eq current-prefix-arg 7)
             (kill-new f-str)
-          (lispy--eval-clojure f-str e-str))))))
+          (let ((r (lispy--eval-clojure f-str e-str)))
+            (if lispy-do-pprint
+                (string-trim (read r))
+              r)))))))
 
 (defvar lispy--clojure-hook-lambda nil
   "Store a lambda to call.")
@@ -160,9 +165,6 @@ When ADD-OUTPUT is non-nil, add the standard output to the result."
                  (concat (propertize out 'face 'font-lock-string-face) "\n")
                "")
              (lispy--clojure-pretty-string val)))
-
-           (lispy-do-pprint
-            (read res))
 
            (t
             (lispy--clojure-pretty-string val))))))
