@@ -189,7 +189,10 @@ When ADD-OUTPUT is non-nil, add the standard output to the result."
   (when (or (string-match "\\`(ns \\([a-z-_0-9\\.]+\\)" str)
             (string-match "\\`(in-ns '\\([a-z-_0-9\\.]+\\)" str))
     (setq lispy--clojure-ns (match-string 1 str))
-    (lispy--eval-nrepl-clojure str "user")
+    (let* ((res (lispy--eval-nrepl-clojure str "user"))
+           (status (nrepl-dict-get res "status")))
+      (when (member "eval-error" status)
+        (error (nrepl-dict-get res "err"))))
     lispy--clojure-ns))
 
 (defvar cider--debug-mode-response)
