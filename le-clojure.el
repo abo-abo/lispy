@@ -39,6 +39,9 @@
                           (replace-regexp-in-string
                            "\\\\n" "\n" s)) t)))))
 
+(defvar lispy--clojure-ns "user"
+  "Store the last evaluated *ns*.")
+
 (defun lispy--clojure-detect-ns ()
   "When there's only one (ns ...) in the buffer, use it."
   (save-excursion
@@ -115,9 +118,6 @@
       str
       (cider-current-connection)
       namespace))))
-
-(defvar lispy--clojure-ns "user"
-  "Store the last evaluated *ns*.")
 
 (defun lispy--eval-clojure (str &optional add-output)
   "Eval STR as Clojure code.
@@ -338,12 +338,12 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
 
 (defun lispy--clojure-middleware-unload ()
   "Mark the Clojure middleware in \"lispy-clojure.clj\" as not loaded."
-  (setq lispy--clojure-middleware-loaded-p nil)
-  (setq lispy--clojure-ns "user"))
+  (setq lispy--clojure-middleware-loaded-p nil))
 
 (defun lispy--clojure-middleware-load ()
   "Load the custom Clojure code in \"lispy-clojure.clj\"."
   (unless lispy--clojure-middleware-loaded-p
+    (setq lispy--clojure-ns "user")
     (lispy--eval-clojure
      (format "(load-file \"%s\")"
              (expand-file-name "lispy-clojure.clj" lispy-site-directory)))
