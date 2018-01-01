@@ -72,7 +72,10 @@
           (kill-new f-str)
         (if lispy-do-pprint
             (let ((r (lispy--eval-clojure
-                      (format "(lispy-clojure/pp %s)" f-str) e-str)))
+                      (if lispy--clojure-middleware-loaded-p
+                          (format "(lispy-clojure/pp %s)" f-str)
+                        f-str)
+                      e-str)))
               (condition-case nil
                   (string-trim (read r))
                 (error r)))
