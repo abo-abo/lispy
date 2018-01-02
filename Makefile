@@ -28,6 +28,9 @@ test:
 elisp:
 	$(QEMACS) lispy.el
 
+clojure:
+	rm -rf .cpcache
+	clojure -e '(load-file "lispy-clojure.clj")'
 
 clean:
 	rm -f *.elc

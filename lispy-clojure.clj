@@ -24,6 +24,7 @@
 
 (ns lispy-clojure
   (:require [clojure.repl :as repl]
+            [clojure.pprint]
             [clojure.java.io :as io]
             [compliment.core :as compliment])
   (:use [clojure.test :only (deftest is)])

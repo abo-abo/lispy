@@ -1,0 +1,6 @@
+{:paths ["."]
+ :deps {org.clojure/clojure {:mvn/version "1.9.0"}
+        ;; get rid of weird warnings on startup
+        org.slf4j/slf4j-simple {:mvn/version "1.6.2"}
+        org.tcrawley/dynapath {:mvn/version "0.2.5"}
+        com.cemerick/pomegranate {:mvn/version "0.4.0"}}}
