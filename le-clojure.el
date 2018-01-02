@@ -311,23 +311,6 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
                    methods))))"
      sym))))
 
-(defun lispy--clojure-jump (symbol)
-  "Jump to Clojure SYMBOL."
-  (let* ((dict (nrepl-send-sync-request
-                (list
-                 "op" "info"
-                 "session" (cider-current-session)
-                 "ns" (cider-current-ns)
-                 "symbol" symbol)
-                (cider-current-connection)))
-         (file (nrepl-dict-get dict "file"))
-         (line (nrepl-dict-get dict "line"))
-         (col (nrepl-dict-get dict "column")))
-    (switch-to-buffer (cider-find-file file))
-    (goto-char (point-min))
-    (forward-line (1- line))
-    (forward-char (1- col))))
-
 (defun lispy--clojure-macrop (symbol)
   "Test if SYMBOL is a macro."
   (equal (lispy--eval-clojure
@@ -392,19 +375,7 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
 
 (defun lispy-goto-symbol-clojure (symbol)
   "Goto SYMBOL."
-  (let ((rsymbol (lispy--clojure-resolve symbol)))
-    (cond ((stringp rsymbol)
-           (lispy--clojure-jump rsymbol))
-          ((eq rsymbol 'special)
-           (error "Can't jump to '%s because it's special" symbol))
-          ((eq rsymbol 'keyword)
-           (error "Can't jump to keywords"))
-          ((and (listp rsymbol)
-                (eq (car rsymbol) 'variable))
-           (error "Can't jump to Java variables"))
-          (t
-           (error "Could't resolve '%s" symbol))))
-  (lispy--back-to-paren))
+  (cider-find-var nil symbol))
 
 (defun lispy-goto-symbol-clojurescript (symbol)
   "Goto SYMBOL."
