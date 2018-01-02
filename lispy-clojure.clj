@@ -17,20 +17,27 @@
 ;; For a full copy of the GNU General Public License
 ;; see <http://www.gnu.org/licenses/>.
 
-(use '[cemerick.pomegranate :only (add-dependencies)])
-(add-dependencies :coordinates '[[compliment "0.3.5"]]
-                  :repositories (merge cemerick.pomegranate.aether/maven-central
-                                       {"clojars" "https://clojars.org/repo"}))
-
 (ns lispy-clojure
   (:require [clojure.repl :as repl]
             [clojure.pprint]
-            [clojure.java.io :as io]
-            [compliment.core :as compliment])
-  (:use [clojure.test :only (deftest is)])
+            [clojure.java.io :as io])
+  (:use [clojure.test :only (is deftest)]
+        [cemerick.pomegranate :only (add-dependencies)])
   (:import (java.io File LineNumberReader InputStreamReader
                     PushbackReader FileInputStream)
            (clojure.lang RT Reflector)))
+
+(defn use-package [name version]
+  (add-dependencies
+    :coordinates [[name version]]
+    :repositories (merge cemerick.pomegranate.aether/maven-central
+                         {"clojars" "https://clojars.org/repo"})))
+
+(use-package 'compliment "0.3.5")
+(require '[compliment.core :as compliment])
+
+(use-package 'me.raynes/fs "1.4.6")
+(require '[me.raynes.fs :as fs])
 
 (defmacro xcond [& clauses]
   "Common Lisp style `cond'.
@@ -44,6 +51,24 @@ malleable to refactoring."
             (throw (IllegalArgumentException.
                      "xcond requires an even number of forms")))
           (cons 'xcond (next clauses)))))
+
+(defn fetch-packages []
+  (xcond ((fs/exists? "deps.edn")
+          (println "fixme"))
+         ((fs/exists? "project.clj")
+          (let [deps (->> (slurp "project.clj")
+                          (read-string)
+                          (drop 3)
+                          (partition 2)
+                          (map vec)
+                          (into {})
+                          :dependencies)]
+            (doseq [[name ver] deps]
+              (use-package name ver))))
+         (:else
+          (throw
+            (ex-info "Found no project.clj or deps.edn"
+                     {:cwd fs/*cwd*})))))
 
 (defn expand-home
   [path]
