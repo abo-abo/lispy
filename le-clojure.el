@@ -108,7 +108,7 @@
                (buffer-string))
            (error str)))))
 
-(defun lispy--eval-nrepl-clojure (str namespace)
+(defun lispy--eval-nrepl-clojure (str &optional namespace)
   (condition-case nil
       (with-no-warnings
         (nrepl-sync-request:eval
@@ -154,15 +154,10 @@ When ADD-OUTPUT is non-nil, add the standard output to the result."
    (let* ((stra (if (string-match-p "\\`(lispy-clojure/reval" str)
                     str
                   (format "(do %s)" str)))
-          (res (lispy--eval-nrepl-clojure
-                stra
-                lispy--clojure-ns))
+          (res (lispy--eval-nrepl-clojure stra lispy--clojure-ns))
           (status (nrepl-dict-get res "status"))
           (res (cond ((or (member "namespace-not-found" status))
-                      (nrepl-sync-request:eval
-                       stra
-                       (cider-current-connection)
-                       (cider-current-session)))
+                      (lispy--eval-nrepl-clojure stra))
                      ((member "eval-error" status)
                       (setq lispy--clojure-errorp t)
                       res)
