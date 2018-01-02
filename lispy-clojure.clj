@@ -137,7 +137,7 @@ malleable to refactoring."
   [bindings]
   (let [bs (partition 2 (destructure bindings))
         as (filterv
-             #(not (re-matches #"^(vec|map)__.*" (name %)))
+             #(not (re-matches #"^(vec|map|seq|first)__.*" (name %)))
              (map first bs))]
     (concat '(do)
             (map (fn [[name val]]
