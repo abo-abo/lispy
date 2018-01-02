@@ -1,6 +1,6 @@
 ;;; le-clojure.el --- lispy support for Clojure. -*- lexical-binding: t -*-
 
-;; Copyright (C) 2014-2015 Oleh Krehel
+;; Copyright (C) 2014-2018 Oleh Krehel
 
 ;; This file is not part of GNU Emacs
 
@@ -22,23 +22,12 @@
 
 ;;; Code:
 
+;;* Requires
 (require 'lispy)
 (require 'cider-client nil t)
 (require 'cider-interaction nil t)
 
-(defun lispy-clojure-apropos ()
-  (interactive)
-  (let ((cands
-         (split-string (lispy--eval-clojure
-                        "(lispy-clojure/all-docs 'clojure.core)")
-                       "::")))
-    (ivy-read "var: " cands
-              :action (lambda (s)
-                        (lispy-message
-                         (substring-no-properties
-                          (replace-regexp-in-string
-                           "\\\\n" "\n" s)) t)))))
-
+;;* Namespace
 (defvar lispy--clojure-ns "user"
   "Store the last evaluated *ns*.")
 
@@ -51,7 +40,12 @@
         (when (not (re-search-forward clojure-namespace-name-regex nil t))
           (setq lispy--clojure-ns ns))))))
 
+;;* User wrapper for eval
+(defvar lispy--clojure-middleware-loaded-p nil
+  "Nil if the Clojure middleware in \"lispy-clojure.clj\" wasn't loaded yet.")
+
 (defun lispy-eval-clojure (&optional _plain)
+  "User facing eval."
   (lispy--clojure-detect-ns)
   (let ((e-str (lispy--string-dwim))
         (c-str (let ((deactivate-mark nil))
@@ -81,6 +75,7 @@
                 (error r)))
           (lispy--eval-clojure f-str e-str))))))
 
+;;* Start REPL wrapper for eval
 (defvar lispy--clojure-hook-lambda nil
   "Store a lambda to call.")
 
@@ -91,36 +86,6 @@
     (setq lispy--clojure-hook-lambda nil))
   (remove-hook 'nrepl-connected-hook
                'lispy--clojure-eval-hook-lambda))
-
-(defun lispy--clojure-pretty-string (str)
-  "Return STR fontified in `clojure-mode'."
-  (cond ((string-match "\\`\"error: \\([^\0]+\\)\"\\'" str)
-         (concat (propertize "error: " 'face 'error)
-                 (match-string 1 str)))
-        ((> (length str) 4000)
-         str)
-        (t
-         (condition-case nil
-             (with-temp-buffer
-               (clojure-mode)
-               (insert str)
-               (lispy-font-lock-ensure)
-               (buffer-string))
-           (error str)))))
-
-(defun lispy--eval-nrepl-clojure (str &optional namespace)
-  (condition-case nil
-      (with-no-warnings
-        (nrepl-sync-request:eval
-         str
-         (cider-current-connection)
-         (cider-current-session)
-         namespace))
-    (error
-     (nrepl-sync-request:eval
-      str
-      (cider-current-connection)
-      namespace))))
 
 (defun lispy--eval-clojure (str &optional add-output)
   "Eval STR as Clojure code.
@@ -144,8 +109,8 @@ When ADD-OUTPUT is non-nil, add the standard output to the result."
           "Starting CIDER...")
       (lispy--eval-clojure-1 str add-output))))
 
+;;* Base eval
 (defvar lispy--clojure-errorp nil)
-
 (defun lispy--eval-clojure-1 (str add-output)
   (setq lispy--clojure-errorp nil)
   (or
@@ -190,6 +155,22 @@ When ADD-OUTPUT is non-nil, add the standard output to the result."
         (error (nrepl-dict-get res "err"))))
     lispy--clojure-ns))
 
+;;* Handle NREPL version incompat
+(defun lispy--eval-nrepl-clojure (str &optional namespace)
+  (condition-case nil
+      (with-no-warnings
+        (nrepl-sync-request:eval
+         str
+         (cider-current-connection)
+         (cider-current-session)
+         namespace))
+    (error
+     (nrepl-sync-request:eval
+      str
+      (cider-current-connection)
+      namespace))))
+
+;;* Rest
 (defvar cider--debug-mode-response)
 (declare-function cider--debug-mode "ext:cider-debug")
 (defvar nrepl-ongoing-sync-request)
@@ -316,9 +297,6 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
   (equal (lispy--eval-clojure
           (format "(:macro (meta #'%s))" symbol))
          "true"))
-
-(defvar lispy--clojure-middleware-loaded-p nil
-  "Nil if the Clojure middleware in \"lispy-clojure.clj\" wasn't loaded yet.")
 
 (defun lispy--clojure-middleware-unload ()
   "Mark the Clojure middleware in \"lispy-clojure.clj\" as not loaded."
@@ -447,6 +425,35 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
 (defun lispy--clojure-constructor-args (symbol)
   (read (lispy--eval-clojure
          (format "(lispy-clojure/ctor-args %s)" symbol))))
+
+(defun lispy--clojure-pretty-string (str)
+  "Return STR fontified in `clojure-mode'."
+  (cond ((string-match "\\`\"error: \\([^\0]+\\)\"\\'" str)
+         (concat (propertize "error: " 'face 'error)
+                 (match-string 1 str)))
+        ((> (length str) 4000)
+         str)
+        (t
+         (condition-case nil
+             (with-temp-buffer
+               (clojure-mode)
+               (insert str)
+               (lispy-font-lock-ensure)
+               (buffer-string))
+           (error str)))))
+
+(defun lispy-clojure-apropos ()
+  (interactive)
+  (let ((cands
+         (split-string (lispy--eval-clojure
+                        "(lispy-clojure/all-docs 'clojure.core)")
+                       "::")))
+    (ivy-read "var: " cands
+              :action (lambda (s)
+                        (lispy-message
+                         (substring-no-properties
+                          (replace-regexp-in-string
+                           "\\\\n" "\n" s)) t)))))
 
 (provide 'le-clojure)
 
