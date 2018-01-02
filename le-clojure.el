@@ -27,6 +27,13 @@
 (require 'cider-client nil t)
 (require 'cider-interaction nil t)
 
+(defcustom lispy-clojure-eval-method 'cider
+  "REPL used for eval."
+  :type '(choice
+          (const :tag "CIDER" cider)
+          (const :tag "UNREPL" spiral))
+  :group 'lispy)
+
 ;;* Namespace
 (defvar lispy--clojure-ns "user"
   "Store the last evaluated *ns*.")
@@ -64,16 +71,21 @@
               c-str))))
       (if (eq current-prefix-arg 7)
           (kill-new f-str)
-        (if lispy-do-pprint
-            (let ((r (lispy--eval-clojure
-                      (if lispy--clojure-middleware-loaded-p
-                          (format "(lispy-clojure/pp %s)" f-str)
-                        f-str)
-                      e-str)))
-              (condition-case nil
-                  (string-trim (read r))
-                (error r)))
-          (lispy--eval-clojure f-str e-str))))))
+        (cond
+          ((eq lispy-clojure-eval-method 'spiral)
+           (lispy--eval-clojure-spiral e-str))
+
+          (lispy-do-pprint
+           (let ((r (lispy--eval-clojure
+                     (if lispy--clojure-middleware-loaded-p
+                         (format "(lispy-clojure/pp %s)" f-str)
+                       f-str)
+                     e-str)))
+             (condition-case nil
+                 (string-trim (read r))
+               (error r))))
+          (t
+           (lispy--eval-clojure f-str e-str)))))))
 
 ;;* Start REPL wrapper for eval
 (defvar lispy--clojure-hook-lambda nil
@@ -169,6 +181,35 @@ When ADD-OUTPUT is non-nil, add the standard output to the result."
       str
       (cider-current-connection)
       namespace))))
+
+(defun lispy--eval-clojure-spiral (str)
+  (let* ((start (current-time))
+         (repl-buf (cdr (assoc :repl-buffer (car (spiral-projects-as-list)))))
+         (conn-id (with-current-buffer repl-buf spiral-conn-id))
+         (unparse-no-properties
+          (lambda (node) (substring-no-properties
+                     (spiral-ast-unparse-to-string node))))
+         stdout
+         result)
+    (spiral-loop--send conn-id :aux str)
+    (spiral-pending-eval-add
+     :aux conn-id
+     :status :sent
+     :eval-callback (lambda (eval-payload)
+                      (setq result (funcall unparse-no-properties eval-payload)))
+     :stdout-callback (lambda (stdout-payload &rest _)
+                        (setq stdout
+                              (concat stdout
+                                      (funcall unparse-no-properties stdout-payload)))))
+    (while (and (not result)
+                (not (input-pending-p)) ;; do not hang UI
+                (or (not spiral-aux-sync-request-timeout)
+                    (< (cadr (time-subtract (current-time) start))
+                       spiral-aux-sync-request-timeout)))
+      (accept-process-output nil 0.01))
+    (if stdout
+        (concat stdout "\n" result)
+      result)))
 
 ;;* Rest
 (defvar cider--debug-mode-response)
