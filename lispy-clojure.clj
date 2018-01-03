@@ -399,6 +399,8 @@ malleable to refactoring."
 (defn guess-intent [expr context]
   (let [idx (position expr context reader=)]
     (xcond
+      ((not (seqable? expr))
+       expr)
       ((#{'defproject} (first expr))
        `(fetch-packages))
       ((nil? idx)
@@ -449,7 +451,8 @@ malleable to refactoring."
       expr)))
 
 (deftest guess-intent-test
-  (is (= (guess-intent '(defproject) nil) '(lispy-clojure/fetch-packages))))
+  (is (= (guess-intent '(defproject) nil) '(lispy-clojure/fetch-packages)))
+  (is (= (guess-intent 'x '[x y]) 'x)))
 
 (deftest reval-test
   (let [s "(->> 5
