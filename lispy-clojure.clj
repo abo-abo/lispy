@@ -396,44 +396,47 @@ malleable to refactoring."
     (is (= (position x c =) nil))
     (is (= (position x c reader=) 3))))
 
+(defn guess-intent [expr context]
+  (let [idx (position expr context reader=)]
+    (xcond
+      ((#{'defproject} (first expr))
+       `(fetch-packages))
+      ((nil? idx)
+       expr)
+      ((and (vector? context)
+            (not (symbol? (context idx)))
+            (or (symbol? (context (dec idx)))
+                (vector? (context (dec idx)))))
+       (dest
+         (take 2 (drop (- idx 1) context))))
+      ((or (nil? context)
+           (reader= expr context))
+       expr)
+      ((and (#{'doseq 'for} (first context))
+            (vector? expr)
+            (= 2 (count expr)))
+       `(do (def ~(first expr) (first ~(second expr)))
+            {~(keyword (first expr)) ~(first expr)})
+       expr)
+      ((and (#{'dotimes} (first context))
+            (vector? expr)
+            (= 2 (count expr)))
+       `(do (def ~(first expr) 0)
+            {~(keyword (first expr)) 0}))
+      ((#{'-> '->> 'doto} (first context))
+       (take (inc idx) context))
+      (:t
+       expr))))
+
 (defn reval [e-str context-str]
-  (let [full-expr (read-string (format "[%s]" e-str))
-        expr (read-string e-str)
+  (let [expr (read-string e-str)
         context (try
                   (read-string context-str)
                   (catch Exception _))
-        idx (position expr context reader=)
-        expr1 (xcond
-                ((= (count full-expr) 2)
-                 (dest full-expr))
-                ((#{'defproject} (first expr))
-                 '(fetch-packages))
-                ((nil? idx)
-                 expr)
-                ((and (vector? context)
-                      (not (symbol? (context idx)))
-                      (or (symbol? (context (dec idx)))
-                          (vector? (context (dec idx)))))
-                 (dest
-                   (take 2 (drop (- idx 1) context))))
-                ((or (nil? context)
-                     (reader= expr context))
-                 expr)
-                ((and (#{'doseq 'for} (first context))
-                      (vector? expr)
-                      (= 2 (count expr)))
-                 `(do (def ~(first expr) (first ~(second expr)))
-                      {~(keyword (first expr)) ~(first expr)})
-                 expr)
-                ((and (#{'dotimes} (first context))
-                      (vector? expr)
-                      (= 2 (count expr)))
-                 `(do (def ~(first expr) 0)
-                      {~(keyword (first expr)) 0}))
-                ((#{'-> '->> 'doto} (first context))
-                 (take (inc idx) context))
-                (:t
-                 expr))
+        full-expr (read-string (format "[%s]" e-str))
+        expr1 (if (= (count full-expr) 2)
+                (dest full-expr)
+                (guess-intent expr context))
         expr2 `(try
                  (do ~expr1)
                  (catch Exception ~'e
@@ -444,6 +447,9 @@ malleable to refactoring."
   (with-out-str
     (clojure.pprint/pprint
       expr)))
+
+(deftest guess-intent-test
+  (is (= (guess-intent '(defproject) nil) '(lispy-clojure/fetch-packages))))
 
 (deftest reval-test
   (let [s "(->> 5
