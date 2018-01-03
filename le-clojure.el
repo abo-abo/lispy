@@ -63,12 +63,12 @@
         (lispy-do-pprint (or lispy-do-pprint
                              (eq this-command 'special-lispy-eval))))
     (let ((f-str
-           (if (string= e-str c-str)
-               e-str
-             (format
-              "(lispy-clojure/reval %S %S)"
-              e-str
-              c-str))))
+           (if lispy--clojure-middleware-loaded-p
+               (format
+                "(lispy-clojure/reval %S %S)"
+                e-str
+                c-str)
+             e-str)))
       (if (eq current-prefix-arg 7)
           (kill-new f-str)
         (cond
