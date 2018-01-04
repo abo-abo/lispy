@@ -81,9 +81,7 @@
                          (format "(lispy-clojure/pp %s)" f-str)
                        f-str)
                      e-str)))
-             (condition-case nil
-                 (string-trim (read r))
-               (error r))))
+             r))
           (t
            (lispy--eval-clojure f-str e-str)))))))
 
@@ -128,7 +126,8 @@ When ADD-OUTPUT is non-nil, add the standard output to the result."
   (or
    (and (stringp add-output)
         (lispy--eval-clojure-handle-ns add-output))
-   (let* ((stra (if (string-match-p "\\`(lispy-clojure/reval" str)
+   (let* (pp
+          (stra (if (setq pp (string-match "\\`(lispy-clojure/\\(pp\\|reval\\)" str))
                     str
                   (format "(do %s)" str)))
           (res (lispy--eval-nrepl-clojure stra lispy--clojure-ns))
@@ -152,7 +151,12 @@ When ADD-OUTPUT is non-nil, add the standard output to the result."
              (if (setq out (nrepl-dict-get res "out"))
                  (concat (propertize out 'face 'font-lock-string-face) "\n")
                "")
-             (lispy--clojure-pretty-string val)))
+             (lispy--clojure-pretty-string
+              (if pp
+                  (condition-case nil
+                      (string-trim (read val))
+                    (error val))
+                val))))
 
            (t
             (lispy--clojure-pretty-string val))))))
