@@ -442,7 +442,8 @@ malleable to refactoring."
         expr2 `(try
                  (do ~expr1)
                  (catch Exception ~'e
-                   (clojure.core/str "error: " (.getMessage ~'e))))]
+                   (clojure.core/str
+                     "error: " ~'e (.getMessage ~'e))))]
     (eval expr2)))
 
 (defn pp [expr]
