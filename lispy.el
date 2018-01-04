@@ -4207,32 +4207,26 @@ If STR is too large, pop it to a buffer instead."
         (message str)
       (error (message (replace-regexp-in-string "%" "%%" str))))))
 
-(defvar lispy-do-pprint nil
-  "Try a pretty-print when this isn't nil.")
-
-(defun lispy-eval-and-insert (&optional arg)
-  "Eval last sexp and insert the result.
-
-When ARG isn't nil, try to pretty print the sexp."
-  (interactive "P")
-  (let ((lispy-do-pprint arg))
-    (cl-labels
-        ((doit ()
-           (cond ((region-active-p)
-                  (when (= (point) (region-beginning))
-                    (exchange-point-and-mark)))
-                 ((lispy-right-p))
-                 (t
-                  (lispy-forward 1)))
-           (let ((str (lispy--eval (lispy--string-dwim))))
-             (newline-and-indent)
-             (insert str)
-             (when (lispy-right-p)
-               (lispy-alt-multiline t)))))
-      (if (lispy-left-p)
-          (save-excursion
-            (doit))
-        (doit)))))
+(defun lispy-eval-and-insert ()
+  "Eval last sexp and insert the result."
+  (interactive)
+  (cl-labels
+      ((doit ()
+         (cond ((region-active-p)
+                (when (= (point) (region-beginning))
+                  (exchange-point-and-mark)))
+               ((lispy-right-p))
+               (t
+                (lispy-forward 1)))
+         (let ((str (lispy--eval (lispy--string-dwim))))
+           (newline-and-indent)
+           (insert str)
+           (when (lispy-right-p)
+             (lispy-alt-multiline t)))))
+    (if (lispy-left-p)
+        (save-excursion
+          (doit))
+      (doit))))
 
 (defun lispy-eval-and-comment ()
   "Eval last sexp and insert the result as a comment."
