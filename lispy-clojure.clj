@@ -397,7 +397,8 @@ malleable to refactoring."
     (is (= (position x c reader=) 3))))
 
 (defn guess-intent [expr context]
-  (if (not (seqable? expr))
+  (if (not (or (list? expr)
+               (vector? expr)))
     expr
     (let [idx (position expr context reader=)]
       (xcond
