@@ -122,7 +122,7 @@ malleable to refactoring."
   [expr]
   (let [func-name (first expr)
         args (rest expr)
-        func-def (lispy-clojure/symbol-function func-name)
+        func-def (symbol-function func-name)
         func-doc (when (string? (nth func-def 2))
                    (nth func-def 2))
         func-rest (drop (if func-doc 3 2) func-def)
@@ -132,9 +132,9 @@ malleable to refactoring."
         func-bodies (if (vector? (first func-rest))
                       (list func-rest)
                       func-rest)
-        func-body (first (filter #(>= (lispy-clojure/arity (first %)) (count args))
-                                 (sort (fn [a b] (< (lispy-clojure/arity (first a))
-                                                    (lispy-clojure/arity (first b))))
+        func-body (first (filter #(>= (arity (first %)) (count args))
+                                 (sort (fn [a b] (< (arity (first a))
+                                                    (arity (first b))))
                                        func-bodies)))
         func-args (first func-body)
         func-impl (rest func-body)]
@@ -181,9 +181,9 @@ malleable to refactoring."
         func-bodies (if (vector? (first func-rest))
                       (list func-rest)
                       func-rest)
-        func-body (first (filter #(>= (lispy-clojure/arity (first %)) n-args)
-                                 (sort (fn [a b] (< (lispy-clojure/arity (first a))
-                                                    (lispy-clojure/arity (first b))))
+        func-body (first (filter #(>= (arity (first %)) n-args)
+                                 (sort (fn [a b] (< (arity (first a))
+                                                    (arity (first b))))
                                        func-bodies)))
         func-args (first func-body)]
     func-args))
@@ -207,15 +207,15 @@ malleable to refactoring."
   (let [func-name (first expr)
         func-ns (:ns (meta (resolve func-name)))
         args (rest expr)
-        func-def (lispy-clojure/symbol-function func-name)
+        func-def (symbol-function func-name)
         func-args (get-func-args func-def (count args))
-        eval-form (if (lispy-clojure/macro? func-name)
+        eval-form (if (macro? func-name)
                     (cons 'do
-                          (cons `(def ~'args ~(lispy-clojure/quote-maybe args))
+                          (cons `(def ~'args ~(quote-maybe args))
                                 (map (fn [[name val]]
                                        `(def ~name ~val))
                                      (partition 2 (destructure [func-args 'args])))))
-                    (lispy-clojure/dest (vector func-args (vec (rest expr)))))]
+                    (dest (vector func-args (vec (rest expr)))))]
     (if (= func-ns *ns*)
       eval-form
       (let [vals-map (eval eval-form)]
