@@ -195,7 +195,7 @@ malleable to refactoring."
   (get-func-args-defn (nth func-def 2) n-args))
 
 (defn get-func-args [func-def n-args]
-  (xcond ((= (first func-def) 'defn)
+  (xcond ((#{'defn 'defmacro} (first func-def) )
           (get-func-args-defn func-def n-args))
          ((= (first func-def) 'def)
           (get-func-args-def func-def n-args))))
