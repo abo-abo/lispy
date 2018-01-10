@@ -457,11 +457,12 @@ malleable to refactoring."
                   (read-string context-str)
                   (catch Exception _))
         full-expr (read-string (format "[%s]" e-str))
-        expr1 (or
-                (add-location-to-defn expr file line)
-                (if (= (count full-expr) 2)
-                  (dest full-expr)
-                  (guess-intent expr context)))
+        expr1 (xcond
+                ((= (count full-expr) 2)
+                 (dest full-expr))
+                ((add-location-to-defn expr file line))
+                (:else
+                 (guess-intent expr context)))
         expr2 `(try
                  (do ~expr1)
                  (catch Exception ~'e
