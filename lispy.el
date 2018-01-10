@@ -7446,7 +7446,7 @@ Try to refresh if nil is returned."
                   (thing-at-point 'sexp))
                 (lispy--fancy-tag)))
       (when tag
-        (regexp-quote tag)))))
+        (concat "\\b" (regexp-quote tag) " ")))))
 
 (defun lispy--fancy-tag ()
   "Return a fancy tag name using `lispy-tag-arity'."
