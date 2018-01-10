@@ -484,6 +484,12 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
                (buffer-string))
            (error str)))))
 
+(defun lispy-clojure-apropos-action (s)
+  (cider-doc-lookup
+   (substring
+    (car (split-string s "\\\\n"))
+    2)))
+
 (defun lispy-clojure-apropos ()
   (interactive)
   (let ((cands
@@ -491,11 +497,7 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
                         "(lispy-clojure/all-docs 'clojure.core)")
                        "::")))
     (ivy-read "var: " cands
-              :action (lambda (s)
-                        (lispy-message
-                         (substring-no-properties
-                          (replace-regexp-in-string
-                           "\\\\n" "\n" s)) t)))))
+              :action #'lispy-clojure-apropos-action)))
 
 (provide 'le-clojure)
 
