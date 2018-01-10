@@ -3876,17 +3876,11 @@ When you press \"t\" in `lispy-teleport', this will be bound to t temporarily.")
 When ARG isn't nil, call `lispy-goto-projectile' instead."
   (interactive "p")
   (deactivate-mark)
-  (lispy--select-candidate
-   (mapcar #'lispy--format-tag-line
-           (cl-case arg
-             (1
-              (lispy--fetch-tags))
-             (2
-              (let ((lispy-force-reparse t))
-                (lispy--fetch-tags)))
-             (t
-              (lispy--fetch-tags-projectile))))
-   #'lispy--action-jump))
+  (let ((lispy-force-reparse (eq arg 2))
+        (fun (if (memq arg '(1 2))
+                 #'lispy--fetch-tags
+               #'lispy--fetch-tags-projectile)))
+    (lispy--goto fun)))
 
 (defun lispy-goto-recursive ()
   "Jump to symbol within files in current directory and its subdiretories."
