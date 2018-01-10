@@ -45,13 +45,15 @@
 It's more structured than `cond', thus exprs that use it are lot more
 malleable to refactoring."
   (when clauses
-    (list 'if (ffirst clauses)
-          (if (next (first clauses))
-            (second (first clauses))
-            (throw (IllegalArgumentException.
-                     "xcond requires an even number of forms")))
-          `(xcond
-             ~@(next clauses)))))
+    (let [clause (first clauses)]
+      (if (= (count clause) 1)
+        `(or ~(first clause)
+             (xcond
+               ~@(next clauses)))
+        `(if ~(first clause)
+           (do ~@(next clause))
+           (xcond
+             ~@(next clauses)))))))
 
 (defn fetch-packages []
   (xcond ((fs/exists? "deps.edn")
@@ -420,8 +422,7 @@ malleable to refactoring."
               (vector? expr)
               (= 2 (count expr)))
          `(do (def ~(first expr) (first ~(second expr)))
-              {~(keyword (first expr)) ~(first expr)})
-         expr)
+              {~(keyword (first expr)) ~(first expr)}))
         ((and (#{'dotimes} (first context))
               (vector? expr)
               (= 2 (count expr)))
