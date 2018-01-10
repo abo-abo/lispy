@@ -175,6 +175,13 @@ When ADD-OUTPUT is non-nil, add the standard output to the result."
       (cider-current-connection)
       namespace))))
 
+(defvar spiral-conn-id)
+(defvar spiral-aux-sync-request-timeout)
+(declare-function spiral-projects-as-list "ext:spiral")
+(declare-function spiral-ast-unparse-to-string "ext:spiral")
+(declare-function spiral-loop--send "ext:spiral")
+(declare-function spiral-pending-eval-add "ext:spiral")
+
 (defun lispy--eval-clojure-spiral (str)
   (let* ((start (current-time))
          (repl-buf (cdr (assoc :repl-buffer (car (spiral-projects-as-list)))))
