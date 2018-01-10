@@ -433,21 +433,23 @@ malleable to refactoring."
         (:t
          expr)))))
 
-(defn add-location-to-def [expr file line]
+(defn add-location-to-defn [expr file line]
   (when (and (list? expr)
-             (#{ ;; 'def
-                'defn} (first expr))
+             (= 'defn (first expr))
              file line)
-    (if (map? (nth expr 2))
+    (let [arglist-pos (first (keep-indexed
+                               (fn [i x] (if (vector? x) i))
+                               expr))
+          expr-head (take arglist-pos expr)
+          expr-tail (drop arglist-pos expr)
+          expr-doc (or (first (filter string? expr-head)) "")
+          expr-map (or (first (filter map? expr-head)) {})]
       `(defn ~(nth expr 1)
+         ~expr-doc
          ~(merge {:l-file file
                   :l-line line}
-                 (nth expr 2))
-         ~@(next (nnext expr)))
-      `(defn ~(nth expr 1)
-         ~{:l-file file
-           :l-line line}
-         ~@(nnext expr)))))
+                 expr-map)
+         ~@expr-tail))))
 
 (defn reval [e-str context-str & {:keys [file line]}]
   (let [expr (read-string e-str)
@@ -456,7 +458,7 @@ malleable to refactoring."
                   (catch Exception _))
         full-expr (read-string (format "[%s]" e-str))
         expr1 (or
-                (add-location-to-def expr file line)
+                (add-location-to-defn expr file line)
                 (if (= (count full-expr) 2)
                   (dest full-expr)
                   (guess-intent expr context)))
