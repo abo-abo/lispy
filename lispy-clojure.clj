@@ -50,7 +50,8 @@ malleable to refactoring."
             (second (first clauses))
             (throw (IllegalArgumentException.
                      "xcond requires an even number of forms")))
-          (cons 'xcond (next clauses)))))
+          `(xcond
+             ~@(next clauses)))))
 
 (defn fetch-packages []
   (xcond ((fs/exists? "deps.edn")
