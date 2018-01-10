@@ -63,9 +63,9 @@
          (f-str
           (if lispy--clojure-middleware-loaded-p
               (format (if (eq this-command 'special-lispy-eval)
-                          "(lispy-clojure/pp (lispy-clojure/reval %S %S))"
-                        "(lispy-clojure/reval %S %S)")
-                      e-str c-str)
+                          "(lispy-clojure/pp (lispy-clojure/reval %S %S :file %S :line %S))"
+                        "(lispy-clojure/reval %S %S :file %S :line %S)")
+                      e-str c-str (buffer-file-name) (line-number-at-pos))
             e-str)))
     (cond ((eq current-prefix-arg 7)
            (kill-new f-str))
@@ -387,7 +387,15 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
 
 (defun lispy-goto-symbol-clojure (symbol)
   "Goto SYMBOL."
-  (cider-find-var nil symbol))
+  (let ((r (read (lispy--eval-clojure
+                  (format "(lispy-clojure/location '%s)" symbol)))))
+    (if r
+        (progn
+          (find-file (car r))
+          (goto-char (point-min))
+          (forward-line (cadr r))
+          (lispy--back-to-paren))
+      (cider-find-var nil symbol))))
 
 (defun lispy-goto-symbol-clojurescript (symbol)
   "Goto SYMBOL."

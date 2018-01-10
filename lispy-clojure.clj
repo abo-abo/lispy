@@ -432,20 +432,43 @@ malleable to refactoring."
         (:t
          expr)))))
 
-(defn reval [e-str context-str]
+(defn add-location-to-def [expr file line]
+  (when (and (list? expr)
+             (#{ ;; 'def
+                'defn} (first expr))
+             file line)
+    (if (map? (nth expr 2))
+      `(defn ~(nth expr 1)
+         ~(merge {:l-file file
+                  :l-line line}
+                 (nth expr 2))
+         ~@(next (nnext expr)))
+      `(defn ~(nth expr 1)
+         ~{:l-file file
+           :l-line line}
+         ~@(nnext expr)))))
+
+(defn reval [e-str context-str & {:keys [file line]}]
   (let [expr (read-string e-str)
         context (try
                   (read-string context-str)
                   (catch Exception _))
         full-expr (read-string (format "[%s]" e-str))
-        expr1 (if (= (count full-expr) 2)
-                (dest full-expr)
-                (guess-intent expr context))
+        expr1 (or
+                (add-location-to-def expr file line)
+                (if (= (count full-expr) 2)
+                  (dest full-expr)
+                  (guess-intent expr context)))
         expr2 `(try
                  (do ~expr1)
                  (catch Exception ~'e
                    (clojure.core/str "error: " ~ 'e)))]
     (eval expr2)))
+
+(defn location [symbol]
+  (let [m (meta (resolve symbol))]
+    (when (:l-file m)
+      (list (:l-file m) (:l-line m)))))
 
 (defn pp [expr]
   (with-out-str
