@@ -1,6 +1,6 @@
 ;;; lispy-clojure.clj --- lispy support for Clojure.
 
-;; Copyright (C) 2015-2017 Oleh Krehel
+;; Copyright (C) 2015-2018 Oleh Krehel
 
 ;; This file is not part of GNU Emacs
 
@@ -21,8 +21,7 @@
   (:require [clojure.repl :as repl]
             [clojure.pprint]
             [clojure.java.io :as io])
-  (:use [clojure.test :only (is deftest)]
-        [cemerick.pomegranate :only (add-dependencies)])
+  (:use [cemerick.pomegranate :only (add-dependencies)])
   (:import (java.io File LineNumberReader InputStreamReader
                     PushbackReader FileInputStream)
            (clojure.lang RT Reflector)))
@@ -200,10 +199,6 @@ malleable to refactoring."
          ((= (first func-def) 'def)
           (get-func-args-def func-def n-args))))
 
-(deftest get-func-args-test
-  (is (= (get-func-args (symbol-function 'string?) 1) '[x]))
-  (is (= (get-func-args (symbol-function 'to-array) 1) '[coll])))
-
 (defn debug-step-in
   "Evaluate the function call arugments and sub them into function arguments."
   [expr]
@@ -224,8 +219,9 @@ malleable to refactoring."
       (let [vals-map (eval eval-form)]
         `(do
            (in-ns '~(symbol (str func-ns)))
-           ~@(map (fn [s] `(def ~s ~ ((keyword s) vals-map)))
-                  func-args))))))
+           ~@(map (fn [s] `(def ~s ~((keyword s) vals-map)))
+                  func-args)
+           ~vals-map)))))
 
 (defn object-methods [sym]
   (distinct
@@ -244,9 +240,6 @@ malleable to refactoring."
 (defn object-members [sym]
   (concat (object-fields sym)
           (object-methods sym)))
-
-(deftest object-members-test
-  (is ((into #{} (object-members Thread)) "run")))
 
 (defn get-meth [obj method-name]
   (first (filter #(= (.getName %) method-name)
@@ -310,41 +303,6 @@ malleable to refactoring."
              "is uncallable")
            args))])))
 
-(deftest dest-test
-  (is (= (eval (dest '[[x y] (list 1 2 3)]))
-         {:x 1, :y 2}))
-  (is (= (eval (dest '[[x & y] [1 2 3]]))
-         {:x 1, :y '(2 3)}))
-  (is (= (eval (dest '[[x y] (list 1 2 3) [a b] [y x]]))
-         {:x 1, :y 2, :a 2, :b 1}))
-  (is (= (eval (dest '[[x y z] [1 2]]))
-         {:x 1, :y 2, :z nil}))
-  (is (= (eval (dest '[[x & tail :as all] [1 2 3]]))
-         {:x 1,
-          :tail '(2 3),
-          :all [1 2 3]}))
-  (is (= (eval (dest '[[x & tail :as all] "Clojure"]))
-         {:x \C,
-          :tail '(\l \o \j \u \r \e),
-          :all "Clojure"}))
-  (is (= (eval (dest '[{x 1 y 2} {1 "one" 2 "two" 3 "three"}]))
-         {:x "one", :y "two"}))
-  (is (= (eval (dest '[{x 1 y 2 :or {x "one" y "two"} :as all} {2 "three"}]))
-         {:all {2 "three"},
-          :x "one",
-          :y "three"}))
-  (is (= (eval (dest '[{:keys [x y]} {:x "one" :z "two"}]))
-         {:x "one", :y nil}))
-  (is (= (eval (dest '[{:strs [x y]} {"x" "one" "z" "two"}]))
-         {:x "one", :y nil}))
-  (is (= (eval (dest '[{:syms [x y]} {'x "one" 'z "two"}]))
-         {:x "one", :y nil})))
-
-(deftest debug-step-in-test
-  (is (= (eval (debug-step-in
-                 '(expand-home (str "/foo" "/bar"))))
-         {:path "/foo/bar"})))
-
 (defmacro ok
   "On getting an Exception, just print it."
   [& body]
@@ -379,10 +337,6 @@ malleable to refactoring."
     (catch Exception e
       (= a b))))
 
-(deftest reader=-test
-  (is (= (reader= '(map #(* % %) '(1 2 3))
-                  '(map #(* % %) '(1 2 3))))))
-
 (defn position [x coll equality]
   (letfn [(iter [i coll]
             (xcond
@@ -392,12 +346,6 @@ malleable to refactoring."
               (:else
                (recur (inc i) (rest coll)))))]
     (iter 0 coll)))
-
-(deftest position-test
-  (let [x (read-string "(map #(* % %) as)")
-        c (read-string "[as (range 10) bs (map #(* % %) as)]")]
-    (is (= (position x c =) nil))
-    (is (= (position x c reader=) 3))))
 
 (defn guess-intent [expr context]
   (if (not (or (list? expr)
@@ -438,18 +386,20 @@ malleable to refactoring."
              (= 'defn (first expr))
              file line)
     (let [arglist-pos (first (keep-indexed
-                               (fn [i x] (if (vector? x) i))
+                               (fn [i x] (if (or
+                                               (vector? x)
+                                               (list? x)) i))
                                expr))
           expr-head (take arglist-pos expr)
           expr-tail (drop arglist-pos expr)
           expr-doc (or (first (filter string? expr-head)) "")
           expr-map (or (first (filter map? expr-head)) {})]
-      `(defn ~(nth expr 1)
-         ~expr-doc
-         ~(merge {:l-file file
-                  :l-line line}
-                 expr-map)
-         ~@expr-tail))))
+      `(~'defn ~(nth expr 1)
+        ~expr-doc
+        ~(merge {:l-file file
+                 :l-line line}
+                expr-map)
+        ~@expr-tail))))
 
 (defn reval [e-str context-str & {:keys [file line]}]
   (let [expr (read-string e-str)
@@ -479,34 +429,6 @@ malleable to refactoring."
     (clojure.pprint/pprint
       expr)))
 
-(deftest guess-intent-test
-  (is (= (guess-intent '(defproject) nil) '(lispy-clojure/fetch-packages)))
-  (is (= (guess-intent 'x '[x y]) 'x))
-  (is (= (guess-intent '*ns* '*ns*) '*ns*)))
-
-(deftest reval-test
-  (let [s "(->> 5
-               (range)
-               (map (fn [x] (* x x)))
-               (map (fn [x] (+ x x))))"]
-    (is (= (reval "(range)" s)
-           '(0 1 2 3 4)))
-    (is (= (reval "(map (fn [x] (* x x)))" s)
-           '(0 1 4 9 16)))
-    (is (= (reval "(map (fn [x] (+ x x)))" s)
-           '(0 2 8 18 32))))
-  (is (= (reval "x (+ 2 2)" "[x (+ 2 2)]") {:x 4}))
-  (is (= (reval "(+ 2 2)" "[x (+ 2 2)]") {:x 4}))
-  (is (= (reval "(+ 2 2)" "[x (+ 1 2) y (+ 2 2)]") {:y 4}))
-  (is (= (reval "(range 5)" "[[x & y] (range 5)]")
-         {:x 0, :y '(1 2 3 4)}))
-  (is (= (reval "[c [(* 2 21) 0]]" "(doseq [c [(* 2 21) 0]]\n  ())") {:c 42}))
-  (is (= (reval "[i 3]" "(dotimes [i 3])") {:i 0}))
-  (is (= (reval "[a b] (range 5)" "[[a b] (range 5)]") {:a 0, :b 1}))
-  (let [js "(doto (new java.util.HashMap) (.put \"a\" 1) (.put \"b\" 2))"]
-    (is (= (reval "(.put \"a\" 1)" js) {"a" 1}))
-    (is (= (reval "(.put \"b\" 2)" js) {"a" 1, "b" 2}))))
-
 (defn all-docs [ns]
   (clojure.string/join
     "::"
@@ -523,5 +445,3 @@ malleable to refactoring."
   (compliment/completions
     prefix
     {:context :same :plain-candidates true}))
-
-(clojure.test/run-tests 'lispy-clojure)

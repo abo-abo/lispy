@@ -29,7 +29,7 @@ elisp:
 	$(QEMACS) lispy.el
 
 clojure:
-	clojure -e '(load-file "lispy-clojure.clj")'
+	clojure -C:test -e '(load-file "lispy_clojure_test.clj")'
 
 clean:
 	rm -f *.elc
