@@ -1890,6 +1890,8 @@ When the region is active, toggle a ~ at the start of the region."
      (slime-repl-return))
     (sly-mrepl-mode
      (sly-mrepl-return))
+    (comint-mode
+     (comint-send-input))
     (python-mode
      (newline-and-indent))
     (inferior-emacs-lisp-mode
@@ -1994,7 +1996,8 @@ to all the functions, while maintaining the parens in a pretty state."
                  nil)))
             ((lispy-right-p))
             ((looking-at lispy-right)
-             (when (eq (char-before) ?\ )
+             (when (or (eq (char-before) ?\ )
+                       (bolp))
                (lispy-right 1)))
             ((lispy-left-p)
              (lispy-different))
@@ -7321,7 +7324,7 @@ Defaults to `error'."
 
 (defun lispy--indent-for-tab ()
   "Call `indent-for-tab-command'."
-  (unless (or (eq major-mode 'minibuffer-inactive-mode)
+  (unless (or (memq major-mode '(minibuffer-inactive-mode comint-mode))
               (= 0 (buffer-size)))
     (let ((tab-always-indent t))
       (lispy-flet (message (&rest _x))
