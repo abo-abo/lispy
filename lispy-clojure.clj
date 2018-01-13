@@ -445,3 +445,5 @@ malleable to refactoring."
   (compliment/completions
     prefix
     {:context :same :plain-candidates true}))
+
+(load-file "lispy-clojure-test.clj")

@@ -18,7 +18,6 @@
 ;; see <http://www.gnu.org/licenses/>.
 
 (ns lispy-clojure-test
-  (:require [lispy-clojure :as l])
   (:use [clojure.test :only [is deftest]]
         [lispy-clojure :only [add-location-to-defn
                               debug-step-in
