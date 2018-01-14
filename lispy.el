@@ -424,13 +424,13 @@ Otherwise return the amount of times executed."
      (catch 'result
        (condition-case e
            (progn
-             (while (<= (incf i) ,n)
+             (while (<= (cl-incf i) ,n)
                ,@bodyform)
              ,n)
          (error
           (when (eq (car e) 'buffer-read-only)
             (message "Buffer is read-only: %s" (current-buffer)))
-          (decf i)
+          (cl-decf i)
           (and (> i 0) i))))))
 
 (defmacro lispy-save-excursion (&rest body)
