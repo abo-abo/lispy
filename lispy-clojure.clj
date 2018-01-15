@@ -460,8 +460,11 @@ malleable to refactoring."
                    (clojure.core/str "error: " ~ 'e)))]
     (eval expr2)))
 
-(defn location [symbol]
-  (let [rs (resolve symbol)
+(defn resource-abspath [file]
+  (. (io/resource file) getPath))
+
+(defn location [sym]
+  (let [rs (resolve sym)
         m (meta rs)]
     (xcond ((:l-file m)
             (list (:l-file m) (:l-line m)))
@@ -469,15 +472,14 @@ malleable to refactoring."
             (list (:file m) (:line m)))
            ((class? rs)
             (seq
-              ((juxt #(.getPath (io/resource (:file %))) :line)
-               (parser/source-info symbol))))
+              ((juxt (comp resource-abspath :file) :line)
+               (parser/source-info sym))))
            ((nil? rs)
-            (let [name (str symbol)
+            (let [name (str sym)
                   [cls method] (clojure.string/split name #"/")
                   file (-> (clojure.core/symbol cls)
                            (parser/source-path)
-                           (io/resource)
-                           (.getPath))
+                           (resource-abspath))
                   line (-> (clojure.core/symbol cls)
                            (parser/source-info)
                            (:members)
