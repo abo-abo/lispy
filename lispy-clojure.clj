@@ -93,7 +93,7 @@ malleable to refactoring."
         file (or (:l-file m) (:file m))
         line (or (:l-line m) (:line m))]
     (when (and file line (> line 1))
-      (let [filepath (expand-home (:file (meta v)))
+      (let [filepath (expand-home file)
             strm (or (.getResourceAsStream (RT/baseLoader) filepath)
                      (FileInputStream. filepath))]
         (with-open [rdr (LineNumberReader. (InputStreamReader. strm))]
