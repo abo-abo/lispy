@@ -32,11 +32,19 @@
     :repositories (merge cemerick.pomegranate.aether/maven-central
                          {"clojars" "https://clojars.org/repo"})))
 
+(defn expand-file-name [name dir]
+  (. (io/file dir name) getCanonicalPath))
+
 (use-package 'compliment "0.3.5")
 (require '[compliment.core :as compliment])
 
 (use-package 'me.raynes/fs "1.4.6")
 (require '[me.raynes.fs :as fs])
+
+(cemerick.pomegranate/add-classpath
+  (expand-file-name "../lib/tools.jar" (System/getProperty "java.home")))
+(use-package 'cider/cider-nrepl "0.16.0")
+(require '[cider.nrepl.middleware.util.java.parser :as parser])
 
 (defmacro xcond [& clauses]
   "Common Lisp style `cond'.
@@ -453,11 +461,31 @@ malleable to refactoring."
     (eval expr2)))
 
 (defn location [symbol]
-  (let [m (meta (resolve symbol))]
+  (let [rs (resolve symbol)
+        m (meta rs)]
     (xcond ((:l-file m)
             (list (:l-file m) (:l-line m)))
            ((and (:file m) (not (re-matches #"^/tmp/" (:file m))))
-            (list (:file m) (:line m))))))
+            (list (:file m) (:line m)))
+           ((class? rs)
+            (seq
+              ((juxt #(.getPath (io/resource (:file %))) :line)
+               (parser/source-info symbol))))
+           ((nil? rs)
+            (let [name (str symbol)
+                  [cls method] (clojure.string/split name #"/")
+                  file (-> (clojure.core/symbol cls)
+                           (parser/source-path)
+                           (io/resource)
+                           (.getPath))
+                  line (-> (clojure.core/symbol cls)
+                           (parser/source-info)
+                           (:members)
+                           (get (clojure.core/symbol method))
+                           (vals)
+                           (first)
+                           (:line))]
+              (list file (dec line)))))))
 
 (defn pp [expr]
   (with-out-str
