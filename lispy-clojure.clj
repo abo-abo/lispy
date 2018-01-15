@@ -88,12 +88,16 @@ malleable to refactoring."
 
   Example: (source-fn 'filter)"
   [x]
-  (when-let [v (resolve x)]
-    (when-let [filepath (expand-home (:file (meta v)))]
-      (when-let [strm (or (.getResourceAsStream (RT/baseLoader) filepath)
-                          (FileInputStream. filepath))]
+  (let [v (resolve x)
+        m (and v (meta v))
+        file (or (:l-file m) (:file m))
+        line (or (:l-line m) (:line m))]
+    (when (and file line (> line 1))
+      (let [filepath (expand-home (:file (meta v)))
+            strm (or (.getResourceAsStream (RT/baseLoader) filepath)
+                     (FileInputStream. filepath))]
         (with-open [rdr (LineNumberReader. (InputStreamReader. strm))]
-          (dotimes [_ (dec (:line (meta v)))] (.readLine rdr))
+          (dotimes [_ (dec line)] (.readLine rdr))
           (let [text (StringBuilder.)
                 pbr (proxy [PushbackReader] [rdr]
                       (read [] (let [i (proxy-super read)]
