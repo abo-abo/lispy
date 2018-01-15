@@ -71,7 +71,14 @@
 (deftest debug-step-in-test
   (is (= (eval (debug-step-in
                  '(expand-home (str "/foo" "/bar"))))
-         {:path "/foo/bar"})))
+         {:path "/foo/bar"}))
+  (is
+    (=
+      ((juxt :file :line)
+       (eval
+         (debug-step-in
+           '(lispy-clojure/add-location-to-def '(def x 1) "/foo/bar.clj" 42))))
+      ["/foo/bar.clj" 42])))
 
 (deftest reader=-test
   (is (= (reader= '(map #(* % %) '(1 2 3))
@@ -118,6 +125,16 @@
              :l-line 42}
             [x]
             x))))
+
+(deftest add-location-to-def-test
+  (is (=
+        (lispy-clojure/add-location-to-def
+          '(def x 1) "/foo/bar.clj" 42)
+        '(def (with-meta x
+                {:l-file "/foo/bar.clj",
+                 :l-line 42})
+           ""
+           1))))
 
 (deftest guess-intent-test
   (is (= (guess-intent '(defproject) nil) '(lispy-clojure/fetch-packages)))

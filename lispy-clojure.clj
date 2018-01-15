@@ -405,6 +405,26 @@ malleable to refactoring."
                 expr-map)
         ~@expr-tail))))
 
+(defn add-location-to-def [expr file line]
+  (let [name (nth expr 1)
+        [doc init] (if (string? (nth expr 2))
+                     (rest expr)
+                     (cons "" (drop 2 expr)))]
+    (list 'def
+          (list 'with-meta
+                name
+                {:l-file file
+                 :l-line line})
+          doc
+          init)))
+
+(defn add-location-to-deflike [expr file line]
+  (when (and file line (list? expr))
+    (xcond ((= (first expr) 'def)
+            (add-location-to-def expr file line))
+           ((= (first expr) 'defn)
+            (add-location-to-defn expr file line)))))
+
 (defn reval [e-str context-str & {:keys [file line]}]
   (let [expr (read-string e-str)
         context (try
@@ -414,7 +434,7 @@ malleable to refactoring."
         expr1 (xcond
                 ((= (count full-expr) 2)
                  (dest full-expr))
-                ((add-location-to-defn expr file line))
+                ((add-location-to-deflike expr file line))
                 (:else
                  (guess-intent expr context)))
         expr2 `(try
