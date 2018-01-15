@@ -422,12 +422,16 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
                 ((save-excursion
                    (lispy--back-to-paren)
                    (when (looking-at "(\\.[\t\n ]")
-                     (forward-char 1)
-                     (forward-sexp 2)
-                     (lispy--string-dwim)))))))
-    (cond (obj
-           (let ((cands (read (lispy--eval-clojure
-                               (format "(lispy-clojure/object-members %s)" obj)))))
+                     (ignore-errors
+                       (forward-char 1)
+                       (forward-sexp 2)
+                       (lispy--string-dwim)))))))
+         res)
+    (cond ((and obj
+                (setq res (lispy--eval-clojure
+                           (format "(lispy-clojure/object-members %s)" obj)))
+                (null lispy--clojure-errorp))
+           (let ((cands (read res)))
              (when (> (cdr bnd) (car bnd))
                (setq cands (all-completions (lispy--string-dwim bnd) cands)))
              (list (car bnd) (cdr bnd) cands)))
@@ -446,7 +450,14 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
                   (candsa (mapcar (lambda (s) (substring s len)) cands)))
              (when (> (cdr bnd) (car bnd))
                (setq candsa (all-completions (lispy--string-dwim bnd) candsa)))
-             (list (car bnd) (cdr bnd) candsa))))))
+             (list (car bnd) (cdr bnd) candsa)))
+          (t
+           (let* ((prefix (lispy--string-dwim bnd))
+                  (cands (read (lispy--eval-clojure
+                                (format
+                                 "(lispy-clojure/complete %S)"
+                                 prefix)))))
+             (list (car bnd) (cdr bnd) cands))))))
 
 (defun lispy--clojure-dot-args ()
   (save-excursion
