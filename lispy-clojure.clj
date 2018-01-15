@@ -421,8 +421,10 @@ malleable to refactoring."
 
 (defn location [symbol]
   (let [m (meta (resolve symbol))]
-    (when (:l-file m)
-      (list (:l-file m) (:l-line m)))))
+    (xcond ((:l-file m)
+            (list (:l-file m) (:l-line m)))
+           ((and (:file m) (not (re-matches #"^/tmp/" (:file m))))
+            (list (:file m) (:line m))))))
 
 (defn pp [expr]
   (with-out-str
