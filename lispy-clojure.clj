@@ -485,7 +485,7 @@ malleable to refactoring."
                            (vals)
                            (first)
                            (:line))]
-              (list file (dec line)))))))
+              (list file line))))))
 
 (defn pp [expr]
   (with-out-str
