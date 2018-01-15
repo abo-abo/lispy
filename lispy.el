@@ -6410,7 +6410,9 @@ The result is a string."
 (defun lispy-eval-expression ()
   "Like `eval-expression', but for current language."
   (interactive)
-  (let ((form (read-from-minibuffer "Eval: ")))
+  (let ((form (minibuffer-with-setup-hook
+                  'lispy-mode
+                (read-from-minibuffer "Eval: "))))
     (lispy-message (lispy--eval form))))
 
 (defvar lispy-eval-match-data nil)
