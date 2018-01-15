@@ -411,10 +411,10 @@ malleable to refactoring."
                      (rest expr)
                      (cons "" (drop 2 expr)))]
     (list 'def
-          (list 'with-meta
-                name
-                {:l-file file
-                 :l-line line})
+          (with-meta
+            name
+            {:l-file file
+             :l-line line})
           doc
           init)))
 

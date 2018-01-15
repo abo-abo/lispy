@@ -127,14 +127,11 @@
             x))))
 
 (deftest add-location-to-def-test
-  (is (=
-        (lispy-clojure/add-location-to-def
-          '(def x 1) "/foo/bar.clj" 42)
-        '(def (with-meta x
-                {:l-file "/foo/bar.clj",
-                 :l-line 42})
-           ""
-           1))))
+  (let [e (lispy-clojure/add-location-to-def
+            '(def asdf 1) "/foo/bar.clj" 42)]
+    (is (= e '(def asdf "" 1)))
+    (is (= ((juxt :l-file :l-line) (meta (eval e)))
+           ["/foo/bar.clj" 42]))))
 
 (deftest guess-intent-test
   (is (= (guess-intent '(defproject) nil) '(lispy-clojure/fetch-packages)))
