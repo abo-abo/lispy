@@ -396,7 +396,7 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
   "Goto SYMBOL."
   (let ((r (read (lispy--eval-clojure
                   (format "(lispy-clojure/location '%s)" symbol)))))
-    (if r
+    (if (and r (file-exists-p (car r)))
         (progn
           (find-file (car r))
           (goto-char (point-min))
