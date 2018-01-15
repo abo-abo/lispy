@@ -335,6 +335,11 @@ malleable to refactoring."
            (re-find #"[0-9]+#$" (name b))
            true)))
 
+      ((and (instance? java.util.regex.Pattern a)
+            (instance? java.util.regex.Pattern b))
+       (= (. a toString)
+          (. b toString)))
+
       ((and (empty? a) (empty? b))
        true)
 

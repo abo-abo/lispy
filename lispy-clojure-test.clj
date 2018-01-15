@@ -82,7 +82,9 @@
 
 (deftest reader=-test
   (is (= (reader= '(map #(* % %) '(1 2 3))
-                  '(map #(* % %) '(1 2 3))))))
+                  '(map #(* % %) '(1 2 3)))))
+  (is (= (reader= #"regex" #"regex")))
+  (is (not (= #"regex" #"regex"))))
 
 (deftest position-test
   (let [x (read-string "(map #(* % %) as)")
