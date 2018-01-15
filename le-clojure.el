@@ -400,8 +400,7 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
         (progn
           (find-file (car r))
           (goto-char (point-min))
-          (forward-line (cadr r))
-          (lispy--back-to-paren))
+          (forward-line (cadr r)))
       (cider-find-var nil symbol))))
 
 (defun lispy-goto-symbol-clojurescript (symbol)
