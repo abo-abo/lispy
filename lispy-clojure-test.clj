@@ -37,8 +37,8 @@
   (is (= (get-func-args (symbol-function 'to-array) 1) '[coll])))
 
 (deftest get-func-args-def-test
-  (is (= (get-func-args-def (symbol-function 'defn) 4)
-         '[&form &env name & fdecl])))
+  (is (= (get-func-args-def (symbol-function 'defn) 2)
+         '[name & fdecl])))
 
 (deftest object-members-test
   (is (= ((into #{} (object-members Thread)) "run"))))

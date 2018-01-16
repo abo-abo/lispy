@@ -205,10 +205,12 @@ malleable to refactoring."
 (defn get-func-args-def [func-def n-args]
   (let [body (nth func-def 2)]
     (assert (= (first body) 'fn))
-    (let [args (first (filter vector? body))]
-      (assert (= (count (vec (remove #{'&} args)))
-                 n-args))
-      args)))
+    (let [args (first (filter vector? body))
+          args-count (count (vec (remove '#{& &form &env} args)))]
+      (assert (or (= args-count n-args)
+                  (and (< args-count n-args)
+                       ((set args) '&))))
+      (vec (remove '#{&form &env} args)))))
 
 (defn get-func-args [func-def n-args]
   (xcond ((#{'defn 'defmacro} (first func-def))
