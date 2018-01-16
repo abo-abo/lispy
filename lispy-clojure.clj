@@ -421,7 +421,7 @@ malleable to refactoring."
 
 (defn add-location-to-def [expr file line]
   (let [name (nth expr 1)
-        [doc init] (if (string? (nth expr 2))
+        [doc init] (if (and (string? (nth expr 2)) (> (count expr) 3))
                      (rest expr)
                      (cons "" (drop 2 expr)))]
     (list 'def
