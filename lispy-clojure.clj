@@ -206,7 +206,8 @@ malleable to refactoring."
   (let [body (nth func-def 2)]
     (assert (= (first body) 'fn))
     (let [args (first (filter vector? body))]
-      (assert (= (count args) n-args))
+      (assert (= (count (vec (remove #{'&} args)))
+                 n-args))
       args)))
 
 (defn get-func-args [func-def n-args]
