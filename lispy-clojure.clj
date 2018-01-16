@@ -225,11 +225,7 @@ malleable to refactoring."
         func-def (symbol-function func-name)
         func-args (get-func-args func-def (count args))
         eval-form (if (macro? func-name)
-                    (cons 'do
-                          (cons `(def ~'args ~(quote-maybe args))
-                                (map (fn [[name val]]
-                                       `(def ~name ~val))
-                                     (partition 2 (destructure [func-args 'args])))))
+                    (dest (vector func-args (list 'quote (rest expr))))
                     (dest (vector func-args (vec (rest expr)))))]
     (if (= func-ns *ns*)
       eval-form
