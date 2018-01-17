@@ -6387,8 +6387,8 @@ The result is a string."
                 (memq major-mode '(nrepl-repl-mode
                                    cider-clojure-interaction-mode)))
             (require 'le-clojure)
-            (lambda (x)
-              (lispy--eval-clojure x x)))
+            (lambda (_)
+              (lispy-eval-clojure)))
            ((eq major-mode 'scheme-mode)
             (require 'le-scheme)
             'lispy--eval-scheme)
