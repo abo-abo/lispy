@@ -218,6 +218,40 @@ malleable to refactoring."
          ((= (first func-def) 'def)
           (get-func-args-def func-def n-args))))
 
+(defn shadow-map []
+  (or (ns-resolve *ns* 'shadows)
+      (intern *ns* 'shadows {})))
+
+(defn shadow-unmap [nspc]
+  ;; (ns-unmap nspc 'shadows)
+  (intern nspc 'shadows {}))
+
+(defmacro with-shadows [& forms]
+  `(let ~(vec (mapcat (fn [[k _]] [(symbol k) `((shadow-map) ~k)])
+                      (deref (shadow-map))))
+     ~@forms))
+
+(defn shadow-def
+  "Give SYM in *ns* shadow value EXPR.
+
+  (with-shadows SYM) can be used to retrieve this value."
+  [sym expr]
+  (intern
+    *ns*
+    'shadows
+    (assoc (deref (shadow-map)) (name sym) expr)))
+
+(defn shadow-dest [bindings]
+  "Transform `let'-style BINDINGS into a sequence of `shadow-def's."
+  (let [[_do & forms] (dest bindings)
+        [defs out] (partition-by map? forms)]
+    `(let ~(vec (mapcat (fn [[_ n v]] [n v]) defs))
+       ~@(map
+           (fn [x]
+             `(shadow-def '~(second x) ~(second x)))
+           defs)
+       ~@out)))
+
 (defn debug-step-in
   "Evaluate the function call arugments and sub them into function arguments."
   [expr]
@@ -227,16 +261,15 @@ malleable to refactoring."
         func-def (symbol-function func-name)
         func-args (get-func-args func-def (count args))
         eval-form (if (macro? func-name)
-                    (dest (vector func-args (list 'quote (rest expr))))
-                    (dest (vector func-args (vec (rest expr)))))]
-    (if (= func-ns *ns*)
-      eval-form
-      (let [vals-map (eval eval-form)]
-        `(do
-           (in-ns '~(symbol (str func-ns)))
-           ~@(map (fn [s] `(def ~s ~((keyword s) vals-map)))
-                  func-args)
-           ~vals-map)))))
+                    `(do
+                       (in-ns '~(symbol (str func-ns)))
+                       ~(shadow-dest
+                          (vector func-args (list 'quote (rest expr)))))
+                    `(do
+                       (in-ns '~(symbol (str func-ns)))
+                       ~(shadow-dest
+                          (vector func-args (vec (rest expr))))))]
+    (eval eval-form)))
 
 (defn object-methods [sym]
   (distinct
@@ -381,7 +414,7 @@ malleable to refactoring."
               (not (symbol? (context idx)))
               (or (symbol? (context (dec idx)))
                   (vector? (context (dec idx)))))
-         (dest
+         (shadow-dest
            (take 2 (drop (- idx 1) context))))
         ((or (nil? context)
              (reader= expr context))
@@ -389,13 +422,13 @@ malleable to refactoring."
         ((and (#{'doseq 'for} (first context))
               (vector? expr)
               (= 2 (count expr)))
-         `(do (def ~(first expr) (first ~(second expr)))
-              {~(keyword (first expr)) ~(first expr)}))
+         (shadow-dest
+           [(first expr) (first (second expr))]))
         ((and (#{'dotimes} (first context))
               (vector? expr)
               (= 2 (count expr)))
-         `(do (def ~(first expr) 0)
-              {~(keyword (first expr)) 0}))
+         (shadow-dest
+           [(first expr) 0]))
         ((#{'-> '->> 'doto} (first context))
          (take (inc idx) context))
         (:t
@@ -449,15 +482,15 @@ malleable to refactoring."
         full-expr (read-string (format "[%s]" e-str))
         expr1 (xcond
                 ((= (count full-expr) 2)
-                 (dest full-expr))
+                 (shadow-dest full-expr))
                 ((add-location-to-deflike expr file line))
                 (:else
-                 (guess-intent expr context)))
-        expr2 `(try
-                 (do ~expr1)
-                 (catch Exception ~'e
-                   (clojure.core/str "error: " ~ 'e)))]
-    (eval expr2)))
+                 (guess-intent expr context)))]
+    (eval `(with-shadows
+             (try
+               (do ~expr1)
+               (catch Exception ~'e
+                 (clojure.core/str "error: " ~ 'e)))))))
 
 (defn resource-abspath [file]
   (. (io/resource file) getPath))

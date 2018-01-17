@@ -74,15 +74,14 @@
          {:x "one", :y nil})))
 
 (deftest debug-step-in-test
-  (is (= (eval (debug-step-in
-                 '(expand-home (str "/foo" "/bar"))))
+  (is (= (debug-step-in
+           '(expand-home (str "/foo" "/bar")))
          {:path "/foo/bar"}))
   (is
     (=
       ((juxt :file :line)
-       (eval
-         (debug-step-in
-           '(lispy-clojure/add-location-to-def '(def x 1) "/foo/bar.clj" 42))))
+       (debug-step-in
+         '(lispy-clojure/add-location-to-def '(def x 1) "/foo/bar.clj" 42)))
       ["/foo/bar.clj" 42])))
 
 (deftest reader=-test
