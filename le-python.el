@@ -453,7 +453,9 @@ it at one time."
                      fn))
             1 -1)))
          (fn-args
-          (mapcar #'identity (elt fn-data 0)))
+          (append (mapcar #'identity (elt fn-data 0))
+                  (if (elt fn-data 1)
+                      (list (elt fn-data 1)))))
          (fn-defaults
           (mapcar
            (lambda (x)
