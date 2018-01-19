@@ -6869,6 +6869,12 @@ Ignore the matches in strings and comments."
                                            (substring-no-properties
                                             (match-string 0)))
                                    nil t)))
+                ;; ——— Clojure gensym —————————
+                (goto-char (point-min))
+                (while (re-search-forward "\\([a-zA-Z][a-zA-z-/_0-9]*#\\)" nil t)
+                  (unless (lispy--in-string-or-comment-p)
+                    (replace-match (format "(ly-raw clojure-gensym %S)"
+                                           (match-string-no-properties 1)))))
                 ;; ——— #' —————————————————————
                 (goto-char (point-min))
                 (while (re-search-forward "#'" nil t)
@@ -7632,6 +7638,9 @@ The outer delimiters are stripped."
            (delete-region beg (point))
            (insert "?" (caddr sxp)))
           (clojure-char
+           (delete-region beg (point))
+           (insert (caddr sxp)))
+          (clojure-gensym
            (delete-region beg (point))
            (insert (caddr sxp)))
           (function
