@@ -523,22 +523,28 @@ malleable to refactoring."
 (defn resource-abspath [file]
   (. (io/resource file) getPath))
 
+(defn url->elisp [url]
+  (let [s (str url)]
+    (if-let [[_ ar-file ar-path] (re-matches #"jar:file:([^!]+)!/(.*)" s)]
+      (str ar-file ":" ar-path)
+      s)))
+
 (defn location [sym]
   (let [rs (resolve sym)
         m (meta rs)]
     (xcond ((:l-file m)
             (list (:l-file m) (:l-line m)))
            ((and (:file m) (not (re-matches #"^/tmp/" (:file m))))
-            (list (:file m) (:line m)))
+            (list (url->elisp (io/resource (:file m))) (:line m)))
            ((class? rs)
             (let [sym (symbol (class-name rs))
                   info (parser/source-info sym)]
               (seq
-                ((juxt (comp resource-abspath :file) :line)
-                 info))))
+               ((juxt (comp resource-abspath :file) :line)
+                info))))
            ((nil? rs)
             (let [name (str sym)
-                  [cls method] (clojure.string/split name #"/")
+                  [cls method] (str/split name #"/")
                   file (-> (clojure.core/symbol cls)
                            (resolve)
                            (class-name)
