@@ -287,9 +287,10 @@ malleable to refactoring."
   (map #(str "-" (.getName %))
        (.getFields (type sym))))
 
-(defn object-members [sym]
-  (concat (object-fields sym)
-          (object-methods sym)))
+(defmacro object-members [ob]
+  `(with-shadows
+     (concat (object-fields ~ob)
+             (object-methods ~ob))))
 
 (defn get-meth [obj method-name]
   (first (filter #(= (.getName %) method-name)
