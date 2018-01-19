@@ -241,34 +241,35 @@ malleable to refactoring."
     'shadows
     (assoc (deref (shadow-map)) (name sym) expr)))
 
-(defn shadow-dest [bindings]
+(defn shadow-dest
   "Transform `let'-style BINDINGS into a sequence of `shadow-def's."
-  (let [[_do & forms] (dest bindings)
-        [defs out] (partition-by map? forms)]
-    `(let ~(vec (mapcat (fn [[_ n v]] [n v]) defs))
-       ~@(map
-           (fn [x]
-             `(shadow-def '~(second x) ~(second x)))
-           defs)
-       ~@out)))
+  ([bindings]
+   (shadow-dest bindings *ns*))
+  ([bindings nspc]
+   (let [[_do & forms] (dest bindings)
+         [defs out] (partition-by map? forms)]
+     `(let ~(vec (mapcat (fn [[_ n v]] [n v]) defs))
+        ~@(if (not= *ns* nspc)
+            `((in-ns '~(ns-name nspc))))
+        ~@(map
+            (fn [x]
+              `(shadow-def '~(second x) ~(second x)))
+            defs)
+        ~@out))))
 
 (defn debug-step-in
   "Evaluate the function call arugments and sub them into function arguments."
   [expr]
   (let [func-name (first expr)
-        func-ns (:ns (meta (resolve func-name)))
-        args (rest expr)
+        args (vec (rest expr))
         func-def (symbol-function func-name)
         func-args (get-func-args func-def (count args))
-        eval-form (if (macro? func-name)
-                    `(do
-                       (in-ns '~(symbol (str func-ns)))
-                       ~(shadow-dest
-                          (vector func-args (list 'quote (rest expr)))))
-                    `(do
-                       (in-ns '~(symbol (str func-ns)))
-                       ~(shadow-dest
-                          (vector func-args (vec (rest expr))))))]
+        func-ns (:ns (meta (resolve func-name)))
+        eval-form (shadow-dest
+                    [func-args (if (macro? func-name)
+                                 (list 'quote args)
+                                 args)]
+                    func-ns)]
     (eval eval-form)))
 
 (defn object-methods [sym]
