@@ -271,7 +271,9 @@ malleable to refactoring."
                                  (list 'quote args)
                                  args)]
                     func-ns)]
-    (eval eval-form)))
+    (eval
+      `(with-shadows
+         ~eval-form))))
 
 (defn object-methods [sym]
   (distinct
