@@ -375,6 +375,7 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
 
 (defun lispy--clojure-debug-step-in ()
   "Inline a Clojure function at the point of its call."
+  (lispy--clojure-detect-ns)
   (let* ((e-str (format "(lispy-clojure/debug-step-in\n'%s)"
                         (lispy--string-dwim)))
          (str (substring-no-properties
@@ -387,6 +388,7 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
 
 (defun lispy-goto-symbol-clojure (symbol)
   "Goto SYMBOL."
+  (lispy--clojure-detect-ns)
   (let* ((r (read (lispy--eval-clojure
                    (format "(lispy-clojure/location '%s)" symbol))))
          (f1 (car r)))
@@ -404,6 +406,7 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
   (cider-find-var nil symbol))
 
 (defun lispy-clojure-complete-at-point ()
+  (lispy--clojure-detect-ns)
   (let* ((lispy-ignore-whitespace t)
          (bnd (or (bounds-of-thing-at-point 'symbol)
                   (cons (point) (point))))
