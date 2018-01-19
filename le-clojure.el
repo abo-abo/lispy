@@ -396,7 +396,8 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
           (find-file (car r))
           (goto-char (point-min))
           (forward-line (1- (cadr r))))
-      (cider-find-var nil symbol))))
+      (warn "unexpected: %S" symbol)
+      (cider-find-var symbol))))
 
 (defun lispy-goto-symbol-clojurescript (symbol)
   "Goto SYMBOL."
