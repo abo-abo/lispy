@@ -308,10 +308,10 @@ malleable to refactoring."
          "."
          (if (= args "")
            ""
-           (str " " (clojure.string/replace args #"," " "))))))
+           (str " " (str/replace args #"," " "))))))
 
 (defn ctor-args [sym]
-  (clojure.string/join
+  (str/join
     "\n"
     (map #(str "(" % ")")
          (map format-ctor
@@ -358,7 +358,7 @@ malleable to refactoring."
             (re-find #"\(.*\)")
             read-string rest
             (map str)
-            (clojure.string/join " ")
+            (str/join " ")
             (format "[%s]")
             list))
       ((and (nil? rsym) (re-find #"/" (str sym)))
@@ -366,7 +366,7 @@ malleable to refactoring."
              args (->> method
                        (.getParameterTypes)
                        (map class-name)
-                       (clojure.string/join " "))]
+                       (str/join " "))]
          (format "(%s [%s]) -> %s" sym args
                  (class-name (. method getReturnType)))))
       (:else
@@ -568,7 +568,7 @@ malleable to refactoring."
       expr)))
 
 (defn all-docs [ns]
-  (clojure.string/join
+  (str/join
     "::"
     (->> (filter (fn [v]
                    (and (var? v)
