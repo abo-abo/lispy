@@ -440,8 +440,8 @@ malleable to refactoring."
          expr)
         ((and (vector? context)
               (not (symbol? (context idx)))
-              (or (symbol? (context (dec idx)))
-                  (vector? (context (dec idx)))))
+              ((some-fn symbol? vector? map?)
+               (context (dec idx))))
          (shadow-dest
            (take 2 (drop (- idx 1) context))))
         ((or (nil? context)
