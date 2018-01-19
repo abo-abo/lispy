@@ -326,6 +326,8 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
   "Mark the Clojure middleware in \"lispy-clojure.clj\" as not loaded."
   (setq lispy--clojure-middleware-loaded-p nil))
 
+(defvar cider-jdk-src-paths)
+
 (defun lispy--clojure-middleware-load ()
   "Load the custom Clojure code in \"lispy-clojure.clj\"."
   (unless lispy--clojure-middleware-loaded-p
@@ -336,7 +338,15 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
       (if lispy--clojure-errorp
           (error res)
         (setq lispy--clojure-middleware-loaded-p t)
-        (add-hook 'nrepl-disconnected-hook #'lispy--clojure-middleware-unload)))))
+        (add-hook 'nrepl-disconnected-hook #'lispy--clojure-middleware-unload)
+        (let ((sources-expr
+               (format
+                "(do \n  %s)"
+                (mapconcat
+                 (lambda (p) (format "(cemerick.pomegranate/add-classpath %S)" p))
+                 cider-jdk-src-paths
+                 "\n  "))))
+          (lispy--eval-clojure sources-expr))))))
 
 (defun lispy-flatten--clojure (_arg)
   "Inline a Clojure function at the point of its call."
