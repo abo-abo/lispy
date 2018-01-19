@@ -274,26 +274,6 @@ If it doesn't work, try to resolve in all available namespaces."
               (error "Undefined"))
              ((and (listp sym) (eq (car sym) 'variable))
               (list "variable"))
-             ((null sym)
-              (read
-               (lispy--eval-clojure
-                (format
-                 "(let [[_ cname mname] (re-find #\"(.*)/(.*)\" \"%s\")
-                           methods (and cname
-                                     (try (load-string (format \"(.getMethods %%s)\" cname))
-                                          (catch Exception e)))
-                           methods (filter #(= (.getName %%) mname) methods)]
-                       (if (= 0 (count methods))
-                           \"method not found\"
-                         (map (fn [m]
-                                  (->> m
-                                    .getParameterTypes
-                                    (map #(.toString %%))
-                                    (clojure.string/join \" \")))
-                              (filter #(java.lang.reflect.Modifier/isStatic
-                                        (.getModifiers %%))
-                                      methods))))"
-                 symbol))))
              (t
               (read
                (lispy--eval-clojure

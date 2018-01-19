@@ -20,7 +20,8 @@
 (ns lispy-clojure
   (:require [clojure.repl :as repl]
             [clojure.pprint]
-            [clojure.java.io :as io])
+            [clojure.java.io :as io]
+            [clojure.string :as str])
   (:use [cemerick.pomegranate :only (add-dependencies)])
   (:import (java.io File LineNumberReader InputStreamReader
                     PushbackReader FileInputStream)
@@ -330,10 +331,27 @@ malleable to refactoring."
 
     [:else 'unknown]))
 
+(defn class-name [cls]
+  (str/replace (str cls) #"class " ""))
+
+(defn class-method-static? [method]
+  (java.lang.reflect.Modifier/isStatic (.getModifiers method)))
+
+(defn class-methods [cname]
+  (load-string (format "(.getMethods %s)" cname)))
+
+(defn find-method [sym]
+  (let [[cname mname] (str/split (str sym) #"/")
+        methods (->>
+                  (and cname
+                       (class-methods cname))
+                  (filter #(= (.getName %) mname)))]
+    (first methods)))
+
 (defn arglist [sym]
   (let [rsym (resolve-sym sym)]
     (xcond
-      [(= 'special rsym)
+      ((= 'special rsym)
        (->> (with-out-str
               (eval (list 'clojure.repl/doc sym)))
             (re-find #"\(.*\)")
@@ -341,8 +359,16 @@ malleable to refactoring."
             (map str)
             (clojure.string/join " ")
             (format "[%s]")
-            list)]
-      [:else
+            list))
+      ((and (nil? rsym) (re-find #"/" (str sym)))
+       (let [method (find-method sym)
+             args (->> method
+                       (.getParameterTypes)
+                       (map class-name)
+                       (clojure.string/join " "))]
+         (format "(%s [%s]) -> %s" sym args
+                 (class-name (. method getReturnType)))))
+      (:else
        (let [args (map str (:arglists (meta rsym)))]
          (if (empty? args)
            (condp #(%1 %2) (eval sym)
@@ -350,7 +376,7 @@ malleable to refactoring."
              set? "[key]"
              vector? "[idx]"
              "is uncallable")
-           args))])))
+           args))))))
 
 (defmacro ok
   "On getting an Exception, just print it."
