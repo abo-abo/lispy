@@ -4467,12 +4467,7 @@ When ARG is non-nil, force select the window."
     (cond ((memq major-mode '(lisp-mode scheme-mode))
            (lispy-message (lispy--eval (prin1-to-string expr))))
           ((memq major-mode lispy-clojure-modes)
-           (let ((expr
-                  (save-mark-and-excursion
-                    (lispy-slurp 1)
-                    (lispy--string-dwim))))
-             (lispy-message (lispy--eval-clojure
-                             (format "(do (def %s) %S)" expr (read expr))))))
+           (lispy-eval 1))
           (t
            (with-selected-window target-window
              (setq res (lispy--eval-elisp-form expr lexical-binding)))
@@ -6375,7 +6370,6 @@ or to the beginning of the line."
   (goto-char (match-end 0)))
 
 ;;* Utilities: evaluation
-(declare-function lispy--eval-clojure "le-clojure")
 (defun lispy--eval (e-str)
   "Eval E-STR according to current `major-mode'.
 The result is a string."
@@ -6388,8 +6382,7 @@ The result is a string."
                 (memq major-mode '(nrepl-repl-mode
                                    cider-clojure-interaction-mode)))
             (require 'le-clojure)
-            (lambda (_)
-              (lispy-eval-clojure)))
+            'lispy-eval-clojure)
            ((eq major-mode 'scheme-mode)
             (require 'le-scheme)
             'lispy--eval-scheme)

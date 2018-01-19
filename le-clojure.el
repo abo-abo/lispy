@@ -51,11 +51,14 @@
 (defvar lispy--clojure-middleware-loaded-p nil
   "Nil if the Clojure middleware in \"lispy-clojure.clj\" wasn't loaded yet.")
 
-(defun lispy-eval-clojure (&optional _plain)
+(defun lispy-eval-clojure (e-str)
   "User facing eval."
   (lispy--clojure-detect-ns)
-  (let* ((e-str (lispy--string-dwim))
-         (c-str (let ((deactivate-mark nil))
+  (let* ((e-str (if (stringp e-str)
+                    e-str
+                  (lispy--string-dwim)))
+         (c-str (let ((deactivate-mark nil)
+                      (lispy-ignore-whitespace t))
                   (save-mark-and-excursion
                     (lispy--out-backward 1)
                     (deactivate-mark)
