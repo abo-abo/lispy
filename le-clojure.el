@@ -54,28 +54,28 @@
 (defun lispy-eval-clojure (e-str)
   "User facing eval."
   (lispy--clojure-detect-ns)
-  (let* ((e-str (if (stringp e-str)
-                    e-str
-                  (lispy--string-dwim)))
-         (c-str (let ((deactivate-mark nil)
-                      (lispy-ignore-whitespace t))
-                  (save-mark-and-excursion
-                    (lispy--out-backward 1)
-                    (deactivate-mark)
-                    (lispy--string-dwim))))
-         (f-str
-          (if lispy--clojure-middleware-loaded-p
-              (format (if (eq this-command 'special-lispy-eval)
-                          "(lispy-clojure/pp (lispy-clojure/reval %S %S :file %S :line %S))"
-                        "(lispy-clojure/reval %S %S :file %S :line %S)")
-                      e-str c-str (buffer-file-name) (line-number-at-pos))
-            e-str)))
-    (cond ((eq current-prefix-arg 7)
-           (kill-new f-str))
-          ((eq lispy-clojure-eval-method 'spiral)
-           (lispy--eval-clojure-spiral e-str))
-          (t
-           (lispy--eval-clojure f-str e-str)))))
+  (let (c-str)
+    (unless (stringp e-str)
+      (setq e-str (lispy--string-dwim))
+      (setq c-str (let ((deactivate-mark nil)
+                        (lispy-ignore-whitespace t))
+                    (save-mark-and-excursion
+                      (lispy--out-backward 1)
+                      (deactivate-mark)
+                      (lispy--string-dwim)))))
+    (let ((f-str
+           (if lispy--clojure-middleware-loaded-p
+               (format (if (eq this-command 'special-lispy-eval)
+                           "(lispy-clojure/pp (lispy-clojure/reval %S %S :file %S :line %S))"
+                         "(lispy-clojure/reval %S %S :file %S :line %S)")
+                       e-str c-str (buffer-file-name) (line-number-at-pos))
+             e-str)))
+      (cond ((eq current-prefix-arg 7)
+             (kill-new f-str))
+            ((eq lispy-clojure-eval-method 'spiral)
+             (lispy--eval-clojure-spiral e-str))
+            (t
+             (lispy--eval-clojure f-str e-str))))))
 
 ;;* Start REPL wrapper for eval
 (defvar lispy--clojure-hook-lambda nil
