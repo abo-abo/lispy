@@ -520,14 +520,13 @@ malleable to refactoring."
                (catch Exception ~'e
                  (clojure.core/str "error: " ~ 'e)))))))
 
-(defn resource-abspath [file]
-  (. (io/resource file) getPath))
-
-(defn url->elisp [url]
-  (let [s (str url)]
-    (if-let [[_ ar-file ar-path] (re-matches #"jar:file:([^!]+)!/(.*)" s)]
-      (str ar-file ":" ar-path)
-      s)))
+(defn file->elisp [f]
+  (if (fs/exists? f)
+    f
+    (let [s (. (io/resource f) getPath)]
+      (if-let [[_ ar-file ar-path] (re-matches #"file:([^!]+)!/(.*)" s)]
+        (str ar-file ":" ar-path)
+        s))))
 
 (defn location [sym]
   (let [rs (resolve sym)
@@ -535,13 +534,14 @@ malleable to refactoring."
     (xcond ((:l-file m)
             (list (:l-file m) (:l-line m)))
            ((and (:file m) (not (re-matches #"^/tmp/" (:file m))))
-            (list (url->elisp (io/resource (:file m))) (:line m)))
+            (list (file->elisp (:file m)) (:line m)))
            ((class? rs)
             (let [sym (symbol (class-name rs))
                   info (parser/source-info sym)]
-              (seq
-               ((juxt (comp resource-abspath :file) :line)
-                info))))
+              (list
+                (file->elisp
+                  (:file info))
+                (:line info))))
            ((nil? rs)
             (let [name (str sym)
                   [cls method] (str/split name #"/")
@@ -549,7 +549,7 @@ malleable to refactoring."
                            (resolve)
                            (class-name)
                            (parser/source-path)
-                           (resource-abspath))
+                           (file->elisp))
                   line (-> (symbol cls)
                            (resolve)
                            (class-name)
