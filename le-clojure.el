@@ -386,20 +386,44 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
     (lispy--eval-clojure str)
     (lispy-flow 1)))
 
+(defun lispy-goto-line (line)
+  (goto-char (point-min))
+  (forward-line (1- line)))
+
+(defun lispy-find-archive (archive path)
+  (require 'arc-mode)
+  (let ((name (format "%s:%s" archive path)))
+    (switch-to-buffer
+     (or (find-buffer-visiting name)
+         (with-current-buffer (generate-new-buffer name)
+           (archive-zip-extract archive path)
+           (set-visited-file-name name)
+           (setq-local default-directory (file-name-directory archive))
+           (setq-local buffer-read-only t)
+           (set-buffer-modified-p nil)
+           (set-auto-mode)
+           (current-buffer))))))
+
 (defun lispy-goto-symbol-clojure (symbol)
   "Goto SYMBOL."
   (lispy--clojure-detect-ns)
-  (let* ((r (read (lispy--eval-clojure
+  (let* ((r (read (lispy-eval-clojure
                    (format "(lispy-clojure/location '%s)" symbol))))
-         (f1 (car r)))
-    (if (and r (or (file-exists-p f1)
-                   (file-exists-p (car (split-string f1 ":")))))
-        (progn
-          (find-file (car r))
-          (goto-char (point-min))
-          (forward-line (1- (cadr r))))
-      (warn "unexpected: %S" symbol)
-      (cider-find-var symbol))))
+         (url (car r))
+         (line (cadr r))
+         archive)
+    (cond
+      ((file-exists-p url)
+       (find-file url)
+       (lispy-goto-line line))
+      ((and (string-match "\\`file:\\([^!]+\\)!/\\(.*\\)\\'" url)
+            (file-exists-p (setq archive (match-string 1 url))))
+       (let ((path (match-string 2 url)))
+         (lispy-find-archive archive path)
+         (lispy-goto-line line)))
+      (t
+       (warn "unexpected: %S" symbol)
+       (cider-find-var symbol)))))
 
 (defun lispy-goto-symbol-clojurescript (symbol)
   "Goto SYMBOL."

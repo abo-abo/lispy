@@ -525,10 +525,7 @@ malleable to refactoring."
 (defn file->elisp [f]
   (if (fs/exists? f)
     f
-    (let [s (. (io/resource f) getPath)]
-      (if-let [[_ ar-file ar-path] (re-matches #"file:([^!]+)!/(.*)" s)]
-        (str ar-file ":" ar-path)
-        s))))
+    (. (io/resource f) getPath)))
 
 (defn location [sym]
   (let [rs (resolve sym)
