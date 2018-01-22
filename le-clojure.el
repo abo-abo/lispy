@@ -64,12 +64,16 @@
                       (deactivate-mark)
                       (lispy--string-dwim)))))
     (let ((f-str
-           (if lispy--clojure-middleware-loaded-p
-               (format (if (eq this-command 'special-lispy-eval)
-                           "(lispy-clojure/pp (lispy-clojure/reval %S %S :file %S :line %S))"
-                         "(lispy-clojure/reval %S %S :file %S :line %S)")
-                       e-str c-str (buffer-file-name) (line-number-at-pos))
-             e-str)))
+           (cond
+             ((eq major-mode 'clojurescript-mode)
+              e-str)
+             (lispy--clojure-middleware-loaded-p
+              (format (if (eq this-command 'special-lispy-eval)
+                          "(lispy-clojure/pp (lispy-clojure/reval %S %S :file %S :line %S))"
+                        "(lispy-clojure/reval %S %S :file %S :line %S)")
+                      e-str c-str (buffer-file-name) (line-number-at-pos)))
+             (t
+              e-str))))
       (cond ((eq current-prefix-arg 7)
              (kill-new f-str))
             ((eq lispy-clojure-eval-method 'spiral)
@@ -95,7 +99,8 @@ The result is a string.
 
 When ADD-OUTPUT is non-nil, add the standard output to the result."
   (require 'cider)
-  (add-hook 'cider-connected-hook #'lispy--clojure-middleware-load)
+  (unless (eq major-mode 'clojurescript-mode)
+    (add-hook 'cider-connected-hook #'lispy--clojure-middleware-load))
   (let (deactivate-mark)
     (if (null (cider-default-connection t))
         (progn
