@@ -1783,7 +1783,7 @@ If jammed between parens, \"(|(\" unjam: \"(| (\"."
 
 (defun lispy-at ()
   (interactive)
-  (lispy--space-unless "\\s-\\|\\s(\\|[:?]\\|\\\\\\|~")
+  (lispy--space-unless "\\s-\\|\\s(\\|[:?]\\|\\\\\\|~\\|,")
   (insert "@"))
 
 (defun lispy-tick (arg)
