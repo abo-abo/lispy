@@ -511,6 +511,8 @@ malleable to refactoring."
                   (catch Exception _))
         full-expr (read-string (format "[%s]" e-str))
         expr1 (xcond
+                ((nil? context-str)
+                 (cons 'do full-expr))
                 ((= (count full-expr) 2)
                  (shadow-dest full-expr))
                 ((add-location-to-deflike expr file line))

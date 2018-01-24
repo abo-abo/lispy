@@ -165,6 +165,7 @@
   (is (= (reval "[a b] (range 5)" "[[a b] (range 5)]") {:a 0, :b 1}))
   (let [js "(doto (new java.util.HashMap) (.put \"a\" 1) (.put \"b\" 2))"]
     (is (= (reval "(.put \"a\" 1)" js) {"a" 1}))
-    (is (= (reval "(.put \"b\" 2)" js) {"a" 1, "b" 2}))))
+    (is (= (reval "(.put \"b\" 2)" js) {"a" 1, "b" 2})))
+  (is (= (reval "(def x1 1)\n(+ x1 x1)" nil) 2)))
 
 (clojure.test/run-tests 'lispy-clojure-test)
