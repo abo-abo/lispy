@@ -4203,7 +4203,8 @@ If STR is too large, pop it to a buffer instead."
         (let ((inhibit-read-only t))
           (delete-region (point-min) (point-max))
           (insert str)
-          (goto-char (point-min))))
+          (goto-char (point-min)))
+        str)
     (condition-case nil
         (message str)
       (error (message (replace-regexp-in-string "%" "%%" str))))))
