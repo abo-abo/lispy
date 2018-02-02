@@ -1761,7 +1761,7 @@ If jammed between parens, \"(|(\" unjam: \"(| (\"."
   "If true (the default), then add a space before inserting a colon following `lispy-colon-no-space-regex'. To disable this behavior, set this variable to nil.")
 
 (defvar lispy-colon-no-space-regex
-  '((lisp-mode . "\\s-\\|[:^?#]\\|\\(?:\\s([[:word:]-]*\\)"))
+  '((lisp-mode . "\\s-\\|[:^?#]\\|ql\\|\\(?:\\s([[:word:]-]*\\)"))
   "Overrides REGEX that `lispy-colon' will consider for `major-mode'.
 `lispy-colon' will insert \" :\" instead of \" \" unless
 `lispy-no-space' is t or `looking-back' REGEX.")
