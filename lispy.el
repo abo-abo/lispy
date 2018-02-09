@@ -196,6 +196,11 @@ The hint will consist of the possible nouns that apply to the verb."
   :type 'boolean
   :group 'lispy)
 
+(defcustom lispy-close-quotes-at-end-p nil
+  "If t, when pressing the `\"' at the end of a quoted string, it will move you past the end quote."
+  :type 'boolean
+  :group 'lispy)
+
 (defcustom lispy-helm-columns '(70 80)
   "Max lengths of tag and tag+filename when completing with `helm'."
   :group 'lispy
@@ -1681,8 +1686,10 @@ otherwise the whole string is unquoted."
                 (not (= (point) (car bnd))))
            (if arg
                (lispy-unstringify)
-             (insert "\\\"\\\"")
-             (backward-char 2)))
+             (if (and lispy-close-quotes-at-end-p (looking-at "\""))
+                 (forward-char 1)
+                 (progn (insert "\\\"\\\""))
+               (backward-char 2))))
 
           (arg
            (lispy-stringify))
