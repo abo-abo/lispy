@@ -1104,18 +1104,19 @@ If position isn't special, move to previous or error."
   "Like regular `yank', but quotes body when called from \"|\"."
   (interactive)
   (setq this-command 'yank)
-  (cond
-    ((and (region-active-p)
-          (bound-and-true-p delete-selection-mode))
-     (lispy--maybe-safe-delete-region (region-beginning) (region-end))
-     (insert (lispy--maybe-safe-current-kill)))
-    ((and (eq (char-after) ?\")
-          (eq (char-before) ?\"))
-     (insert (replace-regexp-in-string "\"" "\\\\\""
-                                       (lispy--maybe-safe-current-kill))))
-    (t
-     (push-mark (point))
-     (insert (lispy--maybe-safe-current-kill)))))
+  (let* ((text (lispy--maybe-safe-current-kill)))
+    (cond
+      ((and (region-active-p)
+            (bound-and-true-p delete-selection-mode))
+       (lispy--maybe-safe-delete-region (region-beginning) (region-end))
+       (insert-for-yank text))
+      ((and (eq (char-after) ?\")
+            (eq (char-before) ?\"))
+       (insert-for-yank (replace-regexp-in-string "\"" "\\\\\""
+                                         text)))
+      (t
+       (push-mark (point))
+       (insert-for-yank text)))))
 
 (defun lispy-buffer-kill-ring-save ()
   "Save the current buffer string for writing a test."
