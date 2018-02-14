@@ -1605,7 +1605,8 @@ When this function is called:
            (t
             ;; don't jump backwards or out of a list when not at a sexp
             (unless (lispy--not-at-sexp-p ,preceding-syntax-alist)
-              (goto-char (car (lispy--bounds-dwim))))
+              (when (lispy--bounds-dwim)
+                (goto-char (car (lispy--bounds-dwim)))))
             (lispy--indent-for-tab)
             (insert ,left ,right)
             (save-excursion
