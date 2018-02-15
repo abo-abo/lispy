@@ -6214,6 +6214,7 @@ First, try to return `lispy--bounds-string'."
            (let ((pt (point)))
              (while (and (lispy--in-comment-p)
                          (forward-comment -1)
+                         (lispy-looking-back "^[[:space:]]*")
                          (= 1 (- (count-lines (point) pt)
                                  (if (bolp) 0 1))))
                (setq pt (point)))
