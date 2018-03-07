@@ -93,10 +93,12 @@
   (remove-hook 'nrepl-connected-hook
                'lispy--clojure-eval-hook-lambda))
 
-(cider-add-to-alist 'cider-jack-in-dependencies
-                    "org.tcrawley/dynapath" "0.2.5")
-(cider-add-to-alist 'cider-jack-in-dependencies
-                    "com.cemerick/pomegranate" "0.4.0")
+(eval-after-load 'cider
+  '(progn
+    (cider-add-to-alist 'cider-jack-in-dependencies
+     "org.tcrawley/dynapath" "0.2.5")
+    (cider-add-to-alist 'cider-jack-in-dependencies
+     "com.cemerick/pomegranate" "0.4.0")))
 
 (defun lispy--eval-clojure (str &optional add-output)
   "Eval STR as Clojure code.
