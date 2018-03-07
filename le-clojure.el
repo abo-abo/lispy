@@ -93,6 +93,11 @@
   (remove-hook 'nrepl-connected-hook
                'lispy--clojure-eval-hook-lambda))
 
+;; if cider has not been loaded yet, define the var to avoid spurious error
+(if (not (boundp 'cider-jack-in-dependencies))
+    (defvar cider-jack-in-dependencies nil
+      "List of dependencies where elements are lists of artifact name and version."))
+
 (cider-add-to-alist 'cider-jack-in-dependencies
                     "org.tcrawley/dynapath" "0.2.5")
 (cider-add-to-alist 'cider-jack-in-dependencies
