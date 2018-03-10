@@ -585,7 +585,7 @@ malleable to refactoring."
     prefix
     {:context :same :plain-candidates true}))
 
-(let [dd (fs/parent (:file (meta #'use-package)))]
-  (load-file
-    (str
-      (java.io.File. dd "lispy-clojure-test.clj"))))
+(let [dd (fs/parent (:file (meta #'use-package)))
+      fname (java.io.File. dd "lispy-clojure-test.clj")]
+  (when (fs/exists? fname)
+    (load-file (str fname))))
