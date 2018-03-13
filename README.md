@@ -480,6 +480,10 @@ child of marked list, use <kbd>i</kbd> - `lispy-tab`.
 - <kbd>n</kbd> - `lispy-new-copy` - copy region as kill without deactivating the mark
 - <kbd>P</kbd> - `lispy-paste` - replace region with current kill
 
+## Disable region editing commands
+
+Set the variable `lispy-disable-region-commands` to `t` to disable the commands described in this section. This might be desired if you don't want to unlearn the behavior provided by `delete-selection-mode`. Note that this flag disables the bindings for many useful commands, but they are still available (e.g. via `M-x`).
+
 # IDE-like features
 
 These features are specific to the Lisp dialect used.  Currently Elisp
