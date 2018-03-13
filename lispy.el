@@ -201,6 +201,12 @@ The hint will consist of the possible nouns that apply to the verb."
   :type 'boolean
   :group 'lispy)
 
+(defcustom lispy-disable-region-commands nil
+  "If t, the region commands will be disabled, providing for directly inserting over a region via
+ delete-selection-mode."
+  :type 'boolean
+  :group 'lispy)
+
 (defcustom lispy-helm-columns '(70 80)
   "Max lengths of tag and tag+filename when completing with `helm'."
   :group 'lispy
@@ -8077,7 +8083,7 @@ PLIST currently accepts:
                          (setq lispy--compat-cmd (lookup-key magit-blame-mode-map (this-command-keys))))
                         (call-interactively lispy--compat-cmd))))
 
-             ((region-active-p)
+             ((and (not lispy-disable-region-commands) (region-active-p))
               (call-interactively ',def))
 
              ((lispy--in-string-or-comment-p)
@@ -8093,6 +8099,8 @@ PLIST currently accepts:
 
              (t
               (setq this-command 'self-insert-command)
+              (when lispy-disable-region-commands
+                (delete-selection-pre-hook))
               (call-interactively
                (quote
                 ,(or inserter
