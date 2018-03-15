@@ -8420,6 +8420,18 @@ If `lispy-safe-paste' is non-nil, any unmatched delimiters will be added to it."
   (unless (region-active-p)
     ad-do-it))
 
+(defun lispy--delsel-advice (orig-fun)
+  "Advice for `delete-selection-mode'.
+Usage:
+(advice-add 'delete-selection-pre-hook :around 'lispy--delsel-advice)"
+  (if (and (use-region-p)
+           (string-match-p "^special" (symbol-name this-command)))
+      (progn
+        (delete-active-region)
+        (setq this-command 'ignore)
+        (self-insert-command 1))
+    (funcall orig-fun)))
+
 (defun lispy-define-key (keymap key def &rest plist)
   "Forward to (`define-key' KEYMAP KEY FUNC).
 FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)."
