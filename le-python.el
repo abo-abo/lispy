@@ -399,6 +399,8 @@ it at one time."
   (let (res)
     (save-excursion
       (goto-char beg)
+      (skip-chars-forward "\n\t ")
+      (setq beg (point))
       (while (< (point) end)
         (forward-sexp)
         (while (and (< (point) end)
