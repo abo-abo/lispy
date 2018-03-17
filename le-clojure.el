@@ -177,18 +177,10 @@ When ADD-OUTPUT is non-nil, add the standard output to the result."
 
 ;;* Handle NREPL version incompat
 (defun lispy--eval-nrepl-clojure (str &optional namespace)
-  (condition-case nil
-      (with-no-warnings
-        (nrepl-sync-request:eval
-         str
-         (cider-current-connection)
-         (cider-current-session)
-         namespace))
-    (error
-     (nrepl-sync-request:eval
-      str
-      (cider-current-connection)
-      namespace))))
+  (nrepl-sync-request:eval
+   str
+   (cider-current-connection)
+   namespace))
 
 (defvar spiral-conn-id)
 (defvar spiral-aux-sync-request-timeout)
