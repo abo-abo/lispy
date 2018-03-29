@@ -4195,7 +4195,7 @@ Return the result of the last evaluation as a string."
            (goto-char (car bnd))
            res)
           (t
-           (message res)))))
+           (message (replace-regexp-in-string "%" "%%" res))))))
 
 (defun lispy-message (str &optional popup)
   "Display STR in the echo area.
