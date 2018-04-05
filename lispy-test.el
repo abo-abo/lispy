@@ -3062,10 +3062,10 @@ Insert KEY if there's no command."
                   (lispy-eval-python-str))
                  "if cond2:\n     expr1\n     if cond3:\n         expr2\n     else:\n         expr3\n else:\n     expr4"))
   (should (equal (lispy-with-python
-                  "|x = 42 # comment\n# comment\ny = 43"
+                  "|@up_down\ndef greet(name):\n    return \"my oh my, {}\".format(name)\n\ndef other():\n    pass"
                   (let ((forward-sexp-function nil))
                     (lispy-eval-python-str)))
-                 "x = 42 # comment"))
+                 "@up_down\ndef greet(name):\n    return \"my oh my, {}\".format(name)"))
   (should (equal (lispy-with-python
                   "|scores = np.array([[1, 2, 3, 6],\n                   [2, 4, 5, 6],\n                   [3, 8, 7, 6]])"
                   (let ((forward-sexp-function nil))
