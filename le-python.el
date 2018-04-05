@@ -263,16 +263,20 @@ it at one time."
                          (p1-output (python-shell-send-string-no-output
                                      p1 (lispy--python-proc)))
                          p2-output)
-                    (cond ((null p1-output)
-                           (lispy-message lispy-eval-error))
-                          ((null (setq p2-output (lispy--eval-python p2)))
-                           (lispy-message lispy-eval-error))
-                          (t
-                           (concat
-                            (if (string= p1-output "")
-                                ""
-                              (concat p1-output "\n"))
-                            p2-output)))))
+                    (cond
+                      ((string-match-p "SyntaxError:" p1-output)
+                       (python-shell-send-string-no-output
+                        str (lispy--python-proc)))
+                      ((null p1-output)
+                       (lispy-message lispy-eval-error))
+                      ((null (setq p2-output (lispy--eval-python p2)))
+                       (lispy-message lispy-eval-error))
+                      (t
+                       (concat
+                        (if (string= p1-output "")
+                            ""
+                          (concat p1-output "\n"))
+                        p2-output)))))
                  (t
                   (error "unexpected")))))
       (cond
