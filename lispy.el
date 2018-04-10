@@ -1617,7 +1617,7 @@ When this function is called:
               ;; failed to wrap anything
               (backward-char))
             (when (and lispy-insert-space-after-wrap
-                       (not (lispy--in-empty-list-p))
+                       (not (lispy--in-empty-list-p ,preceding-syntax-alist))
                        (not (eolp)))
               (just-one-space)
               (backward-char))))))
@@ -6043,10 +6043,32 @@ whitespace."
         t)
     nil))
 
-(defun lispy--in-empty-list-p ()
-  "Test whether the point is in a list with no sexps."
-  (and (looking-at (concat "[[:space:]]*" lispy-right))
-       (lispy-looking-back (concat "[[:space:]]*" lispy-left))))
+(defun lispy--preceding-syntax (preceding-syntax-alist &optional before after)
+  "Return a regexp corresponding to valid syntax that can precede delimiters.
+This is done by checking PRECEDING-SYNTAX-ALIST for the current major mode.
+Return nil if there is no entry for the current major mode. When there is an
+entry, prepend BEFORE and append AFTER to the regexp when they are specified."
+  (let ((regexps (or (cdr (assoc major-mode preceding-syntax-alist))
+                     (cdr (assoc t preceding-syntax-alist)))))
+    (when regexps
+      (concat before
+              "\\(?:"
+              (apply #'concat
+                     (lispy-interleave
+                      "\\|"
+                      regexps))
+              "\\)"
+              after))))
+
+(defun lispy--in-empty-list-p (preceding-syntax-alist)
+  "Test whether the point is in a list with no sexps.
+A list with only characters that can precede a delimiter (e.g. \"`(,)\") is
+consider an empty list."
+  (and (lispy-looking-back
+        (concat lispy-left
+                "[[:space:]]*"
+                (lispy--preceding-syntax preceding-syntax-alist nil "*")))
+       (looking-at (concat "[[:space:]]*" lispy-right))))
 
 (defun lispy--not-at-sexp-p (preceding-syntax-alist)
   "Test whether the point is at a \"free\" spot and not at a wrappable sexp.
@@ -6056,18 +6078,11 @@ each major mode."
   (let* ((space "[[:space:]]")
          (space-or-eol (concat "\\(" space "+\\|" space "*$\\)"))
          (right-or-eol (concat "\\(" lispy-right "+\\|" space "*$\\)"))
-         (special-syntax
-           (concat "\\(?:"
-                   (apply #'concat
-                          (lispy-interleave
-                           "\\|"
-                           (or (cdr (assoc major-mode preceding-syntax-alist))
-                               (cdr (assoc t preceding-syntax-alist)))))
-                   "\\)"))
+         (special-syntax (lispy--preceding-syntax preceding-syntax-alist))
          (line (buffer-substring-no-properties
                 (line-beginning-position)
                 (line-end-position))))
-    (or (lispy--in-empty-list-p)
+    (or (lispy--in-empty-list-p preceding-syntax-alist)
         ;; empty line
         (string-match (concat "^" space "*" special-syntax "*" space "*$")
                       line)
@@ -7398,11 +7413,8 @@ PRECEDING-SYNTAX-ALIST should be an alist of `major-mode' to a list of regexps.
 When `looking-back' at any of these regexps, whitespace, or a delimiter, do not
 insert a space."
   (lispy--space-unless
-   (apply #'concat "^\\|\\s-\\|" lispy-left "\\|"
-          (lispy-interleave
-           "\\|"
-           (or (cdr (assoc major-mode preceding-syntax-alist))
-               (cdr (assoc t preceding-syntax-alist)))))))
+   (concat "^\\|\\s-\\|" lispy-left
+           (lispy--preceding-syntax preceding-syntax-alist "\\|"))))
 
 (defun lispy--reindent (&optional arg)
   "Reindent current sexp.  Up-list ARG times before that."
