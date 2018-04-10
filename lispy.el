@@ -8841,20 +8841,20 @@ When ARG is non-nil, unquote the current string."
      (backward-char 1))
     (t (lispy-delete-backward arg))))
 
-(defun lispy-wrap-round ()
-  "Forward to `lispy-parens'."
-  (interactive)
-  (lispy-parens 1))
+(defun lispy-wrap-round (arg)
+  "Forward to `lispy-parens' with a default ARG of 1."
+  (interactive "P")
+  (lispy-parens (or arg 1)))
 
-(defun lispy-wrap-brackets ()
-  "Forward to `lispy-brackets'"
-  (interactive)
-  (lispy-brackets 1))
+(defun lispy-wrap-brackets (arg)
+  "Forward to `lispy-brackets' with a default ARG of 1."
+  (interactive "P")
+  (lispy-brackets (or arg 1)))
 
-(defun lispy-wrap-braces ()
-  "Forward to `lispy-braces'"
-  (interactive)
-  (lispy-braces 1))
+(defun lispy-wrap-braces (arg)
+  "Forward to `lispy-braces' with a default ARG of 1."
+  (interactive "P")
+  (lispy-braces (or arg 1)))
 
 (defun lispy-splice-sexp-killing-backward ()
   "Forward to `lispy-raise'."
