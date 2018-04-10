@@ -1900,7 +1900,7 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "\"a string |" "{")
                    "\"a string {|}"))
   ;; test space-unless behavior
-  (should (string= (lispy-with "`|" "{")
+  (should (string= (lispy-with-clojure "`|" "{")
                    "`{|}"))
   (should (string= (lispy-with-clojure "^|" "{")
                    "^{|}"))
@@ -1915,7 +1915,7 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "\"a string |" "}")
                    "\"a string [|]"))
   ;; test space-unless behavior
-  (should (string= (lispy-with "`|" "}")
+  (should (string= (lispy-with-clojure "`|" "}")
                    "`[|]"))
   (should (string= (lispy-with-clojure "#my.klass_or_type_or_record|" "}")
                    "#my.klass_or_type_or_record[|]")))
@@ -2463,6 +2463,8 @@ Insert KEY if there's no command."
                    "(|)"))
   (should (string= (lispy-with "a (|) b" "(")
                    "a ((|)) b"))
+  (should (string= (lispy-with "`(,|)" "(")
+                   "`(,(|))"))
   (should (string= (lispy-with "(a |) b" "(")
                    "(a (|)) b"))
   (should (string= (lispy-with "a|" "(")
