@@ -3852,39 +3852,45 @@ When you press \"t\" in `lispy-teleport', this will be bound to t temporarily.")
              (setq end (region-end)))
            (setq regionp t))
           ((lispy-left-p)
-           (unless (lispy-dotimes arg
-                     (forward-list 1))
-             (error "Unexpected"))
-           (setq end (point)))
+           (save-excursion
+             (unless (lispy-dotimes arg
+                       (forward-list 1))
+               (error "Unexpected"))
+             (setq end (point))))
           ((lispy-right-p)
-           (setq endp t)
-           (unless (lispy-dotimes arg
-                     (backward-list arg))
-             (error "Unexpected"))
-           (setq end (point)))
+           (save-excursion
+             (setq endp t)
+             (unless (lispy-dotimes arg
+                       (backward-list arg))
+               (error "Unexpected"))
+             (setq end (point))))
           (t
            (error "Unexpected")))
-    (let ((lispy-avy-keys (delete ?t lispy-avy-keys))
-          (avy-handler-function
-           (lambda (x)
-             (if (eq x ?t)
-                 (progn
-                   (avy--done)
-                   (lispy-quit-and-run
-                    (let ((lispy-teleport-global t))
-                      (when regionp
-                        (activate-mark))
-                      (lispy-teleport arg))))
-               (avy-handler-default x)))))
-      (lispy-ace-paren
-       (when lispy-teleport-global
-         2)))
-    (forward-char 1)
-    (unless (looking-at "(")
-      (ignore-errors
-        (forward-sexp)))
-    (backward-char 1)
-    (lispy--teleport beg end endp regionp)))
+    (let* ((lispy-avy-keys (delete ?t lispy-avy-keys))
+           (avy-handler-function
+            (lambda (x)
+              (if (eq x ?t)
+                  (progn
+                    (avy--done)
+                    (lispy-quit-and-run
+                     (let ((lispy-teleport-global t))
+                       (when regionp
+                         (activate-mark))
+                       (lispy-teleport arg))))
+                (avy-handler-default x))))
+           (res (lispy-ace-paren
+                 (when lispy-teleport-global
+                   2))))
+      (cond ((eq res t)
+             (when regionp
+               (lispy--mark (cons end beg))))
+            (t
+             (forward-char 1)
+             (unless (looking-at "(")
+               (ignore-errors
+                 (forward-sexp)))
+             (backward-char 1)
+             (lispy--teleport beg end endp regionp))))))
 
 ;;* Locals: tags
 (defun lispy-goto (&optional arg)
@@ -4638,15 +4644,17 @@ Sexp is obtained by exiting list ARG times."
      (if (region-active-p)
          (progn (deactivate-mark) arg)
        (1- arg)))
-    (let ((avy-keys lispy-avy-keys))
-      (avy-with 'lispy-ace-subword
-        (lispy--avy-do
-         "[([{ -/]\\(?:\\sw\\|\\s_\\|\\s(\\|[\"'`#]\\)"
-         (lispy--bounds-dwim)
-         (lambda () (or (not (lispy--in-string-or-comment-p))
-                        (lispy-looking-back ".\"")))
-         lispy-avy-style-symbol)))
-    (skip-chars-forward "-([{ `'#") (mark-word)))
+    (let* ((avy-keys lispy-avy-keys)
+           (res (avy-with 'lispy-ace-subword
+                  (lispy--avy-do
+                   "[([{ -/]\\(?:\\sw\\|\\s_\\|\\s(\\|[\"'`#]\\)"
+                   (lispy--bounds-dwim)
+                   (lambda () (or (not (lispy--in-string-or-comment-p))
+                                  (lispy-looking-back ".\"")))
+                   lispy-avy-style-symbol))))
+      (unless (eq res t)
+        (skip-chars-forward "-([{ `'#")
+        (mark-word)))))
 
 (defun lispy--avy-do (regex bnd filter style)
   "Visually select a match to REGEX within BND.

@@ -1624,6 +1624,21 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "(list ~one|\n      two\n      five)" "SjSjS")
                    "(list \"one\"\n      \"two\"\n      ~\"five\"|)")))
 
+(ert-deftest lispy-teleport ()
+  ;; should be able to cancel
+  (should (string= (lispy-with "(a |(b))"
+                               (execute-kbd-macro (kbd "t ESC")))
+                   "(a |(b))"))
+  (should (string= (lispy-with "(a (b)|)"
+                               (execute-kbd-macro (kbd "t ESC")))
+                   "(a (b)|)"))
+  (should (string= (lispy-with "((a) ~b|)"
+                               (execute-kbd-macro (kbd "t ESC")))
+                   "((a) ~b|)"))
+  (should (string= (lispy-with "((a) |b~)"
+                               (execute-kbd-macro (kbd "t ESC")))
+                   "((a) |b~)")))
+
 (ert-deftest lispy-eval ()
   (should (string= (lispy-with-value "(+ 2 2)|" (lispy-eval 1)) "4"))
   ;; (should (string= (lispy-with "|(+ 2 2)" "2e") "|(+ 2 2)\n;; => 4"))
@@ -2418,7 +2433,11 @@ Insert KEY if there's no command."
                    "(progn (setq type 'norwegian-blue)\n       (setq |plumage~-type 'lovely))"))
   (should (string= (lispy-with "|(progn (setq type 'norwegian-blue)\n       (setq plumage-type 'lovely))"
                                (execute-kbd-macro (kbd "-e")))
-                   "(progn (setq type 'norwegian-|blue~)\n       (setq plumage-type 'lovely))")))
+                   "(progn (setq type 'norwegian-|blue~)\n       (setq plumage-type 'lovely))"))
+  ;; should be able to cancel
+  (should (string= (lispy-with "|(a b c)"
+                               (execute-kbd-macro (kbd "- ESC")))
+                   "|(a b c)")))
 
 (ert-deftest lispy-ace-symbol-replace ()
   (should (string= (lispy-with "|(progn (setq type 'norwegian-blue)\n       (setq plumage-type 'lovely))"
