@@ -2033,6 +2033,8 @@ Insert KEY if there's no command."
                    "|(. object method)"))
   (should (string= (lispy-with-clojure "|(range 1e9)" "i")
                    "|(range 1e9)"))
+  (should (equal (lispy-with "|(pcase :bar\n    (`,pat pat))" "i")
+                 "|(pcase :bar\n  (`,pat pat))"))
   (let ((clojure-align-forms-automatically nil))
     (should (string= (lispy-with-clojure "|{\\a   \\b}" "i")
                      "|{\\a \\b}"))
