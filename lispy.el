@@ -1760,11 +1760,12 @@ delete the extra space, \"(| foo)\" to \"(|foo)\"."
            (just-one-space)))
         ((and (lispy-looking-back lispy-left)
               (not (eq ?\\ (char-before (match-beginning 0)))))
-         (if (looking-at "[[:space:]]")
-             (delete-region (point)
-                            (progn
-                              (skip-chars-forward "[:space:]")
-                              (point)))
+         (if (and (not (lispy--in-string-or-comment-p))
+                  (looking-at "[[:space:]]"))
+           (delete-region (point)
+                          (progn
+                            (skip-chars-forward "[:space:]")
+                            (point)))
            (call-interactively 'self-insert-command)
            (backward-char)))
         (t
