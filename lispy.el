@@ -1730,7 +1730,9 @@ otherwise the whole string is unquoted."
   "Insert one space, with position depending on ARG.
 If ARG is 2, amend the current list with a space from current side.
 If ARG is 3, switch to the different side beforehand.
-If jammed between parens, \"(|(\" unjam: \"(| (\"."
+If jammed between parens, \"(|(\" unjam: \"(| (\". If after an opening delimiter
+and before a space (after wrapping a sexp, for example), do the opposite and
+delete the extra space, \"(| foo)\" to \"(|foo)\"."
   (interactive "p")
   (cond ((bound-and-true-p edebug-active)
          (edebug-step-mode))
@@ -1758,8 +1760,13 @@ If jammed between parens, \"(|(\" unjam: \"(| (\"."
            (just-one-space)))
         ((and (lispy-looking-back lispy-left)
               (not (eq ?\\ (char-before (match-beginning 0)))))
-         (call-interactively 'self-insert-command)
-         (backward-char))
+         (if (looking-at "[[:space:]]")
+             (delete-region (point)
+                            (progn
+                              (skip-chars-forward "[:space:]")
+                              (point)))
+           (call-interactively 'self-insert-command)
+           (backward-char)))
         (t
          (call-interactively 'self-insert-command)
          (when (and (lispy-left-p)
