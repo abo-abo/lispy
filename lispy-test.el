@@ -725,7 +725,7 @@ Insert KEY if there's no command."
       (should (string= (lispy-with "(a\n;; foo~bar\nb)|" "\C-d")
                        "(a\n;; foo~\n)|"))))
 
-  (let ((lispy-delete-atom-from-within t))
+  (let ((lispy-delete-sexp-from-within t))
     (should (string= (lispy-with "(|)" "\C-d") "|"))
     (should (string= (lispy-with "(foo|)" "\C-d") "|"))
     (should (string= (lispy-with "\"|\"" "\C-d") "|"))
@@ -811,7 +811,7 @@ Insert KEY if there's no command."
                    "|"))
   (should (string= (lispy-with-clojure "(partial filter neg?)|" "\C-?")
                    "|"))
-  (let ((lispy-delete-atom-from-within t))
+  (let ((lispy-delete-sexp-from-within t))
     (should (string= (lispy-with "(|)" "\C-?") "|"))
     (should (string= (lispy-with "(|foo)" "\C-?") "|"))
     (should (string= (lispy-with "\"|\"" "\C-?") "|"))
