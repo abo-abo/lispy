@@ -1127,10 +1127,10 @@ If position isn't special, move to previous or error."
                      (point-min) (point-max))))
   (delete-char -1))
 
-(defvar lispy-delete-atom-from-within nil
-  "When cursor is adjascent to an opening or closing pair,
-  `lispy-delete' or `lispy-delete-backward' toward the delimiter
-  will kill the whole atom (sexp or string).")
+(defvar lispy-delete-sexp-from-within nil
+  "When cursor is adjacent to an opening or closing pair,
+`lispy-delete' or `lispy-delete-backward' toward the delimiter
+will kill the whole sexp (string or list).")
 
 (defun lispy-delete (arg)
   "Delete ARG sexps."
@@ -1145,7 +1145,7 @@ If position isn't special, move to previous or error."
           ((setq bnd (lispy--bounds-string))
            (cond ((eq (1+ (point)) (cdr bnd))
                   (goto-char (car bnd))
-                  (when lispy-delete-atom-from-within
+                  (when lispy-delete-sexp-from-within
                     (lispy-delete arg)))
                  ((looking-at "\\\\\"")
                   (if (eq (+ (point) 2) (cdr bnd))
@@ -1183,7 +1183,7 @@ If position isn't special, move to previous or error."
 
           ((looking-at lispy-right)
            (lispy-left 1)
-           (when lispy-delete-atom-from-within
+           (when lispy-delete-sexp-from-within
              (lispy-delete arg)))
 
           ((lispy-left-p)
@@ -1243,7 +1243,7 @@ Otherwise (`backward-delete-char-untabify' ARG)."
                 (not (eq (point) (car bnd))))
            (cond ((eq (- (point) (car bnd)) 1)
                   (goto-char (cdr bnd))
-                  (if lispy-delete-atom-from-within
+                  (if lispy-delete-sexp-from-within
                       (lispy-delete-backward arg)))
                  ((or (looking-back "\\\\\\\\(" (car bnd))
                       (looking-back "\\\\\\\\)" (car bnd)))
