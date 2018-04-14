@@ -1544,6 +1544,9 @@ When ARG is more than 1, mark ARGth element."
       (kill-new str))))
 
 ;;* Globals: pairs
+(defvar lispy-parens-only-left-in-string-or-comment t
+  "Whether \"(\" should insert only the left paren in strings and comments.")
+
 (defun lispy-pair (left right preceding-syntax-alist)
   "Return (lambda (arg)(interactive \"P\")...) using LEFT RIGHT.
 PRECEDING-SYNTAX-ALIST should be an alist of `major-mode' to a list of regexps.
@@ -1582,7 +1585,8 @@ When this function is called:
             (insert ,left "\\\\" ,right)
             (backward-char 3))
            ((lispy--in-string-or-comment-p)
-            (if (and (string= ,left "(")
+            (if (and lispy-parens-only-left-in-string-or-comment
+                     (string= ,left "(")
                      (= ?\( (aref (this-command-keys-vector) 0)))
                 (insert "(")
               (insert ,left ,right)
