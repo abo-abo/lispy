@@ -6223,12 +6223,13 @@ Otherwise return cons of current string, symbol or list bounds."
            pt))))))
 
 (defun lispy--bounds-list ()
-  "Return the bounds of smallest list that includes the point.
-First, try to return `lispy--bounds-string'."
+  "Return the bounds of smallest list that includes the point."
   (save-excursion
     (lispy--exit-string)
-    (when (memq (char-after) '(?\( ?\[ ?\{))
+    (when (looking-at lispy-left)
       (forward-char))
+    (when (lispy-looking-back lispy-right)
+      (backward-char))
     (ignore-errors
       (let (beg end)
         (up-list)
