@@ -3813,6 +3813,11 @@ Quote newlines if ARG isn't 1."
         (if (and leftp (= (point) (region-end)))
             (exchange-point-and-mark))))))
 
+(defun lispy-stringify-oneline ()
+  "Call `lispy-stringify' with a non-1 argument."
+  (interactive)
+  (lispy-stringify 0))
+
 (defun lispy-unstringify ()
   "Unquote string at point."
   (interactive)
