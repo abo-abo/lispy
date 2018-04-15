@@ -3814,7 +3814,7 @@ Quote newlines if ARG isn't 1."
             (exchange-point-and-mark))))))
 
 (defun lispy-stringify-oneline ()
-  "Call `lispy-stringify' with a non-1 argument."
+  "Call `lispy-stringify' with a non-1 argument to quote newlines."
   (interactive)
   (lispy-stringify 0))
 
