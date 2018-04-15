@@ -1556,9 +1556,9 @@ When this function is called:
 - with arg nil:
   Insert LEFT RIGHT.
 - with arg negative:
-  Wrap as many sexps as possible with LEFT RIGHT.
-- with arg 0:
   Wrap as many sexps as possible until the end of the line with LEFT RIGHT.
+- with arg 0:
+  Wrap as many sexps as possible with LEFT RIGHT.
 - with the universal arg:
   Wrap one sexp with LEFT RIGHT.
 - with arg positive:
