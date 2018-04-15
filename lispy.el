@@ -1132,6 +1132,11 @@ If position isn't special, move to previous or error."
 `lispy-delete' or `lispy-delete-backward' toward the delimiter
 will kill the whole sexp (string or list).")
 
+(define-obsolete-variable-alias
+    'lispy-delete-atom-from-within
+    'lispy-delete-sexp-from-within
+  "2018-04-15")
+
 (defun lispy-delete (arg)
   "Delete ARG sexps."
   (interactive "p")
