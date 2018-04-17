@@ -7389,9 +7389,16 @@ Defaults to `error'."
       (forward-line 1))
     (move-marker end nil)))
 
+(defvar lispy-no-indent-modes '(minibuffer-inactive-mode
+                                comint-mode)
+  "List of major modes where `indent-for-tab-command' should not be used.
+`lispy--indent-for-tab' will do nothing if the current mode or any of its parent
+modes is in this list.")
+
 (defun lispy--indent-for-tab ()
   "Call `indent-for-tab-command'."
-  (unless (or (memq major-mode '(minibuffer-inactive-mode comint-mode))
+  (unless (or (memq major-mode lispy-no-indent-modes)
+              (apply #'derived-mode-p lispy-no-indent-modes)
               (= 0 (buffer-size)))
     (let ((tab-always-indent t))
       (lispy-flet (message (&rest _x))
