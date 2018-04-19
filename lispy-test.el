@@ -2026,6 +2026,8 @@ Insert KEY if there's no command."
                    "|(eq (char-before) ?\\()"))
   (should (string= (lispy-with "`|[1  2  3]" "i")
                    "`|[1 2 3]"))
+  (should (string= (lispy-with "   |(defun)" "i")
+                   "|(defun)"))
   (should (string= (lispy-with "|;; comment 1\n;; comment 2" "i")
                    "|;; comment 1\n;; comment 2"))
   (should (string= (lispy-with "|(list \"\\\"\")" "i")
