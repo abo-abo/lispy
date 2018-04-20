@@ -4837,14 +4837,6 @@ When region is active, call `lispy-mark-car'."
                (outline-flag-region
                 (+ beg (1- (length outline-eval-tag))) end 'visible))))
           (t
-           (when (and (looking-at "(")
-                      (= (point)
-                         (save-excursion
-                           (lispy--out-backward 99)
-                           (point))))
-             (let ((pt (point)))
-               (skip-chars-backward " \t")
-               (delete-region pt (point))))
            (lispy--normalize-1)))))
 
 (defun lispy-shifttab (arg)
@@ -7840,6 +7832,14 @@ The outer delimiters are stripped."
 (declare-function clojure-align "ext:clojure-mode")
 (defun lispy--normalize-1 ()
   "Normalize/prettify current sexp."
+  (when (and (looking-at "(")
+             (= (point)
+                (save-excursion
+                  (lispy--out-backward 99)
+                  (point))))
+    (let ((pt (point)))
+      (skip-chars-backward " \t")
+      (delete-region pt (point))))
   (let* ((bnd (lispy--bounds-dwim))
          (str (lispy--string-dwim bnd))
          (offset (save-excursion
