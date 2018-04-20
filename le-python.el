@@ -484,9 +484,10 @@ it at one time."
                                         nil)
                              fn-defaults)))
          fn-alist-x dbg-cmd)
-    (when method-p
-      (unless (member '("self") fn-alist)
-        (push '("self") fn-alist)))
+    (if method-p
+        (unless (member '("self") fn-alist)
+          (push '("self") fn-alist))
+      (setq fn-alist (delete '("self") fn-alist)))
     (setq fn-alist-x fn-alist)
     (dolist (arg args-normal)
       (setcdr (pop fn-alist-x) arg))
