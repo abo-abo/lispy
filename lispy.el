@@ -5514,6 +5514,7 @@ An equivalent of `cl-destructuring-bind'."
   (interactive)
   (describe-bindings (kbd "C-4")))
 
+(require 'hydra)
 (defhydra hydra-lispy-x (:exit t
                          :hint nil
                          :columns 3)
@@ -8530,7 +8531,6 @@ FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)."
   ("SPC" lispy-other-space)
   ("g" lispy-goto-mode)))
 
-(require 'hydra)
 (defhydra lh-knight ()
   "knight"
   ("j" lispy-knight-down)
