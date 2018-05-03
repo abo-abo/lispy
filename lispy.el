@@ -153,6 +153,7 @@
 (require 'delsel)
 (require 'swiper)
 (require 'pcase)
+(require 'hydra)
 
 ;;* Customization
 (defgroup lispy nil
@@ -8530,7 +8531,6 @@ FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)."
   ("SPC" lispy-other-space)
   ("g" lispy-goto-mode)))
 
-(require 'hydra)
 (defhydra lh-knight ()
   "knight"
   ("j" lispy-knight-down)
