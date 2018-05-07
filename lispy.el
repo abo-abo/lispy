@@ -4810,6 +4810,13 @@ Sexp is obtained by exiting the list ARG times."
           (lispy--ensure-visible))
       (lispy-complain "This outline has no children"))))
 
+(declare-function iedit-regexp-quote "iedit")
+(declare-function iedit-start "iedit")
+
+(declare-function org-back-to-heading "org")
+(declare-function org-end-of-subtree "org")
+(declare-function org-at-heading-p "org")
+(declare-function org-speed-move-safe "org")
 (declare-function org-cycle-internal-local "org")
 (declare-function org-content "org")
 (declare-function org-cycle-internal-global "org")
