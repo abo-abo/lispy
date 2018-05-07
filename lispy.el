@@ -135,13 +135,13 @@
 (eval-when-compile
   (require 'cl)
   (require 'org)
-  (require 'iedit))
+  (require 'iedit)
+  (require 'eldoc))
 (require 'lispy-tags)
 (require 'help-fns)
 (require 'edebug)
 (require 'ediff)
 (require 'ediff-util)
-(require 'eldoc)
 (require 'etags)
 (require 'outline)
 (require 'semantic)
@@ -384,6 +384,10 @@ backward through lists, which is useful to move into special.
   :lighter " LY"
   (if lispy-mode
       (progn
+        (require 'eldoc)
+        (eldoc-remove-command 'special-lispy-eval)
+        (eldoc-remove-command 'special-lispy-x)
+        (eldoc-add-command 'lispy-space)
         (setq lispy-old-outline-settings
               (cons outline-regexp outline-level))
         (setq-local outline-level 'lispy-outline-level)
@@ -8504,8 +8508,9 @@ Usage:
   "Forward to (`define-key' KEYMAP KEY FUNC).
 FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)."
   (declare (indent 3))
+  (require 'eldoc)
   (let ((func (defalias (intern (concat "special-" (symbol-name def)))
-                  (lispy--insert-or-call def plist))))
+                (lispy--insert-or-call def plist))))
     (add-to-list 'ac-trigger-commands func)
     (unless (memq func mc/cmds-to-run-once)
       (add-to-list 'mc/cmds-to-run-for-all func))
@@ -8617,9 +8622,6 @@ FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)."
     (mapc (lambda (x) (lispy-define-key map (format "%d" x) 'digit-argument))
           (number-sequence 0 9))
     map))
-(eldoc-remove-command 'special-lispy-eval)
-(eldoc-remove-command 'special-lispy-x)
-(eldoc-add-command 'lispy-space)
 
 ;;* Parinfer compat
 (defun lispy--auto-wrap (func arg preceding-syntax-alist)
