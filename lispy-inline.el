@@ -271,6 +271,7 @@ The caller of `lispy--show' might use a substitute e.g. `describe-function'."
      (require 'le-lisp)
      (lispy--lisp-describe sym))
     ((eq major-mode 'python-mode)
+     (require 'semantic)
      (semantic-mode 1)
      (let ((sym (semantic-ctxt-current-symbol)))
        (if sym

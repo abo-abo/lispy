@@ -23,6 +23,16 @@
 ;;; Code:
 
 (require 'cl-lib)
+
+(declare-function semantic-new-buffer-fcn "semantic")
+(declare-function semantic-parse-region "semantic")
+(declare-function semantic-mode "semantic")
+(declare-function semantic-parse-tree-state "semantic")
+(declare-function semantic-tag-overlay "tag")
+(declare-function semantic-tag-get-attribute "tag")
+(declare-function semantic-tag-name "tag")
+(declare-function semantic-current-tag "find")
+
 (defvar lispy-db (make-hash-table :test 'equal)
   "An alist of file to a pretty list of tags.")
 
