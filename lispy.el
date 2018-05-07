@@ -134,7 +134,8 @@
 ;;* Requires
 (eval-when-compile
   (require 'cl)
-  (require 'org))
+  (require 'org)
+  (require 'iedit))
 (require 'lispy-tags)
 (require 'help-fns)
 (require 'edebug)
@@ -149,7 +150,6 @@
 (require 'newcomment)
 (require 'lispy-inline)
 (setq iedit-toggle-key-default nil)
-(require 'iedit)
 (require 'delsel)
 (require 'swiper)
 (require 'pcase)
@@ -2060,6 +2060,7 @@ to all the functions, while maintaining the parens in a pretty state."
 (defun lispy-iedit (&optional arg)
   "Wrap around `iedit'."
   (interactive "P")
+  (require 'iedit)
   (if iedit-mode
       (iedit-mode nil)
     (when (lispy-left-p)
@@ -5099,11 +5100,12 @@ With ARG, use the contents of `lispy-store-region-and-buffer' instead."
    (indent-sexp)))
 
 (defun lispy-unbind-variable ()
-  "Subsititute let-bound variable."
+  "Substitute let-bound variable."
   (interactive)
   (if (memq major-mode lispy-clojure-modes)
       (lispy-unbind-variable-clojure)
     (let (beg end)
+      (require 'iedit)
       (save-excursion
         (lispy--out-backward 2)
         (setq beg (point))
@@ -5128,6 +5130,7 @@ With ARG, use the contents of `lispy-store-region-and-buffer' instead."
 (defun lispy-unbind-variable-clojure ()
   "Subsititute let-bound variable in Clojure."
   (interactive)
+  (require 'iedit)
   (deactivate-mark)
   (lispy-flet (message (&rest _x))
     (iedit-mode 0))
