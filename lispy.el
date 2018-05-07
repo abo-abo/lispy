@@ -136,12 +136,12 @@
   (require 'cl)
   (require 'org)
   (require 'iedit)
-  (require 'eldoc))
+  (require 'eldoc)
+  (require 'ediff)
+  (require 'ediff-util))
 (require 'lispy-tags)
 (require 'help-fns)
 (require 'edebug)
-(require 'ediff)
-(require 'ediff-util)
 (require 'etags)
 (require 'outline)
 (require 'semantic)
@@ -4810,6 +4810,8 @@ Sexp is obtained by exiting the list ARG times."
           (lispy--ensure-visible))
       (lispy-complain "This outline has no children"))))
 
+(declare-function ediff-regions-internal "ediff")
+
 (declare-function iedit-regexp-quote "iedit")
 (declare-function iedit-start "iedit")
 
@@ -5254,6 +5256,7 @@ In case it is, return the left window."
         (e2 (lispy--make-ediff-buffer
              (or buf2 (current-buffer)) (or desc2 "-B-")
              bnd2)))
+    (require 'ediff)
     (apply #'ediff-regions-internal
            `(,@(if (equal (selected-window)
                           (lispy--vertical-splitp))
@@ -8075,6 +8078,7 @@ Use only the part bounded by BND."
       (funcall mode)
       (insert str "\n")
       (indent-region (point-min) (point-max))
+      (require 'ediff-init)
       (setq ediff-temp-indirect-buffer t)
       (list (current-buffer) (point-min) (point-max)))))
 
