@@ -24,6 +24,8 @@
 
 (require 'cl-lib)
 
+(defvar lispy-tag-arity) ;; defined in lispy
+
 (declare-function semantic-new-buffer-fcn "semantic")
 (declare-function semantic-parse-region "semantic")
 (declare-function semantic-mode "semantic")
@@ -32,6 +34,9 @@
 (declare-function semantic-tag-get-attribute "tag")
 (declare-function semantic-tag-name "tag")
 (declare-function semantic-current-tag "find")
+(declare-function lispy--tag-regexp "lispy")
+(declare-function lispy--modify-tag "lispy")
+(declare-function lispy--tag-name "lispy")
 
 (defvar lispy-db (make-hash-table :test 'equal)
   "An alist of file to a pretty list of tags.")

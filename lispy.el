@@ -156,6 +156,25 @@
 (require 'pcase)
 (require 'hydra)
 
+(defsubst lispy-looking-back (regexp)
+  "Forward to (`looking-back' REGEXP)."
+  (looking-back regexp (line-beginning-position)))
+
+;;* Locals: extract block
+(defvar lispy-map-input-overlay nil
+  "The input overlay for mapping transformations.")
+
+(defvar lispy-map-target-beg 1
+  "The target start for mapping transformations.")
+
+(defvar lispy-map-target-len 1
+  "The target end for mapping transformations.")
+
+(defvar-local lispy-outline-header ";;"
+  "Store the buffer-local outline start.")
+
+(defvar lispy-map-format-function nil)
+
 ;;* Customization
 (defgroup lispy nil
   "List navigation and editing for the Lisp family."
@@ -1967,9 +1986,6 @@ When ARG is nagative, add them above instead"
       (forward-list -1)
       (newline (- arg))
       (lispy--indent-for-tab))))
-
-(defvar-local lispy-outline-header ";;"
-  "Store the buffer-local outline start.")
 
 (defun lispy-meta-return ()
   "Insert a new heading."
@@ -5890,16 +5906,6 @@ When ARG is given, paste at that place in the current list."
         (t
          (lispy-complain "should position point before (should (string="))))
 
-;;* Locals: extract block
-(defvar lispy-map-input-overlay nil
-  "The input overlay for mapping transformations.")
-
-(defvar lispy-map-target-beg 1
-  "The target start for mapping transformations.")
-
-(defvar lispy-map-target-len 1
-  "The target end for mapping transformations.")
-
 (defun lispy-map-done ()
   (interactive)
   (lispy-map-delete-overlay)
@@ -5933,8 +5939,6 @@ area between `lispy-map-target-beg' and `lispy-map-target-len'."
   "Delete `lispy-map-input-overlay'."
   (when (overlayp lispy-map-input-overlay)
     (delete-overlay lispy-map-input-overlay)))
-
-(defvar lispy-map-format-function nil)
 
 (defun lispy-map-format-function-extract-block (str)
   (let* ((fun-and-args (read (format "(%s)" str)))
@@ -6061,10 +6065,6 @@ Return start of string it is."
   (and (region-active-p)
        (eq ?\" (char-after (region-beginning)))
        (eq ?\" (char-before (region-end)))))
-
-(defsubst lispy-looking-back (regexp)
-  "Forward to (`looking-back' REGEXP)."
-  (looking-back regexp (line-beginning-position)))
 
 (defun lispy-bolp ()
   "Return t if point is at beginning of line, after optional spaces."

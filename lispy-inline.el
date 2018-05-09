@@ -130,6 +130,8 @@ The caller of `lispy--show' might use a substitute e.g. `describe-function'."
 (declare-function lispy--lisp-describe "le-lisp")
 (declare-function lispy--back-to-paren "lispy")
 (declare-function lispy--current-function "lispy")
+(declare-function lispy--in-comment-p "lispy")
+(declare-function lispy--bounds-string "lispy")
 
 ;; ——— Commands ————————————————————————————————————————————————————————————————
 (defun lispy--back-to-python-function ()
