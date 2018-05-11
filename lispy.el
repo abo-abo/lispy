@@ -7090,8 +7090,9 @@ Ignore the matches in strings and comments."
                 (lispy--replace-regexp-in-code "#f" "(ly-raw racket-false)")
                 (goto-char (point-min))
                 (while (re-search-forward "#:\\(\\(?:\\sw\\|\\s_\\)+\\)" nil t)
-                  (replace-match (format "(ly-raw racket-option %s)"
-                                         (match-string 1))))
+                  (unless (lispy--in-string-or-comment-p)
+                    (replace-match (format "(ly-raw racket-option %s)"
+                                           (match-string 1)))))
                 ;; Clojure # in a symbol
                 (goto-char (point-min))
                 (while (re-search-forward "\\_<\\(?:\\sw\\|\\s_\\)+\\_>" nil t)
