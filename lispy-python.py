@@ -17,6 +17,7 @@
 # For a full copy of the GNU General Public License
 # see <http://www.gnu.org/licenses/>.
 
+import sys
 import inspect
 import re
 import platform
@@ -112,3 +113,21 @@ def arglist_jedi (line, column, filename):
 def is_assignment (code):
     ops = ast.parse (code).body
     return len (ops) == 1 and type (ops[0]) is ast.Assign
+
+def top_level ():
+    f = sys._getframe ()
+    while f.f_back:
+        f = f.f_back
+    return f
+
+def list_step(varname, lst):
+    f_globals = top_level().f_globals
+    try:
+        val = f_globals[varname]
+        i = (lst.index(val) + 1) % len(lst)
+    except:
+        i = 0
+    val = lst[i]
+    print("[{}/{}]".format(i + 1, len(lst)))
+    f_globals[varname] = val
+    return val
