@@ -336,21 +336,17 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
   "Load the custom Clojure code in \"lispy-clojure.clj\"."
   (unless lispy--clojure-middleware-loaded-p
     (setq lispy--clojure-ns "user")
-    (let ((res (lispy--eval-clojure
-                (format "(load-file \"%s\")"
-                        (expand-file-name "lispy-clojure.clj" lispy-site-directory)))))
-      (if lispy--clojure-errorp
-          (error res)
-        (setq lispy--clojure-middleware-loaded-p t)
-        (add-hook 'nrepl-disconnected-hook #'lispy--clojure-middleware-unload)
-        (let ((sources-expr
-               (format
-                "(do \n  %s)"
-                (mapconcat
-                 (lambda (p) (format "(cemerick.pomegranate/add-classpath %S)" p))
-                 cider-jdk-src-paths
-                 "\n  "))))
-          (lispy--eval-clojure sources-expr))))))
+    (cider-load-file (expand-file-name "lispy-clojure.clj" lispy-site-directory))
+    (setq lispy--clojure-middleware-loaded-p t)
+    (add-hook 'nrepl-disconnected-hook #'lispy--clojure-middleware-unload)
+    (let ((sources-expr
+           (format
+            "(do \n  %s)"
+            (mapconcat
+             (lambda (p) (format "(cemerick.pomegranate/add-classpath %S)" p))
+             cider-jdk-src-paths
+             "\n  "))))
+      (lispy--eval-clojure sources-expr))))
 
 (defun lispy-flatten--clojure (_arg)
   "Inline a Clojure function at the point of its call."
