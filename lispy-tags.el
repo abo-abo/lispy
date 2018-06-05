@@ -121,65 +121,83 @@
 (defvar lispy-force-reparse nil
   "When non-nil, ignore that tags are up-to-date and parse anyway.")
 
+(defmacro lispy-with-mode-off (mode &rest body)
+  "Run BODY with MODE off and re-enable it if it was on."
+  (declare (indent 1)
+           (debug (form body)))
+  `(let ((mode-was-on (bound-and-true-p ,mode))
+         res)
+     (if mode-was-on
+         (progn
+           (let ((inhibit-message t))
+             (,mode -1))
+           (unwind-protect
+                (setq res (progn ,@body))
+             (let ((inhibit-message t))
+               (,mode 1)))
+           res)
+       ,@body)))
+
 (defun lispy--fetch-tags (&optional file-list)
   "Get a list of tags for FILE-LIST."
   (require 'semantic/bovine/el)
-  (setq file-list (or file-list (lispy--file-list)))
-  (let (res dbfile db-to-save)
-    (dolist (file file-list)
-      (let ((file-modtime (nth 5 (file-attributes file 'integer)))
-            (exfile (expand-file-name file)))
-        (unless (and (null lispy-force-reparse)
-                     (setq dbfile
-                           (gethash exfile lispy-db))
-                     (lispy--file-fresh-p
-                      file-modtime
-                      (lispy-dbfile-modtime dbfile))
-                     (lispy-dbfile-tags dbfile))
-          (let ((table (semanticdb-create-table-for-file (expand-file-name file))))
-            (if (null table)
-                (error "Couldn't open semanticdb for file: %S" file)
-              (let ((db (car table))
-                    (table (cdr table))
-                    tags)
-                (unless (and (null lispy-force-reparse)
-                             (lispy--file-fresh-p
-                              file-modtime
-                              (oref table lastmodtime))
-                             (setq tags
-                                   (ignore-errors
-                                     (oref table tags)))
-                             (semantic-tag-overlay (car-safe tags))
-                             (not (eq (cadr (car-safe tags)) 'code)))
-                  (let ((buf (get-file-buffer file)))
-                    (with-current-buffer (or buf (find-file-noselect file))
-                      (semantic-new-buffer-fcn)
-                      (semantic-mode 1)
-                      (oset table tags
-                            (let ((semantic-parse-tree-state 'needs-update))
-                              (lispy--fetch-this-file-tags file)))
-                      (oset table lastmodtime
-                            (current-time))
-                      (semanticdb-set-dirty table)
-                      (cl-pushnew db db-to-save)
-                      (unless buf
-                        (kill-buffer)))))
-                (puthash
-                 exfile
-                 (setq dbfile
-                       (make-lispy-dbfile
-                        :file file
-                        :modtime (oref table lastmodtime)
-                        :tags (mapcar
-                               (lambda (x)
-                                 (lispy--make-tag x exfile))
-                               (oref table tags))
-                        :plain-tags (oref table tags)))
-                 lispy-db)))))
-        (setq res (append (lispy-dbfile-tags dbfile) res))))
-    (dolist (db db-to-save)
-      (semanticdb-save-db db))
-    res))
+  (lispy-with-mode-off recentf-mode
+    (setq file-list (or file-list (lispy--file-list)))
+    (let (res dbfile db-to-save)
+      (dolist (file file-list)
+        (let ((file-modtime (nth 5 (file-attributes file 'integer)))
+              (exfile (expand-file-name file)))
+          (unless (and (null lispy-force-reparse)
+                       (setq dbfile
+                             (gethash exfile lispy-db))
+                       (lispy--file-fresh-p
+                        file-modtime
+                        (lispy-dbfile-modtime dbfile))
+                       (lispy-dbfile-tags dbfile))
+            (let ((table (semanticdb-create-table-for-file (expand-file-name file))))
+              (if (null table)
+                  (error "Couldn't open semanticdb for file: %S" file)
+                (let ((db (car table))
+                      (table (cdr table))
+                      tags)
+                  (unless (and (null lispy-force-reparse)
+                               (lispy--file-fresh-p
+                                file-modtime
+                                (oref table lastmodtime))
+                               (setq tags
+                                     (ignore-errors
+                                       (oref table tags)))
+                               (semantic-tag-overlay (car-safe tags))
+                               (not (eq (cadr (car-safe tags)) 'code)))
+                    (let ((buf (get-file-buffer file)))
+                      (with-current-buffer (or buf (find-file-noselect file))
+                        (semantic-new-buffer-fcn)
+                        (semantic-mode 1)
+                        (oset table tags
+                              (let ((semantic-parse-tree-state 'needs-update))
+                                (lispy--fetch-this-file-tags file)))
+                        (oset table lastmodtime
+                              (current-time))
+                        (semanticdb-set-dirty table)
+                        (cl-pushnew db db-to-save)
+                        (unless buf
+                          (kill-buffer)))))
+                  (puthash
+                   exfile
+                   (setq dbfile
+                         (make-lispy-dbfile
+                          :file file
+                          :modtime (oref table lastmodtime)
+                          :tags (mapcar
+                                 (lambda (x)
+                                   (lispy--make-tag x exfile))
+                                 (oref table tags))
+                          :plain-tags (oref table tags)))
+                   lispy-db)))))
+          (setq res (append (lispy-dbfile-tags dbfile) res))))
+      (dolist (db db-to-save)
+        (semanticdb-save-db db))
+      res)))
 
 (defun lispy--make-tag (tag file)
   "Construct a modified TAG entry including FILE."
