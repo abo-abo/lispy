@@ -101,7 +101,8 @@ The caller of `lispy--show' might use a substitute e.g. `describe-function'."
   :group 'lispy)
 
 (defvar lispy-elisp-modes
-  '(emacs-lisp-mode lisp-interaction-mode eltex-mode minibuffer-inactive-mode)
+  '(emacs-lisp-mode lisp-interaction-mode eltex-mode minibuffer-inactive-mode
+                    suggest-mode)
   "Modes for which `lispy--eval-elisp' and related functions are appropriate.")
 
 (defvar lispy-clojure-modes
