@@ -121,6 +121,8 @@ When ADD-OUTPUT is non-nil, add the standard output to the result."
                     'lispy--clojure-eval-hook-lambda t)
           (cider-jack-in)
           "Starting CIDER...")
+      (unless lispy--clojure-middleware-loaded-p
+        (lispy--clojure-middleware-load))
       (lispy--eval-clojure-1 str add-output))))
 
 ;;* Base eval
@@ -336,7 +338,8 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
   "Load the custom Clojure code in \"lispy-clojure.clj\"."
   (unless lispy--clojure-middleware-loaded-p
     (setq lispy--clojure-ns "user")
-    (cider-load-file (expand-file-name "lispy-clojure.clj" lispy-site-directory))
+    (save-window-excursion
+      (cider-load-file (expand-file-name "lispy-clojure.clj" lispy-site-directory)))
     (setq lispy--clojure-middleware-loaded-p t)
     (add-hook 'nrepl-disconnected-hook #'lispy--clojure-middleware-unload)
     (let ((sources-expr
