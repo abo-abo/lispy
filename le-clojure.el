@@ -334,12 +334,25 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
 
 (defvar cider-jdk-src-paths)
 
+(defun lispy-cider-load-file (filename)
+  (let ((ns-form  (cider-ns-form)))
+    (cider-map-repls :auto
+      (lambda (connection)
+        (when ns-form
+          (cider-repl--cache-ns-form ns-form connection))
+        (cider-request:load-file (cider--file-string filename)
+                                 (funcall cider-to-nrepl-filename-function
+                                          (cider--server-filename filename))
+                                 (file-name-nondirectory filename)
+                                 connection)))))
+
 (defun lispy--clojure-middleware-load ()
   "Load the custom Clojure code in \"lispy-clojure.clj\"."
   (unless lispy--clojure-middleware-loaded-p
     (setq lispy--clojure-ns "user")
     (save-window-excursion
-      (cider-load-file (expand-file-name "lispy-clojure.clj" lispy-site-directory)))
+      (lispy-cider-load-file
+       (expand-file-name "lispy-clojure.clj" lispy-site-directory)))
     (setq lispy--clojure-middleware-loaded-p t)
     (add-hook 'nrepl-disconnected-hook #'lispy--clojure-middleware-unload)
     (let ((sources-expr
