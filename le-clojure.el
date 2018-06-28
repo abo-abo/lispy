@@ -109,7 +109,7 @@ When ADD-OUTPUT is non-nil, add the standard output to the result."
   (unless (eq major-mode 'clojurescript-mode)
     (add-hook 'cider-connected-hook #'lispy--clojure-middleware-load))
   (let (deactivate-mark)
-    (if (null (cider-default-connection t))
+    (if (null (car (cider-connections)))
         (progn
           (setq lispy--clojure-hook-lambda
                 `(lambda ()
@@ -433,7 +433,7 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
   (cider-find-var nil symbol))
 
 (defun lispy-clojure-complete-at-point ()
-  (when (cider-default-connection t)
+  (when (car (cider-connections))
     (ignore-errors
       (lispy--clojure-detect-ns)
       (let* ((lispy-ignore-whitespace t)
