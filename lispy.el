@@ -4219,7 +4219,7 @@ Return the result of the last evaluation as a string."
                     (> (point) beg)
                     (setq bnd (lispy--bounds-comment)))
               (goto-char (car bnd))
-              (skip-chars-backward "\n"))
+              (skip-chars-backward "\n "))
             (point))))
     (if (> beg end)
         (cons beg beg)
