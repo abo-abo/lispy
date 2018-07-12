@@ -651,8 +651,7 @@ If couldn't move backward at least once, move up backward and return nil."
   "Move outside list forwards ARG times.
 Return nil on failure, t otherwise."
   (interactive "p")
-  (when (called-interactively-p 'interactive)
-    (lispy--remember))
+  (lispy--remember)
   (when (bound-and-true-p abbrev-mode)
     (ignore-errors (expand-abbrev)))
   (cond ((region-active-p)
@@ -676,8 +675,7 @@ Self-insert otherwise."
   "Move outside list forwards ARG times.
 Return nil on failure, t otherwise."
   (interactive "p")
-  (when (called-interactively-p 'interactive)
-    (lispy--remember))
+  (lispy--remember)
   (cond ((region-active-p)
          (lispy-mark-left arg))
         ((looking-at lispy-outline)
@@ -730,8 +728,7 @@ Reveal outlines."
 Don't enter strings or comments.
 Return nil if can't move."
   (interactive "p")
-  (when (called-interactively-p 'interactive)
-    (lispy--remember))
+  (lispy--remember)
   (let ((pt (point))
         success)
     (lispy-dotimes arg
@@ -762,8 +759,7 @@ Return nil if can't move."
 (defun lispy-down (arg)
   "Move down ARG times inside current list."
   (interactive "p")
-  (when (called-interactively-p 'interactive)
-    (lispy--remember))
+  (lispy--remember)
   (cond ((region-active-p)
          (let ((leftp (= (point) (region-beginning))))
            (when leftp
@@ -829,8 +825,7 @@ Return nil if can't move."
 (defun lispy-up (arg)
   "Move up ARG times inside current list."
   (interactive "p")
-  (when (called-interactively-p 'interactive)
-    (lispy--remember))
+  (lispy--remember)
   (cond ((region-active-p)
          (let ((leftp (= (point) (region-beginning))))
            (unless leftp
@@ -5335,8 +5330,7 @@ Second region and buffer are the current ones."
 (defun lispy-mark-car ()
   "Mark the car of current thing."
   (interactive)
-  (when (called-interactively-p 'interactive)
-    (lispy--remember))
+  (lispy--remember)
   (let ((bnd-1 (lispy--bounds-dwim))
         bnd-2)
     (cond ((and (eq (char-after (car bnd-1)) ?\")
