@@ -21,6 +21,7 @@ import sys
 import inspect
 import re
 import platform
+import shlex
 try:
     import jedi
 except:
@@ -131,3 +132,6 @@ def list_step(varname, lst):
     print("[{}/{}]".format(i + 1, len(lst)))
     f_globals[varname] = val
     return val
+
+def argv(cmd):
+    sys.argv = shlex.split(cmd)
