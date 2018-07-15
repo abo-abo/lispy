@@ -5545,6 +5545,17 @@ An equivalent of `cl-destructuring-bind'."
   (interactive)
   (describe-bindings (kbd "C-4")))
 
+(defun lispy-cd ()
+  "Change the current REPL working directory."
+  (interactive)
+  (if (eq major-mode 'python-mode)
+      (let* ((pwd
+              (lispy--eval-python "import os; print(os.getcwd())"))
+             (cwd (read-directory-name "cd: " pwd)))
+        (lispy--eval-python (format "os.chdir('%s')" cwd))
+        (message cwd))
+    (user-error "Unimplemented for %S" major-mode)))
+
 (defhydra hydra-lispy-x (:exit t
                          :hint nil
                          :columns 3)
@@ -5565,7 +5576,7 @@ An equivalent of `cl-destructuring-bind'."
   ("k" lispy-extract-block "extract block")
   ("l" lispy-to-lambda "to lambda")
   ("m" lispy-cursor-ace "multi cursor")
-  ;; ("n" nil)
+  ("n" lispy-cd)
   ;; ("o" nil)
   ("p" lispy-set-python-process "process")
   ;; ("q" nil)
