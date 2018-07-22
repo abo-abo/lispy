@@ -44,8 +44,8 @@
 
 (cemerick.pomegranate/add-classpath
   (expand-file-name "../lib/tools.jar" (System/getProperty "java.home")))
-(use-package 'cider/cider-nrepl "0.16.0")
-(require '[cider.nrepl.middleware.util.java.parser :as parser])
+(use-package 'cider/orchard "0.3.0")
+(require '[orchard.java.parser :as parser])
 
 (defmacro xcond [& clauses]
   "Common Lisp style `cond'.
