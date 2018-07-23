@@ -273,6 +273,18 @@ it like this:
      (lispy-define-key lispy-mode-map "s" 'lispy-down)))
 ```
 
+## Compatibility with other modes
+
+Use the `lispy-compat` variable to enable compatibility with modes that could otherwise conflict. These currently include:
+
+- god-mode
+- magit-blame-mode
+- edebug
+- cider
+- macrostep
+
+The default setting only enables compatibility with `edebug`.
+
 # Operating on lists
 
 ## How to get into list-editing mode (special)
