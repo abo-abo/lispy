@@ -8950,7 +8950,7 @@ When ARG is non-nil, unquote the current string."
   (interactive)
   (let ((bnd (lispy--bounds-list)))
     (if (eq (point) (car bnd))
-        (lispy-raise 1)
+        (lispy-raise-some)
       (lispy--mark (cons (1+ (car bnd)) (point)))
       (lispy-raise 1)
       (deactivate-mark))))

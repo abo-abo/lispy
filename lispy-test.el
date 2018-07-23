@@ -2885,6 +2885,9 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "(foo (let ((x 5)) |(sqrt n)) bar)"
                                (kbd "M-<up>"))
                    "(foo |(sqrt n) bar)"))
+  (should (string= (lispy-with "(progn (1) |(2) (3))"
+                               (kbd "M-<up>"))
+                   "|(2) (3)"))
   (lispy-set-key-theme '(special lispy c-digits oleh)))
 
 (ert-deftest lispy-paredit-splice-sexp-killing-forward ()
