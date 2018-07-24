@@ -4224,6 +4224,10 @@ Return the result of the last evaluation as a string."
   (let* ((bnd (lispy--eval-bounds-outline))
          (res (lispy--eval
                (lispy--string-dwim bnd))))
+    (when (and (null res)
+               (eq major-mode 'python-mode)
+               (string-match "^\\(.*Error:.*\\)" lispy-eval-error))
+      (setq res (match-string-no-properties 1 lispy-eval-error)))
     (cond ((null res)
            (lispy-message lispy-eval-error))
           ((equal res "")
