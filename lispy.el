@@ -4156,9 +4156,12 @@ When ARG is 2, insert the result as a comment."
 (defun lispy-add-outline-title ()
   (save-excursion
     (lispy-outline-prev 1)
-    (if (looking-at "\\(;;\\*+ ?:$\\)")
-        (match-string-no-properties 1)
-      (concat ";;" (make-string (1+ (funcall outline-level)) ?*) " :"))))
+    (let ((comment (if (eq major-mode 'python-mode)
+                       "#"
+                     ";;")))
+      (if (looking-at (format "\\(%s\\*+ ?:$\\)" comment))
+          (match-string-no-properties 1)
+        (concat comment (make-string (1+ (funcall outline-level)) ?*) " :")))))
 
 (defun lispy-insert-outline-below ()
   (interactive)
