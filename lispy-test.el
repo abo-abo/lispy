@@ -2888,6 +2888,9 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "(progn (1) |(2) (3))"
                                (kbd "M-<up>"))
                    "|(2) (3)"))
+  (should (string= (lispy-with "(a (b c |d e) f)"
+                               (kbd "M-<up>"))
+                   "(a d e| f)"))
   (lispy-set-key-theme '(special lispy c-digits oleh)))
 
 (ert-deftest lispy-paredit-splice-sexp-killing-forward ()
@@ -2895,6 +2898,9 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "(a (b c| d e) f)"
                                (kbd "M-<down>"))
                    "(a b c| f)"))
+  (should (string= (lispy-with "((a) (b) (c)| (d) (f))"
+                               (kbd "M-<down>"))
+                   "(a) (b) (c)|"))
   (lispy-set-key-theme '(special lispy c-digits oleh)))
 
 (ert-deftest lispy-paredit-raise-sexp ()

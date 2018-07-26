@@ -8958,9 +8958,21 @@ When ARG is non-nil, unquote the current string."
   (let ((bnd (lispy--bounds-list)))
     (if (eq (point) (car bnd))
         (lispy-raise-some)
-      (lispy--mark (cons (1+ (car bnd)) (point)))
+      (lispy--mark (cons (point) (1- (cdr bnd))))
       (lispy-raise 1)
       (deactivate-mark))))
+
+(defun lispy-splice-sexp-killing-forward ()
+  "Forward to `lispy-raise'."
+  (interactive)
+  (if (lispy-right-p)
+      (lispy-raise-some)
+    (let ((bnd (lispy--bounds-list)))
+      (if (eq (point) (car bnd))
+          (lispy-raise-some)
+        (lispy--mark (cons (1+ (car bnd)) (point)))
+        (lispy-raise 1)
+        (deactivate-mark)))))
 
 (defun lispy-raise-sexp ()
   "Forward to `lispy-raise'."
@@ -9053,7 +9065,7 @@ When ARG is non-nil, unquote the current string."
     (define-key map (kbd "M-(") 'lispy-wrap-round)
     (define-key map (kbd "M-s") 'lispy-splice)
     (define-key map (kbd "M-<up>") 'lispy-splice-sexp-killing-backward)
-    (define-key map (kbd "M-<down>") 'lispy-splice-sexp-killing-backward)
+    (define-key map (kbd "M-<down>") 'lispy-splice-sexp-killing-forward)
     (define-key map (kbd "M-r") 'lispy-raise-sexp)
     (define-key map (kbd "M-?") 'lispy-convolute-sexp)
     (define-key map (kbd "C-)") 'lispy-forward-slurp-sexp)
