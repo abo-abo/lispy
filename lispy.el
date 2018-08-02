@@ -4327,7 +4327,8 @@ If STR is too large, pop it to a buffer instead."
       (lispy--insert-eval-result (or str lispy-eval-error))
       (unless (eolp)
         (newline)))
-    (lispy--reindent 1)
+    (unless (eq major-mode 'python-mode)
+      (lispy--reindent 1))
     (when re-bnd
       (lispy--mark re-bnd))))
 
