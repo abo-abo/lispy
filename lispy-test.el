@@ -2042,6 +2042,8 @@ Insert KEY if there's no command."
                    "|(range 1e9)"))
   (should (equal (lispy-with "|(pcase :bar\n    (`,pat pat))" "i")
                  "|(pcase :bar\n  (`,pat pat))"))
+  (should (equal (lispy-with "'|(27 ?\\C-g)" "i")
+                 "'|(27 ?\\C-g)"))
   (let ((clojure-align-forms-automatically nil))
     (should (string= (lispy-with-clojure "|{\\a   \\b}" "i")
                      "|{\\a \\b}"))

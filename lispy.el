@@ -7134,7 +7134,7 @@ Ignore the matches in strings and comments."
   (unless (lispy-after-string-p "?")
     (error "unexpected"))
   (if (looking-at "\\\\")
-      (forward-char 2)
+      (forward-sexp 1)
     (forward-char 1)))
 
 (defvar lispy--insert-alist
