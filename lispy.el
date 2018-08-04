@@ -5553,6 +5553,8 @@ An equivalent of `cl-destructuring-bind'."
   (interactive)
   (describe-bindings (kbd "C-4")))
 
+(declare-function lispy--eval-python "le-python")
+
 (defun lispy-cd ()
   "Change the current REPL working directory."
   (interactive)
