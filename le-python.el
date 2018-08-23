@@ -538,7 +538,7 @@ it at one time."
                   t))))
       (if (member res '(nil "Definition not found."))
           (let* ((symbol (python-info-current-symbol))
-                 (symbol-re (concat "^def.*" (car (last (split-string symbol "\\." t)))))
+                 (symbol-re (concat "^\\(?:def\\|class\\).*" (car (last (split-string symbol "\\." t)))))
                  (file (lispy--eval-python
                         (format
                          "import inspect\nprint(inspect.getsourcefile(%s))" symbol))))
