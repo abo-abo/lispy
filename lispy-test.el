@@ -1404,7 +1404,11 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "(|sugar~-free lisp)" "s")
                    "(free-|sugar~ lisp)"))
   (should (string= (lispy-with "(|sugar~-free lisp)" "ss")
-                   "(free-|sugar~ lisp)")))
+                   "(free-|sugar~ lisp)"))
+  (should (string= (lispy-with-clojure
+                    "(list\n  {~:bar \"foo\"|\n   :foo \"bar\"})"
+                    "2s")
+                   "(list\n  {:foo \"bar\"\n   ~:bar \"foo\"|})")))
 
 (ert-deftest lispy-move-down ()
   (should (string= (lispy-with "(|(a) (b) (c))" "s")
