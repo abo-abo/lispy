@@ -26,6 +26,7 @@
 (require 'lispy)
 (require 'cider-client nil t)
 (require 'cider-interaction nil t)
+(require 'cider-eval nil t)
 
 (defcustom lispy-clojure-eval-method 'cider
   "REPL used for eval."
@@ -119,7 +120,7 @@ When ADD-OUTPUT is non-nil, add the standard output to the result."
                     (lispy--eval-clojure-1 ,str ,add-output))))
           (add-hook 'nrepl-connected-hook
                     'lispy--clojure-eval-hook-lambda t)
-          (cider-jack-in)
+          (call-interactively 'cider-jack-in)
           "Starting CIDER...")
       (unless lispy--clojure-middleware-loaded-p
         (lispy--clojure-middleware-load))
