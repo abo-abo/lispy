@@ -5181,7 +5181,10 @@ With ARG, use the contents of `lispy-store-region-and-buffer' instead."
   (lispy-flow 1))
 
 (defun lispy-bind-variable ()
-  "Bind current expression as variable."
+  "Bind current expression as variable.
+
+`lispy-map-done' is used to finish entering the variable name.
+The bindings of `lispy-backward' or `lispy-mark-symbol' can also be used."
   (interactive)
   (let* ((bnd (lispy--bounds-dwim))
          (str (lispy--string-dwim bnd)))
