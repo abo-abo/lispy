@@ -200,7 +200,9 @@ The caller of `lispy--show' might use a substitute e.g. `describe-function'."
     (cond ((region-active-p)
            (goto-char (region-beginning)))
           ((eq major-mode 'python-mode)
-           (goto-char (beginning-of-thing 'sexp)))
+           (condition-case nil
+               (goto-char (beginning-of-thing 'sexp))
+             (error (up-list -1))))
           (t
            (lispy--back-to-paren)))
     (point)))
@@ -274,19 +276,21 @@ The caller of `lispy--show' might use a substitute e.g. `describe-function'."
      (require 'le-lisp)
      (lispy--lisp-describe sym))
     ((eq major-mode 'python-mode)
-     (require 'semantic)
-     (semantic-mode 1)
-     (let ((sym (semantic-ctxt-current-symbol)))
-       (if sym
-           (progn
-             (setq sym (mapconcat #'identity sym "."))
-             (require 'le-python)
-             (or
-              (lispy--python-docstring sym)
-              (progn
-                (message "no doc: %s" sym)
-                nil)))
-         (error "The point is not on a symbol"))))
+     (require 'le-python)
+     (if sym
+         (lispy--python-docstring sym)
+       (require 'semantic)
+       (semantic-mode 1)
+       (let ((sym (semantic-ctxt-current-symbol)))
+         (if sym
+             (progn
+               (setq sym (mapconcat #'identity sym "."))
+               (or
+                (lispy--python-docstring sym)
+                (progn
+                  (message "no doc: %s" sym)
+                  nil)))
+           (error "The point is not on a symbol")))))
     (t
      (format "%s isn't supported currently" major-mode))))
 

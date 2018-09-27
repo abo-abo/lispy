@@ -6383,9 +6383,13 @@ Otherwise return cons of current string, symbol or list bounds."
         (if (string-match "\\`[#'`]*\\(.*?\\)'?\\'" str)
             (match-string 1 str)
           nil))
-    (if (eq major-mode 'python-mode)
-        (lispy--string-dwim (bounds-of-thing-at-point 'symbol))
-      (save-excursion
+    (save-excursion
+      (if (eq major-mode 'python-mode)
+          (let ((bnd (bounds-of-thing-at-point 'symbol)))
+            (if bnd
+                (lispy--string-dwim bnd)
+              (up-list -1)
+              (python-info-current-symbol)))
         (lispy--back-to-paren)
         (when (looking-at "(\\([^ \n)]+\\)[ )\n]")
           (match-string-no-properties 1))))))
