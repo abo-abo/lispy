@@ -300,7 +300,7 @@ it at one time."
         ((equal res "")
          (setq lispy-eval-error "(ok)")
          "")
-        ((string-match-p "^<\\(?:map\\|filter\\) object" res)
+        ((string-match-p "^<\\(?:map\\|filter\\|generator\\) object" res)
          (lispy--eval-python (format "list(%s)" str) t))
         (t
          (replace-regexp-in-string "\\\\n" "\n" res))))))
