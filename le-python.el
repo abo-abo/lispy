@@ -305,6 +305,8 @@ it at one time."
            (when (string-match "\\`print (repr ((\\(.*\\))))\\'" last)
              (setq str (match-string 1 last))))
          (lispy--eval-python (format "list(%s)" str) t))
+        ((string-match-p "SyntaxError:" res)
+         nil)
         (t
          (replace-regexp-in-string "\\\\n" "\n" res))))))
 
