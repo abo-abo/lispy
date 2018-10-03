@@ -301,6 +301,9 @@ it at one time."
          (setq lispy-eval-error "(ok)")
          "")
         ((string-match-p "^<\\(?:map\\|filter\\|generator\\) object" res)
+         (let ((last (car (last (split-string str "\n")))))
+           (when (string-match "\\`print (repr ((\\(.*\\))))\\'" last)
+             (setq str (match-string 1 last))))
          (lispy--eval-python (format "list(%s)" str) t))
         (t
          (replace-regexp-in-string "\\\\n" "\n" res))))))
