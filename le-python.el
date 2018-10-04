@@ -264,7 +264,7 @@ it at one time."
                                      p1 (lispy--python-proc)))
                          p2-output)
                     (cond
-                      ((string-match-p "SyntaxError:" p1-output)
+                      ((string-match-p "SyntaxError:\\|error:" p1-output)
                        (python-shell-send-string-no-output
                         str (lispy--python-proc)))
                       ((null p1-output)
