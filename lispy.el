@@ -5604,6 +5604,7 @@ An equivalent of `cl-destructuring-bind'."
   ;; ("z" nil)
   ("B" lispy-store-region-and-buffer "store list bounds")
   ("R" lispy-reverse "reverse")
+  ("T" lispy-ert "ert")
   ("" lispy-x-more-verbosity :exit nil)
   ("?" lispy-x-more-verbosity "help" :exit nil))
 
@@ -5628,7 +5629,7 @@ An equivalent of `cl-destructuring-bind'."
                             (concat
                              "\n_b_nd _c_nd _d_ef _e_de _f_la "
                              "_h_elp _i_f _j_mp bl_k_ _l_mb _m_ul "
-                             "_r_ep _s_av _u_nb _v_t _B_nd _R_ev _?_")
+                             "_r_ep _s_av _u_nb _v_t _B_nd _R_ev er_T_ _?_")
                             hydra-lispy-x/heads))
        (hydra-set-property 'hydra-lispy-x :verbosity 1))
       (1
