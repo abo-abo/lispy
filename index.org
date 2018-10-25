@@ -193,7 +193,6 @@
 | Q   | [[#lispy-ace-char][lispy-ace-char]]           |
 | R   | [[#lispy-raise-some][lispy-raise-some]]         |
 | S   | [[#lispy-stringify][lispy-stringify]]          |
-| T   | [[#lispy-ert][lispy-ert]]                |
 | U   | unbound                  |
 | V   | [[#lispy-visit][lispy-visit]]              |
 | W   | [[#lispy-widen][lispy-widen]]              |
@@ -221,6 +220,7 @@
 | xr  | [[#lispy-eval-and-replace][lispy-eval-and-replace]]        |
 | xu  | [[#lispy-unbind-variable][lispy-unbind-variable]]         |
 | xB  | [[#lispy-store-region-and-buffer][lispy-store-region-and-buffer]] |
+| xT  | [[#lispy-ert][lispy-ert]]                     |
 
 * Function reference
 ** =lispy-forward=
@@ -2960,7 +2960,7 @@ progn
 :CUSTOM_ID: lispy-ert
 :END:
 
-Bound to ~T~.
+Bound to ~xT~.
 
 Forward to [[https://www.gnu.org/software/emacs/manual/html_node/ert/index.html][=ert=]].
 -----
@@ -3109,4 +3109,3 @@ Many lispy commands take a prefix arg, e.g. ~3j~ is equivalent to
 <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
 <br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br><br>
 #+END_EXPORT
-
