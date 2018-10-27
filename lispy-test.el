@@ -723,7 +723,12 @@ Insert KEY if there's no command."
       (should (string= (lispy-with "(a\n;; foo~bar\nb|)" "\C-d")
                        "(a\n;; foo~\n|)"))
       (should (string= (lispy-with "(a\n;; foo~bar\nb)|" "\C-d")
-                       "(a\n;; foo~\n)|"))))
+                       "(a\n;; foo~\n)|"))
+      ;; test that full comments are deleted with their newlines
+      (should (string= (lispy-with ";; foo\n~;;bar\n|(baz)" "\C-d")
+                       ";; foo\n~|(baz)"))
+      (should (string= (lispy-with ";; foo\n~;;bar\n|(baz\n qux)" "\C-d")
+                       ";; foo\n~|(baz\n qux)"))))
 
   (let ((lispy-delete-sexp-from-within t))
     (should (string= (lispy-with "(|)" "\C-d") "|"))
