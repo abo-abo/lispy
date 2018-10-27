@@ -8597,46 +8597,61 @@ checked and nil will be returned."
                      (push match-beginning right-positions))))))))
         (nreverse (append left-positions right-positions))))))
 
+(defun lispy--maybe-split-safe-region (beg end &optional end-unsafe-p)
+  "Return a list of regions between BEG and END that are safe to delete.
+It is expected that there are no unmatched delimiters in between BEG and END.
+Split the region if deleting it would pull unmatched delimiters into a comment.
+Specifically, split the region if all of the following are true:
+
+- `lispy-safe-actions-no-pull-delimiters-into-comments' is non-nil
+- BEG is inside a comment
+- END is not in a comment
+- Either there are unmatched delimiters on the line after END or END-UNSAFE-P is
+  non-nil
+
+Otherwise, just return a list with the initial region. The regions are returned
+in reverse order so that they can be easily deleted without recalculation."
+  (if (and lispy-safe-actions-no-pull-delimiters-into-comments
+           ;; check that BEG is inside a comment
+           ;; `lispy--in-comment-p' returns t at comment start which is
+           ;; unwanted here
+           (and (save-excursion
+                  (nth 4 (syntax-ppss beg))))
+           (save-excursion
+             (goto-char end)
+             ;; check that END is not inside or a comment and that the
+             ;; following line has unmatched delimiters or has been specified
+             ;; as unsafe to pull into a comment
+             (and (not (lispy--in-comment-p))
+                  (or end-unsafe-p
+                      (lispy--find-unmatched-delimiters
+                       end
+                       (line-end-position))))))
+      ;; exclude newline; don't pull END into a comment
+      (let ((comment-end-pos (save-excursion
+                               (goto-char beg)
+                               (cdr (lispy--bounds-comment)))))
+        (list (cons (1+ comment-end-pos) end)
+              (cons beg comment-end-pos)))
+    (list (cons beg end))))
+
 (defun lispy--find-safe-regions (beg end)
-  "Return a list of safe regions between BEG and END.
+  "Return a list of regions between BEG and END that are safe to delete.
 The regions are returned in reverse order so that they can be easily deleted
 without recalculation."
   (let ((unmatched-delimiters (lispy--find-unmatched-delimiters beg end))
         (maybe-safe-pos beg)
         safe-regions)
-    (cl-flet
-        ((maybe-split-safe-region (beg end &optional end-unsafe-p)
-           ;; already guaranteed that no unmatched delimiters in between BEG and
-           ;; END
-           (let (comment-end-pos)
-             (cond ((and lispy-safe-actions-no-pull-delimiters-into-comments
-                         (save-excursion
-                           (goto-char beg)
-                           (let ((comment-bounds (lispy--bounds-comment)))
-                             (setq comment-end-pos (cdr comment-bounds))
-                             (and comment-bounds
-                                  (not (= beg (car comment-bounds))))))
-                         (save-excursion
-                           (goto-char end)
-                           (and (not (lispy--in-comment-p))
-                                (or end-unsafe-p
-                                    (lispy--find-unmatched-delimiters
-                                     end
-                                     (line-end-position))))))
-                    ;; exclude newline; don't pull END into a comment
-                    (list (cons (1+ comment-end-pos) end)
-                          (cons beg comment-end-pos)))
-                   (t
-                    (list (cons beg end)))))))
-      (dolist (unsafe-pos unmatched-delimiters)
-        (unless (= maybe-safe-pos unsafe-pos)
-          (setq safe-regions
-                (nconc (maybe-split-safe-region maybe-safe-pos unsafe-pos t)
-                       safe-regions)))
-        (setq maybe-safe-pos (1+ unsafe-pos)))
-      (setq safe-regions
-            (nconc (maybe-split-safe-region maybe-safe-pos end)
-                   safe-regions)))))
+    (dolist (unsafe-pos unmatched-delimiters)
+      (unless (= maybe-safe-pos unsafe-pos)
+        (setq safe-regions
+              (nconc (lispy--maybe-split-safe-region maybe-safe-pos unsafe-pos
+                                                     t)
+                     safe-regions)))
+      (setq maybe-safe-pos (1+ unsafe-pos)))
+    (setq safe-regions
+          (nconc (lispy--maybe-split-safe-region maybe-safe-pos end)
+                 safe-regions))))
 
 (defun lispy--maybe-safe-delete-region (beg end)
   "Delete the region from BEG to END.
