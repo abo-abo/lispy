@@ -547,6 +547,8 @@ Insert KEY if there's no command."
                    "(list |\n      (bar))"))
   (should (string= (lispy-with "(looking-at \"|;\")" "\C-k")
                    "(looking-at \"|\")"))
+  (should (string= (lispy-with "(foo)|   ;bar\n(baz)" "\C-k")
+                   "(foo)|\n(baz)"))
   (should (string= (lispy-with "|#[foo\n  bar]" "\C-k")
                    "|"))
   (should (string= (lispy-with "|#(foo\n  bar)" "\C-k")
@@ -565,7 +567,7 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "(progn\n|  ;;  Comment\n  (new-code))" "\C-k")
                    "(progn\n|\n  (new-code))"))
   (should (equal (lispy-with "(progn\n  |\"test\" \n  (bar))"
-                           "\C-k")
+                             "\C-k")
                  "(progn\n  |\n  (bar))"))
   (should (equal (lispy-with "(progn\n|  \"docs\" ;;  0\n  (one)  ;;  1\n  )"
                              "\C-k")

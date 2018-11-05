@@ -989,8 +989,10 @@ If position isn't special, move to previous or error."
   (interactive)
   (let (bnd)
     (cond ((or (lispy--in-comment-p)
-               (and (lispy-bolp)
-                    (looking-at " *;")))
+               (and (looking-at " *;")
+                    (save-excursion
+                      (goto-char (match-end 0))
+                      (lispy--in-comment-p))))
            (kill-line))
 
           ((and (setq bnd (lispy--bounds-string))
