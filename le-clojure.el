@@ -99,7 +99,9 @@
     (cider-add-to-alist 'cider-jack-in-dependencies
      "org.tcrawley/dynapath" "0.2.5")
     (cider-add-to-alist 'cider-jack-in-dependencies
-     "com.cemerick/pomegranate" "0.4.0")))
+     "com.cemerick/pomegranate" "0.4.0")
+    (cider-add-to-alist 'cider-jack-in-dependencies
+     "compliment" "0.3.6")))
 
 (defun lispy--eval-clojure (str &optional add-output)
   "Eval STR as Clojure code.

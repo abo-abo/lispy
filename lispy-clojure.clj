@@ -36,7 +36,7 @@
 (defn expand-file-name [name dir]
   (. (io/file dir name) getCanonicalPath))
 
-(use-package 'compliment "0.3.5")
+(use-package 'compliment "0.3.6")
 (require '[compliment.core :as compliment])
 
 (use-package 'me.raynes/fs "1.4.6")
