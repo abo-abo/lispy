@@ -42,11 +42,6 @@
 (use-package 'me.raynes/fs "1.4.6")
 (require '[me.raynes.fs :as fs])
 
-(cemerick.pomegranate/add-classpath
-  (expand-file-name "../lib/tools.jar" (System/getProperty "java.home")))
-(use-package 'cider/orchard "0.3.0")
-(require '[orchard.java.parser :as parser])
-
 (defmacro xcond [& clauses]
   "Common Lisp style `cond'.
 
@@ -536,32 +531,33 @@ malleable to refactoring."
             (list (:l-file m) (:l-line m)))
            ((and (:file m) (not (re-matches #"^/tmp/" (:file m))))
             (list (file->elisp (:file m)) (:line m)))
-           ((class? rs)
-            (let [sym (symbol (class-name rs))
-                  info (parser/source-info sym)]
-              (list
-                (file->elisp
-                  (:file info))
-                (:line info))))
-           ((nil? rs)
-            (let [name (str sym)
-                  [cls method] (str/split name #"/")
-                  file (-> (clojure.core/symbol cls)
-                           (resolve)
-                           (class-name)
-                           (parser/source-path)
-                           (file->elisp))
-                  line (-> (symbol cls)
-                           (resolve)
-                           (class-name)
-                           (symbol)
-                           (parser/source-info)
-                           (:members)
-                           (get (clojure.core/symbol method))
-                           (vals)
-                           (first)
-                           (:line))]
-              (list file line))))))
+           ;; ((class? rs)
+           ;;  (let [sym (symbol (class-name rs))
+           ;;        info (parser/source-info sym)]
+           ;;    (list
+           ;;      (file->elisp
+           ;;        (:file info))
+           ;;      (:line info))))
+           ;; ((nil? rs)
+           ;;  (let [name (str sym)
+           ;;        [cls method] (str/split name #"/")
+           ;;        file (-> (clojure.core/symbol cls)
+           ;;                 (resolve)
+           ;;                 (class-name)
+           ;;                 (parser/source-path)
+           ;;                 (file->elisp))
+           ;;        line (-> (symbol cls)
+           ;;                 (resolve)
+           ;;                 (class-name)
+           ;;                 (symbol)
+           ;;                 (parser/source-info)
+           ;;                 (:members)
+           ;;                 (get (clojure.core/symbol method))
+           ;;                 (vals)
+           ;;                 (first)
+           ;;                 (:line))]
+           ;;    (list file line)))
+           )))
 
 (defn pp [expr]
   (with-out-str
