@@ -515,7 +515,7 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
                      (lispy--string-dwim)))
            (sig (read
                  (lispy--eval-clojure
-                  (format "(lispy-clojure/method-signature %s \"%s\")" object method)))))
+                  (format "(lispy-clojure/method-signature (lispy-clojure/reval \"%s\" nil) \"%s\")" object method)))))
       (when (> (length sig) 0)
         (if (string-match "\\`public \\(.*\\)(\\(.*\\))\\'" sig)
             (let ((name (match-string 1 sig))
