@@ -168,4 +168,7 @@
     (is (= (reval "(.put \"b\" 2)" js) {"a" 1, "b" 2})))
   (is (= (reval "(def x1 1)\n(+ x1 x1)" nil) 2)))
 
+(deftest format-ctor-test
+  (is (= (lispy-clojure/format-ctor "protected java.awt.Graphics2D()") "java.awt.Graphics2D.")))
+
 (clojure.test/run-tests 'lispy-clojure-test)

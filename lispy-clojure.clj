@@ -300,7 +300,7 @@ malleable to refactoring."
   (. obj getDeclaredConstructors))
 
 (defn format-ctor [s]
-  (let [[_ name args] (re-find #"public (.*)\((.*)\)" s)]
+  (let [[_ name args] (re-find #"(?:public|protected) (.*)\((.*)\)" s)]
     (str name
          "."
          (if (= args "")
