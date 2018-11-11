@@ -448,7 +448,7 @@ malleable to refactoring."
               (vector? expr)
               (= 2 (count expr)))
          (shadow-dest
-           [(first expr) (first (second expr))]))
+           [(first expr) (first (eval `(with-shadows ~(second expr))))]))
         ((and (#{'dotimes} (first context))
               (vector? expr)
               (= 2 (count expr)))
