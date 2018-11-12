@@ -359,6 +359,57 @@ it at one time."
      (setcar bnd (point)))
     bnd))
 
+(defun lispy--normalize-files (fs)
+  (cl-sort
+   (cl-set-difference
+    fs
+    '("./" "../") :test #'equal)
+   #'lispy-dir-string<))
+
+(defun lispy--completion-common-len (str)
+  (if (eq (get-text-property 0 'face str)
+          'completions-common-part)
+      (next-property-change 0 str)
+    0))
+
+(defun lispy--complete-fname-1 (str pt)
+  "Try to complete a partial file name in STR at PT.
+Depends on `default-directory'."
+  (with-temp-buffer
+    (insert str)
+    (comint-mode)
+    (let* ((com (comint-filename-completion))
+           (cands
+            (all-completions
+             (buffer-substring-no-properties
+              (nth 0 com)
+              (nth 1 com))
+             (nth 2 com))))
+      (when com
+        (list (- pt (lispy--completion-common-len (car cands)))
+              pt
+              (delete
+               "../"
+               (delete
+                "./"
+                (all-completions
+                 (buffer-substring-no-properties
+                  (nth 0 com)
+                  (nth 1 com))
+                 (nth 2 com)))))))))
+
+(defun lispy--complete-fname ()
+  (let ((ini-bnd (bounds-of-thing-at-point 'filename)))
+    (if ini-bnd
+        (let* ((str-bnd (lispy--bounds-string))
+               (str (buffer-substring-no-properties
+                     (1+ (car str-bnd))
+                     (1- (cdr str-bnd)))))
+          (lispy--complete-fname-1 str (point)))
+      (list (point) (point)
+            (lispy--normalize-files
+             (all-completions "" #'read-file-name-internal))))))
+
 (defun lispy-python-completion-at-point ()
   (cond ((looking-back "^\\(import\\|from\\) .*" (line-beginning-position))
          (let* ((line (buffer-substring-no-properties
@@ -376,16 +427,7 @@ it at one time."
                 (end (if bnd (cdr bnd) (point))))
            (list beg end cands)))
         ((lispy--in-string-p)
-         (let* ((bnd-1 (lispy--bounds-string))
-                (bnd-2 (or (bounds-of-thing-at-point 'symbol)
-                           (cons (point) (point))))
-                (str (buffer-substring-no-properties
-                      (1+ (car bnd-1))
-                      (1- (cdr bnd-1)))))
-           (list (car bnd-2)
-                 (cdr bnd-2)
-                 (cl-sort (delete "./" (all-completions str #'read-file-name-internal))
-                          #'lispy-dir-string<))))
+         (lispy--complete-fname))
         (t
          (let* ((bnd (lispy-python-symbol-bnd))
                 (str (buffer-substring-no-properties
