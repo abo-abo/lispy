@@ -31,7 +31,8 @@
   (add-dependencies
     :coordinates [[name version]]
     :repositories (merge cemerick.pomegranate.aether/maven-central
-                         {"clojars" "https://clojars.org/repo"})))
+                         {"clojars" "https://clojars.org/repo"})
+    :classloader (. (. (. Compiler/LOADER deref) getParent) getParent)))
 
 (defn expand-file-name [name dir]
   (. (io/file dir name) getCanonicalPath))
