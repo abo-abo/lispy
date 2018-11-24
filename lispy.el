@@ -8536,7 +8536,7 @@ If `lispy-safe-paste' is non-nil, any unmatched delimiters will be added to it."
 (defun lispy--delsel-advice (orig-fun)
   "Advice for `delete-selection-mode'.
 Usage:
-(advice-add 'delete-selection-pre-hook :around 'lispy--delsel-advice)"
+ (advice-add 'delete-selection-pre-hook :around 'lispy--delsel-advice)"
   (if (and (use-region-p)
            (string-match-p "^special" (symbol-name this-command)))
       (progn
@@ -8544,6 +8544,15 @@ Usage:
         (setq this-command 'ignore)
         (self-insert-command 1))
     (funcall orig-fun)))
+
+(defun lispy--undo-tree-advice (arg)
+  "Advice to run before `undo-tree-undo'.
+
+Otherwise, executing undo in middle of a lispy overlay operation
+irreversibly corrupts the undo tree state. "
+  (lispy-map-delete-overlay))
+
+(advice-add 'undo-tree-undo :before 'lispy--undo-tree-advice)
 
 (defun lispy-define-key (keymap key def &rest plist)
   "Forward to (`define-key' KEYMAP KEY FUNC).
