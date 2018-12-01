@@ -1143,8 +1143,15 @@ Insert KEY if there's no command."
                    "|(a)"))
   (should (string= (lispy-with "#2A|((a b) (0 1))" "/")
                    "|(a b) (0 1)"))
+  ;; let splicing
   (should (string= (lispy-with "(let (foo)\n  |(let ((bar (point)))\n    (baz)))" "/")
-                   "|(let (foo\n      (bar (point)))\n  (baz))")))
+                   "|(let (foo\n      (bar (point)))\n  (baz))"))
+  (should (string= (lispy-with "(let ((foo (point)))\n  |(let ((bar (1+ foo)))\n    (baz)))" "/")
+                   "|(let* ((foo (point))\n       (bar (1+ foo)))\n  (baz))"))
+  (should (string= (lispy-with "|(let (foo)\n  (let ((bar (point)))\n    (baz)))" "/")
+                   "let |(foo)\n  (let ((bar (point)))\n    (baz))"))
+  (should (string= (lispy-with clojure "(let [foo 10]\n  |(let [bar 20]\n    (baz)))" "/")
+                   "|(let [foo 10\n      bar 20]\n  (baz))")))
 
 (ert-deftest lispy-barf-to-point ()
   (should (string= (lispy-with "((a) (b)| (c))" (lispy-barf-to-point nil))

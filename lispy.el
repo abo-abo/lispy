@@ -2753,42 +2753,62 @@ When lispy-left, will slurp ARG sexps forwards.
 
 (defun lispy-splice-let ()
   "Join the current `let' into the parent `let'."
-  (when (and (looking-at "(let")
-             (save-excursion
-               (lispy-left 1)
+  (when (save-excursion
+          (and (looking-at "(let")
+               (lispy--out-backward 1)
                (looking-at "(let")))
-    (let ((child-binds (save-excursion
-                         (lispy-flow 2)
-                         (lispy--read (lispy--string-dwim))))
-          (parent-binds
-           (mapcar (lambda (x) (if (consp x) (car x) x))
-                   (save-excursion
-                     (lispy-up 1)
-                     (lispy--read (lispy--string-dwim)))))
-          (end (save-excursion
-                 (lispy-flow 2)
-                 (point)))
-          (beg (save-excursion
-                 (lispy-up 1)
-                 (lispy-different)
-                 (1- (point)))))
-      (save-excursion
-        (forward-list)
-        (delete-char -1))
-      (delete-region beg end)
-      (newline-and-indent)
-      (lispy-left 2)
-      (when (cl-find-if (lambda (v) (lispy-find v child-binds))
-                        parent-binds)
-        (cond
-          ((looking-at "(let\\*"))
-          ((looking-at "(\\(let\\)")
-           (replace-match "(let*")
-           (lispy--out-backward 1)
-           (indent-sexp))
-          (t
-           (error "unexpected"))))
-      (lispy--normalize-1))
+    (if (memq major-mode lispy-clojure-modes)
+        (lispy-splice-let-clojure)
+      (let ((child-binds (save-excursion
+                           (lispy-flow 2)
+                           (lispy--read (lispy--string-dwim))))
+            (parent-binds
+             (mapcar (lambda (x) (if (consp x) (car x) x))
+                     (save-excursion
+                       (lispy-up 1)
+                       (lispy--read (lispy--string-dwim)))))
+            (end (save-excursion
+                   (lispy-flow 2)
+                   (point)))
+            (beg (save-excursion
+                   (lispy-up 1)
+                   (lispy-different)
+                   (1- (point)))))
+        (save-excursion
+          (forward-list)
+          (delete-char -1))
+        (delete-region beg end)
+        (newline-and-indent)
+        (lispy-left 2)
+        (when (cl-find-if (lambda (v) (lispy-find v child-binds))
+                          parent-binds)
+          (cond
+            ((looking-at "(let\\*"))
+            ((looking-at "(\\(let\\)")
+             (replace-match "(let*")
+             (lispy--out-backward 1)
+             (indent-sexp))
+            (t
+             (error "unexpected"))))
+        (lispy--normalize-1))
+      t)))
+
+(defun lispy-splice-let-clojure ()
+  "Join the current Clojure `let' form into the parent `let'."
+  (let ((end (save-excursion
+               (lispy-flow 1)
+               (1+ (point))))
+        (beg (save-excursion
+               (lispy-up 1)
+               (lispy-different)
+               (1- (point)))))
+    (save-excursion
+      (forward-list)
+      (delete-char -1))
+    (delete-region beg end)
+    (insert "\n")
+    (lispy--out-backward 2)
+    (lispy--normalize-1)
     t))
 
 (defun lispy-barf-to-point (arg)
