@@ -2669,9 +2669,9 @@ When lispy-left, will slurp ARG sexps forwards.
 
 (defun lispy-splice-let ()
   "Join the current `let' into the parent `let'."
-  (when (and (looking-at "(let")
-             (save-excursion
-               (lispy-left 1)
+  (when (save-excursion
+          (and (looking-at "(let")
+               (lispy--out-backward 1)
                (looking-at "(let")))
     (if (memq major-mode lispy-clojure-modes)
         (lispy-splice-let-clojure)
