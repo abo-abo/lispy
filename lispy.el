@@ -8545,7 +8545,7 @@ Usage:
         (self-insert-command 1))
     (funcall orig-fun)))
 
-(defun lispy--undo-tree-advice (arg)
+(defun lispy--undo-tree-advice (_arg)
   "Advice to run before `undo-tree-undo'.
 
 Otherwise, executing undo in middle of a lispy overlay operation
