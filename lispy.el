@@ -1661,7 +1661,7 @@ When this function is called:
     (clojurec-mode . ("[`'~@]+" "#" "#\\?@?"))
     (cider-repl-mode . ("[`'~@]+" "#" "#\\?@?"))
     (cider-clojure-interaction-mode . ("[`'~@]+" "#" "#\\?@?"))
-    (scheme-mode . ("#hash"))
+    (scheme-mode . ("[#`',@]+" "#hash"))
     (t . ("[`',@]+")))
   "An alist of `major-mode' to a list of regexps.
 Each regexp describes valid syntax that can precede an opening paren in that
@@ -1674,6 +1674,7 @@ major mode. These regexps are used to determine whether to insert a space for
     (clojurec-mode . ("[`']" "#[A-z.]*"))
     (cider-repl-mode . ("[`']" "#[A-z.]*"))
     (cider-clojure-interaction-mode . ("[`']" "#[A-z.]*"))
+    (scheme-mode . ("[#`',@]+" "#hash"))
     (t . nil))
   "An alist of `major-mode' to a list of regexps.
 Each regexp describes valid syntax that can precede an opening bracket in that
