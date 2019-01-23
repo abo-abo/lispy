@@ -5912,7 +5912,7 @@ When ARG is given, paste at that place in the current list."
                         keys))
                 (sep (make-string (- (window-width)
                                      (current-column)) ?-))
-                (mode (if (looking-at "[^\n]*(lispy-with-clojure")
+                (mode (if (looking-at "[^\n]*(lispy-with clojure")
                           'clojure-mode
                         'emacs-lisp-mode)))
            (lispy--show
