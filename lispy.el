@@ -1294,7 +1294,8 @@ Otherwise (`backward-delete-char-untabify' ARG)."
 
           ((lispy--in-comment-p)
            (cond ((lispy-looking-back "^ +")
-                  (delete-region (1- (match-beginning 0))
+                  (delete-region (max (1- (match-beginning 0))
+                                      (point-min))
                                  (match-end 0))
                   (lispy--indent-for-tab))
                  ((and (looking-at "$") (lispy-looking-back "; +"))
