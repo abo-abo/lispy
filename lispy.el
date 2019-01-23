@@ -6184,10 +6184,6 @@ Otherwise return cons of current string, symbol or list bounds."
                 (or (eq (point) (car bnd))
                     (eq (point) (1- (cdr bnd)))))
            bnd)
-          ((lispy-right-p)
-           (backward-list)
-           (prog1 (bounds-of-thing-at-point 'sexp)
-             (forward-list)))
           ((looking-at lispy-outline)
            (save-excursion
              (cons
@@ -6200,9 +6196,12 @@ Otherwise return cons of current string, symbol or list bounds."
                 (when (setq bnd (lispy--bounds-comment))
                   (goto-char (1- (car bnd))))
                 (point)))))
-          ((and (or (looking-at (concat "[^[:space:]\n]*" lispy-left))
-                    (looking-at "[`'#]"))
-                (setq bnd (bounds-of-thing-at-point 'sexp)))
+          ((save-excursion
+             (when (lispy-right-p)
+               (backward-list))
+             (and (or (looking-at (concat "[^[:space:]\n]*" lispy-left))
+                      (looking-at "[`'#]"))
+                  (setq bnd (bounds-of-thing-at-point 'sexp))))
            (save-excursion
              (goto-char (car bnd))
              (lispy--skip-delimiter-preceding-syntax-backward)

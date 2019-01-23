@@ -58,25 +58,23 @@
            (and (buffer-name temp-buffer)
                 (kill-buffer temp-buffer)))))))
 
-(defmacro lispy-with-python (in &rest body)
-  `(let ((temp-buffer (generate-new-buffer " *temp*")))
-     (save-window-excursion
-       (unwind-protect
-            (progn
-              (switch-to-buffer temp-buffer)
-              (setq python-indent-offset 4)
-              (python-mode)
-              (lispy-mode)
-              (insert ,in)
-              (when (search-backward "~" nil t)
-                (delete-char 1)
-                (set-mark (point))
-                (goto-char (point-max)))
-              (search-backward "|")
-              (delete-char 1)
-              ,@body)
-         (and (buffer-name temp-buffer)
-              (kill-buffer temp-buffer))))))
+(defmacro lispy-with-v (mode-ext in &rest body)
+  (declare (indent 2))
+  (let ((mode (cdr (assoc mode-ext '((py . python-mode)
+                                     (el . emacs-lisp-mode)
+                                     (scm . scheme-mode)
+                                     (clj . clojure-mode))))))
+    `(with-temp-buffer
+       (,mode)
+       (lispy-mode)
+       (insert ,in)
+       (when (search-backward "~" nil t)
+         (delete-char 1)
+         (set-mark (point))
+         (goto-char (point-max)))
+       (search-backward "|")
+       (delete-char 1)
+       ,@(mapcar (lambda (x) (if (stringp x) `(lispy-unalias ,x) x)) body))))
 
 (defmacro lispy-with-value (in &rest body)
   `(with-temp-buffer
@@ -3081,24 +3079,24 @@ Insert KEY if there's no command."
 
 (ert-deftest lispy-eval-python-str ()
   (require 'le-python)
-  (should (equal (lispy-with-python
-                  "\nif cond1:\n   |if cond2:\n        expr1\n        if cond3:\n            expr2\n        else:\n            expr3\n    else:\n        expr4\nelse:\n    expr5"
-                  (lispy-eval-python-str))
+  (should (equal (lispy-with-v py
+                     "\nif cond1:\n   |if cond2:\n        expr1\n        if cond3:\n            expr2\n        else:\n            expr3\n    else:\n        expr4\nelse:\n    expr5"
+                   (lispy-eval-python-str))
                  "if cond2:\n     expr1\n     if cond3:\n         expr2\n     else:\n         expr3\n else:\n     expr4"))
-  (should (equal (lispy-with-python
-                  "|@up_down\ndef greet(name):\n    return \"my oh my, {}\".format(name)\n\ndef other():\n    pass"
-                  (let ((forward-sexp-function nil))
-                    (lispy-eval-python-str)))
+  (should (equal (lispy-with-v py
+                     "|@up_down\ndef greet(name):\n    return \"my oh my, {}\".format(name)\n\ndef other():\n    pass"
+                   (let ((forward-sexp-function nil))
+                     (lispy-eval-python-str)))
                  "@up_down\ndef greet(name):\n    return \"my oh my, {}\".format(name)"))
-  (should (equal (lispy-with-python
-                  "|scores = np.array([[1, 2, 3, 6],\n                   [2, 4, 5, 6],\n                   [3, 8, 7, 6]])"
-                  (let ((forward-sexp-function nil))
-                    (lispy-eval-python-str)))
+  (should (equal (lispy-with-v py
+                     "|scores = np.array([[1, 2, 3, 6],\n                   [2, 4, 5, 6],\n                   [3, 8, 7, 6]])"
+                   (let ((forward-sexp-function nil))
+                     (lispy-eval-python-str)))
                  "scores = np.array([[1, 2, 3, 6],[2, 4, 5, 6],[3, 8, 7, 6]])"))
-  (should (equal (lispy-with-python
-                  "|scores = np.array([[1, 2, 3, 6],\\\n                   [2, 4, 5, 6],\\\n                   [3, 8, 7, 6]])"
-                  (let ((forward-sexp-function nil))
-                    (lispy-eval-python-str)))
+  (should (equal (lispy-with-v py
+                     "|scores = np.array([[1, 2, 3, 6],\\\n                   [2, 4, 5, 6],\\\n                   [3, 8, 7, 6]])"
+                   (let ((forward-sexp-function nil))
+                     (lispy-eval-python-str)))
                  "scores = np.array([[1, 2, 3, 6],[2, 4, 5, 6],[3, 8, 7, 6]])"))
   (unless (version< emacs-version "24.4.1")
     (should (equal (progn
@@ -3107,19 +3105,31 @@ Insert KEY if there's no command."
                      (sit-for 0.1)
                      (lispy--eval-python "print \"one\"\nprint \"two\"\nx = 2 + 1"))
                    "one\ntwo\n3")))
-  (should (equal (lispy-with-python "def func ():\n    |v = Foo.bar (\n        Foo.baz,\n        self.comp, xrt)\n    x = 0"
-                                    (lispy-eval-python-str))
+  (should (equal (lispy-with-v py
+                     "def func ():\n    |v = Foo.bar (\n        Foo.baz,\n        self.comp, xrt)\n    x = 0"
+                   (lispy-eval-python-str))
                  "v = Foo.bar (Foo.baz,self.comp, xrt)")))
 
 (ert-deftest lispy-python-symbol-bnd ()
-  (should (equal (lispy-with-python "def test_detector ():\n    detector.getChannelCount ().|"
-                                    (lispy--string-dwim
-                                     (lispy-python-symbol-bnd)))
+  (should (equal (lispy-with-v py "def test_detector ():\n    detector.getChannelCount ().|"
+                   (lispy--string-dwim
+                    (lispy-python-symbol-bnd)))
                  "detector.getChannelCount ()."))
-  (should (equal (lispy-with-python "def test_detector ():\n    detector.getDetectorProperties ().getOwner ().|"
-                                    (lispy--string-dwim
-                                     (lispy-python-symbol-bnd)))
+  (should (equal (lispy-with-v py "def test_detector ():\n    detector.getDetectorProperties ().getOwner ().|"
+                   (lispy--string-dwim
+                    (lispy-python-symbol-bnd)))
                  "detector.getDetectorProperties ().getOwner ().")))
+
+(ert-deftest lispy-eval-str-racket ()
+  (let ((geiser-active-implementations '(racket)))
+    (should (equal (lispy-with-v scm
+                       "(list #hash|((1 . 2) (3 . 4)))"
+                     (lispy--string-dwim))
+                   "#hash((1 . 2) (3 . 4))"))
+    (should (equal (lispy-with-v scm
+                       "(list #hash((1 . 2) (3 . 4))| foo)"
+                     (lispy--string-dwim))
+                   "#hash((1 . 2) (3 . 4))"))))
 
 (provide 'lispy-test)
 
