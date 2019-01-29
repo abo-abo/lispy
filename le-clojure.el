@@ -36,8 +36,11 @@
   :group 'lispy)
 
 (defcustom lispy-cider-connect-method 'cider-jack-in
-  "Function used to create a cider connection."
-  :type 'symbol
+  "Function used to create a CIDER connection."
+  :type '(choice
+          (const cider-jack-in)
+          (const cider-connect)
+          (function :tag "Custom"))
   :group 'lispy)
 
 ;;* Namespace
