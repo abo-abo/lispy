@@ -35,6 +35,11 @@
           (const :tag "UNREPL" spiral))
   :group 'lispy)
 
+(defcustom lispy-cider-connect-method 'cider-jack-in
+  "Function used to create a cider connection."
+  :type 'symbol
+  :group 'lispy)
+
 ;;* Namespace
 (defvar lispy--clojure-ns "user"
   "Store the last evaluated *ns*.")
@@ -124,8 +129,8 @@ When ADD-OUTPUT is non-nil, add the standard output to the result."
                     (lispy--eval-clojure-1 ,str ,add-output))))
           (add-hook 'nrepl-connected-hook
                     'lispy--clojure-eval-hook-lambda t)
-          (call-interactively 'cider-jack-in)
-          "Starting CIDER...")
+          (call-interactively lispy-cider-connect-method)
+          (format "Starting CIDER using %s ..." lispy-cider-connect-method))
       (unless lispy--clojure-middleware-loaded-p
         (lispy--clojure-middleware-load))
       (lispy--eval-clojure-1 str add-output))))
