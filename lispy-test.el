@@ -1793,11 +1793,14 @@ Insert KEY if there's no command."
            "(1 2 3 1 2 . #2)"))
   (should (equal (lispy--read "(progn `(lambda () ,(+ 2 2) ,@(number-sequence 1 3)))")
                  '(progn
-                   (ly-raw \` (lambda (ly-raw empty) (ly-raw \, (+ 2 2)) (ly-raw \,@ (number-sequence 1 3)))))))
+                   (ly-raw \` (lambda (ly-raw empty) (ly-raw \, (+ 2 2)) (ly-raw comma-splice (number-sequence 1 3)))))))
   (should (equal
            (lispy--read "#(\"]\" 0 1 (face hydra-face-red))")
            '(ly-raw clojure-lambda ((ly-raw string "\"]\"")
-                                    0 1 (face hydra-face-red))))))
+                                    0 1 (face hydra-face-red)))))
+  (should (equal
+           (lispy--read ",(or body)")
+           '(ly-raw \, (or body)))))
 
 (ert-deftest lispy-tick ()
   (should (string= (lispy-with "|" "'") "'|"))

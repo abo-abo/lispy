@@ -7007,7 +7007,7 @@ Ignore the matches in strings and comments."
                         (insert ")")
                         (goto-char beg)
                         (delete-char 2)
-                        (insert "(ly-raw \\,@ ")))))
+                        (insert "(ly-raw comma-splice ")))))
                 ;; ——— #_ —————————————————————
                 (goto-char (point-min))
                 (while (re-search-forward "#_[({[]" nil t)
@@ -7092,8 +7092,9 @@ Ignore the matches in strings and comments."
                              (goto-char (1- beg))
                              (insert "(ly-raw quasiquote \""))))))
                 ;; ——— , ——————————————————————
+                (lispy--replace-regexp-in-code "\\\\," "(ly-raw comma-symbol)")
                 (goto-char (point-min))
-                (while (re-search-forward "[^\\],[^@\"]" nil t)
+                (while (re-search-forward "[^\\]?,[^@\"]" nil t)
                   (unless (lispy--in-string-or-comment-p)
                     (backward-char 2)
                     (if (memq major-mode lispy-clojure-modes)
@@ -7738,6 +7739,9 @@ The outer delimiters are stripped."
           ((string comment symbol float quasiquote)
            (delete-region beg (point))
            (insert (caddr sxp)))
+          (comma-symbol
+           (delete-region beg (point))
+           (insert "\\,"))
           (ignore
            (delete-region beg (point))
            (backward-delete-char 1))
@@ -7849,7 +7853,7 @@ The outer delimiters are stripped."
            (insert ",")
            (prin1 (caddr sxp) (current-buffer))
            (goto-char beg))
-          (\,@
+          (comma-splice
            (delete-region beg (point))
            (insert ",@")
            (prin1 (caddr sxp) (current-buffer))
