@@ -104,14 +104,16 @@
 
 (eval-after-load 'cider
   '(progn
-    (cider-add-to-alist 'cider-jack-in-dependencies
-     "org.tcrawley/dynapath" "0.2.5")
-    (cider-add-to-alist 'cider-jack-in-dependencies
-     "com.cemerick/pomegranate" "0.4.0")
-    (cider-add-to-alist 'cider-jack-in-dependencies
-     "compliment" "0.3.6")
-    (cider-add-to-alist 'cider-jack-in-dependencies
-     "me.raynes/fs" "1.4.6")))
+     (cider-add-to-alist 'cider-jack-in-dependencies
+                         "org.tcrawley/dynapath" "0.2.5")
+     (cider-add-to-alist 'cider-jack-in-dependencies
+                         "com.cemerick/pomegranate" "0.4.0")
+     (cider-add-to-alist 'cider-jack-in-dependencies
+                         "compliment" "0.3.6")
+     (cider-add-to-alist 'cider-jack-in-dependencies
+                         "me.raynes/fs" "1.4.6")))
+
+(declare-function cider-connections "ext:cider-connection")
 
 (defun lispy--eval-clojure (str &optional add-output)
   "Eval STR as Clojure code.
@@ -203,7 +205,6 @@ When ADD-OUTPUT is non-nil, add the standard output to the result."
 (declare-function spiral-ast-unparse-to-string "ext:spiral")
 (declare-function spiral-loop--send "ext:spiral")
 (declare-function spiral-pending-eval-add "ext:spiral")
-(declare-function cider-connections "ext:cider-connection")
 
 (defun lispy--eval-clojure-spiral (str)
   (let* ((start (current-time))
