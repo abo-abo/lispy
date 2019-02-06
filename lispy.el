@@ -1905,7 +1905,7 @@ When the region is active, toggle a ~ at the start of the region."
     (lispy--space-unless "\\s-\\|\\s(\\|[#:?'`,]\\\\?")
     (insert "#")))
 
-(declare-function cider-eval-print-last-sexp "ext:cider-interaction")
+(declare-function cider-eval-print-last-sexp "ext:cider-eval")
 (declare-function cider-repl-newline-and-indent "ext:cider-repl")
 (declare-function ielm-return "ielm")
 (declare-function mode-local-bind "mode-local")

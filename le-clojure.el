@@ -25,7 +25,7 @@
 ;;* Requires
 (require 'lispy)
 (require 'cider-client nil t)
-(require 'cider-interaction nil t)
+(require 'cider-connection nil t)
 (require 'cider-eval nil t)
 
 (defcustom lispy-clojure-eval-method 'cider
