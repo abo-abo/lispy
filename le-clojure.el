@@ -203,6 +203,7 @@ When ADD-OUTPUT is non-nil, add the standard output to the result."
 (declare-function spiral-ast-unparse-to-string "ext:spiral")
 (declare-function spiral-loop--send "ext:spiral")
 (declare-function spiral-pending-eval-add "ext:spiral")
+(declare-function cider-connections "ext:cider-connection")
 
 (defun lispy--eval-clojure-spiral (str)
   (let* ((start (current-time))
