@@ -401,11 +401,9 @@ Depends on `default-directory'."
 (defun lispy--complete-fname ()
   (let ((ini-bnd (bounds-of-thing-at-point 'filename)))
     (if ini-bnd
-        (let* ((str-bnd (lispy--bounds-string))
-               (str (buffer-substring-no-properties
-                     (1+ (car str-bnd))
-                     (1- (cdr str-bnd)))))
-          (lispy--complete-fname-1 str (point)))
+        (lispy--complete-fname-1
+         (buffer-substring-no-properties (car ini-bnd) (point))
+         (point))
       (list (point) (point)
             (lispy--normalize-files
              (all-completions "" #'read-file-name-internal))))))
