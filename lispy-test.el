@@ -1434,7 +1434,9 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "(progn '(foo)|)" "c")
                    "(progn '(foo)\n       '(foo)|)"))
   (should (string= (lispy-with "(defun ~function-name| ()\n  (bar))" "c")
-                   "(defun ~function-name|\n    function-name ()\n  (bar))")))
+                   "(defun ~function-name|\n    function-name ()\n  (bar))"))
+  (should (string= (lispy-with "|(+ 1 2)\n;; => 3" "c")
+                   "(+ 1 2)\n;; => 3\n|(+ 1 2)")))
 
 (ert-deftest lispy-oneline ()
   (should (string= (lispy-with "|(defun abc (x)\n  \"def.\"\n  (+ x\n     x\n     x))" "O")

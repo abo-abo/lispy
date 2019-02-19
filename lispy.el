@@ -3267,15 +3267,25 @@ When the sexp is top level, insert an additional newline."
                  (exchange-point-and-mark)))))
           ((lispy-left-p)
            (goto-char (car bnd))
-           (if (and (bolp) (looking-at "(defun"))
-               (lispy-dotimes arg
-                 (insert str)
-                 (newline)
-                 (newline))
-             (lispy-dotimes arg
-               (insert str)
-               (newline-and-indent)))
-           (goto-char pt))
+           (cond ((and (bolp) (looking-at "(defun"))
+                  (lispy-dotimes arg
+                    (insert str)
+                    (newline)
+                    (newline))
+                  (goto-char pt))
+                 ((and (bolp)
+                       (save-excursion
+                         (goto-char (cdr bnd))
+                         (looking-at "\n;; =>")))
+                  (lispy-dotimes arg
+                    (insert str)
+                    (newline-and-indent)
+                    (lispy-move-down 1)))
+                 (t
+                  (lispy-dotimes arg
+                    (insert str)
+                    (newline-and-indent))
+                  (goto-char pt))))
           ((lispy-right-p)
            (if (save-excursion
                  (backward-list)
