@@ -735,6 +735,19 @@ Return the amount of successful moves, or nil otherwise."
     (unless (= to-move count)
       (- count to-move))))
 
+(defun lispy--re-search-code-backward (regexp &optional count)
+  "Move to the previous REGEXP, ignoring occurences in strings or comments.
+When COUNT is non-nil, move that many times.
+Return the amount of successful moves, or nil otherwise."
+  (setq count (or count 1))
+  (let ((to-move count))
+    (while (and (> to-move 0)
+                (re-search-backward regexp nil t))
+      (unless (lispy--in-string-or-comment-p)
+        (cl-decf to-move)))
+    (unless (= to-move count)
+      (- count to-move))))
+
 ;;* Locals: navigation
 (defun lispy-flow (arg)
   "Move inside list ARG times.
@@ -742,26 +755,24 @@ Don't enter strings or comments.
 Return nil if can't move."
   (interactive "p")
   (lispy--remember)
-  (if (or (lispy-left-p)
-          (and (lispy-bolp)
-               (looking-at ";")))
-      (when (lispy--re-search-code-forward lispy-left (1+ arg))
-        (backward-char))
-    (let ((pt (point))
-          success)
-      (lispy-dotimes arg
-        (cond ((lispy-right-p)
-               (backward-char)
-               (re-search-backward lispy-right nil t)
-               (while (and (lispy--in-string-or-comment-p)
-                           (re-search-backward lispy-right nil t)))
-               (unless (lispy--in-string-or-comment-p)
-                 (setq success t))
-               (forward-char))))
-      (and (not (= (point) pt))
-           (or success
-               (prog1 nil
-                 (goto-char pt)))))))
+  (let ((pt (point)))
+    (cond
+      ((and (lispy-bolp)
+            (looking-at ";"))
+       (when (setq r (lispy--re-search-code-forward lispy-left arg))
+         (backward-char)))
+      ((lispy-left-p)
+       (forward-char)
+       (when (setq r (lispy--re-search-code-forward lispy-left arg))
+         (backward-char)))
+      ((lispy-right-p)
+       (backward-char)
+       (when (setq r (lispy--re-search-code-backward lispy-right arg))
+         (forward-char))))
+    (or r
+        (progn
+          (goto-char pt)
+          nil))))
 
 (defun lispy-down (arg)
   "Move down ARG times inside current list."
