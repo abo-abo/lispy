@@ -722,31 +722,36 @@ Reveal outlines."
       (back-to-indentation)
     (move-beginning-of-line 1)))
 
-(defun lispy--re-search-code-forward (regexp &optional count)
-  "Move to the next REGEXP, ignoring occurences in strings or comments.
-When COUNT is non-nil, move that many times.
+(defun lispy--dotimes-in-code (advancer &optional count)
+  "Call ADVANCER to move point COUNT times.
+Times when the point is moved to a string or a comment don't count.
 Return the amount of successful moves, or nil otherwise."
   (setq count (or count 1))
   (let ((to-move count))
     (while (and (> to-move 0)
-                (re-search-forward regexp nil t))
+                (funcall advancer))
       (unless (lispy--in-string-or-comment-p)
         (cl-decf to-move)))
     (unless (= to-move count)
       (- count to-move))))
 
+(defun lispy--re-search-code-forward (regexp &optional count)
+  "Move to the next REGEXP, ignoring occurences in strings or comments.
+When COUNT is non-nil, move that many times.
+Return the amount of successful moves, or nil otherwise."
+  (lispy--dotimes-in-code
+   (lambda ()
+     (re-search-forward regexp nil t))
+   count))
+
 (defun lispy--re-search-code-backward (regexp &optional count)
   "Move to the previous REGEXP, ignoring occurences in strings or comments.
 When COUNT is non-nil, move that many times.
 Return the amount of successful moves, or nil otherwise."
-  (setq count (or count 1))
-  (let ((to-move count))
-    (while (and (> to-move 0)
-                (re-search-backward regexp nil t))
-      (unless (lispy--in-string-or-comment-p)
-        (cl-decf to-move)))
-    (unless (= to-move count)
-      (- count to-move))))
+  (lispy--dotimes-in-code
+   (lambda ()
+     (re-search-backward regexp nil t))
+   count))
 
 ;;* Locals: navigation
 (defun lispy-flow (arg)
@@ -755,7 +760,8 @@ Don't enter strings or comments.
 Return nil if can't move."
   (interactive "p")
   (lispy--remember)
-  (let ((pt (point)))
+  (let ((pt (point))
+        r)
     (cond
       ((and (lispy-bolp)
             (looking-at ";"))
