@@ -20,6 +20,7 @@
 (ns lispy-clojure-test
   (:use [clojure.test :only [is deftest]]
         [lispy-clojure :only [add-location-to-defn
+                              add-location-to-def
                               debug-step-in
                               dest
                               expand-home
@@ -133,10 +134,14 @@
             x))))
 
 (deftest add-location-to-def-test
-  (let [e (lispy-clojure/add-location-to-def
-            '(def asdf 1) "/foo/bar.clj" 42)]
+  (let [e (add-location-to-def
+            '(def asdf 1) "/foo/bar.clj" 42)
+        e2 (add-location-to-def
+             '(def asdf "doc" 1) "/foo/bar.clj" 42)]
     (is (= e '(def asdf "" 1)))
+    (is (= e2 '(def asdf "doc" 1)))
     (is (= ((juxt :l-file :l-line) (meta (eval e)))
+           ((juxt :l-file :l-line) (meta (eval e2)))
            ["/foo/bar.clj" 42]))))
 
 (deftest guess-intent-test
