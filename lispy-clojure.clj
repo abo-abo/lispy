@@ -480,18 +480,17 @@ malleable to refactoring."
                 expr-map)
         ~@expr-tail))))
 
-(defn add-location-to-def [expr file line]
-  (let [name (nth expr 1)
-        [doc init] (if (and (string? (nth expr 2)) (> (count expr) 3))
-                     (rest expr)
-                     (cons "" (drop 2 expr)))]
-    (list 'def
-          (with-meta
-            name
-            {:l-file file
-             :l-line line})
-          doc
-          init)))
+(defn add-location-to-def
+  [[_def name & args] file line]
+  (apply list
+         _def
+         (with-meta
+           name
+           {:l-file file
+            :l-line line})
+         (if (> (count args) 1)
+           args
+           (cons "" args))))
 
 (defn add-location-to-deflike [expr file line]
   (when (and file line (list? expr))
