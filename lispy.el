@@ -1848,7 +1848,7 @@ behavior, set this variable to nil.")
 (defvar lispy-colon-no-space-regex
   '((lisp-mode . "\\s-\\|[:^?#]\\|ql\\|\\(?:\\s([[:word:]-]*\\)"))
   "Overrides REGEX that `lispy-colon' will consider for `major-mode'.
-`lispy-colon' will insert \" :\" instead of \" \" unless
+`lispy-colon' will insert \" :\" instead of \":\" unless
 `lispy-no-space' is t or `looking-back' REGEX.")
 
 (defun lispy-colon ()
