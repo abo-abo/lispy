@@ -1809,7 +1809,9 @@ delete the extra space, \"(| foo)\" to \"(|foo)\"."
            (backward-char)))))
 
 (defvar lispy-colon-p t
-  "If true (the default), then add a space before inserting a colon following `lispy-colon-no-space-regex'. To disable this behavior, set this variable to nil.")
+  "If true (the default), then add a space before inserting a
+colon following `lispy-colon-no-space-regex'. To disable this
+behavior, set this variable to nil.")
 
 (defvar lispy-colon-no-space-regex
   '((lisp-mode . "\\s-\\|[:^?#]\\|ql\\|\\(?:\\s([[:word:]-]*\\)"))
