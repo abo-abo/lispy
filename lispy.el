@@ -722,36 +722,35 @@ Reveal outlines."
       (back-to-indentation)
     (move-beginning-of-line 1)))
 
-(defun lispy--dotimes-in-code (advancer &optional count)
-  "Call ADVANCER to move point COUNT times.
-Times when the point is moved to a string or a comment don't count.
+(defun lispy--re-search-in-code (regexp direction &optional count)
+  "Move to the next REGEXP in DIRECTION, COUNT times.
+DIRECTION is either 'forward or 'backward.
 Return the amount of successful moves, or nil otherwise."
   (setq count (or count 1))
-  (let ((to-move count))
+  (let ((to-move (abs count))
+        (advancer
+         (if (eq direction 'forward)
+             (if (> count 0)
+                 #'re-search-forward
+               #'re-search-backward)
+           (if (> count 0)
+               #'re-search-backward
+             #'re-search-forward)))
+        (pt (point)))
+    (if (and (eq direction 'forward) (> count 0))
+        (when (looking-at regexp)
+          (goto-char (match-end 0))))
     (while (and (> to-move 0)
-                (funcall advancer))
+                (funcall advancer regexp nil t))
       (unless (lispy--in-string-or-comment-p)
         (cl-decf to-move)))
-    (unless (= to-move count)
+    (if (= to-move (abs count))
+        (progn
+          (goto-char pt)
+          nil)
+      (if (eq direction 'forward)
+          (goto-char (match-beginning 0)))
       (- count to-move))))
-
-(defun lispy--re-search-code-forward (regexp &optional count)
-  "Move to the next REGEXP, ignoring occurences in strings or comments.
-When COUNT is non-nil, move that many times.
-Return the amount of successful moves, or nil otherwise."
-  (lispy--dotimes-in-code
-   (lambda ()
-     (re-search-forward regexp nil t))
-   count))
-
-(defun lispy--re-search-code-backward (regexp &optional count)
-  "Move to the previous REGEXP, ignoring occurences in strings or comments.
-When COUNT is non-nil, move that many times.
-Return the amount of successful moves, or nil otherwise."
-  (lispy--dotimes-in-code
-   (lambda ()
-     (re-search-backward regexp nil t))
-   count))
 
 ;;* Locals: navigation
 (defun lispy-flow (arg)
@@ -765,15 +764,12 @@ Return nil if can't move."
     (cond
       ((and (lispy-bolp)
             (looking-at ";"))
-       (when (setq r (lispy--re-search-code-forward lispy-left arg))
-         (backward-char)))
+       (setq r (lispy--re-search-in-code lispy-left 'forward arg)))
       ((lispy-left-p)
-       (forward-char)
-       (when (setq r (lispy--re-search-code-forward lispy-left arg))
-         (backward-char)))
+       (setq r (lispy--re-search-in-code lispy-left 'forward arg)))
       ((lispy-right-p)
        (backward-char)
-       (when (setq r (lispy--re-search-code-backward lispy-right arg))
+       (when (setq r (lispy--re-search-in-code lispy-right 'backward arg))
          (forward-char))))
     (or r
         (progn
