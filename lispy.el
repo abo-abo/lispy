@@ -4324,7 +4324,7 @@ If STR is too large, pop it to a buffer instead."
          (let ((str (lispy--eval (lispy--string-dwim))))
            (newline-and-indent)
            (insert str)
-           (when (lispy-right-p)
+           (when (and (lispy-right-p) (lispy--major-mode-lisp-p))
              (lispy-alt-multiline t)))))
     (if (lispy-left-p)
         (save-excursion
@@ -4369,6 +4369,11 @@ If STR is too large, pop it to a buffer instead."
     (when re-bnd
       (lispy--mark re-bnd))))
 
+(defun lispy--major-mode-lisp-p ()
+  (memq major-mode (append lispy-elisp-modes
+                           lispy-clojure-modes
+                           '(scheme-mode lisp-mode))))
+
 (defun lispy--insert-eval-result (str)
   (let (bound)
     (if (not (looking-at
@@ -4389,9 +4394,7 @@ If STR is too large, pop it to a buffer instead."
           (delete-char -1))
         (save-excursion
           (cond ((and (lispy-right-p)
-                      (memq major-mode (append lispy-elisp-modes
-                                               lispy-clojure-modes
-                                               '(scheme-mode lisp-mode))))
+                      (lispy--major-mode-lisp-p))
                  (when (> (current-column) 80)
                    (ignore-errors
                      (lispy-alt-multiline t)))
