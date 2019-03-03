@@ -3127,6 +3127,15 @@ Insert KEY if there's no command."
                      (lispy--string-dwim))
                    "#hash((1 . 2) (3 . 4))"))))
 
+(ert-deftest lispy--insert-eval-result ()
+  (should (string=
+           (lispy-with-v py
+               "|"
+             (lispy--insert-eval-result
+              "[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29]")
+             (buffer-string))
+           "# =>\n# [0,\n#  1,\n#  2,\n#  3,\n#  4,\n#  5,\n#  6,\n#  7,\n#  8,\n#  9,\n#  10,\n#  11,\n#  12,\n#  13,\n#  14,\n#  15,\n#  16,\n#  17,\n#  18,\n#  19,\n#  20,\n#  21,\n#  22,\n#  23,\n#  24,\n#  25,\n#  26,\n#  27,\n#  28,\n#  29]")))
+
 (provide 'lispy-test)
 
 ;;; lispy-test.el ends here

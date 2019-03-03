@@ -4400,13 +4400,16 @@ If STR is too large, pop it to a buffer instead."
                 ((and (lispy-right-p)
                       (eq major-mode 'python-mode))
                  (cond ((< (current-column) 100))
-                       ((looking-back "}" (line-beginning-position))
-                        (let ((beg (save-excursion
+                       ((looking-back "[]}]" (line-beginning-position))
+                        (let ((cnt (if (string= "]" (match-string 0))
+                                       -1
+                                     -2))
+                              (beg (save-excursion
                                      (forward-list -1)
                                      (1+ (point)))))
                           (backward-char 1)
                           (while (> (point) beg)
-                            (forward-sexp -2)
+                            (forward-sexp cnt)
                             (when (> (point) beg)
                               (newline-and-indent))))
                         (goto-char (point-max)))
