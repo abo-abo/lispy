@@ -3080,6 +3080,10 @@ Insert KEY if there's no command."
                    (lispy-eval-python-str))
                  "if cond2:\n     expr1\n     if cond3:\n         expr2\n     else:\n         expr3\n else:\n     expr4"))
   (should (equal (lispy-with-v py
+                     "|s = (\n    \"this \"\n    \"is \"\n    \"a string\")"
+                   (lispy-eval-python-str))
+                 "s = (\"this \" \"is \" \"a string\")"))
+  (should (equal (lispy-with-v py
                      "|@up_down\ndef greet(name):\n    return \"my oh my, {}\".format(name)\n\ndef other():\n    pass"
                    (let ((forward-sexp-function nil))
                      (lispy-eval-python-str)))

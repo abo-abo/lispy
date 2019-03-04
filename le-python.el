@@ -101,8 +101,9 @@ Stripping them will produce code that's valid for an eval."
          (str1.5 (replace-regexp-in-string "^ *#[^\n]+\n" "" str1))
          (str2 (replace-regexp-in-string "\\\\\n +" "" str1.5))
          (str3 (replace-regexp-in-string "\n *\\([])}]\\)" "\\1" str2))
-         (str4 (replace-regexp-in-string "\\([({[,]\\)\n +" "\\1" str3)))
-    str4))
+         (str4 (replace-regexp-in-string "\\([({[,]\\)\n +" "\\1" str3))
+         (str5 (replace-regexp-in-string "\"\n *\"" "\" \"" str4)))
+    str5))
 
 (defun lispy-bounds-python-block ()
   (if (save-excursion
