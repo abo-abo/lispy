@@ -229,27 +229,33 @@ it at one time."
       (lispy--python-middleware-load)
       process)))
 
+(defun lispy--python-eval-string-dwim (str)
+  (setq str (string-trim str))
+  (let ((single-line-p (= (cl-count ?\n str) 0)))
+    (cond ((and (or (string-match "\\`\\(\\(?:[., ]\\|\\sw\\|\\s_\\|[][]\\)+\\) += " str)
+                    (string-match "\\`\\(([^)]+)\\) *=[^=]" str))
+                (save-match-data
+                  (or single-line-p
+                      (and (not (string-match-p "lp\\." str))
+                           (equal (lispy--eval-python
+                                   (format "x=lp.is_assignment(\"\"\"%s\"\"\")\nprint (x)" str)
+                                   t)
+                                  "True")))))
+           (concat str (format "\nprint (repr ((%s)))" (match-string 1 str))))
+          ;; match e.g. "x in array" part of  "for x in array:"
+          ((and single-line-p
+                (string-match "\\`\\([A-Z_a-z0-9]+\\) in \\(.*\\)\\'" str))
+           (let ((vars (match-string 1 str))
+                 (val (match-string 2 str)))
+             (format "%s = list (%s)[0]\nprint ((%s))" vars val vars)))
+          (t
+           str))))
+
 (defun lispy--eval-python (str &optional plain)
   "Eval STR as Python code."
   (let ((single-line-p (= (cl-count ?\n str) 0)))
     (unless plain
-      (setq str (string-trim str))
-      (cond ((and (or (string-match "\\`\\(\\(?:[., ]\\|\\sw\\|\\s_\\|[][]\\)+\\) += " str)
-                      (string-match "\\`\\(([^)]+)\\) *=[^=]" str))
-                  (save-match-data
-                    (or single-line-p
-                        (and (not (string-match-p "lp\\." str))
-                             (equal (lispy--eval-python
-                                     (format "x=lp.is_assignment(\"\"\"%s\"\"\")\nprint (x)" str)
-                                     t)
-                                    "True")))))
-             (setq str (concat str (format "\nprint (repr ((%s)))" (match-string 1 str)))))
-            ;; match e.g. "x in array" part of  "for x in array:"
-            ((and single-line-p
-                  (string-match "\\`\\([A-Z_a-z0-9]+\\) in \\(.*\\)\\'" str))
-             (let ((vars (match-string 1 str))
-                   (val (match-string 2 str)))
-               (setq str (format "%s = list (%s)[0]\nprint ((%s))" vars val vars)))))
+      (setq str (lispy--python-eval-string-dwim str))
       (when (string-match "__file__" str)
         (lispy--eval-python (format "__file__ = '%s'\n" (buffer-file-name)) t))
       (when (and single-line-p (string-match "\\`return \\(.*\\)\\'" str))

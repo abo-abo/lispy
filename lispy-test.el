@@ -2,6 +2,7 @@
   (undercover "lispy.el" "lispy-inline.el"))
 (require 'lispy nil t)
 (require 'clojure-mode nil t)
+(require 'le-python)
 (if (version< emacs-version "24.4.1")
     (load-library "cl-indent")
   (require 'cl-indent))
@@ -3146,6 +3147,12 @@ Insert KEY if there's no command."
               "{0: 0, 1: 1, 2: 2, 3: 3, 4: 4, 5: 5, 6: 6, 7: 7, 8: 8, 9: 9, 10: 10, 11: 11, 12: 12, 13: 13, 14: 14, 15: 15, 16: 16, 17: 17, 18: 18, 19: 19}")
              (buffer-string))
            "# =>\n# {0: 0,\n#  1: 1,\n#  2: 2,\n#  3: 3,\n#  4: 4,\n#  5: 5,\n#  6: 6,\n#  7: 7,\n#  8: 8,\n#  9: 9,\n#  10: 10,\n#  11: 11,\n#  12: 12,\n#  13: 13,\n#  14: 14,\n#  15: 15,\n#  16: 16,\n#  17: 17,\n#  18: 18,\n#  19: 19}")))
+
+(ert-deftest lispy--python-eval-string-dwim ()
+  (should (string= (lispy--python-eval-string-dwim "x in d2.values()")
+                   "x = list (d2.values())[0]\nprint ((x))"))
+  (should (string= (lispy--python-eval-string-dwim "sum(int(x) for x in d2.values())")
+                   "sum(int(x) for x in d2.values())")))
 
 (provide 'lispy-test)
 
