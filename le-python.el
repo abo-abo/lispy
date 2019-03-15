@@ -246,7 +246,7 @@ it at one time."
              (setq str (concat str (format "\nprint (repr ((%s)))" (match-string 1 str)))))
             ;; match e.g. "x in array" part of  "for x in array:"
             ((and single-line-p
-                  (string-match "\\`\\([A-Z_a-z,0-9 ()]+\\) in \\(.*\\)\\'" str))
+                  (string-match "\\`\\([A-Z_a-z0-9]+\\) in \\(.*\\)\\'" str))
              (let ((vars (match-string 1 str))
                    (val (match-string 2 str)))
                (setq str (format "%s = list (%s)[0]\nprint ((%s))" vars val vars)))))
