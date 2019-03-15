@@ -130,7 +130,9 @@ Stripping them will produce code that's valid for an eval."
              (goto-char (match-beginning 1))
              (python-nav-end-of-block))
            (point))))
-    (cons (point)
+    (cons (if (looking-at " ")
+              (1+ (point))
+            (point))
           (save-excursion
             (end-of-line)
             (let (bnd)
