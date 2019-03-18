@@ -377,6 +377,18 @@ This applies to the commands that use `lispy-pair'."
   :group 'lispy
   :type 'boolean)
 
+(defun lispy-complete-fname-at-point ()
+  "Completion source for `completion-at-point-functions'."
+  (when (lispy--in-string-p)
+    (let ((ini-bnd (bounds-of-thing-at-point 'filename)))
+      (if ini-bnd
+          (lispy--complete-fname-1
+           (buffer-substring-no-properties (car ini-bnd) (point))
+           (point))
+        (list (point) (point)
+              (lispy--normalize-files
+               (all-completions "" #'read-file-name-internal)))))))
+
 ;;;###autoload
 (define-minor-mode lispy-mode
   "Minor mode for navigating and editing LISP dialects.

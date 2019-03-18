@@ -407,16 +407,6 @@ Depends on `default-directory'."
                   (nth 1 com))
                  (nth 2 com)))))))))
 
-(defun lispy--complete-fname ()
-  (let ((ini-bnd (bounds-of-thing-at-point 'filename)))
-    (if ini-bnd
-        (lispy--complete-fname-1
-         (buffer-substring-no-properties (car ini-bnd) (point))
-         (point))
-      (list (point) (point)
-            (lispy--normalize-files
-             (all-completions "" #'read-file-name-internal))))))
-
 (defun lispy-python-completion-at-point ()
   (cond ((looking-back "^\\(import\\|from\\) .*" (line-beginning-position))
          (let* ((line (buffer-substring-no-properties
@@ -433,8 +423,7 @@ Depends on `default-directory'."
                 (beg (if bnd (car bnd) (point)))
                 (end (if bnd (cdr bnd) (point))))
            (list beg end cands)))
-        ((lispy--in-string-p)
-         (lispy--complete-fname))
+        ((lispy-complete-fname-at-point))
         (t
          (let* ((bnd (lispy-python-symbol-bnd))
                 (str (buffer-substring-no-properties
