@@ -3152,7 +3152,11 @@ Insert KEY if there's no command."
   (should (string= (lispy--python-eval-string-dwim "x in d2.values()")
                    "x = list (d2.values())[0]\nprint ((x))"))
   (should (string= (lispy--python-eval-string-dwim "sum(int(x) for x in d2.values())")
-                   "sum(int(x) for x in d2.values())")))
+                   "sum(int(x) for x in d2.values())"))
+  (should (string= (lispy--python-eval-string-dwim "sum(int(x) for x in d2.values())")
+                   "sum(int(x) for x in d2.values())"))
+  (should (string= (lispy--python-eval-string-dwim "(x, i) in enumerate(lvl_npoints)")
+                   "(x, i) = list (enumerate(lvl_npoints))[0]\nprint (((x, i)))")))
 
 (provide 'lispy-test)
 
