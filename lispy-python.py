@@ -24,6 +24,7 @@ import inspect
 import re
 import platform
 import shlex
+import types
 try:
     import jedi
 except:
@@ -203,6 +204,21 @@ def list_step(varname, lst):
 
 def argv(cmd):
     sys.argv = shlex.split(cmd)
+
+def find_global_vars(class_name):
+    """Find global variables of type CLASS_NAME."""
+    return [(k, v) for (k, v) in top_level().f_globals.items() if v.__class__.__name__ == class_name]
+
+def rebind(cls_name, fun_name):
+    """Rebind FUN_NAME in all top level instances of CLS_NAME.
+
+    Modifying a method is two-step:
+    1. eval the method as if it's a free top-level function,
+    2. modify all instances of the class with an adapter to this top-level function.
+    """
+    for (n, v) in find_global_vars(cls_name):
+        print("rebind:", n)
+        top_level().f_globals[n].__dict__[fun_name] = types.MethodType(top_level().f_globals[fun_name], v)
 
 def pm():
     """Post mortem: recover the locals and globals from the last traceback."""
