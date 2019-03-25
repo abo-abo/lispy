@@ -321,6 +321,7 @@ it at one time."
              (setq str (match-string 1 last))))
          (lispy--eval-python (format "list(%s)" str) t))
         ((string-match-p "SyntaxError:" res)
+         (setq lispy-eval-error res)
          nil)
         (t
          (replace-regexp-in-string "\\\\n" "\n" res))))))
