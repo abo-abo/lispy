@@ -92,7 +92,17 @@ Stripping them will produce code that's valid for an eval."
                (cl-incf rp))
               (t
                (error "Unexpected"))))
-      (buffer-substring-no-properties (car bnd) (point)))))
+      (if (lispy-after-string-p ")")
+          (let ((end (point)))
+            (save-excursion
+              (forward-sexp -1)
+              (concat (buffer-substring-no-properties
+                       (car bnd) (point))
+                      (replace-regexp-in-string
+                       "[\\]*\n[\t ]*" " "
+                       (buffer-substring-no-properties
+                        (point) end)))))
+        (buffer-substring-no-properties (car bnd) (point))))))
 
 (defun lispy-eval-python-str ()
   (let* ((bnd (lispy-eval-python-bnd))

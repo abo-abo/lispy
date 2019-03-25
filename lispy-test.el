@@ -3083,7 +3083,7 @@ Insert KEY if there's no command."
   (should (equal (lispy-with-v py
                      "|s = (\n    \"this \"\n    \"is \"\n    \"a string\")"
                    (lispy-eval-python-str))
-                 "s = (\"this \" \"is \" \"a string\")"))
+                 "s = ( \"this \" \"is \" \"a string\")"))
   (should (equal (lispy-with-v py
                      "|@up_down\ndef greet(name):\n    return \"my oh my, {}\".format(name)\n\ndef other():\n    pass"
                    (let ((forward-sexp-function nil))
@@ -3093,23 +3093,23 @@ Insert KEY if there's no command."
                      "|scores = np.array([[1, 2, 3, 6],\n                   [2, 4, 5, 6],\n                   [3, 8, 7, 6]])"
                    (let ((forward-sexp-function nil))
                      (lispy-eval-python-str)))
-                 "scores = np.array([[1, 2, 3, 6],[2, 4, 5, 6],[3, 8, 7, 6]])"))
+                 "scores = np.array([[1, 2, 3, 6], [2, 4, 5, 6], [3, 8, 7, 6]])"))
   (should (equal (lispy-with-v py
                      "|scores = np.array([[1, 2, 3, 6],\\\n                   [2, 4, 5, 6],\\\n                   [3, 8, 7, 6]])"
                    (let ((forward-sexp-function nil))
                      (lispy-eval-python-str)))
-                 "scores = np.array([[1, 2, 3, 6],[2, 4, 5, 6],[3, 8, 7, 6]])"))
+                 "scores = np.array([[1, 2, 3, 6], [2, 4, 5, 6], [3, 8, 7, 6]])"))
   (unless (version< emacs-version "24.4.1")
     (should (equal (progn
                      ;; skip initialization msg
                      (lispy--eval-python "")
                      (sit-for 0.1)
-                     (lispy--eval-python "print \"one\"\nprint \"two\"\nx = 2 + 1"))
+                     (lispy--eval-python "print(\"one\")\nprint(\"two\")\nx = 2 + 1"))
                    "one\ntwo\n3")))
   (should (equal (lispy-with-v py
                      "def func ():\n    |v = Foo.bar (\n        Foo.baz,\n        self.comp, xrt)\n    x = 0"
                    (lispy-eval-python-str))
-                 "v = Foo.bar (Foo.baz,self.comp, xrt)")))
+                 "v = Foo.bar ( Foo.baz, self.comp, xrt)")))
 
 (ert-deftest lispy-python-symbol-bnd ()
   (should (equal (lispy-with-v py "def test_detector ():\n    detector.getChannelCount ().|"
@@ -3157,6 +3157,14 @@ Insert KEY if there's no command."
                    "sum(int(x) for x in d2.values())"))
   (should (string= (lispy--python-eval-string-dwim "(x, i) in enumerate(lvl_npoints)")
                    "(x, i) = list (enumerate(lvl_npoints))[0]\nprint (((x, i)))")))
+
+(ert-deftest lispy-extended-eval-str ()
+  (should (string=
+           (lispy-with-v py
+               "|x = (\n    \"abc\" +\n    \"def\" +\n    \"foo\" + \"bar\")"
+             (lispy-extended-eval-str
+              (cons (line-beginning-position) (line-end-position))))
+           "x = ( \"abc\" + \"def\" + \"foo\" + \"bar\")")))
 
 (provide 'lispy-test)
 
