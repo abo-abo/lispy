@@ -6990,13 +6990,27 @@ Ignore the matches in strings and comments."
                   (setq str (lispy--string-dwim cbnd))
                   (delete-region (car cbnd) (cdr cbnd))
                   (insert (format "(ly-raw comment %S)" str)))
+                ;; ——— reader macro syntax (LISP)
+                (goto-char (point-min))
+                (while (re-search-forward "#[a-z][\"(]" nil t)
+                  (forward-char -1)
+                  (unless (lispy--in-string-or-comment-p)
+                    (let ((beg (match-beginning 0))
+                          rep)
+                      (forward-sexp 1)
+                      (setq rep (format "(ly-raw lisp-macro %S)"
+                                        (buffer-substring-no-properties
+                                         beg (point))))
+                      (delete-region beg (point))
+                      (insert rep))))
                 ;; ——— strings ————————————————
                 (goto-char (point-min))
                 (while (re-search-forward "\"" nil t)
                   (progn
                     (setq cbnd (lispy--bounds-string))
                     (when cbnd
-                      (if (lispy-after-string-p "ly-raw comment \"")
+                      (if (or (lispy-after-string-p "ly-raw comment \"")
+                              (lispy-after-string-p "ly-raw lisp-macro \""))
                           (goto-char (cdr cbnd))
                         (setq str (lispy--string-dwim cbnd))
                         (delete-region (car cbnd) (cdr cbnd))
@@ -7829,6 +7843,9 @@ The outer delimiters are stripped."
            (delete-region beg (point))
            (insert (caddr sxp)))
           (lisp-char
+           (delete-region beg (point))
+           (insert (caddr sxp)))
+          (lisp-macro
            (delete-region beg (point))
            (insert (caddr sxp)))
           (clojure-gensym

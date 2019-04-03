@@ -1802,6 +1802,12 @@ Insert KEY if there's no command."
            '(ly-raw clojure-lambda ((ly-raw string "\"]\"")
                                     0 1 (face hydra-face-red)))))
   (should (equal
+           (lispy--read "#p\"path\"")
+           '(ly-raw lisp-macro "#p\"path\"")))
+  (should (equal
+           (lispy--read "#m(foo bar)")
+           '(ly-raw lisp-macro "#m(foo bar)")))
+  (should (equal
            (lispy--read ",(or body)")
            '(ly-raw \, (or body)))))
 
