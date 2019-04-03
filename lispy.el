@@ -1,6 +1,6 @@
 ;;; lispy.el --- vi-like Paredit. -*- lexical-binding: t -*-
 
-;; Copyright (C) 2014-2015 Oleh Krehel
+;; Copyright (C) 2014-2019 Oleh Krehel
 
 ;; Author: Oleh Krehel <ohwoeowho@gmail.com>
 ;; URL: https://github.com/abo-abo/lispy
@@ -2730,12 +2730,14 @@ When lispy-left, will slurp ARG sexps forwards.
       (lispy-left 2)
       (when (cl-find-if (lambda (v) (lispy-find v child-binds))
                         parent-binds)
-        (if (looking-at "(\\(let\\)")
-            (progn
-              (replace-match "(let*")
-              (lispy--out-backward 1)
-              (indent-sexp))
-          (error "unexpected")))
+        (cond
+          ((looking-at "(let\\*"))
+          ((looking-at "(\\(let\\)")
+           (replace-match "(let*")
+           (lispy--out-backward 1)
+           (indent-sexp))
+          (t
+           (error "unexpected"))))
       (lispy--normalize-1))
     t))
 
