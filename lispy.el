@@ -1970,38 +1970,38 @@ When the region is active, toggle a ~ at the start of the region."
 (defun lispy-newline-and-indent-plain ()
   "When in minibuffer, exit it.  Otherwise forward to `newline-and-indent'."
   (interactive)
-  (cl-case major-mode
-    (minibuffer-inactive-mode
-     (exit-minibuffer))
-    (cider-repl-mode
-     (cider-repl-return))
-    (slime-repl-mode
-     (slime-repl-return))
-    (sly-mrepl-mode
-     (sly-mrepl-return))
-    (comint-mode
-     (comint-send-input))
-    (python-mode
-     (newline-and-indent))
-    (inferior-emacs-lisp-mode
-     (setq this-command 'ielm-return)
-     (ielm-return))
-    (t
-     (if (and (not (lispy--in-string-or-comment-p))
-              (if (memq major-mode lispy-clojure-modes)
-                  (lispy-looking-back "[^#`'@~][#`'@~]+")
-                (lispy-looking-back "[^#`',@|][#`',@]+")))
-         (save-excursion
-           (goto-char (match-beginning 0))
-           (newline-and-indent))
+  (if (minibufferp)
+      (exit-minibuffer)
+    (cl-case major-mode
+      (cider-repl-mode
+       (cider-repl-return))
+      (slime-repl-mode
+       (slime-repl-return))
+      (sly-mrepl-mode
+       (sly-mrepl-return))
+      (comint-mode
+       (comint-send-input))
+      (python-mode
        (newline-and-indent))
-     (let ((lispy-ignore-whitespace t))
-       (save-excursion
-         (lispy--out-backward 1)
-         (unless (< 50000
-                    (- (save-excursion (forward-list 1))
-                       (point)))
-           (indent-sexp)))))))
+      (inferior-emacs-lisp-mode
+       (setq this-command 'ielm-return)
+       (ielm-return))
+      (t
+       (if (and (not (lispy--in-string-or-comment-p))
+                (if (memq major-mode lispy-clojure-modes)
+                    (lispy-looking-back "[^#`'@~][#`'@~]+")
+                  (lispy-looking-back "[^#`',@|][#`',@]+")))
+           (save-excursion
+             (goto-char (match-beginning 0))
+             (newline-and-indent))
+         (newline-and-indent))
+       (let ((lispy-ignore-whitespace t))
+         (save-excursion
+           (lispy--out-backward 1)
+           (unless (< 50000
+                      (- (save-excursion (forward-list 1))
+                         (point)))
+             (indent-sexp))))))))
 
 (defun lispy-open-line (arg)
   "Add ARG lines after the current expression.
