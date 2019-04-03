@@ -4682,7 +4682,7 @@ When called twice in a row, restore point and mark."
 
 ;;* Locals: avy-jump
 (declare-function avy--regex-candidates "avy")
-(declare-function avy--process "avy")
+(declare-function avy-process "avy")
 (declare-function avy--overlay-post "avy")
 
 (defun lispy-ace-char ()
@@ -4784,7 +4784,7 @@ Use STYLE function to update the overlays."
     (dolist (x cands)
       (when (> (- (cdar x) (caar x)) 1)
         (cl-incf (caar x))))
-    (avy--process
+    (avy-process
      cands
      (cl-case style
        (pre #'avy--overlay-pre)
