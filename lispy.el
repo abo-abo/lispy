@@ -5253,7 +5253,8 @@ With ARG, use the contents of `lispy-store-region-and-buffer' instead."
   (interactive)
   (if (memq major-mode lispy-clojure-modes)
       (lispy-unbind-variable-clojure)
-    (let (beg end)
+    (let ((inhibit-message t)
+          beg end)
       (require 'iedit)
       (save-excursion
         (lispy--out-backward 2)
@@ -5261,8 +5262,7 @@ With ARG, use the contents of `lispy-store-region-and-buffer' instead."
         (forward-list 1)
         (setq end (point)))
       (forward-char 1)
-      (cl-letf (((symbol-function #'message) (lambda (&rest _))))
-        (iedit-start (iedit-regexp-quote (lispy--string-dwim)) beg end))
+      (iedit-start (iedit-regexp-quote (lispy--string-dwim)) beg end)
       (lispy-mark-symbol)
       (lispy-move-down 1)
       (iedit-mode)
@@ -5272,9 +5272,15 @@ With ARG, use the contents of `lispy-store-region-and-buffer' instead."
       (when (looking-at "[ \n]*")
         (delete-region (match-beginning 0)
                        (match-end 0)))
-      (save-excursion
-        (lispy--out-backward 2)
-        (lispy--normalize-1)))))
+      (if (looking-at ")")
+          (progn
+            (lispy--out-backward 1)
+            (lispy-down 1)
+            (lispy-raise-some))
+        (save-excursion
+          (lispy--out-backward 2)
+          (lispy--normalize-1)))
+      (undo-boundary))))
 
 (defun lispy-unbind-variable-clojure ()
   "Subsititute let-bound variable in Clojure."
