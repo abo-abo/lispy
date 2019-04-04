@@ -4973,8 +4973,7 @@ When region is active, call `lispy-mark-car'."
            (condition-case e
                (lispy-flet (org-unlogged-message (&rest _x))
                  (require 'org)
-                 (let ((org-outline-regexp outline-regexp)
-                       (orgstruct-mode t))
+                 (let ((org-outline-regexp outline-regexp))
                    (org-cycle-internal-local)))
              (error
               (if (string= (error-message-string e) "before first heading")
