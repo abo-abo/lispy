@@ -421,6 +421,8 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
   (goto-char (point-min))
   (forward-line (1- line)))
 
+(declare-function archive-zip-extract "arc-mode")
+
 (defun lispy-find-archive (archive path)
   (require 'arc-mode)
   (let ((name (format "%s:%s" archive path)))

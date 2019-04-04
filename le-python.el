@@ -360,70 +360,22 @@ it at one time."
                     s)))
               parts))))
 
-(defun lispy-dir-string< (a b)
-  (if (string-match "/$" a)
-      (if (string-match "/$" b)
-          (string< a b)
-        t)
-    (if (string-match "/$" b)
-        nil
-      (string< a b))))
-
 (defun lispy-python-symbol-bnd ()
   (let ((bnd (or (bounds-of-thing-at-point 'symbol)
                  (cons (point) (point)))))
     (save-excursion
-     (goto-char (car bnd))
-     (while (progn
-              (skip-chars-backward " ")
-              (lispy-after-string-p "."))
-      (backward-char 1)
-      (skip-chars-backward " ")
-      (if (lispy-after-string-p ")")
-          (backward-sexp 2)
+      (goto-char (car bnd))
+      (while (progn
+               (skip-chars-backward " ")
+               (lispy-after-string-p "."))
+        (backward-char 1)
+        (skip-chars-backward " ")
+        (if (lispy-after-string-p ")")
+            (backward-sexp 2)
           (backward-sexp)))
-     (skip-chars-forward " ")
-     (setcar bnd (point)))
+      (skip-chars-forward " ")
+      (setcar bnd (point)))
     bnd))
-
-(defun lispy--normalize-files (fs)
-  (cl-sort
-   (cl-set-difference
-    fs
-    '("./" "../") :test #'equal)
-   #'lispy-dir-string<))
-
-(defun lispy--completion-common-len (str)
-  (if (eq (get-text-property 0 'face str)
-          'completions-common-part)
-      (next-property-change 0 str)
-    0))
-
-(defun lispy--complete-fname-1 (str pt)
-  "Try to complete a partial file name in STR at PT.
-Depends on `default-directory'."
-  (with-temp-buffer
-    (insert str)
-    (comint-mode)
-    (let* ((com (comint-filename-completion))
-           (cands
-            (all-completions
-             (buffer-substring-no-properties
-              (nth 0 com)
-              (nth 1 com))
-             (nth 2 com))))
-      (when com
-        (list (- pt (lispy--completion-common-len (car cands)))
-              pt
-              (delete
-               "../"
-               (delete
-                "./"
-                (all-completions
-                 (buffer-substring-no-properties
-                  (nth 0 com)
-                  (nth 1 com))
-                 (nth 2 com)))))))))
 
 (defun lispy-python-completion-at-point ()
   (cond ((looking-back "^\\(import\\|from\\) .*" (line-beginning-position))

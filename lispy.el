@@ -377,6 +377,54 @@ This applies to the commands that use `lispy-pair'."
   :group 'lispy
   :type 'boolean)
 
+(defun lispy-dir-string< (a b)
+  (if (string-match "/$" a)
+      (if (string-match "/$" b)
+          (string< a b)
+        t)
+    (if (string-match "/$" b)
+        nil
+      (string< a b))))
+
+(defun lispy--normalize-files (fs)
+  (cl-sort
+   (cl-set-difference
+    fs
+    '("./" "../") :test #'equal)
+   #'lispy-dir-string<))
+
+(defun lispy--completion-common-len (str)
+  (if (eq (get-text-property 0 'face str)
+          'completions-common-part)
+      (next-property-change 0 str)
+    0))
+
+(defun lispy--complete-fname-1 (str pt)
+  "Try to complete a partial file name in STR at PT.
+Depends on `default-directory'."
+  (with-temp-buffer
+    (insert str)
+    (comint-mode)
+    (let* ((com (comint-filename-completion))
+           (cands
+            (all-completions
+             (buffer-substring-no-properties
+              (nth 0 com)
+              (nth 1 com))
+             (nth 2 com))))
+      (when com
+        (list (- pt (lispy--completion-common-len (car cands)))
+              pt
+              (delete
+               "../"
+               (delete
+                "./"
+                (all-completions
+                 (buffer-substring-no-properties
+                  (nth 0 com)
+                  (nth 1 com))
+                 (nth 2 com)))))))))
+
 (defun lispy-complete-fname-at-point ()
   "Completion source for `completion-at-point-functions'."
   (when (lispy--in-string-p)
@@ -4155,6 +4203,8 @@ SYMBOL is a string."
 (defvar lispy-eval-error nil
   "The eval function may set this when there's an error.")
 
+(declare-function cider--display-interactive-eval-result "ext:cider-overlays")
+
 (defun lispy-eval (arg)
   "Eval last sexp.
 When ARG is 2, insert the result as a comment."
@@ -6440,6 +6490,8 @@ Otherwise return cons of current string, symbol or list bounds."
 `lispy--bounds-dwim' is used if BOUNDS is nil."
   (setq bounds (or bounds (lispy--bounds-dwim)))
   (buffer-substring-no-properties (car bounds) (cdr bounds)))
+
+(declare-function python-info-current-symbol "python")
 
 (defun lispy--current-function ()
   "Return current function as string."
