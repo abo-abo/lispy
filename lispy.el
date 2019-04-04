@@ -9446,7 +9446,17 @@ When ARG is non-nil, unquote the current string."
     (define-key map (kbd "RET") 'lispy-newline-and-indent-plain)
     map))
 
-(defvar lispy-key-theme '(special lispy c-digits))
+(defcustom lispy-key-theme '(special lispy c-digits)
+  "List of key themes used to compose `lispy-mode-map'."
+  :type
+  '(set
+    (const special)
+    (radio
+     (const lispy)
+     (const paredit)
+     (const evilcp))
+    (const c-digits)
+    (const oleh)))
 
 (defun lispy-set-key-theme (theme)
   "Set `lispy-mode-map' for according to THEME.
