@@ -3065,6 +3065,12 @@ Insert KEY if there's no command."
                                        (execute-kbd-macro "xdsquare x["))
                    "(defn square [x]\n  (* x x))\n\n(defn cube [x]\n  (* x |(square x)))")))
 
+(ert-deftest lispy-extract-defun ()
+  (should (string= (lispy-with "(defun foo (x)\n  |(let ((y (* x x))\n        (z (+ x x)))\n    (list y z y z)))"
+                               (execute-kbd-macro "xdhelper"))
+                   "(defun helper (y z)\n  (list y z y z))\n\n(defun foo (x)\n  (helper (* x x) (+ x x))|)")))
+
+
 (ert-deftest lispy-debug-step-in ()
   (should (equal (lispy-with-v el
                      "|(mapcar\n (lambda (x))\n (mapcar\n  (lambda (y) (expt y 3))\n  (number-sequence 10 42)))"

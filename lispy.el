@@ -5055,6 +5055,8 @@ When ARG isn't nil, show table of contents."
              (insert "#'" name)
              (message "defun stored to kill ring")
              (lispy-backward 1)))
+          ((looking-at "(let")
+           (lispy--extract-let-as-defun))
           (t
            (lispy-extract-block)))))
 
@@ -5101,6 +5103,29 @@ For the defun to have arguments, capture them with `lispy-bind-variable'."
       (lispy-beginning-of-defun)
       (lispy--insert expr-defun)
       (insert "\n\n"))))
+
+(defun lispy--extract-let-as-defun ()
+  (let* ((bnd (lispy--bounds-dwim))
+         (expr (lispy--read (lispy--string-dwim bnd)))
+         (vars (delete '(ly-raw newline) (cadr expr)))
+         (body (cdddr expr))
+         (name
+          (make-symbol
+           (read-string "Function name: ")))
+         (expr-defun `(defun ,name ,(mapcar #'car vars) (ly-raw newline)
+                             ,@body)))
+    (delete-region (car bnd) (cdr bnd))
+    (lispy--insert
+     `(,name ,@(mapcar #'cadr vars)))
+    (save-excursion
+      (lispy-beginning-of-defun)
+      (when (looking-back ";;;###autoload\n" (line-beginning-position 0))
+        (goto-char (match-beginning 0)))
+      (lispy--insert expr-defun)
+      (insert "\n\n")
+      (forward-sexp -1)
+      (lispy--reindent))
+    (undo-boundary)))
 
 (declare-function lispy-flatten--clojure "le-clojure")
 (declare-function lispy-flatten--lisp "le-lisp")
@@ -5925,9 +5950,9 @@ When ARG is given, paste at that place in the current list."
          (insert (lispy--maybe-safe-current-kill)))))
 
 (defalias 'lispy-font-lock-ensure
-    (if (fboundp 'font-lock-ensure)
-        'font-lock-ensure
-      'font-lock-fontify-buffer))
+  (if (fboundp 'font-lock-ensure)
+      'font-lock-ensure
+    'font-lock-fontify-buffer))
 
 (defun lispy--fontify (str mode)
   "Return STR fontified in MODE."
