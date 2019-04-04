@@ -445,7 +445,7 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
 (defun lispy-goto-symbol-clojure (symbol)
   "Goto SYMBOL."
   (lispy--clojure-detect-ns)
-  (let* ((r (read (lispy-eval-clojure
+  (let* ((r (read (lispy--eval-clojure
                    (format "(lispy-clojure/location '%s)" symbol))))
          (url (car r))
          (line (cadr r))
