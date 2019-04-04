@@ -178,4 +178,8 @@
 (deftest format-ctor-test
   (is (= (lispy-clojure/format-ctor "protected java.awt.Graphics2D()") "java.awt.Graphics2D.")))
 
+(deftest read-string-all-test
+  (is (= (lispy-clojure/read-string-all "(foo) (bar) \"baz\"")
+         '[(foo) (bar) "baz"])))
+
 (clojure.test/run-tests 'lispy-clojure-test)

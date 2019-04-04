@@ -502,6 +502,17 @@ malleable to refactoring."
            ((= (first expr) 'defn)
             (add-location-to-defn expr file line)))))
 
+(defn read-string-all
+  "Read all objects from the string S."
+  [s]
+  (let [reader (java.io.PushbackReader.
+                 (java.io.StringReader. s))]
+    (loop [res []]
+      (if-let [x (try (read reader)
+                      (catch Exception e))]
+        (recur (conj res x))
+        res))))
+
 (defn reval [e-str context-str & {:keys [file line]}]
   (let [expr (read-string e-str)
         context (try
