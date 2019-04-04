@@ -6074,6 +6074,7 @@ When ARG is given, paste at that place in the current list."
 (defun lispy-map-done ()
   (interactive)
   (lispy-map-delete-overlay)
+  (setq lispy-bind-var-in-progress nil)
   (lispy-backward 1))
 
 (defvar lispy-map-keymap
