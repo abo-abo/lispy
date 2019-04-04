@@ -436,10 +436,13 @@ malleable to refactoring."
          `(fetch-packages))
         ((nil? idx)
          expr)
+        ;; [x |(+ 1 2) y (+ 3 4)] => {:x 3}
+        ;; TODO: would be better to have 1 level higher context, so that we just check
+        ;; (= (first context) 'let)
         ((and (vector? context)
-              (not (symbol? (context idx)))
-              ((some-fn symbol? vector? map?)
-               (context (dec idx))))
+              (= 0 (rem (count context) 2))
+              (= 0 (rem (inc idx) 2))
+              (every? (some-fn symbol? vector? map?) (take-nth 2 context)))
          (shadow-dest
            (take 2 (drop (- idx 1) context))))
         ((or (nil? context)

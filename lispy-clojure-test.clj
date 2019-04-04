@@ -147,7 +147,9 @@
 (deftest guess-intent-test
   (is (= (guess-intent '(defproject) nil) '(lispy-clojure/fetch-packages)))
   (is (= (guess-intent 'x '[x y]) 'x))
-  (is (= (guess-intent '*ns* '*ns*) '*ns*)))
+  (is (= (guess-intent '*ns* '*ns*) '*ns*))
+  (is (= (guess-intent '(+ 1 2) '[(+ 1 2) (+ 3 4) (+ 5 6)])
+         '(+ 1 2))))
 
 (deftest reval-test
   (let [s "(->> 5
