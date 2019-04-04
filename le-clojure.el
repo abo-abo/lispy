@@ -27,6 +27,7 @@
 (require 'cider-client nil t)
 (require 'cider-connection nil t)
 (require 'cider-eval nil t)
+(require 'cider-find nil t)
 
 (defcustom lispy-clojure-eval-method 'cider
   "REPL used for eval."
@@ -85,6 +86,10 @@
               e-str))))
       (cond ((eq current-prefix-arg 7)
              (kill-new f-str))
+            ((and (eq current-prefix-arg 0)
+                  (lispy--eval-clojure
+                   "(lispy-clojure/shadow-unmap *ns*)")
+                  nil))
             ((eq lispy-clojure-eval-method 'spiral)
              (lispy--eval-clojure-spiral e-str))
             (t
