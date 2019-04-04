@@ -9446,6 +9446,8 @@ When ARG is non-nil, unquote the current string."
     (define-key map (kbd "RET") 'lispy-newline-and-indent-plain)
     map))
 
+(defvar lispy-key-theme '(special lispy c-digits))
+
 (defun lispy-set-key-theme (theme)
   "Set `lispy-mode-map' for according to THEME.
 THEME is a list of choices: 'special, 'lispy, 'paredit, 'evilcp, 'c-digits."
@@ -9464,10 +9466,7 @@ THEME is a list of choices: 'special, 'lispy, 'paredit, 'evilcp, 'c-digits."
    (assq 'lispy-mode minor-mode-map-alist)
    lispy-mode-map))
 
-(if (member user-mail-address '("ohwoeowho@gmail.com"
-                                "oleh@oremacs.com"))
-    (lispy-set-key-theme '(oleh special lispy c-digits))
-  (lispy-set-key-theme '(special lispy c-digits)))
+(lispy-set-key-theme lispy-key-theme)
 
 (provide 'lispy)
 
