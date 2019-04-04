@@ -6009,6 +6009,11 @@ When ARG is given, paste at that place in the current list."
                    (setq p1 (point))
                    (lispy-different)
                    (setq p2 (1- (point)))))
+            (save-excursion
+              (goto-char p2)
+              (when (< (- (line-end-position) p2) 2)
+                (end-of-line)
+                (insert " ")))
             (setq str (buffer-string))
             (add-face-text-property 0 (length str) '(face 'lispy-test-face) t str)
             (when mk
