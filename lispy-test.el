@@ -2296,6 +2296,8 @@ Insert KEY if there's no command."
                    "{| ()}"))
   (should (string= (lispy-with "|(cdr )" "3 ")
                    "(cdr |)"))
+  (should (string= (lispy-with "foo\"[|]\"" " ")
+                   "foo\"[ |]\""))
   (should (string= (lispy-with clojure "(list \\(|)" " ")
                    "(list \\( |)")))
 
