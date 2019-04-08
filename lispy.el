@@ -5242,21 +5242,24 @@ With ARG, use the contents of `lispy-store-region-and-buffer' instead."
                      (format "Can't flatten: symbol `%s' is defined in `%s'"
                              (lispy--prin1-fancy (car expr))
                              (lispy--prin1-fancy (cdr e))))
-                    nil)))))
+                    nil))))
+         (res (if (macrop (car expr))
+                  (macroexpand (read str))
+                (lispy--flatten-function
+                 fstr
+                 (cl-remove-if #'lispy--whitespacep (cdr expr))))))
     (when fstr
       (goto-char (car bnd))
       (delete-region (car bnd) (cdr bnd))
       (if (macrop (car expr))
           (progn
             (save-excursion
-              (insert (pp-to-string (macroexpand (read str))))
+              (insert (pp-to-string res))
               (when (bolp)
                 (delete-char -1)))
             (indent-sexp))
-        (let* ((e-args (cl-remove-if #'lispy--whitespacep (cdr expr)))
-               (body (lispy--flatten-function fstr e-args))
-               (print-quoted t))
-          (lispy--insert body)))
+        (let* ((print-quoted t))
+          (lispy--insert res)))
       (lispy-alt-multiline)
       (when begp
         (goto-char (car bnd))))))
