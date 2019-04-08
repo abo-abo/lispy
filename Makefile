@@ -16,7 +16,7 @@ compile:
 	$(BEMACS) $(LOAD) -l targets/compile.el
 
 checkdoc:
-	emacs-snapshot -batch -l elpa.el $(LOAD) -l targets/checkdoc.el
+	$(emacs) -batch -l elpa.el $(LOAD) -l targets/checkdoc.el
 
 check-declare:
 	$(BEMACS) $(LOAD) -l targets/check-declare.el

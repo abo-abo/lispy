@@ -11,6 +11,7 @@
   '(iedit
     multiple-cursors
     cider
+    spiral
     slime
     sly
     geiser
@@ -37,4 +38,3 @@
         (package-menu-execute t))
     (error
      (message "All packages up to date"))))
-

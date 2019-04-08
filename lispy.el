@@ -2283,6 +2283,9 @@ to all the functions, while maintaining the parens in a pretty state."
    ("j" lispy-occur-action-goto-beg "goto start")
    ("k" lispy-occur-action-goto-end "goto end")))
 
+(defvar ivy-last)
+(declare-function ivy-state-window "ext:ivy")
+
 (defun lispy-occur ()
   "Select a line within current top level sexp.
 See `lispy-occur-backend' for the selection back end."
@@ -7841,9 +7844,6 @@ ACTION is called for the selected candidate."
                     (t
                      (completing-read "tag: " strs)))))
              (funcall action (cdr (assoc res candidates))))))))
-
-(defvar ivy-last)
-(declare-function ivy-state-window "ext:ivy")
 
 (defun lispy--action-jump (tag)
   "Jump to TAG."

@@ -206,10 +206,10 @@ When ADD-OUTPUT is non-nil, add the standard output to the result."
 
 (defvar spiral-conn-id)
 (defvar spiral-aux-sync-request-timeout)
-(declare-function spiral-projects-as-list "ext:spiral")
-(declare-function spiral-ast-unparse-to-string "ext:spiral")
-(declare-function spiral-loop--send "ext:spiral")
-(declare-function spiral-pending-eval-add "ext:spiral")
+(declare-function spiral-projects-as-list "ext:spiral-project")
+(declare-function spiral-pending-eval-add "ext:spiral-project")
+(declare-function spiral-ast-unparse-to-string "ext:spiral-ast")
+(declare-function spiral-loop--send "ext:spiral-loop")
 
 (defun lispy--eval-clojure-spiral (str)
   (let* ((start (current-time))
