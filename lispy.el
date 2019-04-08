@@ -133,7 +133,6 @@
 
 ;;* Requires
 (eval-when-compile
-  (require 'cl)
   (require 'org)
   (require 'iedit)
   (require 'eldoc)
@@ -2624,7 +2623,7 @@ Otherwise, move to the next sexp."
                           (goto-char (cdr (lispy--bounds-comment)))
                         (skip-chars-backward " \n")))
                      (t
-                      (incf arg)
+                      (cl-incf arg)
                       (lispy-dotimes arg
                         (lispy--backward-sexp-or-comment))
                       (when (< (point) (car bnd))
@@ -2644,7 +2643,7 @@ Otherwise, move to the next sexp."
                     (save-restriction
                       (narrow-to-region (point-min)
                                         (region-end))
-                      (incf arg)
+                      (cl-incf arg)
                       (lispy-dotimes arg
                         (lispy--forward-sexp-or-comment))
                       (if (lispy--in-comment-p)
@@ -3487,7 +3486,7 @@ Comments will be moved ahead of sexp."
             (lispy--insert expr))
         (let ((no-comment "")
               comments)
-          (loop for s in (split-string str "\n" t)
+          (cl-loop for s in (split-string str "\n" t)
              do (if (string-match "^ *\\(;\\)" s)
                     (push (substring s (match-beginning 1)) comments)
                   (setq no-comment (concat no-comment "\n" s))))
@@ -5392,7 +5391,7 @@ The bindings of `lispy-backward' or `lispy-mark-symbol' can also be used."
     (if (lispy-left-p)
         (lispy-dotimes arg
           (mc/create-fake-cursor-at-point)
-          (loop do (lispy-down 1)
+          (cl-loop do (lispy-down 1)
              while (mc/all-fake-cursors (point) (1+ (point)))))
       (mc/mark-lines arg 'forwards))
     (mc/maybe-multiple-cursors-mode)))
@@ -5653,7 +5652,7 @@ ARG is 4: `eval-defun' on the function from this sexp."
                 (setq ldsi-fun (eval (cadr ldsi-sxp)))
                 (setq ldsi-sxp (cons ldsi-fun (cddr ldsi-sxp))))
               (let ((ldsi-args
-                     (copy-seq
+                     (copy-sequence
                       (help-function-arglist
                        (if (ad-is-advised ldsi-fun)
                            (ad-get-orig-definition ldsi-fun)
@@ -6001,7 +6000,7 @@ When ARG is given, paste at that place in the current list."
         (backward-delete-char 1)
         (setq mk (point))
         (when (< mk pt)
-          (decf pt)))
+          (cl-decf pt)))
       (if pt
           (progn
             (goto-char pt)
@@ -8214,14 +8213,14 @@ Make text marked if REGIONP is t."
         (delete-region (line-beginning-position)
                        (1+ (point))))
       (when (> beg1 beg)
-        (decf beg1 (- size (buffer-size))))
+        (cl-decf beg1 (- size (buffer-size))))
       (goto-char beg1)
       (when (looking-at lispy-left)
         (save-excursion
           (newline-and-indent)))
       (unless (lispy-looking-back "[ ([{]")
         (insert " ")
-        (incf beg1))
+        (cl-incf beg1))
       (insert str)
       (unless (looking-at "[\n)]")
         (insert "\n")
@@ -8307,7 +8306,7 @@ Return a cons of the new text cordinates."
 (defun lispy--make-ediff-buffer (buffer ext bnd)
   "Create a copy of BUFFER with EXT added to the name.
 Use only the part bounded by BND."
-  (multiple-value-bind (name mode str)
+  (cl-multiple-value-bind (name mode str)
       (with-current-buffer buffer
         (list (concat (buffer-name) ext) major-mode (lispy--string-dwim bnd)))
     (with-current-buffer (get-buffer-create name)
