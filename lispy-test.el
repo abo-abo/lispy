@@ -703,6 +703,8 @@ Insert KEY if there's no command."
 (ert-deftest lispy-delete-backward ()
   (should (string= (lispy-with "((a) (b) (c)|)" "\C-?")
                    "((a) (b)|)"))
+  (should (string= (lispy-with "(list)(foo)|" "\C-?")
+                   "(list)|"))
   (should (string= (lispy-with "((a) (b) (c)|)" "2\C-?")
                    "((a)|)"))
   (should (string= (lispy-with "((a) (b) (c)|)" "3\C-?")
