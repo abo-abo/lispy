@@ -5133,7 +5133,7 @@ For the defun to have arguments, capture them with `lispy-bind-variable'."
   (let* ((bnd (lispy--bounds-dwim))
          (expr (lispy--read (lispy--string-dwim bnd)))
          (vars (delete '(ly-raw newline) (cadr expr)))
-         (body (cdddr expr))
+         (body (cl-cdddr expr))
          (name
           (make-symbol
            (read-string "Function name: ")))
