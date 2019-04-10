@@ -2360,6 +2360,7 @@ STR is the full current candidate."
         (overlay-put ov 'face 'swiper-line-face)
         (overlay-put ov 'window (ivy-state-window ivy-last))
         (push ov swiper--overlays))
+      (re-search-forward re (line-end-position) t)
       (swiper--add-overlays
        re
        lispy--occur-beg
