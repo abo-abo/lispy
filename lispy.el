@@ -2323,9 +2323,7 @@ See `lispy-occur-backend' for the selection back end."
                         :update-fn (lambda ()
                                      (lispy--occur-update-input
                                       ivy-text
-                                      (if (boundp 'ivy--current)
-                                          ivy--current
-                                        (ivy-state-current ivy-last))))
+                                      (ivy-state-current ivy-last)))
                         :action #'lispy-occur-action-goto-paren
                         :caller 'lispy-occur)
            (swiper--cleanup)
