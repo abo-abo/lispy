@@ -1621,6 +1621,10 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "((a) ~b|)"
                                (execute-kbd-macro (kbd "t ESC")))
                    "((a) ~b|)"))
+  (should (string= (lispy-with "(let ((x))\n  '|(foo bar)\n  (baz))"
+                               (execute-kbd-macro (kbd "tc ESC")))
+                   "(let ((x '|(foo bar)))\n  (baz))"))
+
   (should (string= (lispy-with "((a) |b~)"
                                (execute-kbd-macro (kbd "t ESC")))
                    "((a) |b~)")))

@@ -4005,7 +4005,9 @@ When you press \"t\" in `lispy-teleport', this will be bound to t temporarily.")
 (defun lispy-teleport (arg)
   "Move ARG sexps into a sexp determined by `lispy-ace-paren'."
   (interactive "p")
-  (let ((beg (point))
+  (let ((beg (save-excursion
+               (skip-chars-backward "'")
+               (point)))
         end endp regionp
         deactivate-mark)
     (cond ((region-active-p)
@@ -8238,7 +8240,8 @@ Make text marked if REGIONP is t."
             (when endp
               (exchange-point-and-mark)))
         (unless endp
-          (goto-char beg1))))))
+          (goto-char beg1)
+          (skip-chars-forward "'"))))))
 
 (defun lispy--swap-regions (bnd1 bnd2)
   "Swap buffer regions BND1 and BND2.
