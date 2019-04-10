@@ -3447,7 +3447,7 @@ Instead keep them, with a newline after each comment."
                 `(,x (ly-raw newline) ,@y))))
            ((and (lispy--raw-string-p x)
                  (null ignore-comments))
-            (cons `(ly-raw string ,(replace-regexp-in-string "\n" "\\\\n" (caddr x)))
+            (cons `(ly-raw string ,(replace-regexp-in-string "\n" "\\\\n" (cl-caddr x)))
                   y))
            (t
             (cons x y))))
@@ -6725,7 +6725,7 @@ so that no other packages disturb the match data."
       (cond ((and (memq (car e-sexp) '(defvar defcustom defvar-local))
                   (consp (cdr e-sexp))
                   (boundp (cadr e-sexp)))
-             (set (cadr e-sexp) (eval (caddr e-sexp))))
+             (set (cadr e-sexp) (eval (cl-caddr e-sexp))))
             ((eq (car e-sexp) 'defface)
              (lispy-eval-defun-1 (macroexpand e-sexp)))
             ((memq (car e-sexp) '(\, \,@))
@@ -6948,7 +6948,7 @@ FILE is the file where X is defined."
                 "define-derived-mode"
                 (list (format "%s %s"
                               (cadr sexp)
-                              (caddr sexp))))
+                              (cl-caddr sexp))))
              "define-derived-mode")))
         (t (car x))))
 
@@ -7927,7 +7927,7 @@ The outer delimiters are stripped."
            (insert "\n"))
           ((string comment symbol float quasiquote)
            (delete-region beg (point))
-           (insert (caddr sxp)))
+           (insert (cl-caddr sxp)))
           (comma-symbol
            (delete-region beg (point))
            (insert "\\,"))
@@ -7943,7 +7943,7 @@ The outer delimiters are stripped."
           (quote
            (delete-region beg (point))
            (insert "'")
-           (let ((it (caddr sxp)))
+           (let ((it (cl-caddr sxp)))
              (if it
                  (prin1 it (current-buffer))
                (insert "()")))
@@ -7953,22 +7953,22 @@ The outer delimiters are stripped."
            (insert "()"))
           (char
            (delete-region beg (point))
-           (insert "?" (caddr sxp)))
+           (insert "?" (cl-caddr sxp)))
           (clojure-char
            (delete-region beg (point))
-           (insert (caddr sxp)))
+           (insert (cl-caddr sxp)))
           (lisp-char
            (delete-region beg (point))
-           (insert (caddr sxp)))
+           (insert (cl-caddr sxp)))
           (lisp-macro
            (delete-region beg (point))
-           (insert (caddr sxp)))
+           (insert (cl-caddr sxp)))
           (clojure-gensym
            (delete-region beg (point))
-           (insert (caddr sxp)))
+           (insert (cl-caddr sxp)))
           (function
            (delete-region beg (point))
-           (insert (format "#'%S" (caddr sxp)))
+           (insert (format "#'%S" (cl-caddr sxp)))
            (goto-char beg))
           (clojure-dot
            (delete-region beg (point))
@@ -8038,17 +8038,17 @@ The outer delimiters are stripped."
                                 (+ (point) 11)))
              (delete-region beg (point))
              (insert "`")
-             (prin1 (caddr sxp) (current-buffer)))
+             (prin1 (cl-caddr sxp) (current-buffer)))
            (goto-char beg))
           (\,
            (delete-region beg (point))
            (insert ",")
-           (prin1 (caddr sxp) (current-buffer))
+           (prin1 (cl-caddr sxp) (current-buffer))
            (goto-char beg))
           (comma-splice
            (delete-region beg (point))
            (insert ",@")
-           (prin1 (caddr sxp) (current-buffer))
+           (prin1 (cl-caddr sxp) (current-buffer))
            (goto-char beg))
           (dot
            (delete-region beg (point))

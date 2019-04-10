@@ -125,7 +125,7 @@
         (error "Could not find the body of %S" (car expr))
       (setq fexpr (downcase
                    (prin1-to-string
-                    `(lambda ,(nth 2 fexpr) ,(caddr (nth 3 fexpr))))))
+                    `(lambda ,(nth 2 fexpr) ,(cl-caddr (nth 3 fexpr))))))
       (goto-char (car bnd))
       (delete-region (car bnd) (cdr bnd))
       (let* ((e-args (cdr expr))
