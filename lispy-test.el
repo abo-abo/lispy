@@ -1803,6 +1803,10 @@ Insert KEY if there's no command."
   ;;           "|(fn* [p1__7041#] (+ 1 p1__7041#))" "i")
   ;;          "|(fn* [p1__7041#] (+ 1 p1__7041#))"))
   (should (equal
+           (lispy-with clojure
+                       "|(s/? ::spec)" "i")
+           "|(s/? ::spec)"))
+  (should (equal
            (lispy--prin1-to-string
             (lispy--read "#<marker (moves after insertion) at 280 in *Customize Group: Lispy Faces*>")
             0 'emacs-lisp-mode)

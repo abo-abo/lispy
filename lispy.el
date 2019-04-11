@@ -8055,7 +8055,7 @@ The outer delimiters are stripped."
            (insert "."))
           (t (goto-char (1+ beg)))))
       (goto-char (point-min))
-      (while (re-search-forward "[a-z-A-Z]\\(\\\\\\?\\)" nil t)
+      (while (re-search-forward "\\(?:\\s_\\|\\sw\\)\\(\\\\\\?\\)" nil t)
         (replace-match "?" t t nil 1))
       (goto-char (point-min))
       (while (re-search-forward "\\\\\\." nil t)
