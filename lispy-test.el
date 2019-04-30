@@ -1544,7 +1544,7 @@ Insert KEY if there's no command."
                    "((foo)\n ;; |\n (bar))"))
   (should (string= (lispy-with "((foo) (bar)|)" ";")
                    "((foo) (bar)\n ;; |\n )"))
-  (should (string= (lispy-with "|\n(defun foo ())" ";;")
+  (should (string= (lispy-with "|\n(defun foo ())" ";;;")
                    ";;;###autoload\n|(defun foo ())"))
   (should (string= (lispy-with "(list\n |foo)" ";")
                    "(list\n |;; foo\n )"))
