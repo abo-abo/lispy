@@ -1558,6 +1558,10 @@ Insert KEY if there's no command."
                    "(list\n foo\n |;; 1 (2\n ;;    3)\n bar)"))
   (should (string= (lispy-with "(defun foo ()|\n  (bar))" ";")
                    "(defun foo ()\n  ;; |\n  (bar))"))
+  (should (string= (lispy-with "(list \\|)" ";")
+                   "(list \\;|)"))
+  (should (string= (lispy-with "(list #|)" ";")
+                   "(list #;|)"))
   ;; With single semicolons
   (let ((lispy-comment-use-single-semicolon t))
     (should (string= (lispy-with "(foo)|" ";")

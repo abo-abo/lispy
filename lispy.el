@@ -3833,8 +3833,7 @@ When SILENT is non-nil, don't issue messages."
                       (insert " ;; "))
                      (t
                       (self-insert-command 1))))
-              ((or (eql (char-before) ?\\)
-                   (eql (char-before) ?\#))
+              ((memq (char-before) '(?\\ ?\#))
                (self-insert-command 1))
               ((lispy-left-p)
                (setq bnd (lispy--bounds-dwim))
