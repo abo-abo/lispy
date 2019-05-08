@@ -5051,7 +5051,7 @@ When ARG isn't nil, show table of contents."
       (goto-char (1- beg)))))
 
 (defun lispy-to-defun ()
-  "Turn the current lambda or toplevel sexp into a defun."
+  "Turn the current lambda or toplevel sexp or block into a defun."
   (interactive)
   (let (bnd expr)
     (cond ((and (lispy-from-left (bolp))
