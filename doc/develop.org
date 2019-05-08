@@ -1,0 +1,26 @@
+* Introduction
+** Installing dependencies
+Run this to install/upgrade dependecies from MELPA.
+#+begin_src sh
+make update
+#+end_src
+
+To use MELPA-Stable, adjust the command:
+#+begin_src sh
+MELPA_STABLE=1 make update
+#+end_src
+
+** Running tests
+#+begin_src sh
+make test
+#+end_src
+
+** Running interactively
+#+begin_src sh
+make elisp
+#+end_src
+
+or:
+#+begin_src sh
+MELPA_STABLE=1 make elisp
+#+end_src
