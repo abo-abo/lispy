@@ -3,12 +3,12 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<!-- 2018-10-25 Thu 20:40 -->
+<!-- 2019-05-08 Wed 13:05 -->
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>lispy.el function reference</title>
 <meta name="generator" content="Org mode" />
-<meta name="author" content="oleh" />
+<meta name="author" content="Oleh Krehel" />
 <link rel="stylesheet" type="text/css" href="style.css"/>
 <script type="text/x-mathjax-config">
     MathJax.Hub.Config({
@@ -1338,6 +1338,10 @@ by pressing <kbd>q</kbd> you get this:
 Now you can change the point position by pressing a letter or
 cancel with <kbd>C-g</kbd>.
 </p>
+
+<p>
+Press <kbd>2q</kbd> to use the whole window instead of just the current top-level sexp.
+</p>
 <hr />
 </div>
 </div>
@@ -1869,10 +1873,20 @@ Will do a <code>setq</code> in addition to <code>defvar</code> (i.e. the behavio
 <p>
 Same as for <code>defvar</code>.
 </p>
+</div>
+</div>
+
+<div id="outline-container-foobar" class="outline-4">
+<h4 id="foobar">eval of <code>defface</code></h4>
+<div class="outline-text-4" id="text-foobar">
+<p>
+The behavior of <kbd>C-M-x</kbd>.
+</p>
 <hr />
 </div>
 </div>
 </div>
+
 <div id="outline-container-foobar" class="outline-3">
 <h3 id="lispy-eval-and-insert"><code>lispy-eval-and-insert</code></h3>
 <div class="outline-text-3" id="text-lispy-eval-and-insert">
@@ -1940,7 +1954,7 @@ Bound to <kbd>xu</kbd>.
 </p>
 
 <p>
-Unbind a let-bound variable.
+Unbind a let-bound variable. Also works for Clojure.
 </p>
 
 <table><tbody><tr><td>
@@ -2181,6 +2195,26 @@ by pressing <kbd>xd</kbd> you'll get this:
 <div class="org-src-container">
 <pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">foo-delete-region</span> (beg end)
   <cursor>)</cursor>
+</pre>
+</div>
+
+<p>
+It's also possible to transform a block into a defun. Start with:
+</p>
+<div class="org-src-container">
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">cube</span> (x)
+  (* x <cursor>(</cursor>* x x)))
+</pre>
+</div>
+<p>
+Enter <kbd>xdsquare x[</kbd> to get:
+</p>
+<div class="org-src-container">
+<pre class="src src-elisp">(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">square</span> (x)
+  (* x x))
+
+(<span style="color: #7F0055; font-weight: bold;">defun</span> <span style="color: #000000; font-weight: bold;">cube</span> (x)
+  (* x <cursor>(</cursor>square x)))
 </pre>
 </div>
 <hr />
@@ -3698,9 +3732,8 @@ Bound to <kbd>xc</kbd>.
 </p>
 
 <p>
-Transform current nested <code>if</code> expressions to an equivalent <code>cond</code>
-expression. The whitespace, such as comments and newlines, is
-preserved as much as possible.
+Transform current nested <code>if</code> expressions to an equivalent <code>cond</code> expression. Also works for
+<code>case</code>. The whitespace, such as comments and newlines, is preserved as much as possible.
 </p>
 
 <p>
@@ -4421,6 +4454,19 @@ used as the base directory.
 </div>
 </div>
 <div id="outline-container-foobar" class="outline-3">
+<h3 id="lispy-goto-elisp-commands"><code>lispy-goto-elisp-commands</code></h3>
+<div class="outline-text-3" id="text-lispy-goto-elisp-commands">
+<p>
+Bound to <code>oge</code>.
+</p>
+
+<p>
+Navigate to interactive Elisp functions (commands) in current file.
+</p>
+</div>
+</div>
+
+<div id="outline-container-foobar" class="outline-3">
 <h3 id="lispy-mark-list"><code>lispy-mark-list</code></h3>
 <div class="outline-text-3" id="text-lispy-mark-list">
 <p>
@@ -4473,7 +4519,7 @@ Bound to <kbd>s</kbd>.
 
 <p>
 Move current sexp or region down arg times. Don't exit the parent
-list.
+list. Also works for outlines.
 </p>
 
 <table><tbody><tr><td>
@@ -4509,6 +4555,7 @@ Bound to <kbd>w</kbd>.
 
 <p>
 Move current sexp or region up arg times. Don't exit the parent list.
+Also works for outlines.
 </p>
 
 <p>
@@ -4526,6 +4573,7 @@ Bound to <kbd>t</kbd>.
 
 <p>
 Move the current sexp or region to a location specified by <a href="#lispy-ace-paren"><code>lispy-ace-paren</code></a>.
+Press <kbd>tt</kbd> to teleport to any sexp in the current window.
 </p>
 <hr />
 </div>
@@ -4618,6 +4666,21 @@ Special behavior in <code>cond</code> (what gets evaled is on the right):
 </pre>
 </div>
 </td></tr></tbody></table>
+<p>
+Similar special behavior for <code>pcase</code>.
+</p>
+
+<p>
+Special behavior in <code>mapcar, =mapc</code>, <code>dolist</code>: cycle the loop variable through the list:
+</p>
+<div class="org-src-container">
+<pre class="src src-elisp">(mapcar <cursor>(</cursor><span style="color: #7F0055; font-weight: bold;">lambda</span> (x) (* x x)) '(1 2 3))
+</pre>
+</div>
+
+<p>
+<code>x</code> will have value <code>1</code> after the first <kbd>p</kbd>, value <code>2</code> after the second <kbd>p</kbd> etc.
+</p>
 <hr />
 </div>
 </div>
@@ -4877,7 +4940,7 @@ Or <code>cider-debug-defun-at-point</code> for Clojure.
 <h3 id="lispy-debug-step-in"><code>lispy-debug-step-in</code></h3>
 <div class="outline-text-3" id="text-lispy-debug-step-in">
 <p>
-Bound to <kbd>xj</kbd>.
+Bound to <kbd>xj</kbd>. Works for Elisp and Clojure (commit:dfcd4b9).
 </p>
 
 <ol class="org-ol">

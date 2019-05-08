@@ -669,6 +669,8 @@ by pressing ~q~ you get this:
 
 Now you can change the point position by pressing a letter or
 cancel with ~C-g~.
+
+Press ~2q~ to use the whole window instead of just the current top-level sexp.
 -----
 ** =lispy-ace-symbol=
 :PROPERTIES:
@@ -1090,7 +1092,11 @@ Will do a =setq= in addition to =defvar= (i.e. the behavior of ~C-M-x~).
 *** eval of =defcustom=
 
 Same as for =defvar=.
+
+*** eval of =defface=
+The behavior of ~C-M-x~.
 -----
+
 ** =lispy-eval-and-insert=
 :PROPERTIES:
 :CUSTOM_ID: lispy-eval-and-insert
@@ -1142,7 +1148,7 @@ naming the variable.
 
 Bound to ~xu~.
 
-Unbind a let-bound variable.
+Unbind a let-bound variable. Also works for Clojure.
 
 #+HTML: <table><tbody><tr><td>
 #+begin_src elisp
@@ -1306,6 +1312,20 @@ by pressing ~xd~ you'll get this:
 #+begin_src elisp
 (defun foo-delete-region (beg end)
   |)
+#+end_src
+
+It's also possible to transform a block into a defun. Start with:
+#+begin_src elisp
+(defun cube (x)
+  (* x |(* x x)))
+#+end_src
+Enter ~xdsquare x[~ to get:
+#+begin_src elisp
+(defun square (x)
+  (* x x))
+
+(defun cube (x)
+  (* x |(square x)))
 #+end_src
 -----
 ** =lispy-parens=
@@ -2182,9 +2202,8 @@ The reverse is [[#lispy-to-cond][=lispy-to-cond=]].
 
 Bound to ~xc~.
 
-Transform current nested =if= expressions to an equivalent =cond=
-expression. The whitespace, such as comments and newlines, is
-preserved as much as possible.
+Transform current nested =if= expressions to an equivalent =cond= expression. Also works for
+=case=. The whitespace, such as comments and newlines, is preserved as much as possible.
 
 The reverse is [[#lispy-to-ifs][=lispy-to-ifs=]].
 
@@ -2689,6 +2708,15 @@ Bound to ~0g~ and ~ogp~.
 Similar to [[#lispy-goto-recursive][=lispy-goto-recursive=]], but =projectile-project-root= is
 used as the base directory.
 -----
+** =lispy-goto-elisp-commands=
+:PROPERTIES:
+:CUSTOM_ID: lispy-goto-elisp-commands
+:END:
+
+Bound to =oge=.
+
+Navigate to interactive Elisp functions (commands) in current file.
+
 ** =lispy-mark-list=
 :PROPERTIES:
 :CUSTOM_ID: lispy-mark-list
@@ -2729,7 +2757,7 @@ Use current sexp or region as replacement for its parent.
 Bound to ~s~.
 
 Move current sexp or region down arg times. Don't exit the parent
-list.
+list. Also works for outlines.
 
 #+HTML: <table><tbody><tr><td>
 #+begin_src elisp
@@ -2757,6 +2785,7 @@ list.
 Bound to ~w~.
 
 Move current sexp or region up arg times. Don't exit the parent list.
+Also works for outlines.
 
 It's the reciprocal of [[#lispy-move-down][=lispy-move-down=]].
 -----
@@ -2768,6 +2797,7 @@ It's the reciprocal of [[#lispy-move-down][=lispy-move-down=]].
 Bound to ~t~.
 
 Move the current sexp or region to a location specified by [[#lispy-ace-paren][=lispy-ace-paren=]].
+Press ~tt~ to teleport to any sexp in the current window.
 -----
 ** =lispy-undo=
 :PROPERTIES:
@@ -2833,6 +2863,14 @@ Special behavior in =cond= (what gets evaled is on the right):
   (message "cond: nil"))
 #+end_src
 #+HTML: </td></tr></tbody></table>
+Similar special behavior for =pcase=.
+
+Special behavior in =mapcar, =mapc=, =dolist=: cycle the loop variable through the list:
+#+begin_src elisp
+(mapcar |(lambda (x) (* x x)) '(1 2 3))
+#+end_src
+
+=x= will have value =1= after the first ~p~, value =2= after the second ~p~ etc.
 -----
 ** =lispy-describe=
 :PROPERTIES:
@@ -3019,7 +3057,7 @@ Or =cider-debug-defun-at-point= for Clojure.
 :CUSTOM_ID: lispy-debug-step-in
 :END:
 
-Bound to ~xj~.
+Bound to ~xj~. Works for Elisp and Clojure (commit:dfcd4b9).
 
 1. Evaluate the arguments at the current function's call
 2. Jump to the function's definition
