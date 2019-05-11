@@ -2018,6 +2018,7 @@ When the region is active, toggle a ~ at the start of the region."
 (declare-function cider-repl-return "ext:cider-repl")
 (declare-function slime-repl-return "ext:slime-repl")
 (declare-function sly-mrepl-return "ext:sly-mrepl")
+(declare-function racket-repl-submit "ext:racket-repl")
 (defun lispy-newline-and-indent-plain ()
   "When in minibuffer, exit it.  Otherwise forward to `newline-and-indent'."
   (interactive)
@@ -2037,6 +2038,8 @@ When the region is active, toggle a ~ at the start of the region."
       (inferior-emacs-lisp-mode
        (setq this-command 'ielm-return)
        (ielm-return))
+      (racket-repl-mode
+       (racket-repl-submit))
       (t
        (if (and (not (lispy--in-string-or-comment-p))
                 (if (memq major-mode lispy-clojure-modes)
@@ -4160,6 +4163,7 @@ Sexp is obtained by exiting list ARG times."
   '((clojure-mode lispy-goto-symbol-clojure le-clojure)
     (clojurescript-mode lispy-goto-symbol-clojurescript le-clojure)
     (scheme-mode lispy-goto-symbol-scheme le-scheme)
+    (racket-mode lispy-goto-symbol-racket le-racket)
     (lisp-mode lispy-goto-symbol-lisp le-lisp)
     (python-mode lispy-goto-symbol-python le-python))
   "An alist of `major-mode' to function for jumping to symbol.
