@@ -1272,7 +1272,10 @@ Insert KEY if there's no command."
                    "(when (pred)\n  (let ((x 1))\n    (foo)\n    (asdf\n     |(bar))))"))
   (should (string= (lispy-with "(takes-two\n  (takes-three\n   |(takes-four 1 2 3 4)\n   second\n   third)\n  other-second)"
                                "C")
-                   "(takes-three\n (takes-two\n  |(takes-four 1 2 3 4)\n  other-second)\n second\n third)")))
+                   "(takes-three\n (takes-two\n  |(takes-four 1 2 3 4)\n  other-second)\n second\n third)"))
+  (should (string= (lispy-with "(with-current-buffer buf\n  (let ((beg x)\n        (end y))\n    |(insert \" \")\n    (delete-region beg end)\n    (point)))"
+                               "0C")
+                   "(let ((beg x)\n      (end y))\n  (with-current-buffer buf\n    |(insert \" \")\n    (delete-region beg end)\n    (point)))")))
 
 (ert-deftest lispy-join ()
   (should (string= (lispy-with "(foo) |(bar)" "+")

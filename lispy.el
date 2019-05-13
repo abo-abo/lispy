@@ -2922,9 +2922,14 @@ The outcome when ahead of sexps is different from when behind."
 
 (defun lispy-convolute (arg)
   "Replace (...(,,,|( with (,,,(...|( where ... and ,,, is arbitrary code.
-When ARG is more than 1, pull ARGth expression to enclose current sexp."
+When ARG is more than 1, pull ARGth expression to enclose current sexp.
+When ARG is nil, convolute only the part above sexp."
   (interactive "p")
-  (let ((deactivate-mark nil))
+  (let ((deactivate-mark nil)
+        (only-upper nil))
+    (when (= arg 0)
+      (setq only-upper t)
+      (setq arg 1))
     (if (and (save-excursion
                (lispy--out-forward (1+ arg)))
              (save-excursion
@@ -2937,16 +2942,17 @@ When ARG is more than 1, pull ARGth expression to enclose current sexp."
            (lispy--swap-regions (cons beg end)
                                 (cons (point) (point)))
            (lispy--reindent arg))
-          (lispy-from-left
-           (lispy-different)
-           (setq beg (point))
-           (setq end (lispy--out-forward arg))
-           (lispy--out-forward 1)
-           (lispy--swap-regions (cons beg end)
-                                (cons (point) (point)))
-           (ignore-errors
-             (lispy-different))
-           (lispy--reindent (1+ arg))))
+          (unless only-upper
+            (lispy-from-left
+             (lispy-different)
+             (setq beg (point))
+             (setq end (lispy--out-forward arg))
+             (lispy--out-forward 1)
+             (lispy--swap-regions (cons beg end)
+                                  (cons (point) (point)))
+             (ignore-errors
+               (lispy-different))
+             (lispy--reindent (1+ arg)))))
       (error "Not enough depth to convolute"))))
 
 (defun lispy-convolute-left ()
