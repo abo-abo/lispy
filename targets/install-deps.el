@@ -1,7 +1,7 @@
 (setq melpa-stable (getenv "MELPA_STABLE"))
 (setq package-user-dir
       (expand-file-name
-       (format ".cask/%s/elpa"
+       (format "~/.elpa/%s/elpa"
                (concat emacs-version (when melpa-stable "-stable")))))
 (message "installing in %s ...\n" package-user-dir)
 (package-initialize)
