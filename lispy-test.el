@@ -2136,6 +2136,9 @@ Insert KEY if there's no command."
                    "(list ~\"one\"| \"two\")")))
 
 (ert-deftest lispy-unbind-variable ()
+  (should (string= (lispy-with "(let ((x 1)\n      |(y 2))\n  (+ x y))"
+                               (lispy-unbind-variable))
+                   "(let (|(x 1))\n  (+ x 2))"))
   (should (string=
            (lispy-flet (recenter (&optional x))
              (lispy-with "

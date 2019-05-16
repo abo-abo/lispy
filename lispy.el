@@ -5337,6 +5337,8 @@ With ARG, use the contents of `lispy-store-region-and-buffer' instead."
       (when (looking-at "[ \n]*")
         (delete-region (match-beginning 0)
                        (match-end 0)))
+      (lispy--out-backward 1)
+      (forward-char 1)
       (if (looking-at ")")
           (progn
             (lispy--out-backward 1)
