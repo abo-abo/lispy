@@ -4413,6 +4413,12 @@ If STR is too large, pop it to a buffer instead."
         (message str)
       (error (message (replace-regexp-in-string "%" "%%" str))))))
 
+(defun lispy--eval-dwim ()
+  (let ((eval-str (if (eq major-mode 'python-mode)
+                      (lispy-eval-python-str)
+                    (lispy--string-dwim))))
+    (lispy--eval eval-str)))
+
 (defun lispy-eval-and-insert ()
   "Eval last sexp and insert the result."
   (interactive)
@@ -4422,9 +4428,12 @@ If STR is too large, pop it to a buffer instead."
                 (when (= (point) (region-beginning))
                   (exchange-point-and-mark)))
                ((lispy-right-p))
+               ((eq major-mode 'python-mode))
                (t
                 (lispy-forward 1)))
-         (let ((str (lispy--eval (lispy--string-dwim))))
+         (let ((str (lispy--eval-dwim)))
+           (when (eq major-mode 'python-mode)
+             (end-of-line))
            (newline-and-indent)
            (insert str)
            (when (and (lispy-right-p) (lispy--major-mode-lisp-p))
@@ -4437,11 +4446,8 @@ If STR is too large, pop it to a buffer instead."
 (defun lispy-eval-and-comment ()
   "Eval last sexp and insert the result as a comment."
   (interactive)
-  (let* ((eval-str (if (eq major-mode 'python-mode)
-                       (lispy-eval-python-str)
-                     (lispy--string-dwim)))
-         (str (lispy--eval eval-str))
-         re-bnd)
+  (let ((str (lispy--eval-dwim))
+        re-bnd)
     (save-excursion
       (cond ((region-active-p)
              (setq re-bnd (cons (region-beginning)
