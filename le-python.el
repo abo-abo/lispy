@@ -326,7 +326,7 @@ it at one time."
         ((equal res "")
          (setq lispy-eval-error "(ok)")
          "")
-        ((string-match-p "^<\\(?:map\\|filter\\|generator\\) object" res)
+        ((string-match-p "^<\\(?:map\\|filter\\|generator\\|enumerate\\) object" res)
          (let ((last (car (last (split-string str "\n")))))
            (when (string-match "\\`print (repr ((\\(.*\\))))\\'" last)
              (setq str (match-string 1 last))))
