@@ -4239,7 +4239,8 @@ SYMBOL is a string."
 (defvar lispy-eval-alist
   '((python-mode lispy-eval-python le-python)
     (julia-mode lispy-eval-julia le-julia)
-    (clojure-mode lispy-eval-clojure le-clojure)))
+    (clojure-mode lispy-eval-clojure le-clojure)
+    (racket-mode lispy-eval-racket le-racket)))
 
 (defvar lispy-eval-error nil
   "The eval function may set this when there's an error.")

@@ -29,6 +29,22 @@
 (defun lispy-goto-symbol-racket (symbol)
   (racket-lispy-visit-symbol-definition symbol))
 
+(defun lispy--eval-racket (str)
+  (let* ((awaiting 'RACKET-REPL-AWAITING)
+         (response awaiting))
+    (racket--cmd/async
+     `(eval ,str)
+     (lambda (v)
+       (setq response v)))
+    (with-timeout (1
+                   (error "racket-command process timeout"))
+      (while (eq response awaiting)
+        (accept-process-output nil 0.001))
+      (substring response 1 -2))))
+
+(defun lispy-eval-racket (&optional plain)
+  (lispy--eval-racket (lispy--string-dwim)))
+
 (provide 'le-racket)
 
 ;;; le-racket.el ends here
