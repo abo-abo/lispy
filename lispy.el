@@ -411,7 +411,7 @@ Depends on `default-directory'."
               (nth 0 com)
               (nth 1 com))
              (nth 2 com))))
-      (when com
+      (when cands
         (list (- pt (lispy--completion-common-len (car cands)))
               pt
               (delete
