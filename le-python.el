@@ -484,26 +484,16 @@ it at one time."
                       args))
            (args-normal (cl-set-difference args args-key))
            (fn-data
-            (json-read-from-string
-             (substring
-              (lispy--eval-python
-               (format "import inspect, json; json.dumps (inspect.getargspec (%s))"
-                       fn))
-              1 -1)))
+            (read (lispy--eval-python
+                   (format "lp.argspec(%s)" fn))))
            (fn-args
-            (append (mapcar #'identity (elt fn-data 0))
-                    (if (elt fn-data 1)
-                        (list (elt fn-data 1)))))
+            (nth 0 fn-data))
+           (fn-varargs
+            (nth 1 fn-data))
+           (fn-keywords
+            (nth 2 fn-data))
            (fn-defaults
-            (mapcar
-             (lambda (x)
-               (cond ((null x)
-                      "None")
-                     ((eq x t)
-                      "True")
-                     (t
-                      (prin1-to-string x))))
-             (elt fn-data 3)))
+            (nth 3 fn-data))
            (fn-alist
             (cl-mapcar #'cons
                        fn-args
@@ -511,7 +501,7 @@ it at one time."
                                              (length fn-defaults))
                                           nil)
                                fn-defaults)))
-           fn-alist-x dbg-cmd)
+           fn-alist-x dbg-cmd extra-keywords)
       (if method-p
           (unless (member '("self") fn-alist)
             (push '("self") fn-alist))
@@ -526,10 +516,19 @@ it at one time."
                   arg-cell)
               (if (setq arg-cell (assoc arg-name fn-alist))
                   (setcdr arg-cell arg-val)
-                (error "\"%s\" is not in %s" arg-name fn-alist)))
+                (if fn-keywords
+                    (push (concat arg-name "=" arg-val) extra-keywords)
+                  (error "\"%s\" is not in %s" arg-name fn-alist))))
           (error "\"%s\" does not match the regex spec" arg)))
       (when (memq nil (mapcar #'cdr fn-alist))
         (error "Not all args were provided: %s" fn-alist))
+      (when fn-varargs
+        (cl-pushnew (cons fn-varargs "()") fn-alist))
+      (when fn-keywords
+        (cl-pushnew
+         (cons fn-keywords
+               (concat "dict(" (mapconcat #'identity extra-keywords ", ") ")"))
+         fn-alist))
       (setq dbg-cmd
             (mapconcat (lambda (x)
                          (format "%s = %s" (car x) (cdr x)))

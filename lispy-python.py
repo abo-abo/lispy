@@ -169,6 +169,24 @@ def arglist(sym):
             args.append("**" + arg_info.keywords)
     return args
 
+def argspec(sym):
+    arg_info = inspect.getargspec(sym)
+    print("((", end="")
+    print(" ".join(['"' + arg + '"' for arg in arg_info.args]))
+    print(")", end="")
+    if arg_info.varargs:
+        print(' "' + arg_info.varargs + '"')
+    else:
+        print(" nil")
+    if arg_info.keywords:
+        print(' "' + arg_info.keywords + '"')
+    else:
+        print(" nil")
+    print("(", end="")
+    print(" ".join(['"' + repr(d) + '"' for d in arg_info.defaults]))
+    print(")", end="")
+    print(")", end="")
+
 def arglist_jedi(line, column, filename):
     script = jedi.Script(None, line, column, filename)
     defs = script.goto_definitions()
