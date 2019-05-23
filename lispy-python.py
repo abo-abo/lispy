@@ -182,9 +182,10 @@ def argspec(sym):
         print(' "' + arg_info.keywords + '"')
     else:
         print(" nil")
-    print("(", end="")
-    print(" ".join(['"' + repr(d) + '"' for d in arg_info.defaults]))
-    print(")", end="")
+    if arg_info.defaults:
+        print("(", end="")
+        print(" ".join(['"' + repr(d) + '"' for d in arg_info.defaults]))
+        print(")", end="")
     print(")", end="")
 
 def arglist_jedi(line, column, filename):

@@ -501,14 +501,17 @@ it at one time."
                                              (length fn-defaults))
                                           nil)
                                fn-defaults)))
-           fn-alist-x dbg-cmd extra-keywords)
+           fn-alist-x dbg-cmd extra-keywords extra-varargs)
       (if method-p
           (unless (member '("self") fn-alist)
             (push '("self") fn-alist))
         (setq fn-alist (delete '("self") fn-alist)))
       (setq fn-alist-x fn-alist)
       (dolist (arg args-normal)
-        (setcdr (pop fn-alist-x) arg))
+        (let ((var-name (pop fn-alist-x)))
+          (if var-name
+              (setcdr var-name arg)
+            (push arg extra-varargs))))
       (dolist (arg args-key)
         (if (string-match lispy--python-arg-key-re arg)
             (let ((arg-name (match-string 1 arg))
@@ -523,7 +526,10 @@ it at one time."
       (when (memq nil (mapcar #'cdr fn-alist))
         (error "Not all args were provided: %s" fn-alist))
       (when fn-varargs
-        (cl-pushnew (cons fn-varargs "()") fn-alist))
+        (cl-pushnew
+         (cons fn-varargs
+               (concat "(" (mapconcat (lambda (s) (concat s ",")) extra-varargs " ") ")"))
+         fn-alist))
       (when fn-keywords
         (cl-pushnew
          (cons fn-keywords
