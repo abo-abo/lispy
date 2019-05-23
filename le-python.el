@@ -78,10 +78,18 @@ Stripping them will produce code that's valid for an eval."
              (setcar bnd (point))
              bnd)))))
 
+(defun lispy--count-regex (re bnd)
+  (let ((count 0))
+    (save-excursion
+      (goto-char (car bnd))
+      (while (re-search-forward re (cdr bnd) t)
+        (unless (lispy--in-string-or-comment-p)
+          (cl-incf count))))
+    count))
+
 (defun lispy-extended-eval-str (bnd)
-  (let* ((str (lispy--string-dwim bnd))
-         (lp (cl-count ?\( str))
-         (rp (cl-count ?\) str)))
+  (let ((lp (lispy--count-regex "(" bnd))
+        (rp (lispy--count-regex ")" bnd)))
     (save-excursion
       (goto-char (cdr bnd))
       (while (< rp lp)
