@@ -380,6 +380,8 @@ it at one time."
                (skip-chars-backward " ")
                (lispy-after-string-p "."))
         (backward-char 1)
+        (when (lispy-after-string-p "]")
+          (backward-list 1))
         (skip-chars-backward " ")
         (if (lispy-after-string-p ")")
             (backward-sexp 2)
@@ -409,7 +411,7 @@ it at one time."
          (let* ((bnd (lispy-python-symbol-bnd))
                 (str (buffer-substring-no-properties
                       (car bnd) (cdr bnd))))
-           (when (string-match "\\()\\)[^)]*\\'" str)
+           (when (string-match "\\([])]\\)[^)]]*\\'" str)
              (let ((expr (format "__t__ = %s" (substring str 0 (match-end 1)))))
                (setq str (concat "__t__" (substring str (match-end 1))))
                (cl-incf (car bnd) (match-end 1))
