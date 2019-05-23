@@ -321,8 +321,14 @@ it at one time."
          (lispy--eval-python
           (concat "__return__ = None\n"
                   (replace-regexp-in-string
-                   "\\(^ *\\)return"
-                   (lambda (x) (concat (match-string 1 x) "__return__ ="))
+                   "\\(^ *\\)return\\(.*\\)"
+                   (lambda (x)
+                     (concat
+                      (match-string 1 x)
+                      "__return__ ="
+                      (if (= 0 (length (match-string 2 x)))
+                          " None"
+                        (match-string 2 x))))
                    str)
                   "\nprint (repr(__return__))")
           t))
