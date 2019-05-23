@@ -3179,7 +3179,11 @@ Insert KEY if there's no command."
   (should (equal (lispy-with-v py "def test_detector ():\n    detector.getDetectorProperties ().getOwner ().|"
                    (lispy--string-dwim
                     (lispy-python-symbol-bnd)))
-                 "detector.getDetectorProperties ().getOwner ().")))
+                 "detector.getDetectorProperties ().getOwner ()."))
+  (should (equal (lispy-with-v py "foo().bboxes[0].|"
+                   (lispy--string-dwim
+                    (lispy-python-symbol-bnd)))
+                 "foo().bboxes[0].")))
 
 (ert-deftest lispy-eval-str-racket ()
   (let ((geiser-active-implementations '(racket)))
