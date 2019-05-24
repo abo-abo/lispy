@@ -518,10 +518,12 @@ it at one time."
                                           nil)
                                fn-defaults)))
            fn-alist-x dbg-cmd extra-keywords extra-varargs)
-      (if method-p
-          (unless (member '("self") fn-alist)
-            (push '("self") fn-alist))
-        (setq fn-alist (delete '("self") fn-alist)))
+      (cond (method-p
+             (unless (member '("self") fn-alist)
+               (push '("self") fn-alist)))
+            ((member '("self") fn-alist)
+             (push (format "object.__new__(%s)" fn)
+                   args-normal)))
       (setq fn-alist-x fn-alist)
       (dolist (arg args-normal)
         (let ((var-name (pop fn-alist-x)))
