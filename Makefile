@@ -25,7 +25,7 @@ test:
 	@echo "Using $(shell which $(emacs))..."
 	$(BEMACS) -l lispy-test.el $(LOAD) -f ert-run-tests-batch-and-exit
 
-elisp:
+plain:
 	$(QEMACS) lispy.el
 
 clojure:

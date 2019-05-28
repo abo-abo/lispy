@@ -21,7 +21,7 @@
     sly
     geiser
     clojure-mode
-    swiper
+    counsel
     hydra
     ace-window
     helm

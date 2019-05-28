@@ -6,6 +6,7 @@
              scheme-mode-hook
              lisp-mode-hook))
   (add-hook h #'lispy-mode))
+(ivy-mode)
 
 ;;* Common Lisp
 (require 'slime-autoloads)
