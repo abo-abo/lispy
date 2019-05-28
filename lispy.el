@@ -6019,7 +6019,7 @@ When ARG is given, paste at that place in the current list."
         (setq pt (point))
         (when (< (- (line-end-position) pt) 2)
           (end-of-line)
-          (insert " ")))
+          (insert "  ")))
       (goto-char (point-min))
       (when (search-forward "~" nil t)
         (backward-delete-char 1)
