@@ -1147,7 +1147,10 @@ If position isn't special, move to previous or error."
   "Kill ARG words backward, keeping parens consistent."
   (interactive "p")
   (let (bnd
-        (pt (point)))
+        (pt (point))
+        (last-command (if (eq last-command 'lispy-backward-kill-word)
+                          'kill-region
+                        last-command)))
     (lispy-dotimes arg
       (when (lispy--in-comment-p)
         (skip-chars-backward " \n"))

@@ -57,7 +57,8 @@
                  (point-min)
                  (point-max)))
            (and (buffer-name temp-buffer)
-                (kill-buffer temp-buffer)))))))
+                (kill-buffer temp-buffer))
+           (setq last-command nil))))))
 
 (defmacro lispy-with-v (mode-ext in &rest body)
   (declare (indent 2))
@@ -2338,6 +2339,16 @@ Insert KEY if there's no command."
 (ert-deftest lispy-backward-kill-word ()
   (should (string= (lispy-with "(require 'cl)|" (kbd "M-DEL"))
                    "(require '|)"))
+  (should (string= (lispy-with "(require 'cl)|" (kbd "M-DEL") (kbd "C-y"))
+                   "(require 'cl|)"))
+  (should (string= (lispy-with "(eval-after-load |)" (kbd "M-DEL"))
+                   "(eval-after-|)"))
+  (should (string= (lispy-with "(eval-after-load |)"
+                               (kbd "M-DEL") (kbd "M-DEL"))
+                   "(eval-|)"))
+  (should (string= (lispy-with "(eval-after-load |)"
+                               (kbd "M-DEL") (kbd "M-DEL") (kbd "C-y"))
+                   "(eval-after-load |)"))
   (should (string= (lispy-with "(eval-after-load \"foo\")|" (kbd "M-DEL"))
                    "(eval-after-load \"|\")"))
   (should (string= (lispy-with "(eval-after-load \"|\")" (kbd "M-DEL"))
