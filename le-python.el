@@ -481,7 +481,7 @@ it at one time."
            (method-p nil)
            (p-fn-beg (progn
                        (backward-sexp)
-                       (while (eq (char-before) ?.)
+                       (while (or (eq (char-before) ?.) (looking-at "\\["))
                          (setq method-p t)
                          (backward-sexp))
                        (point)))
@@ -489,6 +489,13 @@ it at one time."
                 p-fn-beg p-fn-end))
            (args
             (lispy--python-args (1+ p-ar-beg) (1- p-ar-end)))
+           (args (cl-mapcan (lambda (arg)
+                              (if (string-match "\\`\\*\\(.*\\)\\'" arg)
+                                  (read
+                                   (lispy--eval-python
+                                    (format "lp.print_elisp(%s)" (match-string 1 arg))))
+                                (list arg)))
+                            args))
            (args (if (and method-p
                           (string-match "\\`\\(.*?\\)\\.\\([^.]+\\)\\'" fn))
                      (cons (match-string 1 fn)

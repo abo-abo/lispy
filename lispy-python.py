@@ -169,6 +169,18 @@ def arglist(sym):
             args.append("**" + arg_info.keywords)
     return args
 
+def print_elisp(obj):
+    if obj:
+        if type(obj) is list or type(obj) is tuple:
+            print("(", end="")
+            for x in obj:
+                print_elisp(x)
+            print(")")
+        else:
+            print('"' +  repr(obj) + '"', end=" ")
+    else:
+        print('"None"', end=" ")
+
 def argspec(sym):
     arg_info = inspect.getargspec(sym)
     print("((", end="")
