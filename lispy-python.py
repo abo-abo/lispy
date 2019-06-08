@@ -25,6 +25,7 @@ import re
 import platform
 import shlex
 import types
+import collections
 try:
     import jedi
 except:
@@ -170,6 +171,8 @@ def arglist(sym):
     return args
 
 def print_elisp(obj):
+    if isinstance(obj, collections.KeysView):
+        obj = list(obj)
     if obj:
         if type(obj) is list or type(obj) is tuple:
             print("(", end="")
