@@ -240,12 +240,13 @@ it at one time."
                  (expand-file-name python-shell-interpreter))
                 (t
                  python-shell-interpreter)))
-             (python-binary-name (python-shell-calculate-command)))
-        (setq process (get-buffer-process
-                       (python-shell-make-comint
-                        python-binary-name proc-name nil nil))))
-      (setq lispy--python-middleware-loaded-p nil)
-      (lispy--python-middleware-load)
+             (python-binary-name (python-shell-calculate-command))
+             (buffer (python-shell-make-comint
+                      python-binary-name proc-name nil nil)))
+        (setq process (get-buffer-process buffer))
+        (with-current-buffer buffer
+          (setq lispy-python-proc process)
+          (lispy-python-middleware-reload)))
       process)))
 
 (defun lispy--python-eval-string-dwim (str)
