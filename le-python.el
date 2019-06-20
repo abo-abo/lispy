@@ -183,6 +183,12 @@ Stripping them will produce code that's valid for an eval."
 (declare-function mash-make-shell "ext:mash")
 
 (defun lispy-set-python-process-action (x)
+  (when (and current-prefix-arg (consp x))
+    (let* ((process (cdr x))
+           (buffer (process-buffer process)))
+      (kill-process process)
+      (kill-buffer buffer)
+      (setq x (car x))))
   (setq lispy-python-proc
         (cond ((consp x)
                (cdr x))
@@ -197,12 +203,12 @@ Stripping them will produce code that's valid for an eval."
   (when (string-match "^lispy-python-\\(.*\\)" (process-name x))
     (match-string 1 (process-name x))))
 
-(defun lispy-set-python-process ()
+(defun lispy-set-python-process (&optional arg)
   "Associate a (possibly new) Python process to the current buffer.
 
 Each buffer can have only a single Python process associated with
 it at one time."
-  (interactive)
+  (interactive "P")
   (let* ((process-names
           (delq nil
                 (mapcar
@@ -211,7 +217,7 @@ it at one time."
                      (when name
                        (cons name x))))
                  (process-list)))))
-    (ivy-read "Process: " process-names
+    (ivy-read (if arg "Restart process: " "Process: ") process-names
               :action #'lispy-set-python-process-action
               :preselect (when (process-live-p lispy-python-proc)
                            (lispy-short-process-name lispy-python-proc))
