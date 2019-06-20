@@ -3233,8 +3233,12 @@ Insert KEY if there's no command."
   (should (string= (lispy--python-eval-string-dwim "(x, i) in enumerate(lvl_npoints)")
                    "(x, i) = list (enumerate(lvl_npoints))[0]\nprint (((x, i)))"))
   (should (string= (lispy--python-eval-string-dwim "asdf_123")
+                   "print(repr(asdf_123))"))
+  (should (string= (let ((this-command 'lispy-eval))
+                     (lispy--python-eval-string-dwim "asdf_123"))
                    "lp.pprint(asdf_123)"))
-  (should (string= (lispy--python-eval-string-dwim "x[\"foo\"] = 2 + 2")
+  (should (string= (let ((this-command 'lispy-eval))
+                     (lispy--python-eval-string-dwim "x[\"foo\"] = 2 + 2"))
                    "x[\"foo\"] = 2 + 2\nlp.pprint(x[\"foo\"])")))
 
 (ert-deftest lispy-extended-eval-str ()

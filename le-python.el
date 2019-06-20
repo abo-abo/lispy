@@ -252,14 +252,23 @@ it at one time."
           (lispy-python-middleware-reload)))
       process)))
 
+(defun lispy--python-print (str)
+  (format
+   (if (and (memq this-command '(pspecial-lispy-eval lispy-eval))
+            (null current-prefix-arg))
+       "lp.pprint(%s)"
+     "print(repr(%s))")
+   str))
+
 (defun lispy--python-eval-string-dwim (str)
   (setq str (string-trim str))
   (let ((single-line-p (= (cl-count ?\n str) 0)))
     (cond
       ((string-match "^\\[" str)
-       (format "__last__ = %s\nlp.pprint(__last__)" str))
+       (format "__last__ = %s\n%s"
+               str (lispy--python-print "__last__")))
       ((string-match "\\`\\(\\(?:\\sw\\|\\s_\\)+\\)\\'" str)
-       (format "lp.pprint(%s)" (match-string 1 str)))
+       (lispy--python-print (match-string 1 str)))
       ((and (or (string-match "\\`\\(\\(?:[., ]\\|\\sw\\|\\s_\\|[][]\\)+\\) += " str)
                 (string-match "\\`\\(([^)]+)\\) *=[^=]" str)
                 (string-match "\\`\\(\\(?:\\sw\\|\\s_\\)+ *\\[[^]]+\\]\\) *=" str))
@@ -270,7 +279,7 @@ it at one time."
                                (format "x=lp.is_assignment(\"\"\"%s\"\"\")\nprint (x)" str)
                                t)
                               "True")))))
-       (concat str (format "\nlp.pprint(%s)" (match-string 1 str))))
+       (concat str "\n" (lispy--python-print (match-string 1 str))))
       ;; match e.g. "x in array" part of  "for x in array:"
       ((and single-line-p
             (string-match "\\`\\([A-Z_a-z0-9]+\\|\\(?:([^)]+)\\)\\) in \\(.*\\)\\'" str))
@@ -337,7 +346,8 @@ it at one time."
                           " None"
                         (match-string 2 x))))
                    str)
-                  "\nlp.pprint(__return__)")
+                  "\n"
+                  (lispy--python-print "__return__"))
           t))
         ((string-match "^Traceback.*:" res)
          (set-text-properties
