@@ -258,6 +258,8 @@ it at one time."
     (cond
       ((string-match "^\\[" str)
        (format "__last__ = %s\nlp.pprint(__last__)" str))
+      ((string-match "\\`\\(\\(?:\\sw\\|\\s_\\)+\\)\\'" str)
+       (format "lp.pprint(%s)" (match-string 1 str)))
       ((and (or (string-match "\\`\\(\\(?:[., ]\\|\\sw\\|\\s_\\|[][]\\)+\\) += " str)
                 (string-match "\\`\\(([^)]+)\\) *=[^=]" str)
                 (string-match "\\`\\(\\(?:\\sw\\|\\s_\\)+ *\\[[^]]+\\]\\) *=" str))

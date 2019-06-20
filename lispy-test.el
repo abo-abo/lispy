@@ -3232,6 +3232,8 @@ Insert KEY if there's no command."
                    "sum(int(x) for x in d2.values())"))
   (should (string= (lispy--python-eval-string-dwim "(x, i) in enumerate(lvl_npoints)")
                    "(x, i) = list (enumerate(lvl_npoints))[0]\nprint (((x, i)))"))
+  (should (string= (lispy--python-eval-string-dwim "asdf_123")
+                   "lp.pprint(asdf_123)"))
   (should (string= (lispy--python-eval-string-dwim "x[\"foo\"] = 2 + 2")
                    "x[\"foo\"] = 2 + 2\nlp.pprint(x[\"foo\"])")))
 
