@@ -27,6 +27,7 @@ import shlex
 import types
 import collections
 import pprint as pp
+import reprlib
 try:
     import jedi
 except:
@@ -263,5 +264,14 @@ def pm():
     tl.f_globals["dn"] = Autocall(stack.down)
     globals()["stack"] = stack
 
+pp1 = pp.PrettyPrinter(width=100)
+repr1 = reprlib.Repr()
+repr1.maxlist = 10
+repr1.maxstring = 100
+
 def pprint(x):
-    pp.pprint(x)
+    r1 = repr(x)
+    if len(r1) > 1000:
+        print(repr1.repr(x))
+    else:
+        pp1.pprint(x)
