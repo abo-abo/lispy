@@ -26,6 +26,7 @@ import platform
 import shlex
 import types
 import collections
+import pprint as pp
 try:
     import jedi
 except:
@@ -261,3 +262,6 @@ def pm():
     tl.f_globals["up"] = Autocall(stack.up)
     tl.f_globals["dn"] = Autocall(stack.down)
     globals()["stack"] = stack
+
+def pprint(x):
+    pp.pprint(x)

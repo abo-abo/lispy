@@ -270,7 +270,7 @@ it at one time."
                                (format "x=lp.is_assignment(\"\"\"%s\"\"\")\nprint (x)" str)
                                t)
                               "True")))))
-       (concat str (format "\nprint (repr ((%s)))" (match-string 1 str))))
+       (concat str (format "\nlp.pprint (%s)" (match-string 1 str))))
       ;; match e.g. "x in array" part of  "for x in array:"
       ((and single-line-p
             (string-match "\\`\\([A-Z_a-z0-9]+\\|\\(?:([^)]+)\\)\\) in \\(.*\\)\\'" str))
