@@ -414,6 +414,15 @@ it at one time."
                 (end (if bnd (cdr bnd) (point))))
            (list beg end cands)))
         ((lispy-complete-fname-at-point))
+        ((looking-back "\\(?:\\sw\\|\\s_\\)\\[" (line-beginning-position))
+
+         (let* ((bnd (save-excursion
+                       (backward-char 1)
+                       (lispy-python-symbol-bnd)))
+                (str (lispy--string-dwim bnd))
+                (keys (read (lispy--eval-python
+                             (format "lp.print_elisp(%s.keys())" str)))))
+           (list (point) (point) keys)))
         (t
          (let* ((bnd (lispy-python-symbol-bnd))
                 (str (buffer-substring-no-properties
