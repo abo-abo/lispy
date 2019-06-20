@@ -18,6 +18,7 @@
 # see <http://www.gnu.org/licenses/>.
 
 #* Imports
+from __future__ import print_function
 import ast
 import sys
 import inspect
@@ -27,7 +28,13 @@ import shlex
 import types
 import collections
 import pprint as pp
-import reprlib
+try:
+    import reprlib
+    repr1 = reprlib.Repr()
+    repr1.maxlist = 10
+    repr1.maxstring = 100
+except:
+    pass
 try:
     import jedi
 except:
@@ -265,13 +272,10 @@ def pm():
     globals()["stack"] = stack
 
 pp1 = pp.PrettyPrinter(width=100)
-repr1 = reprlib.Repr()
-repr1.maxlist = 10
-repr1.maxstring = 100
 
 def pprint(x):
     r1 = repr(x)
-    if len(r1) > 1000:
+    if len(r1) > 1000 and repr1:
         print(repr1.repr(x))
     else:
         pp1.pprint(x)
