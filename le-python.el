@@ -171,12 +171,8 @@ Stripping them will produce code that's valid for an eval."
               (lispy-eval-python-str)
               plain)))
     (if (and res (not (equal res "")))
-        (lispy-message
-         (replace-regexp-in-string
-          "%" "%%" res))
-      (lispy-message
-       (replace-regexp-in-string
-        "%" "%%" lispy-eval-error)))))
+        (lispy-message res)
+      (lispy-message lispy-eval-error))))
 
 (defvar-local lispy-python-proc nil)
 
@@ -261,7 +257,7 @@ it at one time."
   (let ((single-line-p (= (cl-count ?\n str) 0)))
     (cond
       ((string-match "^\\[" str)
-       (format "__last__ = %s\nprint(repr(__last__))" str))
+       (format "__last__ = %s\nlp.pprint(__last__)" str))
       ((and (or (string-match "\\`\\(\\(?:[., ]\\|\\sw\\|\\s_\\|[][]\\)+\\) += " str)
                 (string-match "\\`\\(([^)]+)\\) *=[^=]" str))
             (save-match-data
@@ -271,7 +267,7 @@ it at one time."
                                (format "x=lp.is_assignment(\"\"\"%s\"\"\")\nprint (x)" str)
                                t)
                               "True")))))
-       (concat str (format "\nlp.pprint (%s)" (match-string 1 str))))
+       (concat str (format "\nlp.pprint(%s)" (match-string 1 str))))
       ;; match e.g. "x in array" part of  "for x in array:"
       ((and single-line-p
             (string-match "\\`\\([A-Z_a-z0-9]+\\|\\(?:([^)]+)\\)\\) in \\(.*\\)\\'" str))
@@ -338,7 +334,7 @@ it at one time."
                           " None"
                         (match-string 2 x))))
                    str)
-                  "\nprint (repr(__return__))")
+                  "\nlp.pprint(__return__)")
           t))
         ((string-match "^Traceback.*:" res)
          (set-text-properties
@@ -353,7 +349,7 @@ it at one time."
          "")
         ((string-match-p "^<\\(?:map\\|filter\\|generator\\|enumerate\\|zip\\) object" res)
          (let ((last (car (last (split-string str "\n")))))
-           (when (string-match "\\`print (repr ((\\(.*\\))))\\'" last)
+           (when (string-match "\\`lp.pprint(\\(.*\\))\\'" last)
              (setq str (match-string 1 last))))
          (lispy--eval-python (format "list(%s)" str) t))
         ((string-match-p "SyntaxError:" res)
