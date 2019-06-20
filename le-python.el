@@ -187,6 +187,7 @@ Stripping them will produce code that's valid for an eval."
     (let* ((process (cdr x))
            (buffer (process-buffer process)))
       (kill-process process)
+      (sit-for 0.01)
       (kill-buffer buffer)
       (setq x (car x))))
   (setq lispy-python-proc
