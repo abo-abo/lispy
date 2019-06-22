@@ -7113,6 +7113,45 @@ Ignore the matches in strings and comments."
 
 (defvar scheme-mode-hook)
 
+(defvar lispy--insert-replace-alist-clojure
+  '(("#object[" . "clojure-object")
+    ("#?@(" . "clojure-reader-conditional-splice")
+    ("@(" . "clojure-deref-list")
+    ("#(" . "clojure-lambda")
+    ("#{" . "clojure-set")
+    ("{" . "clojure-map")
+    ("#::{" . "clojure-namespaced-map")
+    ("#?(" . "clojure-reader-conditional")))
+
+(defvar lispy--insert-replace-alist-elisp
+  '(("#object[" . "clojure-object")
+    ("#?@(" . "clojure-reader-conditional-splice")
+    ("@(" . "clojure-deref-list")
+    ("#(" . "clojure-lambda")
+    ("#::{" . "clojure-namespaced-map")
+    ("#?(" . "clojure-reader-conditional")))
+
+(defun lispy--read-1 ()
+  (let* ((alist (if (member major-mode lispy-elisp-modes)
+                    lispy--insert-replace-alist-elisp
+                  lispy--insert-replace-alist-clojure))
+         (regex (regexp-opt (mapcar #'car alist))))
+    (goto-char (point-min))
+    (while (re-search-forward regex nil t)
+      (let ((class (cdr (assoc (match-string 0) alist))))
+        (unless (lispy--in-string-or-comment-p)
+          (backward-char 1)
+          (save-excursion
+            (if (save-match-data
+                  (looking-at "((ly-raw string"))
+                (forward-list 1)
+              (with-syntax-table lispy--braces-table
+                (forward-list 1)))
+            (delete-char -1)
+            (insert "))"))
+          (delete-region (match-beginning 0) (match-end 0))
+          (insert "(ly-raw " class " ("))))))
+
 (defun lispy--read (str)
   "Read STR including comments and newlines."
   (let* ((deactivate-mark nil)
@@ -7234,39 +7273,7 @@ Ignore the matches in strings and comments."
                     (delete-char -2)
                     (insert "(ly-raw clojure-reader-comment ")))
                 ;; ——— #{ or { or #( or @( or #?( or #?@( ——————————
-                (goto-char (point-min))
-                (while (re-search-forward "#object\\[\\|#\\?@(\\|@(\\|#(\\|{\\|#{\\|#::{\\|#\\?(" nil t)
-                  (let ((class
-                         (cond ((string= (match-string 0) "#{")
-                                "clojure-set")
-                               ((string= (match-string 0) "{")
-                                "clojure-map")
-                               ((string= (match-string 0) "#(")
-                                "clojure-lambda")
-                               ((string= (match-string 0) "@(")
-                                "clojure-deref-list")
-                               ((string= (match-string 0) "#?@(")
-                                "clojure-reader-conditional-splice")
-                               ((string= (match-string 0) "#?(")
-                                "clojure-reader-conditional")
-                               ((string= (match-string 0) "#::{")
-                                "clojure-namespaced-map")
-                               ((string= (match-string 0) "#object[")
-                                "clojure-object")
-                               (t
-                                (error "Unexpected class %s" (match-string 0))))))
-                    (unless (lispy--in-string-or-comment-p)
-                      (backward-char 1)
-                      (save-excursion
-                        (if (save-match-data
-                              (looking-at "((ly-raw string"))
-                            (forward-list 1)
-                          (with-syntax-table lispy--braces-table
-                            (forward-list 1)))
-                        (delete-char -1)
-                        (insert "))"))
-                      (delete-region (match-beginning 0) (match-end 0))
-                      (insert "(ly-raw " class " ("))))
+                (lispy--read-1)
                 ;; ——— #1 —————————————————————
                 ;; Elisp syntax for circular lists
                 (goto-char (point-min))

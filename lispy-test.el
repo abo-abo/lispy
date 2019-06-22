@@ -2032,6 +2032,8 @@ Insert KEY if there's no command."
 (ert-deftest lispy-tab ()
   (should (string= (lispy-with "|(defun test?  (x) x)" "i")
                    "|(defun test? (x) x)"))
+  (should (string= (lispy-with "|(list '{foobar)" "i")
+                   "|(list '{foobar)"))
   (should (string= (lispy-with "|(setq x '(\n          \n          ))" "i")
                    "|(setq x '())"))
   (should (string= (lispy-with "|(eq (char-before) ?\\()" "i")
