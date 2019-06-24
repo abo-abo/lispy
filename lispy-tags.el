@@ -56,10 +56,14 @@
            (lambda (x) (string-match "\\(?:^\\.?#\\|~$\\|loaddefs.el\\)" x))
            (file-expand-wildcards (format "*.%s" ext)))))))
 
+(define-error 'no-semantic-support "No semantic support for major-mode")
+
 (defun lispy--fetch-this-file-tags (&optional file)
   "Fetch tags for FILE."
   (setq file (or file (buffer-file-name)))
   (semantic-new-buffer-fcn)
+  (when (null semantic--parse-table)
+    (signal 'no-semantic-support nil))
   (let ((tags (semantic-parse-region (point-min) (point-max))))
     (when (memq major-mode (cons 'lisp-mode lispy-elisp-modes))
       (let ((arity (cdr (assoc major-mode lispy-tag-arity)))

@@ -4099,11 +4099,14 @@ When ARG isn't nil, call `lispy-goto-projectile' instead."
 When ARG is non-nil, force a reparse."
   (interactive "P")
   (deactivate-mark)
-  (let ((lispy-force-reparse arg))
-    (lispy--select-candidate
-     (mapcar #'lispy--format-tag-line
-             (lispy--fetch-tags (list (buffer-file-name))))
-     #'lispy--action-jump)))
+  (condition-case nil
+      (let ((lispy-force-reparse arg))
+        (lispy--select-candidate
+         (mapcar #'lispy--format-tag-line
+                 (lispy--fetch-tags (list (buffer-file-name))))
+         #'lispy--action-jump))
+    (no-semantic-support
+     (counsel-imenu))))
 
 (defun lispy-goto-elisp-commands (&optional arg)
   "Jump to Elisp commands within current file.
