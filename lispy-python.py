@@ -42,21 +42,25 @@ except:
 
 #* Classes
 class Stack:
+    line_numbers = {}
     def __init__(self, tb):
         self.stack = []
         while tb:
-            self.stack.append((
-                tb.tb_frame.f_code.co_filename,
-                tb.tb_frame.f_code.co_firstlineno,
-                tb.tb_frame))
+            name = tb.tb_frame.f_code.co_name
+            fname = tb.tb_frame.f_code.co_filename
+            if (fname, name) in Stack.line_numbers:
+                lineno = Stack.line_numbers[(fname, name)]
+            else:
+                lineno = tb.tb_frame.f_code.co_firstlineno
+            self.stack.append((fname, lineno, tb.tb_frame))
             tb = tb.tb_next
         self.stack_top = len(self.stack) - 1
         self.set_frame(self.stack_top)
 
     def frame_string(self, i):
-        f = self.stack[i][2]
-        res = "  File \"%s\", line %d, Frame [%d/%d]:" % \
-           (f.f_code.co_filename, f.f_lineno, i, self.stack_top)
+        (fname, line, f) = self.stack[i]
+        res = "  File \"%s\", line %d, Frame [%d/%d] (%s):" % (
+            f.f_code.co_filename, line, i, self.stack_top, f.f_code.co_name)
         return res
 
     def __repr__(self):

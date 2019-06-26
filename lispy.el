@@ -5622,6 +5622,7 @@ Second region and buffer are the current ones."
          (lispy--clojure-debug-quit))))
 
 (declare-function cider-debug-defun-at-point "ext:cider-debug")
+(declare-function lispy-python-set-breakpoint "le-python")
 
 (defun lispy-edebug (arg)
   "Start/stop edebug of current thing depending on ARG.
@@ -5631,11 +5632,14 @@ ARG is 3: `edebug-defun' on the function from this sexp.
 ARG is 4: `eval-defun' on the function from this sexp."
   (interactive "p")
   (cond ((= arg 1)
-         (if (memq major-mode lispy-elisp-modes)
-             (edebug-defun)
-           (if (eq major-mode 'clojure-mode)
-               (cider-debug-defun-at-point)
-             (error "Can't debug for %S" major-mode))))
+         (cond ((memq major-mode lispy-elisp-modes)
+                (edebug-defun))
+               ((eq major-mode 'clojure-mode)
+                (cider-debug-defun-at-point))
+               ((eq major-mode 'python-mode)
+                (lispy-python-set-breakpoint))
+               (t
+                (error "Can't debug for %S" major-mode))))
         ((= arg 2)
          (eval-defun nil))
         (t

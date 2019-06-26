@@ -349,6 +349,11 @@ it at one time."
                   "\n"
                   (lispy--python-print "__return__"))
           t))
+        ((string-match "^RuntimeError: break$" res)
+         (lpy-switch-to-shell)
+         (insert "lp.pm()")
+         (comint-send-input)
+         "breakpoint")
         ((string-match "^Traceback.*:" res)
          (set-text-properties
           (match-beginning 0)
@@ -681,6 +686,21 @@ Otherwise, fall back to Jedi (static)."
             (mapconcat #'identity
                        (delete "self" args)
                        ", "))))
+
+(defun lispy-python-set-breakpoint ()
+  (if (not (looking-at "def \\(\\(?:\\sw\\|\\s_\\)+\\).*:$"))
+      (user-error "Not on a def statement")
+    (let ((start (match-string-no-properties 0))
+          (name (match-string 1)))
+      (lispy--eval-python
+       (concat
+        start
+        "\n    raise(RuntimeError(\"break\"))"
+        (format "\nlp.Stack.line_numbers[('%s', '%s')] = %d"
+                (buffer-file-name)
+                name
+                (line-number-at-pos))))
+      (message "Break: %s" name))))
 
 (provide 'le-python)
 
