@@ -4094,6 +4094,8 @@ When ARG isn't nil, call `lispy-goto-projectile' instead."
        (mapcar #'lispy--format-tag-line candidates))
      #'lispy--action-jump)))
 
+(declare-function counsel-imenu "ext:counsel")
+
 (defun lispy-goto-local (&optional arg)
   "Jump to symbol within current file.
 When ARG is non-nil, force a reparse."
