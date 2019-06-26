@@ -4294,10 +4294,12 @@ When ARG is 2, insert the result as a comment."
 (defun lispy-eval-current-outline ()
   (interactive)
   (save-excursion
-    (outline-back-to-heading)
-    (lispy-eval-outline)
-    (let ((inhibit-message t))
-      (save-buffer))))
+    (let ((buf (current-buffer)))
+      (outline-back-to-heading)
+      (lispy-eval-outline)
+      (let ((inhibit-message t))
+        (with-current-buffer buf
+          (save-buffer))))))
 
 (defun lispy-add-outline-title ()
   (save-excursion

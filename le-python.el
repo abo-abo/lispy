@@ -351,6 +351,7 @@ it at one time."
           t))
         ((string-match "^RuntimeError: break$" res)
          (lpy-switch-to-shell)
+         (goto-char (point-max))
          (insert "lp.pm()")
          (comint-send-input)
          "breakpoint")
@@ -688,18 +689,29 @@ Otherwise, fall back to Jedi (static)."
                        ", "))))
 
 (defun lispy-python-set-breakpoint ()
-  (if (not (looking-at "def \\(\\(?:\\sw\\|\\s_\\)+\\).*:$"))
-      (user-error "Not on a def statement")
-    (let ((start (match-string-no-properties 0))
-          (name (match-string 1)))
-      (lispy--eval-python
-       (concat
-        start
-        "\n    raise(RuntimeError(\"break\"))"
-        (format "\nlp.Stack.line_numbers[('%s', '%s')] = %d"
-                (buffer-file-name)
-                name
-                (line-number-at-pos))))
+  (let* ((beg (save-excursion
+                (unless (bolp)
+                  (python-nav-beginning-of-defun))
+                (if (not (looking-at "def \\(\\(?:\\sw\\|\\s_\\)+\\).*:$"))
+                    (user-error "Not on a def statement")
+                  (point))))
+         (name (match-string 1))
+         (start (buffer-substring-no-properties
+                 beg
+                 (if (bolp)
+                     (line-end-position)
+                   (point))))
+         (res (lispy--eval-python
+               (concat
+                start
+                "\n    raise(RuntimeError(\"break\"))"
+                (format "\nlp.Stack.line_numbers[('%s', '%s')] = %d"
+                        (buffer-file-name)
+                        name
+                        (line-number-at-pos))))))
+
+    (if (null res)
+        (message "Error: %S" lispy-eval-error)
       (message "Break: %s" name))))
 
 (provide 'le-python)
