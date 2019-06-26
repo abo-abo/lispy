@@ -51,7 +51,7 @@ class Stack:
             if (fname, name) in Stack.line_numbers:
                 lineno = Stack.line_numbers[(fname, name)]
             else:
-                lineno = tb.tb_frame.f_code.co_firstlineno
+                lineno = tb.tb_frame.f_lineno
             self.stack.append((fname, lineno, tb.tb_frame))
             tb = tb.tb_next
         self.stack_top = len(self.stack) - 1
