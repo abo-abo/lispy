@@ -12,8 +12,7 @@
   (lispy-flet (process-list ()) ad-do-it))
 
 ;;* Common Lisp
-(require 'slime-autoloads)
-(setq inferior-lisp-program "/usr/bin/sbcl")
+(setq inferior-lisp-program "sbcl")
 (setq slime-contribs '(slime-fancy))
 (setq lispy-use-sly nil)
 ;; SLIME and SLY modify this hook even before they're required. Yuck.

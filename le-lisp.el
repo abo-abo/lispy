@@ -40,8 +40,9 @@
 (defun lispy--use-sly-p ()
   (if lispy-use-sly
       (require 'sly)
-    (require 'slime)
-    nil))
+    (unless (require 'slime nil t)
+      (require 'sly)
+      (setq lispy-use-sly t))))
 
 (defun lispy--eval-lisp (str)
   "Eval STR as Common Lisp code."
