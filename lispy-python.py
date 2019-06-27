@@ -226,6 +226,10 @@ def arglist_jedi(line, column, filename):
     else:
         return delete('', mapcar(lambda x: str(x.name), defs[0].params))
 
+def jedi_completions(line):
+    script=jedi.Script(source=line, line=1, column=len(line), sys_path=sys.path)
+    return [_x_.name for _x_ in script.completions()]
+
 def is_assignment(code):
     ops = ast.parse(code).body
     return len(ops) == 1 and type(ops[0]) is ast.Assign

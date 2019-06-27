@@ -429,9 +429,7 @@ it at one time."
                        (line-beginning-position)
                        (point)))
                 (str
-                 (format
-                  "import jedi; script=jedi.Script(\"%s\",1,%d); [_x_.name for _x_ in script.completions()]"
-                  line (length line)))
+                 (format "lp.jedi_completions('%s')" line))
                 (cands
                  (lispy--python-array-to-elisp
                   (lispy--eval-python str)))
