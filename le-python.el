@@ -437,16 +437,19 @@ it at one time."
                 (beg (if bnd (car bnd) (point)))
                 (end (if bnd (cdr bnd) (point))))
            (list beg end cands)))
-        ((lispy-complete-fname-at-point))
-        ((looking-back "\\(?:\\sw\\|\\s_\\)\\[" (line-beginning-position))
-
-         (let* ((bnd (save-excursion
-                       (backward-char 1)
+        ((looking-back "\\(?:\\sw\\|\\s_\\)\\[\\(\\(?:'\\|\"\\)?\\)" (line-beginning-position))
+         (let* ((quote_str (match-string-no-properties 1))
+                (bnd (save-excursion
+                       (goto-char (match-beginning 0))
                        (lispy-python-symbol-bnd)))
                 (str (lispy--string-dwim bnd))
                 (keys (read (lispy--eval-python
                              (format "lp.print_elisp(%s.keys())" str)))))
-           (list (point) (point) keys)))
+           (list (point) (point)
+                 (if (> (length quote_str) 0)
+                     keys
+                   (mapcar (lambda (s) (concat "\"" s "\"")) keys)))))
+        ((lispy-complete-fname-at-point))
         (t
          (let* ((bnd (lispy-python-symbol-bnd))
                 (str (buffer-substring-no-properties
