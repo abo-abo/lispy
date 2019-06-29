@@ -211,7 +211,11 @@ def print_elisp(obj, end="\n"):
 
 def argspec(sym):
     arg_info = inspect.getargspec(sym)
-    print_elisp(arg_info)
+    di = arg_info._asdict()
+    fn = sym.__init__ if type(sym) is type else sym
+    di["filename"] = fn.__code__.co_filename
+    di["line"] = fn.__code__.co_firstlineno
+    print_elisp(di)
 
 def arglist_jedi(line, column, filename):
     script = jedi.Script(None, line, column, filename)
