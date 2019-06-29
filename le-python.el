@@ -544,13 +544,13 @@ it at one time."
             (read (lispy--eval-python
                    (format "lp.argspec(%s)" fn))))
            (fn-args
-            (nth 0 fn-data))
+            (plist-get fn-data :args))
            (fn-varargs
-            (nth 1 fn-data))
+            (plist-get fn-data :varargs))
            (fn-keywords
-            (nth 2 fn-data))
+            (plist-get fn-data :keywords))
            (fn-defaults
-            (nth 3 fn-data))
+            (plist-get fn-data :defaults))
            (fn-alist
             (cl-mapcar #'cons
                        fn-args

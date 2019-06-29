@@ -183,38 +183,35 @@ def arglist(sym):
             args.append("**" + arg_info.keywords)
     return args
 
-def print_elisp(obj):
-    if isinstance(obj, collections.KeysView):
-        obj = list(obj)
-    if obj:
-        if type(obj) is list or type(obj) is tuple:
-            print("(", end="")
-            for x in obj:
-                print_elisp(x)
-            print(")")
-        else:
-            print('"' +  repr(obj) + '"', end=" ")
+def print_elisp(obj, end="\n"):
+    if hasattr(obj, "_asdict"):
+        # namedtuple
+        print_elisp(obj._asdict(), end)
+    elif isinstance(obj, dict):
+        print("(")
+        for (k, v) in obj.items():
+            print("  :" + k, end=" ")
+            print_elisp(v, end="\n")
+        print(")")
+    elif isinstance(obj, collections.KeysView):
+        print_elisp(list(obj))
     else:
-        print('"None"', end=" ")
+        if obj:
+            if type(obj) is list or type(obj) is tuple:
+                print("(", end="")
+                for x in obj:
+                    print_elisp(x)
+                print(")")
+            elif type(obj) is str:
+                print('"' + obj + '"', end=" ")
+            else:
+                print('"' +  repr(obj) + '"', end=" ")
+        else:
+            print('nil', end=end)
 
 def argspec(sym):
     arg_info = inspect.getargspec(sym)
-    print("((", end="")
-    print(" ".join(['"' + arg + '"' for arg in arg_info.args]))
-    print(")", end="")
-    if arg_info.varargs:
-        print(' "' + arg_info.varargs + '"')
-    else:
-        print(" nil")
-    if arg_info.keywords:
-        print(' "' + arg_info.keywords + '"')
-    else:
-        print(" nil")
-    if arg_info.defaults:
-        print("(", end="")
-        print(" ".join(['"' + repr(d) + '"' for d in arg_info.defaults]))
-        print(")", end="")
-    print(")", end="")
+    print_elisp(arg_info)
 
 def arglist_jedi(line, column, filename):
     script = jedi.Script(None, line, column, filename)
