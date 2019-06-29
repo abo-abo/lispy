@@ -195,6 +195,8 @@ def print_elisp(obj, end="\n"):
         print(")")
     elif isinstance(obj, collections.KeysView):
         print_elisp(list(obj))
+    elif isinstance(obj, int):
+        print(obj)
     else:
         if obj:
             if type(obj) is list or type(obj) is tuple:
@@ -211,11 +213,14 @@ def print_elisp(obj, end="\n"):
 
 def argspec(sym):
     arg_info = inspect.getargspec(sym)
-    di = arg_info._asdict()
-    fn = sym.__init__ if type(sym) is type else sym
-    di["filename"] = fn.__code__.co_filename
-    di["line"] = fn.__code__.co_firstlineno
-    print_elisp(di)
+    if arg_info:
+        di = arg_info._asdict()
+        fn = sym.__init__ if type(sym) is type else sym
+        di["filename"] = fn.__code__.co_filename
+        di["line"] = fn.__code__.co_firstlineno
+        print_elisp(di)
+    else:
+        print("nil")
 
 def arglist_jedi(line, column, filename):
     script = jedi.Script(None, line, column, filename)

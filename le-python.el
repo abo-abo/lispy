@@ -610,7 +610,7 @@ it at one time."
                0 1
                `(
                  filename ,(plist-get fn-data :filename)
-                 line ,(string-to-number (plist-get fn-data :line)))
+                 line ,(plist-get fn-data :line))
                fn)
               (lispy-goto-symbol fn))
           (goto-char p-ar-beg)
@@ -620,19 +620,21 @@ it at one time."
 (declare-function jedi:goto-definition "ext:jedi-core")
 (declare-function jedi:call-deferred "ext:jedi-core")
 
+(defun lispy--goto-symbol-python (file line)
+  (find-file file)
+  (goto-char (point-min))
+  (forward-line (1- line))
+  (back-to-indentation)
+  (unless (bolp)
+    (backward-char)))
+
 (defun lispy-goto-symbol-python (symbol)
   (save-restriction
     (widen)
     (let ((file (get-text-property 0 'filename symbol))
           (line (get-text-property 0 'line symbol)))
       (if file
-          (progn
-            (find-file file)
-            (goto-char (point-min))
-            (forward-line (1- line))
-            (back-to-indentation)
-            (unless (bolp)
-              (backward-char)))
+          (lispy--goto-symbol-python file line)
         (let ((res (ignore-errors
                      (or
                       (deferred:sync!
@@ -641,16 +643,15 @@ it at one time."
           (if (member res '(nil "Definition not found."))
               (let* ((symbol (python-info-current-symbol))
                      (symbol-re (concat "^\\(?:def\\|class\\).*" (car (last (split-string symbol "\\." t)))))
-                     (file (lispy--eval-python
-                            (format
-                             "import inspect\nprint(inspect.getsourcefile(%s))" symbol))))
-                (cond ((and (equal file "None")
+                     (r (lispy--eval-python
+                         (format "lp.argspec(%s)" symbol)))
+                     (plist (and r (read r))))
+                (cond (plist
+                       (lispy--goto-symbol-python
+                        (plist-get plist :filename)
+                        (plist-get plist :line)))
+                      ((and (equal file "None")
                             (re-search-backward symbol-re nil t)))
-                      (file
-                       (find-file file)
-                       (goto-char (point-min))
-                       (re-search-forward symbol-re)
-                       (beginning-of-line))
                       (t
                        (error "Both jedi and inspect failed"))))
             (unless (looking-back "def " (line-beginning-position))
