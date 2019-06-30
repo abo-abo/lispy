@@ -4402,12 +4402,16 @@ Return the result of the last evaluation as a string."
           (t
            (message (replace-regexp-in-string "%" "%%" res))))))
 
+(defvar lispy-message-limit 4000
+  "String length limit for `lispy-message' to pop up a window.
+For smaller strings `message' is used.")
+
 (defun lispy-message (str &optional popup)
   "Display STR in the echo area.
 If STR is too large, pop it to a buffer instead."
   (if (or
        popup
-       (> (length str) 4000)
+       (> (length str) lispy-message-limit)
        (> (cl-count ?\n str)
           (or
            14
