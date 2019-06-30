@@ -194,11 +194,23 @@ Stripping them will produce code that's valid for an eval."
                  (get-buffer-process
                   (mash-make-shell x 'mash-new-lispy-python))))
               (t
-               (lispy--python-proc (concat "lispy-python-" x))))))
+               (lispy--python-proc (concat "lispy-python-" x)))))
+  (unless (lispy--eval-python "lp")
+    (lispy-python-middleware-reload)))
+
+(defvar lispy-python-process-regexes
+  '("^lispy-python-\\(.*\\)" "\\`\\(Python\\)\\'")
+  "List of regexes for process buffers that run Python.")
 
 (defun lispy-short-process-name (x)
-  (when (string-match "^lispy-python-\\(.*\\)" (process-name x))
-    (match-string 1 (process-name x))))
+  (let ((pname (process-name x)))
+    (car
+     (delq nil
+           (mapcar
+            (lambda (re)
+              (when (string-match re pname)
+                (match-string 1 pname)))
+            lispy-python-process-regexes)))))
 
 (defun lispy-set-python-process (&optional arg)
   "Associate a (possibly new) Python process to the current buffer.
