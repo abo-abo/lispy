@@ -1,13 +1,9 @@
 emacs ?= emacs
-CASK = ~/.cask/bin/cask
 BEMACS = $(emacs) -batch -l elpa.el
 LOAD = -l lispy-inline.el -l lispy.el
 QEMACS = $(emacs) -Q -l elpa.el -l targets/interactive-init.el
 
 all: compile test
-
-cask:
-	$(shell EMACS=$(emacs) $(CASK) --verbose --debug)
 
 update:
 	$(emacs) -batch -l targets/install-deps.el
@@ -34,4 +30,4 @@ clojure:
 clean:
 	rm -f *.elc
 
-.PHONY: all clean cask elisp check-declare
+.PHONY: all clean elisp check-declare
