@@ -4060,7 +4060,7 @@ When you press \"t\" in `lispy-teleport', this will be bound to t temporarily.")
            (res (lispy-ace-paren
                  (when lispy-teleport-global
                    2))))
-      (cond ((eq res t)
+      (cond ((memq res '(t nil))
              (when regionp
                (lispy--mark (cons end beg))))
             (t
@@ -4847,7 +4847,7 @@ Sexp is obtained by exiting the list ARG times."
                             (forward-char -1)
                             (lispy--in-string-or-comment-p))))
                    lispy-avy-style-symbol))))
-    (unless (eq res t)
+    (unless (memq res '(t nil))
       (unless (or (eq (char-after) ?\")
                   (looking-at ". "))
         (forward-char 1))
@@ -4874,7 +4874,7 @@ Sexp is obtained by exiting list ARG times."
                    (lambda () (or (not (lispy--in-string-or-comment-p))
                                   (lispy-looking-back ".\"")))
                    lispy-avy-style-symbol))))
-      (unless (eq res t)
+      (unless (memq res '(t nil))
         (skip-chars-forward "-([{ `'#")
         (mark-word)))))
 
