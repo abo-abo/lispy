@@ -119,6 +119,7 @@
                          "me.raynes/fs" "1.4.6")))
 
 (declare-function cider-connections "ext:cider-connection")
+(defvar cider-allow-jack-in-without-project)
 
 (defun lispy--eval-clojure (str &optional add-output)
   "Eval STR as Clojure code.
@@ -139,7 +140,8 @@ When ADD-OUTPUT is non-nil, add the standard output to the result."
                     (lispy--eval-clojure-1 ,str ,add-output))))
           (add-hook 'nrepl-connected-hook
                     'lispy--clojure-eval-hook-lambda t)
-          (call-interactively lispy-cider-connect-method)
+          (let ((cider-allow-jack-in-without-project t))
+            (call-interactively lispy-cider-connect-method))
           (format "Starting CIDER using %s ..." lispy-cider-connect-method))
       (unless lispy--clojure-middleware-loaded-p
         (lispy--clojure-middleware-load))
