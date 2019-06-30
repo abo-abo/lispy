@@ -554,7 +554,8 @@ it at one time."
              (fn-keywords
               (plist-get fn-data :keywords))
              (fn-defaults
-              (plist-get fn-data :defaults))
+              (mapcar (lambda (x) (or x "None"))
+                      (plist-get fn-data :defaults)))
              (fn-alist
               (cl-mapcar #'cons
                          fn-args
