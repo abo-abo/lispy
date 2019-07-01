@@ -9,7 +9,8 @@
       (list (if melpa-stable
                 '("melpa-stable" . "https://stable.melpa.org/packages/")
               '("melpa" . "http://melpa.org/packages/"))
-            '("gnu" . "http://elpa.gnu.org/packages/")))
+            ;; '("gnu" . "http://elpa.gnu.org/packages/")
+            ))
 (package-refresh-contents)
 
 (defconst lispy-dev-packages
