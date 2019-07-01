@@ -1,6 +1,6 @@
 ;;; le-racket.el --- lispy support for Racket. -*- lexical-binding: t -*-
 
-;; Copyright (C) 2014-2015 Oleh Krehel
+;; Copyright (C) 2014-2019 Oleh Krehel
 
 ;; This file is not part of GNU Emacs
 
@@ -24,7 +24,8 @@
 
 (require 'racket-mode nil t)
 
-(declare-function racket-lispy-visit-symbol-definition "racket-edit")
+(declare-function racket-lispy-visit-symbol-definition "ext:racket-edit")
+(declare-function racket--cmd/async "exit:racket-repl")
 
 (defun lispy-goto-symbol-racket (symbol)
   (racket-lispy-visit-symbol-definition symbol))
@@ -42,7 +43,7 @@
         (accept-process-output nil 0.001))
       (substring response 1 -2))))
 
-(defun lispy-eval-racket (&optional plain)
+(defun lispy-eval-racket (&optional _plain)
   (lispy--eval-racket (lispy--string-dwim)))
 
 (provide 'le-racket)
