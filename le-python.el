@@ -701,7 +701,7 @@ Otherwise, fall back to Jedi (static)."
   "Load the custom Python code in \"lispy-python.py\"."
   (unless lispy--python-middleware-loaded-p
     (let ((r (lispy--eval-python
-              (format "import imp;lp=imp.load_source('lispy-python','%s');__name__='__repl__'"
+              (format "import imp;lp=imp.load_source('lispy-python','%s');__name__='__repl__';pm=lp.Autocall(lp.pm);"
                       (expand-file-name "lispy-python.py" lispy-site-directory)))))
       (if r
           (progn
