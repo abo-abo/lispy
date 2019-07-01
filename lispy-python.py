@@ -104,6 +104,9 @@ class Autocall:
     def __init__(self, f):
         self.f = f
 
+    def __call__(self, n):
+        self.f(n)
+
     def __repr__(self):
         self.f()
         return ""
