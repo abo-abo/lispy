@@ -300,11 +300,13 @@ it at one time."
              (val (match-string 2 str)))
          (format "%s = list (%s)[0]\nprint ((%s))" vars val vars)))
       ((string-match "\\`def \\([a-zA-Z_0-9]+\\)\\s-*(\\s-*self" str)
-       (let ((fname (match-string 1 str))
-             (cname (car (split-string (python-info-current-defun) "\\."))))
+       (let ((qual-name (python-info-current-defun)))
          (concat str
                  "\n"
-                 (format "lp.rebind('%s', '%s')" cname fname))))
+                 (format "lp.rebind(%s, fname='%s', line=%d)"
+                         qual-name
+                         (buffer-file-name)
+                         (line-number-at-pos)))))
       (t
        str))))
 

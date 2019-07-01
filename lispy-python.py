@@ -219,8 +219,18 @@ def argspec(sym):
     if arg_info:
         di = arg_info._asdict()
         fn = sym.__init__ if type(sym) is type else sym
-        di["filename"] = fn.__code__.co_filename
-        di["line"] = fn.__code__.co_firstlineno
+        filename = fn.__code__.co_filename
+        di["filename"] = filename
+        if hasattr(sym, "__self__"):
+            # bound method
+            qname = sym.__self__.__class__.__name__ + "." + sym.__name__
+        else:
+            qname = sym.__qualname__
+        tu = (filename, qname)
+        if tu in Stack.line_numbers:
+            di["line"] = Stack.line_numbers[tu]
+        else:
+            di["line"] = fn.__code__.co_firstlineno
         print_elisp(di)
     else:
         print("nil")
@@ -269,16 +279,20 @@ def find_global_vars(class_name):
     """Find global variables of type CLASS_NAME."""
     return [(k, v) for (k, v) in top_level().f_globals.items() if v.__class__.__name__ == class_name]
 
-def rebind(cls_name, fun_name):
-    """Rebind FUN_NAME in all top level instances of CLS_NAME.
+def rebind(method, fname=None, line=None):
+    """Rebind METHOD named like Class.function in all top level instances of Class.
 
     Modifying a method is two-step:
     1. eval the method as if it's a free top-level function,
     2. modify all instances of the class with an adapter to this top-level function.
     """
+    qname = method.__qualname__
+    (cls_name, fun_name) = qname.split(".")
     for (n, v) in find_global_vars(cls_name):
         print("rebind:", n)
         top_level().f_globals[n].__dict__[fun_name] = types.MethodType(top_level().f_globals[fun_name], v)
+    if fname and line:
+        Stack.line_numbers[(fname, qname)] = line
 
 def pm():
     """Post mortem: recover the locals and globals from the last traceback."""
