@@ -2815,7 +2815,7 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "\"|\"" (lispy-forward-delete 1))
                    "|"))
   (should (string= (lispy-with "(baz \"foobar|\")" (lispy-forward-delete 1))
-                   "(baz |)"))
+                   "(baz |\"foobar\")"))
   (should (string= (lispy-with "(foo (bar|))" (lispy-forward-delete 1))
                    "(foo |)")))
 
@@ -2837,7 +2837,7 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "\"|\"" (lispy-backward-delete 1))
                    "|"))
   (should (string= (lispy-with "(baz \"|foobar\")" (lispy-backward-delete 1))
-                   "(baz |)"))
+                   "(baz \"foobar\"|)"))
   (should (string= (lispy-with "(foo (|bar))" (lispy-backward-delete 1))
                    "(foo |)")))
 

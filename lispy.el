@@ -9206,28 +9206,39 @@ When ARG is non-nil, unquote the current string."
            (forward-char 1)
            (setq bnd (lispy--bounds-dwim))
            (delete-region (car bnd) (cdr bnd)))
-          ((and (setq bnd (lispy--bounds-string))
-                (eq (point) (car bnd)))
-           (forward-char 1))
+          ((setq bnd (lispy--bounds-string))
+           (cond ((eq (point) (car bnd))
+                  (forward-char 1))
+                 ((= 2 (- (cdr bnd) (car bnd)))
+                  (delete-region (car bnd) (cdr bnd)))
+                 (t
+                  (lispy-delete arg))))
           (t
            (lispy-delete arg)))))
 
 (defun lispy-backward-delete (arg)
   "Delete ARG sexps backward."
   (interactive "p")
-  (cond
-    ((lispy--in-comment-p)
-     (backward-delete-char-untabify arg))
-    ((and (eq (char-before) ?\")
-          (null (lispy--bounds-string)))
-     (backward-char 1))
-    ((lispy-looking-back lispy-left)
-     (lispy-delete-backward arg)
-     (unless (bolp)
-       (insert " ")))
-    ((lispy-right-p)
-     (backward-char 1))
-    (t (lispy-delete-backward arg))))
+  (let (bnd)
+    (cond
+      ((lispy--in-comment-p)
+       (backward-delete-char-untabify arg))
+      ((and (eq (char-before) ?\")
+            (null (lispy--bounds-string)))
+       (backward-char 1))
+      ((lispy-looking-back lispy-left)
+       (backward-char)
+       (delete-region
+        (point)
+        (save-excursion
+          (forward-sexp 1)
+          (point))))
+      ((lispy-right-p)
+       (backward-char 1))
+      ((and (setq bnd (lispy--bounds-string))
+            (= 2 (- (cdr bnd) (car bnd))))
+       (delete-region (car bnd) (cdr bnd)))
+      (t (lispy-delete-backward arg)))))
 
 (defun lispy-wrap-round (arg)
   "Forward to `lispy-parens' with a default ARG of 1."
