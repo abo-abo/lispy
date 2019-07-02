@@ -8144,9 +8144,11 @@ The outer delimiters are stripped."
       (delete-region pt (point))))
   (let* ((bnd (lispy--bounds-dwim))
          (str (lispy--string-dwim bnd))
-         (offset (save-excursion
-                   (goto-char (car bnd))
-                   (current-column)))
+         (offset (if (eq major-mode 'racket-mode)
+                     0
+                   (save-excursion
+                     (goto-char (car bnd))
+                     (current-column))))
          (was-left (lispy-left-p)))
     (cond ((or (and (memq major-mode lispy-clojure-modes)
                     (or (string-match "\\^" str)
