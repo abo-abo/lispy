@@ -272,6 +272,21 @@ it at one time."
      "print(repr(%s))")
    str))
 
+(defun lispy--python-nth-element (str single-line-p)
+  "Check if STR is of the form \"ITEM in ARRAY_LIKE\".
+If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
+  (when (and single-line-p
+             (string-match "\\`\\([A-Z_a-z0-9]+\\|\\(?:([^)]+)\\)\\) in \\(.*\\)\\'" str)
+             (not (save-excursion (beginning-of-line) (looking-at " *if"))))
+    (let* ((vars (match-string 1 str))
+           (val (match-string 2 str))
+           (len (read (lispy--eval-python (format "len(%s)" val) t)))
+           (idx (ivy-read
+                 "idx: "
+                 (mapcar #'number-to-string (number-sequence 0 (1- len))))))
+      (format "%s = list (%s)[%s]\nprint ((%s))"
+              vars val idx vars))))
+
 (defun lispy--python-eval-string-dwim (str)
   (setq str (string-trim str))
   (when (string-match-p "\\`super()" str)
@@ -296,13 +311,7 @@ it at one time."
                                t)
                               "True")))))
        (concat str "\n" (lispy--python-print (match-string 1 str))))
-      ;; match e.g. "x in array" part of  "for x in array:"
-      ((and single-line-p
-            (string-match "\\`\\([A-Z_a-z0-9]+\\|\\(?:([^)]+)\\)\\) in \\(.*\\)\\'" str)
-            (not (save-excursion (beginning-of-line) (looking-at " *if"))))
-       (let ((vars (match-string 1 str))
-             (val (match-string 2 str)))
-         (format "%s = list (%s)[0]\nprint ((%s))" vars val vars)))
+      ((lispy--python-nth-element str single-line-p))
       ((string-match "\\`def \\([a-zA-Z_0-9]+\\)\\s-*(\\s-*self" str)
        (let ((qual-name (python-info-current-defun)))
          (concat str
