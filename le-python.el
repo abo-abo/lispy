@@ -256,10 +256,13 @@ it at one time."
                 (t
                  python-shell-interpreter)))
              (python-binary-name (python-shell-calculate-command))
-             (buffer (python-shell-make-comint
-                      python-binary-name proc-name nil nil)))
+             (buffer
+              (let ((python-shell-completion-native-enable nil))
+                (python-shell-make-comint
+                 python-binary-name proc-name nil nil))))
         (setq process (get-buffer-process buffer))
         (with-current-buffer buffer
+          (python-shell-completion-native-turn-on)
           (setq lispy-python-proc process)
           (lispy-python-middleware-reload)))
       process)))
