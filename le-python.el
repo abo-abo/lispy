@@ -279,11 +279,11 @@ it at one time."
   "Check if STR is of the form \"ITEM in ARRAY_LIKE\".
 If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
   (when (and single-line-p
-             (string-match "\\`\\([A-Z_a-z0-9]+\\|\\(?:([^)]+)\\)\\) in \\(.*\\)\\'" str)
+             (string-match "\\`\\([A-Z_a-z0-9]+\\|\\(?:([^\n]+)\\)\\) in \\(.*\\)\\'" str)
              (not (save-excursion (beginning-of-line) (looking-at " *if"))))
     (let* ((vars (match-string 1 str))
            (val (match-string 2 str))
-           (len (read (lispy--eval-python (format "len(%s)" val) t)))
+           (len (read (lispy--eval-python (format "len(list(%s))" val) t)))
            (idx (ivy-read
                  "idx: "
                  (mapcar #'number-to-string (number-sequence 0 (1- len))))))
