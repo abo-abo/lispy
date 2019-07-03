@@ -78,7 +78,8 @@
              ((eq major-mode 'clojurescript-mode)
               e-str)
              (lispy--clojure-middleware-loaded-p
-              (format (if (eq this-command 'special-lispy-eval)
+              (format (if (memq this-command '(special-lispy-eval
+                                               special-lispy-eval-and-insert))
                           "(lispy-clojure/pp (lispy-clojure/reval %S %S :file %S :line %S))"
                         "(lispy-clojure/reval %S %S :file %S :line %S)")
                       e-str c-str (buffer-file-name) (line-number-at-pos)))
