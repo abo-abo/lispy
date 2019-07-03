@@ -42,7 +42,7 @@
          '[name & fdecl])))
 
 (deftest object-members-test
-  (is (= ((into #{} (object-members Thread)) "run"))))
+  (is (= ((into #{} (object-members Thread)) "run") "run")))
 
 (deftest dest-test
   (is (= (eval (dest '[[x y] (list 1 2 3)]))
@@ -86,9 +86,9 @@
       ["/foo/bar.clj" 42])))
 
 (deftest reader=-test
-  (is (= (reader= '(map #(* % %) '(1 2 3))
-                  '(map #(* % %) '(1 2 3)))))
-  (is (= (reader= #"regex" #"regex")))
+  (is (reader= '(map #(* % %) '(1 2 3))
+               '(map #(* % %) '(1 2 3))))
+  (is (reader= #"regex" #"regex"))
   (is (not (= #"regex" #"regex"))))
 
 (deftest position-test
