@@ -8154,8 +8154,7 @@ The outer delimiters are stripped."
                     (or (string-match "\\^" str)
                         (string-match "~" str)))
                (> (length str) 10000))
-           (lispy-from-left
-            (indent-sexp)))
+           nil)
           ((looking-at ";;"))
           (t
            (let* ((max-lisp-eval-depth 10000)
@@ -8172,6 +8171,7 @@ The outer delimiters are stripped."
                (insert new-str)
                (when was-left
                  (backward-list))))))
+    (lispy-from-left (indent-sexp))
     (when (and (memq major-mode lispy-clojure-modes)
                clojure-align-forms-automatically)
       (clojure-align (car bnd) (cdr bnd)))))
