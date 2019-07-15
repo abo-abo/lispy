@@ -7129,22 +7129,22 @@ Ignore the matches in strings and comments."
 (defvar scheme-mode-hook)
 
 (defvar lispy--insert-replace-alist-clojure
-  '(("#object[" . "clojure-object")
-    ("#?@(" . "clojure-reader-conditional-splice")
-    ("@(" . "clojure-deref-list")
-    ("#(" . "clojure-lambda")
-    ("#{" . "clojure-set")
-    ("{" . "clojure-map")
-    ("#::{" . "clojure-namespaced-map")
-    ("#?(" . "clojure-reader-conditional")))
+  '(("#object[" "clojure-object")
+    ("#?@(" "clojure-reader-conditional-splice")
+    ("@(" "clojure-deref-list")
+    ("#(" "clojure-lambda")
+    ("#{" "clojure-set")
+    ("{" "clojure-map")
+    ("#::{" "clojure-namespaced-map")
+    ("#?(" "clojure-reader-conditional")))
 
 (defvar lispy--insert-replace-alist-elisp
-  '(("#object[" . "clojure-object")
-    ("#?@(" . "clojure-reader-conditional-splice")
-    ("@(" . "clojure-deref-list")
-    ("#(" . "clojure-lambda")
-    ("#::{" . "clojure-namespaced-map")
-    ("#?(" . "clojure-reader-conditional")))
+  '(("#object[" "clojure-object")
+    ("#?@(" "clojure-reader-conditional-splice")
+    ("@(" "clojure-deref-list")
+    ("#(" "clojure-lambda")
+    ("#::{" "clojure-namespaced-map")
+    ("#?(" "clojure-reader-conditional")))
 
 (defun lispy--read-1 ()
   (let* ((alist (if (member major-mode lispy-elisp-modes)
@@ -7153,7 +7153,12 @@ Ignore the matches in strings and comments."
          (regex (regexp-opt (mapcar #'car alist))))
     (goto-char (point-min))
     (while (re-search-forward regex nil t)
-      (let ((class (cdr (assoc (match-string 0) alist))))
+      (let* ((head-beg (match-beginning 0))
+             (head-end (match-end 0))
+             (head (match-string 0))
+             (entry (assoc head alist))
+             (class (cadr entry))
+             str-mid)
         (unless (lispy--in-string-or-comment-p)
           (backward-char 1)
           (save-excursion
@@ -7162,10 +7167,9 @@ Ignore the matches in strings and comments."
                 (forward-list 1)
               (with-syntax-table lispy--braces-table
                 (forward-list 1)))
-            (delete-char -1)
-            (insert "))"))
-          (delete-region (match-beginning 0) (match-end 0))
-          (insert "(ly-raw " class " ("))))))
+            (setq str-mid (buffer-substring-no-properties head-end (1- (point))))
+            (delete-region head-beg (point)))
+          (insert "(ly-raw " class " (" str-mid "))"))))))
 
 (defvar lispy--clojure-char-literal-regex
   (format "\\\\\\(\\(?:\\(?:\\sw\\|%s\\)\\b\\)\\|[.,]\\|u[A-Za-z0-9]+\\)"
