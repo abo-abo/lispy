@@ -7167,6 +7167,23 @@ Ignore the matches in strings and comments."
           (delete-region (match-beginning 0) (match-end 0))
           (insert "(ly-raw " class " ("))))))
 
+(defvar lispy--clojure-char-literal-regex
+  (format "\\\\\\(\\(?:\\sw\\|%s\\)\\b\\|[.,]\\)"
+          (regexp-opt '("newline" "space" "tab" "formfeed" "backspace" "return")))
+  "Regex for Clojure character literals.
+See https://clojure.org/guides/weird_characters#_character_literal.")
+
+(defun lispy--read-replace (regex class)
+  (goto-char (point-min))
+  (while (re-search-forward regex nil t)
+    (unless (lispy--in-string-or-comment-p)
+      (replace-match
+       (format "(ly-raw %s %S)"
+               class
+               (substring-no-properties
+                (match-string 0)))
+       nil t))))
+
 (defun lispy--read (str)
   "Read STR including comments and newlines."
   (let* ((deactivate-mark nil)
@@ -7236,13 +7253,7 @@ Ignore the matches in strings and comments."
                       (delete-region (1- pt) (point))
                       (insert (format "(ly-raw char %S)" sexp)))))
                 ;; ——— \ char syntax (Clojure)—
-                (goto-char (point-min))
-                (while (re-search-forward "\\\\\\(\\sw\\|space\\|tab\\)\\b" nil t)
-                  (unless (lispy--in-string-or-comment-p)
-                    (replace-match (format "(ly-raw clojure-char %S)"
-                                           (substring-no-properties
-                                            (match-string 0)))
-                                   nil t)))
+                (lispy--read-replace lispy--clojure-char-literal-regex "clojure-char")
                 ;; ——— \ char syntax (LISP)————
                 (goto-char (point-min))
                 (while (re-search-forward "#\\\\\\(.\\)" nil t)

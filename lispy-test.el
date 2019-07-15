@@ -1840,7 +1840,18 @@ Insert KEY if there's no command."
            '(ly-raw lisp-macro "#m(foo bar)")))
   (should (equal
            (lispy--read ",(or body)")
-           '(ly-raw \, (or body)))))
+           '(ly-raw \, (or body))))
+  (should (equal (lispy-with-v clj
+                     "|(list \\a \\b \\. \\, \\c \\space \\tab)"
+                   (lispy--read (lispy--string-dwim)))
+                 '(list
+                   (ly-raw clojure-char "\\a")
+                   (ly-raw clojure-char "\\b")
+                   (ly-raw clojure-char "\\.")
+                   (ly-raw clojure-char "\\,")
+                   (ly-raw clojure-char "\\c")
+                   (ly-raw clojure-char "\\space")
+                   (ly-raw clojure-char "\\tab")))))
 
 (ert-deftest lispy-tick ()
   (should (string= (lispy-with "|" "'") "'|"))
