@@ -122,6 +122,11 @@
 (declare-function cider-connections "ext:cider-connection")
 (defvar cider-allow-jack-in-without-project)
 
+(defvar lispy-clojure-projects-alist nil
+  "Use `cider-connect' instead of `cider-jack-in' for some projects.
+Each entry is (DIRECTORY :host HOSTNAME :port PORT).
+Example: '((\"~/git/luminous-1\" :host \"localhost\" :port 7000))")
+
 (defun lispy--eval-clojure (str &optional add-output)
   "Eval STR as Clojure code.
 The result is a string.
@@ -141,9 +146,15 @@ When ADD-OUTPUT is non-nil, add the standard output to the result."
                     (lispy--eval-clojure-1 ,str ,add-output))))
           (add-hook 'nrepl-connected-hook
                     'lispy--clojure-eval-hook-lambda t)
-          (let ((cider-allow-jack-in-without-project t))
-            (call-interactively lispy-cider-connect-method))
-          (format "Starting CIDER using %s ..." lispy-cider-connect-method))
+          (let ((project-cfg (assoc (clojure-project-dir (cider-current-dir))
+                                    lispy-clojure-projects-alist)))
+            (if project-cfg
+                (progn
+                  (cider-connect (cons :project-dir project-cfg))
+                  "Using cider-connect")
+              (let ((cider-allow-jack-in-without-project t))
+                (call-interactively lispy-cider-connect-method))
+              (format "Starting CIDER using %s ..." lispy-cider-connect-method))))
       (unless lispy--clojure-middleware-loaded-p
         (lispy--clojure-middleware-load))
       (lispy--eval-clojure-1 str add-output))))
