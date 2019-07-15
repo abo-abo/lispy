@@ -7168,7 +7168,7 @@ Ignore the matches in strings and comments."
           (insert "(ly-raw " class " ("))))))
 
 (defvar lispy--clojure-char-literal-regex
-  (format "\\\\\\(\\(?:\\sw\\|%s\\)\\b\\|[.,]\\)"
+  (format "\\\\\\(\\(?:\\(?:\\sw\\|%s\\)\\b\\)\\|[.,]\\|u[A-Za-z0-9]+\\)"
           (regexp-opt '("newline" "space" "tab" "formfeed" "backspace" "return")))
   "Regex for Clojure character literals.
 See https://clojure.org/guides/weird_characters#_character_literal.")

@@ -1842,7 +1842,7 @@ Insert KEY if there's no command."
            (lispy--read ",(or body)")
            '(ly-raw \, (or body))))
   (should (equal (lispy-with-v clj
-                     "|(list \\a \\b \\. \\, \\c \\space \\tab)"
+                     "|(list \\a \\b \\. \\, \\c \\space \\tab \\u03A9)"
                    (lispy--read (lispy--string-dwim)))
                  '(list
                    (ly-raw clojure-char "\\a")
@@ -1851,7 +1851,8 @@ Insert KEY if there's no command."
                    (ly-raw clojure-char "\\,")
                    (ly-raw clojure-char "\\c")
                    (ly-raw clojure-char "\\space")
-                   (ly-raw clojure-char "\\tab")))))
+                   (ly-raw clojure-char "\\tab")
+                   (ly-raw clojure-char "\\u03A9")))))
 
 (ert-deftest lispy-tick ()
   (should (string= (lispy-with "|" "'") "'|"))
