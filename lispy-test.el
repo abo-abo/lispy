@@ -2074,11 +2074,13 @@ Insert KEY if there's no command."
   (let ((clojure-align-forms-automatically nil))
     (should (string= (lispy-with clojure "|{\\a   \\b}" "i")
                      "|{\\a \\b}"))
+    (should (string= (lispy-with clojure "|(list \\a   \\.   \\b)" "i")
+                     "|(list \\a \\. \\b)"))
     (should (string= (lispy-with clojure "#?(:cljs   1   :clj 2)|" "i")
                      "#?(:cljs 1 :clj 2)|"))
     (should (string= (lispy-with clojure
-                      "|(#object[java.time.Instant 0x4aef4247 \"2017-11-13T18:42:13.209Z\"] )"
-                      "i")
+                                 "|(#object[java.time.Instant 0x4aef4247 \"2017-11-13T18:42:13.209Z\"] )"
+                                 "i")
                      "|(#object[java.time.Instant 0x4aef4247 \"2017-11-13T18:42:13.209Z\"])"))))
 
 (defun lispy-test-normalize ()

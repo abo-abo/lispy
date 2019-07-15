@@ -8118,10 +8118,10 @@ The outer delimiters are stripped."
       (while (re-search-forward "\\(?:\\s_\\|\\sw\\)\\(\\\\\\?\\)" nil t)
         (replace-match "?" t t nil 1))
       (goto-char (point-min))
-      (while (re-search-forward "\\\\\\." nil t)
+      (while (re-search-forward "\\sw\\(\\\\\\.\\)" nil t)
         (unless (save-match-data
                   (lispy--in-string-p))
-          (replace-match ".")))
+          (replace-match "." nil nil nil 1)))
       (goto-char (point-min))
       (while (re-search-forward "[0-9]+\\(\\\\#\\)" nil t)
         (replace-match "#" nil t nil 1))
