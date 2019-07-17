@@ -32,9 +32,14 @@
     zoutline))
 
 (dolist (package lispy-dev-packages)
-  (unless (package-installed-p package)
-    (ignore-errors
-     (package-install package))))
+  (if (package-installed-p package)
+      (message "%S: OK" package)
+    (condition-case nil
+        (progn
+          (package-install package)
+          (message "%S: ...OK" package))
+      (error
+       (message "%S: FAIL" package)))))
 
 (save-window-excursion
   (package-list-packages t)
