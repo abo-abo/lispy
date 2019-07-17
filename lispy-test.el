@@ -2153,6 +2153,18 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "(list ~\"one\" \"two\"|)" "i")
                    "(list ~\"one\"| \"two\")")))
 
+(ert-deftest lispy-bind-variable ()
+  (should (string= (lispy-with clojure "(+ |(1 2) 3)"
+                               (lispy-bind-variable)
+                               (insert "three")
+                               (lispy-map-done))
+                   "(+ (let |[three (1 2)]\n     three) 3)"))
+  (should (string= (lispy-with "(+ |(1 2) 3)"
+                               (lispy-bind-variable)
+                               (insert "three")
+                               (lispy-map-done))
+                   "(+ (let |((three (1 2)))\n     three) 3)")))
+
 (ert-deftest lispy-unbind-variable ()
   (should (string= (lispy-with "(let ((x 1)\n      |(y 2))\n  (+ x y))"
                                (lispy-unbind-variable))
