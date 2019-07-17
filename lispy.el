@@ -1134,7 +1134,8 @@ If position isn't special, move to previous or error."
                         (memq (char-syntax (char-after))
                               '(?w ?_))))
           (forward-char 1))
-        (unless (lispy-bolp)
+        (when (or (lispy-looking-back (concat lispy-left " +"))
+                  (lispy-looking-back "; +"))
           (delete-horizontal-space))
         (if (setq bnd (lispy--bounds-string))
             (save-restriction

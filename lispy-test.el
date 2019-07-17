@@ -2351,7 +2351,11 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "(foo |\"bar\")" (kbd "M-d"))
                    "(foo \"|\")"))
   (should (string= (lispy-with "\"(require |'cl)\"" (lispy-kill-word -1))
-                   "\"(|'cl)\"")))
+                   "\"(|'cl)\""))
+  (should (string= (lispy-with "(defun |test)" (kbd "M-d"))
+                   "(defun |)"))
+  (should (string= (lispy-with "\"this is a |test\"" (kbd "M-d"))
+                   "\"this is a |\"")))
 
 (ert-deftest lispy-backward-kill-word ()
   (should (string= (lispy-with "(require 'cl)|" (kbd "M-DEL"))
