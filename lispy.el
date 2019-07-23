@@ -6729,7 +6729,9 @@ The result is a string."
   "Like `eval-expression', but for current language."
   (interactive)
   (let ((form (minibuffer-with-setup-hook
-                  'lispy-mode
+                  (if (member major-mode lispy-elisp-modes)
+                      #'lispy-mode
+                    #'ignore)
                 (read-from-minibuffer "Eval: "))))
     (lispy-message (lispy--eval form))))
 
