@@ -28,6 +28,7 @@
 (require 'cider-connection nil t)
 (require 'cider-eval nil t)
 (require 'cider-find nil t)
+(require 'cider-debug nil t)
 
 (defcustom lispy-clojure-eval-method 'cider
   "REPL used for eval."
@@ -255,33 +256,27 @@ When ADD-OUTPUT is non-nil, add the standard output to the result."
       result)))
 
 ;;* Rest
-(defvar cider--debug-mode-response)
-(declare-function cider--debug-mode "ext:cider-debug")
-(defvar nrepl-ongoing-sync-request)
-
 (defun lispy--clojure-debug-quit ()
+  (interactive)
   (let ((pt (save-excursion
               (if (lispy--leftp)
                   (forward-list)
                 (lispy--out-forward 1))
               (lispy-up 1)
+              (lispy-different)
               (point)))
         (str (format "(do %s)"
                      (mapconcat
                       (lambda (x)
-                        (format "(def %s %s)" (car x) (cadr x)))
+                        (format "(lispy-clojure/shadow-def '%s %s)" (car x) (cadr x)))
                       (nrepl-dict-get cider--debug-mode-response "locals")
                       "\n"))))
-    (nrepl-send-request
-     (list "op" "debug-input" "input" ":quit"
-           "key" (nrepl-dict-get cider--debug-mode-response "key"))
-     (lambda (_response))
-     (cider-current-connection))
-    (lispy--eval-clojure str)
-    (ignore-errors
-      (let ((nrepl-ongoing-sync-request nil))
-        (cider--debug-mode -1)))
+    (catch 'exit
+      (cider-debug-mode-send-reply ":quit"))
+    (lispy--eval-clojure-1 str nil)
     (goto-char pt)))
+
+(define-key cider--debug-mode-map "Z" 'lispy--clojure-debug-quit)
 
 (defun lispy--clojure-resolve (symbol)
   "Return resolved SYMBOL.
