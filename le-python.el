@@ -473,7 +473,9 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
                 (bnd (save-excursion
                        (goto-char (1- (match-beginning 1)))
                        (cons (point)
-                             (1+ (re-search-backward "[^][\"a-zA-Z_.()0-9]" (line-beginning-position))))))
+                             (if (re-search-backward "[^][\"a-zA-Z_.()0-9]" (line-beginning-position) t)
+                                 (1+ (point))
+                               (line-beginning-position)))))
                 (str (lispy--string-dwim bnd))
                 (keys (read (lispy--eval-python
                              (format "lp.print_elisp(%s.keys())" str)))))
