@@ -276,7 +276,8 @@ When ADD-OUTPUT is non-nil, add the standard output to the result."
     (lispy--eval-clojure-1 str nil)
     (goto-char pt)))
 
-(define-key cider--debug-mode-map "Z" 'lispy--clojure-debug-quit)
+(when (boundp 'cider--debug-mode-map)
+  (define-key cider--debug-mode-map "Z" 'lispy--clojure-debug-quit))
 
 (defun lispy--clojure-resolve (symbol)
   "Return resolved SYMBOL.
