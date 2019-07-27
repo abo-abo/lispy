@@ -468,11 +468,12 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
                 (beg (if bnd (car bnd) (point)))
                 (end (if bnd (cdr bnd) (point))))
            (list beg end cands)))
-        ((looking-back "\\(?:\\sw\\|\\s_\\)\\[\\(\\(?:'\\|\"\\)?\\)" (line-beginning-position))
+        ((looking-back "\\(?:\\sw\\|\\s_\\|)\\|\\]\\)\\[\\(\\(?:'\\|\"\\)?\\)" (line-beginning-position))
          (let* ((quote_str (match-string-no-properties 1))
                 (bnd (save-excursion
-                       (goto-char (match-beginning 0))
-                       (lispy-python-symbol-bnd)))
+                       (goto-char (1- (match-beginning 1)))
+                       (cons (point)
+                             (1+ (re-search-backward "[^][\"a-zA-Z_.()0-9]" (line-beginning-position))))))
                 (str (lispy--string-dwim bnd))
                 (keys (read (lispy--eval-python
                              (format "lp.print_elisp(%s.keys())" str)))))
