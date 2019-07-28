@@ -533,6 +533,7 @@ Otherwise return the amount of times executed."
 
 (defmacro lispy-from-left (&rest body)
   "Ensure that BODY is executed from start of list."
+  (declare (debug (body)))
   (let ((at-start (cl-gensym "at-start")))
     `(let ((,at-start (lispy--leftp)))
        (unless ,at-start
