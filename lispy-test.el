@@ -138,6 +138,18 @@ Insert KEY if there's no command."
       (insert key))))
 
 ;;* Tests
+
+(ert-deftest lispy-toggle-threaded-last ()
+  (should (string= (lispy-with "|(thread-last (a) (b) (c))"
+                               (call-interactively #'lispy-threaded-last))
+                   "|(c (b (a)))"))
+  (should (string= (lispy-with "|(thread-last (a 1) (b 2) (c 3))"
+                               (call-interactively #'lispy-threaded-last))
+                   "|(c 3 (b 2 (a 1)))"))
+  (should (string= (lispy-with "|(c 3 (b 2 (a 1)))"
+                               (call-interactively #'lispy-threaded-last))
+                   "|(thread-last (a 1) (b 2) (c 3))")))
+
 (ert-deftest lispy-forward ()
   (should (string= (lispy-with "(|(a) (b) (c))" "]")
                    "((a)| (b) (c))"))

@@ -195,6 +195,7 @@ Some pictures [here](#ide-like-features).
     - <kbd>i</kbd> prettifies code (remove extra space, hanging parens ...)
     - <kbd>xi</kbd> transforms `cond` expression to equivalent `if` expressions
     - <kbd>xc</kbd> transforms `if` expressions to an equivalent `cond` expression
+    - <kbd>x></kbd> transforms expressions from/to an equivalent `thread-last` expression
     - <kbd>xf</kbd> flattens function or macro call (extract body and substitute arguments)
     - <kbd>xr</kbd> evals and replaces
     - <kbd>xl</kbd> turns current `defun` into a `lambda`
@@ -385,6 +386,7 @@ A lot of Lispy commands come in pairs - one reverses the other:
  <kbd>S</kbd>   | `lispy-stringify`        | <kbd>C-u "</kbd>                 | `lispy-quotes`
  <kbd>;</kbd>   | `lispy-comment`          | <kbd>C-u ;</kbd>                 | `lispy-comment`
  <kbd>xi</kbd>  | `lispy-to-ifs`           | <kbd>xc</kbd>                    | `lispy-to-cond`
+ <kbd>x></kbd>  | `lispy-threaded-last`    | <kbd>x></kbd>                    | reverses itself
 
 ### Keys that modify whitespace
 
