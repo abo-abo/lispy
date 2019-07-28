@@ -4425,6 +4425,7 @@ If STR is too large, pop it to a buffer instead."
         (let ((inhibit-read-only t))
           (delete-region (point-min) (point-max))
           (insert str)
+          (pp-buffer)
           (goto-char (point-min)))
         str)
     (condition-case nil
