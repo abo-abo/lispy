@@ -377,7 +377,7 @@ This applies to the commands that use `lispy-pair'."
   :type 'boolean)
 
 (defcustom lispy-thread-last-macro 'thread-last
-  "Threading macro to use by default in command `lispy-to-threaded-last'."
+  "Threading macro to use by default in command `lispy-thread-last'."
   :type 'symbol)
 
 (defun lispy-dir-string< (a b)
@@ -5334,43 +5334,40 @@ With ARG, use the contents of `lispy-store-region-and-buffer' instead."
   (lispy-from-left
    (indent-sexp)))
 
-(defun lispy-threaded-last ()
+(defun lispy-toggle-thread-last ()
   "Toggle current expression between last-threaded/unthreaded forms."
   (interactive)
   (lispy-from-left
    (if (eq (car (read (current-buffer)))
            lispy-thread-last-macro)
-       (call-interactively #'lispy-to-last-unthreaded)
-     (call-interactively #'lispy-to-threaded-last))))
+       (lispy-unthread-last)
+     (lispy-thread-last))))
 
-(defun lispy-to-threaded-last ()
+(defun lispy-thread-last ()
   "Transform current expression to equivalent threaded-last expression.
 Macro used may be customized in `lispy-thread-last-macro', which see."
-  (interactive)
   (lispy-from-left
-   (let* ((bnd (lispy--bounds-dwim))
-          (expr (lispy--read (lispy--string-dwim bnd)))
-          (new-expr (lispy--thread-lastify expr lispy-thread-last-macro)))
-     (delete-region (car bnd) (cdr bnd))
-     (lispy--fast-insert
-      (lispy--whitespace-trim
-       new-expr))))
-  (lispy-from-left
-   (indent-sexp)))
+   (prin1 (list lispy-thread-last-macro) (current-buffer))
+   (lispy-slurp 1)
+   (lispy-flow 1)
+   (while (and (lispy-right-p)
+               (save-excursion (backward-char) (lispy-right-p)))
+     (lispy-barf 1)
+     (lispy-move-down 1)
+     (lispy-up 1))
+   (lispy-left 1)))
 
-(defun lispy-to-last-unthreaded ()
+(defun lispy-unthread-last ()
   "Transform current last-threaded expression to equivalent unthreaded expression."
-  (interactive)
   (lispy-from-left
-   (let* ((bnd (lispy--bounds-dwim))
-          (expr (lispy--read (lispy--string-dwim bnd)))
-          (new-expr (lispy--unthread-lastify expr)))
-     (delete-region (car bnd) (cdr bnd))
-     (lispy--fast-insert
-      (lispy--whitespace-trim
-       new-expr))))
-  (lispy-from-left
-   (indent-sexp)))
+   (lispy-flow 1)
+   (lispy-different)
+   (while (lispy-forward 1)
+     (lispy-move-up 1)
+     (lispy-slurp 1))
+   (lispy-different)
+   (lispy-flow 1)
+   (lispy-raise 1)))
 
 (defun lispy-unbind-variable ()
   "Substitute let-bound variable."
@@ -5858,7 +5855,7 @@ An equivalent of `cl-destructuring-bind'."
   ("B" lispy-store-region-and-buffer "store list bounds")
   ("R" lispy-reverse "reverse")
   ("T" lispy-ert "ert")
-  (">" lispy-threaded-last "toggle last-threaded form")
+  (">" lispy-toggle-thread-last "toggle last-threaded form")
   ("" lispy-x-more-verbosity :exit nil)
   ("?" lispy-x-more-verbosity "help" :exit nil))
 
@@ -7720,30 +7717,6 @@ Defaults to `error'."
          (cons
           (lispy--replace (car lst) from to)
           (lispy--replace (cdr lst) from to)))))
-
-(cl-defun lispy--thread-lastify (sexp &optional threading-macro)
-  "Return SEXP transformed into a threaded-last SEXP using THREADING-MACRO..
-THREADING-MACRO symbol should be, e.g. `thread-last' or `->>'."
-  (cl-labels ((rec (form)
-                   (if (and (consp form)
-                            (car (last form)))
-                       (if (consp (car (last form)))
-                           `(,@(rec (car (last form))) ,(butlast form))
-                         (list form))
-                     form)))
-    `(,threading-macro ,@(rec sexp))))
-
-(defun lispy--unthread-lastify (sexp)
-  "Return last-threaded SEXP unthreaded."
-  (cl-labels ((rec (form)
-                   (if (and (consp form)
-                            (car form))
-                       (if (and (consp (car form))
-                                (cadr form))
-                           `(,@(car (last form)) ,(rec (butlast form)))
-                         (car form))
-                     form)))
-    `(,@(rec (cdr sexp)))))
 
 ;;* Utilities: error reporting
 (defun lispy-complain (msg)

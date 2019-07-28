@@ -138,17 +138,22 @@ Insert KEY if there's no command."
       (insert key))))
 
 ;;* Tests
-
 (ert-deftest lispy-toggle-threaded-last ()
   (should (string= (lispy-with "|(thread-last (a) (b) (c))"
-                               (call-interactively #'lispy-threaded-last))
+                               (call-interactively #'lispy-toggle-thread-last))
                    "|(c (b (a)))"))
   (should (string= (lispy-with "|(thread-last (a 1) (b 2) (c 3))"
-                               (call-interactively #'lispy-threaded-last))
+                               (call-interactively #'lispy-toggle-thread-last))
                    "|(c 3 (b 2 (a 1)))"))
   (should (string= (lispy-with "|(c 3 (b 2 (a 1)))"
-                               (call-interactively #'lispy-threaded-last))
-                   "|(thread-last (a 1) (b 2) (c 3))")))
+                               (call-interactively #'lispy-toggle-thread-last))
+                   "|(thread-last (a 1) (b 2) (c 3))"))
+  (should (string= (lispy-with "|(equal 1443070800.0\n       (ts-unix\n        (ts-parse-org-element\n         (org-element-context))))"
+                               (lispy-toggle-thread-last))
+                   "|(thread-last (org-element-context)\n  (ts-parse-org-element)\n  (ts-unix)\n  (equal 1443070800.0))"))
+  (should (string= (lispy-with "|(thread-last (org-element-context)\n  (ts-parse-org-element)\n  (ts-unix)\n  (equal 1443070800.0))"
+                               (lispy-toggle-thread-last))
+                   "|(equal 1443070800.0\n       (ts-unix\n        (ts-parse-org-element\n         (org-element-context))))")))
 
 (ert-deftest lispy-forward ()
   (should (string= (lispy-with "(|(a) (b) (c))" "]")

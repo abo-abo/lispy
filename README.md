@@ -373,20 +373,20 @@ key               | command
 
 A lot of Lispy commands come in pairs - one reverses the other:
 
- key            | command                  | key                              | command
-----------------|--------------------------|----------------------------------|----------------------
- <kbd>j</kbd>   | `lispy-down`             | <kbd>k</kbd>                     | `lispy-up`
- <kbd>s</kbd>   | `lispy-move-down`        | <kbd>w</kbd>                     | `lispy-move-up`
- <kbd>></kbd>   | `lispy-slurp`            | <kbd><</kbd>                     | `lispy-barf`
- <kbd>c</kbd>   | `lispy-clone`            | <kbd>C-d</kbd> or <kbd>DEL</kbd> |
- <kbd>C</kbd>   | `lispy-convolute`        | <kbd>C</kbd>                     | reverses itself
- <kbd>d</kbd>   | `lispy-different`        | <kbd>d</kbd>                     | reverses itself
- <kbd>M-j</kbd> | `lispy-split`            | <kbd>+</kbd>                     | `lispy-join`
- <kbd>O</kbd>   | `lispy-oneline`          | <kbd>M</kbd>                     | `lispy-multiline`
- <kbd>S</kbd>   | `lispy-stringify`        | <kbd>C-u "</kbd>                 | `lispy-quotes`
- <kbd>;</kbd>   | `lispy-comment`          | <kbd>C-u ;</kbd>                 | `lispy-comment`
- <kbd>xi</kbd>  | `lispy-to-ifs`           | <kbd>xc</kbd>                    | `lispy-to-cond`
- <kbd>x></kbd>  | `lispy-threaded-last`    | <kbd>x></kbd>                    | reverses itself
+ key            | command                       | key                              | command
+----------------|-------------------------------|----------------------------------|----------------------
+ <kbd>j</kbd>   | `lispy-down`                  | <kbd>k</kbd>                     | `lispy-up`
+ <kbd>s</kbd>   | `lispy-move-down`             | <kbd>w</kbd>                     | `lispy-move-up`
+ <kbd>></kbd>   | `lispy-slurp`                 | <kbd><</kbd>                     | `lispy-barf`
+ <kbd>c</kbd>   | `lispy-clone`                 | <kbd>C-d</kbd> or <kbd>DEL</kbd> |
+ <kbd>C</kbd>   | `lispy-convolute`             | <kbd>C</kbd>                     | reverses itself
+ <kbd>d</kbd>   | `lispy-different`             | <kbd>d</kbd>                     | reverses itself
+ <kbd>M-j</kbd> | `lispy-split`                 | <kbd>+</kbd>                     | `lispy-join`
+ <kbd>O</kbd>   | `lispy-oneline`               | <kbd>M</kbd>                     | `lispy-multiline`
+ <kbd>S</kbd>   | `lispy-stringify`             | <kbd>C-u "</kbd>                 | `lispy-quotes`
+ <kbd>;</kbd>   | `lispy-comment`               | <kbd>C-u ;</kbd>                 | `lispy-comment`
+ <kbd>xi</kbd>  | `lispy-to-ifs`                | <kbd>xc</kbd>                    | `lispy-to-cond`
+ <kbd>x></kbd>  | `lispy-toggle-thread-last`    | <kbd>x></kbd>                    | reverses itself
 
 ### Keys that modify whitespace
 
