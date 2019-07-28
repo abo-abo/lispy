@@ -376,9 +376,12 @@ This applies to the commands that use `lispy-pair'."
   :group 'lispy
   :type 'boolean)
 
-(defcustom lispy-thread-last-macro 'thread-last
+(defcustom lispy-thread-last-macro "thread-last"
   "Threading macro to use by default in command `lispy-thread-last'."
-  :type 'symbol)
+  :type '(radio
+          (const :tag "Elisp" "thread-last")
+          (const :tag "Clojure" "->>")
+          (string :tag "Custom")))
 
 (defun lispy-dir-string< (a b)
   (if (string-match "/$" a)
@@ -5335,19 +5338,18 @@ With ARG, use the contents of `lispy-store-region-and-buffer' instead."
    (indent-sexp)))
 
 (defun lispy-toggle-thread-last ()
-  "Toggle current expression between last-threaded/unthreaded forms."
+  "Toggle current expression between last-threaded/unthreaded forms.
+Macro used may be customized in `lispy-thread-last-macro', which see."
   (interactive)
   (lispy-from-left
-   (if (eq (car (read (current-buffer)))
-           lispy-thread-last-macro)
+   (if (looking-at (concat "(" lispy-thread-last-macro))
        (lispy-unthread-last)
      (lispy-thread-last))))
 
 (defun lispy-thread-last ()
-  "Transform current expression to equivalent threaded-last expression.
-Macro used may be customized in `lispy-thread-last-macro', which see."
+  "Transform current expression to equivalent threaded-last expression."
   (lispy-from-left
-   (prin1 (list lispy-thread-last-macro) (current-buffer))
+   (insert "(" lispy-thread-last-macro ")")
    (lispy-slurp 1)
    (lispy-flow 1)
    (while (and (lispy-right-p)
