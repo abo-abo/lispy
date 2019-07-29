@@ -610,6 +610,7 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
             (if var-name
                 (setcdr var-name arg)
               (push arg extra-varargs))))
+        (setq extra-varargs (nreverse extra-varargs))
         (dolist (arg args-key)
           (if (string-match lispy--python-arg-key-re arg)
               (let ((arg-name (match-string 1 arg))
