@@ -3041,6 +3041,7 @@ Useful for propagating `let' bindings."
              (delete-char 1))
            (backward-char)
            (newline-and-indent))
+          ((lispy-split-let-binding))
           (t
            (when (save-excursion
                    (prog1 (lispy--out-forward 1)
@@ -3053,6 +3054,21 @@ Useful for propagating `let' bindings."
            (newline-and-indent)
            (when (lispy-left-p)
              (indent-sexp))))))
+
+(defun lispy-split-let-binding ()
+  (when (save-excursion
+          (lispy--out-backward 2)
+          (looking-at "(let"))
+    (save-excursion
+      (lispy--out-forward 2)
+      (insert ")"))
+    (save-excursion
+      (insert ")\n(let (")
+      (lispy--out-backward 3)
+      (lispy--normalize-1))
+    (lispy-flow 1)
+    (lispy-down 1)
+    t))
 
 ;;* Locals: more transformations
 (defun lispy-move-up (arg)
@@ -5426,6 +5442,17 @@ Macro used may be customized in `lispy-thread-last-macro', which see."
   (lispy--normalize-1)
   (lispy-flow 1))
 
+(defun lispy--bind-variable-kind ()
+  (save-excursion
+    (catch 'break
+      (while (not (bolp))
+        (lispy-left 1)
+        (cond ((lispy-looking-back "(let\\*? ")
+               (throw 'break 'let-binding))
+              ((looking-at "(let\\([*]?\\)")
+               (throw 'break 'let-body))))
+      'no-let)))
+
 (defun lispy-bind-variable ()
   "Bind current expression as variable.
 
@@ -5434,6 +5461,7 @@ The bindings of `lispy-backward' or `lispy-mark-symbol' can also be used."
   (interactive)
   (let* ((bnd (lispy--bounds-dwim))
          (str (lispy--string-dwim bnd))
+         (kind (lispy--bind-variable-kind))
          (fmt (if (eq major-mode 'clojure-mode)
                   '("(let [ %s]\n)" . 6)
                 '("(let (( %s))\n)" . 7))))
@@ -5441,13 +5469,28 @@ The bindings of `lispy-backward' or `lispy-mark-symbol' can also be used."
     (deactivate-mark)
     (lispy-map-delete-overlay)
     (delete-region (car bnd) (cdr bnd))
-    (insert (format (car fmt) str))
-    (goto-char (car bnd))
-    (indent-sexp)
-    (forward-sexp)
-    (setq lispy-map-target-beg (+ (car bnd) (cdr fmt)))
+    (cond ((eq kind 'let-binding)
+           (let ((lispy-ignore-whitespace t))
+             (while (not (lispy-bolp))
+               (lispy-left 1)))
+           (when (looking-at "(let")
+             (lispy-flow 2))
+           (let ((new-binding
+                  (concat
+                   "( " str ")\n"
+                   (make-string (current-column) ?\ ))))
+             (save-excursion
+               (insert new-binding))
+             (setq lispy-map-target-beg (1+ (point)))
+             (goto-char (+ (car bnd) (length new-binding)))))
+          (t
+           (insert (format (car fmt) str))
+           (goto-char (car bnd))
+           (indent-sexp)
+           (forward-sexp)
+           (setq lispy-map-target-beg (+ (car bnd) (cdr fmt)))
+           (backward-char 1)))
     (setq lispy-map-target-len 0)
-    (backward-char 1)
     (setq lispy-map-format-function 'identity)
     (lispy-map-make-input-overlay (point) (point))))
 
