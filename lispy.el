@@ -2768,13 +2768,13 @@ When lispy-left, will slurp ARG sexps forwards.
     (if (memq major-mode lispy-clojure-modes)
         (lispy-splice-let-clojure)
       (let ((child-binds (save-excursion
-                           (lispy-flow 2)
-                           (lispy--read (lispy--string-dwim))))
+                           (lispy-flow 1)
+                           (read (lispy--string-dwim))))
             (parent-binds
              (mapcar (lambda (x) (if (consp x) (car x) x))
                      (save-excursion
                        (lispy-up 1)
-                       (lispy--read (lispy--string-dwim)))))
+                       (read (lispy--string-dwim)))))
             (end (save-excursion
                    (lispy-flow 2)
                    (point)))
@@ -2786,7 +2786,8 @@ When lispy-left, will slurp ARG sexps forwards.
           (forward-list)
           (delete-char -1))
         (delete-region beg end)
-        (newline-and-indent)
+        (when parent-binds
+          (newline-and-indent))
         (lispy-left 2)
         (when (cl-find-if (lambda (v) (lispy-find v child-binds))
                           parent-binds)
@@ -2798,7 +2799,10 @@ When lispy-left, will slurp ARG sexps forwards.
              (indent-sexp))
             (t
              (error "unexpected"))))
-        (lispy--normalize-1))
+        (lispy--normalize-1)
+        (lispy-flow 2)
+        (when parent-binds
+          (lispy-down (length parent-binds))))
       t)))
 
 (defun lispy-splice-let-clojure ()
