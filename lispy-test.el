@@ -2102,7 +2102,11 @@ Insert KEY if there's no command."
     (should (string= (lispy-with clojure
                                  "|(#object[java.time.Instant 0x4aef4247 \"2017-11-13T18:42:13.209Z\"] )"
                                  "i")
-                     "|(#object[java.time.Instant 0x4aef4247 \"2017-11-13T18:42:13.209Z\"])"))))
+                     "|(#object[java.time.Instant 0x4aef4247 \"2017-11-13T18:42:13.209Z\"])"))
+    (should (string= (lispy-with clojure
+                                 "|(do (.method   object))"
+                                 "i")
+                     "|(do (.method object))"))))
 
 (defun lispy-test-normalize ()
   (interactive)

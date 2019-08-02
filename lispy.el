@@ -7269,7 +7269,8 @@ Ignore the matches in strings and comments."
   "Regex for Clojure character literals.
 See https://clojure.org/guides/weird_characters#_character_literal.")
 
-(defun lispy--read-replace (regex class)
+(defun lispy--read-replace (regex class &optional subexp)
+  (setq subexp (or subexp 0))
   (goto-char (point-min))
   (while (re-search-forward regex nil t)
     (unless (lispy--in-string-or-comment-p)
@@ -7277,8 +7278,8 @@ See https://clojure.org/guides/weird_characters#_character_literal.")
        (format "(ly-raw %s %S)"
                class
                (substring-no-properties
-                (match-string 0)))
-       nil t))))
+                (match-string subexp)))
+       nil t nil subexp))))
 
 (defun lispy--read (str)
   "Read STR including comments and newlines."
@@ -7350,6 +7351,8 @@ See https://clojure.org/guides/weird_characters#_character_literal.")
                       (insert (format "(ly-raw char %S)" sexp)))))
                 ;; ——— \ char syntax (Clojure)—
                 (lispy--read-replace lispy--clojure-char-literal-regex "clojure-char")
+                ;; ——— (.method ) calls (Clojure)
+                (lispy--read-replace "(\\(\\.\\(?:\\sw\\|\\s_\\)+\\)" "clojure-symbol" 1)
                 ;; ——— \ char syntax (LISP)————
                 (goto-char (point-min))
                 (while (re-search-forward "#\\\\\\(.\\)" nil t)
@@ -8107,6 +8110,9 @@ The outer delimiters are stripped."
            (delete-region beg (point))
            (insert "?" (cl-caddr sxp)))
           (clojure-char
+           (delete-region beg (point))
+           (insert (cl-caddr sxp)))
+          (clojure-symbol
            (delete-region beg (point))
            (insert (cl-caddr sxp)))
           (lisp-char
