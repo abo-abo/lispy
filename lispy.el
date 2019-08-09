@@ -383,6 +383,10 @@ This applies to the commands that use `lispy-pair'."
           (const :tag "Clojure" "->>")
           (string :tag "Custom")))
 
+(defun lispy-comment-char ()
+  "Get the comment-start character, or `;' if nil."
+  (or comment-start ";"))
+
 (defun lispy-dir-string< (a b)
   (if (string-match "/$" a)
       (if (string-match "/$" b)
@@ -830,7 +834,7 @@ Return nil if can't move."
         r)
     (cond
       ((and (lispy-bolp)
-            (looking-at ";"))
+            (looking-at (lispy-comment-char)))
        (setq r (lispy--re-search-in-code lispy-left 'forward arg)))
       ((lispy-left-p)
        (setq r (lispy--re-search-in-code lispy-left 'forward arg)))
@@ -895,7 +899,7 @@ Return nil if can't move."
              (goto-char pt))))
 
         ((or (looking-at lispy-outline)
-             (and (bolp) (looking-at ";")))
+             (and (bolp) (looking-at (lispy-comment-char))))
          (let ((pt (point)))
            (lispy-dotimes arg
              (outline-next-visible-heading 1)
@@ -963,7 +967,7 @@ Return nil if can't move."
              (lispy-different))))
 
         ((or (looking-at lispy-outline)
-             (and (bolp) (looking-at ";")))
+             (and (bolp) (looking-at (lispy-comment-char))))
          (let ((pt (point)))
            (lispy-dotimes arg
              (outline-previous-visible-heading 1)
@@ -1532,7 +1536,7 @@ When ARG is more than 1, mark ARGth element."
          (lispy--mark
           (lispy--bounds-dwim))
          (lispy-different))
-        ((and (lispy-bolp) (looking-at ";"))
+        ((and (lispy-bolp) (looking-at (lispy-comment-char)))
          (lispy--mark (lispy--bounds-comment))))
   (setq this-command 'lispy-mark-list))
 
@@ -3859,7 +3863,7 @@ When SILENT is non-nil, don't issue messages."
                       (forward-char 1))
                      ((lispy-after-string-p ";; ")
                       (backward-char 1)
-                      (insert ";")
+                      (insert (lispy-comment-char))
                       (forward-char 1))
                      ((and lispy-comment-use-single-semicolon
                            (lispy-after-string-p "; "))
@@ -3880,7 +3884,7 @@ When SILENT is non-nil, don't issue messages."
                (comment-region (car bnd) (cdr bnd))
                (when lispy-move-after-commenting
                  (when (or (lispy--in-string-or-comment-p)
-                           (looking-at ";"))
+                           (looking-at (lispy-comment-char)))
                    (lispy--out-backward 1))))
               ((lispy-right-p)
                (if lispy-comment-use-single-semicolon
