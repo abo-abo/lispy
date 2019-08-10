@@ -7291,6 +7291,7 @@ See https://clojure.org/guides/weird_characters#_character_literal.")
                 (match-string subexp)))
        nil t nil subexp))))
 
+;; TODO: Make the read test pass on string with semi-colon
 (defun lispy--read (str)
   "Read STR including comments and newlines."
   (let* ((deactivate-mark nil)
@@ -8255,6 +8256,8 @@ The outer delimiters are stripped."
 (defvar geiser-active-implementations)
 (defvar clojure-align-forms-automatically)
 (declare-function clojure-align "ext:clojure-mode")
+
+;; TODO: Make me work with janet...
 (defun lispy--normalize-1 ()
   "Normalize/prettify current sexp."
   (when (and (looking-at "(")
@@ -8290,9 +8293,11 @@ The outer delimiters are stripped."
                         (lispy--read str)))
                   (new-str (lispy--prin1-to-string res offset major-mode)))
              (unless (string= str new-str)
-               (delete-region (car bnd)
-                              (cdr bnd))
-               (insert new-str)
+               ;; We should not do this if new-str failed to eval.
+               (unless (string= "nil" new-str)
+                 (delete-region (car bnd)
+                                (cdr bnd))
+                 (insert new-str))
                (when was-left
                  (backward-list))))))
     (when (and (memq major-mode lispy-clojure-modes)
