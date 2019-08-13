@@ -384,9 +384,11 @@ This applies to the commands that use `lispy-pair'."
           (const :tag "Clojure" "->>")
           (string :tag "Custom")))
 
-(defun lispy-comment-char ()
-  "Get the comment-start character, or `;' if nil."
-  (or comment-start ";"))
+(defun lispy-comment-char (&optional level postfix)
+  "Get the `comment-start' character, or `;' if nil, repeated LEVEL times concated with POSTFIX."
+  (concat
+   (apply #'concat (make-list (or level 1) (or comment-start ";")))
+   (or postfix "")))
 
 (defun lispy-dir-string< (a b)
   (if (string-match "/$" a)
@@ -1148,7 +1150,7 @@ If position isn't special, move to previous or error."
                               '(?w ?_))))
           (forward-char 1))
         (when (or (lispy-looking-back (concat lispy-left " +"))
-                  (lispy-looking-back (concat (lispy-comment-char) " +")))
+                  (lispy-looking-back (lispy-comment-char 1 " +")))
           (delete-horizontal-space))
         (if (setq bnd (lispy--bounds-string))
             (save-restriction
@@ -1384,7 +1386,7 @@ Otherwise (`backward-delete-char-untabify' ARG)."
                                       (point-min))
                                  (match-end 0))
                   (lispy--indent-for-tab))
-                 ((and (looking-at "$") (lispy-looking-back (concat (lispy-comment-char) " +")))
+                 ((and (looking-at "$") (lispy-looking-back (lispy-comment-char 1 " +")))
                   (let ((pt (point)))
                     (skip-chars-backward " ;")
                     (delete-region (point) pt)
@@ -3500,7 +3502,7 @@ Comments will be moved ahead of sexp."
       (let* ((bnd (lispy--bounds-comment))
              (str (lispy--string-dwim bnd)))
         (delete-region (car bnd) (cdr bnd))
-        (insert (concat (lispy-comment-char) (lispy-comment-char) " ")
+        (insert (lispy-comment-char 2 " ")
                 (mapconcat #'identity
                            (split-string str "[ \n]*;;[ \n]*" t)
                            " "))
@@ -3862,18 +3864,18 @@ When SILENT is non-nil, don't issue messages."
                       (delete-char -1)
                       (insert "###autoload")
                       (forward-char 1))
-                     ((lispy-after-string-p (concat (lispy-comment-char) (lispy-comment-char) " "))
+                     ((lispy-after-string-p (lispy-comment-char 2 " "))
                       (backward-char 1)
                       (insert (lispy-comment-char))
                       (forward-char 1))
                      ((and lispy-comment-use-single-semicolon
-                           (lispy-after-string-p (concat (lispy-comment-char) " ")))
+                           (lispy-after-string-p (lispy-comment-char 1 " ")))
                       (delete-region
                        (point)
                        (progn
-                         (skip-chars-backward (concat (lispy-comment-char) " \n"))
+                         (skip-chars-backward (lispy-comment-char 1 " \n"))
                          (point)))
-                      (insert (concat " " (lispy-comment-char) (lispy-comment-char) " ")))
+                      (insert (concat " " (lispy-comment-char 2 " "))))
                      (t
                       (self-insert-command 1))))
               ((memq (char-before) '(?\\ ?\#))
@@ -3897,7 +3899,7 @@ When SILENT is non-nil, don't issue messages."
                      (just-one-space))
                  (progn
                    (newline-and-indent)
-                   (insert (concat (lispy-comment-char) (lispy-comment-char) " "))
+                   (insert (lispy-comment-char 2 " "))
                    (unless (eolp)
                      (newline)
                      (lispy--reindent 1)
@@ -3910,12 +3912,12 @@ When SILENT is non-nil, don't issue messages."
               ((looking-at " *[])}]")
                (if lispy-comment-use-single-semicolon
                    (if (lispy-bolp)
-                       (insert (concat (lispy-comment-char) (lispy-comment-char) "\n"))
-                     (insert (concat (lispy-comment-char) "\n")))
+                       (insert (lispy-comment-char 2 "\n"))
+                     (insert (lispy-comment-char 1 "\n")))
                  (progn
                    (unless (lispy-bolp)
                      (insert "\n"))
-                   (insert (concat (lispy-comment-char) (lispy-comment-char) "\n"))))
+                   (insert (lispy-comment-char 2 "\n"))))
                (when (lispy--out-forward 1)
                  (lispy--normalize-1))
                (move-end-of-line 0)
@@ -4340,7 +4342,7 @@ When ARG is 2, insert the result as a comment."
     (lispy-outline-prev 1)
     (let ((comment (if (eq major-mode 'python-mode)
                        "#"
-                     (concat (lispy-comment-char) (lispy-comment-char)))))
+                     (lispy-comment-char 2))))
       (if (looking-at (format "\\(%s\\*+ ?:$\\)" comment))
           (match-string-no-properties 1)
         (concat comment (make-string (1+ (funcall outline-level)) ?*) " :")))))
@@ -6519,7 +6521,7 @@ Otherwise return cons of current string, symbol or list bounds."
              (goto-char (car bnd))
              (lispy--skip-delimiter-preceding-syntax-backward)
              (cons (point) (cdr bnd))))
-          ((looking-at (concat (lispy-comment-char) (lispy-comment-char)))
+          ((looking-at (lispy-comment-char 2))
            (lispy--bounds-comment))
           ((and (eq major-mode 'python-mode)
                 (lispy-bolp))
@@ -8280,7 +8282,7 @@ The outer delimiters are stripped."
                (> (length str) 10000))
            (lispy-from-left
             (indent-sexp)))
-          ((looking-at (concat (lispy-comment-char) (lispy-comment-char))))
+          ((looking-at (lispy-comment-char 2)))
           (t
            (let* ((max-lisp-eval-depth 10000)
                   (max-specpdl-size 10000)
