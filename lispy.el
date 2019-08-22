@@ -1171,7 +1171,7 @@ If position isn't special, move to previous or error."
       (when (lispy--in-comment-p)
         (skip-chars-backward " \n"))
       (if (memq (char-syntax (char-before))
-                '(?w ?_ 32))
+                '(?w ?_ ?\s))
           (if (lispy-looking-back "\\_<\\s_+")
               (delete-region (match-beginning 0)
                              (match-end 0))
