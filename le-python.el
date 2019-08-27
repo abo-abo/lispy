@@ -108,8 +108,10 @@ Stripping them will produce code that's valid for an eval."
                        (car bnd) (point))
                       (replace-regexp-in-string
                        "[\\]*\n[\t ]*" " "
-                       (buffer-substring-no-properties
-                        (point) end)))))
+                       (replace-regexp-in-string
+                        "^ *#.*$" ""
+                        (buffer-substring-no-properties
+                         (point) end))))))
         (buffer-substring-no-properties (car bnd) (point))))))
 
 (defun lispy-eval-python-str ()
