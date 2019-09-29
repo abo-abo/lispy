@@ -6831,6 +6831,8 @@ The result is a string."
             'oval-ruby-eval)
            ((eq major-mode 'matlab-mode)
             'matlab-eval)
+           ((ignore-errors
+              (nth 2 (assoc major-mode lispy-eval-alist))))
            (t (error "%s isn't supported currently" major-mode)))
      e-str)))
 
