@@ -1,6 +1,6 @@
 ;;; le-julia.el --- lispy support for Julia. -*- lexical-binding: t -*-
 
-;; Copyright (C) 2016 Oleh Krehel
+;; Copyright (C) 2016-2019 Oleh Krehel
 
 ;; This file is not part of GNU Emacs
 
@@ -32,46 +32,41 @@
   (string-trim-right (julia-shell-collect-command-output str)))
 
 ;; TODO: simplify
-(defun lispy-eval-julia (&optional _plain)
-  (let (str bnd res)
-    (setq str
-          (save-excursion
-            (cond ((region-active-p)
-                   ;; get rid of "unexpected indent"
-                   (replace-regexp-in-string
-                    (concat
-                     "^"
-                     (save-excursion
-                       (goto-char (region-beginning))
-                       (buffer-substring-no-properties
-                        (line-beginning-position)
-                        (point))))
-                    "" (lispy--string-dwim)))
-                  ((looking-at lispy-outline)
-                   (string-trim-right
-                    (lispy--string-dwim
-                     (lispy--bounds-dwim))))
-                  ((lispy-bolp)
-                   (lispy--string-dwim
-                    (lispy--bounds-c-toplevel)))
-                  (t
-                   (cond ((lispy-left-p))
-                         ((lispy-right-p)
-                          (backward-list))
-                         (t
-                          (error "Unexpected")))
-                   (setq bnd (lispy--bounds-dwim))
-                   (ignore-errors (backward-sexp))
-                   (while (eq (char-before) ?.)
-                     (backward-sexp))
-                   (setcar bnd (point))
-                   (lispy--string-dwim bnd)))))
-    (setq res (lispy--eval-julia str))
-    (if res
-        (lispy-message
-         (replace-regexp-in-string
-          "%" "%%" res))
-      (lispy-message lispy-eval-error))))
+(defun lispy-eval-julia-str (&optional bnd)
+  (save-excursion
+    (cond ((region-active-p)
+           ;; get rid of "unexpected indent"
+           (replace-regexp-in-string
+            (concat
+             "^"
+             (save-excursion
+               (goto-char (region-beginning))
+               (buffer-substring-no-properties
+                (line-beginning-position)
+                (point))))
+            "" (lispy--string-dwim)))
+          ((looking-at lispy-outline)
+           (string-trim-right
+            (lispy--string-dwim
+             (lispy--bounds-dwim))))
+          ((lispy-bolp)
+           (lispy--string-dwim
+            (lispy--bounds-c-toplevel)))
+          (t
+           (cond ((lispy-left-p))
+                 ((lispy-right-p)
+                  (backward-list))
+                 (t
+                  (error "Unexpected")))
+           (setq bnd (lispy--bounds-dwim))
+           (ignore-errors (backward-sexp))
+           (while (eq (char-before) ?.)
+             (backward-sexp))
+           (setcar bnd (point))
+           (lispy--string-dwim bnd)))))
+
+(defun lispy-eval-julia (&optional plain)
+  (lispy--eval-julia (lispy-eval-julia-str) plain))
 
 (provide 'le-julia)
 

@@ -4272,13 +4272,15 @@ SYMBOL is a string."
           (const :tag "message" message)
           (const :tag "overlay" overlay)))
 
-(defvar cider-eval-result-duration)
-
 (defvar lispy-eval-alist
-  '((python-mode lispy-eval-python le-python)
-    (julia-mode lispy-eval-julia le-julia)
-    (clojure-mode lispy-eval-clojure le-clojure)
-    (racket-mode lispy-eval-racket le-racket)))
+  '((python-mode
+     le-python lispy--eval-python lispy-eval-python-str lispy-eval-python-bnd)
+    (julia-mode
+     le-julia lispy-eval-julia nil lispy-eval-julia-str)
+    (clojure-mode
+     le-clojure lispy-eval-clojure nil nil)
+    (racket-mode
+     le-racket lispy-eval-racket nil nil)))
 
 (defvar lispy-eval-error nil
   "The eval function may set this when there's an error.")
@@ -4296,21 +4298,24 @@ When ARG is 2, insert the result as a comment."
          (lispy-eval-outline))
         (t
          (let ((handler (cdr (assoc major-mode lispy-eval-alist)))
-               result)
+               res)
            (if handler
                (progn
-                 (when (cadr handler)
-                   (require (cadr handler)))
-                 (setq result (funcall (car handler) (eq arg 3))))
-             (setq result (lispy--eval-default)))
+                 (require (nth 0 handler))
+                 (setq res (funcall
+                            (nth 1 handler)
+                            (funcall (or (nth 2 handler) #'lispy--string-dwim))
+                            (eq arg 3))))
+             (setq res (lispy--eval-default)))
+           (setq res (or res lispy-eval-error))
            (cond ((eq lispy-eval-display-style 'message)
-                  (lispy-message result))
+                  (lispy-message res))
                  ((or (fboundp 'cider--display-interactive-eval-result)
                       (require 'cider nil t))
-                  (cider--display-interactive-eval-result result
-                                                          (cdr (lispy--bounds-dwim))))
+                  (cider--display-interactive-eval-result
+                   res (cdr (lispy--bounds-dwim))))
                  (t
-                  (error "Please install CIDER 0.10 to display overlay")))))))
+                  (error "Please install CIDER >= 0.10 to display overlay")))))))
 
 (defun lispy--eval-default ()
   (save-excursion

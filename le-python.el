@@ -1,6 +1,6 @@
 ;;; le-python.el --- lispy support for Python. -*- lexical-binding: t -*-
 
-;; Copyright (C) 2016 Oleh Krehel
+;; Copyright (C) 2016-2019 Oleh Krehel
 
 ;; This file is not part of GNU Emacs
 
@@ -114,8 +114,8 @@ Stripping them will produce code that's valid for an eval."
                          (point) end))))))
         (buffer-substring-no-properties (car bnd) (point))))))
 
-(defun lispy-eval-python-str ()
-  (let* ((bnd (lispy-eval-python-bnd))
+(defun lispy-eval-python-str (&optional bnd)
+  (let* ((bnd (or bnd (lispy-eval-python-bnd)))
          (str1 (lispy-trim-python
                 (lispy-extended-eval-str bnd)))
          (str1.5 (replace-regexp-in-string "^ *#[^\n]+\n" "" str1))
@@ -167,14 +167,6 @@ Stripping them will produce code that's valid for an eval."
                     (end-of-line))
                 (end-of-line 2)))
             (point)))))
-
-(defun lispy-eval-python (&optional plain)
-  (let ((res (lispy--eval-python
-              (lispy-eval-python-str)
-              plain)))
-    (if (and res (not (equal res "")))
-        (lispy-message res)
-      (lispy-message lispy-eval-error))))
 
 (defvar-local lispy-python-proc nil)
 

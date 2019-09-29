@@ -1,6 +1,6 @@
 ;;; le-clojure.el --- lispy support for Clojure. -*- lexical-binding: t -*-
 
-;; Copyright (C) 2014-2018 Oleh Krehel
+;; Copyright (C) 2014-2019 Oleh Krehel
 
 ;; This file is not part of GNU Emacs
 
@@ -62,7 +62,7 @@
 (defvar lispy--clojure-middleware-loaded-p nil
   "Nil if the Clojure middleware in \"lispy-clojure.clj\" wasn't loaded yet.")
 
-(defun lispy-eval-clojure (e-str)
+(defun lispy-eval-clojure (e-str &optional _plain)
   "User facing eval."
   (lispy--clojure-detect-ns)
   (let (c-str)
