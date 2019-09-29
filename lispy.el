@@ -6361,10 +6361,12 @@ Return start of string it is."
 
 (defun lispy--in-comment-p ()
   "Test if point is inside a comment."
-  (save-excursion
-    (unless (eolp)
-      (forward-char 1))
-    (nth 4 (syntax-ppss))))
+  (or
+   (save-excursion
+     (unless (eolp)
+       (forward-char 1))
+     (nth 4 (syntax-ppss)))
+   (and (bolp) (looking-at lispy-outline-header))))
 
 (defun lispy--in-string-or-comment-p ()
   "Test if point is inside a string or a comment."
