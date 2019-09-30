@@ -7389,6 +7389,12 @@ See https://clojure.org/guides/weird_characters#_character_literal.")
                   (unless (lispy--in-string-or-comment-p)
                     (replace-match (format "(ly-raw clojure-gensym %S)"
                                            (match-string-no-properties 1)))))
+                ;; ——— Clojure keyword —————————
+                (goto-char (point-min))
+                (while (re-search-forward "\\(:\\.[^][({}) \t\n\r]+\\)" nil t)
+                  (unless (lispy--in-string-or-comment-p)
+                    (replace-match (format "(ly-raw clojure-keyword %S)"
+                                           (match-string-no-properties 1)))))
                 ;; ——— #' —————————————————————
                 (goto-char (point-min))
                 (while (re-search-forward "#'" nil t)
@@ -8145,7 +8151,7 @@ The outer delimiters are stripped."
           (lisp-macro
            (delete-region beg (point))
            (insert (cl-caddr sxp)))
-          (clojure-gensym
+          ((clojure-gensym clojure-keyword)
            (delete-region beg (point))
            (insert (cl-caddr sxp)))
           (function

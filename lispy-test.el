@@ -1878,7 +1878,9 @@ Insert KEY if there's no command."
                      "|(foo \"#_(bar)\")"
                    (lispy--read (lispy--string-dwim)))
                  '(foo
-                   (ly-raw string "\"#_(bar)\"")))))
+                   (ly-raw string "\"#_(bar)\""))))
+  (should (equal (lispy--read ":.name")
+                 '(ly-raw clojure-keyword ":.name"))))
 
 (ert-deftest lispy-tick ()
   (should (string= (lispy-with "|" "'") "'|"))
