@@ -5954,10 +5954,14 @@ An equivalent of `cl-destructuring-bind'."
        (setq hydra-lispy-x/hint lispy-x--old-hint)
        (hydra-set-property 'hydra-lispy-x :verbosity 2)))))
 
+(defcustom lispy-x-default-verbosity 0
+  "Default verbosity of `lispy-x'."
+  :type '(radio (const 0) (const 1)))
+
 (defun lispy-x ()
   "Forward to `hydra-lispy-x/body'"
   (interactive)
-  (hydra-set-property 'hydra-lispy-x :verbosity 0)
+  (hydra-set-property 'hydra-lispy-x :verbosity lispy-x-default-verbosity)
   (hydra-lispy-x/body))
 
 (defun lispy-ert ()
