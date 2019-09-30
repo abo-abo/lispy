@@ -4354,8 +4354,8 @@ When ARG is 2, insert the result as a comment."
 (defun lispy-insert-outline-below ()
   (interactive)
   "Add an unnamed notebook outline at point."
+  (outline-back-to-heading)
   (cond
-    ((and (bolp) (eolp)))
     ((lispy-outline-next 1)
      (insert "\n\n")
      (backward-char 2))
