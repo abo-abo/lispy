@@ -1873,7 +1873,12 @@ Insert KEY if there's no command."
                    (ly-raw clojure-char "\\c")
                    (ly-raw clojure-char "\\space")
                    (ly-raw clojure-char "\\tab")
-                   (ly-raw clojure-char "\\u03A9")))))
+                   (ly-raw clojure-char "\\u03A9"))))
+  (should (equal (lispy-with-v clj
+                     "|(foo \"#_(bar)\")"
+                   (lispy--read (lispy--string-dwim)))
+                 '(foo
+                   (ly-raw string "\"#_(bar)\"")))))
 
 (ert-deftest lispy-tick ()
   (should (string= (lispy-with "|" "'") "'|"))
