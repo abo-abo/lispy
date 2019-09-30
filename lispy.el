@@ -7282,7 +7282,8 @@ Ignore the matches in strings and comments."
                 (forward-list 1)))
             (setq str-mid (buffer-substring-no-properties head-end (1- (point))))
             (delete-region head-beg (point)))
-          (insert "(ly-raw " class " (" str-mid "))"))))))
+          (insert "(ly-raw " class " (" str-mid "))")
+          (backward-char (+ 3 (length str-mid))))))))
 
 (defvar lispy--clojure-char-literal-regex
   (format "\\\\\\(\\(?:\\(?:\\sw\\|%s\\)\\b\\)\\|[.,]\\|u[A-Za-z0-9]+\\)"

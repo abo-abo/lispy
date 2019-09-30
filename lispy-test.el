@@ -1879,6 +1879,10 @@ Insert KEY if there's no command."
                    (lispy--read (lispy--string-dwim)))
                  '(foo
                    (ly-raw string "\"#_(bar)\""))))
+  (should (equal (lispy-with-v clj
+                     "|{:a {:nested \"map\"}}"
+                   (lispy--read (lispy--string-dwim)))
+                 '(ly-raw clojure-map (:a (ly-raw clojure-map (:nested (ly-raw string "\"map\"")))))))
   (should (equal (lispy--read ":.name")
                  '(ly-raw clojure-keyword ":.name"))))
 
