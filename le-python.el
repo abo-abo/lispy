@@ -299,7 +299,7 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
        (lispy--python-print (match-string 1 str)))
       ((and (or (string-match "\\`\\(\\(?:[., ]\\|\\sw\\|\\s_\\|[][]\\)+\\) += " str)
                 (string-match "\\`\\(([^)]+)\\) *=[^=]" str)
-                (string-match "\\`\\(\\(?:\\sw\\|\\s_\\)+ *\\[[^]]+\\]\\) *=" str))
+                (string-match "\\`\\(\\(?:\\sw\\|\\s_\\)+ *\\[[^]]+\\]\\) *=[^=]" str))
             (save-match-data
               (or single-line-p
                   (and (not (string-match-p "lp\\." str))
