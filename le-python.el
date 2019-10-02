@@ -249,7 +249,13 @@ it at one time."
                  (expand-file-name python-shell-interpreter))
                 (t
                  python-shell-interpreter)))
-             (python-binary-name (python-shell-calculate-command))
+             (python-binary-name
+              (concat
+               (string-trim-right
+                (shell-command-to-string
+                 (concat "which " python-shell-interpreter)))
+               " "
+               python-shell-interpreter-args))
              (buffer
               (let ((python-shell-completion-native-enable nil))
                 (python-shell-make-comint
