@@ -720,14 +720,19 @@ Otherwise, fall back to Jedi (static)."
 (defun lispy--python-middleware-load ()
   "Load the custom Python code in \"lispy-python.py\"."
   (unless lispy--python-middleware-loaded-p
-    (let ((r (lispy--eval-python
-              (concat
-               "from importlib.machinery import SourceFileLoader;"
+    (let* ((module-path (format "'lispy-python','%s'"
+                                (expand-file-name "lispy-python.py" lispy-site-directory)))
+           (r (lispy--eval-python
                (format
-                "lp=SourceFileLoader('lispy-python','%s').load_module();"
-                (expand-file-name "lispy-python.py" lispy-site-directory))
-               "__name__='__repl__';"
-               "pm=lp.Autocall(lp.pm);"))))
+                (concat
+                 "try:\n"
+                 "    from importlib.machinery import SourceFileLoader\n"
+                 "    lp=SourceFileLoader(%s).load_module()\n"
+                 "except:\n"
+                 "    import imp;lp=imp.load_source(%s)\n"
+                 "__name__='__repl__';"
+                 "pm=lp.Autocall(lp.pm);")
+                module-path module-path))))
       (if r
           (progn
             (when (file-exists-p lispy-python-init-file)
