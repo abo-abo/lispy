@@ -219,7 +219,10 @@ it at one time."
                    (let ((name (lispy-short-process-name x)))
                      (when name
                        (cons name x))))
-                 (process-list)))))
+                 (process-list))))
+         (lispy-override-python-binary
+          (when (equal arg '(16))
+            (read-string "python binary: "))))
     (ivy-read (if arg "Restart process: " "Process: ") process-names
               :action #'lispy-set-python-process-action
               :preselect (when (process-live-p lispy-python-proc)
@@ -228,6 +231,9 @@ it at one time."
 
 (defvar lispy--python-middleware-loaded-p nil
   "Nil if the Python middleware in \"lispy-python.py\" wasn't loaded yet.")
+
+(defvar lispy-override-python-binary nil
+  "When non-nil, override what `lispy--python-proc' uses.")
 
 (defun lispy--python-proc (&optional name)
   (let* ((proc-name (or name
@@ -250,12 +256,13 @@ it at one time."
                 (t
                  python-shell-interpreter)))
              (python-binary-name
-              (concat
-               (string-trim-right
-                (shell-command-to-string
-                 (concat "which " python-shell-interpreter)))
-               " "
-               python-shell-interpreter-args))
+              (or lispy-override-python-binary
+                  (concat
+                   (string-trim-right
+                    (shell-command-to-string
+                     (concat "which " python-shell-interpreter)))
+                   " "
+                   python-shell-interpreter-args)))
              (buffer
               (let ((python-shell-completion-native-enable nil))
                 (python-shell-make-comint
