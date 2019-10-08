@@ -206,6 +206,9 @@ Stripping them will produce code that's valid for an eval."
                 (match-string 1 pname)))
             lispy-python-process-regexes)))))
 
+(defvar lispy-override-python-binary nil
+  "When non-nil, override what `lispy--python-proc' uses.")
+
 (defun lispy-set-python-process (&optional arg)
   "Associate a (possibly new) Python process to the current buffer.
 
@@ -231,9 +234,6 @@ it at one time."
 
 (defvar lispy--python-middleware-loaded-p nil
   "Nil if the Python middleware in \"lispy-python.py\" wasn't loaded yet.")
-
-(defvar lispy-override-python-binary nil
-  "When non-nil, override what `lispy--python-proc' uses.")
 
 (defun lispy--python-proc (&optional name)
   (let* ((proc-name (or name
@@ -512,7 +512,7 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
                           (lispy--python-proc)
                           nil str)))))))
 
-(defvar lispy--python-arg-key-re "\\`\\(\\(?:\\sw\\|\\s_\\)+\\) ?= ?\\(.*\\)\\'"
+(defvar lispy--python-arg-key-re "\\`\\(\\(?:\\sw\\|\\s_\\)+\\)=\\([^=].*\\)\\'"
   "Constant regexp for matching function keyword spec.")
 
 (defun lispy--python-args (beg end)
