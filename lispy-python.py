@@ -296,7 +296,10 @@ def rebind(method, fname=None, line=None):
 
 def pm():
     """Post mortem: recover the locals and globals from the last traceback."""
-    stack = Stack(sys.last_traceback)
+    if hasattr(sys, 'last_traceback'):
+        stack = Stack(sys.last_traceback)
+    else:
+        stack = Stack(sys.exc_info()[2])
     tl = top_level()
     tl.f_globals["up"] = Autocall(stack.up)
     tl.f_globals["dn"] = Autocall(stack.down)
