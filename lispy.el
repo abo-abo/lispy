@@ -4203,6 +4203,8 @@ Sexp is obtained by exiting list ARG times."
     (racket-mode lispy-goto-symbol-racket le-racket)
     (lisp-mode lispy-goto-symbol-lisp le-lisp)
     (slime-repl-mode lispy-goto-symbol-lisp le-lisp)
+    (slime-mrepl-mode lispy-goto-symbol-lisp le-lisp)
+    (sly-mrepl-mode lispy-goto-symbol-lisp le-lisp)
     (python-mode lispy-goto-symbol-python le-python))
   "An alist of `major-mode' to function for jumping to symbol.
 
