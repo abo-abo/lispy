@@ -6965,7 +6965,8 @@ so that no other packages disturb the match data."
      (defhydra . 1)
      (ivy-set-actions . 1)
      (ivy-set-sources . 1)
-     (ivy-set-occur . 1)))
+     (ivy-set-occur . 1)
+     (ivy-configure . 1)))
   "Alist of tag arities for supported modes.")
 
 (defun lispy--tag-regexp (&optional mode)
