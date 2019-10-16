@@ -1,6 +1,6 @@
 # lispy-python.py --- lispy support for Python.
 
-# Copyright (C) 2016 Oleh Krehel
+# Copyright (C) 2016-2019 Oleh Krehel
 
 # This file is not part of GNU Emacs
 
