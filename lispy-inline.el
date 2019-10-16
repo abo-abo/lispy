@@ -24,6 +24,8 @@
 
 ;;; Code:
 
+(require 'thingatpt)
+
 (if (version< emacs-version "26.1")
     (progn
       (defsubst string-trim-left (string &optional regexp)
