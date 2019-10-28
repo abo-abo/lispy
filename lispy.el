@@ -591,6 +591,7 @@ Otherwise return the amount of times executed."
    (lambda (v) (funcall v -1))
    (remq verb lispy-known-verbs)))
 
+;;;###autoload
 (defun lispy-quit ()
   "Remove modifiers."
   (interactive)
@@ -659,6 +660,7 @@ Use the command `%s' to change this variable."
   "Return t if before variable `lispy-left'."
   (looking-at lispy-left))
 
+;;;###autoload
 (defun lispy-forward (arg)
   "Move forward list ARG times or until error.
 Return t if moved at least once,
@@ -687,6 +689,7 @@ otherwise call function `lispy-right' and return nil."
           (lispy--out-forward 1))
       (point))))
 
+;;;###autoload
 (defun lispy-backward (arg)
   "Move backward list ARG times or until error.
 If couldn't move backward at least once, move up backward and return nil."
@@ -721,6 +724,7 @@ If couldn't move backward at least once, move up backward and return nil."
                (up-list -1)))))
       (point))))
 
+;;;###autoload
 (defun lispy-right (arg)
   "Move outside list forwards ARG times.
 Return nil on failure, t otherwise."
@@ -735,6 +739,7 @@ Return nil on failure, t otherwise."
         (t
          (lispy--out-forward arg))))
 
+;;;###autoload
 (defun lispy-right-nostring (arg)
   "Call `lispy--out-forward' with ARG unless in string or comment.
 Self-insert otherwise."
@@ -745,6 +750,7 @@ Self-insert otherwise."
       (self-insert-command arg)
     (lispy--out-forward arg)))
 
+;;;###autoload
 (defun lispy-left (arg)
   "Move outside list forwards ARG times.
 Return nil on failure, t otherwise."
@@ -759,6 +765,7 @@ Return nil on failure, t otherwise."
              (ignore-errors
                (up-list -1))))))
 
+;;;###autoload
 (defun lispy-left-maybe (arg)
   "Call `lispy-left', unless we're in a REPL."
   (interactive "p")
@@ -767,6 +774,7 @@ Return nil on failure, t otherwise."
         (call-interactively cmd)
       (lispy-left arg))))
 
+;;;###autoload
 (defun lispy-out-forward-newline (arg)
   "Call `lispy--out-forward', then ARG times `newline-and-indent'."
   (interactive "p")
@@ -777,6 +785,7 @@ Return nil on failure, t otherwise."
 (defvar lispy-meol-point 1
   "Point where `lispy-move-end-of-line' should go when already at eol.")
 
+;;;###autoload
 (defun lispy-move-end-of-line ()
   "Forward to `move-end-of-line' unless already at end of line.
 Then return to the point where it was called last.
@@ -795,6 +804,7 @@ If this point is inside string, move outside string."
       (setq lispy-meol-point (point))
       (move-end-of-line 1))))
 
+;;;###autoload
 (defun lispy-move-beginning-of-line ()
   "Forward to `move-beginning-of-line'.
 Reveal outlines."
@@ -835,6 +845,7 @@ Return the amount of successful moves, or nil otherwise."
       (- count to-move))))
 
 ;;* Locals: navigation
+;;;###autoload
 (defun lispy-flow (arg)
   "Move inside list ARG times.
 Don't enter strings or comments.
@@ -858,6 +869,7 @@ Return nil if can't move."
           (goto-char pt)
           nil))))
 
+;;;###autoload
 (defun lispy-down (arg)
   "Move down ARG times inside current list."
   (interactive "p")
@@ -924,6 +936,7 @@ Return nil if can't move."
          (lispy-backward 1)))
   (lispy--ensure-visible))
 
+;;;###autoload
 (defun lispy-up (arg)
   "Move up ARG times inside current list."
   (interactive "p")
@@ -1011,6 +1024,7 @@ Return nil if can't move."
                 (not (equal (point-marker) top)))
         (ring-insert lispy-pos-ring (point-marker))))))
 
+;;;###autoload
 (defun lispy-back (arg)
   "Move point to ARGth previous position.
 If position isn't special, move to previous or error."
@@ -1030,6 +1044,7 @@ If position isn't special, move to previous or error."
           (deactivate-mark)
           (goto-char pt))))))
 
+;;;###autoload
 (defun lispy-knight-down ()
   "Make a knight-like move: down and right."
   (interactive)
@@ -1051,6 +1066,7 @@ If position isn't special, move to previous or error."
                (goto-char (1- (match-end 0)))
                (throw 'done t)))))))
 
+;;;###autoload
 (defun lispy-knight-up ()
   "Make a knight-like move: up and right."
   (interactive)
@@ -1072,6 +1088,7 @@ If position isn't special, move to previous or error."
                (goto-char (1- (match-end 0)))
                (throw 'done t)))))))
 
+;;;###autoload
 (defun lispy-different ()
   "Switch to the different side of current sexp."
   (interactive)
@@ -1086,6 +1103,7 @@ If position isn't special, move to previous or error."
          (user-error "Unexpected"))))
 
 ;;* Globals: kill, yank, delete, mark, copy
+;;;###autoload
 (defun lispy-kill ()
   "Kill line, keeping parens consistent."
   (interactive)
@@ -1146,6 +1164,7 @@ If position isn't special, move to previous or error."
              (skip-chars-forward " \t")
              (kill-region beg (point)))))))
 
+;;;###autoload
 (defun lispy-kill-word (arg)
   "Kill ARG words, keeping parens consistent."
   (interactive "p")
@@ -1167,6 +1186,7 @@ If position isn't special, move to previous or error."
               (widen))
           (kill-word 1))))))
 
+;;;###autoload
 (defun lispy-backward-kill-word (arg)
   "Kill ARG words backward, keeping parens consistent."
   (interactive "p")
@@ -1213,6 +1233,7 @@ If position isn't special, move to previous or error."
                 (widen)))
           (backward-kill-word 1))))))
 
+;;;###autoload
 (defun lispy-kill-sentence ()
   "Kill until the end of current string or list."
   (interactive)
@@ -1223,6 +1244,7 @@ If position isn't special, move to previous or error."
                     (lispy--bounds-list)))
       (kill-region (point) (1- (cdr bnd))))))
 
+;;;###autoload
 (defun lispy-yank ()
   "Like regular `yank', but quotes body when called from \"|\"."
   (interactive)
@@ -1241,6 +1263,7 @@ If position isn't special, move to previous or error."
        (push-mark (point))
        (insert-for-yank text)))))
 
+;;;###autoload
 (defun lispy-buffer-kill-ring-save ()
   "Save the current buffer string for writing a test."
   (interactive)
@@ -1255,6 +1278,7 @@ If position isn't special, move to previous or error."
 `lispy-delete' or `lispy-delete-backward' toward the delimiter
 will kill the whole sexp (string or list).")
 
+;;;###autoload
 (defun lispy-delete (arg)
   "Delete ARG sexps."
   (interactive "p")
@@ -1509,6 +1533,7 @@ Otherwise (`backward-delete-char-untabify' ARG)."
              (not (lispy--in-string-or-comment-p)))
     (indent-sexp)))
 
+;;;###autoload
 (defun lispy-mark ()
   "Mark the quoted string or the list that includes the point.
 Extend region when it's aleardy active."
@@ -1519,6 +1544,7 @@ Extend region when it's aleardy active."
     (when bounds
       (lispy--mark bounds))))
 
+;;;###autoload
 (defun lispy-mark-list (arg)
   "Mark list from special position.
 When ARG is more than 1, mark ARGth element."
@@ -1554,6 +1580,7 @@ When ARG is more than 1, mark ARGth element."
 (defvar-local lispy-bind-var-in-progress nil
   "When t, `lispy-mark-symbol' will exit `iedit'.")
 
+;;;###autoload
 (defun lispy-mark-symbol ()
   "Mark current symbol."
   (interactive)
@@ -1643,6 +1670,7 @@ When ARG is more than 1, mark ARGth element."
           (t
            (lispy--mark (lispy--bounds-dwim))))))
 
+;;;###autoload
 (defun lispy-kill-at-point ()
   "Kill the quoted string or the list that includes the point."
   (interactive)
@@ -1657,6 +1685,7 @@ When ARG is more than 1, mark ARGth element."
                      (car bounds) (cdr bounds)))
         (kill-region (car bounds) (cdr bounds))))))
 
+;;;###autoload
 (defun lispy-new-copy ()
   "Copy marked region or sexp to kill ring."
   (interactive)
@@ -1672,6 +1701,7 @@ When ARG is more than 1, mark ARGth element."
 (defvar lispy-parens-only-left-in-string-or-comment t
   "Whether \"(\" should insert only the left paren in strings and comments.")
 
+;;;###autoload
 (defun lispy-pair (left right preceding-syntax-alist)
   "Return (lambda (arg)(interactive \"P\")...) using LEFT RIGHT.
 PRECEDING-SYNTAX-ALIST should be an alist of `major-mode' to a list of regexps.
@@ -1806,6 +1836,7 @@ major mode. These regexps are used to determine whether to insert a space for
     (lispy-pair "{" "}" 'lispy-braces-preceding-syntax-alist)
   "`lispy-pair' with {}.")
 
+;;;###autoload
 (defun lispy-quotes (arg)
   "Insert a pair of quotes around the point.
 
@@ -1841,6 +1872,7 @@ otherwise the whole string is unquoted."
              (backward-char 1))
            (backward-char)))))
 
+;;;###autoload
 (defun lispy-parens-down ()
   "Exit the current sexp, and start a new sexp below."
   (interactive)
@@ -1860,6 +1892,7 @@ otherwise the whole string is unquoted."
     (error (indent-new-comment-line))))
 
 ;;* Globals: insertion
+;;;###autoload
 (defun lispy-space (arg)
   "Insert one space, with position depending on ARG.
 If ARG is 2, amend the current list with a space from current side.
@@ -1920,6 +1953,7 @@ behavior, set this variable to nil.")
 `lispy-colon' will insert \" :\" instead of \":\" unless
 `lispy-no-space' is t or `looking-back' REGEX.")
 
+;;;###autoload
 (defun lispy-colon ()
   "Insert :."
   (interactive)
@@ -1929,17 +1963,20 @@ behavior, set this variable to nil.")
          "\\s-\\|\\s(\\|[#:^?]")))
   (insert ":"))
 
+;;;###autoload
 (defun lispy-hat ()
   "Insert ^."
   (interactive)
   (lispy--space-unless "\\s-\\|\\s(\\|[:?]\\|\\\\")
   (insert "^"))
 
+;;;###autoload
 (defun lispy-at ()
   (interactive)
   (lispy--space-unless "\\s-\\|\\s(\\|[:?]\\|\\\\\\|~\\|,")
   (insert "@"))
 
+;;;###autoload
 (defun lispy-tick (arg)
   "Insert ' ARG times.
 When the region is active and marks a string, unquote it.
@@ -1953,6 +1990,7 @@ Otherwise, when the region is active, toggle ' at the start of the region."
          (lispy--space-unless "\\s-\\|\\s(\\|[~#:?'`]\\|\\\\")
          (self-insert-command arg))))
 
+;;;###autoload
 (defun lispy-underscore (&optional arg)
   "Insert _ ARG times.
 For Clojure modes, toggle #_ sexp comment."
@@ -1969,6 +2007,7 @@ For Clojure modes, toggle #_ sexp comment."
           (lispy-different)))
     (self-insert-command arg)))
 
+;;;###autoload
 (defun lispy-backtick ()
   "Insert `."
   (interactive)
@@ -1977,6 +2016,7 @@ For Clojure modes, toggle #_ sexp comment."
     (lispy--space-unless "\\s-\\|\\s(\\|[:?`']\\|\\\\")
     (insert "`")))
 
+;;;###autoload
 (defun lispy-tilde (arg)
   "Insert ~ ARG times.
 When the region is active, toggle a ~ at the start of the region."
@@ -1985,6 +2025,7 @@ When the region is active, toggle a ~ at the start of the region."
       (lispy-toggle-char ?~)
     (self-insert-command arg)))
 
+;;;###autoload
 (defun lispy-toggle-char (char)
   "Toggle CHAR at the start of the region."
   (let ((bnd (lispy--bounds-dwim))
@@ -1995,6 +2036,7 @@ When the region is active, toggle a ~ at the start of the region."
           (delete-char 1)
         (insert char)))))
 
+;;;###autoload
 (defun lispy-hash ()
   "Insert #."
   (interactive)
@@ -2013,6 +2055,7 @@ When the region is active, toggle a ~ at the start of the region."
 (declare-function ielm-return "ielm")
 (declare-function mode-local-bind "mode-local")
 
+;;;###autoload
 (defun lispy-newline-and-indent ()
   "Insert newline."
   (interactive)
@@ -2039,6 +2082,7 @@ When the region is active, toggle a ~ at the start of the region."
 (declare-function slime-repl-return "ext:slime-repl")
 (declare-function sly-mrepl-return "ext:sly-mrepl")
 (declare-function racket-repl-submit "ext:racket-repl")
+;;;###autoload
 (defun lispy-newline-and-indent-plain ()
   "When in minibuffer, exit it.  Otherwise forward to `newline-and-indent'."
   (interactive)
@@ -2077,6 +2121,7 @@ When the region is active, toggle a ~ at the start of the region."
                          (point)))
              (indent-sexp))))))))
 
+;;;###autoload
 (defun lispy-open-line (arg)
   "Add ARG lines after the current expression.
 When ARG is nagative, add them above instead"
@@ -2093,6 +2138,7 @@ When ARG is nagative, add them above instead"
       (newline (- arg))
       (lispy--indent-for-tab))))
 
+;;;###autoload
 (defun lispy-meta-return ()
   "Insert a new heading."
   (interactive)
@@ -2121,6 +2167,7 @@ When ARG is nagative, add them above instead"
           " ")
   (beginning-of-line))
 
+;;;###autoload
 (defun lispy-alt-line (&optional N)
   "Do a context-aware exit, then `newline-and-indent', N times.
 
@@ -2176,6 +2223,7 @@ to all the functions, while maintaining the parens in a pretty state."
       (newline-and-indent))))
 
 ;;* Globals: miscellanea
+;;;###autoload
 (defun lispy-string-oneline ()
   "Convert current string to one line."
   (interactive)
@@ -2186,6 +2234,7 @@ to all the functions, while maintaining the parens in a pretty state."
     (delete-region (car bnd) (cdr bnd))
     (insert (replace-regexp-in-string "\n" "\\\\n" str))))
 
+;;;###autoload
 (defun lispy-iedit (&optional arg)
   "Wrap around `iedit'."
   (interactive "P")
@@ -2309,6 +2358,7 @@ to all the functions, while maintaining the parens in a pretty state."
 (defvar ivy-last)
 (declare-function ivy-state-window "ext:ivy")
 
+;;;###autoload
 (defun lispy-occur ()
   "Select a line within current top level sexp.
 See `lispy-occur-backend' for the selection back end."
@@ -2416,6 +2466,7 @@ Return the amount of successful grow steps, nil instead of zero."
           (goto-char prev)
           (throw 'result (1- i)))))))
 
+;;;###autoload
 (defun lispy-slurp (arg)
   "Grow current sexp by ARG sexps.
 If ARG is zero, grow as far as possible. If ARG is -1, grow until the end or
@@ -2495,6 +2546,7 @@ the end of the line where that list ends."
                    (lispy--slurp-backward))))))
     (lispy--reindent)))
 
+;;;###autoload
 (defun lispy-down-slurp ()
   "Move current sexp or region into the next sexp."
   (interactive)
@@ -2521,6 +2573,7 @@ the end of the line where that list ends."
                            (match-end 0)))
           (indent-sexp))))))
 
+;;;###autoload
 (defun lispy-up-slurp ()
   "Move current sexp or region into the previous sexp.
 If the point is by itself on a line or followed only by right delimiters, slurp
@@ -2586,6 +2639,7 @@ to the next level and adjusting the parentheses accordingly."
             (lispy-different)
           (goto-char (car bnd)))))))
 
+;;;###autoload
 (defun lispy-indent-adjust-parens (arg)
   "Indent the line if it is incorrectly indented or act as `lispy-up-slurp'.
 If indenting does not adjust indentation or move the point, call
@@ -2687,6 +2741,7 @@ Otherwise, move to the next sexp."
          (lispy-dotimes arg
            (lispy--barf-forward)))))
 
+;;;###autoload
 (defun lispy-slurp-or-barf-right (arg)
   "Barfs or slurps current sexp so that visually, the delimiter at point moves to the right.
 When cursor is at lispy-right, will slurp ARG sexps forwards.
@@ -2705,6 +2760,7 @@ When lispy-left, will barf ARG sexps forwards.
         (lispy-slurp arg)
       (lispy-barf arg))))
 
+;;;###autoload
 (defun lispy-slurp-or-barf-left (arg)
   "Barfs or slurps current sexp so that visually, the delimiter at point moves to the left.
 When cursor is at lispy-right, will barf ARG sexps backwards.
@@ -2723,6 +2779,7 @@ When lispy-left, will slurp ARG sexps forwards.
         (lispy-slurp arg)
       (lispy-barf arg))))
 
+;;;###autoload
 (defun lispy-splice (arg)
   "Splice ARG sexps into containing list."
   (interactive "p")
@@ -2841,6 +2898,7 @@ When lispy-left, will slurp ARG sexps forwards.
     (lispy--normalize-1)
     t))
 
+;;;###autoload
 (defun lispy-barf-to-point (arg)
   "Barf to the closest sexp before the point.
 When ARG is non-nil, barf from the left."
@@ -2873,6 +2931,7 @@ When ARG is non-nil, barf from the left."
                  (delete-char 1))))
         (lispy--reindent 1)))))
 
+;;;###autoload
 (defun lispy-reverse ()
   "Reverse the current list or region selection."
   (interactive)
@@ -2888,6 +2947,7 @@ When ARG is non-nil, barf from the left."
     (when leftp
       (lispy-different))))
 
+;;;###autoload
 (defun lispy-raise (arg)
   "Use current sexp or region as replacement for its parent.
 Do so ARG times."
@@ -2916,6 +2976,7 @@ Do so ARG times."
       (unless (eq leftp (lispy--leftp))
         (lispy-different)))))
 
+;;;###autoload
 (defun lispy-raise-some ()
   "Use current sexps as replacement for their parent.
 The outcome when ahead of sexps is different from when behind."
@@ -2947,6 +3008,7 @@ The outcome when ahead of sexps is different from when behind."
     (lispy-raise 1)
     (deactivate-mark)))
 
+;;;###autoload
 (defun lispy-convolute (arg)
   "Replace (...(,,,|( with (,,,(...|( where ... and ,,, is arbitrary code.
 When ARG is more than 1, pull ARGth expression to enclose current sexp.
@@ -2982,6 +3044,7 @@ When ARG is nil, convolute only the part above sexp."
              (lispy--reindent (1+ arg)))))
       (error "Not enough depth to convolute"))))
 
+;;;###autoload
 (defun lispy-convolute-left ()
   "Convolute and move left.
 Useful for propagating `let' bindings."
@@ -2998,6 +3061,7 @@ Useful for propagating `let' bindings."
 (defvar lispy-repeat--prefix-arg nil
   "Prefix arg to use with `lispy-repeat'.")
 
+;;;###autoload
 (defun lispy-repeat ()
   "Repeat last command with last prefix arg."
   (interactive)
@@ -3009,6 +3073,7 @@ Useful for propagating `let' bindings."
   (setq current-prefix-arg lispy-repeat--prefix-arg)
   (funcall lispy-repeat--command))
 
+;;;###autoload
 (defun lispy-join ()
   "Join sexps."
   (interactive)
@@ -3048,6 +3113,7 @@ Useful for propagating `let' bindings."
                                        (1+ (point)))
                         t))))))))
 
+;;;###autoload
 (defun lispy-split ()
   "Split sexps."
   (interactive)
@@ -3093,6 +3159,7 @@ Useful for propagating `let' bindings."
     t))
 
 ;;* Locals: more transformations
+;;;###autoload
 (defun lispy-move-up (arg)
   "Move current expression up ARG times.  Don't exit parent list.
 Also works from inside the list."
@@ -3110,6 +3177,7 @@ Also works from inside the list."
       (lispy--move-up-special arg)
       (forward-char offset))))
 
+;;;###autoload
 (defun lispy-move-down (arg)
   "Move current expression down ARG times.  Don't exit parent list.
 Also works from inside the list."
@@ -3198,6 +3266,7 @@ Precondition: the region is active and the point is at `region-beginning'."
     (unless at-start (lispy-different))))
 
 (declare-function zo-up "zoutline")
+;;;###autoload
 (defun lispy-move-outline-up (arg)
   (interactive)
   (require 'zoutline)
@@ -3299,6 +3368,7 @@ Precondition: the region is active and the point is at `region-beginning'."
            (lispy-different)))
     (unless at-start (lispy-different))))
 
+;;;###autoload
 (defun lispy-move-left (arg)
   "Move region left ARG times."
   (interactive "p")
@@ -3335,6 +3405,7 @@ Precondition: the region is active and the point is at `region-beginning'."
           (when leftp
             (lispy-different)))))))
 
+;;;###autoload
 (defun lispy-move-right (arg)
   "Move region right ARG times."
   (interactive "p")
@@ -3371,6 +3442,7 @@ Precondition: the region is active and the point is at `region-beginning'."
           (when leftp
             (lispy-different)))))))
 
+;;;###autoload
 (defun lispy-dedent-adjust-parens (arg)
   "Move region or all the following sexps in the current list right.
 This can be of thought as dedenting the code to the previous level and adjusting
@@ -3400,6 +3472,7 @@ the parentheses accordingly."
            (lispy-different)
            (deactivate-mark)))))
 
+;;;###autoload
 (defun lispy-clone (arg)
   "Clone sexp ARG times.
 When the sexp is top level, insert an additional newline."
@@ -3502,6 +3575,7 @@ Instead keep them, with a newline after each comment."
             (cons x y))))
    expr))
 
+;;;###autoload
 (defun lispy-oneline ()
   "Squeeze current sexp into one line.
 Comments will be moved ahead of sexp."
@@ -3549,6 +3623,7 @@ Comments will be moved ahead of sexp."
       (when from-left
         (backward-list)))))
 
+;;;###autoload
 (defun lispy-multiline (&optional arg)
   "Spread current sexp over multiple lines.
 When ARG is `fill', do nothing for short expressions."
@@ -3796,6 +3871,7 @@ When QUOTED is not nil, assume that EXPR is quoted and ignore some rules."
                  (t
                   (nreverse res)))))))
 
+;;;###autoload
 (defun lispy-alt-multiline (&optional silent)
   "Spread current sexp over multiple lines.
 When SILENT is non-nil, don't issue messages."
@@ -3831,6 +3907,7 @@ When SILENT is non-nil, don't issue messages."
 (defvar lispy-do-fill nil
   "If t, `lispy-insert-1' will try to fill.")
 
+;;;###autoload
 (defun lispy-fill ()
   "Fill current expression."
   (interactive)
@@ -3853,6 +3930,7 @@ When SILENT is non-nil, don't issue messages."
   :type 'boolean
   :group 'lispy)
 
+;;;###autoload
 (defun lispy-comment (&optional arg)
   "Comment ARG sexps."
   (interactive "p")
@@ -3978,6 +4056,7 @@ Quote the newlines if QUOTE-NEWLINES is t."
       (replace-regexp-in-string "\n" "\\\\n" str)
     str))
 
+;;;###autoload
 (defun lispy-stringify (&optional arg)
   "Transform current sexp into a string.
 Quote newlines if ARG isn't 1."
@@ -4015,11 +4094,13 @@ Quote newlines if ARG isn't 1."
         (if (and leftp (= (point) (region-end)))
             (exchange-point-and-mark))))))
 
+;;;###autoload
 (defun lispy-stringify-oneline ()
   "Call `lispy-stringify' with a non-1 argument to quote newlines."
   (interactive)
   (lispy-stringify 0))
 
+;;;###autoload
 (defun lispy-unstringify ()
   "Unquote string at point."
   (interactive)
@@ -4057,6 +4138,7 @@ When you press \"t\" in `lispy-teleport', this will be bound to t temporarily.")
                     ,@body))
      (minibuffer-keyboard-quit)))
 
+;;;###autoload
 (defun lispy-teleport (arg)
   "Move ARG sexps into a sexp determined by `lispy-ace-paren'."
   (interactive "p")
@@ -4114,6 +4196,7 @@ When you press \"t\" in `lispy-teleport', this will be bound to t temporarily.")
              (lispy--teleport beg end endp regionp))))))
 
 ;;* Locals: tags
+;;;###autoload
 (defun lispy-goto (&optional arg)
   "Jump to symbol within files in current directory.
 When ARG isn't nil, call `lispy-goto-projectile' instead."
@@ -4125,6 +4208,7 @@ When ARG isn't nil, call `lispy-goto-projectile' instead."
                #'lispy--fetch-tags-projectile)))
     (lispy--goto fun)))
 
+;;;###autoload
 (defun lispy-goto-recursive ()
   "Jump to symbol within files in current directory and its subdiretories."
   (interactive)
@@ -4138,6 +4222,7 @@ When ARG isn't nil, call `lispy-goto-projectile' instead."
 
 (declare-function counsel-imenu "ext:counsel")
 
+;;;###autoload
 (defun lispy-goto-local (&optional arg)
   "Jump to symbol within current file.
 When ARG is non-nil, force a reparse."
@@ -4152,6 +4237,7 @@ When ARG is non-nil, force a reparse."
     (no-semantic-support
      (counsel-imenu))))
 
+;;;###autoload
 (defun lispy-goto-elisp-commands (&optional arg)
   "Jump to Elisp commands within current file.
 When ARG is non-nil, force a reparse."
@@ -4171,12 +4257,14 @@ When ARG is non-nil, force a reparse."
                       (lispy-dbfile-tags struct))))
        #'lispy--action-jump))))
 
+;;;###autoload
 (defun lispy-goto-projectile ()
   "Jump to symbol within files in (`projectile-project-root')."
   (interactive)
   (deactivate-mark)
   (lispy--goto 'lispy--fetch-tags-projectile))
 
+;;;###autoload
 (defun lispy-goto-def-down (arg)
   "Jump to definition of ARGth element of current list."
   (interactive "p")
@@ -4193,6 +4281,7 @@ When ARG is non-nil, force a reparse."
             (lispy-goto-symbol elt)
           (error "No symbol found"))))))
 
+;;;###autoload
 (defun lispy-goto-def-ace (arg)
   "Jump to definition of selected element of current sexp.
 Sexp is obtained by exiting list ARG times."
@@ -4297,6 +4386,7 @@ SYMBOL is a string."
 
 (declare-function cider--display-interactive-eval-result "ext:cider-overlays")
 
+;;;###autoload
 (defun lispy-eval (arg)
   "Eval last sexp.
 When ARG is 2, insert the result as a comment."
@@ -4344,6 +4434,7 @@ When ARG is 2, insert the result as a comment."
       (goto-char pt)
       nil)))
 
+;;;###autoload
 (defun lispy-eval-current-outline ()
   (interactive)
   (save-excursion
@@ -4361,6 +4452,7 @@ When ARG is 2, insert the result as a comment."
         (match-string-no-properties 1)
       (concat lispy-outline-header (make-string (1+ (funcall outline-level)) ?*) " :"))))
 
+;;;###autoload
 (defun lispy-insert-outline-below ()
   (interactive)
   "Add an unnamed notebook outline at point."
@@ -4381,6 +4473,7 @@ When ARG is 2, insert the result as a comment."
     (let ((inhibit-message t))
       (save-buffer))))
 
+;;;###autoload
 (defun lispy-insert-outline-left ()
   (interactive)
   "Add a named notebook outline at point."
@@ -4482,6 +4575,7 @@ If STR is too large, pop it to a buffer instead."
                     (lispy--string-dwim))))
     (lispy--eval eval-str)))
 
+;;;###autoload
 (defun lispy-eval-and-insert ()
   "Eval last sexp and insert the result."
   (interactive)
@@ -4506,6 +4600,7 @@ If STR is too large, pop it to a buffer instead."
           (doit))
       (doit))))
 
+;;;###autoload
 (defun lispy-eval-and-comment ()
   "Eval last sexp and insert the result as a comment."
   (interactive)
@@ -4624,6 +4719,7 @@ If STR is too large, pop it to a buffer instead."
           (insert indent)
           (beginning-of-line 2))))))
 
+;;;###autoload
 (defun lispy-comment-region (beg end)
   "Comment the region between BEG and END.
 Unlike `comment-region', ensure a contiguous comment."
@@ -4639,6 +4735,7 @@ Unlike `comment-region', ensure a contiguous comment."
         (cl-incf end 1))
       (beginning-of-line 2))))
 
+;;;###autoload
 (defun lispy-eval-and-replace ()
   "Eval last sexp and replace it with the result."
   (interactive)
@@ -4726,6 +4823,7 @@ SYM will take on each value of LST with each eval."
       (setq lispy--eval-data lst)
       (set sym nil))))
 
+;;;###autoload
 (defun lispy-eval-other-window (&optional arg)
   "Eval current expression in the context of other window.
 In case the point is on a let-bound variable, add a `setq'.
@@ -4775,6 +4873,7 @@ When ARG is non-nil, force select the window."
                    (replace-regexp-in-string "%" "%%"
                                              (format "%S" res)))))))))
 
+;;;###autoload
 (defun lispy-follow ()
   "Follow to `lispy--current-function'."
   (interactive)
@@ -4782,6 +4881,7 @@ When ARG is non-nil, force select the window."
 
 (declare-function cider-doc-lookup "ext:cider-doc")
 
+;;;###autoload
 (defun lispy-describe ()
   "Display documentation for `lispy--current-function'."
   (interactive)
@@ -4818,6 +4918,7 @@ When ARG is non-nil, force select the window."
           (set-mark (cdr val)))
       (goto-char val))))
 
+;;;###autoload
 (defun lispy-beginning-of-defun (&optional arg)
   "Forward to `beginning-of-defun' with ARG.  Deactivate region.
 When called twice in a row, restore point and mark."
@@ -4841,6 +4942,7 @@ When called twice in a row, restore point and mark."
 (declare-function avy-process "avy")
 (declare-function avy--overlay-post "avy")
 
+;;;###autoload
 (defun lispy-ace-char ()
   "Visually select a char within the current defun."
   (interactive)
@@ -4876,6 +4978,7 @@ ARG can extend the bounds beyond the current defun."
        (lambda () (not (lispy--in-string-or-comment-p)))
        lispy-avy-style-paren))))
 
+;;;###autoload
 (defun lispy-ace-symbol (arg)
   "Jump to a symbol withing the current sexp and mark it.
 Sexp is obtained by exiting the list ARG times."
@@ -4902,6 +5005,7 @@ Sexp is obtained by exiting the list ARG times."
         (forward-char 1))
       (lispy-mark-symbol))))
 
+;;;###autoload
 (defun lispy-ace-subword (arg)
   "Mark sub-word within a sexp.
 Sexp is obtained by exiting list ARG times."
@@ -4948,6 +5052,7 @@ Use STYLE function to update the overlays."
        (at-full #'avy--overlay-at-full)
        (post #'avy--overlay-post)))))
 
+;;;###autoload
 (defun lispy-ace-symbol-replace (arg)
   "Jump to a symbol withing the current sexp and delete it.
 Sexp is obtained by exiting the list ARG times."
@@ -4966,6 +5071,7 @@ Sexp is obtained by exiting the list ARG times."
           (max (cl-count ?* (match-string 0)) 1)
         0))))
 
+;;;###autoload
 (defun lispy-outline-next (arg)
   "Call `outline-next-visible-heading' ARG times."
   (interactive "p")
@@ -4977,6 +5083,7 @@ Sexp is obtained by exiting the list ARG times."
         (goto-char pt)
         (error "Past last outline")))))
 
+;;;###autoload
 (defun lispy-outline-prev (arg)
   "Call `outline-previous-visible-heading' ARG times."
   (interactive "p")
@@ -4989,6 +5096,7 @@ Sexp is obtained by exiting the list ARG times."
                      (goto-char pt)
                      (error "Past first outline")))))
 
+;;;###autoload
 (defun lispy-outline-promote ()
   "Promote current outline level by one."
   (interactive)
@@ -4998,6 +5106,7 @@ Sexp is obtained by exiting the list ARG times."
       (goto-char (match-end 0))
       (insert "*"))))
 
+;;;###autoload
 (defun lispy-outline-demote ()
   "Demote current outline level by one."
   (interactive)
@@ -5016,6 +5125,7 @@ Sexp is obtained by exiting the list ARG times."
         (delete-char -1))
       t)))
 
+;;;###autoload
 (defun lispy-outline-left ()
   "Move left."
   (interactive)
@@ -5025,6 +5135,7 @@ Sexp is obtained by exiting the list ARG times."
       (when (> level-up 0)
         (re-search-backward (format "^#\\*\\{1,%d\\} " level-up) nil t)))))
 
+;;;###autoload
 (defun lispy-outline-right ()
   "Move right."
   (interactive)
@@ -5041,6 +5152,7 @@ Sexp is obtained by exiting the list ARG times."
     (lispy--ensure-visible)
     result))
 
+;;;###autoload
 (defun lispy-outline-goto-child ()
   "Goto the first variable `lispy-left' of the current outline."
   (interactive)
@@ -5067,6 +5179,7 @@ Sexp is obtained by exiting the list ARG times."
 (declare-function org-cycle-internal-global "org")
 (declare-function org-narrow-to-subtree "org")
 
+;;;###autoload
 (defun lispy-tab ()
   "Indent code and hide/show outlines.
 When region is active, call `lispy-mark-car'."
@@ -5096,6 +5209,7 @@ When region is active, call `lispy-mark-car'."
           (t
            (lispy--normalize-1)))))
 
+;;;###autoload
 (defun lispy-shifttab (arg)
   "Hide/show outline summary.
 When ARG isn't nil, show table of contents."
@@ -5112,6 +5226,7 @@ When ARG isn't nil, show table of contents."
   (recenter))
 
 ;;* Locals: refactoring
+;;;###autoload
 (defun lispy-to-lambda ()
   "Turn the current function definition into a lambda."
   (interactive)
@@ -5125,6 +5240,7 @@ When ARG isn't nil, show table of contents."
       (insert "lambda")
       (goto-char (1- beg)))))
 
+;;;###autoload
 (defun lispy-to-defun ()
   "Turn the current lambda or toplevel sexp or block into a defun."
   (interactive)
@@ -5166,6 +5282,7 @@ When ARG isn't nil, show table of contents."
           (t
            (lispy-extract-block)))))
 
+;;;###autoload
 (defun lispy-extract-defun ()
   "Extract the marked block as a defun.
 For the defun to have arguments, capture them with `lispy-bind-variable'."
@@ -5235,6 +5352,7 @@ For the defun to have arguments, capture them with `lispy-bind-variable'."
 
 (declare-function lispy-flatten--clojure "le-clojure")
 (declare-function lispy-flatten--lisp "le-lisp")
+;;;###autoload
 (defun lispy-flatten (arg)
   "Inline a function at the point of its call.
 Pass the ARG along."
@@ -5255,6 +5373,7 @@ Pass the ARG along."
          (lispy-complain
           (format "%S isn't currently supported" major-mode)))))
 
+;;;###autoload
 (defun lispy-let-flatten ()
   "Inline a function at the point of its call using `let'."
   (interactive)
@@ -5349,6 +5468,7 @@ With ARG, use the contents of `lispy-store-region-and-buffer' instead."
       (when begp
         (goto-char (car bnd))))))
 
+;;;###autoload
 (defun lispy-to-ifs ()
   "Transform current `cond' expression to equivalent `if' expressions."
   (interactive)
@@ -5365,6 +5485,7 @@ With ARG, use the contents of `lispy-store-region-and-buffer' instead."
   (lispy-from-left
    (indent-sexp)))
 
+;;;###autoload
 (defun lispy-to-cond ()
   "Reverse of `lispy-to-ifs'."
   (interactive)
@@ -5382,6 +5503,7 @@ With ARG, use the contents of `lispy-store-region-and-buffer' instead."
   (lispy-from-left
    (indent-sexp)))
 
+;;;###autoload
 (defun lispy-toggle-thread-last ()
   "Toggle current expression between last-threaded/unthreaded forms.
 Macro used may be customized in `lispy-thread-last-macro', which see."
@@ -5416,6 +5538,7 @@ Macro used may be customized in `lispy-thread-last-macro', which see."
    (lispy-flow 1)
    (lispy-raise 1)))
 
+;;;###autoload
 (defun lispy-unbind-variable ()
   "Substitute let-bound variable."
   (interactive)
@@ -5452,6 +5575,7 @@ Macro used may be customized in `lispy-thread-last-macro', which see."
           (lispy--normalize-1)))
       (undo-boundary))))
 
+;;;###autoload
 (defun lispy-unbind-variable-clojure ()
   "Subsititute let-bound variable in Clojure."
   (interactive)
@@ -5481,6 +5605,7 @@ Macro used may be customized in `lispy-thread-last-macro', which see."
                (throw 'break 'let-body))))
       'no-let)))
 
+;;;###autoload
 (defun lispy-bind-variable ()
   "Bind current expression as variable.
 
@@ -5530,6 +5655,7 @@ The bindings of `lispy-backward' or `lispy-mark-symbol' can also be used."
 (declare-function mc/mark-lines "ext:mc-mark-more")
 (declare-function mc/remove-fake-cursors "ext:multiple-cursors-core")
 
+;;;###autoload
 (defun lispy-cursor-down (arg)
   "Add ARG cursors using `lispy-down'."
   (interactive "p")
@@ -5557,6 +5683,7 @@ The bindings of `lispy-backward' or `lispy-mark-symbol' can also be used."
                      (region-active-p)))
       ad-do-it)))
 
+;;;###autoload
 (defun lispy-cursor-ace ()
   "Add a cursor at a visually selected paren.
 Currently, only one cursor can be added with local binding.
@@ -5572,6 +5699,7 @@ Any amount can be added with a global binding."
   (mc/maybe-multiple-cursors-mode))
 
 ;;* Locals: ediff
+;;;###autoload
 (defun lispy-store-region-and-buffer ()
   "Store current buffer and `lispy--bounds-dwim'."
   (interactive)
@@ -5592,6 +5720,7 @@ In case it is, return the left window."
               wnd1
             wnd2))))))
 
+;;;###autoload
 (defun lispy--ediff-regions (bnd1 bnd2 &optional buf1 buf2 desc1 desc2)
   (interactive)
   (let ((wnd (current-window-configuration))
@@ -5613,6 +5742,7 @@ In case it is, return the left window."
                  (setq ediff-after-quit-hook-internal nil)
                  (set-window-configuration ,wnd)))))
 
+;;;###autoload
 (defun lispy-ediff-regions ()
   "Comparable to `ediff-regions-linewise'.
 First region and buffer come from `lispy-store-region-and-buffer'
@@ -5627,6 +5757,7 @@ Second region and buffer are the current ones."
      (get 'lispy-store-bounds 'buffer))))
 
 ;;* Locals: marking
+;;;###autoload
 (defun lispy-mark-right (arg)
   "Go right ARG times and mark."
   (interactive "p")
@@ -5650,6 +5781,7 @@ Second region and buffer are the current ones."
        (lispy--bounds-dwim))
       r)))
 
+;;;###autoload
 (defun lispy-mark-left (arg)
   "Go left ARG times and mark."
   (interactive "p")
@@ -5658,6 +5790,7 @@ Second region and buffer are the current ones."
     (when (= (point) (region-end))
       (exchange-point-and-mark))))
 
+;;;###autoload
 (defun lispy-mark-car ()
   "Mark the car of current thing."
   (interactive)
@@ -5698,6 +5831,7 @@ Second region and buffer are the current ones."
 
 ;;* Locals: edebug
 (declare-function lispy--clojure-debug-quit "le-clojure")
+;;;###autoload
 (defun lispy-edebug-stop ()
   "Stop edebugging, while saving current function arguments."
   (interactive)
@@ -5745,6 +5879,7 @@ Second region and buffer are the current ones."
 (declare-function cider-debug-defun-at-point "ext:cider-debug")
 (declare-function lispy-python-set-breakpoint "le-python")
 
+;;;###autoload
 (defun lispy-edebug (arg)
   "Start/stop edebug of current thing depending on ARG.
 ARG is 1: `edebug-defun' on this function.
@@ -5786,6 +5921,7 @@ ARG is 4: `eval-defun' on the function from this sexp."
 (declare-function lispy-eval-python-str "le-python")
 (declare-function lispy-set-python-process "le-python")
 
+;;;###autoload
 (defun lispy-debug-step-in ()
   "Eval current function arguments and jump to definition."
   (interactive)
@@ -5875,6 +6011,7 @@ An equivalent of `cl-destructuring-bind'."
                    res)))))
 
 ;;* Locals: miscellanea
+;;;###autoload
 (defun lispy-describe-bindings-C-4 ()
   "Describe bindings that start with \"C-4\"."
   (interactive)
@@ -5882,6 +6019,7 @@ An equivalent of `cl-destructuring-bind'."
 
 (declare-function lispy--eval-python "le-python")
 
+;;;###autoload
 (defun lispy-cd ()
   "Change the current REPL working directory."
   (interactive)
@@ -5933,6 +6071,7 @@ An equivalent of `cl-destructuring-bind'."
   ("" lispy-x-more-verbosity :exit nil)
   ("?" lispy-x-more-verbosity "help" :exit nil))
 
+;;;###autoload
 (defun lispy-cleanup ()
   (interactive)
   (save-excursion
@@ -5943,6 +6082,7 @@ An equivalent of `cl-destructuring-bind'."
 
 (defvar lispy-x--old-hint "")
 
+;;;###autoload
 (defun lispy-x-more-verbosity ()
   (interactive)
   (let ((cv (hydra-get-property 'hydra-lispy-x :verbosity)))
@@ -5965,17 +6105,20 @@ An equivalent of `cl-destructuring-bind'."
   "Default verbosity of `lispy-x'."
   :type '(radio (const 0) (const 1)))
 
+;;;###autoload
 (defun lispy-x ()
   "Forward to `hydra-lispy-x/body'"
   (interactive)
   (hydra-set-property 'hydra-lispy-x :verbosity lispy-x-default-verbosity)
   (hydra-lispy-x/body))
 
+;;;###autoload
 (defun lispy-ert ()
   "Call (`ert' t)."
   (interactive)
   (ert t))
 
+;;;###autoload
 (defun lispy-undo ()
   "Deactivate region and `undo'."
   (interactive)
@@ -5983,6 +6126,7 @@ An equivalent of `cl-destructuring-bind'."
     (deactivate-mark t))
   (undo))
 
+;;;###autoload
 (defun lispy-view ()
   "Recenter current sexp to first screen line, accounting for scroll-margin.
 If already there, return it to previous position."
@@ -6007,6 +6151,7 @@ X is an item of a radio- or choice-type defcustom."
                 (list 'quote x)
               x)))))
 
+;;;###autoload
 (defun lispy-setq ()
   "Set variable at point, with completion."
   (interactive)
@@ -6052,6 +6197,7 @@ X is an item of a radio- or choice-type defcustom."
 (defvar projectile-mode)
 (declare-function find-file-in-project "ext:find-file-in-project")
 
+;;;###autoload
 (defun lispy-visit (arg)
   "Forward to find file in project depending on ARG."
   (interactive "p")
@@ -6066,6 +6212,7 @@ X is an item of a radio- or choice-type defcustom."
           (t
            (projectile-find-file arg)))))
 
+;;;###autoload
 (defun lispy-narrow (arg)
   "Narrow ARG sexps or region."
   (interactive "p")
@@ -6087,11 +6234,13 @@ X is an item of a radio- or choice-type defcustom."
            (let ((org-outline-regexp outline-regexp))
              (org-narrow-to-subtree))))))
 
+;;;###autoload
 (defun lispy-widen ()
   "Forward to `widen'."
   (interactive)
   (widen))
 
+;;;###autoload
 (defun lispy-other-space ()
   "Alternative to `lispy-space'."
   (interactive)
@@ -6102,6 +6251,7 @@ X is an item of a radio- or choice-type defcustom."
          (insert " ")
          (backward-char 1))))
 
+;;;###autoload
 (defun lispy-paste (arg)
   "Forward to `yank'.
 If the region is active, replace instead of yanking.
@@ -6223,6 +6373,7 @@ When ARG is given, paste at that place in the current list."
             str)
         str))))
 
+;;;###autoload
 (defun lispy-view-test ()
   "View better the test at point."
   (interactive)
@@ -6261,6 +6412,7 @@ When ARG is given, paste at that place in the current list."
         (t
          (lispy-complain "should position point before (should (string="))))
 
+;;;###autoload
 (defun lispy-map-done ()
   (interactive)
   (lispy-map-delete-overlay)
@@ -6329,6 +6481,7 @@ area between `lispy-map-target-beg' and `lispy-map-target-len'."
           (insert new-str)
           (setq lispy-map-target-len (length new-str)))))))
 
+;;;###autoload
 (defun lispy-extract-block ()
   "Transform the current sexp or region into a function call.
 The newly generated function will be placed above the current function.
@@ -6848,6 +7001,7 @@ The result is a string."
            (t (error "%s isn't supported currently" major-mode)))
      e-str)))
 
+;;;###autoload
 (defun lispy-eval-expression ()
   "Like `eval-expression', but for current language."
   (interactive)
@@ -7555,6 +7709,7 @@ See https://clojure.org/guides/weird_characters#_character_literal.")
     (\, . ",")
     (\,@ . ",@")))
 
+;;;###autoload
 (defun lispy-expr-canonical-p (str)
   "Return t if STR is the same when read and re-inserted."
   (interactive
@@ -8557,6 +8712,7 @@ Use only the part bounded by BND."
 (defvar lispy--compat-cmd nil
   "Store the looked up compat command.")
 
+;;;###autoload
 (defun lispy--insert-or-call (def plist)
   "Return a lambda to call DEF if position is special.
 Otherwise call `self-insert-command'.
@@ -9121,24 +9277,28 @@ FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)."
       (lispy--delimiter-space-unless preceding-syntax-alist)))
   (funcall func arg))
 
+;;;###autoload
 (defun lispy-parens-auto-wrap (arg)
   "Like `lispy-parens' but wrap to the end of the line by default.
 With an arg of -1, never wrap."
   (interactive "P")
   (lispy--auto-wrap #'lispy-parens arg lispy-parens-preceding-syntax-alist))
 
+;;;###autoload
 (defun lispy-brackets-auto-wrap (arg)
   "Like `lispy-brackets' but wrap to the end of the line by default.
 With an arg of -1, never wrap."
   (interactive "P")
   (lispy--auto-wrap #'lispy-brackets arg lispy-brackets-preceding-syntax-alist))
 
+;;;###autoload
 (defun lispy-braces-auto-wrap (arg)
   "Like `lispy-braces' but wrap to the end of the line by default.
 With an arg of -1, never wrap."
   (interactive "P")
   (lispy--auto-wrap #'lispy-braces arg lispy-braces-preceding-syntax-alist))
 
+;;;###autoload
 (defun lispy-barf-to-point-nostring (arg)
   "Call `lispy-barf-to-point' with ARG unless in string or comment.
 Self-insert otherwise."
@@ -9171,6 +9331,7 @@ Self-insert when in a string or a comment."
       (self-insert-command (prefix-numeric-value arg))
     (lispy--barf-to-point-or-jump delimiter arg)))
 
+;;;###autoload
 (defun lispy-parens-barf-to-point-or-jump-nostring (arg)
   "Barf to the point when directly inside a \"(...)\" block.
 Otherwise, jump to the next \")\". When ARG is non-nil, barf from the left or
@@ -9180,6 +9341,7 @@ jump to the previous \"(\". Self-insert when in a string or a comment."
       (lispy--barf-to-point-or-jump "(" arg)
     (lispy--barf-to-point-or-jump-nostring ")" arg)))
 
+;;;###autoload
 (defun lispy-brackets-barf-to-point-or-jump-nostring (arg)
   "Barf to the point when directly inside a \"[...]\" block.
 Otherwise, jump to the next \"]\". When ARG is non-nil, barf from the left or
@@ -9189,6 +9351,7 @@ jump to the previous \"[\". Self-insert when in a string or a comment."
       (lispy--barf-to-point-or-jump "\\[" arg)
     (lispy--barf-to-point-or-jump-nostring "\\]" arg)))
 
+;;;###autoload
 (defun lispy-braces-barf-to-point-or-jump-nostring (arg)
   "Barf to the point when directly inside a \"{...}\" block.
 Otherwise, jump to the next \"}\". When ARG is non-nil, barf from the left or
@@ -9237,6 +9400,7 @@ quote of a string, move backward."
           (t
            (lispy-delete-backward arg)))))
 
+;;;###autoload
 (defun lispy-delete-or-splice-or-slurp (arg)
   "Call `lispy-delete' unless before a delimiter.
 Before an opening delimiter, splice. Before a closing delimiter, slurp to the
@@ -9272,6 +9436,7 @@ quote of a string, move forward."
            (lispy-delete arg)))))
 
 ;;* Paredit compat
+;;;###autoload
 (defun lispy-close-round-and-newline (arg)
   "Forward to (`lispy-out-forward-newline' ARG).
 Insert \")\" in strings and comments."
@@ -9281,6 +9446,7 @@ Insert \")\" in strings and comments."
       (insert ")")
     (lispy-out-forward-newline arg)))
 
+;;;###autoload
 (defun lispy-open-square (arg)
   "Forward to (`lispy-brackets' ARG).
 Insert \"[\" in strings and comments."
@@ -9289,6 +9455,7 @@ Insert \"[\" in strings and comments."
       (insert "[")
     (lispy-brackets arg)))
 
+;;;###autoload
 (defun lispy-open-curly (arg)
   "Forward to( `lispy-braces' ARG).
 Insert \"{\" in strings and comments."
@@ -9297,6 +9464,7 @@ Insert \"{\" in strings and comments."
       (insert "{")
     (lispy-braces arg)))
 
+;;;###autoload
 (defun lispy-close-square (arg)
   "Forward to function `lispy-right' with ARG.
 Insert \"]\" in strings and comments."
@@ -9305,6 +9473,7 @@ Insert \"]\" in strings and comments."
       (insert "]")
     (lispy-right arg)))
 
+;;;###autoload
 (defun lispy-close-curly (arg)
   "Forward to function `lispy-right' with ARG.
 Insert \"}\" in strings and comments."
@@ -9313,6 +9482,7 @@ Insert \"}\" in strings and comments."
       (insert "}")
     (lispy-right arg)))
 
+;;;###autoload
 (defun lispy-doublequote (arg)
   "Insert a pair of quotes around the point.
 When ARG is non-nil, unquote the current string."
@@ -9348,6 +9518,7 @@ When ARG is non-nil, unquote the current string."
              (backward-char 1))
            (backward-char)))))
 
+;;;###autoload
 (defun lispy-meta-doublequote (arg)
   "Stringify current expression or forward to (`lispy-meta-doublequote' ARG)."
   (interactive "P")
@@ -9358,6 +9529,7 @@ When ARG is non-nil, unquote the current string."
           (lispy-stringify)
         (lispy-doublequote arg)))))
 
+;;;###autoload
 (defun lispy-forward-delete (arg)
   "Delete ARG sexps."
   (interactive "p")
@@ -9378,6 +9550,7 @@ When ARG is non-nil, unquote the current string."
           (t
            (lispy-delete arg)))))
 
+;;;###autoload
 (defun lispy-backward-delete (arg)
   "Delete ARG sexps backward."
   (interactive "p")
@@ -9402,21 +9575,25 @@ When ARG is non-nil, unquote the current string."
        (delete-region (car bnd) (cdr bnd)))
       (t (lispy-delete-backward arg)))))
 
+;;;###autoload
 (defun lispy-wrap-round (arg)
   "Forward to `lispy-parens' with a default ARG of 1."
   (interactive "P")
   (lispy-parens (or arg 1)))
 
+;;;###autoload
 (defun lispy-wrap-brackets (arg)
   "Forward to `lispy-brackets' with a default ARG of 1."
   (interactive "P")
   (lispy-brackets (or arg 1)))
 
+;;;###autoload
 (defun lispy-wrap-braces (arg)
   "Forward to `lispy-braces' with a default ARG of 1."
   (interactive "P")
   (lispy-braces (or arg 1)))
 
+;;;###autoload
 (defun lispy-splice-sexp-killing-backward ()
   "Forward to `lispy-raise'."
   (interactive)
@@ -9427,6 +9604,7 @@ When ARG is non-nil, unquote the current string."
       (lispy-raise 1)
       (deactivate-mark))))
 
+;;;###autoload
 (defun lispy-splice-sexp-killing-forward ()
   "Forward to `lispy-raise'."
   (interactive)
@@ -9439,6 +9617,7 @@ When ARG is non-nil, unquote the current string."
         (lispy-raise 1)
         (deactivate-mark)))))
 
+;;;###autoload
 (defun lispy-raise-sexp ()
   "Forward to `lispy-raise'."
   (interactive)
@@ -9450,6 +9629,7 @@ When ARG is non-nil, unquote the current string."
     (lispy-raise 1)
     (deactivate-mark)))
 
+;;;###autoload
 (defun lispy-convolute-sexp ()
   "Forward to `lispy-convolute'."
   (interactive)
@@ -9458,6 +9638,7 @@ When ARG is non-nil, unquote the current string."
   (lispy-convolute 1)
   (lispy--out-backward 1))
 
+;;;###autoload
 (defun lispy-forward-slurp-sexp (arg)
   "Forward to (`lispy-slurp' ARG)."
   (interactive "p")
@@ -9466,6 +9647,7 @@ When ARG is non-nil, unquote the current string."
       (lispy--out-forward 1))
     (lispy-slurp arg)))
 
+;;;###autoload
 (defun lispy-forward-barf-sexp (arg)
   "Forward to (`lispy-barf' ARG)."
   (interactive "p")
@@ -9474,6 +9656,7 @@ When ARG is non-nil, unquote the current string."
       (lispy--out-forward 1))
     (lispy-barf arg)))
 
+;;;###autoload
 (defun lispy-backward-slurp-sexp (arg)
   "Forward to (`lispy-slurp' ARG)."
   (interactive "p")
@@ -9482,6 +9665,7 @@ When ARG is non-nil, unquote the current string."
       (lispy--out-backward 1))
     (lispy-slurp arg)))
 
+;;;###autoload
 (defun lispy-backward-barf-sexp (arg)
   "Forward to (`lispy-barf' ARG)."
   (interactive "p")
