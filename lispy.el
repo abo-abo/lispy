@@ -4422,7 +4422,8 @@ Return the result of the last evaluation as a string."
       (cons beg end))))
 
 (defun lispy-eval-single-outline ()
-  (let* ((bnd (lispy--eval-bounds-outline))
+  (let* ((pt (point))
+         (bnd (lispy--eval-bounds-outline))
          (res (lispy--eval
                (lispy--string-dwim bnd))))
     (when (and (null res)
@@ -4445,7 +4446,7 @@ Return the result of the last evaluation as a string."
              (unless (looking-at (concat "\n" lispy-outline-header))
                (newline))
              (lispy--insert-eval-result res))
-           (goto-char (car bnd))
+           (goto-char pt)
            res)
           (t
            (message (replace-regexp-in-string "%" "%%" res))))))
