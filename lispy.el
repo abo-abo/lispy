@@ -1646,16 +1646,23 @@ When ARG is more than 1, mark ARGth element."
 (defun lispy-kill-at-point ()
   "Kill the quoted string or the list that includes the point."
   (interactive)
-  (if (region-active-p)
-      (lispy--maybe-safe-kill-region (region-beginning)
-                                     (region-end))
-    (let ((bounds (or (lispy--bounds-comment)
-                      (lispy--bounds-string)
-                      (lispy--bounds-list))))
-      (if buffer-read-only
-          (kill-new (buffer-substring
-                     (car bounds) (cdr bounds)))
-        (kill-region (car bounds) (cdr bounds))))))
+  (cond ((region-active-p)
+         (lispy--maybe-safe-kill-region (region-beginning)
+                                        (region-end)))
+        ((derived-mode-p 'text-mode)
+         (let ((beg (save-excursion
+                      (1+ (re-search-backward "[ \t\n]" nil t))))
+               (end (save-excursion
+                      (1- (re-search-forward "[ \t\n]" nil t)))))
+           (kill-region beg end)))
+        (t
+         (let ((bounds (or (lispy--bounds-comment)
+                           (lispy--bounds-string)
+                           (lispy--bounds-list))))
+           (if buffer-read-only
+               (kill-new (buffer-substring
+                          (car bounds) (cdr bounds)))
+             (kill-region (car bounds) (cdr bounds)))))))
 
 (defun lispy-new-copy ()
   "Copy marked region or sexp to kill ring."
