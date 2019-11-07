@@ -1332,10 +1332,11 @@ will kill the whole sexp (string or list).")
   "Delete any syntax before an opening delimiter such as '.
 Delete backwards to the closest whitespace char or opening delimiter or to the
 beginning of the line."
-  (let ((pt (point)))
-    (re-search-backward (concat "[[:space:]]" "\\|"
-                                lispy-left "\\|"
-                                "^"))
+  (let ((pt (point))
+        (end (save-excursion (re-search-backward ")" nil t))))
+    (re-search-backward
+     (concat "[[:space:]]" "\\|" lispy-left "\\|" "^")
+     end t)
     (goto-char (match-end 0))
     (delete-region (point) pt)))
 
