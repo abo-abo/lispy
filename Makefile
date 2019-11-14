@@ -22,7 +22,7 @@ test:
 	$(BEMACS) -l lispy-test.el $(LOAD) -f ert-run-tests-batch-and-exit
 
 plain:
-	$(QEMACS) lispy.el
+	$(QEMACS) -l elpa.el lispy.el
 
 clojure:
 	clojure -e '(load-file "targets/tlc.clj")'

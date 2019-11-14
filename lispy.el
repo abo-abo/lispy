@@ -154,6 +154,7 @@
 (require 'swiper)
 (require 'pcase)
 (require 'hydra)
+(eval-after-load 'cider '(require 'le-clojure))
 
 (defsubst lispy-looking-back (regexp)
   "Forward to (`looking-back' REGEXP)."
