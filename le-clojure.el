@@ -67,25 +67,25 @@
   (lispy--clojure-detect-ns)
   (let (c-str)
     (unless (stringp e-str)
-      (setq e-str (lispy--string-dwim))
-      (setq c-str (let ((deactivate-mark nil)
-                        (lispy-ignore-whitespace t))
-                    (save-mark-and-excursion
-                      (lispy--out-backward 1)
-                      (deactivate-mark)
-                      (lispy--string-dwim)))))
+      (setq e-str (lispy--string-dwim)))
+    (setq c-str (let ((deactivate-mark nil)
+                      (lispy-ignore-whitespace t))
+                  (save-mark-and-excursion
+                    (lispy--out-backward 1)
+                    (deactivate-mark)
+                    (lispy--string-dwim))))
     (let ((f-str
            (cond
-             ((eq major-mode 'clojurescript-mode)
-              e-str)
-             (lispy--clojure-middleware-loaded-p
-              (format (if (memq this-command '(special-lispy-eval
-                                               special-lispy-eval-and-insert))
-                          "(lispy-clojure/pp (lispy-clojure/reval %S %S :file %S :line %S))"
-                        "(lispy-clojure/reval %S %S :file %S :line %S)")
-                      e-str c-str (buffer-file-name) (line-number-at-pos)))
-             (t
-              e-str))))
+            ((eq major-mode 'clojurescript-mode)
+             e-str)
+            (lispy--clojure-middleware-loaded-p
+             (format (if (memq this-command '(special-lispy-eval
+                                              special-lispy-eval-and-insert))
+                         "(lispy-clojure/pp (lispy-clojure/reval %S %S :file %S :line %S))"
+                       "(lispy-clojure/reval %S %S :file %S :line %S)")
+                     e-str c-str (buffer-file-name) (line-number-at-pos)))
+            (t
+             e-str))))
       (cond ((eq current-prefix-arg 7)
              (kill-new f-str))
             ((and (eq current-prefix-arg 0)
