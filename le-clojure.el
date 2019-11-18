@@ -23,7 +23,6 @@
 ;;; Code:
 
 ;;* Requires
-(require 'lispy)
 (require 'cider-client nil t)
 (require 'cider-connection nil t)
 (require 'cider-eval nil t)
