@@ -7414,7 +7414,7 @@ See https://clojure.org/guides/weird_characters#_character_literal.")
                                            (match-string-no-properties 1)))))
                 ;; ——— Clojure keyword —————————
                 (goto-char (point-min))
-                (while (re-search-forward "\\(:\\.[^][({}) \t\n\r]+\\)" nil t)
+                (while (re-search-forward "\\(:\\.[^][({}) \t\n\r\"]+\\)" nil t)
                   (unless (lispy--in-string-or-comment-p)
                     (replace-match (format "(ly-raw clojure-keyword %S)"
                                            (match-string-no-properties 1)))))
