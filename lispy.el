@@ -4809,24 +4809,24 @@ When ARG is non-nil, force select the window."
          (lispy-complain
           (format "%s isn't supported currently" major-mode)))))
 
-(defvar lispy-bof-last-point 1)
+(defvar lispy--pams (make-hash-table))
 
 (defun lispy-pam-store (sym)
   "Store point and mark to SYM."
   (if (region-active-p)
       (progn
-        (set sym (cons (point) (mark)))
+        (puthash sym (cons (point) (mark)) lispy--pams)
         (deactivate-mark))
-    (set sym (point))))
+    (puthash sym (point) lispy--pams)))
 
 (defun lispy-pam-restore (sym)
   "Restore point and mark from FROM."
-  (let ((val (symbol-value sym)))
-    (if (consp val)
-        (progn
-          (goto-char (car val))
-          (set-mark (cdr val)))
-      (goto-char val))))
+  (let ((val (gethash sym lispy--pams)))
+    (cond ((consp val)
+           (goto-char (car val))
+           (set-mark (cdr val)))
+          ((numberp val)
+           (goto-char val)))))
 
 (defun lispy-beginning-of-defun (&optional arg)
   "Forward to `beginning-of-defun' with ARG.  Deactivate region.
@@ -4834,9 +4834,10 @@ When called twice in a row, restore point and mark."
   (interactive "p")
   (cond ((and (called-interactively-p 'any)
               (looking-at "^(")
-              (let ((pt (if (consp lispy-bof-last-point)
-                            (car lispy-bof-last-point)
-                          lispy-bof-last-point)))
+              (let* ((lispy-bof-last-point (gethash 'lispy-bof-last-point lispy--pams))
+                     (pt (if (consp lispy-bof-last-point)
+                             (car lispy-bof-last-point)
+                           lispy-bof-last-point)))
                 (and
                  (> pt (point))
                  (<= pt (save-excursion (forward-list) (point))))))
