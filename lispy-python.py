@@ -190,6 +190,9 @@ def print_elisp(obj, end="\n"):
     if hasattr(obj, "_asdict"):
         # namedtuple
         print_elisp(obj._asdict(), end)
+    elif hasattr(obj, "__array__"):
+        # something that converts to a numpy array
+        print_elisp(list(obj.__array__()))
     elif isinstance(obj, dict):
         print("(")
         for (k, v) in obj.items():
