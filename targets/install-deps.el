@@ -36,7 +36,7 @@
     (condition-case nil
         (progn
           (package-install package)
-          (message "%S: ...OK" package))
+          (message "%S: OK" package))
       (error
        (message "%S: FAIL" package)))))
 
