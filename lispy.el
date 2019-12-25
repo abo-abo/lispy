@@ -3087,9 +3087,12 @@ Useful for propagating `let' bindings."
              (indent-sexp))))))
 
 (defun lispy-split-let-binding ()
-  (when (save-excursion
-          (lispy--out-backward 2)
-          (looking-at "(let"))
+  (when (and
+         (or (lispy-left-p)
+             (lispy-right-p))
+         (save-excursion
+           (lispy--out-backward 2)
+           (looking-at "(let")))
     (save-excursion
       (lispy--out-forward 2)
       (insert ")"))
