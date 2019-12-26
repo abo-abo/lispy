@@ -1344,7 +1344,9 @@ Insert KEY if there's no command."
   (should (string= (lispy-with clojure "[1 2 |5]" (kbd "M-j"))
                    "[1 2]\n|[5]"))
   (should (string= (lispy-with clojure "{:chapter 2 |:verse 9}" (kbd "M-j"))
-                   "{:chapter 2}\n|{:verse 9}")))
+                   "{:chapter 2}\n|{:verse 9}"))
+  (should (string= (lispy-with "(let ((x 1))\n  (setq y 2|\n        z 3))" (kbd "M-j"))
+                   "(let ((x 1))\n  (setq y 2)\n  |(\n   z 3))")))
 
 (ert-deftest lispy-move-up ()
   (should (string= (lispy-with "((a) (b) |(c))" "w")
