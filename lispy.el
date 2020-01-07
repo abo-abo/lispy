@@ -6021,31 +6021,6 @@ X is an item of a radio- or choice-type defcustom."
                 (list 'quote x)
               x)))))
 
-(defun lispy-setq ()
-  "Set variable at point, with completion."
-  (interactive)
-  (let ((sym (intern-soft (thing-at-point 'symbol)))
-        sym-type
-        cands)
-    (when (and (boundp sym)
-               (setq sym-type (get sym 'custom-type)))
-      (cond
-        ((and (consp sym-type)
-              (memq (car sym-type) '(choice radio)))
-         (setq cands (mapcar #'lispy--setq-doconst (cdr sym-type))))
-        ((eq sym-type 'boolean)
-         (setq cands
-               '(("nil" . nil) ("t" . t))))
-        (t
-         (error "Unrecognized custom type")))
-      (let ((res (ivy-read (format "Set (%S): " sym) cands)))
-        (when res
-          (setq res
-                (if (assoc res cands)
-                    (cdr (assoc res cands))
-                  (read res)))
-          (eval `(setq ,sym ,res)))))))
-
 (unless (fboundp 'macrop)
   (defun macrop (object)
     "Non-nil if and only if OBJECT is a macro."
