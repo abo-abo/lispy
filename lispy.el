@@ -7375,6 +7375,8 @@ See https://clojure.org/guides/weird_characters#_character_literal.")
                       (insert (format "(ly-raw char %S)" sexp)))))
                 ;; ——— \ char syntax (Clojure)—
                 (lispy--read-replace lispy--clojure-char-literal-regex "clojure-char")
+                (when (eq major-mode 'clojure-mode)
+                  (lispy--read-replace ",+" "clojure-commas"))
                 ;; ——— (.method ) calls (Clojure)
                 (lispy--read-replace "(\\(\\.\\(?:\\sw\\|\\s_\\)+\\)" "clojure-symbol" 1)
                 ;; ——— \ char syntax (LISP)————
@@ -8141,7 +8143,7 @@ The outer delimiters are stripped."
           (char
            (delete-region beg (point))
            (insert "?" (cl-caddr sxp)))
-          (clojure-char
+          ((clojure-char clojure-commas)
            (delete-region beg (point))
            (insert (cl-caddr sxp)))
           (clojure-symbol
