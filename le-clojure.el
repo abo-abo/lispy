@@ -375,6 +375,11 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
                                  (file-name-nondirectory filename)
                                  connection)))))
 
+(defcustom lispy-clojure-middleware-tests t
+  "When non-nil, run the tests from lispy-clojure.clj when loading it."
+  :type 'boolean
+  :group 'lispy)
+
 (defun lispy--clojure-middleware-load ()
   "Load the custom Clojure code in \"lispy-clojure.clj\"."
   (unless lispy--clojure-middleware-loaded-p
@@ -391,7 +396,10 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
              (lambda (p) (format "(cemerick.pomegranate/add-classpath %S)" p))
              cider-jdk-src-paths
              "\n  "))))
-      (lispy--eval-clojure sources-expr))))
+      (lispy--eval-clojure sources-expr))
+    (when lispy-clojure-middleware-tests
+      (lispy-message
+       (lispy--eval-clojure "(lispy-clojure/run-lispy-tests)")))))
 
 (defun lispy-flatten--clojure (_arg)
   "Inline a Clojure function at the point of its call."
