@@ -1849,9 +1849,10 @@ Insert KEY if there's no command."
             (lispy--read "(1 2 3 1 2 . #2)")
             0 'emacs-lisp-mode)
            "(1 2 3 1 2 . #2)"))
-  (should (equal (lispy--read "(progn `(lambda () ,(+ 2 2) ,@(number-sequence 1 3)))")
-                 '(progn
-                   (ly-raw \` (lambda (ly-raw empty) (ly-raw \, (+ 2 2)) (ly-raw comma-splice (number-sequence 1 3)))))))
+  (let ((major-mode 'emacs-lisp-mode))
+    (should (equal (lispy--read "(progn `(lambda () ,(+ 2 2) ,@(number-sequence 1 3)))")
+                   '(progn
+                     (ly-raw \` (lambda (ly-raw empty) (ly-raw \, (+ 2 2)) (ly-raw comma-splice (number-sequence 1 3))))))))
   (should (equal
            (lispy--read "#(\"]\" 0 1 (face hydra-face-red))")
            '(ly-raw clojure-lambda ((ly-raw string "\"]\"")
@@ -1868,7 +1869,7 @@ Insert KEY if there's no command."
   (should (equal (lispy-with-v clj
                      "|(list \\a \\b \\. \\, \\c \\space \\tab \\u03A9)"
                    (lispy--read (lispy--string-dwim)))
-                 '(list
+                 '((ly-raw clojure-symbol "list")
                    (ly-raw clojure-char "\\a")
                    (ly-raw clojure-char "\\b")
                    (ly-raw clojure-char "\\.")
@@ -1880,7 +1881,7 @@ Insert KEY if there's no command."
   (should (equal (lispy-with-v clj
                      "|(str \\! \\@ \\# \\$ \\% \\& \\*)"
                    (lispy--read (lispy--string-dwim)))
-                 '(str
+                 '((ly-raw clojure-symbol "str")
                    (ly-raw clojure-char "\\!")
                    (ly-raw clojure-char "\\@")
                    (ly-raw clojure-char "\\#")
@@ -1891,12 +1892,15 @@ Insert KEY if there's no command."
   (should (equal (lispy-with-v clj
                      "|(foo \"#_(bar)\")"
                    (lispy--read (lispy--string-dwim)))
-                 '(foo
+                 '((ly-raw clojure-symbol "foo")
                    (ly-raw string "\"#_(bar)\""))))
   (should (equal (lispy-with-v clj
                      "|{:a {:nested \"map\"}}"
                    (lispy--read (lispy--string-dwim)))
-                 '(ly-raw clojure-map (:a (ly-raw clojure-map (:nested (ly-raw string "\"map\"")))))))
+                 '(ly-raw clojure-map
+                   (:a
+                    (ly-raw clojure-map
+                     (:nested (ly-raw string "\"map\"")))))))
   (should (equal (lispy--read ":.name")
                  '(ly-raw clojure-keyword ":.name"))))
 
