@@ -3695,7 +3695,7 @@ When QUOTED is not nil, assume that EXPR is quoted and ignore some rules."
               (memq (cadr expr) '(clojure-map clojure-set)))
          (list 'ly-raw (cadr expr)
                (lispy-interleave '(ly-raw newline)
-                                 (mapcar #'lispy--multiline-1 (caddr expr))
+                                 (mapcar #'lispy--multiline-1 (cl-caddr expr))
                                  2)))
         (t
          (let ((res nil)
