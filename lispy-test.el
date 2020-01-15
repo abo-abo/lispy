@@ -2121,6 +2121,8 @@ Insert KEY if there's no command."
                  "|(pcase :bar\n  (`,pat pat))"))
   (should (equal (lispy-with "'|(27 ?\\C-g)" "i")
                  "'|(27 ?\\C-g)"))
+  (should (equal (lispy-with clojure "|[?id?,  t_a-b ,,,   Олег ]" "i")
+                 "|[?id?, t_a-b ,,, Олег]"))
   (let ((clojure-align-forms-automatically nil))
     (should (string= (lispy-with clojure "|{\\a   \\b}" "i")
                      "|{\\a \\b}"))
