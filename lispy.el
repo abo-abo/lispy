@@ -4949,7 +4949,7 @@ Sexp is obtained by exiting list ARG times."
         (skip-chars-forward "-([{ `'#")
         (mark-word)))))
 
-(defun lispy--avy-do (regex bnd filter style)
+(defun lispy--avy-do (regex bnd filter style &optional group)
   "Visually select a match to REGEX within BND.
 Filter out the matches that don't match FILTER.
 Use STYLE function to update the overlays."
@@ -4958,7 +4958,8 @@ Use STYLE function to update the overlays."
          (cands (avy--regex-candidates
                  regex
                  (car bnd) (cdr bnd)
-                 filter)))
+                 filter
+                 group)))
     (dolist (x cands)
       (when (> (- (cdar x) (caar x)) 1)
         (cl-incf (caar x))))
