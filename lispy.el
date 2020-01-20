@@ -8724,10 +8724,13 @@ Return an appropriate `setq' expression when in `let', `dolist',
           ((looking-at
             "(cond\\b")
            (let ((re tsexp))
-             `(if ,(car re)
-                  (progn
-                    ,@(cdr re))
-                lispy--eval-cond-msg)))
+             (if (cdr re)
+                 `(if ,(car re)
+                      (progn
+                        ,@(cdr re))
+                    lispy--eval-cond-msg)
+               `(or ,(car re)
+                    lispy--eval-cond-msg))))
           ((looking-at "(pcase\\s-*")
            (goto-char (match-end 0))
            (if (eval (pcase--expand (lispy--read (lispy--string-dwim))
