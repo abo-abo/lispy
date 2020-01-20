@@ -2520,7 +2520,11 @@ Insert KEY if there's no command."
                    (lispy--setq-expression))
                  '(defun greeting nil
                    (message
-                    "Halt! Who goes there?")))))
+                    "Halt! Who goes there?"))))
+  (should (equal (lispy-with-v el "(cond |((pred)))"
+                   (lispy--setq-expression))
+                 '(or (pred)
+                   lispy--eval-cond-msg))))
 
 (ert-deftest lispy-eval-other-window ()
   (setq lispy--eval-sym nil)
