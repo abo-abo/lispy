@@ -2117,6 +2117,8 @@ Insert KEY if there's no command."
                    "|(. object method)"))
   (should (string= (lispy-with clojure "|(range 1e9)" "i")
                    "|(range 1e9)"))
+  (should (string= (lispy-with clojure "|[#db   {:a 1 :b 2}]" "i")
+                   "|[#db {:a 1 :b 2}]"))
   (should (equal (lispy-with "|(pcase :bar\n    (`,pat pat))" "i")
                  "|(pcase :bar\n  (`,pat pat))"))
   (should (equal (lispy-with "'|(27 ?\\C-g)" "i")
