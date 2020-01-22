@@ -2113,6 +2113,8 @@ Insert KEY if there's no command."
                    "|(modify-syntax-entry ?' \"\\\"\" table)"))
   (should (string= (lispy-with clojure "|[#{}]" "i")
                    "|[#{}]"))
+  (should (string= (lispy-with clojure "|[#:foo-bar{:name    \"test\"}]" "i")
+                   "|[#:foo-bar{:name \"test\"}]"))
   (should (string= (lispy-with clojure "|(. object method)" "i")
                    "|(. object method)"))
   (should (string= (lispy-with clojure "|(range 1e9)" "i")

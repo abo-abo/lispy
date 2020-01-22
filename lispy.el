@@ -7258,14 +7258,12 @@ Ignore the matches in strings and comments."
     ("#(" "clojure-lambda")
     ("#{" "clojure-set")
     ("{" "clojure-map")
-    ("#::{" "clojure-namespaced-map")
     ("#?(" "clojure-reader-conditional")))
 
 (defvar lispy--insert-replace-alist-elisp
   '(("#object[" "clojure-object")
     ("#?@(" "clojure-reader-conditional-splice")
     ("#(" "clojure-lambda")
-    ("#::{" "clojure-namespaced-map")
     ("#?(" "clojure-reader-conditional")))
 
 (defun lispy--read-1 ()
@@ -7377,6 +7375,25 @@ See https://clojure.org/guides/weird_characters#_character_literal.")
                 ;; ——— \ char syntax (Clojure)—
                 (when (eq major-mode 'clojure-mode)
                   (lispy--read-replace lispy--clojure-char-literal-regex "clojure-char"))
+                ;; namespaced map #520
+                (when (memq major-mode lispy-clojure-modes)
+                  (goto-char (point-min))
+                  (while (re-search-forward "#:\\(?:\\sw\\|\\s_\\)+ *{" nil t)
+                    (let* ((head-beg (match-beginning 0))
+                           (head-end (match-end 0))
+                           (head (match-string 0))
+                           str-mid)
+                      (unless (lispy--in-string-or-comment-p)
+                        (backward-char 1)
+                        (save-excursion
+                          (with-syntax-table lispy--braces-table
+                            (forward-list 1))
+                          (setq str-mid (buffer-substring-no-properties head-end (1- (point))))
+                          (delete-region head-beg (point)))
+                        (insert "(ly-raw clojure-namespaced-map \""
+                                (replace-regexp-in-string "[{ ]+" "" (substring-no-properties head))
+                                "\" (" str-mid "))")
+                        (backward-char (+ 3 (length str-mid)))))))
                 ;; ——— #{ or { or #( or @( or #?( or #?@( ——————————
                 (lispy--read-1)
                 ;; ——— ? char syntax ——————————
@@ -8198,7 +8215,9 @@ The outer delimiters are stripped."
            (goto-char beg))
           (clojure-namespaced-map
            (delete-region beg (point))
-           (insert (format "#::{%s}" (lispy--splice-to-str (cl-caddr sxp))))
+           (insert (format "%s{%s}"
+                           (nth 2 sxp)
+                           (lispy--splice-to-str (car (nthcdr 3 sxp)))))
            (goto-char beg))
           (clojure-deref-list
            (delete-region beg (point))
