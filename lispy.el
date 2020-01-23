@@ -3701,10 +3701,10 @@ When QUOTED is not nil, assume that EXPR is quoted and ignore some rules."
                                  (mapcar #'lispy--multiline-1 (cl-caddr expr))
                                  2)))
         ((and (eq (car-safe expr) 'ly-raw)
-              (eq (nth 1 expr) 'clojure-namespaced-map))
-         (list 'ly-raw (nth 1 expr) (nth 2 expr)
+              (eq (nth 1 expr) 'splice))
+         (list 'ly-raw (nth 1 expr) (nth 2 expr) (nth 3 expr)
                (lispy-interleave '(ly-raw newline)
-                                 (mapcar #'lispy--multiline-1 (car (nthcdr 3 expr)))
+                                 (mapcar #'lispy--multiline-1 (car (nthcdr 4 expr)))
                                  2)))
         (t
          (let ((res nil)
@@ -7387,21 +7387,25 @@ See https://clojure.org/guides/weird_characters#_character_literal.")
                 ;; namespaced map #520
                 (when (memq major-mode lispy-clojure-modes)
                   (goto-char (point-min))
-                  (while (re-search-forward "#:\\(?:\\sw\\|\\s_\\)+ *{" nil t)
+                  (while (re-search-forward "#\\(?:js\\|:\\(?:\\sw\\|\\s_\\)+\\) *\\(?:{\\|\\[\\)" nil t)
                     (let* ((head-beg (match-beginning 0))
                            (head-end (match-end 0))
                            (head (match-string 0))
-                           str-mid)
+                           str-mid tail)
                       (unless (lispy--in-string-or-comment-p)
                         (backward-char 1)
                         (save-excursion
                           (with-syntax-table lispy--braces-table
                             (forward-list 1))
                           (setq str-mid (buffer-substring-no-properties head-end (1- (point))))
+                          (setq tail (buffer-substring-no-properties (1- (point)) (point)))
                           (delete-region head-beg (point)))
-                        (insert "(ly-raw clojure-namespaced-map \""
-                                (replace-regexp-in-string "[{ ]+" "" (substring-no-properties head))
-                                "\" (" str-mid "))")
+                        (insert
+                         (format
+                          "(ly-raw splice \"%s\" \"%s\" (%s))"
+                          (replace-regexp-in-string " +" "" (substring-no-properties head))
+                          tail
+                          str-mid))
                         (backward-char (+ 3 (length str-mid)))))))
                 ;; ——— #{ or { or #( or @( or #?( or #?@( ——————————
                 (lispy--read-1)
@@ -8222,11 +8226,12 @@ The outer delimiters are stripped."
            (delete-region beg (point))
            (insert (format "#object[%s]" (lispy--splice-to-str (cl-caddr sxp))))
            (goto-char beg))
-          (clojure-namespaced-map
+          (splice
            (delete-region beg (point))
-           (insert (format "%s{%s}"
-                           (nth 2 sxp)
-                           (lispy--splice-to-str (car (nthcdr 3 sxp)))))
+           (insert
+            (nth 2 sxp)
+            (lispy--splice-to-str (car (nthcdr 4 sxp)))
+            (nth 3 sxp))
            (goto-char beg))
           (clojure-deref-list
            (delete-region beg (point))

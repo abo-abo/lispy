@@ -2125,6 +2125,8 @@ Insert KEY if there's no command."
                    "|(range 1e9)"))
   (should (string= (lispy-with clojure "|[#db   {:a 1 :b 2}]" "i")
                    "|[#db {:a 1 :b 2}]"))
+  (should (string= (lispy-with clojure "|[#js  [#js   {:a   true}]]" "i")
+                   "|[#js[#js{:a true}]]"))
   (should (equal (lispy-with "|(pcase :bar\n    (`,pat pat))" "i")
                  "|(pcase :bar\n  (`,pat pat))"))
   (should (equal (lispy-with "'|(27 ?\\C-g)" "i")
