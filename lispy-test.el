@@ -1523,6 +1523,8 @@ Insert KEY if there's no command."
                      "#|{:king \"Arthur\"\n  :knight \"Lancelot\"}"))
     (should (string= (lispy-with clojure "|(let [name \"Launcelot\" quest 'grail color 'blue] (print \"Right. Off you go\"))" "M")
                      "|(let [name \"Launcelot\"\n      quest 'grail\n      color 'blue]\n  (print\n   \"Right. Off you go\"))"))
+    (should (string= (lispy-with clojure "|(when long-enough-line #:car{:name \"a-name\" :type \"a-type\"} #:bike{:name \"a-name\" :type \"a-type\"})" "M")
+                     "|(when\n    long-enough-line\n    #:car{:name \"a-name\"\n          :type \"a-type\"}\n    #:bike{:name \"a-name\"\n           :type \"a-type\"})"))
     (should (string= (lispy-with "(eval-when-compile(require'cl)(require'org))|" "M")
                      "(eval-when-compile\n  (require 'cl)\n  (require 'org))|"))
     (should (string= (lispy-with "|(defgroup lispy nil \"List navigation and editing for the Lisp family.\" :group 'bindings :prefix \"lispy-\")" "M")

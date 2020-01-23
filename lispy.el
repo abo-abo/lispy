@@ -3700,6 +3700,12 @@ When QUOTED is not nil, assume that EXPR is quoted and ignore some rules."
                (lispy-interleave '(ly-raw newline)
                                  (mapcar #'lispy--multiline-1 (cl-caddr expr))
                                  2)))
+        ((and (eq (car-safe expr) 'ly-raw)
+              (eq (nth 1 expr) 'clojure-namespaced-map))
+         (list 'ly-raw (nth 1 expr) (nth 2 expr)
+               (lispy-interleave '(ly-raw newline)
+                                 (mapcar #'lispy--multiline-1 (car (nthcdr 3 expr)))
+                                 2)))
         (t
          (let ((res nil)
                elt)
