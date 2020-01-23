@@ -1742,7 +1742,10 @@ When this function is called:
             (backward-char))
            (t
             ;; don't jump backwards or out of a list when not at a sexp
-            (unless (lispy--not-at-sexp-p ,preceding-syntax-alist)
+            (unless (or (lispy--not-at-sexp-p ,preceding-syntax-alist)
+                        (and (memq major-mode lispy-clojure-modes)
+                             (looking-at lispy-left)
+                             (lispy-after-string-p "#")))
               (when (lispy--bounds-dwim)
                 (goto-char (car (lispy--bounds-dwim)))))
             (lispy--indent-for-tab)

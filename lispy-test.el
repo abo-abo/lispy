@@ -1972,7 +1972,9 @@ Insert KEY if there's no command."
   (should (string= (lispy-with clojure "#|" "(")
                    "#(|)"))
   (should (string= (lispy-with clojure "#?@|" "(")
-                   "#?@(|)")))
+                   "#?@(|)"))
+  (should (string= (lispy-with clojure "(map #|(+ % 1) '(1 2 3))" "2(")
+                   "(map #(| (+ % 1)) '(1 2 3))")))
 
 (ert-deftest lispy-braces ()
   (should (string= (lispy-with "\"a regex \\\\|\"" "{")
