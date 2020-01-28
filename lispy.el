@@ -7437,10 +7437,12 @@ See https://clojure.org/guides/weird_characters#_character_literal.")
                                    nil t)))
                 ;; ——— Clojure gensym —————————
                 (goto-char (point-min))
-                (while (re-search-forward "\\([a-zA-Z][a-zA-z-/_0-9]*#\\)" nil t)
+                (while (re-search-forward "\\([a-zA-Z][a-zA-z-/_0-9]*#\\)[ \t\n\r]" nil t)
                   (unless (lispy--in-string-or-comment-p)
-                    (replace-match (format "(ly-raw clojure-gensym %S)"
-                                           (match-string-no-properties 1)))))
+                    (replace-match
+                     (format "(ly-raw clojure-gensym %S)"
+                             (match-string-no-properties 1))
+                     t nil nil 1)))
                 ;; ——— Clojure keyword —————————
                 (goto-char (point-min))
                 (while (re-search-forward "\\(:\\.[^][({}) \t\n\r\"]+\\)" nil t)
