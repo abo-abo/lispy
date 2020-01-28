@@ -485,58 +485,59 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
   (cider-find-var nil symbol))
 
 (defun lispy-clojure-complete-at-point ()
-  (when (car (cider-connections))
-    (ignore-errors
-      (lispy--clojure-detect-ns)
-      (let* ((lispy-ignore-whitespace t)
-             (bnd (or (bounds-of-thing-at-point 'symbol)
-                      (cons (point) (point))))
-             (obj (cond
-                    ((save-excursion
-                       (lispy--out-backward 1)
-                       (looking-at "(\\.\\."))
-                     (concat
-                      (buffer-substring-no-properties (match-beginning 0) (car bnd))
-                      ")"))
-                    ((save-excursion
-                       (lispy--back-to-paren)
-                       (when (looking-at "(\\.[\t\n ]")
-                         (ignore-errors
-                           (forward-char 1)
-                           (forward-sexp 2)
-                           (lispy--string-dwim)))))))
-             res)
-        (cond ((and obj
-                    (setq res (lispy--eval-clojure
-                               (format "(lispy-clojure/object-members %s)" obj)))
-                    (null lispy--clojure-errorp))
-               (let ((cands (read res)))
-                 (when (> (cdr bnd) (car bnd))
-                   (setq cands (all-completions (lispy--string-dwim bnd) cands)))
-                 (list (car bnd) (cdr bnd) cands)))
-              ((save-excursion
-                 (lispy--out-backward 2)
-                 (looking-at "(import"))
-               (let* ((prefix (save-excursion
-                                (lispy--out-backward 1)
-                                (forward-char)
-                                (thing-at-point 'symbol t)))
-                      (cands (read (lispy--eval-clojure
-                                    (format
-                                     "(lispy-clojure/complete %S)"
-                                     prefix))))
-                      (len (1+ (length prefix)))
-                      (candsa (mapcar (lambda (s) (substring s len)) cands)))
-                 (when (> (cdr bnd) (car bnd))
-                   (setq candsa (all-completions (lispy--string-dwim bnd) candsa)))
-                 (list (car bnd) (cdr bnd) candsa)))
-              (t
-               (let* ((prefix (lispy--string-dwim bnd))
-                      (cands (read (lispy--eval-clojure
-                                    (format
-                                     "(lispy-clojure/complete %S)"
-                                     prefix)))))
-                 (list (car bnd) (cdr bnd) cands))))))))
+  (cond ((lispy-complete-fname-at-point))
+        ((car (cider-connections))
+         (ignore-errors
+           (lispy--clojure-detect-ns)
+           (let* ((lispy-ignore-whitespace t)
+                  (bnd (or (bounds-of-thing-at-point 'symbol)
+                           (cons (point) (point))))
+                  (obj (cond
+                         ((save-excursion
+                            (lispy--out-backward 1)
+                            (looking-at "(\\.\\."))
+                          (concat
+                           (buffer-substring-no-properties (match-beginning 0) (car bnd))
+                           ")"))
+                         ((save-excursion
+                            (lispy--back-to-paren)
+                            (when (looking-at "(\\.[\t\n ]")
+                              (ignore-errors
+                                (forward-char 1)
+                                (forward-sexp 2)
+                                (lispy--string-dwim)))))))
+                  res)
+             (cond ((and obj
+                         (setq res (lispy--eval-clojure
+                                    (format "(lispy-clojure/object-members %s)" obj)))
+                         (null lispy--clojure-errorp))
+                    (let ((cands (read res)))
+                      (when (> (cdr bnd) (car bnd))
+                        (setq cands (all-completions (lispy--string-dwim bnd) cands)))
+                      (list (car bnd) (cdr bnd) cands)))
+                   ((save-excursion
+                      (lispy--out-backward 2)
+                      (looking-at "(import"))
+                    (let* ((prefix (save-excursion
+                                     (lispy--out-backward 1)
+                                     (forward-char)
+                                     (thing-at-point 'symbol t)))
+                           (cands (read (lispy--eval-clojure
+                                         (format
+                                          "(lispy-clojure/complete %S)"
+                                          prefix))))
+                           (len (1+ (length prefix)))
+                           (candsa (mapcar (lambda (s) (substring s len)) cands)))
+                      (when (> (cdr bnd) (car bnd))
+                        (setq candsa (all-completions (lispy--string-dwim bnd) candsa)))
+                      (list (car bnd) (cdr bnd) candsa)))
+                   (t
+                    (let* ((prefix (lispy--string-dwim bnd))
+                           (cands (read (lispy--eval-clojure
+                                         (format
+                                          "(lispy-clojure/complete %S)"
+                                          prefix)))))
+                      (list (car bnd) (cdr bnd) cands)))))))))
 
 (defun lispy--clojure-dot-args ()
   (save-excursion
