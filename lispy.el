@@ -4354,8 +4354,12 @@ When ARG is 2, insert the result as a comment."
                       (require 'cider nil t))
                   (cider--display-interactive-eval-result
                    res (cdr (lispy--bounds-dwim))))
+                 ((or (fboundp 'eros--eval-overlay)
+                      (require 'eros nil t))
+                  (eros--eval-overlay
+                   res (cdr (lispy--bounds-dwim))))
                  (t
-                  (error "Please install CIDER >= 0.10 to display overlay")))))))
+                  (error "Please install CIDER >= 0.10 or eros to display overlay")))))))
 
 (defun lispy--eval-default ()
   (save-excursion
