@@ -4325,6 +4325,7 @@ SYMBOL is a string."
   "The eval function may set this when there's an error.")
 
 (declare-function cider--display-interactive-eval-result "ext:cider-overlays")
+(declare-function eros--eval-overlay "ext:eros")
 
 (defun lispy-eval (arg)
   "Eval last sexp.
