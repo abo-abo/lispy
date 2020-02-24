@@ -1,0 +1,157 @@
+* Middleware
+Lispy loads the middleware from =lispy-clojure.clj= that has the namespace =lispy-clojure=.
+
+** Dependencies
+The Clojure middleware has only two base dependencies, and loads the others dynamically.
+
+If you use =lispy-eval= or =cider-jack-in= to connect, the dependencies are already added to
+=cider-jack-in-dependencies= automatically.
+
+Alternatively, add this to file:~/.lein/profiles.clj:
+#+begin_src clojure
+{:user {:dependencies
+        [[org.tcrawley/dynapath "0.2.5"]
+         [com.cemerick/pomegranate "0.4.0"]]}}
+#+end_src
+
+Alternatively, add this to file:/~/.clojure/deps.edn:
+#+begin_src clojure
+{:deps {org.tcrawley/dynapath    {:mvn/version "0.2.5"}
+        com.cemerick/pomegranate {:mvn/version "0.4.0"}}}
+#+end_src
+
+
+* Shadows
+Lispy tries to support a very REPL-driven approach to development.  Both when writing new
+code and when debugging the old code, [[https://mitpress.mit.edu/sites/default/files/sicp/full-text/book/book-Z-H-10.html#%25_sec_1.1.5][Always Be Evaling]].
+
+Unfortunately, things like let-bindings have an all-or-nothing eval:
+#+begin_src clojure
+(let [x1 (range 10)
+      ;; => (0 1 2 3 4 5 6 7 8 9)
+      x2 (map #(* % %) x1)
+      x3 (partition 2 x2)]
+  (second x3))
+;; => (4 9)
+#+end_src
+
+In the above example, we can eval only the first and the last step. But not the middle
+steps, since =x1= and =x2= are not bound.  The middle steps are actually very important to
+understanding the context of the program.  Imagine a sequence of functions calls from a
+library you're not particularly familiar with: seeing their return result is a good way to
+familiarize yourself with them.
+
+Here's a simplistic way to overcome it:
+#+begin_src clojure
+(do (def x1 (range 10)) x1)
+;; => (0 1 2 3 4 5 6 7 8 9)
+(do (def x2 (map #(* % %) x1)) x2)
+;; => (0 1 4 9 16 25 36 49 64 81)
+(do (def x3 (partition 2 x2)) x3)
+;; => ((0 1) (4 9) (16 25) (36 49) (64 81))
+(second x3)
+;; => (4 9)
+#+end_src
+
+Two problems with this approach:
+- We have to rewrite the code
+- We pollute the namespace
+
+Lispy solves both of these problems. Firstly, an equivalent of the above code is run
+without having to rewrite it. Simply press ~e~ on the value of the binding.
+
+Secondly, the namespace isn't actully polluted. These "shadow" bindings are stored into a
+single dictionary variable in the current namespace called =shadows=. And when you call ~e~ on
+the third expression =(partition 2 x2)=, this is what =lispy.el= passes to the middleware:
+#+begin_src clojure
+(lispy-clojure/reval
+  "(partition 2 x2)"
+  "[x1 (range 10)\n      x2 (map #(* %) x1)\n      x3 (partition 2 x2)]"
+  "test.clj" 1)
+#+end_src
+
+which expands to (I used ~xj~ and ~2e~ to eval and insert all those comments in place):
+#+begin_src clojure
+(ns lispy-clojure)
+
+(let [x1 (range 10)
+      x2 (map #(* % %) x1)
+      x3 (partition 2 x2)]
+  (second x3))
+
+(defn reval [e-str context-str & {:keys [file line]}]
+  (let [expr (read-string e-str)
+        ;; => (partition 2 x2)
+        context (try
+                  (read-string context-str)
+                  (catch Exception _))
+        ;; =>
+        ;; [x1
+        ;;  (range 10)
+        ;;  x2
+        ;;  (map (fn* [p1__8686#] (* p1__8686#)) x1)
+        ;;  x3
+        ;;  (partition 2 x2)]
+        full-expr (read-string (format "[%s]" e-str))
+        ;; => [(partition 2 x2)]
+        expr1 (xcond
+                ((nil? context-str)
+                 ;; => false
+                 (cons 'do full-expr))
+                ((= (count full-expr) 2)
+                 ;; => false
+                 (shadow-dest full-expr))
+                ((add-location-to-deflike expr file line)
+                 ;; => nil
+                 )
+                (:else
+                 (guess-intent expr context)
+                 ;; => (partition 2 x2)
+                 ))
+        ;; =>
+        ;; (clojure.core/let
+        ;;  [x3 (partition 2 x2)]
+        ;;  (lispy-clojure/shadow-def 'x3 x3)
+        ;;  {:x3 x3})
+        ]
+    (eval `(with-shadows
+             (try
+               (do ~expr1)
+               (catch Exception ~'e
+                 (clojure.core/str "error: " ~ 'e))))
+          ;; =>
+          ;; (lispy-clojure/with-shadows
+          ;;  (try
+          ;;   (do
+          ;;    (clojure.core/let
+          ;;     [x3 (partition 2 x2)]
+          ;;     (lispy-clojure/shadow-def 'x3 x3)
+          ;;     {:x3 x3}))
+          ;;   (catch java.lang.Exception e (clojure.core/str "error: " e))))
+          )
+    ;; => {:x3 ((0 1) (4 9) (16 25) (36 49) (64 81))}
+    ))
+#+end_src
+
+And finally, the expansion =lispy-clojure/with-shadows= is passed to =eval=:
+#+begin_src clojure
+(let* [x1 ((lispy-clojure/shadow-map) "x1")
+       x2 ((lispy-clojure/shadow-map) "x2")]
+  (try
+    (do
+      (clojure.core/let
+          [x3 (partition 2 x2)]
+          (lispy-clojure/shadow-def
+            (quote x3)
+            x3)
+          {:x3 x3}))
+    (catch java.lang.Exception
+        e
+        (clojure.core/str "error: " e))))
+;; => {:x3 ((0 1) (4 9) (16 25) (36 49) (64 81))}
+#+end_src
+
+Here's a quick way to clean up all shadow variables:
+#+begin_src clojure
+(lispy-clojure/shadow-unmap *ns*)
+#+end_src
