@@ -4318,6 +4318,8 @@ SYMBOL is a string."
      le-julia lispy-eval-julia nil lispy-eval-julia-str)
     (clojure-mode
      le-clojure lispy-eval-clojure nil nil)
+    (clojurescript-mode
+     le-clojure lispy-eval-clojure nil nil)
     (racket-mode
      le-racket lispy-eval-racket nil nil)))
 

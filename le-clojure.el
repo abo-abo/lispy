@@ -215,7 +215,8 @@ When ADD-OUTPUT is non-nil, add the standard output to the result."
 (defun lispy--eval-nrepl-clojure (str &optional namespace)
   (nrepl-sync-request:eval
    str
-   (cider-current-connection)
+   (or (cider-current-connection)
+       (car (cider-connections)))
    namespace))
 
 (defvar spiral-conn-id)
