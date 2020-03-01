@@ -16,6 +16,7 @@
   '(iedit
     multiple-cursors
     cider
+    company
     spiral
     slime
     sly
