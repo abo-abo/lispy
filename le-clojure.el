@@ -490,12 +490,12 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
         ((car (cider-connections))
          (ignore-errors
            (lispy--clojure-detect-ns)
-           (let* ((lispy-ignore-whitespace t)
-                  (bnd (or (bounds-of-thing-at-point 'symbol)
+           (let* ((bnd (or (bounds-of-thing-at-point 'symbol)
                            (cons (point) (point))))
                   (obj (cond
                          ((save-excursion
-                            (lispy--out-backward 1)
+                            (let ((lispy-ignore-whitespace t))
+                              (lispy--out-backward 1))
                             (looking-at "(\\.\\."))
                           (concat
                            (buffer-substring-no-properties (match-beginning 0) (car bnd))
