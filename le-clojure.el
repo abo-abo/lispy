@@ -517,7 +517,8 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
                         (setq cands (all-completions (lispy--string-dwim bnd) cands)))
                       (list (car bnd) (cdr bnd) cands)))
                    ((save-excursion
-                      (lispy--out-backward 2)
+                      (let ((lispy-ignore-whitespace t))
+                        (lispy--out-backward 2))
                       (looking-at "(import"))
                     (let* ((prefix (save-excursion
                                      (lispy--out-backward 1)
