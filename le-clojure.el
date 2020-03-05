@@ -67,10 +67,9 @@
   (let (c-str)
     (unless (stringp e-str)
       (setq e-str (lispy--string-dwim)))
-    (setq c-str (let ((deactivate-mark nil)
-                      (lispy-ignore-whitespace t))
+    (setq c-str (let ((deactivate-mark nil))
                   (save-mark-and-excursion
-                    (lispy--out-backward 1)
+                    (lispy--out-backward 1 t)
                     (deactivate-mark)
                     (lispy--string-dwim))))
     (let ((f-str
@@ -494,8 +493,7 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
                            (cons (point) (point))))
                   (obj (cond
                          ((save-excursion
-                            (let ((lispy-ignore-whitespace t))
-                              (lispy--out-backward 1))
+                            (lispy--out-backward 1 t)
                             (looking-at "(\\.\\."))
                           (concat
                            (buffer-substring-no-properties (match-beginning 0) (car bnd))
@@ -517,11 +515,10 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
                         (setq cands (all-completions (lispy--string-dwim bnd) cands)))
                       (list (car bnd) (cdr bnd) cands)))
                    ((save-excursion
-                      (let ((lispy-ignore-whitespace t))
-                        (lispy--out-backward 2))
+                      (lispy--out-backward 2 t)
                       (looking-at "(import"))
                     (let* ((prefix (save-excursion
-                                     (lispy--out-backward 1)
+                                     (lispy--out-backward 1 t)
                                      (forward-char)
                                      (thing-at-point 'symbol t)))
                            (cands (read (lispy--eval-clojure

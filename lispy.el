@@ -6755,7 +6755,7 @@ Otherwise return cons of current string, symbol or list bounds."
               'face 'font-lock-constant-face))
 
 ;;* Utilities: movement
-(defun lispy--out-forward (arg)
+(defun lispy--out-forward (arg &optional ignore-ws)
   "Move outside list forwards ARG times.
 Return nil on failure, (point) otherwise."
   (lispy--exit-string)
@@ -6764,7 +6764,7 @@ Return nil on failure, (point) otherwise."
       (if (ignore-errors (up-list) t)
           (if buffer-read-only
               (deactivate-mark)
-            (unless lispy-ignore-whitespace
+            (unless (or ignore-ws lispy-ignore-whitespace)
               (lispy--remove-gaps)
               (lispy--indent-for-tab)))
         (when (lispy-left-p)
@@ -6772,12 +6772,12 @@ Return nil on failure, (point) otherwise."
         (throw 'break nil)))
     (point)))
 
-(defun lispy--out-backward (arg)
+(defun lispy--out-backward (arg &optional ignore-ws)
   "Move outside list forwards ARG times.
 Return nil on failure, t otherwise."
   (let ((oldpt (point))
         newpt)
-    (lispy--out-forward arg)
+    (lispy--out-forward arg ignore-ws)
     (when (lispy-right-p)
       (forward-list -1))
     (if (= oldpt (setq newpt (point)))
