@@ -187,7 +187,7 @@ def arglist(sym):
     return args
 
 def print_elisp(obj, end="\n"):
-    if hasattr(obj, "_asdict"):
+    if hasattr(obj, "_asdict") and obj._asdict is not None:
         # namedtuple
         print_elisp(obj._asdict(), end)
     elif hasattr(obj, "__array__"):
