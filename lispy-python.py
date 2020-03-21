@@ -193,6 +193,11 @@ def print_elisp(obj, end="\n"):
     elif hasattr(obj, "__array__"):
         # something that converts to a numpy array
         print_elisp(list(obj.__array__()))
+    elif isinstance(obj, set):
+        print("(")
+        for v in obj:
+            print_elisp(v, end=" ")
+        print(")")
     elif isinstance(obj, dict):
         print("(")
         for (k, v) in obj.items():
