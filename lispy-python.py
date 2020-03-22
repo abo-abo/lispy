@@ -216,7 +216,7 @@ def print_elisp(obj, end="\n"):
                     print_elisp(x)
                 print(")")
             elif type(obj) is str:
-                print('"' + obj + '"', end=" ")
+                print('"' + re.sub("\"", "\\\"", obj) + '"', end=" ")
             else:
                 print('"' +  repr(obj) + '"', end=" ")
         else:
