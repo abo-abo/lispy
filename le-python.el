@@ -291,9 +291,21 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
     (let* ((vars (match-string 1 str))
            (val (match-string 2 str))
            (len (read (lispy--eval-python (format "len(list(%s))" val) t)))
-           (idx (ivy-read
-                 "idx: "
-                 (mapcar #'number-to-string (number-sequence 0 (1- len))))))
+           (repr (ignore-errors (read (lispy--eval-python (format "lp.print_elisp(%s)" val) t))))
+           (idx
+            (read
+             (ivy-read
+              "idx: "
+              (if repr
+                  (cl-mapcar (lambda (x i)
+                               (concat (number-to-string i)
+                                       " "
+                                       (if (listp x)
+                                           (car x)
+                                         x)))
+                             repr
+                             (number-sequence 0 (1- len)))
+                (mapcar #'number-to-string (number-sequence 0 (1- len))))))))
       (format "%s = list (%s)[%s]\nprint ((%s))"
               vars val idx vars))))
 
