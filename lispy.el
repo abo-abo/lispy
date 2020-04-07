@@ -3837,7 +3837,8 @@ When SILENT is non-nil, don't issue messages."
          (expr (lispy--read str))
          (expr-o (lispy--oneline expr t))
          (expr-m (lispy--multiline-1 expr-o))
-         (leftp (lispy--leftp)))
+         (leftp (lispy--leftp))
+         (print-circle nil))
     (cond ((equal expr expr-m)
            (unless silent
              (message "No change")))
