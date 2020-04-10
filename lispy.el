@@ -9546,7 +9546,7 @@ When ARG is non-nil, unquote the current string."
     ;; navigation
     (define-key map (kbd "C-a") 'lispy-move-beginning-of-line)
     (define-key map (kbd "C-e") 'lispy-move-end-of-line)
-    (define-key map (kbd "M-n") 'lispy-left-maybe)
+    (define-key map (kbd "M-o") 'lispy-left-maybe)
     ;; killing
     (define-key map (kbd "C-k") 'lispy-kill)
     (define-key map (kbd "M-d") 'lispy-kill-word)
@@ -9650,7 +9650,7 @@ When ARG is non-nil, unquote the current string."
     (define-key map (kbd "<M-return>") 'lispy-meta-return)
     (define-key map (kbd "M-k") 'lispy-move-up)
     (define-key map (kbd "M-j") 'lispy-move-down)
-    (define-key map (kbd "M-o") 'lispy-string-oneline)
+    (define-key map (kbd "M-O") 'lispy-string-oneline)
     (define-key map (kbd "M-p") 'lispy-clone)
     (define-key map (kbd "M-\"") 'paredit-meta-doublequote)
     map))
@@ -9698,7 +9698,7 @@ When ARG is non-nil, unquote the current string."
     (define-key map (kbd "<M-return>") 'lispy-meta-return)
     (define-key map (kbd "M-RET") 'lispy-meta-return)
     ;; misc
-    (define-key map (kbd "M-o") 'lispy-string-oneline)
+    (define-key map (kbd "M-O") 'lispy-string-oneline)
     (define-key map (kbd "M-i") 'lispy-iedit)
     (define-key map (kbd "<backtab>") 'lispy-shifttab)
     ;; outline
