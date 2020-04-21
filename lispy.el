@@ -5141,7 +5141,8 @@ When ARG isn't nil, show table of contents."
   (interactive "P")
   (require 'org)
   (outline-minor-mode 1)
-  (let ((org-outline-regexp outline-regexp))
+  (let ((org-outline-regexp outline-regexp)
+        (org-outline-regexp-bol "^;;"))
     (lispy-flet (org-unlogged-message (&rest _x))
       (if arg
           (org-content)
