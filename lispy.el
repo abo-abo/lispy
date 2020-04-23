@@ -4735,10 +4735,7 @@ SYM will take on each value of LST with each eval."
       (setq lispy--eval-data
             (lispy--eval-elisp-form (cadr expr) lexical-binding)))
     (if lispy--eval-data
-        (let* ((popped (pop lispy--eval-data))
-               (popped (if (symbolp popped)
-                           `(quote ,popped)
-                         popped)))
+        (let ((popped (pop lispy--eval-data)))
           (set sym popped))
       (setq lispy--eval-data
             (lispy--eval-elisp-form (cadr expr) lexical-binding))
