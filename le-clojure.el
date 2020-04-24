@@ -48,13 +48,19 @@
 (defvar lispy--clojure-ns "user"
   "Store the last evaluated *ns*.")
 
+(defvar lispy--clojure-namespace-name-regex
+  "^(\\(clojure.core/\\)?\\(in-\\)?ns\\+?[
+[:space:]]+\\(?:\\(?:\\(#?\\^{[^}]*}\\)\\|\\(?:\\^:[^[:space:]]+\\)*\\)[
+[:space:]]+\\)*[':]?\\([^\"()[:space:]]+\\_>\\)"
+  "Store the obsoleted `clojure-namespace-name-regex'.")
+
 (defun lispy--clojure-detect-ns ()
   "When there's only one (ns ...) in the buffer, use it."
   (save-excursion
     (goto-char (point-min))
-    (when (re-search-forward clojure-namespace-name-regex nil t)
+    (when (re-search-forward lispy--clojure-namespace-name-regex nil t)
       (let ((ns (match-string-no-properties 4)))
-        (when (not (re-search-forward clojure-namespace-name-regex nil t))
+        (when (not (re-search-forward lispy--clojure-namespace-name-regex nil t))
           (setq lispy--clojure-ns ns))))))
 
 ;;* User wrapper for eval
