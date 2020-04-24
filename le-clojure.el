@@ -71,6 +71,8 @@
   (cond
     ((eq major-mode 'clojurescript-mode)
      e-str)
+    ((string-match-p "#break" e-str)
+     e-str)
     (lispy--clojure-middleware-loaded-p
      (format (if (memq this-command '(special-lispy-eval
                                       special-lispy-eval-and-insert))
