@@ -70,26 +70,25 @@
 (defun lispy-eval-clojure (e-str &optional _plain)
   "User facing eval."
   (lispy--clojure-detect-ns)
-  (let (c-str)
-    (unless (stringp e-str)
-      (setq e-str (lispy--string-dwim)))
-    (setq c-str (let ((deactivate-mark nil))
-                  (save-mark-and-excursion
-                    (lispy--out-backward 1 t)
-                    (deactivate-mark)
-                    (lispy--string-dwim))))
+  (unless (stringp e-str)
+    (setq e-str (lispy--string-dwim)))
+  (let ((c-str (let ((deactivate-mark nil))
+                 (save-mark-and-excursion
+                   (lispy--out-backward 1 t)
+                   (deactivate-mark)
+                   (lispy--string-dwim)))))
     (let ((f-str
            (cond
-            ((eq major-mode 'clojurescript-mode)
-             e-str)
-            (lispy--clojure-middleware-loaded-p
-             (format (if (memq this-command '(special-lispy-eval
-                                              special-lispy-eval-and-insert))
-                         "(lispy-clojure/pp (lispy-clojure/reval %S %S :file %S :line %S))"
-                       "(lispy-clojure/reval %S %S :file %S :line %S)")
-                     e-str c-str (buffer-file-name) (line-number-at-pos)))
-            (t
-             e-str))))
+             ((eq major-mode 'clojurescript-mode)
+              e-str)
+             (lispy--clojure-middleware-loaded-p
+              (format (if (memq this-command '(special-lispy-eval
+                                               special-lispy-eval-and-insert))
+                          "(lispy-clojure/pp (lispy-clojure/reval %S %S :file %S :line %S))"
+                        "(lispy-clojure/reval %S %S :file %S :line %S)")
+                      e-str c-str (buffer-file-name) (line-number-at-pos)))
+             (t
+              e-str))))
       (cond ((eq current-prefix-arg 7)
              (kill-new f-str))
             ((and (eq current-prefix-arg 0)
