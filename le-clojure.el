@@ -68,38 +68,33 @@
   "Nil if the Clojure middleware in \"lispy-clojure.clj\" wasn't loaded yet.")
 
 (defun lispy--eval-clojure-context (e-str)
-  (let ((c-str
-         (let ((deactivate-mark nil))
-           (save-mark-and-excursion
-             (lispy--out-backward 1 t)
-             (deactivate-mark)
-             (lispy--string-dwim)))))
-    (cond
-      ((eq major-mode 'clojurescript-mode)
-       e-str)
-      (lispy--clojure-middleware-loaded-p
-       (format (if (memq this-command '(special-lispy-eval
-                                        special-lispy-eval-and-insert))
-                   "(lispy-clojure/pp (lispy-clojure/reval %S %S :file %S :line %S))"
-                 "(lispy-clojure/reval %S %S :file %S :line %S)")
-               e-str c-str (buffer-file-name) (line-number-at-pos)))
-      (t
-       e-str))))
+  (cond
+    ((eq major-mode 'clojurescript-mode)
+     e-str)
+    (lispy--clojure-middleware-loaded-p
+     (format (if (memq this-command '(special-lispy-eval
+                                      special-lispy-eval-and-insert))
+                 "(lispy-clojure/pp (lispy-clojure/reval %S %S :file %S :line %S))"
+               "(lispy-clojure/reval %S %S :file %S :line %S)")
+             e-str
+             (condition-case nil
+                 (let ((deactivate-mark nil))
+                   (save-mark-and-excursion
+                     (lispy--out-backward 1 t)
+                     (deactivate-mark)
+                     (lispy--string-dwim)))
+               (error ""))
+             (buffer-file-name)
+             (line-number-at-pos)))
+    (t
+     e-str)))
 
 (defun lispy-eval-clojure (e-str &optional _plain)
   "User facing eval."
   (lispy--clojure-detect-ns)
-  (let ((f-str (lispy--eval-clojure-context e-str)))
-    (cond ((eq current-prefix-arg 7)
-           (kill-new f-str))
-          ((and (eq current-prefix-arg 0)
-                (lispy--eval-clojure-cider
-                 "(lispy-clojure/shadow-unmap *ns*)")
-                nil))
-          ((eq lispy-clojure-eval-method 'spiral)
-           (lispy--eval-clojure-spiral e-str))
-          (t
-           (lispy--eval-clojure-cider f-str e-str)))))
+  (if (eq lispy-clojure-eval-method 'spiral)
+      (lispy--eval-clojure-spiral e-str)
+    (lispy--eval-clojure-cider e-str)))
 
 ;;* Start REPL wrapper for eval
 (defvar lispy--clojure-hook-lambda nil
@@ -132,37 +127,42 @@
 Each entry is (DIRECTORY :host HOSTNAME :port PORT).
 Example: '((\"~/git/luminous-1\" :host \"localhost\" :port 7000))")
 
-(defun lispy--eval-clojure-cider (str &optional add-output)
-  "Eval STR as Clojure code.
-The result is a string.
-
-When ADD-OUTPUT is non-nil, add the standard output to the result."
+(defun lispy--eval-clojure-cider (e-str)
+  "Eval STR as Clojure code and return a string.
+Add the standard output to the result."
   (require 'cider)
   (unless (eq major-mode 'clojurescript-mode)
     (add-hook 'cider-connected-hook #'lispy--clojure-middleware-load))
-  (let (deactivate-mark)
-    (if (null (car (cider-connections)))
-        (progn
-          (setq lispy--clojure-hook-lambda
-                `(lambda ()
-                   (set-window-configuration
-                    ,(current-window-configuration))
-                   (message
-                    (lispy--eval-clojure-1 ,str ,add-output))))
-          (add-hook 'nrepl-connected-hook
-                    'lispy--clojure-eval-hook-lambda t)
-          (let ((project-cfg (assoc (clojure-project-dir (cider-current-dir))
-                                    lispy-clojure-projects-alist)))
-            (if project-cfg
-                (progn
-                  (cider-connect (cons :project-dir project-cfg))
-                  "Using cider-connect")
-              (let ((cider-allow-jack-in-without-project t))
-                (call-interactively lispy-cider-connect-method))
-              (format "Starting CIDER using %s ..." lispy-cider-connect-method))))
-      (unless lispy--clojure-middleware-loaded-p
-        (lispy--clojure-middleware-load))
-      (lispy--eval-clojure-1 str add-output))))
+  (let ((f-str (lispy--eval-clojure-context e-str))
+        deactivate-mark)
+    (cond ((null (car (cider-connections)))
+           (setq lispy--clojure-hook-lambda
+                 `(lambda ()
+                    (set-window-configuration
+                     ,(current-window-configuration))
+                    (message
+                     (lispy--eval-clojure-1 ,f-str ,e-str))))
+           (add-hook 'nrepl-connected-hook
+                     'lispy--clojure-eval-hook-lambda t)
+           (let ((project-cfg (assoc (clojure-project-dir (cider-current-dir))
+                                     lispy-clojure-projects-alist)))
+             (if project-cfg
+                 (progn
+                   (cider-connect (cons :project-dir project-cfg))
+                   "Using cider-connect")
+               (let ((cider-allow-jack-in-without-project t))
+                 (call-interactively lispy-cider-connect-method))
+               (format "Starting CIDER using %s ..." lispy-cider-connect-method))))
+          ((eq current-prefix-arg 7)
+           (kill-new f-str))
+          ((and (eq current-prefix-arg 0)
+                (lispy--eval-clojure-cider
+                 "(lispy-clojure/shadow-unmap *ns*)")
+                nil))
+          (t
+           (unless lispy--clojure-middleware-loaded-p
+             (lispy--clojure-middleware-load))
+           (lispy--eval-clojure-1 f-str e-str)))))
 
 ;;* Base eval
 (defvar lispy--clojure-errorp nil)
