@@ -300,9 +300,12 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
                   (cl-mapcar (lambda (x i)
                                (concat (number-to-string i)
                                        " "
-                                       (if (listp x)
-                                           (car x)
-                                         x)))
+                                       (cond ((listp x)
+                                              (car x))
+                                             ((keywordp x)
+                                              (prin1-to-string x))
+                                             (t
+                                              x))))
                              repr
                              (number-sequence 0 (1- len)))
                 (mapcar #'number-to-string (number-sequence 0 (1- len))))))))
@@ -607,7 +610,12 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
              (fn-keywords
               (plist-get fn-data :keywords))
              (fn-defaults
-              (mapcar (lambda (x) (or x "None"))
+              (mapcar (lambda (x)
+                        (cond ((stringp x)
+                               (prin1-to-string x))
+                              (x x)
+                              (t
+                               "None")))
                       (plist-get fn-data :defaults)))
              (fn-alist
               (cl-mapcar #'cons
