@@ -193,6 +193,13 @@ def print_elisp(obj, end="\n"):
     elif hasattr(obj, "__array__"):
         # something that converts to a numpy array
         print_elisp(list(obj.__array__()))
+    elif isinstance(obj, enumerate):
+        print("(")
+        for (i, v) in list(obj):
+            print("(", end="")
+            print_elisp(v, end="")
+            print(")")
+        print(")")
     elif isinstance(obj, set):
         print("(")
         for v in obj:
@@ -203,6 +210,11 @@ def print_elisp(obj, end="\n"):
         for (k, v) in obj.items():
             print("  :" + k, end=" ")
             print_elisp(v, end="\n")
+        print(")")
+    elif isinstance(obj, collections.abc.ItemsView):
+        print("(")
+        for (k, v) in obj:
+            print_elisp((k, v), end="\n")
         print(")")
     elif isinstance(obj, collections.KeysView):
         print_elisp(list(obj))
