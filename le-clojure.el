@@ -89,8 +89,6 @@
 (defun lispy-eval-clojure (e-str &optional _plain)
   "User facing eval."
   (lispy--clojure-detect-ns)
-  (unless (stringp e-str)
-    (setq e-str (lispy--string-dwim)))
   (let ((f-str (lispy--eval-clojure-context e-str)))
     (cond ((eq current-prefix-arg 7)
            (kill-new f-str))
