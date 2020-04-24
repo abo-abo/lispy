@@ -67,38 +67,41 @@
 (defvar lispy--clojure-middleware-loaded-p nil
   "Nil if the Clojure middleware in \"lispy-clojure.clj\" wasn't loaded yet.")
 
+(defun lispy--eval-clojure-context (e-str)
+  (let ((c-str
+         (let ((deactivate-mark nil))
+           (save-mark-and-excursion
+             (lispy--out-backward 1 t)
+             (deactivate-mark)
+             (lispy--string-dwim)))))
+    (cond
+      ((eq major-mode 'clojurescript-mode)
+       e-str)
+      (lispy--clojure-middleware-loaded-p
+       (format (if (memq this-command '(special-lispy-eval
+                                        special-lispy-eval-and-insert))
+                   "(lispy-clojure/pp (lispy-clojure/reval %S %S :file %S :line %S))"
+                 "(lispy-clojure/reval %S %S :file %S :line %S)")
+               e-str c-str (buffer-file-name) (line-number-at-pos)))
+      (t
+       e-str))))
+
 (defun lispy-eval-clojure (e-str &optional _plain)
   "User facing eval."
   (lispy--clojure-detect-ns)
   (unless (stringp e-str)
     (setq e-str (lispy--string-dwim)))
-  (let ((c-str (let ((deactivate-mark nil))
-                 (save-mark-and-excursion
-                   (lispy--out-backward 1 t)
-                   (deactivate-mark)
-                   (lispy--string-dwim)))))
-    (let ((f-str
-           (cond
-             ((eq major-mode 'clojurescript-mode)
-              e-str)
-             (lispy--clojure-middleware-loaded-p
-              (format (if (memq this-command '(special-lispy-eval
-                                               special-lispy-eval-and-insert))
-                          "(lispy-clojure/pp (lispy-clojure/reval %S %S :file %S :line %S))"
-                        "(lispy-clojure/reval %S %S :file %S :line %S)")
-                      e-str c-str (buffer-file-name) (line-number-at-pos)))
-             (t
-              e-str))))
-      (cond ((eq current-prefix-arg 7)
-             (kill-new f-str))
-            ((and (eq current-prefix-arg 0)
-                  (lispy--eval-clojure-cider
-                   "(lispy-clojure/shadow-unmap *ns*)")
-                  nil))
-            ((eq lispy-clojure-eval-method 'spiral)
-             (lispy--eval-clojure-spiral e-str))
-            (t
-             (lispy--eval-clojure-cider f-str e-str))))))
+  (let ((f-str (lispy--eval-clojure-context e-str)))
+    (cond ((eq current-prefix-arg 7)
+           (kill-new f-str))
+          ((and (eq current-prefix-arg 0)
+                (lispy--eval-clojure-cider
+                 "(lispy-clojure/shadow-unmap *ns*)")
+                nil))
+          ((eq lispy-clojure-eval-method 'spiral)
+           (lispy--eval-clojure-spiral e-str))
+          (t
+           (lispy--eval-clojure-cider f-str e-str)))))
 
 ;;* Start REPL wrapper for eval
 (defvar lispy--clojure-hook-lambda nil
