@@ -123,7 +123,7 @@ The caller of `lispy--show' might use a substitute e.g. `describe-function'."
 (defvar lispy-hint-pos nil
   "Point position where the hint should be (re-) displayed.")
 
-(declare-function lispy--eval-clojure "le-clojure")
+(declare-function lispy--eval-clojure-cider "le-clojure")
 (declare-function lispy--clojure-args "le-clojure")
 (declare-function lispy--clojure-resolve "le-clojure")
 (declare-function lispy--describe-clojure-java "le-clojure")
@@ -260,11 +260,11 @@ The caller of `lispy--show' might use a substitute e.g. `describe-function'."
          "^\\(?:-+\n\\|\n*.*$.*@.*\n*\\)" ""
          (cond ((stringp rsymbol)
                 (read
-                 (lispy--eval-clojure
+                 (lispy--eval-clojure-cider
                   (format "(with-out-str (clojure.repl/doc %s))" rsymbol))))
                ((eq rsymbol 'special)
                 (read
-                 (lispy--eval-clojure
+                 (lispy--eval-clojure-cider
                   (format "(with-out-str (clojure.repl/doc %s))" sym))))
                ((eq rsymbol 'keyword)
                 "No docs for keywords")

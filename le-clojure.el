@@ -93,13 +93,13 @@
       (cond ((eq current-prefix-arg 7)
              (kill-new f-str))
             ((and (eq current-prefix-arg 0)
-                  (lispy--eval-clojure
+                  (lispy--eval-clojure-cider
                    "(lispy-clojure/shadow-unmap *ns*)")
                   nil))
             ((eq lispy-clojure-eval-method 'spiral)
              (lispy--eval-clojure-spiral e-str))
             (t
-             (lispy--eval-clojure f-str e-str))))))
+             (lispy--eval-clojure-cider f-str e-str))))))
 
 ;;* Start REPL wrapper for eval
 (defvar lispy--clojure-hook-lambda nil
@@ -132,7 +132,7 @@
 Each entry is (DIRECTORY :host HOSTNAME :port PORT).
 Example: '((\"~/git/luminous-1\" :host \"localhost\" :port 7000))")
 
-(defun lispy--eval-clojure (str &optional add-output)
+(defun lispy--eval-clojure-cider (str &optional add-output)
   "Eval STR as Clojure code.
 The result is a string.
 
@@ -289,7 +289,7 @@ When ADD-OUTPUT is non-nil, add the standard output to the result."
 Return 'special or 'keyword appropriately.
 Otherwise try to resolve in current namespace first.
 If it doesn't work, try to resolve in all available namespaces."
-  (let ((str (lispy--eval-clojure
+  (let ((str (lispy--eval-clojure-cider
               (format "(lispy-clojure/resolve-sym '%s)" symbol))))
     (cond
       (lispy--clojure-errorp
@@ -310,7 +310,7 @@ If it doesn't work, try to resolve in all available namespaces."
            (cond
              ((eq sym 'special)
               (read
-               (lispy--eval-clojure
+               (lispy--eval-clojure-cider
                 (format "(lispy-clojure/arglist '%s)" symbol))))
              ((eq sym 'keyword)
               (list "[map]"))
@@ -320,7 +320,7 @@ If it doesn't work, try to resolve in all available namespaces."
               (list "variable"))
              (t
               (read
-               (lispy--eval-clojure
+               (lispy--eval-clojure-cider
                 (format "(lispy-clojure/arglist '%s)" symbol)))))))))
 
 (defun lispy--clojure-args (symbol)
@@ -343,7 +343,7 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
 (defun lispy--describe-clojure-java (sym)
   "Return description for Clojure Java symol SYM."
   (read
-   (lispy--eval-clojure
+   (lispy--eval-clojure-cider
     (format
      "(let [[_ cname mname] (re-find #\"(.*)/(.*)\" \"%s\")
           methods (and cname
@@ -359,7 +359,7 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
 
 (defun lispy--clojure-macrop (symbol)
   "Test if SYMBOL is a macro."
-  (equal (lispy--eval-clojure
+  (equal (lispy--eval-clojure-cider
           (format "(:macro (meta #'%s))" symbol))
          "true"))
 
@@ -402,10 +402,10 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
              (lambda (p) (format "(cemerick.pomegranate/add-classpath %S)" p))
              cider-jdk-src-paths
              "\n  "))))
-      (lispy--eval-clojure sources-expr))
+      (lispy--eval-clojure-cider sources-expr))
     (when lispy-clojure-middleware-tests
       (lispy-message
-       (lispy--eval-clojure "(lispy-clojure/run-lispy-tests)")))))
+       (lispy--eval-clojure-cider "(lispy-clojure/run-lispy-tests)")))))
 
 (defun lispy-flatten--clojure (_arg)
   "Inline a Clojure function at the point of its call."
@@ -421,9 +421,9 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
          (result
           (if (and (symbolp (car expr))
                    (lispy--clojure-macrop (symbol-name (car expr))))
-              (lispy--eval-clojure
+              (lispy--eval-clojure-cider
                (format "(macroexpand '%s)" str))
-            (lispy--eval-clojure
+            (lispy--eval-clojure-cider
              (format "(lispy-clojure/flatten-expr '%s)" str)))))
     (goto-char (car bnd))
     (delete-region (car bnd) (cdr bnd))
@@ -438,11 +438,11 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
   (let* ((e-str (format "(lispy-clojure/debug-step-in\n'%s)"
                         (lispy--string-dwim)))
          (str (substring-no-properties
-               (lispy--eval-clojure e-str))))
+               (lispy--eval-clojure-cider e-str))))
     (lispy-follow)
     (when (string-match "(clojure.core/in-ns (quote \\([^)]+\\))" str)
       (setq lispy--clojure-ns (match-string 1 str)))
-    (lispy--eval-clojure str)
+    (lispy--eval-clojure-cider str)
     (lispy-flow 1)))
 
 (defun lispy-goto-line (line)
@@ -468,7 +468,7 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
 (defun lispy-goto-symbol-clojure (symbol)
   "Goto SYMBOL."
   (lispy--clojure-detect-ns)
-  (let* ((r (read (lispy--eval-clojure
+  (let* ((r (read (lispy--eval-clojure-cider
                    (format "(lispy-clojure/location '%s)" symbol))))
          (url (car r))
          (line (cadr r))
@@ -513,7 +513,7 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
                                 (lispy--string-dwim)))))))
                   res)
              (cond ((and obj
-                         (setq res (lispy--eval-clojure
+                         (setq res (lispy--eval-clojure-cider
                                     (format "(lispy-clojure/object-members %s)" obj)))
                          (null lispy--clojure-errorp))
                     (let ((cands (read res)))
@@ -527,7 +527,7 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
                                      (lispy--out-backward 1 t)
                                      (forward-char)
                                      (thing-at-point 'symbol t)))
-                           (cands (read (lispy--eval-clojure
+                           (cands (read (lispy--eval-clojure-cider
                                          (format
                                           "(lispy-clojure/complete %S)"
                                           prefix))))
@@ -538,7 +538,7 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
                       (list (car bnd) (cdr bnd) candsa)))
                    (t
                     (let* ((prefix (lispy--string-dwim bnd))
-                           (cands (read (lispy--eval-clojure
+                           (cands (read (lispy--eval-clojure-cider
                                          (format
                                           "(lispy-clojure/complete %S)"
                                           prefix)))))
@@ -554,7 +554,7 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
                      (lispy-mark-list 3)
                      (lispy--string-dwim)))
            (sig (read
-                 (lispy--eval-clojure
+                 (lispy--eval-clojure-cider
                   (format "(lispy-clojure/method-signature (lispy-clojure/reval \"%s\" nil) \"%s\")" object method)))))
       (when (> (length sig) 0)
         (if (string-match "\\`public \\(.*\\)(\\(.*\\))\\'" sig)
@@ -568,7 +568,7 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
           sig)))))
 
 (defun lispy--clojure-constructor-args (symbol)
-  (read (lispy--eval-clojure
+  (read (lispy--eval-clojure-cider
          (format "(lispy-clojure/ctor-args %s)" symbol))))
 
 (defun lispy--clojure-pretty-string (str)
@@ -596,7 +596,7 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
 (defun lispy-clojure-apropos ()
   (interactive)
   (let ((cands
-         (split-string (lispy--eval-clojure
+         (split-string (lispy--eval-clojure-cider
                         "(lispy-clojure/all-docs 'clojure.core)")
                        "::")))
     (ivy-read "var: " cands
