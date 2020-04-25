@@ -301,7 +301,9 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
                                (concat (number-to-string i)
                                        " "
                                        (cond ((listp x)
-                                              (car x))
+                                              (mapconcat
+                                               (lambda (y) (if (stringp y) y (prin1-to-string y)))
+                                               x " "))
                                              ((keywordp x)
                                               (prin1-to-string x))
                                              (t
