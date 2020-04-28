@@ -912,7 +912,8 @@ Return nil if can't move."
 
         ((or (looking-at lispy-outline)
              (and (bolp) (looking-at (lispy-comment-char))))
-         (let ((pt (point)))
+         (let ((pt (point))
+               (outline-regexp lispy-outline))
            (lispy-dotimes arg
              (outline-next-visible-heading 1)
              (if (looking-at lispy-outline)
@@ -980,7 +981,8 @@ Return nil if can't move."
 
         ((or (looking-at lispy-outline)
              (and (bolp) (looking-at (lispy-comment-char))))
-         (let ((pt (point)))
+         (let ((pt (point))
+               (outline-regexp lispy-outline))
            (lispy-dotimes arg
              (outline-previous-visible-heading 1)
              (if (looking-at lispy-outline)
@@ -5138,8 +5140,9 @@ When ARG isn't nil, show table of contents."
   (interactive "P")
   (require 'org)
   (outline-minor-mode 1)
-  (let ((org-outline-regexp outline-regexp)
-        (org-outline-regexp-bol "^;;"))
+  (let* ((outline-regexp lispy-outline)
+         (org-outline-regexp outline-regexp)
+         (org-outline-regexp-bol "^;;"))
     (lispy-flet (org-unlogged-message (&rest _x))
       (if arg
           (org-content)
