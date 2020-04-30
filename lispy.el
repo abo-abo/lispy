@@ -7276,6 +7276,7 @@ Ignore the matches in strings and comments."
     ("#(" "clojure-lambda")
     ("#{" "clojure-set")
     ("@{" "clojure-deref-map")
+    ("@[" "clojure-deref-vector")
     ("{" "clojure-map")
     ("#?(" "clojure-reader-conditional")))
 
@@ -8248,6 +8249,10 @@ The outer delimiters are stripped."
           (clojure-deref-map
            (delete-region beg (point))
            (insert (format "@{%s}" (lispy--splice-to-str (cl-caddr sxp))))
+           (goto-char beg))
+          (clojure-deref-vector
+           (delete-region beg (point))
+           (insert (format "@[%s]" (lispy--splice-to-str (cl-caddr sxp))))
            (goto-char beg))
           (clojure-deref-list
            (delete-region beg (point))
