@@ -8597,6 +8597,7 @@ Use only the part bounded by BND."
 (defun lispy--edebug-commandp ()
   "Return true if `this-command-keys' should be forwarded to edebug."
   (when (and (bound-and-true-p edebug-active)
+             (not (minibufferp))
              (= 1 (length (this-command-keys))))
     (let ((char (aref (this-command-keys) 0)))
       (setq lispy--edebug-command
