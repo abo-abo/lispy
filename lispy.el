@@ -7267,8 +7267,6 @@ Ignore the matches in strings and comments."
     table)
   "Syntax table for paired braces.")
 
-(defvar scheme-mode-hook)
-
 (defvar lispy--insert-replace-alist-clojure
   '(("#object[" "clojure-object")
     ("#?@(" "clojure-reader-conditional-splice")
