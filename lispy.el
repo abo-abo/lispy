@@ -1031,18 +1031,18 @@ If position isn't special, move to previous or error."
   (lispy-dotimes arg
     (if (zerop (ring-length lispy-pos-ring))
         (lispy-complain "At beginning of point history")
-      (pcase-let* ((`(,pt ,restriction) (ring-remove lispy-pos-ring 0))
+      (pcase-let* ((`(,marker ,restriction) (ring-remove lispy-pos-ring 0))
                    (`(,beg . ,end) restriction))
         ;; After deleting some text, markers that point to it converge
         ;; to one point
         (while (and (not (zerop (ring-length lispy-pos-ring)))
                     (equal (ring-ref lispy-pos-ring 0)
-                           pt))
+                           marker))
           (ring-remove lispy-pos-ring 0))
-        (if (consp pt)
-            (lispy--mark pt)
+        (if (consp marker)
+            (lispy--mark marker)
           (deactivate-mark)
-          (goto-char pt))
+          (goto-char marker))
         (when (and lispy-back-restore-restriction
                    restriction)
           (narrow-to-region beg end))))))
