@@ -1019,6 +1019,9 @@ Return nil if can't move."
                 (not (equal (point-marker) top)))
         (ring-insert lispy-pos-ring (list (point-marker) restriction))))))
 
+(defvar lispy-back-restore-restriction t
+  "When non-nil, restore buffer restriction on `lispy-back'.")
+
 (defun lispy-back (arg)
   "Move point to ARGth previous position.
 If position isn't special, move to previous or error."
@@ -1028,7 +1031,8 @@ If position isn't special, move to previous or error."
   (lispy-dotimes arg
     (if (zerop (ring-length lispy-pos-ring))
         (lispy-complain "At beginning of point history")
-      (let ((pt (ring-remove lispy-pos-ring 0)))
+      (pcase-let* ((`(,pt ,restriction) (ring-remove lispy-pos-ring 0))
+                   (`(,beg . ,end) restriction))
         ;; After deleting some text, markers that point to it converge
         ;; to one point
         (while (and (not (zerop (ring-length lispy-pos-ring)))
@@ -1038,7 +1042,10 @@ If position isn't special, move to previous or error."
         (if (consp pt)
             (lispy--mark pt)
           (deactivate-mark)
-          (goto-char pt))))))
+          (goto-char pt))
+        (when (and lispy-back-restore-restriction
+                   restriction)
+          (narrow-to-region beg end))))))
 
 (defun lispy-knight-down ()
   "Make a knight-like move: down and right."
