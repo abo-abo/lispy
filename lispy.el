@@ -1046,7 +1046,9 @@ If position isn't special, move to previous or error."
           (goto-char marker))
         (when (and lispy-back-restore-restriction
                    restriction)
-          (narrow-to-region beg end))))))
+          (narrow-to-region beg end)
+          (set-marker beg nil)
+          (set-marker end nil))))))
 
 (defun lispy-knight-down ()
   "Make a knight-like move: down and right."
