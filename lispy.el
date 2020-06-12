@@ -1018,6 +1018,8 @@ Return nil if can't move."
   "Move point to ARGth previous position.
 If position isn't special, move to previous or error."
   (interactive "p")
+  (when (buffer-narrowed-p)
+    (widen))
   (lispy-dotimes arg
     (if (zerop (ring-length lispy-pos-ring))
         (lispy-complain "At beginning of point history")
@@ -4267,6 +4269,8 @@ SYMBOL is a string."
   (deactivate-mark)
   (with-no-warnings
     (ring-insert find-tag-marker-ring (point-marker)))
+  (when (buffer-narrowed-p)
+    (widen))
   (if (memq major-mode lispy-elisp-modes)
       (lispy-goto-symbol-elisp symbol)
     (let ((handler (cdr (assoc major-mode lispy-goto-symbol-alist)))
