@@ -1042,6 +1042,7 @@ If position isn't special, move to previous or error."
         (if (consp marker)
             (lispy--mark marker)
           (deactivate-mark)
+          (switch-to-buffer (marker-buffer marker))
           (goto-char marker))
         (when (and lispy-back-restore-restriction
                    restriction)
