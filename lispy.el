@@ -4263,6 +4263,7 @@ When LIB is non-nil, `require' it prior to calling FUNC.")
 SYMBOL is a string."
   (interactive (list (or (thing-at-point 'symbol t)
                          (lispy--current-function))))
+  (lispy--remember)
   (deactivate-mark)
   (with-no-warnings
     (ring-insert find-tag-marker-ring (point-marker)))
