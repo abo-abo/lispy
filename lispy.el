@@ -995,13 +995,18 @@ Return nil if can't move."
   (lispy--ensure-visible))
 
 (defvar lispy-pos-ring (make-ring 100)
-  "Ring for point and mark position history.")
+  "Ring for point/mark position and restriction history.")
 
 (defun lispy--remember ()
   "Store the current point and mark in history."
   (let* ((emptyp (zerop (ring-length lispy-pos-ring)))
          (top (unless emptyp
-                (ring-ref lispy-pos-ring 0))))
+                (ring-ref lispy-pos-ring 0)))
+         (restriction (when (buffer-narrowed-p)
+                        (cons (set-marker (make-marker)
+                                          (point-min))
+                              (set-marker (make-marker)
+                                          (point-max))))))
     (if (region-active-p)
         (let* ((bnd (lispy--bounds-dwim))
                (bnd (cons
@@ -1009,10 +1014,10 @@ Return nil if can't move."
                      (move-marker (make-marker) (cdr bnd)))))
           (when (or emptyp
                     (not (equal bnd top)))
-            (ring-insert lispy-pos-ring bnd)))
+            (ring-insert lispy-pos-ring (list bnd restriction))))
       (when (or emptyp
                 (not (equal (point-marker) top)))
-        (ring-insert lispy-pos-ring (point-marker))))))
+        (ring-insert lispy-pos-ring (list (point-marker) restriction))))))
 
 (defun lispy-back (arg)
   "Move point to ARGth previous position.
