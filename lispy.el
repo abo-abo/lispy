@@ -4281,17 +4281,21 @@ SYMBOL is a string."
   (deactivate-mark)
   (with-no-warnings
     (ring-insert find-tag-marker-ring (point-marker)))
-  (when (buffer-narrowed-p)
-    (widen))
-  (if (memq major-mode lispy-elisp-modes)
-      (lispy-goto-symbol-elisp symbol)
-    (let ((handler (cdr (assoc major-mode lispy-goto-symbol-alist)))
-          lib)
-      (if (null handler)
-          (error "no handler for %S in `lispy-goto-symbol-alist'" major-mode)
-        (when (setq lib (cadr handler))
-          (require lib))
-        (funcall (car handler) symbol))))
+  (let ((narrowedp (buffer-narrowed-p)))
+    (when narrowedp
+      (widen))
+    (cond ((memq major-mode lispy-elisp-modes)
+           (lispy-goto-symbol-elisp symbol)
+           (when narrowedp
+             (lispy-narrow 1)))
+          (t
+           (let ((handler (cdr (assoc major-mode lispy-goto-symbol-alist)))
+                 lib)
+             (if (null handler)
+                 (error "no handler for %S in `lispy-goto-symbol-alist'" major-mode)
+               (when (setq lib (cadr handler))
+                 (require lib))
+               (funcall (car handler) symbol))))))
   ;; in case it's hidden in an outline
   (lispy--ensure-visible))
 
