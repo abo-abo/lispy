@@ -7452,7 +7452,7 @@ See https://clojure.org/guides/weird_characters#_character_literal.")
                 (lispy--read-1)
                 ;; ——— ? char syntax ——————————
                 (goto-char (point-min))
-                (if (eq major-mode 'clojure-mode)
+                (if (memq major-mode '(clojure-mode hy-mode))
                     (lispy--read-replace "[[:alnum:]-/*<>_?.\\\\:!@#]+" "clojure-symbol")
                   (while (re-search-forward "\\(?:\\s-\\|\\s(\\)\\?" nil t)
                     (unless (lispy--in-string-or-comment-p)
