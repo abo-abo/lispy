@@ -4403,8 +4403,7 @@ When ARG is 2, insert the result as a comment."
   (save-excursion
     (unless (or (lispy-right-p) (region-active-p))
       (lispy-forward 1))
-    (replace-regexp-in-string
-     "%" "%%" (lispy--eval (lispy--string-dwim)))))
+    (lispy--eval (lispy--string-dwim))))
 
 (defun lispy-forward-outline ()
   (let ((pt (point)))
