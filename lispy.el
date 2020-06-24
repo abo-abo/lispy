@@ -4350,7 +4350,7 @@ SYMBOL is a string."
   '((python-mode
      le-python lispy--eval-python lispy-eval-python-str lispy-eval-python-bnd)
     (julia-mode
-     le-julia lispy-eval-julia nil lispy-eval-julia-str)
+     le-julia lispy-eval-julia lispy-eval-julia-str nil)
     (clojure-mode
      le-clojure lispy-eval-clojure nil nil)
     (clojurescript-mode
@@ -4381,8 +4381,7 @@ When ARG is 2, insert the result as a comment."
                  (require (nth 0 handler))
                  (setq res (funcall
                             (nth 1 handler)
-                            (funcall (or (nth 2 handler) #'lispy--string-dwim))
-                            (eq arg 3))))
+                            (funcall (or (nth 2 handler) #'lispy--string-dwim)))))
              (setq res (lispy--eval-default)))
            (when (member res '(nil ""))
              (setq res lispy-eval-error))

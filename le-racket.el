@@ -43,7 +43,7 @@
         (accept-process-output nil 0.001))
       (substring response 1 -2))))
 
-(defun lispy-eval-racket (&optional _plain)
+(defun lispy-eval-racket ()
   (lispy--eval-racket (lispy--string-dwim)))
 
 (provide 'le-racket)

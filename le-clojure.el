@@ -91,12 +91,12 @@
     (t
      e-str)))
 
-(defun lispy-eval-clojure (e-str &optional _plain)
-  "User facing eval."
+(defun lispy-eval-clojure (str)
+  "Eval STR as a Clojure expression."
   (lispy--clojure-detect-ns)
   (if (eq lispy-clojure-eval-method 'spiral)
-      (lispy--eval-clojure-spiral e-str)
-    (lispy--eval-clojure-cider e-str)))
+      (lispy--eval-clojure-spiral str)
+    (lispy--eval-clojure-cider str)))
 
 ;;* Start REPL wrapper for eval
 (defvar lispy--clojure-hook-lambda nil

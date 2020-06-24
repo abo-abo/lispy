@@ -27,7 +27,7 @@
 
 (declare-function julia-shell-collect-command-output "ext:julia-shell")
 
-(defun lispy--eval-julia (str &optional _plain)
+(defun lispy--eval-julia (str)
   "Eval STR as Julia code."
   (string-trim-right (julia-shell-collect-command-output str)))
 
@@ -65,8 +65,8 @@
            (setcar bnd (point))
            (lispy--string-dwim bnd)))))
 
-(defun lispy-eval-julia (&optional plain)
-  (lispy--eval-julia (lispy-eval-julia-str) plain))
+(defun lispy-eval-julia ()
+  (lispy--eval-julia (lispy-eval-julia-str)))
 
 (provide 'le-julia)
 
