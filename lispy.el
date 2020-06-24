@@ -4347,16 +4347,21 @@ SYMBOL is a string."
           (const :tag "overlay" overlay)))
 
 (defvar lispy-eval-alist
-  '((python-mode
+  `((,lispy-elisp-modes lispy lispy--eval-elisp)
+    ((,@lispy-clojure-modes nrepl-repl-mode cider-clojure-interaction-mode)
+     le-clojure lispy-eval-clojure)
+    (python-mode
      le-python lispy--eval-python lispy-eval-python-str lispy-eval-python-bnd)
     (julia-mode
-     le-julia lispy-eval-julia lispy-eval-julia-str nil)
-    (clojure-mode
-     le-clojure lispy-eval-clojure nil nil)
-    (clojurescript-mode
-     le-clojure lispy-eval-clojure nil nil)
+     le-julia lispy-eval-julia lispy-eval-julia-str)
     (racket-mode
-     le-racket lispy-eval-racket nil nil)))
+     le-racket lispy-eval-racket)
+    (scheme-mode
+     le-scheme lispy--eval-scheme)
+    (lisp-mode
+     le-lisp lispy--eval-lisp)
+    (hy-mode
+     le-hy lispy--eval-hy)))
 
 (defvar lispy-eval-error nil
   "The eval function may set this when there's an error.")
@@ -4374,15 +4379,7 @@ When ARG is 2, insert the result as a comment."
               (looking-at lispy-outline-header))
          (lispy-eval-outline))
         (t
-         (let ((handler (cdr (assoc major-mode lispy-eval-alist)))
-               res)
-           (if handler
-               (progn
-                 (require (nth 0 handler))
-                 (setq res (funcall
-                            (nth 1 handler)
-                            (funcall (or (nth 2 handler) #'lispy--string-dwim)))))
-             (setq res (lispy--eval-default)))
+         (let ((res (lispy--eval nil)))
            (when (member res '(nil ""))
              (setq res lispy-eval-error))
            (cond ((eq lispy-eval-display-style 'message)
@@ -4397,12 +4394,6 @@ When ARG is 2, insert the result as a comment."
                    res (cdr (lispy--bounds-dwim))))
                  (t
                   (error "Please install CIDER >= 0.10 or eros to display overlay")))))))
-
-(defun lispy--eval-default ()
-  (save-excursion
-    (unless (or (lispy-right-p) (region-active-p))
-      (lispy-forward 1))
-    (lispy--eval (lispy--string-dwim))))
 
 (defun lispy-forward-outline ()
   (let ((pt (point)))
@@ -6860,39 +6851,24 @@ or to the beginning of the line."
 (defun lispy--eval (e-str)
   "Eval E-STR according to current `major-mode'.
 The result is a string."
-  (if (string= e-str "")
-      ""
-    (funcall
-     (cond ((memq major-mode lispy-elisp-modes)
-            'lispy--eval-elisp)
-           ((or (memq major-mode lispy-clojure-modes)
-                (memq major-mode '(nrepl-repl-mode
-                                   cider-clojure-interaction-mode)))
-            (require 'le-clojure)
-            'lispy-eval-clojure)
-           ((eq major-mode 'scheme-mode)
-            (require 'le-scheme)
-            'lispy--eval-scheme)
-           ((eq major-mode 'lisp-mode)
-            (require 'le-lisp)
-            'lispy--eval-lisp)
-           ((eq major-mode 'hy-mode)
-            (require 'le-hy)
-            'lispy--eval-hy)
-           ((eq major-mode 'python-mode)
-            (require 'le-python)
-            'lispy--eval-python)
-           ((eq major-mode 'julia-mode)
-            (require 'le-julia)
-            'lispy--eval-julia)
-           ((eq major-mode 'ruby-mode)
-            'oval-ruby-eval)
-           ((eq major-mode 'matlab-mode)
-            'matlab-eval)
-           ((ignore-errors
-              (nth 2 (assoc major-mode lispy-eval-alist))))
-           (t (error "%s isn't supported currently" major-mode)))
-     e-str)))
+  (let ((handler (cdr (cl-find-if
+                       (lambda (x)
+                         (if (listp (car x))
+                             (memq major-mode (car x))
+                           (eq major-mode (car x))))
+                       lispy-eval-alist))))
+    (if handler
+        (progn
+          (setq e-str
+                (or e-str (if (> (length handler) 2)
+                              (funcall (nth 2 handler))
+                            (save-excursion
+                              (unless (or (lispy-right-p) (region-active-p))
+                                (lispy-forward 1))
+                              (lispy--string-dwim)))))
+          (require (nth 0 handler))
+          (funcall (nth 1 handler) e-str))
+      (error "%s isn't supported currently" major-mode))))
 
 (defun lispy-eval-expression ()
   "Like `eval-expression', but for current language."
