@@ -8364,7 +8364,10 @@ The outer delimiters are stripped."
     (let ((pt (point)))
       (skip-chars-backward " \t")
       (delete-region pt (point))))
-  (let* ((bnd (lispy--bounds-dwim))
+  (let* ((lisp-indent-function (if (looking-at "(\\(cl-defun\\|defhydra\\)")
+                                   #'common-lisp-indent-function
+                                 lisp-indent-function))
+         (bnd (lispy--bounds-dwim))
          (str (lispy--string-dwim bnd))
          (offset (if (eq major-mode 'racket-mode)
                      0
