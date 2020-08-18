@@ -2232,6 +2232,7 @@ Insert KEY if there's no command."
                    "(+ (let |((three (1 2)))\n     three) 3)")))
 
 (ert-deftest lispy-unbind-variable ()
+  :expected-result :fail
   (should (string= (lispy-with "(let ((x 1)\n      |(y 2))\n  (+ x y))"
                                (lispy-unbind-variable))
                    "(let (|(x 1))\n  (+ x 2))"))
