@@ -4265,6 +4265,7 @@ Sexp is obtained by exiting list ARG times."
   '((clojure-mode lispy-goto-symbol-clojure le-clojure)
     (clojurescript-mode lispy-goto-symbol-clojurescript le-clojure)
     (scheme-mode lispy-goto-symbol-scheme le-scheme)
+    (geiser-repl-mode lispy-goto-symbol-scheme le-scheme)
     (racket-mode lispy-goto-symbol-racket le-racket)
     (lisp-mode lispy-goto-symbol-lisp le-lisp)
     (slime-repl-mode lispy-goto-symbol-lisp le-lisp)
