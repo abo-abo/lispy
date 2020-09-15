@@ -747,7 +747,7 @@ Self-insert otherwise."
     (lispy--out-forward arg)))
 
 (defun lispy-left (arg)
-  "Move outside list forwards ARG times.
+  "Move outside list backwards ARG times.
 Return nil on failure, t otherwise."
   (interactive "p")
   (lispy--remember)
