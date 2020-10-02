@@ -478,6 +478,15 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
       (setcar bnd (point)))
     bnd))
 
+(defun lispy--python-beginning-of-object ()
+  (save-excursion
+    (backward-sexp)
+    (while (not (or
+                 (bolp)
+                 (looking-back "[[ \t(]")))
+      (backward-sexp))
+    (point)))
+
 (defun lispy-python-completion-at-point ()
   (cond ((looking-back "^\\(import\\|from\\) .*" (line-beginning-position))
          (let* ((line (buffer-substring-no-properties
@@ -497,9 +506,7 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
                 (bnd (save-excursion
                        (goto-char (1- (match-beginning 1)))
                        (cons (point)
-                             (if (re-search-backward "[^][\"a-zA-Z_.()0-9]" (line-beginning-position) t)
-                                 (1+ (point))
-                               (line-beginning-position)))))
+                             (lispy--python-beginning-of-object))))
                 (str (lispy--string-dwim bnd))
                 (keys (read (lispy--eval-python
                              (format "lp.print_elisp(%s.keys())" str)))))
