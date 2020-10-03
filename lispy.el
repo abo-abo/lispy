@@ -5165,7 +5165,8 @@ When ARG isn't nil, show table of contents."
   (outline-minor-mode 1)
   (let* ((outline-regexp lispy-outline)
          (org-outline-regexp outline-regexp)
-         (org-outline-regexp-bol "^;;"))
+         (org-outline-regexp-bol
+          (car (split-string lispy-outline))))
     (lispy-flet (org-unlogged-message (&rest _x))
       (if arg
           (org-content)
