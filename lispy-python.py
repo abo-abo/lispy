@@ -332,4 +332,7 @@ def pprint(x):
     if len(r1) > 1000 and repr1:
         print(repr1.repr(x))
     else:
-        pp1.pprint(x)
+        if type(x) == collections.OrderedDict:
+            print("{" + ",\n ".join([str(k) + ": " + str(v) for (k, v) in x.items()]) + "}")
+        else:
+            pp1.pprint(x)
