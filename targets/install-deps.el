@@ -28,7 +28,7 @@
     helm
     projectile
     find-file-in-project
-    undercover
+    ;; undercover
     zoutline))
 
 (dolist (package lispy-dev-packages)
