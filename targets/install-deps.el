@@ -68,15 +68,4 @@
   (dolist (package packages)
     (straight-use-package package)))
 
-(defun straight-reload-all ()
-  (interactive)
-  (let ((build-dir "~/.emacs.d/straight/build/"))
-    (dolist (pkg (delete "cl-lib" (delete ".." (delete "." (directory-files build-dir)))))
-      (let* ((dir (expand-file-name pkg build-dir))
-             (autoloads (car (directory-files dir t "-autoloads.el"))))
-        (add-to-list 'load-path dir)
-        (when autoloads
-          (load autoloads t 'nomessage))))))
-
 (straight-install-packages lispy-dev-packages)
-(straight-reload-all)

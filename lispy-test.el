@@ -1,3 +1,14 @@
+(defun straight-reload-all ()
+  (interactive)
+  (let ((build-dir "~/.emacs.d/straight/build/"))
+    (dolist (pkg (delete "cl-lib" (delete ".." (delete "." (directory-files build-dir)))))
+      (let* ((dir (expand-file-name pkg build-dir))
+             (autoloads (car (directory-files dir t "-autoloads.el"))))
+        (add-to-list 'load-path dir)
+        (when autoloads
+          (load autoloads t 'nomessage))))))
+(straight-reload-all)
+
 (when (require 'undercover nil t)
   (undercover "lispy.el" "lispy-inline.el"))
 (require 'lispy nil t)
