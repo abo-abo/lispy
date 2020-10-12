@@ -494,7 +494,7 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
 
 (defun lispy-clojure-complete-at-point ()
   (cond ((lispy-complete-fname-at-point))
-        ((car (cider-connections))
+        ((and (eq major-mode 'clojure-mode) (car (cider-connections)))
          (ignore-errors
            (lispy--clojure-detect-ns)
            (let* ((bnd (or (bounds-of-thing-at-point 'symbol)
