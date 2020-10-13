@@ -17,7 +17,7 @@
 
 (defun straight-reload-all ()
   (interactive)
-  (let ((build-dir (expand-file-name "~/.emacs.d/straight/build/")))
+  (let ((build-dir (expand-file-name "straight/build/" user-emacs-directory)))
     (dolist (pkg (delete "cl-lib" (delete ".." (delete "." (directory-files build-dir)))))
       (let* ((dir (expand-file-name pkg build-dir))
              (autoloads (car (directory-files dir t "-autoloads.el"))))
