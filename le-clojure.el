@@ -112,14 +112,10 @@
 
 (eval-after-load 'cider
   '(progn
-    (cider-add-to-alist 'cider-jack-in-dependencies
-     "org.tcrawley/dynapath" "0.2.5")
-    (cider-add-to-alist 'cider-jack-in-dependencies
-     "com.cemerick/pomegranate" "0.4.0")
-    (cider-add-to-alist 'cider-jack-in-dependencies
-     "compliment" "0.3.6")
-    (cider-add-to-alist 'cider-jack-in-dependencies
-     "me.raynes/fs" "1.4.6")))
+     (cider-add-to-alist 'cider-jack-in-dependencies "org.tcrawley/dynapath" "0.2.5")
+     (cider-add-to-alist 'cider-jack-in-dependencies "com.cemerick/pomegranate" "0.4.0")
+     (cider-add-to-alist 'cider-jack-in-dependencies "compliment" "0.3.11")
+     (cider-add-to-alist 'cider-jack-in-dependencies "me.raynes/fs" "1.4.6")))
 
 (declare-function cider-connections "ext:cider-connection")
 (defvar cider-allow-jack-in-without-project)
