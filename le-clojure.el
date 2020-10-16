@@ -110,12 +110,12 @@
   (remove-hook 'nrepl-connected-hook
                'lispy--clojure-eval-hook-lambda))
 
-(eval-after-load 'cider
-  '(progn
-     (cider-add-to-alist 'cider-jack-in-dependencies "org.tcrawley/dynapath" "0.2.5")
-     (cider-add-to-alist 'cider-jack-in-dependencies "com.cemerick/pomegranate" "0.4.0")
-     (cider-add-to-alist 'cider-jack-in-dependencies "compliment" "0.3.11")
-     (cider-add-to-alist 'cider-jack-in-dependencies "me.raynes/fs" "1.4.6")))
+(defvar lispy-cider-jack-in-dependencies
+  '(("me.raynes/fs" "1.4.6")
+    ("compliment" "0.3.11")
+    ("com.cemerick/pomegranate" "0.4.0")
+    ("org.tcrawley/dynapath" "0.2.5")
+    ("nrepl" "0.8.2")))
 
 (declare-function cider-connections "ext:cider-connection")
 (defvar cider-allow-jack-in-without-project)
@@ -148,7 +148,12 @@ Add the standard output to the result."
                  (progn
                    (cider-connect (cons :project-dir project-cfg))
                    "Using cider-connect")
-               (let ((cider-allow-jack-in-without-project t))
+               (let ((cider-allow-jack-in-without-project t)
+                     (cider-jack-in-dependencies
+                      (append
+                       cider-jack-in-dependencies
+                       (and (eq major-mode 'clojure-mode)
+                            lispy-cider-jack-in-dependencies))))
                  (call-interactively lispy-cider-connect-method))
                (format "Starting CIDER using %s ..." lispy-cider-connect-method))))
           ((eq current-prefix-arg 7)
