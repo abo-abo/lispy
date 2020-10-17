@@ -64,32 +64,38 @@
           (setq lispy--clojure-ns ns))))))
 
 ;;* User wrapper for eval
-(defvar lispy--clojure-middleware-loaded-p nil
+(defvar lispy--clojure-middleware-loaded-hash (make-hash-table :test #'equal)
   "Nil if the Clojure middleware in \"lispy-clojure.clj\" wasn't loaded yet.")
+
+(defun lispy--clojure-process-buffer ()
+  (car (cider-connections)))
+
+(defun lispy--clojure-middleware-loaded-p ()
+  (gethash (lispy--clojure-process-buffer) lispy--clojure-middleware-loaded-hash))
 
 (defun lispy--eval-clojure-context (e-str)
   (cond
-    ((eq major-mode 'clojurescript-mode)
-     e-str)
-    ((string-match-p "#break" e-str)
-     e-str)
-    (lispy--clojure-middleware-loaded-p
-     (format (if (memq this-command '(special-lispy-eval
-                                      special-lispy-eval-and-insert))
-                 "(lispy-clojure/pp (lispy-clojure/reval %S %S :file %S :line %S))"
-               "(lispy-clojure/reval %S %S :file %S :line %S)")
-             e-str
-             (condition-case nil
-                 (let ((deactivate-mark nil))
-                   (save-mark-and-excursion
-                     (lispy--out-backward 1 t)
-                     (deactivate-mark)
-                     (lispy--string-dwim)))
-               (error ""))
-             (buffer-file-name)
-             (line-number-at-pos)))
-    (t
-     e-str)))
+   ((eq major-mode 'clojurescript-mode)
+    e-str)
+   ((string-match-p "#break" e-str)
+    e-str)
+   ((lispy--clojure-middleware-loaded-p)
+    (format (if (memq this-command '(special-lispy-eval
+                                     special-lispy-eval-and-insert))
+                "(lispy-clojure/pp (lispy-clojure/reval %S %S :file %S :line %S))"
+              "(lispy-clojure/reval %S %S :file %S :line %S)")
+            e-str
+            (condition-case nil
+                (let ((deactivate-mark nil))
+                  (save-mark-and-excursion
+                    (lispy--out-backward 1 t)
+                    (deactivate-mark)
+                    (lispy--string-dwim)))
+              (error ""))
+            (buffer-file-name)
+            (line-number-at-pos)))
+   (t
+    e-str)))
 
 (defun lispy-eval-clojure (str)
   "Eval STR as a Clojure expression."
@@ -133,7 +139,7 @@ Add the standard output to the result."
     (add-hook 'cider-connected-hook #'lispy--clojure-middleware-load))
   (let ((f-str (lispy--eval-clojure-context e-str))
         deactivate-mark)
-    (cond ((null (car (cider-connections)))
+    (cond ((null (lispy--clojure-process-buffer))
            (setq lispy--clojure-hook-lambda
                  `(lambda ()
                     (set-window-configuration
@@ -163,7 +169,7 @@ Add the standard output to the result."
                  "(lispy-clojure/shadow-unmap *ns*)")
                 nil))
           (t
-           (unless lispy--clojure-middleware-loaded-p
+           (unless (lispy--clojure-middleware-loaded-p)
              (lispy--clojure-middleware-load))
            (lispy--eval-clojure-1 f-str e-str)))))
 
@@ -224,7 +230,7 @@ Add the standard output to the result."
   (nrepl-sync-request:eval
    str
    (or (cider-current-connection)
-       (car (cider-connections)))
+       (lispy--clojure-process-buffer))
    namespace))
 
 (defvar spiral-conn-id)
@@ -368,7 +374,7 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
 
 (defun lispy--clojure-middleware-unload ()
   "Mark the Clojure middleware in \"lispy-clojure.clj\" as not loaded."
-  (setq lispy--clojure-middleware-loaded-p nil))
+  (puthash (lispy--clojure-process-buffer) nil lispy--clojure-middleware-loaded-hash))
 
 (defvar cider-jdk-src-paths)
 
@@ -391,24 +397,26 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
 
 (defun lispy--clojure-middleware-load ()
   "Load the custom Clojure code in \"lispy-clojure.clj\"."
-  (unless lispy--clojure-middleware-loaded-p
-    (setq lispy--clojure-ns "user")
-    (save-window-excursion
-      (lispy-cider-load-file
-       (expand-file-name "lispy-clojure.clj" lispy-site-directory)))
-    (setq lispy--clojure-middleware-loaded-p t)
-    (add-hook 'nrepl-disconnected-hook #'lispy--clojure-middleware-unload)
-    (let ((sources-expr
-           (format
-            "(do \n  %s)"
-            (mapconcat
-             (lambda (p) (format "(cemerick.pomegranate/add-classpath %S)" p))
-             cider-jdk-src-paths
-             "\n  "))))
-      (lispy--eval-clojure-cider sources-expr))
-    (when lispy-clojure-middleware-tests
-      (lispy-message
-       (lispy--eval-clojure-cider "(lispy-clojure/run-lispy-tests)")))))
+  (let ((conn (lispy--clojure-process-buffer)))
+    (unless (or (lispy--clojure-middleware-loaded-p)
+                (string-match "clojurescript" (buffer-name conn)))
+      (setq lispy--clojure-ns "user")
+      (save-window-excursion
+        (lispy-cider-load-file
+         (expand-file-name "lispy-clojure.clj" lispy-site-directory)))
+      (puthash conn t lispy--clojure-middleware-loaded-hash)
+      (add-hook 'nrepl-disconnected-hook #'lispy--clojure-middleware-unload)
+      (let ((sources-expr
+             (format
+              "(do \n  %s)"
+              (mapconcat
+               (lambda (p) (format "(cemerick.pomegranate/add-classpath %S)" p))
+               cider-jdk-src-paths
+               "\n  "))))
+        (lispy--eval-clojure-cider sources-expr))
+      (when lispy-clojure-middleware-tests
+        (lispy-message
+         (lispy--eval-clojure-cider "(lispy-clojure/run-lispy-tests)"))))))
 
 (defun lispy-flatten--clojure (_arg)
   "Inline a Clojure function at the point of its call."
@@ -495,25 +503,25 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
 
 (defun lispy-clojure-complete-at-point ()
   (cond ((lispy-complete-fname-at-point))
-        ((and (eq major-mode 'clojure-mode) (car (cider-connections)))
+        ((and (eq major-mode 'clojure-mode) (lispy--clojure-process-buffer))
          (ignore-errors
            (lispy--clojure-detect-ns)
            (let* ((bnd (or (bounds-of-thing-at-point 'symbol)
                            (cons (point) (point))))
                   (obj (cond
-                         ((save-excursion
-                            (lispy--out-backward 1 t)
-                            (looking-at "(\\.\\."))
-                          (concat
-                           (buffer-substring-no-properties (match-beginning 0) (car bnd))
-                           ")"))
-                         ((save-excursion
-                            (lispy--back-to-paren)
-                            (when (looking-at "(\\.[\t\n ]")
-                              (ignore-errors
-                                (forward-char 1)
-                                (forward-sexp 2)
-                                (lispy--string-dwim)))))))
+                        ((save-excursion
+                           (lispy--out-backward 1 t)
+                           (looking-at "(\\.\\."))
+                         (concat
+                          (buffer-substring-no-properties (match-beginning 0) (car bnd))
+                          ")"))
+                        ((save-excursion
+                           (lispy--back-to-paren)
+                           (when (looking-at "(\\.[\t\n ]")
+                             (ignore-errors
+                               (forward-char 1)
+                               (forward-sexp 2)
+                               (lispy--string-dwim)))))))
                   res)
              (cond ((and obj
                          (setq res (lispy--eval-clojure-cider
