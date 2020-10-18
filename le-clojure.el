@@ -71,7 +71,8 @@
   (car (cider-connections)))
 
 (defun lispy--clojure-middleware-loaded-p ()
-  (gethash (lispy--clojure-process-buffer) lispy--clojure-middleware-loaded-hash))
+  (let ((conn (lispy--clojure-process-buffer)))
+    (and conn (gethash conn lispy--clojure-middleware-loaded-hash))))
 
 (defun lispy--eval-clojure-context (e-str)
   (cond
