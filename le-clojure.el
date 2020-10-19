@@ -400,7 +400,7 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
   "Load the custom Clojure code in \"lispy-clojure.clj\"."
   (let ((conn (lispy--clojure-process-buffer)))
     (unless (or (lispy--clojure-middleware-loaded-p)
-                (string-match "clojurescript" (buffer-name conn)))
+                (string-match "clojurescript\\|cljs" (buffer-name conn)))
       (setq lispy--clojure-ns "user")
       (save-window-excursion
         (lispy-cider-load-file
