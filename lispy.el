@@ -8772,7 +8772,7 @@ Return an appropriate `setq' expression when in `let', `dolist',
           ((progn
              (lispy--out-backward 1)
              (looking-back
-              "(\\(?:lexical-\\)?let\\(?:\\*\\|-when-compile\\)?[ \t\n]*"
+              "(\\(?:lexical-\\|if-\\|when-\\)?let\\(?:\\*\\|-when-compile\\)?[ \t\n]*"
               (line-beginning-position 0)))
            (cons
             (if (eq major-mode 'scheme-mode)
