@@ -251,6 +251,13 @@ The caller of `lispy--show' might use a substitute e.g. `describe-function'."
                  sym 'variable-documentation)
                 "undocumented"))
            (t "unbound")))
+    ((eq major-mode 'clojurescript-mode)
+     (let (info)
+       (or
+        (and (cider-nrepl-op-supported-p "info")
+             (setq info (cider-sync-request:info sym))
+             (nrepl-dict-get info "doc"))
+        (concat "No doc for " sym))))
     ((or (memq major-mode lispy-clojure-modes)
          (memq major-mode '(cider-repl-mode)))
      (require 'le-clojure)
