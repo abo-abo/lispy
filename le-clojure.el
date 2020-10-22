@@ -311,27 +311,36 @@ If it doesn't work, try to resolve in all available namespaces."
        (read str)))))
 
 (defun lispy--clojure-symbol-to-args (symbol)
-  (cond ((string= symbol ".")
-         (lispy--clojure-dot-args))
-        ((string-match "\\`\\(.*\\)\\.\\'" symbol)
-         (lispy--clojure-constructor-args (match-string 1 symbol)))
-        (t
-         (let ((sym (lispy--clojure-resolve symbol)))
-           (cond
-             ((eq sym 'special)
-              (read
-               (lispy--eval-clojure-cider
-                (format "(lispy-clojure/arglist '%s)" symbol))))
-             ((eq sym 'keyword)
-              (list "[map]"))
-             ((eq sym 'undefined)
-              (error "Undefined"))
-             ((and (listp sym) (eq (car sym) 'variable))
-              (list "variable"))
-             (t
-              (read
-               (lispy--eval-clojure-cider
-                (format "(lispy-clojure/arglist '%s)" symbol)))))))))
+  (cond
+    ((eq major-mode 'clojurescript-mode)
+     (let (info)
+       (and (cider-nrepl-op-supported-p "info")
+            (setq info (cider-sync-request:info symbol))
+            (let ((args (nrepl-dict-get info "arglists-str")))
+              (if args
+                  (split-string args "\n")
+                (nrepl-dict-get info "forms-str"))))))
+    ((string= symbol ".")
+     (lispy--clojure-dot-args))
+    ((string-match "\\`\\(.*\\)\\.\\'" symbol)
+     (lispy--clojure-constructor-args (match-string 1 symbol)))
+    (t
+     (let ((sym (lispy--clojure-resolve symbol)))
+       (cond
+         ((eq sym 'special)
+          (read
+           (lispy--eval-clojure-cider
+            (format "(lispy-clojure/arglist '%s)" symbol))))
+         ((eq sym 'keyword)
+          (list "[map]"))
+         ((eq sym 'undefined)
+          (error "Undefined"))
+         ((and (listp sym) (eq (car sym) 'variable))
+          (list "variable"))
+         (t
+          (read
+           (lispy--eval-clojure-cider
+            (format "(lispy-clojure/arglist '%s)" symbol)))))))))
 
 (defun lispy--clojure-args (symbol)
   "Return a pretty string with arguments for SYMBOL.
