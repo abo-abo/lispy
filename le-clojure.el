@@ -416,14 +416,15 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
          (expand-file-name "lispy-clojure.clj" lispy-site-directory)))
       (puthash conn t lispy--clojure-middleware-loaded-hash)
       (add-hook 'nrepl-disconnected-hook #'lispy--clojure-middleware-unload)
-      (let ((sources-expr
-             (format
-              "(do \n  %s)"
-              (mapconcat
-               (lambda (p) (format "(cemerick.pomegranate/add-classpath %S)" p))
-               cider-jdk-src-paths
-               "\n  "))))
-        (lispy--eval-clojure-cider sources-expr))
+      (when cider-jdk-src-paths
+        (let ((sources-expr
+               (format
+                "(do \n  %s)"
+                (mapconcat
+                 (lambda (p) (format "(cemerick.pomegranate/add-classpath %S)" p))
+                 cider-jdk-src-paths
+                 "\n  "))))
+          (lispy--eval-clojure-cider sources-expr)))
       (when lispy-clojure-middleware-tests
         (lispy-message
          (lispy--eval-clojure-cider "(lispy-clojure/run-lispy-tests)"))))))
