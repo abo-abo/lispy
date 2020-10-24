@@ -520,19 +520,19 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
            (let* ((bnd (or (bounds-of-thing-at-point 'symbol)
                            (cons (point) (point))))
                   (obj (cond
-                        ((save-excursion
-                           (lispy--out-backward 1 t)
-                           (looking-at "(\\.\\."))
-                         (concat
-                          (buffer-substring-no-properties (match-beginning 0) (car bnd))
-                          ")"))
-                        ((save-excursion
-                           (lispy--back-to-paren)
-                           (when (looking-at "(\\.[\t\n ]")
-                             (ignore-errors
-                               (forward-char 1)
-                               (forward-sexp 2)
-                               (lispy--string-dwim)))))))
+                         ((save-excursion
+                            (lispy--out-backward 1 t)
+                            (looking-at "(\\.\\."))
+                          (concat
+                           (buffer-substring-no-properties (match-beginning 0) (car bnd))
+                           ")"))
+                         ((save-excursion
+                            (lispy--back-to-paren)
+                            (when (looking-at "(\\.[\t\n ]")
+                              (ignore-errors
+                                (forward-char 1)
+                                (forward-sexp 2)
+                                (lispy--string-dwim)))))))
                   res)
              (cond ((and obj
                          (setq res (lispy--eval-clojure-cider
@@ -560,10 +560,11 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
                       (list (car bnd) (cdr bnd) candsa)))
                    (t
                     (let* ((prefix (lispy--string-dwim bnd))
-                           (cands (read (lispy--eval-clojure-cider
-                                         (format
-                                          "(lispy-clojure/complete %S)"
-                                          prefix)))))
+                           (res (lispy--eval-clojure-cider
+                                 (format
+                                  "(lispy-clojure/complete %S)"
+                                  prefix)))
+                           (cands (and (null lispy-eval-error) (read res))))
                       (list (car bnd) (cdr bnd) cands)))))))))
 
 (defun lispy--clojure-dot-args ()
