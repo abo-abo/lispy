@@ -411,27 +411,27 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
     (setq lispy--clojure-ns "user")
     (let* ((conn (lispy--clojure-process-buffer))
            (middleware-fname
-            (expand-file-name
-             (if (string-match "clojurescript\\|cljs" (buffer-name conn))
-                 "lispy-clojure.cljs"
-               "lispy-clojure.clj")
-             lispy-site-directory)))
+            (if (string-match "clojurescript\\|cljs" (buffer-name conn))
+                "lispy-clojure.cljs"
+              "lispy-clojure.clj")))
       (save-window-excursion
-        (lispy-cider-load-file middleware-fname))
-      (puthash conn t lispy--clojure-middleware-loaded-hash))
-    (add-hook 'nrepl-disconnected-hook #'lispy--clojure-middleware-unload)
-    (when cider-jdk-src-paths
-      (let ((sources-expr
-             (format
-              "(do \n  %s)"
-              (mapconcat
-               (lambda (p) (format "(cemerick.pomegranate/add-classpath %S)" p))
-               cider-jdk-src-paths
-               "\n  "))))
-        (lispy--eval-clojure-cider sources-expr)))
-    (when lispy-clojure-middleware-tests
-      (lispy-message
-       (lispy--eval-clojure-cider "(lispy-clojure/run-lispy-tests)")))))
+        (lispy-cider-load-file
+         (expand-file-name middleware-fname lispy-site-directory)))
+      (puthash conn t lispy--clojure-middleware-loaded-hash)
+      (add-hook 'nrepl-disconnected-hook #'lispy--clojure-middleware-unload)
+      (when (equal middleware-fname "lispy-clojure.clj")
+        (when cider-jdk-src-paths
+          (let ((sources-expr
+                 (format
+                  "(do \n  %s)"
+                  (mapconcat
+                   (lambda (p) (format "(cemerick.pomegranate/add-classpath %S)" p))
+                   cider-jdk-src-paths
+                   "\n  "))))
+            (lispy--eval-clojure-cider sources-expr)))
+        (when lispy-clojure-middleware-tests
+          (lispy-message
+           (lispy--eval-clojure-cider "(lispy-clojure/run-lispy-tests)")))))))
 
 (defun lispy-flatten--clojure (_arg)
   "Inline a Clojure function at the point of its call."
