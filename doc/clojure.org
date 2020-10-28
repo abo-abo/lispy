@@ -64,7 +64,7 @@ Secondly, the namespace isn't actully polluted. These "shadow" bindings are stor
 single dictionary variable in the current namespace called =shadows=. And when you call ~e~ on
 the third expression =(partition 2 x2)=, this is what =lispy.el= passes to the middleware:
 #+begin_src clojure
-(lispy-clojure/reval
+(lispy.clojure/reval
   "(partition 2 x2)"
   "[x1 (range 10)\n      x2 (map #(* %) x1)\n      x3 (partition 2 x2)]"
   "test.clj" 1)
@@ -72,7 +72,7 @@ the third expression =(partition 2 x2)=, this is what =lispy.el= passes to the m
 
 which expands to (I used ~xj~ and ~2e~ to eval and insert all those comments in place):
 #+begin_src clojure
-(ns lispy-clojure)
+(ns lispy.clojure)
 
 (let [x1 (range 10)
       x2 (map #(* % %) x1)
@@ -111,7 +111,7 @@ which expands to (I used ~xj~ and ~2e~ to eval and insert all those comments in 
         ;; =>
         ;; (clojure.core/let
         ;;  [x3 (partition 2 x2)]
-        ;;  (lispy-clojure/shadow-def 'x3 x3)
+        ;;  (lispy.clojure/shadow-def 'x3 x3)
         ;;  {:x3 x3})
         ]
     (eval `(with-shadows
@@ -120,12 +120,12 @@ which expands to (I used ~xj~ and ~2e~ to eval and insert all those comments in 
                (catch Exception ~'e
                  (clojure.core/str "error: " ~ 'e))))
           ;; =>
-          ;; (lispy-clojure/with-shadows
+          ;; (lispy.clojure/with-shadows
           ;;  (try
           ;;   (do
           ;;    (clojure.core/let
           ;;     [x3 (partition 2 x2)]
-          ;;     (lispy-clojure/shadow-def 'x3 x3)
+          ;;     (lispy.clojure/shadow-def 'x3 x3)
           ;;     {:x3 x3}))
           ;;   (catch java.lang.Exception e (clojure.core/str "error: " e))))
           )
@@ -133,15 +133,15 @@ which expands to (I used ~xj~ and ~2e~ to eval and insert all those comments in 
     ))
 #+end_src
 
-And finally, the expansion =lispy-clojure/with-shadows= is passed to =eval=:
+And finally, the expansion =lispy.clojure/with-shadows= is passed to =eval=:
 #+begin_src clojure
-(let* [x1 ((lispy-clojure/shadow-map) "x1")
-       x2 ((lispy-clojure/shadow-map) "x2")]
+(let* [x1 ((lispy.clojure/shadow-map) "x1")
+       x2 ((lispy.clojure/shadow-map) "x2")]
   (try
     (do
       (clojure.core/let
           [x3 (partition 2 x2)]
-          (lispy-clojure/shadow-def
+          (lispy.clojure/shadow-def
             (quote x3)
             x3)
           {:x3 x3}))
@@ -153,5 +153,5 @@ And finally, the expansion =lispy-clojure/with-shadows= is passed to =eval=:
 
 Here's a quick way to clean up all shadow variables:
 #+begin_src clojure
-(lispy-clojure/shadow-unmap *ns*)
+(lispy.clojure/shadow-unmap *ns*)
 #+end_src

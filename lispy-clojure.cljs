@@ -1,4 +1,4 @@
-;;; lispy-clojure.clj --- lispy support for ClojureScript.
+;;; lispy-clojure.cljs --- lispy support for ClojureScript.
 
 ;; Copyright (C) 2020 Oleh Krehel
 
@@ -17,7 +17,7 @@
 ;; For a full copy of the GNU General Public License
 ;; see <http://www.gnu.org/licenses/>.
 
-(ns lispy-clojure
+(ns lispy.clojure
   (:require [clojure.repl :as repl]
             [clojure.pprint]
             [clojure.string :as str]))

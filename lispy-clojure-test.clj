@@ -19,7 +19,7 @@
 
 (ns lispy-clojure-test
   (:use [clojure.test :only [is deftest]]
-        [lispy-clojure :only [add-location-to-defn
+        [lispy.clojure :only [add-location-to-defn
                               add-location-to-def
                               debug-step-in
                               dest
@@ -82,7 +82,7 @@
     (=
       ((juxt :file :line)
        (debug-step-in
-         '(lispy-clojure/add-location-to-def '(def x 1) "/foo/bar.clj" 42)))
+         '(lispy.clojure/add-location-to-def '(def x 1) "/foo/bar.clj" 42)))
       ["/foo/bar.clj" 42])))
 
 (deftest reader=-test
@@ -145,7 +145,7 @@
            ["/foo/bar.clj" 42]))))
 
 (deftest guess-intent-test
-  (is (= (guess-intent '(defproject) nil) '(lispy-clojure/fetch-packages)))
+  (is (= (guess-intent '(defproject) nil) '(lispy.clojure/fetch-packages)))
   (is (= (guess-intent 'x '[x y]) 'x))
   (is (= (guess-intent '*ns* '*ns*) '*ns*))
   (is (= (guess-intent '(+ 1 2) '[(+ 1 2) (+ 3 4) (+ 5 6)])
@@ -176,10 +176,10 @@
   (is (= (reval "(def x1 1)\n(+ x1 x1)" nil) 2)))
 
 (deftest format-ctor-test
-  (is (= (lispy-clojure/format-ctor "protected java.awt.Graphics2D()") "java.awt.Graphics2D.")))
+  (is (= (lispy.clojure/format-ctor "protected java.awt.Graphics2D()") "java.awt.Graphics2D.")))
 
 (deftest read-string-all-test
-  (is (= (lispy-clojure/read-string-all "(foo) (bar) \"baz\"")
+  (is (= (lispy.clojure/read-string-all "(foo) (bar) \"baz\"")
          '[(foo) (bar) "baz"])))
 
 (clojure.test/run-tests 'lispy-clojure-test)

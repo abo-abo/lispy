@@ -17,7 +17,7 @@
 ;; For a full copy of the GNU General Public License
 ;; see <http://www.gnu.org/licenses/>.
 
-(ns lispy-clojure
+(ns lispy.clojure
   (:require [clojure.repl :as repl]
             [clojure.pprint]
             [clojure.java.io :as io]
