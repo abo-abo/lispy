@@ -22,21 +22,24 @@
    [goog.object]))
 
 (defn object-members [obj]
-  (loop [o obj
-         res ()]
-    (if (nil? o)
-      res
-      (recur
-        (js/Object.getPrototypeOf o)
-        (concat
-          res
-          (map
-            (fn [n]
-              (let [tp (type (goog.object/get obj n))]
-                (if (= tp js/Function)
-                  n
-                  (str "-" n))))
-            (remove
-              (fn [x] (or (re-find #"__|constructor|[$]" x)
-                          (re-matches #"[0-9]+" x)))
-              (vec (js/Object.getOwnPropertyNames o)))))))))
+  (let [obj (if (string? obj)
+              (js/Object.getPrototypeOf obj)
+              obj)]
+    (loop [o obj
+           res ()]
+      (if (nil? o)
+        res
+        (recur
+          (js/Object.getPrototypeOf o)
+          (concat
+            res
+            (map
+              (fn [n]
+                (let [tp (type (goog.object/get obj n))]
+                  (if (= tp js/Function)
+                    n
+                    (str "-" n))))
+              (remove
+                (fn [x] (or (re-find #"__|constructor|[$]" x)
+                            (re-matches #"[0-9]+" x)))
+                (vec (js/Object.getOwnPropertyNames o))))))))))
