@@ -33,7 +33,7 @@
           (map
             (fn [n]
               (let [tp (type (goog.object/get js/document n))]
-                (if (and tp (= "Function" (. tp -name)))
+                (if (= tp js/Function)
                   n
                   (str "-" n))))
             (remove
