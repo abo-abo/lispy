@@ -157,10 +157,11 @@ Add the standard output to the result."
                    "Using cider-connect")
                (let ((cider-allow-jack-in-without-project t)
                      (cider-jack-in-dependencies
-                      (append
-                       cider-jack-in-dependencies
-                       (and (eq major-mode 'clojure-mode)
-                            lispy-cider-jack-in-dependencies))))
+                      (delete-dups
+                       (append
+                        cider-jack-in-dependencies
+                        (and (eq major-mode 'clojure-mode)
+                             lispy-cider-jack-in-dependencies)))))
                  (call-interactively lispy-cider-connect-method))
                (format "Starting CIDER using %s ..." lispy-cider-connect-method))))
           ((eq current-prefix-arg 7)
