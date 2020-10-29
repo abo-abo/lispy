@@ -37,5 +37,6 @@
                   n
                   (str "-" n))))
             (remove
-              (fn [x] (re-find #"__|constructor|[$]" x))
+              (fn [x] (or (re-find #"__|constructor|[$]" x)
+                          (re-matches #"[0-9]+" x)))
               (vec (js/Object.getOwnPropertyNames o)))))))))
