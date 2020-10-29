@@ -544,34 +544,7 @@ malleable to refactoring."
     (xcond ((:l-file m)
             (list (:l-file m) (:l-line m)))
            ((and (:file m) (not (re-matches #"^/tmp/" (:file m))))
-            (list (file->elisp (:file m)) (:line m)))
-           ;; ((class? rs)
-           ;;  (let [sym (symbol (class-name rs))
-           ;;        info (parser/source-info sym)]
-           ;;    (list
-           ;;      (file->elisp
-           ;;        (:file info))
-           ;;      (:line info))))
-           ;; ((nil? rs)
-           ;;  (let [name (str sym)
-           ;;        [cls method] (str/split name #"/")
-           ;;        file (-> (clojure.core/symbol cls)
-           ;;                 (resolve)
-           ;;                 (class-name)
-           ;;                 (parser/source-path)
-           ;;                 (file->elisp))
-           ;;        line (-> (symbol cls)
-           ;;                 (resolve)
-           ;;                 (class-name)
-           ;;                 (symbol)
-           ;;                 (parser/source-info)
-           ;;                 (:members)
-           ;;                 (get (clojure.core/symbol method))
-           ;;                 (vals)
-           ;;                 (first)
-           ;;                 (:line))]
-           ;;    (list file line)))
-           )))
+            (list (file->elisp (:file m)) (:line m))))))
 
 (defn pp [expr]
   (with-out-str
