@@ -3361,6 +3361,32 @@ Insert KEY if there's no command."
               (cons (line-beginning-position) (line-end-position))))
            "print(\"((\", end=\"\")")))
 
+(ert-deftest lispy--clojure-dot-object ()
+  (should (string= (lispy-with-v clj "(. (java.util.Date.) |)"
+                     (lispy--clojure-dot-object))
+                   "(java.util.Date.)"))
+  (should (string= (lispy-with-v clj "(.. (java.util.Date.) to|)"
+                     (lispy--clojure-dot-object))
+                   "(java.util.Date.)"))
+  (should (string= (lispy-with-v clj "(. (java.util.Date.) to|)"
+                     (lispy--clojure-dot-object))
+                   "(java.util.Date.)"))
+  (should (string= (lispy-with-v clj "(.. (java.util.Date.) toString (ends|))"
+                     (lispy--clojure-dot-object))
+                   "(.. (java.util.Date.) toString )"))
+  (should (string= (lispy-with-v clj "(.. (java.util.Date.) toString le|)"
+                     (lispy--clojure-dot-object))
+                   "(.. (java.util.Date.) toString)"))
+  (should (string= (lispy-with-v clj "(. (. (java.util.Date.) (toString)) (sp|))"
+                     (lispy--clojure-dot-object))
+                   "(. (java.util.Date.) (toString))"))
+  (should (string= (lispy-with-v clj "(. (. (. (java.util.Date.) (toString)) (split \"-\")) |)"
+                     (lispy--clojure-dot-object))
+                   "(. (. (java.util.Date.) (toString)) (split \"-\"))"))
+  (should (string= (lispy-with-v clj "(. (. (. (java.util.Date.) (toString)) (split \"-\")) (|))"
+                     (lispy--clojure-dot-object))
+                   "(. (. (java.util.Date.) (toString)) (split \"-\"))")))
+
 (provide 'lispy-test)
 
 ;;; lispy-test.el ends here

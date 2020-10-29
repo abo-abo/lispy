@@ -522,6 +522,25 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
   "Goto SYMBOL."
   (cider-find-var nil symbol))
 
+(defun lispy--clojure-dot-object (&optional bnd)
+  (let* ((bnd (or bnd
+                  (bounds-of-thing-at-point 'symbol)
+                  (cons (point) (point))))
+         (nested-p (eq (char-before (car bnd)) ?\()))
+    (when (save-excursion (lispy--out-backward (if nested-p 2 1) t) (looking-at "(\\.+"))
+      (string-trim
+       (let ((str
+              (concat
+               (buffer-substring-no-properties (match-beginning 0) (1- (car bnd)))
+               ")")))
+         (if (<= (save-excursion
+                   (when nested-p
+                     (lispy--out-backward 1 t))
+                   (lispy-dotimes 100 (backward-sexp 1)))
+                 (if (or nested-p (= (car bnd) (cdr bnd))) 2 3))
+             (string-trim str "[(.]+" ")")
+           str))))))
+
 (defun lispy-clojure-complete-at-point ()
   (cond ((lispy-complete-fname-at-point))
         ((and (memq major-mode lispy-clojure-modes)
@@ -530,20 +549,7 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
            (lispy--clojure-detect-ns)
            (let* ((bnd (or (bounds-of-thing-at-point 'symbol)
                            (cons (point) (point))))
-                  (obj (cond
-                         ((save-excursion
-                            (lispy--out-backward 1 t)
-                            (looking-at "(\\.\\."))
-                          (concat
-                           (buffer-substring-no-properties (match-beginning 0) (car bnd))
-                           ")"))
-                         ((save-excursion
-                            (lispy--back-to-paren)
-                            (when (looking-at "(\\.[\t\n ]")
-                              (ignore-errors
-                                (forward-char 1)
-                                (forward-sexp 2)
-                                (lispy--string-dwim)))))))
+                  (obj (lispy--clojure-dot-object bnd))
                   res)
              (cond ((and obj
                          (setq res (lispy--eval-clojure-cider
