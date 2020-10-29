@@ -170,8 +170,7 @@ Add the standard output to the result."
                  "(lispy.clojure/shadow-unmap *ns*)")
                 nil))
           (t
-           (unless (lispy--clojure-middleware-loaded-p)
-             (lispy--clojure-middleware-load))
+           (lispy--clojure-middleware-load)
            (lispy--eval-clojure-1 f-str e-str)))))
 
 ;;* Base eval
@@ -407,19 +406,25 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
 
 (defun lispy--clojure-middleware-load ()
   "Load the custom Clojure code in \"lispy-clojure.clj\"."
-  (unless (lispy--clojure-middleware-loaded-p)
-    (setq lispy--clojure-ns "user")
-    (let* ((conn (lispy--clojure-process-buffer))
-           (middleware-fname
-            (if (string-match "clojurescript\\|cljs" (buffer-name conn))
-                "lispy-clojure.cljs"
-              "lispy-clojure.clj")))
+  (let* ((access-time (lispy--clojure-middleware-loaded-p))
+         (conn (lispy--clojure-process-buffer))
+         (conn-type (if (string-match "clojurescript\\|cljs" (buffer-name conn))
+                        'cljs
+                      'clj))
+         (middleware-fname
+          (expand-file-name
+           (if (eq conn-type 'cljs) "lispy-clojure.cljs" "lispy-clojure.clj")
+           lispy-site-directory))
+         (middleware-access-time (file-attribute-access-time
+                                  (file-attributes middleware-fname))))
+    (when (or (null access-time) (time-less-p access-time middleware-access-time))
+      (setq lispy--clojure-ns "user")
       (save-window-excursion
         (lispy-cider-load-file
          (expand-file-name middleware-fname lispy-site-directory)))
-      (puthash conn t lispy--clojure-middleware-loaded-hash)
+      (puthash conn middleware-access-time lispy--clojure-middleware-loaded-hash)
       (add-hook 'nrepl-disconnected-hook #'lispy--clojure-middleware-unload)
-      (when (equal middleware-fname "lispy-clojure.clj")
+      (when (equal conn-type 'clj)
         (when cider-jdk-src-paths
           (let ((sources-expr
                  (format
