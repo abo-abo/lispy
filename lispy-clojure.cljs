@@ -32,7 +32,7 @@
           res
           (map
             (fn [n]
-              (let [tp (type (goog.object/get js/document n))]
+              (let [tp (type (goog.object/get obj n))]
                 (if (= tp js/Function)
                   n
                   (str "-" n))))
