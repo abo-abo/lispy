@@ -575,7 +575,8 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
                                   "(lispy.clojure/complete %S)"
                                   prefix)))
                            (cands (and (null lispy--clojure-errorp) (read res))))
-                      (list (car bnd) (cdr bnd) cands)))))))))
+                      (when cands
+                        (list (car bnd) (cdr bnd) cands))))))))))
 
 (defun lispy--clojure-dot-args ()
   (save-excursion
