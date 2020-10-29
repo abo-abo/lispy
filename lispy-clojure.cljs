@@ -18,9 +18,8 @@
 ;; see <http://www.gnu.org/licenses/>.
 
 (ns lispy.clojure
-  (:require [clojure.repl :as repl]
-            [clojure.pprint]
-            [clojure.string :as str]))
+  (:require
+   [goog.object]))
 
 (defn object-members [obj]
   (loop [o obj
@@ -31,6 +30,12 @@
         (js/Object.getPrototypeOf o)
         (concat
           res
-          (remove
-            (fn [x] (re-find #"__|constructor|[$]" x))
-            (vec (js/Object.getOwnPropertyNames o))))))))
+          (map
+            (fn [n]
+              (let [tp (type (goog.object/get js/document n))]
+                (if (and tp (= "Function" (. tp -name)))
+                  n
+                  (str "-" n))))
+            (remove
+              (fn [x] (re-find #"__|constructor|[$]" x))
+              (vec (js/Object.getOwnPropertyNames o)))))))))
