@@ -1815,7 +1815,7 @@ Insert KEY if there's no command."
                    (ly-raw newline)
                    (ly-raw raw function foo)
                    (ly-raw newline)
-                   (function foo)
+                   #'foo
                    (ly-raw newline)
                    (ly-raw string "\"#'bar\"")
                    (ly-raw newline)
@@ -1900,9 +1900,19 @@ Insert KEY if there's no command."
                      "|{:a {:nested \"map\"}}"
                    (lispy--read (lispy--string-dwim)))
                  '(ly-raw clojure-map
-                   (:a
+                   ((ly-raw clojure-symbol ":a")
                     (ly-raw clojure-map
-                     (:nested (ly-raw string "\"map\"")))))))
+                     ((ly-raw clojure-symbol ":nested")
+                      (ly-raw string "\"map\"")))))))
+  (should (equal (lispy-with-v clj
+                     "|#(swap! foo assoc :bar (. % .-value))"
+                   (lispy--read (lispy--string-dwim)))
+                 '(ly-raw clojure-lambda
+                   ((ly-raw clojure-symbol "swap!")
+                    (ly-raw clojure-symbol "foo")
+                    (ly-raw clojure-symbol "assoc")
+                    (ly-raw clojure-symbol ":bar")
+                    ((ly-raw clojure-symbol ".") % (ly-raw clojure-symbol ".-value"))))))
   (should (equal (lispy--read ":.name")
                  '(ly-raw clojure-keyword ":.name"))))
 
