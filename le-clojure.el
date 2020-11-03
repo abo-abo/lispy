@@ -132,12 +132,17 @@
 Each entry is (DIRECTORY :host HOSTNAME :port PORT).
 Example: '((\"~/git/luminous-1\" :host \"localhost\" :port 7000))")
 
+(defun lispy--clojure-middleware-load-hook ()
+  "Don't load the middleware too early for a ClojureScript REPL.
+It will cause an error, since before the init finishes it's a Clojure REPL."
+  (unless (eq (lispy--clojure-process-type) 'cljs)
+    (lispy--clojure-middleware-load)))
+
 (defun lispy--eval-clojure-cider (e-str)
   "Eval STR as Clojure code and return a string.
 Add the standard output to the result."
   (require 'cider)
-  (unless (eq major-mode 'clojurescript-mode)
-    (add-hook 'cider-connected-hook #'lispy--clojure-middleware-load))
+  (add-hook 'cider-connected-hook #'lispy--clojure-middleware-load-hook)
   (let ((f-str (lispy--eval-clojure-context e-str))
         deactivate-mark)
     (cond ((null (lispy--clojure-process-buffer))
@@ -405,13 +410,17 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
   :type 'boolean
   :group 'lispy)
 
+(defun lispy--clojure-process-type (&optional conn)
+  (let ((conn (or conn (lispy--clojure-process-buffer))))
+    (if (string-match "clojurescript\\|cljs" (buffer-name conn))
+        'cljs
+      'clj)))
+
 (defun lispy--clojure-middleware-load ()
   "Load the custom Clojure code in \"lispy-clojure.clj\"."
   (let* ((access-time (lispy--clojure-middleware-loaded-p))
          (conn (lispy--clojure-process-buffer))
-         (conn-type (if (string-match "clojurescript\\|cljs" (buffer-name conn))
-                        'cljs
-                      'clj))
+         (conn-type (lispy--clojure-process-type conn))
          (middleware-fname
           (expand-file-name
            (if (eq conn-type 'cljs) "lispy-clojure.cljs" "lispy-clojure.clj")
