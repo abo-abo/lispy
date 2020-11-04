@@ -28,7 +28,7 @@
     (loop [o obj
            res ()]
       (if (nil? o)
-        res
+        (into () (set res))
         (recur
           (js/Object.getPrototypeOf o)
           (concat
