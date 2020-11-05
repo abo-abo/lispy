@@ -568,6 +568,8 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
                       (when (> (cdr bnd) (car bnd))
                         (setq cands (all-completions (lispy--string-dwim bnd) cands)))
                       (list (car bnd) (cdr bnd) cands)))
+                   ((eq (lispy--clojure-process-type) 'cljs)
+                    nil)
                    ((save-excursion
                       (lispy--out-backward 2 t)
                       (looking-at "(import"))
