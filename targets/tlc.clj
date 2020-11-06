@@ -14,3 +14,4 @@
 (print-versions)
 (disable-illegal-access-warnings)
 (load-file "lispy-clojure.clj")
+(load-file "lispy-clojure-test.clj")
