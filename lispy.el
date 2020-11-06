@@ -4549,9 +4549,11 @@ If STR is too large, pop it to a buffer instead."
                 (lispy-eval-python-str))
                (t
                 (lispy--string-dwim)))))
-    (condition-case e
-        (lispy--eval eval-str)
-      (eval-error (cdr e)))))
+    (if (string= "" eval-str)
+        ""
+      (condition-case e
+          (lispy--eval eval-str)
+        (eval-error (cdr e))))))
 
 (defun lispy-eval-and-insert ()
   "Eval last sexp and insert the result."
