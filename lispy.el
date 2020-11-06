@@ -4496,6 +4496,8 @@ Return the result of the last evaluation as a string."
          (bnd (lispy--eval-bounds-outline))
          (res
           (lispy--eval-dwim bnd)))
+    (when lispy-eval-output
+      (setq res (concat lispy-eval-output res)))
     (cond ((equal res "")
            (message "(ok)"))
           ((= ?: (char-before (line-end-position)))
