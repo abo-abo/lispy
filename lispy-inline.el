@@ -266,13 +266,11 @@ The caller of `lispy--show' might use a substitute e.g. `describe-function'."
         (replace-regexp-in-string
          "^\\(?:-+\n\\|\n*.*$.*@.*\n*\\)" ""
          (cond ((stringp rsymbol)
-                (read
-                 (lispy--eval-clojure-cider
-                  (format "(with-out-str (clojure.repl/doc %s))" rsymbol))))
+                (lispy--eval-clojure-cider
+                 (format "(with-out-str (clojure.repl/doc %s))" rsymbol)))
                ((eq rsymbol 'special)
-                (read
-                 (lispy--eval-clojure-cider
-                  (format "(with-out-str (clojure.repl/doc %s))" sym))))
+                (lispy--eval-clojure-cider
+                 (format "(with-out-str (clojure.repl/doc %s))" sym)))
                ((eq rsymbol 'keyword)
                 "No docs for keywords")
                ((and (listp rsymbol)
