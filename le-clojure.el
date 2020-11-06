@@ -150,7 +150,7 @@ Add the standard output to the result."
                  `(lambda ()
                     (set-window-configuration
                      ,(current-window-configuration))
-                    (message
+                    (lispy-message
                      (lispy--eval-clojure-1 ,f-str ,e-str))))
            (add-hook 'nrepl-connected-hook
                      'lispy--clojure-eval-hook-lambda t)
@@ -181,15 +181,15 @@ Add the standard output to the result."
 
 ;;* Base eval
 (defvar lispy--clojure-errorp nil)
-(defun lispy--eval-clojure-1 (str add-output)
+(defun lispy--eval-clojure-1 (f-str e-str)
   (setq lispy--clojure-errorp nil)
   (or
-   (and (stringp add-output)
-        (lispy--eval-clojure-handle-ns add-output))
+   (and (stringp e-str)
+        (lispy--eval-clojure-handle-ns e-str))
    (let* (pp
-          (stra (if (setq pp (string-match "\\`(lispy.clojure/\\(pp\\|reval\\)" str))
-                    str
-                  (format "(do %s)" str)))
+          (stra (if (setq pp (string-match "\\`(lispy.clojure/\\(pp\\|reval\\)" f-str))
+                    f-str
+                  (format "(do %s)" f-str)))
           (res (lispy--eval-nrepl-clojure stra lispy--clojure-ns))
           (status (nrepl-dict-get res "status"))
           (res (cond ((or (member "namespace-not-found" status))
@@ -206,7 +206,8 @@ Add the standard output to the result."
             (lispy--clojure-pretty-string
              (nrepl-dict-get res "err")))
 
-           (add-output
+           ;; add-output??
+           (e-str
             (concat
              (if (setq out (nrepl-dict-get res "out"))
                  (concat (propertize out 'face 'font-lock-string-face) "\n")
