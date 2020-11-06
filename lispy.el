@@ -4386,6 +4386,8 @@ When at an outline, eval the outline."
              (lispy-eval-outline))
             (t
              (let ((res (lispy--eval nil)))
+               (when (memq major-mode lispy-clojure-modes)
+                 (setq res (lispy--clojure-pretty-string res)))
                (when lispy-eval-output
                  (setq res (concat lispy-eval-output res)))
                (cond ((eq lispy-eval-display-style 'message)

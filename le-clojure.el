@@ -199,23 +199,15 @@ Add the standard output to the result."
                       res)))
           (val
            (nrepl-dict-get res "value"))
-          out)
-     (cond
-       ;; add-output??
-       (e-str
-        (concat
-         (if (setq out (nrepl-dict-get res "out"))
-             (concat (propertize out 'face 'font-lock-string-face) "\n")
-           "")
-         (lispy--clojure-pretty-string
-          (if pp
-              (condition-case nil
-                  (string-trim (read val))
-                (error val))
-            val))))
-
-       (t
-        (lispy--clojure-pretty-string val))))))
+          (out (nrepl-dict-get res "out")))
+     (when out
+       (setq lispy-eval-output
+             (concat (propertize out 'face 'font-lock-string-face) "\n")))
+     (if pp
+         (condition-case nil
+             (string-trim (read val))
+           (error val))
+       val))))
 
 (defun lispy--eval-clojure-handle-ns (str)
   (when (or (string-match "\\`(ns \\([a-z-_0-9\\.]+\\)" str)
