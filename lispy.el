@@ -4371,8 +4371,9 @@ SYMBOL is a string."
 (declare-function eros--eval-overlay "ext:eros")
 
 (defun lispy-eval (arg)
-  "Eval last sexp.
-When ARG is 2, insert the result as a comment."
+  "Eval the current sexp and display the result.
+When ARG is 2, insert the result as a comment.
+When at an outline, eval the outline."
   (interactive "p")
   (cond ((eq arg 2)
          (lispy-eval-and-comment))
