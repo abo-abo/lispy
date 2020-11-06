@@ -25,7 +25,7 @@ plain:
 	$(QEMACS) -l elpa.el lispy.el
 
 clojure:
-	clojure -e '(load-file "targets/tlc.clj")'
+	clojure -M -e '(load-file "targets/tlc.clj")'
 
 clean:
 	rm -f *.elc
