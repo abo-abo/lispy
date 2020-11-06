@@ -180,9 +180,7 @@ Add the standard output to the result."
            (lispy--eval-clojure-1 f-str e-str)))))
 
 ;;* Base eval
-(defvar lispy--clojure-errorp nil)
 (defun lispy--eval-clojure-1 (f-str e-str)
-  (setq lispy--clojure-errorp nil)
   (or
    (and (stringp e-str)
         (lispy--eval-clojure-handle-ns e-str))
@@ -195,32 +193,29 @@ Add the standard output to the result."
           (res (cond ((or (member "namespace-not-found" status))
                       (lispy--eval-nrepl-clojure stra))
                      ((member "eval-error" status)
-                      (setq lispy--clojure-errorp t)
-                      res)
+                      (signal 'eval-error (lispy--clojure-pretty-string
+                                           (nrepl-dict-get res "err"))))
                      (t
                       res)))
           (val
            (nrepl-dict-get res "value"))
           out)
-     (cond ((null val)
-            (lispy--clojure-pretty-string
-             (nrepl-dict-get res "err")))
+     (cond
+       ;; add-output??
+       (e-str
+        (concat
+         (if (setq out (nrepl-dict-get res "out"))
+             (concat (propertize out 'face 'font-lock-string-face) "\n")
+           "")
+         (lispy--clojure-pretty-string
+          (if pp
+              (condition-case nil
+                  (string-trim (read val))
+                (error val))
+            val))))
 
-           ;; add-output??
-           (e-str
-            (concat
-             (if (setq out (nrepl-dict-get res "out"))
-                 (concat (propertize out 'face 'font-lock-string-face) "\n")
-               "")
-             (lispy--clojure-pretty-string
-              (if pp
-                  (condition-case nil
-                      (string-trim (read val))
-                    (error val))
-                val))))
-
-           (t
-            (lispy--clojure-pretty-string val))))))
+       (t
+        (lispy--clojure-pretty-string val))))))
 
 (defun lispy--eval-clojure-handle-ns (str)
   (when (or (string-match "\\`(ns \\([a-z-_0-9\\.]+\\)" str)
@@ -308,9 +303,6 @@ If it doesn't work, try to resolve in all available namespaces."
   (let ((str (lispy--eval-clojure-cider
               (format "(lispy.clojure/resolve-sym '%s)" symbol))))
     (cond
-      (lispy--clojure-errorp
-       (user-error str))
-
       ((string-match "^#'\\(.*\\)$" str)
        (match-string 1 str))
       (t
@@ -562,9 +554,8 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
                   (obj (lispy--clojure-dot-object bnd))
                   res)
              (cond ((and obj
-                         (setq res (lispy--eval-clojure-cider
-                                    (format "(lispy.clojure/object-members %s)" obj)))
-                         (null lispy--clojure-errorp))
+                         (setq res (lispy--eval-clojure-cider-noerror
+                                    (format "(lispy.clojure/object-members %s)" obj))))
                     (let ((cands (read res)))
                       (when (> (cdr bnd) (car bnd))
                         (setq cands (all-completions (lispy--string-dwim bnd) cands)))
@@ -589,13 +580,17 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
                       (list (car bnd) (cdr bnd) candsa)))
                    (t
                     (let* ((prefix (lispy--string-dwim bnd))
-                           (res (lispy--eval-clojure-cider
-                                 (format
-                                  "(lispy.clojure/complete %S)"
-                                  prefix)))
-                           (cands (and (null lispy--clojure-errorp) (read res))))
+                           (cands (read (lispy--eval-clojure-cider-noerror
+                                         (format
+                                          "(lispy.clojure/complete %S)"
+                                          prefix)))))
                       (when cands
                         (list (car bnd) (cdr bnd) cands))))))))))
+
+(defun lispy--eval-clojure-cider-noerror (e-str)
+  (condition-case nil
+      (lispy--eval-clojure-cider e-str)
+    (eval-error nil)))
 
 (defun lispy--clojure-dot-args ()
   (save-excursion

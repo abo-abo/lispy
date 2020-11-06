@@ -4364,38 +4364,44 @@ SYMBOL is a string."
     (hy-mode
      le-hy lispy--eval-hy)))
 
-(defvar lispy-eval-error nil
-  "The eval function may set this when there's an error.")
+(defvar lispy-eval-output nil
+  "The eval function may set this when there's output.")
 
 (declare-function cider--display-interactive-eval-result "ext:cider-overlays")
 (declare-function eros--eval-overlay "ext:eros")
+
+(define-error 'eval-error "Eval error")
 
 (defun lispy-eval (arg)
   "Eval the current sexp and display the result.
 When ARG is 2, insert the result as a comment.
 When at an outline, eval the outline."
   (interactive "p")
-  (cond ((eq arg 2)
-         (lispy-eval-and-comment))
-        ((and (looking-at lispy-outline)
-              (looking-at lispy-outline-header))
-         (lispy-eval-outline))
-        (t
-         (let ((res (lispy--eval nil)))
-           (when (member res '(nil ""))
-             (setq res lispy-eval-error))
-           (cond ((eq lispy-eval-display-style 'message)
-                  (lispy-message res))
-                 ((or (fboundp 'cider--display-interactive-eval-result)
-                      (require 'cider nil t))
-                  (cider--display-interactive-eval-result
-                   res (cdr (lispy--bounds-dwim))))
-                 ((or (fboundp 'eros--eval-overlay)
-                      (require 'eros nil t))
-                  (eros--eval-overlay
-                   res (cdr (lispy--bounds-dwim))))
-                 (t
-                  (error "Please install CIDER >= 0.10 or eros to display overlay")))))))
+  (setq lispy-eval-output nil)
+  (condition-case e
+      (cond ((eq arg 2)
+             (lispy-eval-and-comment))
+            ((and (looking-at lispy-outline)
+                  (looking-at lispy-outline-header))
+             (lispy-eval-outline))
+            (t
+             (let ((res (lispy--eval nil)))
+               (when lispy-eval-output
+                 (setq res (concat lispy-eval-output res)))
+               (cond ((eq lispy-eval-display-style 'message)
+                      (lispy-message res))
+                     ((or (fboundp 'cider--display-interactive-eval-result)
+                          (require 'cider nil t))
+                      (cider--display-interactive-eval-result
+                       res (cdr (lispy--bounds-dwim))))
+                     ((or (fboundp 'eros--eval-overlay)
+                          (require 'eros nil t))
+                      (eros--eval-overlay
+                       res (cdr (lispy--bounds-dwim))))
+                     (t
+                      (error "Please install CIDER >= 0.10 or eros to display overlay"))))))
+    (eval-error
+     (lispy-message (cdr e)))))
 
 (defun lispy-forward-outline ()
   (let ((pt (point)))
@@ -4486,15 +4492,9 @@ Return the result of the last evaluation as a string."
 (defun lispy-eval-single-outline ()
   (let* ((pt (point))
          (bnd (lispy--eval-bounds-outline))
-         (res (lispy--eval
-               (lispy--string-dwim bnd))))
-    (when (and (null res)
-               (eq major-mode 'python-mode)
-               (string-match "^\\(.*Error:.*\\)" lispy-eval-error))
-      (setq res (match-string-no-properties 1 lispy-eval-error)))
-    (cond ((null res)
-           (lispy-message lispy-eval-error))
-          ((equal res "")
+         (res
+          (lispy--eval-dwim bnd)))
+    (cond ((equal res "")
            (message "(ok)"))
           ((= ?: (char-before (line-end-position)))
            (goto-char (cdr bnd))
@@ -4539,11 +4539,17 @@ If STR is too large, pop it to a buffer instead."
         (message str)
       (error (message (replace-regexp-in-string "%" "%%" str))))))
 
-(defun lispy--eval-dwim ()
-  (let ((eval-str (if (eq major-mode 'python-mode)
-                      (lispy-eval-python-str)
-                    (lispy--string-dwim))))
-    (lispy--eval eval-str)))
+(defun lispy--eval-dwim (&optional bnd)
+  (let ((eval-str
+         (cond (bnd
+                (lispy--string-dwim bnd))
+               ((eq major-mode 'python-mode)
+                (lispy-eval-python-str))
+               (t
+                (lispy--string-dwim)))))
+    (condition-case e
+        (lispy--eval eval-str)
+      (eval-error (cdr e)))))
 
 (defun lispy-eval-and-insert ()
   "Eval last sexp and insert the result."
@@ -4596,7 +4602,7 @@ If STR is too large, pop it to a buffer instead."
                        (point))))))))
             ((lispy-left-p)
              (lispy-different)))
-      (lispy--insert-eval-result (or str lispy-eval-error))
+      (lispy--insert-eval-result str)
       (unless (eolp)
         (newline)))
     (unless (eq major-mode 'python-mode)

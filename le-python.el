@@ -378,9 +378,9 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
                        (python-shell-send-string-no-output
                         str (lispy--python-proc)))
                       ((null p1-output)
-                       (lispy-message lispy-eval-error))
+                       (signal 'eval-error ""))
                       ((null (setq p2-output (lispy--eval-python p2)))
-                       (lispy-message lispy-eval-error))
+                       (signal 'eval-error ""))
                       (t
                        (concat
                         (if (string= p1-output "")
@@ -418,10 +418,9 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
           (match-end 0)
           '(face error)
           res)
-         (setq lispy-eval-error res)
-         nil)
+         (signal 'eval-error res))
         ((equal res "")
-         (setq lispy-eval-error "(ok)")
+         (setq lispy-eval-output "(ok)")
          "")
         ((string-match-p "^<\\(?:map\\|filter\\|generator\\|enumerate\\|zip\\) object" res)
          (let ((last (car (last (split-string str "\n")))))
@@ -431,8 +430,7 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
                   (setq str (match-string 1 last)))))
          (lispy--eval-python (format "list(%s)" str) t))
         ((string-match-p "SyntaxError:" res)
-         (setq lispy-eval-error res)
-         nil)
+         (signal 'eval-error res))
         (t
          (replace-regexp-in-string "\\\\n" "\n" res))))))
 
@@ -675,18 +673,18 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
                            (format "%s = %s" (car x) (cdr x)))
                          fn-alist
                          "; "))
-        (if (lispy--eval-python dbg-cmd t)
-            (progn
-              (goto-char orig-point)
-              (set-text-properties
-               0 1
-               `(
-                 filename ,(plist-get fn-data :filename)
-                 line ,(plist-get fn-data :line))
-               fn)
-              (lispy-goto-symbol fn))
-          (goto-char p-ar-beg)
-          (message lispy-eval-error))))))
+        (unwind-protect
+             (progn
+               (lispy--eval-python dbg-cmd t)
+               (goto-char orig-point)
+               (set-text-properties
+                0 1
+                `(
+                  filename ,(plist-get fn-data :filename)
+                  line ,(plist-get fn-data :line))
+                fn)
+               (lispy-goto-symbol fn))
+          (goto-char p-ar-beg))))))
 
 (declare-function deferred:sync! "ext:deferred")
 (declare-function jedi:goto-definition "ext:jedi-core")
@@ -769,14 +767,11 @@ Otherwise, fall back to Jedi (static)."
                  "__name__='__repl__';"
                  "pm=lp.Autocall(lp.pm);")
                 module-path module-path))))
-      (if r
-          (progn
-            (when (file-exists-p lispy-python-init-file)
-              (lispy--eval-python
-               (format "exec (open ('%s').read(), globals ())"
-                       (expand-file-name lispy-python-init-file))))
-            (setq lispy--python-middleware-loaded-p t))
-        (lispy-message lispy-eval-error)))))
+      (when (file-exists-p lispy-python-init-file)
+        (lispy--eval-python
+         (format "exec (open ('%s').read(), globals ())"
+                 (expand-file-name lispy-python-init-file))))
+      (setq lispy--python-middleware-loaded-p t))))
 
 (defun lispy--python-arglist (symbol filename line column)
   (lispy--python-middleware-load)
@@ -814,10 +809,7 @@ Otherwise, fall back to Jedi (static)."
                         (buffer-file-name)
                         name
                         (line-number-at-pos))))))
-
-    (if (null res)
-        (message "Error: %S" lispy-eval-error)
-      (message "Break: %s" name))))
+    (message "Break: %s" name)))
 
 (provide 'le-python)
 
