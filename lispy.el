@@ -5095,7 +5095,8 @@ Sexp is obtained by exiting the list ARG times."
     (lispy--remember)
     (let ((level-up (1- (funcall outline-level))))
       (when (> level-up 0)
-        (re-search-backward (format "^#\\*\\{1,%d\\} " level-up) nil t)))))
+        (re-search-backward
+         (format "^%s\\*\\{1,%d\\} " lispy-outline-header level-up) nil t)))))
 
 (defun lispy-outline-right ()
   "Move right."
