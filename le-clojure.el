@@ -397,7 +397,7 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
 
 (defun lispy--clojure-process-type (&optional conn)
   (let ((conn (or conn (lispy--clojure-process-buffer))))
-    (if (string-match "clojurescript\\|cljs" (buffer-name conn))
+    (if (string-match "(.*cljs" (buffer-name conn))
         'cljs
       'clj)))
 
