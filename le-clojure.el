@@ -146,29 +146,34 @@ Add the standard output to the result."
   (let ((f-str (lispy--eval-clojure-context e-str))
         deactivate-mark)
     (cond ((null (lispy--clojure-process-buffer))
-           (setq lispy--clojure-hook-lambda
-                 `(lambda ()
-                    (set-window-configuration
-                     ,(current-window-configuration))
-                    (lispy-message
-                     (lispy--eval-clojure-1 ,f-str ,e-str))))
-           (add-hook 'nrepl-connected-hook
-                     'lispy--clojure-eval-hook-lambda t)
+           (unless (eq major-mode 'clojurescript-mode)
+             (setq lispy--clojure-hook-lambda
+                   `(lambda ()
+                      (set-window-configuration
+                       ,(current-window-configuration))
+                      (lispy-message
+                       (lispy--eval-clojure-1 ,f-str ,e-str))))
+             (add-hook 'nrepl-connected-hook
+                       'lispy--clojure-eval-hook-lambda t))
            (let ((project-cfg (assoc (clojure-project-dir (cider-current-dir))
                                      lispy-clojure-projects-alist)))
-             (if project-cfg
-                 (progn
-                   (cider-connect (cons :project-dir project-cfg))
-                   "Using cider-connect")
-               (let ((cider-allow-jack-in-without-project t)
-                     (cider-jack-in-dependencies
-                      (delete-dups
-                       (append
-                        cider-jack-in-dependencies
-                        (and (eq major-mode 'clojure-mode)
-                             lispy-cider-jack-in-dependencies)))))
-                 (call-interactively lispy-cider-connect-method))
-               (format "Starting CIDER using %s ..." lispy-cider-connect-method))))
+             (cond (project-cfg
+                    (cider-connect (cons :project-dir project-cfg))
+                    "Using cider-connect")
+                   ((eq major-mode 'clojurescript-mode)
+                    (let ((cider-jack-in-cljs-dependencies nil))
+                      (call-interactively #'cider-jack-in-cljs))
+                    "Starting CIDER using cider-jack-in-cljs ...")
+                   (t
+                    (let ((cider-allow-jack-in-without-project t)
+                          (cider-jack-in-dependencies
+                           (delete-dups
+                            (append
+                             cider-jack-in-dependencies
+                             (and (eq major-mode 'clojure-mode)
+                                  lispy-cider-jack-in-dependencies)))))
+                      (call-interactively lispy-cider-connect-method))
+                    (format "Starting CIDER using %s ..." lispy-cider-connect-method)))))
           ((eq current-prefix-arg 7)
            (kill-new f-str))
           ((and (eq current-prefix-arg 0)
