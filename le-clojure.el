@@ -187,7 +187,7 @@ Add the standard output to the result."
    (let* (pp
           (stra (if (setq pp (string-match "\\`(lispy.clojure/\\(pp\\|reval\\)" f-str))
                     f-str
-                  (format "(do %s)" f-str)))
+                  f-str))
           (res (lispy--eval-nrepl-clojure stra lispy--clojure-ns))
           (status (nrepl-dict-get res "status"))
           (res (cond ((or (member "namespace-not-found" status))
@@ -207,7 +207,8 @@ Add the standard output to the result."
          (condition-case nil
              (string-trim (read val))
            (error val))
-       val))))
+       (if (stringp val)
+           (string-trim val))))))
 
 (defun lispy--eval-clojure-handle-ns (str)
   (when (or (string-match "\\`(ns \\([a-z-_0-9\\.]+\\)" str)
