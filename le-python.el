@@ -673,18 +673,19 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
                            (format "%s = %s" (car x) (cdr x)))
                          fn-alist
                          "; "))
-        (unwind-protect
-             (progn
-               (lispy--eval-python dbg-cmd t)
-               (goto-char orig-point)
-               (set-text-properties
-                0 1
-                `(
-                  filename ,(plist-get fn-data :filename)
-                  line ,(plist-get fn-data :line))
-                fn)
-               (lispy-goto-symbol fn))
-          (goto-char p-ar-beg))))))
+        (condition-case nil
+            (progn
+              (lispy--eval-python dbg-cmd t)
+              (goto-char orig-point)
+              (set-text-properties
+               0 1
+               `(
+                 filename ,(plist-get fn-data :filename)
+                 line ,(plist-get fn-data :line))
+               fn)
+              (lispy-goto-symbol fn))
+          (error
+           (goto-char p-ar-beg)))))))
 
 (declare-function deferred:sync! "ext:deferred")
 (declare-function jedi:goto-definition "ext:jedi-core")
