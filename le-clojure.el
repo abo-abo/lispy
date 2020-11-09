@@ -124,6 +124,9 @@
     ("org.tcrawley/dynapath" "0.2.5")
     ("nrepl" "0.8.2")))
 
+(defvar cider-jack-in-cljs-dependencies)
+(defvar cider-jack-in-dependencies)
+
 (declare-function cider-connections "ext:cider-connection")
 (defvar cider-allow-jack-in-without-project)
 
