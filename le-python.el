@@ -481,7 +481,7 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
     (backward-sexp)
     (while (not (or
                  (bolp)
-                 (looking-back "[[ \t(]")))
+                 (lispy-looking-back "[[ \t(]")))
       (backward-sexp))
     (point)))
 
@@ -755,19 +755,19 @@ Otherwise, fall back to Jedi (static)."
 (defun lispy--python-middleware-load ()
   "Load the custom Python code in \"lispy-python.py\"."
   (unless lispy--python-middleware-loaded-p
-    (let* ((module-path (format "'lispy-python','%s'"
-                                (expand-file-name "lispy-python.py" lispy-site-directory)))
-           (r (lispy--eval-python
-               (format
-                (concat
-                 "try:\n"
-                 "    from importlib.machinery import SourceFileLoader\n"
-                 "    lp=SourceFileLoader(%s).load_module()\n"
-                 "except:\n"
-                 "    import imp;lp=imp.load_source(%s)\n"
-                 "__name__='__repl__';"
-                 "pm=lp.Autocall(lp.pm);")
-                module-path module-path))))
+    (let ((module-path (format "'lispy-python','%s'"
+                               (expand-file-name "lispy-python.py" lispy-site-directory))))
+      (lispy--eval-python
+       (format
+        (concat
+         "try:\n"
+         "    from importlib.machinery import SourceFileLoader\n"
+         "    lp=SourceFileLoader(%s).load_module()\n"
+         "except:\n"
+         "    import imp;lp=imp.load_source(%s)\n"
+         "__name__='__repl__';"
+         "pm=lp.Autocall(lp.pm);")
+        module-path module-path))
       (when (file-exists-p lispy-python-init-file)
         (lispy--eval-python
          (format "exec (open ('%s').read(), globals ())"
@@ -801,15 +801,15 @@ Otherwise, fall back to Jedi (static)."
                  beg
                  (if (bolp)
                      (line-end-position)
-                   (point))))
-         (res (lispy--eval-python
-               (concat
-                start
-                "\n    raise(RuntimeError(\"break\"))"
-                (format "\nlp.Stack.line_numbers[('%s', '%s')] = %d"
-                        (buffer-file-name)
-                        name
-                        (line-number-at-pos))))))
+                   (point)))))
+    (lispy--eval-python
+     (concat
+      start
+      "\n    raise(RuntimeError(\"break\"))"
+      (format "\nlp.Stack.line_numbers[('%s', '%s')] = %d"
+              (buffer-file-name)
+              name
+              (line-number-at-pos))))
     (message "Break: %s" name)))
 
 (provide 'le-python)
