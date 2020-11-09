@@ -43,3 +43,18 @@
                 (fn [x] (or (re-find #"__|constructor|[$]" x)
                             (re-matches #"[0-9]+" x)))
                 (vec (js/Object.getOwnPropertyNames o))))))))))
+
+(defn shadow-map []
+  (or
+    (aget js/window "shadows")
+    (set! (. js/window -shadows) {})))
+
+(defn shadow-unmap [nspc]
+  (set! (. js/window -shadows) {}))
+
+(defn shadow-def
+  "Give SYM in *ns* shadow value EXPR."
+  [sym expr]
+  (set! (. js/window -shadows)
+        (assoc (shadow-map) (name sym) expr))
+  expr)
