@@ -7012,6 +7012,7 @@ so that no other packages disturb the match data."
      ;; misc
      (defhydra . 1)
      (ivy-set-actions . 1)
+     (ivy-add-actions . 1)
      (ivy-set-sources . 1)
      (ivy-set-occur . 1)
      (ivy-configure . 1)))
