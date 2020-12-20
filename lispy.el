@@ -4854,6 +4854,14 @@ When ARG is non-nil, force select the window."
 
 (declare-function cider-doc-lookup "ext:cider-doc")
 
+(defun lispy-show-top-level ()
+  "Show first line of top-level form containing point."
+  (interactive)
+  (save-excursion
+    (beginning-of-defun)
+    (message "%s"
+             (buffer-substring (point-at-bol) (point-at-eol)))))
+
 (defun lispy-describe ()
   "Display documentation for `lispy--current-function'."
   (interactive)
@@ -6010,7 +6018,7 @@ An equivalent of `cl-destructuring-bind'."
   ("t" lispy-view-test "view test")
   ("u" lispy-unbind-variable "unbind let-var")
   ("v" lispy-eval-expression "eval")
-  ;; ("w" nil)
+  ("w" lispy-show-top-level "where")
   ;; ("x" nil)
   ;; ("y" nil)
   ;; ("z" nil)
