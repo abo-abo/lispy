@@ -187,6 +187,7 @@ situation.
     - <kbd>F</kbd> jumps to symbol, <kbd>D</kbd> jumps back
     - <kbd>C-1</kbd> shows documentation in an overlay
     - <kbd>C-2</kbd> shows arguments in an overlay
+    - <kbd>C-5</kbd> shows first line of top-level form containing point
     - [<kbd>Z</kbd>](http://abo-abo.github.io/lispy/#lispy-edebug-stop) breaks
       out of `edebug`, while storing current function's arguments
 
@@ -533,6 +534,13 @@ As you see, normal, &optional and &rest arguments have each a
 different face. Here's how it looks for Clojure:
 
 ![screenshot](https://raw.github.com/abo-abo/lispy/master/images/arglist-clojure.png)
+
+**`lispy-show-top-level`**
+
+Bound to <kbd>C-5</kbd>. Show the first line of the top-level form
+containing the point. This is useful when the point is in a long
+top-level form for which the top has scrolled off the top of the
+window and is not visible.
 
 **`lispy-goto`**
 
