@@ -145,7 +145,6 @@ It will cause an error, since before the init finishes it's a Clojure REPL."
   "Eval STR as Clojure code and return a string.
 Add the standard output to the result."
   (require 'cider)
-  (add-hook 'cider-connected-hook #'lispy--clojure-middleware-load-hook)
   (let ((f-str (lispy--eval-clojure-context e-str))
         deactivate-mark)
     (cond ((null (lispy--clojure-process-buffer))
@@ -154,6 +153,7 @@ Add the standard output to the result."
                    `(lambda ()
                       (set-window-configuration
                        ,(current-window-configuration))
+                      (lispy--clojure-middleware-load)
                       (lispy-message
                        (lispy--eval-clojure-1 ,f-str ,e-str))))
              (add-hook 'nrepl-connected-hook
