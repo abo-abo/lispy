@@ -5171,22 +5171,32 @@ When region is active, call `lispy-mark-car'."
           (t
            (lispy--normalize-1)))))
 
-(defun lispy-shifttab (arg)
-  "Hide/show outline summary.
-When ARG isn't nil, show table of contents."
-  (interactive "P")
+(defun lispy--show-hidden-outlines ()
+  (remove-overlays (point-min) (point-max) 'invisible 'outline))
+
+(defun lispy--org-content ()
   (require 'org)
+  (lispy--show-hidden-outlines)
+  (save-excursion
+    (goto-char (point-max))
+    (let ((last (point)))
+      (while (re-search-backward outline-regexp nil t)
+        (org-flag-region (line-end-position) last t 'outline)
+        (setq last (line-end-position 0))))))
+
+(defvar lispy--outline-state 'show-all)
+
+(defun lispy-shifttab ()
+  "Hide/show outline summary."
+  (interactive)
   (outline-minor-mode 1)
-  (let* ((outline-regexp lispy-outline)
-         (org-outline-regexp outline-regexp)
-         (org-outline-regexp-bol
-          (car (split-string lispy-outline))))
-    (lispy-flet (org-unlogged-message (&rest _x))
-      (if arg
-          (org-content)
-        (when (eq org-cycle-global-status 'overview)
-          (setq org-cycle-global-status 'contents))
-        (org-cycle-internal-global))))
+  (let ((outline-regexp lispy-outline))
+    (if (eq lispy--outline-state 'show-all)
+        (progn
+          (setq lispy--outline-state 'content)
+          (lispy--org-content))
+      (setq lispy--outline-state 'show-all)
+      (lispy--show-hidden-outlines)))
   (recenter))
 
 ;;* Locals: refactoring
