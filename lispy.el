@@ -5460,6 +5460,17 @@ With ARG, use the contents of `lispy-store-region-and-buffer' instead."
   (lispy-from-left
    (indent-sexp)))
 
+(defun lispy-cond<->if-dwim ()
+  "Convert between `cond' and `if'."
+  (interactive)
+  (ignore-errors
+    (lispy-from-left
+     (let* ((bounds (lispy--bounds-dwim))
+            (expr (lispy--read (lispy--string-dwim bounds))))
+       (if (eq (car expr) 'if)
+           (lispy-to-cond)
+         (lispy-to-ifs))))))
+
 (defun lispy-toggle-thread-last ()
   "Toggle current expression between last-threaded/unthreaded forms.
 Macro used may be customized in `lispy-thread-last-macro', which see."
@@ -5977,7 +5988,7 @@ An equivalent of `cl-destructuring-bind'."
   "x"
   ;; ("a" nil)
   ("b" lispy-bind-variable "bind variable")
-  ("c" lispy-to-cond "to cond")
+  ("c" lispy-cond<->if-dwim "to cond")
   ("C" lispy-cleanup "cleanup")
   ("d" lispy-to-defun "to defun")
   ("D" lispy-extract-defun "extract defun")
@@ -5986,7 +5997,6 @@ An equivalent of `cl-destructuring-bind'."
   ("F" lispy-let-flatten "let-flatten")
   ;; ("g" nil)
   ("h" lispy-describe "describe")
-  ("i" lispy-to-ifs "to ifs")
   ("j" lispy-debug-step-in "debug step in")
   ("k" lispy-extract-block "extract block")
   ("l" lispy-to-lambda "to lambda")
