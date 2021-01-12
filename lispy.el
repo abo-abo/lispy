@@ -5430,18 +5430,22 @@ With ARG, use the contents of `lispy-store-region-and-buffer' instead."
 (defun lispy-to-ifs ()
   "Transform current `cond' expression to equivalent `if' expressions."
   (interactive)
-  (lispy-from-left
-   (let* ((bnd (lispy--bounds-dwim))
-          (expr (lispy--read (lispy--string-dwim bnd))))
-     (unless (eq (car expr) 'cond)
-       (error "%s isn't cond" (car expr)))
-     (delete-region (car bnd) (cdr bnd))
-     (lispy--fast-insert
-      (car
-       (lispy--whitespace-trim
-        (lispy--cases->ifs (cdr expr)))))))
-  (lispy-from-left
-   (indent-sexp)))
+  ;; `lispy-different', used in `lispy-from-left', `user-error's if the cursor
+  ;; is not on an an sexp. `lispy--cases->ifs' transforms (cond (t X)) into X,
+  ;; so causes an error if X is a symbol.
+  (ignore-error user-error
+    (lispy-from-left
+     (let* ((bnd (lispy--bounds-dwim))
+            (expr (lispy--read (lispy--string-dwim bnd))))
+       (unless (eq (car expr) 'cond)
+         (error "%s isn't cond" (car expr)))
+       (delete-region (car bnd) (cdr bnd))
+       (lispy--fast-insert
+        (car
+         (lispy--whitespace-trim
+          (lispy--cases->ifs (cdr expr)))))))
+    (lispy-from-left
+     (indent-sexp))))
 
 (defun lispy-to-cond ()
   "Reverse of `lispy-to-ifs'."
@@ -5463,7 +5467,8 @@ With ARG, use the contents of `lispy-store-region-and-buffer' instead."
 (defun lispy-cond<->if-dwim ()
   "Convert between `cond' and `if'."
   (interactive)
-  (ignore-errors
+  ;; See `lispy-to-ifs'
+  (ignore-error user-error
     (lispy-from-left
      (let* ((bounds (lispy--bounds-dwim))
             (expr (lispy--read (lispy--string-dwim bounds))))
