@@ -7804,7 +7804,8 @@ Defaults to `error'."
 (defun lispy--cases->ifs (cases)
   "Return nested if statements that correspond to CASES."
   (cond ((= 1 (length cases))
-         (if (memq (caar cases) '(t :else))
+         (if (or (memq (caar cases) '(t :else))
+                 (and (derived-mode-p 'scheme-mode) (eq (caar cases) 'else)))
              (let ((then (cdar cases)))
                (if (equal (car then) '(ly-raw newline))
                    (cdr then)
