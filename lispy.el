@@ -5442,15 +5442,16 @@ before a `cond', transform to if."
             (res (cond ((eq (car expr) 'if)
                         (cons 'cond (lispy--ifs->cases expr)))
                        ((eq (car expr) 'cond)
-                        (car
-                         (lispy--whitespace-trim
-                          (lispy--cases->ifs (cdr expr)))))
+                        (and (cdr expr)
+                             (car
+                              (lispy--whitespace-trim
+                               (lispy--cases->ifs (cdr expr))))))
                        ((memq (car expr) '(case cl-case))
                         (lispy--case->cond expr))
                        (t
                         (error "Can't convert %s" (car expr))))))
        (delete-region (car bnd) (cdr bnd))
-       (lispy--fast-insert res)))
+       (when res (lispy--fast-insert res))))
     (lispy-from-left
      (indent-sexp))))
 (defalias 'lispy-to-cond #'lispy-cond<->if-dwim)
