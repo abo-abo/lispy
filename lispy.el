@@ -87,7 +87,7 @@
 ;; | O   | `lispy-oneline'          | M          | `lispy-multiline' |
 ;; | S   | `lispy-stringify'        | C-u "      | `lispy-quotes'    |
 ;; | ;   | `lispy-comment'          | C-u ;      | `lispy-comment'   |
-;; | xi  | `lispy-to-ifs'           | xc         | `lispy-to-cond'   |
+;; | xc  | `lispy-cond<->if-dwim'   | xc         | reverses itself   |
 ;; | F   | `lispy-follow'           | D          | `pop-tag-mark'    |
 ;; |-----+--------------------------+------------+-------------------|
 ;;
@@ -5427,8 +5427,10 @@ With ARG, use the contents of `lispy-store-region-and-buffer' instead."
       (when begp
         (goto-char (car bnd))))))
 
-(defun lispy-to-ifs ()
-  "Transform current `cond' expression to equivalent `if' expressions."
+(defun lispy-cond<->if-dwim ()
+  "Convert between `cond' and `if'.
+If before an `if' or `case' (`cl-case'), transform to `cond'. If
+before a `cond', transform to if."
   (interactive)
   ;; `lispy-different', used in `lispy-from-left', `user-error's if the cursor
   ;; is not on an an sexp. `lispy--cases->ifs' transforms (cond (t X)) into X,
@@ -5436,45 +5438,23 @@ With ARG, use the contents of `lispy-store-region-and-buffer' instead."
   (ignore-error user-error
     (lispy-from-left
      (let* ((bnd (lispy--bounds-dwim))
-            (expr (lispy--read (lispy--string-dwim bnd))))
-       (unless (eq (car expr) 'cond)
-         (error "%s isn't cond" (car expr)))
+            (expr (lispy--read (lispy--string-dwim bnd)))
+            (res (cond ((eq (car expr) 'if)
+                        (cons 'cond (lispy--ifs->cases expr)))
+                       ((eq (car expr) 'cond)
+                        (car
+                         (lispy--whitespace-trim
+                          (lispy--cases->ifs (cdr expr)))))
+                       ((memq (car expr) '(case cl-case))
+                        (lispy--case->cond expr))
+                       (t
+                        (error "Can't convert %s" (car expr))))))
        (delete-region (car bnd) (cdr bnd))
-       (lispy--fast-insert
-        (car
-         (lispy--whitespace-trim
-          (lispy--cases->ifs (cdr expr)))))))
+       (lispy--fast-insert res)))
     (lispy-from-left
      (indent-sexp))))
-
-(defun lispy-to-cond ()
-  "Reverse of `lispy-to-ifs'."
-  (interactive)
-  (lispy-from-left
-   (let* ((bnd (lispy--bounds-dwim))
-          (expr (lispy--read (lispy--string-dwim bnd)))
-          (res (cond ((eq (car expr) 'if)
-                      (cons 'cond (lispy--ifs->cases expr)))
-                     ((memq (car expr) '(case cl-case))
-                      (lispy--case->cond expr))
-                     (t
-                      (error "Can't convert %s to cond" (car expr))))))
-     (delete-region (car bnd) (cdr bnd))
-     (lispy--fast-insert res)))
-  (lispy-from-left
-   (indent-sexp)))
-
-(defun lispy-cond<->if-dwim ()
-  "Convert between `cond' and `if'."
-  (interactive)
-  ;; See `lispy-to-ifs'
-  (ignore-error user-error
-    (lispy-from-left
-     (let* ((bounds (lispy--bounds-dwim))
-            (expr (lispy--read (lispy--string-dwim bounds))))
-       (if (eq (car expr) 'if)
-           (lispy-to-cond)
-         (lispy-to-ifs))))))
+(defalias 'lispy-to-cond #'lispy-cond<->if-dwim)
+(defalias 'lispy-to-ifs #'lispy-cond<->if-dwim)
 
 (defun lispy-toggle-thread-last ()
   "Toggle current expression between last-threaded/unthreaded forms.
@@ -5993,7 +5973,7 @@ An equivalent of `cl-destructuring-bind'."
   "x"
   ;; ("a" nil)
   ("b" lispy-bind-variable "bind variable")
-  ("c" lispy-cond<->if-dwim "to cond")
+  ("c" lispy-cond<->if-dwim "cond<->if")
   ("C" lispy-cleanup "cleanup")
   ("d" lispy-to-defun "to defun")
   ("D" lispy-extract-defun "extract defun")
