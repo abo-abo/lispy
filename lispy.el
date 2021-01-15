@@ -5442,10 +5442,8 @@ before a `cond', transform to if."
             (res (cond ((eq (car expr) 'if)
                         (cons 'cond (lispy--ifs->cases expr)))
                        ((eq (car expr) 'cond)
-                        (and (cdr expr)
-                             (car
-                              (lispy--whitespace-trim
-                               (lispy--cases->ifs (cdr expr))))))
+                        (when-let ((cases (lispy--cases->ifs (cdr expr))))
+                          (car (lispy--whitespace-trim cases))))
                        ((memq (car expr) '(case cl-case))
                         (lispy--case->cond expr))
                        (t
@@ -7764,33 +7762,45 @@ Defaults to `error'."
      (lispy--insert f-expr)
      (buffer-string))))
 
+(defun lispy--first (seq)
+  "Get the first element of list or vector SEQ."
+  (declare (pure t) (side-effect-free t))
+  (elt seq 0))
+
+(defun lispy--rest (seq)
+  "Get the tail of list or vector SEQ.
+The result is always a list."
+  (declare (pure t) (side-effect-free t))
+  (cl-coerce (cl-subseq seq 1) 'list))
+
 (defun lispy--case->if (case &optional else)
   "Return an if statement based on  CASE statement and ELSE."
   (append
-   `(if ,(car case))
-   (cond ((null (cdr case)) `((ly-raw newline) nil ,@else))
-         ((= (length (cl-remove-if #'lispy--whitespacep (cdr case))) 1)
-          (append (cdr case) else))
+   `(if ,(lispy--first case))
+   (cond ((null (lispy--rest case)) `((ly-raw newline) nil ,@else))
+         ((= (length (cl-remove-if #'lispy--whitespacep (lispy--rest case))) 1)
+          (append (lispy--rest case) else))
          (t
           (let ((p (or (cl-position-if-not
                         #'lispy--whitespacep
-                        (cdr case))
+                        (lispy--rest case))
                        -1)))
-            `(,@(cl-subseq (cdr case) 0 p)
+            `(,@(cl-subseq (lispy--rest case) 0 p)
                 (progn
                   (ly-raw newline)
-                  ,@(cl-subseq (cdr case) p))
+                  ,@(cl-subseq (lispy--rest case) p))
                 ,@else))))))
 
 (defun lispy--cases->ifs (cases)
   "Return nested if statements that correspond to CASES."
   (cond ((= 1 (length cases))
-         (if (or (memq (caar cases) '(t :else))
-                 (and (derived-mode-p 'scheme-mode) (eq (caar cases) 'else)))
-             (let ((then (cdar cases)))
+         (if (let ((sym (lispy--first (car cases))))
+               (or (memq sym '(t :else))
+                   (and (derived-mode-p 'scheme-mode) (eq sym 'else))))
+             (let ((then (lispy--rest (car cases))))
                (if (equal (car then) '(ly-raw newline))
                    (cdr then)
-                 then))
+                 (lispy--rest (car cases))))
            (list (lispy--case->if (car cases)))))
         ((lispy--whitespacep (car cases))
          (cons (car cases)
