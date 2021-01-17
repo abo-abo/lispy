@@ -2017,7 +2017,9 @@ Insert KEY if there's no command."
 (ert-deftest lispy-to-ifs ()
   (should (or (version<= emacs-version "24.3.1") (string= (lispy-with "|(cond ((looking-at \" *;\"))\n      ((and (looking-at \"\\n\")\n            (looking-back \"^ *\"))\n       (delete-blank-lines))\n      ((looking-at \"\\\\([\\n ]+\\\\)[^\\n ;]\")\n       (delete-region (match-beginning 1)\n                      (match-end 1))))"
                                                                       (lispy-to-ifs))
-                                                          "|(if (looking-at \" *;\")\n    nil\n  (if (and (looking-at \"\\n\")\n           (looking-back \"^ *\"))\n      (delete-blank-lines)\n    (if (looking-at \"\\\\([\\n ]+\\\\)[^\\n ;]\")\n        (delete-region (match-beginning 1)\n                       (match-end 1)))))"))))
+                                                          "|(if (looking-at \" *;\")\n    nil\n  (if (and (looking-at \"\\n\")\n           (looking-back \"^ *\"))\n      (delete-blank-lines)\n    (if (looking-at \"\\\\([\\n ]+\\\\)[^\\n ;]\")\n        (delete-region (match-beginning 1)\n                       (match-end 1)))))")))
+  (should (string= (lispy-with "|(cond)" (lispy-to-ifs)) "|"))
+  (should (string= (lispy-with "|(cond [t 'q 'b])" (lispy-to-ifs)) "|(progn\n  'q 'b)")))
 
 (ert-deftest lispy-to-cond ()
   (should (or (version<= emacs-version "24.3.1")
