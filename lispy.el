@@ -5427,6 +5427,12 @@ With ARG, use the contents of `lispy-store-region-and-buffer' instead."
       (when begp
         (goto-char (car bnd))))))
 
+(defun lispy--progn (exprs)
+  "Like `macroexp-progn', but for `lispy--fast-insert'."
+  (if (cdr exprs)
+      `(progn (ly-raw newline) ,@exprs)
+    (car exprs)))
+
 (defun lispy-cond<->if-dwim ()
   "Convert between `cond' and `if'.
 If before an `if' or `case' (`cl-case'), transform to `cond'. If
@@ -5443,7 +5449,7 @@ before a `cond', transform to if."
                         (cons 'cond (lispy--ifs->cases expr)))
                        ((eq (car expr) 'cond)
                         (when-let ((cases (lispy--cases->ifs (cdr expr))))
-                          (car (lispy--whitespace-trim cases))))
+                          (lispy--progn (lispy--whitespace-trim cases))))
                        ((memq (car expr) '(case cl-case))
                         (lispy--case->cond expr))
                        (t
