@@ -7793,7 +7793,8 @@ The result is always a list."
 
 (defun lispy--cases->ifs (cases)
   "Return nested if statements that correspond to CASES."
-  (cond ((= 1 (length cases))
+  (cond ((null cases) nil)
+        ((= 1 (length cases))
          (if (let ((sym (lispy--first (car cases))))
                (or (memq sym '(t :else))
                    (and (derived-mode-p 'scheme-mode) (eq sym 'else))))
