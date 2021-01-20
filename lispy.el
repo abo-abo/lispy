@@ -5433,6 +5433,13 @@ With ARG, use the contents of `lispy-store-region-and-buffer' instead."
       `(progn (ly-raw newline) ,@exprs)
     (car exprs)))
 
+(defmacro lispy--ignore-error (condition &rest body)
+  "Execute BODY, ignoring CONDITION `signal's.
+`ignore-error' re-implemented here because the former is Emacs 27
+only."
+  (declare (indent 1) (debug t))
+  `(condition-case nil ,(macroexp-progn body) (,condition)))
+
 (defun lispy-cond<->if-dwim ()
   "Convert between `cond' and `if'.
 If before an `if' or `case' (`cl-case'), transform to `cond'. If
@@ -5441,7 +5448,7 @@ before a `cond', transform to if."
   ;; `lispy-different', used in `lispy-from-left', `user-error's if the cursor
   ;; is not on an an sexp. `lispy--cases->ifs' transforms (cond (t X)) into X,
   ;; so causes an error if X is a symbol.
-  (ignore-error user-error
+  (lispy--ignore-error user-error
     (lispy-from-left
      (let* ((bnd (lispy--bounds-dwim))
             (expr (lispy--read (lispy--string-dwim bnd)))
