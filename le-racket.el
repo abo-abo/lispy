@@ -24,24 +24,26 @@
 
 (require 'racket-mode nil t)
 
-(declare-function racket-lispy-visit-symbol-definition "ext:racket-edit")
-(declare-function racket--cmd/async "exit:racket-repl")
+(declare-function racket--cmd/async "ext:racket-repl")
+(declare-function racket--repl-session-id "ext:racket-repl")
 
 (defun lispy-goto-symbol-racket (symbol)
-  (racket-lispy-visit-symbol-definition symbol))
+  "Go to the definition of the SYMBOL."
+  (xref-find-definitions symbol))
 
 (defun lispy--eval-racket (str)
+  "Evaluate STR in the context of the current racket repl session."
   (let* ((awaiting 'RACKET-REPL-AWAITING)
          (response awaiting))
-    (racket--cmd/async
-     `(eval ,str)
-     (lambda (v)
-       (setq response v)))
+    (racket--cmd/async (racket--repl-session-id)
+                       `(eval ,str)
+                       (lambda (v)
+                         (setq response v)))
     (with-timeout (1
                    (error "racket-command process timeout"))
       (while (eq response awaiting)
         (accept-process-output nil 0.001))
-      (substring response 1 -2))))
+      response)))
 
 (defun lispy-eval-racket ()
   (lispy--eval-racket (lispy--string-dwim)))
