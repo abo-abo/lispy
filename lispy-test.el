@@ -1708,7 +1708,14 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "(list ~\"experts\"|)" "\"")
                    "(list ~\"\\\"experts\\\"\"|)"))
   (should (string= (lispy-with "(list |\"experts\"~)" "\"")
-                   "(list |\"\\\"experts\\\"\"~)")))
+                   "(list |\"\\\"experts\\\"\"~)"))
+  (with-temp-buffer
+    (comint-mode)
+    (let ((proc (start-process "*lispy-test*" (current-buffer) nil)))
+      (set-process-query-on-exit-flag proc nil)
+      (comint-output-filter proc "> "))
+    (call-interactively #'lispy-quotes)
+    (should (string= (buffer-string) "> \"\""))))
 
 (ert-deftest lispy--normalize-1 ()
   (should (string= (lispy-with "|(foo (bar)baz)" (lispy--normalize-1))
