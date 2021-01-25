@@ -85,23 +85,32 @@
          (list
           (mapconcat
            #'prin1-to-string
-           (read (lispy--eval-lisp
-                  (format (if (lispy--use-sly-p)
-                              "(slynk-backend:arglist #'%s)"
-                            "(swank-backend:arglist #'%s)")
-                          symbol)))
+           (read
+            ;; avoid elisp reader choking on Lisp's ?# character (eg. the
+            ;; arglist for `uiop:split-string') by escaping it with backward
+            ;; slash:
+            (replace-regexp-in-string
+             "[#]" "\\\\#"
+             (lispy--eval-lisp
+              (format (if (lispy--use-sly-p)
+                          "(slynk-backend:arglist #'%s)"
+                        "(swank-backend:arglist #'%s)")
+                      symbol))))
            " "))))
     (if (listp args)
-        (format
-         "(%s %s)"
-         (propertize symbol 'face 'lispy-face-hint)
-         (mapconcat
-          #'identity
-          (mapcar (lambda (x) (propertize (downcase x)
-                                          'face 'lispy-face-req-nosel))
-                  args)
-          (concat "\n"
-                  (make-string (+ 2 (length symbol)) ?\ ))))
+        ;; unescape the ?# character before showing it to the viewer:
+        (replace-regexp-in-string
+         "[\\][#]\\\\?" "#\\\\"
+         (format
+          "(%s %s)"
+          (propertize symbol 'face 'lispy-face-hint)
+          (mapconcat
+           #'identity
+           (mapcar (lambda (x) (propertize (downcase x)
+                                           'face 'lispy-face-req-nosel))
+                   args)
+           (concat "\n"
+                   (make-string (+ 2 (length symbol)) ?\ )))))
       (propertize args 'face 'lispy-face-hint))))
 
 (defun lispy--lisp-describe (symbol)
