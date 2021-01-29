@@ -9688,7 +9688,7 @@ When ARG is non-nil, unquote the current string."
     (define-key map (kbd "DEL") 'lispy-backward-delete)
     (define-key map (kbd "M-s") 'lispy-splice)
     (define-key map (kbd "M-<up>") 'lispy-splice-sexp-killing-backward)
-    (define-key map (kbd "M-<down>") 'lispy-splice-sexp-killing-backward)
+    (define-key map (kbd "M-<down>") 'lispy-splice-sexp-killing-forward)
     (define-key map (kbd "M-r") 'lispy-raise-sexp)
     (define-key map (kbd "M-?") 'lispy-convolute-sexp)
     (define-key map (kbd "M-S") 'lispy-split)
