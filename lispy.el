@@ -7992,7 +7992,7 @@ PRECEDING-SYNTAX-ALIST should be an alist of `major-mode' to a list of regexps.
 When `looking-back' at any of these regexps, whitespace, or a delimiter, do not
 insert a space."
   (lispy--space-unless
-   (concat "^\\|\\s-\\|" lispy-left
+   (concat "^\\|[[:space:]]\\|" lispy-left
            (lispy--preceding-syntax preceding-syntax-alist "\\|"))))
 
 (defun lispy--reindent (&optional arg)
