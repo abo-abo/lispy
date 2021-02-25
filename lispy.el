@@ -4361,6 +4361,12 @@ SYMBOL is a string."
      le-scheme lispy--eval-scheme)
     (lisp-mode
      le-lisp lispy--eval-lisp)
+    (slime-repl-mode
+     le-lisp lispy--eval-lisp)
+    (slime-mrepl-mode
+     le-lisp lispy--eval-lisp)
+    (sly-mrepl-mode
+     le-lisp lispy--eval-lisp)
     (hy-mode
      le-hy lispy--eval-hy)))
 
