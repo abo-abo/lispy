@@ -1902,8 +1902,7 @@ If jammed between parens, \"(|(\" unjam: \"(| (\". If after an opening delimiter
 and before a space (after wrapping a sexp, for example), do the opposite and
 delete the extra space, \"(| foo)\" to \"(|foo)\"."
   (interactive "p")
-  (cond ((and (bound-and-true-p edebug-active)
-              (lispy--edebug-commandp))
+  (cond ((lispy--edebug-commandp)
          (edebug-step-mode))
         ((region-active-p)
          (goto-char (region-end))
