@@ -9525,6 +9525,32 @@ When ARG is non-nil, unquote the current string."
   (interactive "P")
   (lispy-braces (or arg 1)))
 
+(defun lispy-cycle-parens ()
+  "Cycle parenthesis types for the list at `point'.
+\(\) -> [] -> {} (`clojure-mode')."
+  (interactive)
+  (let* ((bounds (or (lispy--bounds-list)
+                     (user-error "No list at `point'")))
+         (open (char-after (car bounds)))
+         (new-pair (cond
+                    ((= open ?\() '(?\[ . ?\]))
+                    ((= open ?\[) (if (derived-mode-p 'clojure-mode)
+                                      '(?{ . ?}) '(?\( . ?\))))
+                    ((and (derived-mode-p 'clojure-mode) (= open ?\{)) '(?\( . ?\)))
+                    (t (error "Unknow list type"))))
+         (old-point (point)))
+    (goto-char (car bounds))
+    (delete-char 1)
+    (insert (car new-pair))
+
+    (goto-char (cdr bounds))
+    (delete-char -1)
+    (insert (cdr new-pair))
+
+    ;; `save-excursion' doesn't work if point is immediately after the paren
+    ;; (point is before afterwards), so save `point' less "intelligently".
+    (goto-char old-point)))
+
 (defun lispy-splice-sexp-killing-backward ()
   "Forward to `lispy-raise'."
   (interactive)

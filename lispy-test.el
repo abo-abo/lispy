@@ -3032,6 +3032,9 @@ Insert KEY if there's no command."
                    "(foo (| bar) baz)"))
   (lispy-set-key-theme '(special lispy c-digits oleh)))
 
+(ert-deftest lispy-cycle-parens ()
+  (should (string= (lispy-with "(|foo)" (lispy-cycle-parens)) "[|foo]")))
+
 (ert-deftest lispy-paredit-splice-sexp ()
   (lispy-set-key-theme '(special paredit))
   (should (string= (lispy-with "(foo (bar| baz) quux)"
