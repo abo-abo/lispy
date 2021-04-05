@@ -2034,7 +2034,11 @@ Insert KEY if there's no command."
                        "|(cond ((looking-at \" *;\"))\n      ((and (looking-at \"\\n\")\n            (looking-back \"^ *\"))\n       (delete-blank-lines))\n      ((looking-at \"\\\\([\\n ]+\\\\)[^\\n ;]\")\n       (delete-region (match-beginning 1)\n                      (match-end 1))))")))
   (should (string= (lispy-with "|(cl-case question\n  (name\n   \"Sir Launcelot\")\n  ( quest\n   \"To seek the Holy Grail\")\n  (   favorite-color\n   \"Blue\")\n  (t\n   (error \"I don't know that!\")))"
                                (execute-kbd-macro "xc"))
-                   "|(cond\n  ((eq question 'name)\n   \"Sir Launcelot\")\n  ((eq question 'quest)\n   \"To seek the Holy Grail\")\n  ((eq question 'favorite-color)\n   \"Blue\")\n  (t\n   (error \"I don't know that!\")))")))
+                   "|(cond\n  ((eq question 'name)\n   \"Sir Launcelot\")\n  ((eq question 'quest)\n   \"To seek the Holy Grail\")\n  ((eq question 'favorite-color)\n   \"Blue\")\n  (t\n   (error \"I don't know that!\")))"))
+  (should (string= (lispy-with "|(when t 'x)" (kbd "xc"))
+                   "|(cond (t 'x))"))
+  (should (string= (lispy-with "|(unless nil 'x)" (kbd "xc"))
+                   "|(cond ((not nil) 'x))")))
 
 (ert-deftest lispy-to-defun ()
   (should (string= (lispy-with "(foo bar)|" (lispy-to-defun))
