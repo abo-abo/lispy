@@ -9167,6 +9167,7 @@ FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)."
     (lispy-define-key map "O" 'lispy-oneline)
     (lispy-define-key map "M" 'lispy-alt-multiline)
     (lispy-define-key map "S" 'lispy-stringify)
+    (lispy-define-key map "M-c" 'lispy-cycle-parens)
     ;; marking
     (lispy-define-key map "a" 'lispy-ace-symbol
       :override '(cond ((looking-at lispy-outline)
