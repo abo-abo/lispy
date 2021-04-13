@@ -385,7 +385,7 @@ A lot of Lispy commands come in pairs - one reverses the other:
  <kbd>O</kbd>   | `lispy-oneline`               | <kbd>M</kbd>                     | `lispy-multiline`
  <kbd>S</kbd>   | `lispy-stringify`             | <kbd>C-u "</kbd>                 | `lispy-quotes`
  <kbd>;</kbd>   | `lispy-comment`               | <kbd>C-u ;</kbd>                 | `lispy-comment`
- <kbd>xi</kbd>  | `lispy-to-ifs`                | <kbd>xc</kbd>                    | `lispy-to-cond`
+ <kbd>xc</kbd>  | `lispy-cond<->if-dwim`        | <kbd>xc</kbd>                    | reverses itself
  <kbd>x></kbd>  | `lispy-toggle-thread-last`    | <kbd>x></kbd>                    | reverses itself
 
 ### Keys that modify whitespace
