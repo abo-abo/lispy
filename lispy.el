@@ -7422,7 +7422,7 @@ See https://clojure.org/guides/weird_characters#_character_literal.")
                 (lispy--replace-regexp-in-code "\n" " (ly-raw newline)")
                 ;; ——— numbers ————————————————
                 (goto-char (point-min))
-                (while (re-search-forward "\\b[+-]?[0-9]+\\(?:\\.[0-9]+\\)?\\(?:e[+-]?[0-9]*\\)" nil t)
+                (while (re-search-forward "\\b[+-]?[0-9]+\\(?:\\.[0-9]+\\)?\\(?:e[+-]?\\(?:INF\\|NaN\\|[0-9]+\\)\\)" nil t)
                   (if (setq cbnd (lispy--bounds-string))
                       (goto-char (cdr cbnd))
                     (let ((s (match-string-no-properties 0)))
