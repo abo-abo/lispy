@@ -1866,6 +1866,12 @@ Insert KEY if there's no command."
            (lispy--read "#m(foo bar)")
            '(ly-raw lisp-macro "#m(foo bar)")))
   (should (equal
+           (lispy--read "#xFF00")
+           '(ly-raw lisp-macro "#xFF00")))
+  (should (equal
+           (lispy--read "#b0101")
+           '(ly-raw lisp-macro "#b0101")))
+  (should (equal
            (lispy--read ",(or body)")
            '(ly-raw \, (or body))))
   (should (equal (lispy-with-v clj
