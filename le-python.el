@@ -674,18 +674,20 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
                          fn-alist
                          "; "))
         (condition-case nil
-            (progn
-              (lispy--eval-python dbg-cmd t)
-              (goto-char orig-point)
-              (set-text-properties
-               0 1
-               `(
-                 filename ,(plist-get fn-data :filename)
-                 line ,(plist-get fn-data :line))
-               fn)
-              (lispy-goto-symbol fn))
+            (lispy--eval-python dbg-cmd t)
           (error
-           (goto-char p-ar-beg)))))))
+           (lispy--eval-python
+            (format "lp.step_in(%s,%s)" fn (buffer-substring-no-properties
+                                            (1+ p-ar-beg) (1- p-ar-end))))))
+        (goto-char orig-point)
+        (when fn-data
+          (set-text-properties
+           0 1
+           `(
+             filename ,(plist-get fn-data :filename)
+             line ,(plist-get fn-data :line))
+           fn))
+        (lispy-goto-symbol fn)))))
 
 (declare-function deferred:sync! "ext:deferred")
 (declare-function jedi:goto-definition "ext:jedi-core")
@@ -755,8 +757,8 @@ Otherwise, fall back to Jedi (static)."
 (defun lispy--python-middleware-load ()
   "Load the custom Python code in \"lispy-python.py\"."
   (unless lispy--python-middleware-loaded-p
-    (let ((module-path (format "'lispy-python','%s'"
-                               (expand-file-name "lispy-python.py" lispy-site-directory))))
+    (let* ((lispy-python-py (expand-file-name "lispy-python.py" lispy-site-directory))
+           (module-path (format "'lispy-python','%s'" lispy-python-py)))
       (lispy--eval-python
        (format
         (concat
