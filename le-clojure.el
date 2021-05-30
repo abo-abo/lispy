@@ -68,7 +68,8 @@
   "Nil if the Clojure middleware in \"lispy-clojure.clj\" wasn't loaded yet.")
 
 (defun lispy--clojure-process-buffer ()
-  (car (cider-connections)))
+  (let ((cur-type (cider-repl-type-for-buffer)))
+    (car (cider-repls cur-type nil))))
 
 (defun lispy--clojure-middleware-loaded-p ()
   (let ((conn (lispy--clojure-process-buffer)))
