@@ -4537,6 +4537,9 @@ If STR is too large, pop it to a buffer instead."
           (delete-region (point-min) (point-max))
           (insert str)
           (ignore-errors (pp-buffer))
+          (goto-char (point-min))
+          (while (re-search-forward "\\\\n" nil t)
+            (replace-match "\n" nil t))
           (goto-char (point-min)))
         str)
     (condition-case nil
