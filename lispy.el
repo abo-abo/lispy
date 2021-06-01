@@ -4529,7 +4529,7 @@ If STR is too large, pop it to a buffer instead."
        (> (length str) lispy-message-limit)
        (> (cl-count ?\n str)
           (or
-           14
+           10
            (* (window-height (frame-root-window)) max-mini-window-height))))
       (with-current-buffer (pop-to-buffer "*lispy-message*")
         (special-mode)
@@ -4847,8 +4847,7 @@ When ARG is non-nil, force select the window."
                              (lispy--string-dwim res)))))
                  (t
                   (lispy-message
-                   (replace-regexp-in-string "%" "%%"
-                                             (format "%S" res)))))))))
+                   (lispy--prin1 res))))))))
 
 (defun lispy-follow ()
   "Follow to `lispy--current-function'."
@@ -6939,6 +6938,13 @@ so that no other packages disturb the match data."
         'eval-defun-1
       'elisp--eval-defun-1))
 
+(defun lispy--prin1 (r)
+  (if (and (listp r)
+           (or (> (length r) 10)
+               (> (length (prin1-to-string (car r))) 40)))
+      (concat "(" (mapconcat #'prin1-to-string r "\n") ")")
+    (prin1-to-string r)))
+
 (defun lispy--eval-elisp (e-str)
   "Eval E-STR as Elisp code."
   (let ((e-sexp (read e-str)))
@@ -6952,8 +6958,8 @@ so that no other packages disturb the match data."
             ((memq (car e-sexp) '(\, \,@))
              (setq e-sexp (cadr e-sexp)))))
     (condition-case e
-        (prin1-to-string
-         (lispy--eval-elisp-form e-sexp lexical-binding))
+        (let ((r (lispy--eval-elisp-form e-sexp lexical-binding)))
+          (lispy--prin1 r))
       (error
        (progn
          (fset '\, nil)
