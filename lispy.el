@@ -8811,6 +8811,9 @@ Return an appropriate `setq' expression when in `let', `dolist',
                                      ,(save-excursion
                                         (lispy-different)
                                         (read (current-buffer)))))
+          ((and (consp tsexp)
+                (eq (car tsexp) 'find-file-noselect))
+           `(switch-to-buffer ,tsexp))
 
           ;; point moves
           ((progn
