@@ -6940,8 +6940,9 @@ so that no other packages disturb the match data."
 
 (defun lispy--prin1 (r)
   (if (and (listp r)
-           (or (> (length r) 10)
-               (> (length (prin1-to-string (car r))) 40)))
+           (ignore-errors
+             (or (> (length r) 10)
+                 (> (length (prin1-to-string (car r))) 40))))
       (concat "(" (mapconcat #'prin1-to-string r "\n") ")")
     (prin1-to-string r)))
 
