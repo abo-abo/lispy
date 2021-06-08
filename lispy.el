@@ -6939,12 +6939,25 @@ so that no other packages disturb the match data."
       'elisp--eval-defun-1))
 
 (defun lispy--prin1 (r)
-  (if (and (listp r)
-           (ignore-errors
-             (or (> (length r) 10)
-                 (> (length (prin1-to-string (car r))) 40))))
-      (concat "(" (mapconcat #'prin1-to-string r "\n") ")")
-    (prin1-to-string r)))
+  (cond ((and (listp r)
+              (ignore-errors
+                (or (> (length r) 10)
+                    (> (length (prin1-to-string (car r))) 40))))
+         (concat "(" (mapconcat #'prin1-to-string r "\n") ")"))
+        ((hash-table-p r)
+         (concat "{"
+                 (mapconcat
+                  #'prin1-to-string
+                  (let (res)
+                    (maphash
+                     (lambda (k v)
+                       (push (list k v) res))
+                     r)
+                    (nreverse res))
+                  "\n")
+                 "}"))
+        (t
+         (prin1-to-string r))))
 
 (defun lispy--eval-elisp (e-str)
   "Eval E-STR as Elisp code."
