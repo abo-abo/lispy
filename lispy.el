@@ -8865,6 +8865,12 @@ Return an appropriate `setq' expression when in `let', `dolist',
                             (eval (read (lispy--string-dwim))))
                   "pcase: t")
              "pcase: nil"))
+          ((looking-at "(cl-destructuring-bind")
+           (let* ((x-expr (lispy--read (lispy--string-dwim)))
+                  (x-parts (eval (nth 2 x-expr))))
+             (cl-mapc
+              #'set (nth 1 x-expr) x-parts)
+             (cons 'list (nth 1 x-expr))))
           ((and (looking-at "(\\(?:cl-\\)?\\(?:defun\\|defmacro\\)")
                 (save-excursion
                   (lispy-flow 1)
