@@ -263,9 +263,9 @@ Insert KEY if there's no command."
 (ert-deftest lispy-move-right ()
   (should (string= (lispy-with "(defn |exclaim~ [exclamation]\n  (str exclamation \"!\"))" "col")
                    "(defn exclaim [exclamation]\n  (str exclamation \"!\"))\n|exclaim~"))
-  (should (string= (lispy-with "|(defn read-resource\n  \"Read a resource into a string.\"\n  [path]\n  (read-string\n   (slurp\n    (clojure.java.io/resource path))))"
-                               "fffolfol2mol(2 ->[wd>w>w>fdkk///")
-                   "(defn read-resource\n  \"Read a resource into a string.\"\n  [path]\n  |(-> path\n    clojure.java.io/resource\n    slurp\n    read-string))"))
+  (should (string-match-p "(defn read-resource\n  \"Read a resource into a string.\"\n  \\[path\\]\n  |(-> path\n +clojure.java.io/resource\n +slurp\n +read-string))"
+                          (lispy-with "|(defn read-resource\n  \"Read a resource into a string.\"\n  [path]\n  (read-string\n   (slurp\n    (clojure.java.io/resource path))))"
+                                      "fffolfol2mol(2 ->[wd>w>w>fdkk///")))
   (should (string= (lispy-with "(progn\n\n  |(sexp1)\n  (sexp2))" "ol")
                    "(progn\n\n  (sexp2))\n|(sexp1)")))
 
