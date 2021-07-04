@@ -4356,8 +4356,8 @@ SYMBOL is a string."
     (julia-mode
      le-julia lispy-eval-julia lispy-eval-julia-str)
     (racket-mode
-     le-racket lispy--eval-racket)
-    (scheme-mode
+     le-racket lispy-eval-racket)
+    ((scheme-mode geiser-repl-mode)
      le-scheme lispy--eval-scheme)
     (lisp-mode
      le-lisp lispy--eval-lisp)
