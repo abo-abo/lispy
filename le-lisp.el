@@ -26,11 +26,13 @@
 (declare-function slime-current-connection "ext:slime")
 (declare-function slime-eval "ext:slime")
 (declare-function slime-edit-definition "ext:slime")
+(declare-function slime-current-package "ext:slime")
 (declare-function sly-mrepl--find-buffer "ext:sly-mrepl")
 (declare-function sly "ext:sly")
 (declare-function sly-current-connection "ext:sly")
 (declare-function sly-eval "ext:sly")
 (declare-function sly-edit-definition "ext:sly")
+(declare-function sly-current-package "ext:sly")
 
 (defcustom lispy-use-sly nil
   "Whether to use SLY instead of SLIME."
@@ -47,10 +49,13 @@
 (defun lispy--eval-lisp (str)
   "Eval STR as Common Lisp code."
   (let* ((deactivate-mark nil)
+         (package (if (lispy--use-sly-p)
+                      (sly-current-package)
+                    (slime-current-package)))
          (result (with-current-buffer (process-buffer (lispy--cl-process))
                    (if (lispy--use-sly-p)
-                       (sly-eval `(slynk:eval-and-grab-output ,str))
-                     (slime-eval `(swank:eval-and-grab-output ,str))))))
+                       (sly-eval `(slynk:eval-and-grab-output ,str) package)
+                     (slime-eval `(swank:eval-and-grab-output ,str) package)))))
     (if (equal (car result) "")
         (cadr result)
       (concat (propertize (car result)
