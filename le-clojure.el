@@ -120,10 +120,10 @@
 
 (defvar lispy-cider-jack-in-dependencies
   '(("me.raynes/fs" "1.4.6")
-    ("compliment" "0.3.11")
+    ("compliment/compliment" "0.3.11")
     ("com.cemerick/pomegranate" "0.4.0")
     ("org.tcrawley/dynapath" "0.2.5")
-    ("nrepl" "0.8.2")))
+    ("nrepl/nrepl" "0.8.2")))
 
 (defvar cider-jack-in-cljs-dependencies)
 (defvar cider-jack-in-dependencies)
