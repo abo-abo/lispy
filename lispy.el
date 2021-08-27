@@ -8866,7 +8866,7 @@ Return an appropriate `setq' expression when in `let', `dolist',
                   "pcase: t")
              "pcase: nil"))
           ((looking-at "(cl-destructuring-bind")
-           (let* ((x-expr (lispy--read (lispy--string-dwim)))
+           (let* ((x-expr (read (lispy--string-dwim)))
                   (x-parts (eval (nth 2 x-expr))))
              (cl-mapc
               #'set (nth 1 x-expr) x-parts)
