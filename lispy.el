@@ -8871,6 +8871,8 @@ Return an appropriate `setq' expression when in `let', `dolist',
              (cl-mapc
               #'set (nth 1 x-expr) x-parts)
              (cons 'list (nth 1 x-expr))))
+          ((looking-at "(with-current-buffer")
+           `(switch-to-buffer ,tsexp))
           ((and (looking-at "(\\(?:cl-\\)?\\(?:defun\\|defmacro\\)")
                 (save-excursion
                   (lispy-flow 1)
