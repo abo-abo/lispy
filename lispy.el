@@ -4770,17 +4770,20 @@ Unlike `comment-region', ensure a contiguous comment."
   "Produce an eval expression for dolist-type EXPR.
 EXPR is (SYM LST).
 SYM will take on each value of LST with each eval."
-  (let ((sym (car expr)))
-    (unless (eq sym lispy--eval-sym)
-      (setq lispy--eval-sym sym)
-      (setq lispy--eval-data
-            (lispy--eval-elisp-form (cadr expr) lexical-binding)))
-    (if lispy--eval-data
-        (let ((popped (pop lispy--eval-data)))
-          (set sym popped))
-      (setq lispy--eval-data
-            (lispy--eval-elisp-form (cadr expr) lexical-binding))
-      (set sym nil))))
+  (let* ((sym (car expr))
+         (lst (lispy--eval-elisp-form (cadr expr) lexical-binding))
+         (idx (read (ivy-read "idx: "
+                              (cl-mapcar
+                               (lambda (x i)
+                                 (concat (number-to-string i)
+                                         " "
+                                         (if (stringp x)
+                                             x
+                                           (prin1-to-string x))))
+                               lst
+                               (number-sequence 0 (1- (length lst))))
+                              :preselect (and (boundp sym) (cl-position (symbol-value sym) lst))))))
+    (set sym (nth idx lst))))
 
 (defun lispy--mapcar-item-expr (lmda lst)
   "Produce an eval expression for mapcar-type LMDA EXPR.
