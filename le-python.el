@@ -754,10 +754,15 @@ Otherwise, fall back to Jedi (static)."
 
 (defvar lispy-python-init-file "~/git/site-python/init.py")
 
+(defvar lispy-python-init-file-remote "/opt/lispy-python.py")
+
 (defun lispy--python-middleware-load ()
   "Load the custom Python code in \"lispy-python.py\"."
   (unless lispy--python-middleware-loaded-p
-    (let* ((lispy-python-py (expand-file-name "lispy-python.py" lispy-site-directory))
+    (let* ((lispy-python-py
+            (if (file-remote-p default-directory)
+                lispy-python-init-file-remote
+              (expand-file-name "lispy-python.py" lispy-site-directory)))
            (module-path (format "'lispy-python','%s'" lispy-python-py)))
       (lispy--eval-python
        (format
