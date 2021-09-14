@@ -35,6 +35,7 @@
 (declare-function geiser-eval--retort-error "geiser-eval")
 (declare-function geiser-mode "geiser-mode")
 (declare-function geiser-edit-symbol "geiser-edit")
+(declare-function geiser-racket--language "geiser-racket")
 
 (defun lispy--eval-scheme (str)
   "Eval STR as Scheme code."

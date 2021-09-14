@@ -238,6 +238,10 @@ The caller of `lispy--show' might use a substitute e.g. `describe-function'."
     (error
      (lispy--cleanup-overlay))))
 
+(declare-function cider-nrepl-op-supported-p "ext:cider-client")
+(declare-function cider-sync-request:info "ext:cider-client")
+(declare-function nrepl-dict-get "ext:nrepl-dict")
+
 (defun lispy--docstring (sym)
   "Get the docstring for SYM."
   (cond
