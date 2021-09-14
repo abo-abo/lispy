@@ -4369,6 +4369,7 @@ SYMBOL is a string."
 
 (declare-function cider--display-interactive-eval-result "ext:cider-overlays")
 (declare-function eros--eval-overlay "ext:eros")
+(declare-function lispy--clojure-pretty-string "le-clojure")
 
 (define-error 'eval-error "Eval error")
 
@@ -4757,52 +4758,39 @@ Unlike `comment-region', ensure a contiguous comment."
        (equal (cl-mapcan #'window-list (frame-list))
               lispy-eval-other--cfg)))
 
-(defvar lispy--eval-sym nil
-  "Last set `dolist' sym.")
-
-(defvar lispy--eval-data nil
-  "List data for a `dolist' sym.")
-
 (declare-function aw-select "ext:ace-window")
 (defvar aw-dispatch-always)
+
+(defun lispy--set-sym-from-list (sym lst)
+  (let ((idx (read (ivy-read "idx: "
+                             (cl-mapcar
+                              (lambda (x i)
+                                (concat (number-to-string i)
+                                        " "
+                                        (if (stringp x)
+                                            x
+                                          (prin1-to-string x))))
+                              lst
+                              (number-sequence 0 (1- (length lst))))
+                             :preselect (and (boundp sym) (cl-position (symbol-value sym) lst))))))
+    (set sym (nth idx lst))))
 
 (defun lispy--dolist-item-expr (expr)
   "Produce an eval expression for dolist-type EXPR.
 EXPR is (SYM LST).
 SYM will take on each value of LST with each eval."
-  (let* ((sym (car expr))
-         (lst (lispy--eval-elisp-form (cadr expr) lexical-binding))
-         (idx (read (ivy-read "idx: "
-                              (cl-mapcar
-                               (lambda (x i)
-                                 (concat (number-to-string i)
-                                         " "
-                                         (if (stringp x)
-                                             x
-                                           (prin1-to-string x))))
-                               lst
-                               (number-sequence 0 (1- (length lst))))
-                              :preselect (and (boundp sym) (cl-position (symbol-value sym) lst))))))
-    (set sym (nth idx lst))))
+  (let ((sym (car expr))
+        (lst (lispy--eval-elisp-form (cadr expr) lexical-binding)))
+    (lispy--set-sym-from-list sym lst)))
 
 (defun lispy--mapcar-item-expr (lmda lst)
   "Produce an eval expression for mapcar-type LMDA EXPR.
 LMDA is (lambda (SYM) ...).
 SYM will take on each value of LST with each eval."
-  (let ((sym (car lmda)))
-    (when (eq sym 'closure)
-      (setq sym (caar (cddr lmda))))
-    (unless (eq sym lispy--eval-sym)
-      (setq lispy--eval-sym sym)
-      (setq lispy--eval-data lst))
-    (if lispy--eval-data
-        (let* ((popped (pop lispy--eval-data))
-               (popped (if (symbolp popped)
-                           `(quote ,popped)
-                         popped)))
-          (set sym popped))
-      (setq lispy--eval-data lst)
-      (set sym nil))))
+  (let ((sym (if (eq (car lmda) 'closure)
+                 (caar (cddr lmda))
+               (car lmda))))
+    (lispy--set-sym-from-list sym lst)))
 
 (defun lispy-eval-other-window (&optional arg)
   "Eval current expression in the context of other window.
