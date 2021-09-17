@@ -2549,24 +2549,21 @@ Insert KEY if there's no command."
                    lispy--eval-cond-msg))))
 
 (ert-deftest lispy-eval-other-window ()
-  (setq lispy--eval-sym nil)
-  (should (string= (lispy-with-v el "(dolist |(s '(1 2 3))\n  (message \"val: %d\" s))"
-                     (lispy-eval-other-window)) "1"))
-  (should (string= (lispy-with-v el "(dolist |(s '(1 2 3))\n  (message \"val: %d\" s))"
-                     (lispy-eval-other-window)) "2"))
-  (should (string= (lispy-with-v el "(dolist |(s '(1 2 3))\n  (message \"val: %d\" s))"
-                     (lispy-eval-other-window)) "3"))
-  (should (string= (lispy-with-v el "(dolist |(s '(1 2 3))\n  (message \"val: %d\" s))"
-                     (lispy-eval-other-window)) "nil"))
-  (should (string= (lispy-with-v el "(dolist |(s '(1 2 3))\n  (message \"val: %d\" s))"
-                     (lispy-eval-other-window)) "1"))
-  (setq lispy--eval-sym nil)
-  (should (string= (lispy-with-v el "(mapcar |(lambda (s) (* s s)) '(1 2))"
-                     (lispy-eval-other-window)) "1"))
-  (should (string= (lispy-with-v el "(mapcar |(lambda (s) (* s s)) '(1 2))"
-                     (lispy-eval-other-window)) "2"))
-  (should (string= (lispy-with-v el "(mapcar |(lambda (s) (* s s)) '(1 2))"
-                     (lispy-eval-other-window)) "nil")))
+  (unless noninteractive
+    (cl-labels ((p (keys)
+                   (setq s nil)
+                   (setq unread-command-events (listify-key-sequence (kbd keys)))
+                   (lispy-eval-other-window)))
+      (should (string= (lispy-with-v el "(dolist |(s '(1 2 3))\n  (message \"val: %d\" s))"
+                         (p "C-m")) "1"))
+      (should (string= (lispy-with-v el "(dolist |(s '(1 2 3))\n  (message \"val: %d\" s))"
+                         (p "C-n C-m")) "2"))
+      (should (string= (lispy-with-v el "(dolist |(s '(1 2 3))\n  (message \"val: %d\" s))"
+                         (p "C-n C-n C-m")) "3"))
+      (should (string= (lispy-with-v el "(mapcar |(lambda (s) (* s s)) '(1 2))"
+                         (p "C-m")) "1"))
+      (should (string= (lispy-with-v el "(mapcar |(lambda (s) (* s s)) '(1 2))"
+                         (p "C-n C-m")) "2")))))
 
 (ert-deftest lispy-ace-char ()
   (should (string= (lispy-with "|(cons 'norwegian 'blue)"
