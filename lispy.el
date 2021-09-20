@@ -581,6 +581,16 @@ Otherwise return the amount of times executed."
         (nthcdr (1- ,n) (prog1 ,lst (setq ,lst (nthcdr ,n ,lst))))
         nil))))
 
+(defvar lispy-whitespace-types
+  '(clojure-commas)
+  "List of tokens to treat as whitespace")
+
+(defmacro lispy--slurp-whitespace (from to)
+  "Move any leading whitespace in FROM into TO"
+  `(while (member (cadar ,from) lispy-whitespace-types)
+     (setq ,to (cons (car ,from) ,to))
+     (setq ,from (cdr ,from))))
+
 (defvar lispy-site-directory (file-name-directory
                               load-file-name)
   "The directory where all of the lispy files are located.")
