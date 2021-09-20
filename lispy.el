@@ -3687,18 +3687,25 @@ The third one is assumed to be the arglist and will not be changed.")
   "List of constructs for which the first 2 elements are on the first line.
 The second one will not be changed.")
 
-(defun lispy-interleave (x lst &optional step)
+(defun lispy-interleave (x lst &optional step slurp-whitespace)
   "Insert X in between each element of LST.
 Don't insert X when it's already there.
-When STEP is non-nil, insert in between each STEP elements instead."
+When STEP is non-nil, insert in between each STEP elements instead.
+When SLURP-WHITESPACE is non-nil, add any whitespace following split into previous line."
   (setq step (or step 1))
   (let ((res (nreverse (lispy-multipop lst step)))
         item)
+    (if slurp-whitespace
+        (lispy-slurp--whitespace lst res))
     (while lst
       (unless (equal (car res) x)
         (push x res))
       (unless (equal (car res)
                      (car (setq item (lispy-multipop lst step))))
+        (when slurp-whitespace
+          (setq item (nreverse item))
+          (lispy-slurp--whitespace lst item)
+          (setq item (nreverse item)))
         (setq res (nconc (nreverse item) res))))
     (nreverse res)))
 
