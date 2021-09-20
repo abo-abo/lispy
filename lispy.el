@@ -8257,7 +8257,7 @@ The outer delimiters are stripped."
            (delete-region beg (point))
            (insert (cl-caddr sxp)))
           ((clojure-commas)
-           (delete-region (1- beg) (point))
+           (delete-region (if (> beg (point-min)) (1- beg) beg) (point))
            (insert (cl-caddr sxp)))
           (clojure-symbol
            (delete-region beg (point))
