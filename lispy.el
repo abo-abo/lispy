@@ -3743,7 +3743,8 @@ When QUOTED is not nil, assume that EXPR is quoted and ignore some rules."
          (list 'ly-raw (cadr expr)
                (lispy-interleave '(ly-raw newline)
                                  (mapcar #'lispy--multiline-1 (cl-caddr expr))
-                                 2)))
+                                 2
+                                 t)))
         ((and (eq (car-safe expr) 'ly-raw)
               (eq (nth 1 expr) 'splice))
          (list 'ly-raw (nth 1 expr) (nth 2 expr) (nth 3 expr)
