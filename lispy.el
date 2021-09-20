@@ -598,6 +598,9 @@ Otherwise return the amount of times executed."
         (nthcdr (1- ,n) (prog1 ,lst (setq ,lst (nthcdr ,n ,lst))))
         nil))))
 
+(defvar lispy-whitespace-types '(clojure-commas)
+  "List of tokens to treat as whitespace")
+
 (defvar lispy-site-directory (file-name-directory
                               load-file-name)
   "The directory where all of the lispy files are located.")
@@ -3694,18 +3697,31 @@ The third one is assumed to be the arglist and will not be changed.")
   "List of constructs for which the first 2 elements are on the first line.
 The second one will not be changed.")
 
-(defun lispy-interleave (x lst &optional step)
+(defmacro lispy--slurp-whitespace (from to)
+  "Move any leading whitespace in FROM into TO."
+  `(while (member (cadar ,from) lispy-whitespace-types)
+     (setq ,to (cons (car ,from) ,to))
+     (setq ,from (cdr ,from))))
+
+(defun lispy-interleave (x lst &optional step slurp-whitespace)
   "Insert X in between each element of LST.
 Don't insert X when it's already there.
-When STEP is non-nil, insert in between each STEP elements instead."
+When STEP is non-nil, insert in between each STEP elements instead.
+When SLURP-WHITESPACE is non-nil, add any whitespace following split into previous line."
   (setq step (or step 1))
   (let ((res (nreverse (lispy-multipop lst step)))
         item)
+    (if slurp-whitespace
+        (lispy--slurp-whitespace lst res))
     (while lst
       (unless (equal (car res) x)
         (push x res))
       (unless (equal (car res)
                      (car (setq item (lispy-multipop lst step))))
+        (when slurp-whitespace
+          (setq item (nreverse item))
+          (lispy--slurp-whitespace lst item)
+          (setq item (nreverse item)))
         (setq res (nconc (nreverse item) res))))
     (nreverse res)))
 
@@ -3743,7 +3759,8 @@ When QUOTED is not nil, assume that EXPR is quoted and ignore some rules."
          (list 'ly-raw (cadr expr)
                (lispy-interleave '(ly-raw newline)
                                  (mapcar #'lispy--multiline-1 (cl-caddr expr))
-                                 2)))
+                                 2
+                                 t)))
         ((and (eq (car-safe expr) 'ly-raw)
               (eq (nth 1 expr) 'splice))
          (list 'ly-raw (nth 1 expr) (nth 2 expr) (nth 3 expr)
@@ -7503,7 +7520,7 @@ See https://clojure.org/guides/weird_characters#_character_literal.")
                 ;; ——— ? char syntax ——————————
                 (goto-char (point-min))
                 (if (memq major-mode (cons 'hy-mode lispy-clojure-modes))
-                    (lispy--read-replace "[[:alnum:]-/*<>_?.,\\\\:!@#=]+" "clojure-symbol")
+                    (lispy--read-replace "[[:alnum:]-/*<>_?.\\\\:!@#=]+" "clojure-symbol")
                   (while (re-search-forward "\\(?:\\s-\\|\\s(\\)\\?" nil t)
                     (unless (lispy--in-string-or-comment-p)
                       (let ((pt (point))
@@ -8282,7 +8299,7 @@ The outer delimiters are stripped."
            (delete-region beg (point))
            (insert (cl-caddr sxp)))
           ((clojure-commas)
-           (delete-region (1- beg) (point))
+           (delete-region (if (> beg (point-min)) (1- beg) beg) (point))
            (insert (cl-caddr sxp)))
           (clojure-symbol
            (delete-region beg (point))
