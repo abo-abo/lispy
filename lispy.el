@@ -4739,6 +4739,10 @@ Unlike `comment-region', ensure a contiguous comment."
   (format "%s: nil" (propertize "cond" 'face 'font-lock-keyword-face))
   "Message to echo when the current `cond' branch is nil.")
 
+(defconst lispy--eval-pcase-msg
+  (format "%s: nil" (propertize "pcase" 'face 'font-lock-keyword-face))
+  "Message to echo when the current `pcase' branch is nil.")
+
 (defvar lispy-eval-other--window nil
   "Target window for `lispy-eval-other-window'.")
 
@@ -4824,7 +4828,8 @@ When ARG is non-nil, force select the window."
           (t
            (with-selected-window target-window
              (setq res (lispy--eval-elisp-form expr lexical-binding)))
-           (cond ((equal res lispy--eval-cond-msg)
+           (cond ((member res (list lispy--eval-cond-msg
+                                    lispy--eval-pcase-msg))
                   (lispy-message res))
                  ((and (fboundp 'object-p) (object-p res))
                   (message "(eieio object length %d)" (length res)))
@@ -8851,11 +8856,13 @@ Return an appropriate `setq' expression when in `let', `dolist',
            (goto-char (match-end 0))
            (if (eval (pcase--expand (lispy--read (lispy--string-dwim))
                                     `((,(car tsexp) t))))
-               `(progn
-                  ,(funcall (lispy--pcase-pattern-matcher (car tsexp))
-                            (eval (read (lispy--string-dwim))))
-                  "pcase: t")
-             "pcase: nil"))
+               (let ((pexpr (funcall (lispy--pcase-pattern-matcher (car tsexp))
+                                     (eval (read (lispy--string-dwim))))))
+
+                 `(progn
+                    ,pexpr
+                    ',pexpr))
+             lispy--eval-pcase-msg))
           ((looking-at "(cl-destructuring-bind")
            (let* ((x-expr (read (lispy--string-dwim)))
                   (x-parts (eval (nth 2 x-expr))))
