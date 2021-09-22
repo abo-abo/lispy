@@ -8854,7 +8854,7 @@ Return an appropriate `setq' expression when in `let', `dolist',
                     lispy--eval-cond-msg))))
           ((looking-at "(pcase\\s-*")
            (goto-char (match-end 0))
-           (if (eval (pcase--expand (lispy--read (lispy--string-dwim))
+           (if (eval (pcase--expand (read (lispy--string-dwim))
                                     `((,(car tsexp) t))))
                (let ((pexpr (funcall (lispy--pcase-pattern-matcher (car tsexp))
                                      (eval (read (lispy--string-dwim))))))
