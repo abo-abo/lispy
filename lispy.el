@@ -5460,7 +5460,7 @@ The bindings of `lispy-backward' or `lispy-mark-symbol' can also be used."
   (let* ((bnd (lispy--bounds-dwim))
          (str (lispy--string-dwim bnd))
          (kind (lispy--bind-variable-kind))
-         (fmt (if (eq major-mode 'clojure-mode)
+         (fmt (if (memq major-mode lispy-clojure-modes)
                   '("(let [ %s]\n)" . 6)
                 '("(let (( %s))\n)" . 7))))
     (setq lispy-bind-var-in-progress t)
