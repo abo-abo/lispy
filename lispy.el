@@ -278,6 +278,12 @@ The hint will consist of the possible nouns that apply to the verb."
   "Keys for jumping."
   :type '(repeat :tag "Keys" (character :tag "char")))
 
+(declare-function counsel-imenu "ext:counsel")
+
+(defcustom lispy-imenu-function #'counsel-imenu
+  "Function used to jump to an imenu entry."
+  :type 'function)
+
 (defface lispy-command-name-face
   '((((class color) (background light))
      :background "#d8d8f7" :inherit font-lock-function-name-face)
@@ -4204,8 +4210,6 @@ When ARG isn't nil, call `lispy-goto-projectile' instead."
        (mapcar #'lispy--format-tag-line candidates))
      #'lispy--action-jump)))
 
-(declare-function counsel-imenu "ext:counsel")
-
 (defun lispy-goto-local (&optional arg)
   "Jump to symbol within current file.
 When ARG is non-nil, force a reparse."
@@ -4218,7 +4222,7 @@ When ARG is non-nil, force a reparse."
                  (lispy--fetch-tags (list (buffer-file-name))))
          #'lispy--action-jump))
     (no-semantic-support
-     (counsel-imenu))))
+     (funcall lispy-imenu-function))))
 
 (defun lispy-goto-elisp-commands (&optional arg)
   "Jump to Elisp commands within current file.
