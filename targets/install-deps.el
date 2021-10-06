@@ -8,7 +8,7 @@
     sly
     geiser
     clojure-mode
-    counsel
+    swiper
     hydra
     ace-window
     helm
