@@ -8,7 +8,6 @@
     sly
     geiser
     clojure-mode
-    counsel
     hydra
     ace-window
     helm
