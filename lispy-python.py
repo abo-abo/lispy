@@ -216,7 +216,7 @@ def print_elisp(obj, end="\n"):
         for (k, v) in obj:
             print_elisp((k, v), end="\n")
         print(")")
-    elif isinstance(obj, collections.KeysView):
+    elif isinstance(obj, collections.abc.KeysView):
         print_elisp(list(obj))
     elif isinstance(obj, int):
         print(obj)
