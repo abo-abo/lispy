@@ -571,7 +571,7 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
                                      (lispy--out-backward 1 t)
                                      (forward-char)
                                      (thing-at-point 'symbol t)))
-                           (cands (read (lispy--eval-clojure-cider
+                           (cands (read (lispy--eval-clojure-cider-noerror
                                          (format
                                           "(lispy.clojure/complete %S)"
                                           prefix))))
