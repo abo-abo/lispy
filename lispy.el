@@ -451,6 +451,13 @@ Depends on `default-directory'."
               (lispy--normalize-files
                (all-completions "" #'read-file-name-internal)))))))
 
+(defconst lispy-font-lock-keywords
+  '(("^;; ?\\(\\*\\|\\*[^*\n].*\\)$" 1 'org-level-1 prepend)
+    ("^;; ?\\(\\*\\{2\\}\\|\\*\\{2\\}[^*\n].*\\)$" 1 'org-level-2 prepend)
+    ("^;; ?\\(\\*\\{3\\}\\|\\*\\{3\\}[^*\n].*\\)$" 1 'org-level-3 prepend)
+    ("^;; ?\\(\\*\\{4\\}\\|\\*\\{4\\}[^*\n].*\\)$" 1 'org-level-4 prepend)
+    ("^;; ?\\(\\*\\{5\\}\\|\\*\\{5\\}[^*\n].*\\)$" 1 'org-level-5 prepend)))
+
 ;;;###autoload
 (define-minor-mode lispy-mode
   "Minor mode for navigating and editing LISP dialects.
@@ -492,8 +499,8 @@ backward through lists, which is useful to move into special.
               ((eq major-mode 'clojure-mode)
                (eval-after-load 'le-clojure
                  '(setq completion-at-point-functions
-                   '(lispy-clojure-complete-at-point
-                     cider-complete-at-point)))
+                        '(lispy-clojure-complete-at-point
+                          cider-complete-at-point)))
                (setq-local outline-regexp (substring lispy-outline 1)))
               ((eq major-mode 'python-mode)
                (setq-local lispy-outline "^#\\*+")
@@ -504,11 +511,15 @@ backward through lists, which is useful to move into special.
                (setq-local outline-regexp (substring lispy-outline 1))))
         (when (called-interactively-p 'any)
           (mapc #'lispy-raise-minor-mode
-                (cons 'lispy-mode lispy-known-verbs))))
+                (cons 'lispy-mode lispy-known-verbs)))
+        (font-lock-add-keywords major-mode lispy-font-lock-keywords))
     (when lispy-old-outline-settings
       (setq outline-regexp (car lispy-old-outline-settings))
       (setq outline-level (cdr lispy-old-outline-settings))
-      (setq lispy-old-outline-settings nil))))
+      (setq lispy-old-outline-settings nil))
+    (font-lock-remove-keywords major-mode lispy-font-lock-keywords)))
+
+
 
 (defun lispy-raise-minor-mode (mode)
   "Make MODE the first on `minor-mode-map-alist'."
