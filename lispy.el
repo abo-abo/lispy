@@ -1959,7 +1959,7 @@ colon following `lispy-colon-no-space-regex'. To disable this
 behavior, set this variable to nil.")
 
 (defvar lispy-colon-no-space-regex
-  '((lisp-mode . "\\s-\\|[:^?#]\\|ql\\|\\(?:\\s([[:word:]-]*\\)")
+  '((lisp-mode . "\\s-\\|[:^?#]\\|ql\\|\\(?:\\(\\s(\\|'\\)[[:word:]-]*\\)")
     (slime-repl-mode . ""))
   "Overrides REGEX that `lispy-colon' will consider for `major-mode'.
 `lispy-colon' will insert \" :\" instead of \":\" unless
