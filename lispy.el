@@ -4297,8 +4297,7 @@ SYMBOL is a string."
                          (lispy--current-function))))
   (lispy--remember)
   (deactivate-mark)
-  (with-no-warnings
-    (ring-insert find-tag-marker-ring (point-marker)))
+  (xref-push-marker-stack)
   (let ((narrowedp (buffer-narrowed-p)))
     (when narrowedp
       (widen))
