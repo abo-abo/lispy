@@ -4506,7 +4506,7 @@ Return the result of the last evaluation as a string."
   (let* ((pt (point))
          (bnd (lispy--eval-bounds-outline))
          (res
-          (lispy--eval-dwim bnd)))
+          (lispy--eval-dwim bnd t)))
     (when lispy-eval-output
       (setq res (concat lispy-eval-output res)))
     (cond ((equal res "")
@@ -4557,18 +4557,22 @@ If STR is too large, pop it to a buffer instead."
         (message str)
       (error (message (replace-regexp-in-string "%" "%%" str))))))
 
-(defun lispy--eval-dwim (&optional bnd)
-  (let ((eval-str
-         (cond (bnd
-                (lispy--string-dwim bnd))
-               ((eq major-mode 'python-mode)
-                (lispy-eval-python-str))
-               (t
-                (lispy--string-dwim)))))
-    (if (string= "" eval-str)
+(defun lispy--eval-dwim (&optional bnd outline-p)
+  (let* ((eval-str-1
+          (cond (bnd
+                 (lispy--string-dwim bnd))
+                ((eq major-mode 'python-mode)
+                 (lispy-eval-python-str))
+                (t
+                 (lispy--string-dwim))))
+         (eval-str-2
+          (if (and outline-p (eq major-mode 'lisp-mode))
+              (concat "(progn " eval-str-1 ")")
+            eval-str-1)))
+    (if (string= "" eval-str-1)
         ""
       (condition-case e
-          (lispy--eval eval-str)
+          (lispy--eval eval-str-2)
         (eval-error (cdr e))))))
 
 (defun lispy-eval-and-insert ()
