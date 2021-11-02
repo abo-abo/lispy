@@ -4810,6 +4810,23 @@ SYM will take on each value of LST with each eval."
                (car lmda))))
     (lispy--set-sym-from-list sym lst)))
 
+(defun lispy--print-object (res)
+  (cond ((member res (list lispy--eval-cond-msg
+                           lispy--eval-pcase-msg))
+         (lispy-message res))
+        ((and (fboundp 'object-p) (object-p res))
+         (message "(eieio object length %d)" (length res)))
+        ((and (memq major-mode lispy-elisp-modes)
+              (consp res)
+              (numberp (car res))
+              (numberp (cdr res)))
+         (lispy-message
+          (format "%S\n%s" res
+                  (lispy--string-dwim res))))
+        (t
+         (lispy-message
+          (lispy--prin1 res)))))
+
 (defun lispy-eval-other-window (&optional arg)
   "Eval current expression in the context of other window.
 In case the point is on a let-bound variable, add a `setq'.
@@ -4842,22 +4859,7 @@ When ARG is non-nil, force select the window."
           (t
            (with-selected-window target-window
              (setq res (lispy--eval-elisp-form expr lexical-binding)))
-           (cond ((member res (list lispy--eval-cond-msg
-                                    lispy--eval-pcase-msg))
-                  (lispy-message res))
-                 ((and (fboundp 'object-p) (object-p res))
-                  (message "(eieio object length %d)" (length res)))
-                 ((and (memq major-mode lispy-elisp-modes)
-                       (consp res)
-                       (numberp (car res))
-                       (numberp (cdr res)))
-                  (lispy-message
-                   (format "%S\n%s" res
-                           (with-selected-window target-window
-                             (lispy--string-dwim res)))))
-                 (t
-                  (lispy-message
-                   (lispy--prin1 res))))))))
+           (lispy--print-object res)))))
 
 (defun lispy-follow ()
   "Follow to `lispy--current-function'."
