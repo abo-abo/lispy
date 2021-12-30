@@ -7519,8 +7519,12 @@ See https://clojure.org/guides/weird_characters#_character_literal.")
                 (lispy--read-1)
                 ;; ——— ? char syntax ——————————
                 (goto-char (point-min))
-                (if (memq major-mode (cons 'hy-mode lispy-clojure-modes))
-                    (lispy--read-replace "[[:alnum:]-/*<>_?.\\\\:!@#=]+" "clojure-symbol")
+                (cond
+                 ((eq major-mode 'hy-mode)
+                  (lispy--read-replace "[[:alnum:]-/*<>_?.,\\\\:!@#]+" "clojure-symbol"))
+                 ((memq major-mode lispy-clojure-modes)
+                  (lispy--read-replace "[[:alnum:]-/*<>_?.\\\\:!@#=]+" "clojure-symbol"))
+                 (t
                   (while (re-search-forward "\\(?:\\s-\\|\\s(\\)\\?" nil t)
                     (unless (lispy--in-string-or-comment-p)
                       (let ((pt (point))
@@ -7528,7 +7532,7 @@ See https://clojure.org/guides/weird_characters#_character_literal.")
                         (lispy--skip-elisp-char)
                         (setq sexp (buffer-substring-no-properties pt (point)))
                         (delete-region (1- pt) (point))
-                        (insert (format "(ly-raw char %S)" sexp))))))
+                        (insert (format "(ly-raw char %S)" sexp)))))))
                 (when (eq major-mode 'clojure-mode)
                   (lispy--read-replace " *,+" "clojure-commas"))
                 ;; ——— \ char syntax (LISP)————
