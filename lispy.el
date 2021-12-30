@@ -1182,7 +1182,7 @@ If position isn't special, move to previous or error."
              (while (and (< (point) end)
                          (ignore-errors
                            (forward-sexp 1)
-                           (skip-chars-forward " ")
+                           (skip-chars-forward " ,")
                            t))
                (when (setq bnd (lispy--bounds-comment))
                  (goto-char (cdr bnd))))
