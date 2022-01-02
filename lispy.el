@@ -8002,9 +8002,7 @@ ACTION is called for the selected candidate."
 (defun lispy--action-jump (tag)
   "Jump to TAG."
   (if (eq (length tag) 3)
-      (with-selected-window (if (eq lispy-completion-method 'ivy)
-                                (ivy--get-window ivy-last)
-                              (selected-window))
+      (progn
         (push-mark)
         (find-file (cadr tag))
         (goto-char
@@ -9014,6 +9012,8 @@ FUNC is obtained from (`lispy--insert-or-call' DEF PLIST)."
   ("j" lispy-knight-down)
   ("k" lispy-knight-up)
   ("z" nil))
+
+(autoload 'lispy-occur "lispy-occur")
 
 (defvar lispy-mode-map-special
   (let ((map (make-sparse-keymap)))
