@@ -563,31 +563,7 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
                         (setq cands (all-completions (lispy--string-dwim bnd) cands)))
                       (list (car bnd) (cdr bnd) cands)))
                    ((eq (lispy--clojure-process-type) 'cljs)
-                    nil)
-                   ((save-excursion
-                      (lispy--out-backward 2 t)
-                      (looking-at "(import"))
-                    (let* ((prefix (save-excursion
-                                     (lispy--out-backward 1 t)
-                                     (forward-char)
-                                     (thing-at-point 'symbol t)))
-                           (cands (read (lispy--eval-clojure-cider-noerror
-                                         (format
-                                          "(lispy.clojure/complete %S)"
-                                          prefix))))
-                           (len (1+ (length prefix)))
-                           (candsa (mapcar (lambda (s) (substring s len)) cands)))
-                      (when (> (cdr bnd) (car bnd))
-                        (setq candsa (all-completions (lispy--string-dwim bnd) candsa)))
-                      (list (car bnd) (cdr bnd) candsa)))
-                   (t
-                    (let* ((prefix (lispy--string-dwim bnd))
-                           (cands (read (lispy--eval-clojure-cider-noerror
-                                         (format
-                                          "(lispy.clojure/complete %S)"
-                                          prefix)))))
-                      (when cands
-                        (list (car bnd) (cdr bnd) cands))))))))))
+                    nil)))))))
 
 (defun lispy--eval-clojure-cider-noerror (e-str)
   (condition-case nil

@@ -21,11 +21,12 @@
   (:require [clojure.repl :as repl]
             [clojure.pprint]
             [clojure.java.io :as io]
-            [clojure.string :as str])
-  (:use [cemerick.pomegranate :only (add-dependencies)])
-  (:import (java.io File LineNumberReader InputStreamReader
-                    PushbackReader FileInputStream)
-           (clojure.lang RT Reflector)))
+            [clojure.string :as str]
+            [cemerick.pomegranate :refer [add-dependencies]])
+  (:import
+   (java.io File LineNumberReader InputStreamReader
+            PushbackReader FileInputStream)
+   (clojure.lang RT)))
 
 (defn use-package [name version]
   (add-dependencies
@@ -37,17 +38,15 @@
 (defn expand-file-name [name dir]
   (. (io/file dir name) getCanonicalPath))
 
-(use-package 'compliment "0.3.11")
-(require '[compliment.core :as compliment])
-
 (use-package 'me.raynes/fs "1.4.6")
 (require '[me.raynes.fs :as fs])
 
-(defmacro xcond [& clauses]
+(defmacro xcond
   "Common Lisp style `cond'.
 
 It's more structured than `cond', thus exprs that use it are lot more
 malleable to refactoring."
+  [& clauses]
   (when clauses
     (let [clause (first clauses)]
       (if (= (count clause) 1)
@@ -246,7 +245,7 @@ malleable to refactoring."
    (let [[_do & forms] (dest bindings)
          [defs out] (partition-by map? forms)]
      `(let ~(vec (mapcat (fn [[_ n v]] [n v]) defs))
-        ~@(if (not= *ns* nspc)
+        ~@(when (not= *ns* nspc)
             `((in-ns '~(ns-name nspc))))
         ~@(map
             (fn [x]
@@ -323,7 +322,7 @@ malleable to refactoring."
        (or
          (resolve sym)
          (first (keep #(ns-resolve % sym) (all-ns)))
-         (if-let [val (try (load-string (str sym)) (catch Exception e))]
+         (when-let [val (try (load-string (str sym)) (catch Exception _e))]
            (list 'variable (str val)))))]
 
     [(keyword? sym) 'keyword]
@@ -352,7 +351,7 @@ malleable to refactoring."
     (xcond
       ((= 'special rsym)
        (->> (with-out-str
-              (eval (list 'clojure.repl/doc sym)))
+              (eval (list #'repl/doc sym)))
             (re-find #"\(.*\)")
             read-string rest
             (map str)
@@ -413,7 +412,7 @@ malleable to refactoring."
        (and
          (reader= (first a) (first b))
          (reader= (rest a) (rest b)))))
-    (catch Exception e
+    (catch Exception _e
       (= a b))))
 
 (defn position [x coll equality]
@@ -468,9 +467,8 @@ malleable to refactoring."
              (= 'defn (first expr))
              file line)
     (let [arglist-pos (first (keep-indexed
-                               (fn [i x] (if (or
-                                               (vector? x)
-                                               (list? x)) i))
+                               (fn [i x] (when (or (vector? x) (list? x))
+                                           i))
                                expr))
           expr-head (take arglist-pos expr)
           expr-tail (drop arglist-pos expr)
@@ -509,7 +507,7 @@ malleable to refactoring."
                  (java.io.StringReader. s))]
     (loop [res []]
       (if-let [x (try (read reader)
-                      (catch Exception e))]
+                      (catch Exception _e))]
         (recur (conj res x))
         res))))
 
@@ -562,11 +560,6 @@ malleable to refactoring."
            (fn [v]
              (let [m (meta v)]
                (str v "\n" (:arglists m) "\n" (:doc m))))))))
-
-(defn complete [prefix]
-  (compliment/completions
-    prefix
-    {:context :same :plain-candidates true}))
 
 (defn run-lispy-tests []
   (let [dd (fs/parent (:file (meta #'use-package)))
