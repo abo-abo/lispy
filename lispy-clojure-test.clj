@@ -18,20 +18,20 @@
 ;; see <http://www.gnu.org/licenses/>.
 
 (ns lispy-clojure-test
-  (:use [clojure.test :only [is deftest]]
-        [lispy.clojure :only [add-location-to-defn
-                              add-location-to-def
-                              debug-step-in
-                              dest
-                              expand-home
-                              get-func-args
-                              get-func-args-def
-                              guess-intent
-                              object-members
-                              position
-                              reader=
-                              reval
-                              symbol-function]]))
+  (:require
+   [clojure.test :refer [is deftest]]
+   [lispy.clojure :refer [add-location-to-defn
+                          add-location-to-def
+                          debug-step-in
+                          dest
+                          get-func-args
+                          get-func-args-def
+                          guess-intent
+                          object-members
+                          position
+                          reader=
+                          reval
+                          symbol-function]]))
 
 (deftest get-func-args-test
   (is (= (get-func-args (symbol-function 'string?) 1) '[x]))
@@ -76,7 +76,7 @@
 
 (deftest debug-step-in-test
   (is (= (debug-step-in
-           '(expand-home (str "/foo" "/bar")))
+           '(lispy.clojure/expand-home (str "/foo" "/bar")))
          {:path "/foo/bar"}))
   (is
     (=
@@ -145,7 +145,6 @@
            ["/foo/bar.clj" 42]))))
 
 (deftest guess-intent-test
-  (is (= (guess-intent '(defproject) nil) '(lispy.clojure/fetch-packages)))
   (is (= (guess-intent 'x '[x y]) 'x))
   (is (= (guess-intent '*ns* '*ns*) '*ns*))
   (is (= (guess-intent '(+ 1 2) '[(+ 1 2) (+ 3 4) (+ 5 6)])

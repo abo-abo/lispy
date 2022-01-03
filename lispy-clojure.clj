@@ -21,25 +21,11 @@
   (:require [clojure.repl :as repl]
             [clojure.pprint]
             [clojure.java.io :as io]
-            [clojure.string :as str]
-            [cemerick.pomegranate :refer [add-dependencies]])
+            [clojure.string :as str])
   (:import
    (java.io File LineNumberReader InputStreamReader
             PushbackReader FileInputStream)
    (clojure.lang RT)))
-
-(defn use-package [name version]
-  (add-dependencies
-    :coordinates [[name version]]
-    :repositories (merge cemerick.pomegranate.aether/maven-central
-                         {"clojars" "https://clojars.org/repo"})
-    :classloader (. (. (. Compiler/LOADER deref) getParent) getParent)))
-
-(defn expand-file-name [name dir]
-  (. (io/file dir name) getCanonicalPath))
-
-(use-package 'me.raynes/fs "1.4.6")
-(require '[me.raynes.fs :as fs])
 
 (defmacro xcond
   "Common Lisp style `cond'.
@@ -58,23 +44,11 @@ malleable to refactoring."
            (xcond
              ~@(next clauses)))))))
 
-(defn fetch-packages []
-  (xcond ((fs/exists? "deps.edn")
-          (println "fixme"))
-         ((fs/exists? "project.clj")
-          (let [deps (->> (slurp "project.clj")
-                          (read-string)
-                          (drop 3)
-                          (partition 2)
-                          (map vec)
-                          (into {})
-                          :dependencies)]
-            (doseq [[name ver] deps]
-              (use-package name ver))))
-         (:else
-          (throw
-            (ex-info "Found no project.clj or deps.edn"
-                     {:cwd fs/*cwd*})))))
+(defn file-exists? [f]
+  (. (io/file f) exists))
+
+(defn expand-file-name [name dir]
+  (. (io/file dir name) getCanonicalPath))
 
 (defn expand-home
   [path]
@@ -431,8 +405,6 @@ malleable to refactoring."
     expr
     (let [idx (position expr context reader=)]
       (xcond
-        ((#{'defproject} (first expr))
-         `(fetch-packages))
         ((nil? idx)
          expr)
         ;; [x |(+ 1 2) y (+ 3 4)] => {:x 3}
@@ -532,7 +504,7 @@ malleable to refactoring."
                  (clojure.core/str "error: " ~ 'e)))))))
 
 (defn file->elisp [f]
-  (if (fs/exists? f)
+  (if (file-exists? f)
     f
     (. (io/resource f) getPath)))
 
@@ -560,9 +532,3 @@ malleable to refactoring."
            (fn [v]
              (let [m (meta v)]
                (str v "\n" (:arglists m) "\n" (:doc m))))))))
-
-(defn run-lispy-tests []
-  (let [dd (fs/parent (:file (meta #'use-package)))
-        fname (java.io.File. dd "lispy-clojure-test.clj")]
-    (when (fs/exists? fname)
-      (load-file (str fname)))))

@@ -118,12 +118,7 @@
   (remove-hook 'nrepl-connected-hook
                'lispy--clojure-eval-hook-lambda))
 
-(defvar lispy-cider-jack-in-dependencies
-  '(("me.raynes/fs" "1.4.6")
-    ("compliment" "0.3.11")
-    ("com.cemerick/pomegranate" "0.4.0")
-    ("org.tcrawley/dynapath" "0.2.5")
-    ("nrepl" "0.8.2")))
+(defvar lispy-cider-jack-in-dependencies nil)
 
 (defvar cider-jack-in-cljs-dependencies)
 (defvar cider-jack-in-dependencies)
@@ -439,9 +434,12 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
                    cider-jdk-src-paths
                    "\n  "))))
             (lispy--eval-clojure-cider sources-expr)))
-        (when lispy-clojure-middleware-tests
-          (lispy-message
-           (lispy--eval-clojure-cider "(lispy.clojure/run-lispy-tests)")))))))
+        (let ((test-fname (expand-file-name "lispy-clojure-test.clj"
+                                           lispy-site-directory)))
+          (when (and lispy-clojure-middleware-tests
+                     (file-exists-p test-fname))
+            (lispy-message
+             (lispy--eval-clojure-cider (format "(load-file \"%s\")" test-fname)))))))))
 
 (defun lispy-flatten--clojure (_arg)
   "Inline a Clojure function at the point of its call."
