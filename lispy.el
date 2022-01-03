@@ -1157,7 +1157,10 @@ If position isn't special, move to previous or error."
                                                        (line-beginning-position)))
            (delete-char 1)
            (backward-delete-char 1))
-          ((lispy-left-p)
+          ((and (lispy-left-p)
+                (if (memq major-mode lispy-elisp-modes)
+                    (not (eq (char-after) ?\{))
+                  t))
            (if (progn
                  (setq bnd (lispy--bounds-list))
                  (> (count-lines (car bnd) (cdr bnd)) 1))
