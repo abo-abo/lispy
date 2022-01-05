@@ -188,14 +188,11 @@ Add the standard output to the result."
   (or
    (and (stringp e-str)
         (lispy--eval-clojure-handle-ns e-str))
-   (let* (pp
-          (stra (if (setq pp (string-match "\\`(lispy.clojure/\\(pp\\|reval\\)" f-str))
-                    f-str
-                  f-str))
-          (res (lispy--eval-nrepl-clojure stra lispy--clojure-ns))
+   (let* ((pp (string-match "\\`(lispy.clojure/\\(pp\\|reval\\)" f-str))
+          (res (lispy--eval-nrepl-clojure f-str lispy--clojure-ns))
           (status (nrepl-dict-get res "status"))
           (res (cond ((or (member "namespace-not-found" status))
-                      (lispy--eval-nrepl-clojure stra))
+                      (lispy--eval-nrepl-clojure f-str))
                      ((member "eval-error" status)
                       (signal 'eval-error (lispy--clojure-pretty-string
                                            (nrepl-dict-get res "err"))))
