@@ -378,8 +378,6 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
   "Mark the Clojure middleware in \"lispy-clojure.clj\" as not loaded."
   (puthash (lispy--clojure-process-buffer) nil lispy--clojure-middleware-loaded-hash))
 
-(defvar cider-jdk-src-paths)
-
 (defun lispy-cider-load-file (filename)
   (let ((ns-form (cider-ns-form)))
     (cider-map-repls :auto
@@ -423,15 +421,6 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
       (puthash conn middleware-access-time lispy--clojure-middleware-loaded-hash)
       (add-hook 'nrepl-disconnected-hook #'lispy--clojure-middleware-unload)
       (when (equal conn-type 'clj)
-        (when cider-jdk-src-paths
-          (let ((sources-expr
-                 (format
-                  "(do \n  %s)"
-                  (mapconcat
-                   (lambda (p) (format "(cemerick.pomegranate/add-classpath %S)" p))
-                   cider-jdk-src-paths
-                   "\n  "))))
-            (lispy--eval-clojure-cider sources-expr)))
         (let ((test-fname (expand-file-name "lispy-clojure-test.clj"
                                             lispy-site-directory)))
           (when (and lispy-clojure-middleware-tests
