@@ -416,9 +416,10 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
                                   (file-attributes middleware-fname))))
     (when (or (null access-time) (time-less-p access-time middleware-access-time))
       (setq lispy--clojure-ns "user")
-      (save-window-excursion
-        (lispy-cider-load-file
-         (expand-file-name middleware-fname lispy-site-directory)))
+      (unless (cider--babashka-version)
+        (save-window-excursion
+          (lispy-cider-load-file
+           (expand-file-name middleware-fname lispy-site-directory))))
       (puthash conn middleware-access-time lispy--clojure-middleware-loaded-hash)
       (add-hook 'nrepl-disconnected-hook #'lispy--clojure-middleware-unload)
       (when (equal conn-type 'clj)
@@ -432,7 +433,7 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
                    "\n  "))))
             (lispy--eval-clojure-cider sources-expr)))
         (let ((test-fname (expand-file-name "lispy-clojure-test.clj"
-                                           lispy-site-directory)))
+                                            lispy-site-directory)))
           (when (and lispy-clojure-middleware-tests
                      (file-exists-p test-fname))
             (lispy-message
