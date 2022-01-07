@@ -77,7 +77,8 @@
 
 (defun lispy--eval-clojure-context (e-str)
   (cond
-   ((eq major-mode 'clojurescript-mode)
+   ((or (eq major-mode 'clojurescript-mode)
+        (cider--babashka-version))
     e-str)
    ((string-match-p "#break" e-str)
     e-str)
