@@ -392,7 +392,7 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
                                  (file-name-nondirectory filename)
                                  connection)))))
 
-(defcustom lispy-clojure-middleware-tests t
+(defcustom lispy-clojure-middleware-tests nil
   "When non-nil, run the tests from lispy-clojure.clj when loading it."
   :type 'boolean
   :group 'lispy)
