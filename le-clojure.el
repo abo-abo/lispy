@@ -75,10 +75,13 @@
   (let ((conn (lispy--clojure-process-buffer)))
     (and conn (gethash conn lispy--clojure-middleware-loaded-hash))))
 
+(defun lispy--clojure-babashka-p ()
+  (ignore-errors (cider--babashka-version)))
+
 (defun lispy--eval-clojure-context (e-str)
   (cond
    ((or (eq major-mode 'clojurescript-mode)
-        (cider--babashka-version))
+        (lispy--clojure-babashka-p))
     e-str)
    ((string-match-p "#break" e-str)
     e-str)
@@ -414,7 +417,7 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
                                   (file-attributes middleware-fname))))
     (when (or (null access-time) (time-less-p access-time middleware-access-time))
       (setq lispy--clojure-ns "user")
-      (unless (cider--babashka-version)
+      (unless (lispy--clojure-babashka-p)
         (save-window-excursion
           (lispy-cider-load-file
            (expand-file-name middleware-fname lispy-site-directory))))
