@@ -4611,18 +4611,25 @@ Unlike `comment-region', ensure a contiguous comment."
 (declare-function aw-select "ext:ace-window")
 (defvar aw-dispatch-always)
 
+(defun lispy--idx-from-list (lst &optional preselect)
+  (read
+   (ivy-read "idx: "
+             (cl-mapcar
+              (lambda (x i)
+                (concat (number-to-string i)
+                        " "
+                        (if (stringp x)
+                            x
+                          (prin1-to-string x))))
+              lst
+              (number-sequence 0 (1- (length lst))))
+             :preselect preselect)))
+
 (defun lispy--set-sym-from-list (sym lst)
-  (let ((idx (read (ivy-read "idx: "
-                             (cl-mapcar
-                              (lambda (x i)
-                                (concat (number-to-string i)
-                                        " "
-                                        (if (stringp x)
-                                            x
-                                          (prin1-to-string x))))
-                              lst
-                              (number-sequence 0 (1- (length lst))))
-                             :preselect (and (boundp sym) (cl-position (symbol-value sym) lst))))))
+  (let ((idx
+         (lispy--idx-from-list
+          lst
+          (and (boundp sym) (cl-position (symbol-value sym) lst)))))
     (set sym (nth idx lst))))
 
 (defun lispy--dolist-item-expr (expr)
