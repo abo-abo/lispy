@@ -86,20 +86,37 @@
    ((string-match-p "#break" e-str)
     e-str)
    ((lispy--clojure-middleware-loaded-p)
-    (format (if (memq this-command '(special-lispy-eval
-                                     special-lispy-eval-and-insert))
-                "(lispy.clojure/pp (lispy.clojure/reval %S %S :file %S :line %S))"
-              "(lispy.clojure/reval %S %S :file %S :line %S)")
-            e-str
-            (condition-case nil
-                (let ((deactivate-mark nil))
-                  (save-mark-and-excursion
-                    (lispy--out-backward 1 t)
-                    (deactivate-mark)
-                    (lispy--string-dwim)))
-              (error ""))
-            (buffer-file-name)
-            (line-number-at-pos)))
+    (if (and
+         (lispy--leftp)
+         (looking-back "(for[ \t\n]*" (line-beginning-position -1)))
+        (let* ((e-str (save-excursion
+                        (forward-char 1)
+                        (forward-sexp 2)
+                        (lispy--string-dwim)))
+               (idx (and
+                     (let ((coll (read (lispy--eval-clojure-1
+                                        (format "(map str %s)" e-str)
+                                        nil))))
+                       (lispy--idx-from-list coll))))
+               (sym (save-excursion
+                      (forward-char 1)
+                      (lispy--string-dwim))))
+          (format "(lispy.clojure/reval %S \"\")"
+                  (format "%s (nth %s %d)" sym e-str idx)))
+      (format (if (memq this-command '(special-lispy-eval
+                                       special-lispy-eval-and-insert))
+                  "(lispy.clojure/pp (lispy.clojure/reval %S %S :file %S :line %S))"
+                "(lispy.clojure/reval %S %S :file %S :line %S)")
+              e-str
+              (condition-case nil
+                  (let ((deactivate-mark nil))
+                    (save-mark-and-excursion
+                      (lispy--out-backward 1 t)
+                      (deactivate-mark)
+                      (lispy--string-dwim)))
+                (error ""))
+              (buffer-file-name)
+              (line-number-at-pos))))
    (t
     e-str)))
 
