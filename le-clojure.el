@@ -478,10 +478,13 @@ Besides functions, handles specials, keywords, maps, vectors and sets."
   (let* ((e-str (format "(lispy.clojure/debug-step-in\n'%s)"
                         (lispy--string-dwim)))
          (str (substring-no-properties
-               (lispy--eval-clojure-cider e-str))))
+               (lispy--eval-clojure-cider e-str)))
+         (old-session (sesman-current-session 'CIDER)))
     (lispy-follow)
     (when (string-match "(clojure.core/in-ns (quote \\([^)]+\\))" str)
       (setq lispy--clojure-ns (match-string 1 str)))
+    (when (equal (file-name-nondirectory (buffer-file-name)) "lispy-clojure.clj")
+      (sesman-link-session 'CIDER old-session))
     (lispy--eval-clojure-cider str)
     (lispy-flow 1)))
 
