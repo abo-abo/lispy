@@ -45,6 +45,7 @@ class Stack:
     line_numbers = {}
     def __init__(self, tb):
         self.stack = []
+        self.stack_idx = 0
         while tb:
             name = tb.tb_frame.f_code.co_name
             fname = tb.tb_frame.f_code.co_filename
@@ -55,7 +56,8 @@ class Stack:
             self.stack.append((fname, lineno, tb.tb_frame))
             tb = tb.tb_next
         self.stack_top = len(self.stack) - 1
-        self.set_frame(self.stack_top)
+        if self.stack_top >= 0:
+            self.set_frame(self.stack_top)
 
     def frame_string(self, i):
         (fname, line, f) = self.stack[i]
@@ -73,29 +75,30 @@ class Stack:
         return "\n".join(frames)
 
     def set_frame(self, i):
-        f = self.stack[i][2]
-        self.stack_idx = i
-        tf = top_level()
-        tf.f_globals["lnames"] = f.f_locals.keys()
-        for (k, v) in f.f_locals.items():
-            tf.f_globals[k] = v
-        for (k, v) in f.f_globals.items():
-            tf.f_globals[k] = v
+        if i >= 0:
+            f = self.stack[i][2]
+            self.stack_idx = i
+            tf = top_level()
+            tf.f_globals["lnames"] = f.f_locals.keys()
+            for (k, v) in f.f_locals.items():
+                tf.f_globals[k] = v
+            for (k, v) in f.f_globals.items():
+                tf.f_globals[k] = v
 
-        print(self.frame_string(self.stack_idx))
+            print(self.frame_string(self.stack_idx))
 
     def up(self, delta = 1):
         if self.stack_idx <= 0:
-            print("top frame already")
-            print(self.frame_string(self.stack_idx))
+            if self.stack:
+                print(self.frame_string(self.stack_idx))
         else:
             self.stack_idx = max(self.stack_idx - delta, 0)
             self.set_frame(self.stack_idx)
 
     def down(self, delta = 1):
         if self.stack_idx >= self.stack_top:
-            print("bottom frame already")
-            print(self.frame_string(self.stack_idx))
+            if self.stack:
+                print(self.frame_string(self.stack_idx))
         else:
             self.stack_idx = min(self.stack_idx + delta, self.stack_top)
             self.set_frame(self.stack_idx)
@@ -108,7 +111,10 @@ class Autocall:
         self.f(n)
 
     def __repr__(self):
-        self.f()
+        try:
+            self.f()
+        except:
+            pass
         return ""
 
 #* Functions
