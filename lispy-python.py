@@ -243,7 +243,7 @@ def print_elisp(obj, end="\n"):
             print('nil', end=end)
 
 def argspec(sym):
-    arg_info = inspect.getargspec(sym)
+    arg_info = inspect.getfullargspec(sym)
     if arg_info:
         di = arg_info._asdict()
         fn = sym.__init__ if type(sym) is type else sym
