@@ -254,6 +254,8 @@ in the minibuffer during `eval-expression`:
 ```cl
 (defun conditionally-enable-lispy ()
   (when (eq this-command 'eval-expression)
+    ;; Set the correct `indent-line-function' to fix the indentation.
+    (setq-local indent-line-function #'lisp-indent-line)
     (lispy-mode 1)))
 (add-hook 'minibuffer-setup-hook 'conditionally-enable-lispy)
 ```
