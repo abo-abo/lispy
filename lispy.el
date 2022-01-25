@@ -4378,7 +4378,7 @@ If STR is too large, pop it to a buffer instead."
         (special-mode)
         (let ((inhibit-read-only t))
           (delete-region (point-min) (point-max))
-          (insert str)
+          (insert (ansi-color-apply str))
           (ignore-errors (pp-buffer))
           (goto-char (point-min))
           (while (re-search-forward "\\\\n" nil t)
