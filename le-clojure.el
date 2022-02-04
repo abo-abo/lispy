@@ -111,7 +111,8 @@
                       (lispy--string-dwim))))
           (setq e-str (format "%s (nth %s %d)" sym e-str-1 idx))))
       (format (if (memq this-command '(special-lispy-eval
-                                       special-lispy-eval-and-insert))
+                                       special-lispy-eval-and-insert
+                                       lispy-eval-current-outline))
                   "(lispy.clojure/pp (lispy.clojure/reval %S %S :file %S :line %S))"
                 "(lispy.clojure/reval %S %S :file %S :line %S)")
               e-str
