@@ -1223,8 +1223,9 @@ If position isn't special, move to previous or error."
     (lispy-dotimes arg
       (when (lispy--in-comment-p)
         (skip-chars-backward " \n"))
-      (if (memq (char-syntax (char-before))
-                '(?w ?_ ?\s))
+      (if (and (memq (char-syntax (char-before))
+                     '(?w ?_ ?\s))
+               (lispy-looking-back "\\(?:\\sw\\|\\s_\\)\\s-+"))
           (if (lispy-looking-back "\\_<\\s_+")
               (delete-region (match-beginning 0)
                              (match-end 0))
