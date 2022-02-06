@@ -2152,10 +2152,13 @@ When ARG is nagative, add them above instead"
 (defun lispy-meta-return ()
   "Insert a new heading."
   (interactive)
-  (let ((pt (point)))
+  (let ((pt (point))
+        (lvl (lispy-outline-level)))
     (cond ((lispy--in-comment-p)
-           (end-of-line)
-           (newline))
+           (goto-char (cdr (zo-bnd-subtree)))
+           (when (looking-back "\n+")
+             (delete-region (match-beginning 0) (match-end 0)))
+           (insert "\n\n"))
           ((and (lispy-bolp)
                 (looking-at " *$"))
            (delete-region
@@ -2170,12 +2173,11 @@ When ARG is nagative, add them above instead"
                  (forward-list 1)
                  (newline))
              (newline)
-             (backward-char 1)))))
-  (insert lispy-outline-header
-          (make-string (max (lispy-outline-level) 1)
-                       ?\*)
-          " ")
-  (beginning-of-line))
+             (backward-char 1))))
+    (insert lispy-outline-header
+            (make-string (max lvl 1) ?\*)
+            " ")
+    (beginning-of-line)))
 
 (defun lispy-alt-line (&optional N)
   "Do a context-aware exit, then `newline-and-indent', N times.
