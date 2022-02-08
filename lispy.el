@@ -4658,8 +4658,7 @@ SYM will take on each value of LST with each eval."
          (lispy-message res))
         ((and (fboundp 'object-p) (object-p res))
          (message "(eieio object length %d)" (length res)))
-        ((and (memq major-mode lispy-elisp-modes)
-              (consp res)
+        ((and (consp res)
               (numberp (car res))
               (numberp (cdr res)))
          (lispy-message
