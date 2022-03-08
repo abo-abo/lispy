@@ -247,14 +247,14 @@ it at one time."
              (inferior-python-mode-hook nil)
              (python-shell-interpreter
               (cond
-                ((save-excursion
-                   (goto-char (point-min))
-                   (looking-at "#!\\(?:/usr/bin/env \\)\\(.*\\)$"))
-                 (match-string-no-properties 1))
-                ((file-exists-p python-shell-interpreter)
-                 (expand-file-name python-shell-interpreter))
-                (t
-                 python-shell-interpreter)))
+               ((file-exists-p python-shell-interpreter)
+                (expand-file-name python-shell-interpreter))
+               ((save-excursion
+                  (goto-char (point-min))
+                  (looking-at "#!\\(?:/usr/bin/env \\)\\(.*\\)$"))
+                (match-string-no-properties 1))
+               (t
+                python-shell-interpreter)))
              (python-binary-name
               (or lispy-override-python-binary
                   (concat
