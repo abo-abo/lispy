@@ -365,8 +365,10 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
            (cond ((or single-line-p
                       (string-match "\n .*\\'" str)
                       (string-match "\"\"\"" str))
-                  (python-shell-send-string-no-output
-                   str (lispy--python-proc)))
+                  (replace-regexp-in-string
+                   "" ""
+                   (python-shell-send-string-no-output
+                    str (lispy--python-proc))))
                  ((string-match "\\`\\([\0-\377[:nonascii:]]*\\)\n\\([^\n]*\\)\\'" str)
                   (let* ((p1 (match-string 1 str))
                          (p2 (match-string 2 str))
