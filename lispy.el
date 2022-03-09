@@ -1221,8 +1221,8 @@ If position isn't special, move to previous or error."
                           'kill-region
                         last-command)))
     (lispy-dotimes arg
-      (when (lispy--in-comment-p)
-        (skip-chars-backward " \n"))
+      (when (and (lispy--in-comment-p) (looking-back ";[ \n]+" (point-min)))
+        (goto-char (1+ (match-beginning 0))))
       (if (memq (char-syntax (char-before))
                 '(?w ?_ ?\s))
           (if (lispy-looking-back "\\_<\\s_+")
