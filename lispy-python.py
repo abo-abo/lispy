@@ -118,6 +118,12 @@ class Autocall:
         return ""
 
 #* Functions
+def chdir(d):
+    try:
+        os.chdir(d)
+    except:
+        pass
+
 def arglist_retrieve_java(method):
     name = method.__name__
     if hasattr(method, "argslist"):
