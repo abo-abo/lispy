@@ -21,10 +21,14 @@
   (:require [clojure.repl :as repl]
             [clojure.pprint]
             [clojure.java.io :as io]
-            [clojure.string :as str])
+            [clojure.string :as str]
+            [clojure.tools.namespace.file :as nfile]
+            [clojure.tools.namespace.find :as nf]
+            [clojure.java.classpath :as cp])
   (:import
    (java.io File LineNumberReader InputStreamReader
             PushbackReader FileInputStream)
+   (java.util.jar JarFile)
    (clojure.lang RT)))
 
 (defmacro xcond
@@ -407,9 +411,11 @@ malleable to refactoring."
       (xcond
         ((nil? idx)
          expr)
+
         ;; [x |(+ 1 2) y (+ 3 4)] => {:x 3}
-        ;; TODO: would be better to have 1 level higher context, so that we just check
-        ;; (= (first context) 'let)
+        ((and (= (first context) 'let) (= idx 1))
+         (shadow-dest expr))
+
         ((and (vector? context)
               (= 0 (rem (count context) 2))
               (= 0 (rem (inc idx) 2))
@@ -508,10 +514,47 @@ malleable to refactoring."
     f
     (. (io/resource f) getPath)))
 
+(defonce ns-to-jar (atom {}))
+
+(defn ns-location [sym]
+  (when (empty? @ns-to-jar)
+    (reset! ns-to-jar
+            (apply hash-map
+                   (->>
+                     (cp/classpath)
+                     (mapcat #(interleave
+                                (if (. % isFile)
+                                  (nf/find-namespaces-in-jarfile (JarFile. %))
+                                  (nf/find-namespaces-in-dir % nil))
+                                (repeat %)))))))
+  (let [dir (get @ns-to-jar sym)]
+    (if (. dir isFile)
+      (let [jf (JarFile. dir)
+            file-in-jar (first
+                          (filter
+                            (fn [f]
+                              (let [entry (nf/read-ns-decl-from-jarfile-entry jf f nil)]
+                                (when (and entry (= (first entry) sym))
+                                  f)))
+                            (nf/clojure-sources-in-jar jf)))]
+        (list
+          (str "file:" dir "!/" file-in-jar)
+          0))
+      (let [file-in-dir (first
+                          (filter
+                            (fn [f]
+                              (let [decl (nfile/read-file-ns-decl f nil)]
+                                (and decl (= (first decl) sym)
+                                     f)))
+                            (nf/find-clojure-sources-in-dir dir)))]
+        (list (.getCanonicalPath file-in-dir) 0)))))
+
 (defn location [sym]
   (let [rs (resolve sym)
         m (meta rs)]
-    (xcond ((:l-file m)
+    (xcond
+      ((and (nil? rs) (ns-location sym)))
+      ((:l-file m)
             (list (:l-file m) (:l-line m)))
            ((and (:file m) (not (re-matches #"^/tmp/" (:file m))))
             (list (file->elisp (:file m)) (:line m))))))
