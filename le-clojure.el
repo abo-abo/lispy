@@ -103,7 +103,7 @@
                           (forward-sexp 2)
                           (lispy--string-dwim)))
                (coll (read (lispy--eval-clojure-1
-                            (format "(map str %s)" e-str-1)
+                            (format "(lispy.clojure/with-shadows (map str %s))" e-str-1)
                             nil)))
                (idx (lispy--idx-from-list coll))
                (sym (save-excursion
