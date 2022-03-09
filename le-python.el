@@ -380,65 +380,65 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
                                      p1 (lispy--python-proc)))
                          p2-output)
                     (cond
-                      ((string-match-p "SyntaxError:\\|error:" p1-output)
-                       (python-shell-send-string-no-output
-                        str (lispy--python-proc)))
-                      ((null p1-output)
-                       (signal 'eval-error ""))
-                      ((null (setq p2-output (lispy--eval-python p2)))
-                       (signal 'eval-error ""))
-                      (t
-                       (concat
-                        (if (string= p1-output "")
-                            ""
-                          (concat p1-output "\n"))
-                        p2-output)))))
+                     ((string-match-p "SyntaxError:\\|error:" p1-output)
+                      (python-shell-send-string-no-output
+                       str (lispy--python-proc)))
+                     ((null p1-output)
+                      (signal 'eval-error ""))
+                     ((null (setq p2-output (lispy--eval-python p2)))
+                      (signal 'eval-error ""))
+                     (t
+                      (concat
+                       (if (string= p1-output "")
+                           ""
+                         (concat p1-output "\n"))
+                       p2-output)))))
                  (t
                   (error "unexpected")))))
       (cond
-        ((string-match "SyntaxError: 'return' outside function\\'" res)
-         (lispy--eval-python
-          (concat "__return__ = None\n"
-                  (replace-regexp-in-string
-                   "\\(^ *\\)return\\(.*\\)"
-                   (lambda (x)
-                     (concat
-                      (match-string 1 x)
-                      "__return__ ="
-                      (if (= 0 (length (match-string 2 x)))
-                          " None"
-                        (match-string 2 x))))
-                   str)
-                  "\n"
-                  (lispy--python-print "__return__"))
-          t))
-        ((string-match "^RuntimeError: break$" res)
-         (lpy-switch-to-shell)
-         (goto-char (point-max))
-         (insert "lp.pm()")
-         (comint-send-input)
-         "breakpoint")
-        ((string-match "^Traceback.*:" res)
-         (set-text-properties
-          (match-beginning 0)
-          (match-end 0)
-          '(face error)
-          res)
-         (signal 'eval-error res))
-        ((equal res "")
-         (setq lispy-eval-output "(ok)")
-         "")
-        ((string-match-p "^<\\(?:map\\|filter\\|generator\\|enumerate\\|zip\\) object" res)
-         (let ((last (car (last (split-string str "\n")))))
-           (cond ((string-match "\\`lp.pprint(\\(.*\\))\\'" last)
-                  (setq str (match-string 1 last)))
-                 ((string-match "\\`print(repr(\\(.*\\)))\\'" last)
-                  (setq str (match-string 1 last)))))
-         (lispy--eval-python (format "list(%s)" str) t))
-        ((string-match-p "SyntaxError:" res)
-         (signal 'eval-error res))
-        (t
-         (replace-regexp-in-string "\\\\n" "\n" res))))))
+       ((string-match "SyntaxError: 'return' outside function\\'" res)
+        (lispy--eval-python
+         (concat "__return__ = None\n"
+                 (replace-regexp-in-string
+                  "\\(^ *\\)return\\(.*\\)"
+                  (lambda (x)
+                    (concat
+                     (match-string 1 x)
+                     "__return__ ="
+                     (if (= 0 (length (match-string 2 x)))
+                         " None"
+                       (match-string 2 x))))
+                  str)
+                 "\n"
+                 (lispy--python-print "__return__"))
+         t))
+       ((string-match "^RuntimeError: break$" res)
+        (lpy-switch-to-shell)
+        (goto-char (point-max))
+        (insert "lp.pm()")
+        (comint-send-input)
+        "breakpoint")
+       ((string-match "^Traceback.*:" res)
+        (set-text-properties
+         (match-beginning 0)
+         (match-end 0)
+         '(face error)
+         res)
+        (signal 'eval-error res))
+       ((equal res "")
+        (setq lispy-eval-output "(ok)")
+        "")
+       ((string-match-p "^<\\(?:map\\|filter\\|generator\\|enumerate\\|zip\\) object" res)
+        (let ((last (car (last (split-string str "\n")))))
+          (cond ((string-match "\\`lp.pprint(\\(.*\\))\\'" last)
+                 (setq str (match-string 1 last)))
+                ((string-match "\\`print(repr(\\(.*\\)))\\'" last)
+                 (setq str (match-string 1 last)))))
+        (lispy--eval-python (format "%s = list(%s)\nlp.pprint(%s)" str str str) t))
+       ((string-match-p "SyntaxError:" res)
+        (signal 'eval-error res))
+       (t
+        (replace-regexp-in-string "\\\\n" "\n" res))))))
 
 (defun lispy--python-array-to-elisp (array-str)
   "Transform a Python string ARRAY-STR to an Elisp string array."
@@ -687,12 +687,12 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
                                             (1+ p-ar-beg) (1- p-ar-end))))))
         (let ((line (plist-get fn-data :line)))
           (unless (eq line 1)
-        (goto-char orig-point)
-        (when fn-data
-          (set-text-properties
-           0 1
-           `(
-             filename ,(plist-get fn-data :filename)
+            (goto-char orig-point)
+            (when fn-data
+              (set-text-properties
+               0 1
+               `(
+                 filename ,(plist-get fn-data :filename)
                  line ,line)
                fn))))
         (lispy-goto-symbol fn)))))
