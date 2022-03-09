@@ -685,14 +685,16 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
            (lispy--eval-python
             (format "lp.step_in(%s,%s)" fn (buffer-substring-no-properties
                                             (1+ p-ar-beg) (1- p-ar-end))))))
+        (let ((line (plist-get fn-data :line)))
+          (unless (eq line 1)
         (goto-char orig-point)
         (when fn-data
           (set-text-properties
            0 1
            `(
              filename ,(plist-get fn-data :filename)
-             line ,(plist-get fn-data :line))
-           fn))
+                 line ,line)
+               fn))))
         (lispy-goto-symbol fn)))))
 
 (declare-function deferred:sync! "ext:deferred")
