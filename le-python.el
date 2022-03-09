@@ -267,6 +267,10 @@ it at one time."
               (let ((python-shell-completion-native-enable nil))
                 (python-shell-make-comint
                  python-binary-name proc-name nil nil))))
+        (setq lispy-python-middleware--file
+              (if (file-name-absolute-p lispy-python-middleware-file)
+                  lispy-python-middleware-file
+                (expand-file-name "lispy-python.py" lispy-site-directory)))
         (setq process (get-buffer-process buffer))
         (with-current-buffer buffer
           (python-shell-completion-native-turn-on)
@@ -756,16 +760,14 @@ Otherwise, fall back to Jedi (static)."
 
 (defvar lispy-python-init-file "~/git/site-python/init.py")
 
-(defvar lispy-python-init-file-remote "/opt/lispy-python.py")
+(defvar lispy-python-middleware-file "lispy-python.py")
+
+(defvar lispy-python-middleware--file "lispy-python.py")
 
 (defun lispy--python-middleware-load ()
   "Load the custom Python code in \"lispy-python.py\"."
   (unless lispy--python-middleware-loaded-p
-    (let* ((lispy-python-py
-            (if (file-remote-p default-directory)
-                lispy-python-init-file-remote
-              (expand-file-name "lispy-python.py" lispy-site-directory)))
-           (module-path (format "'lispy-python','%s'" lispy-python-py)))
+    (let ((module-path (format "'lispy-python','%s'" lispy-python-middleware--file)))
       (lispy--eval-python
        (format
         (concat
