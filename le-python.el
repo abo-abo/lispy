@@ -773,6 +773,7 @@ Otherwise, fall back to Jedi (static)."
       (lispy--eval-python
        (format
         (concat
+         "import os; os.system('stty -echo')\n"
          "try:\n"
          "    from importlib.machinery import SourceFileLoader\n"
          "    lp=SourceFileLoader(%s).load_module()\n"
