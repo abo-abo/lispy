@@ -140,6 +140,7 @@
   (require 'ediff-util)
   (require 'semantic)
   (require 'semantic/db))
+(require 'zoutline)
 (require 'mode-local)
 (require 'lispy-tags)
 (require 'help-fns)
@@ -2156,7 +2157,7 @@ When ARG is nagative, add them above instead"
         (lvl (lispy-outline-level)))
     (cond ((lispy--in-comment-p)
            (goto-char (cdr (zo-bnd-subtree)))
-           (when (looking-back "\n+")
+           (when (looking-back "\n+" (point-min))
              (delete-region (match-beginning 0) (match-end 0)))
            (insert "\n\n"))
           ((and (lispy-bolp)
@@ -4217,7 +4218,7 @@ SYMBOL is a string."
 
 (define-error 'eval-error "Eval error")
 
-(defun lispy-eval (arg)
+(defun lispy-eval (arg &optional e-str)
   "Eval the current sexp and display the result.
 When ARG is 2, insert the result as a comment.
 When at an outline, eval the outline."
@@ -4230,7 +4231,7 @@ When at an outline, eval the outline."
                   (looking-at lispy-outline-header))
              (lispy-eval-outline))
             (t
-             (let ((res (lispy--eval nil)))
+             (let ((res (lispy--eval e-str)))
                (when (memq major-mode lispy-clojure-modes)
                  (setq res (lispy--clojure-pretty-string res)))
                (when lispy-eval-output
@@ -4699,8 +4700,8 @@ When ARG is non-nil, force select the window."
            (lispy-eval 1))
           (t
            (with-selected-window target-window
-             (setq res (lispy--eval-elisp-form expr lexical-binding)))
-           (lispy--print-object res)))))
+             (setq res (lispy--eval-elisp-form expr lexical-binding))
+             (lispy--print-object res))))))
 
 (defun lispy-follow ()
   "Follow to `lispy--current-function'."
@@ -5744,52 +5745,57 @@ ARG is 4: `eval-defun' on the function from this sexp."
          (let* ((ldsi-sxp (lispy--setq-expression))
                 (ldsi-fun (car ldsi-sxp)))
            (cond
-             ((memq ldsi-fun '(mapcar mapc mapcan
-                               cl-remove-if cl-remove-if-not
-                               cl-find-if cl-find-if-not
-                               cl-some cl-every cl-any cl-notany))
-              (let ((fn (nth 1 ldsi-sxp))
-                    (lst (nth 2 ldsi-sxp)))
-                (when (eq (car-safe fn) 'lambda)
-                  (set (car (cadr fn)) (car (eval lst)))
-                  (lispy-flow 2))))
-             ((or (functionp ldsi-fun)
-                  (macrop ldsi-fun))
-              (when (eq ldsi-fun 'funcall)
-                (setq ldsi-fun (eval (cadr ldsi-sxp)))
-                (setq ldsi-sxp (cons ldsi-fun (cddr ldsi-sxp))))
-              (let ((ldsi-args
-                     (copy-sequence
-                      (help-function-arglist
-                       (if (ad-is-advised ldsi-fun)
-                           (ad-get-orig-definition ldsi-fun)
-                         ldsi-fun)
-                       t)))
-                    (ldsi-vals (cdr ldsi-sxp))
-                    ldsi-arg
-                    ldsi-val)
-                (catch 'done
-                  (while (setq ldsi-arg (pop ldsi-args))
-                    (cond ((eq ldsi-arg '&optional)
-                           (setq ldsi-arg (pop ldsi-args))
-                           (set ldsi-arg (eval (pop ldsi-vals))))
-                          ((eq ldsi-arg '&rest)
-                           (setq ldsi-arg (pop ldsi-args))
-                           (set ldsi-arg
-                                (if (functionp ldsi-fun)
-                                    (mapcar #'eval ldsi-vals)
-                                  ldsi-vals))
-                           (throw 'done t))
-                          (t
-                           (setq ldsi-val (pop ldsi-vals))
-                           (set ldsi-arg
-                                (if (functionp ldsi-fun)
-                                    (eval ldsi-val)
-                                  ldsi-val))))))
-                (lispy-goto-symbol ldsi-fun)))
-             (t
-              (lispy-complain
-               (format "%S isn't a function" ldsi-fun))))))
+            ((memq ldsi-fun '(mapcar mapc mapcan
+                                     cl-remove-if cl-remove-if-not
+                                     cl-find-if cl-find-if-not
+                                     cl-some cl-every cl-any cl-notany))
+             (let ((fn (nth 1 ldsi-sxp))
+                   (lst (nth 2 ldsi-sxp)))
+               (when (eq (car-safe fn) 'lambda)
+                 (set (car (cadr fn)) (car (eval lst)))
+                 (lispy-flow 2))))
+            ((or (functionp ldsi-fun)
+                 (macrop ldsi-fun))
+             (cond ((eq ldsi-fun 'funcall)
+                    (setq ldsi-fun (eval (cadr ldsi-sxp)))
+                    (setq ldsi-sxp (cons ldsi-fun (cddr ldsi-sxp))))
+                   ((eq ldsi-fun 'apply)
+                    (setq ldsi-fun (eval (nth 1 ldsi-sxp)))
+                    (let ((vals (mapcar #'eval (cddr ldsi-sxp))))
+                      (setq ldsi-sxp
+                            (cons ldsi-fun (append (butlast vals) (car (last vals))))))))
+             (let ((ldsi-args
+                    (copy-sequence
+                     (help-function-arglist
+                      (if (ad-is-advised ldsi-fun)
+                          (ad-get-orig-definition ldsi-fun)
+                        ldsi-fun)
+                      t)))
+                   (ldsi-vals (cdr ldsi-sxp))
+                   ldsi-arg
+                   ldsi-val)
+               (catch 'done
+                 (while (setq ldsi-arg (pop ldsi-args))
+                   (cond ((eq ldsi-arg '&optional)
+                          (setq ldsi-arg (pop ldsi-args))
+                          (set ldsi-arg (eval (pop ldsi-vals))))
+                         ((eq ldsi-arg '&rest)
+                          (setq ldsi-arg (pop ldsi-args))
+                          (set ldsi-arg
+                               (if (functionp ldsi-fun)
+                                   (mapcar #'eval ldsi-vals)
+                                 ldsi-vals))
+                          (throw 'done t))
+                         (t
+                          (setq ldsi-val (pop ldsi-vals))
+                          (set ldsi-arg
+                               (if (functionp ldsi-fun)
+                                   (eval ldsi-val)
+                                 ldsi-val))))))
+               (lispy-goto-symbol ldsi-fun)))
+            (t
+             (lispy-complain
+              (format "%S isn't a function" ldsi-fun))))))
         ((eq major-mode 'clojure-mode)
          (require 'le-clojure)
          (lispy--clojure-debug-step-in))
@@ -7343,7 +7349,7 @@ See https://clojure.org/guides/weird_characters#_character_literal.")
                  ((eq major-mode 'hy-mode)
                   (lispy--read-replace "[[:alnum:]-/*<>_?.,\\\\:!@#]+" "clojure-symbol"))
                  ((memq major-mode lispy-clojure-modes)
-                  (lispy--read-replace "[[:alnum:]-/*<>_?.\\\\:!@#=]+" "clojure-symbol"))
+                  (lispy--read-replace "[[:alnum:]-+/*<>_?.\\\\:!@#=]+" "clojure-symbol"))
                  (t
                   (while (re-search-forward "\\(?:\\s-\\|\\s(\\)\\?" nil t)
                     (unless (lispy--in-string-or-comment-p)
@@ -7965,6 +7971,7 @@ Try to refresh if nil is returned."
 
 (defvar helm-update-blacklist-regexps)
 (defvar helm-candidate-number-limit)
+(declare-function helm "ext:helm")
 
 (defvar lispy-tag-history nil
   "History for tags.")
@@ -8661,100 +8668,98 @@ Return an appropriate `setq' expression when in `let', `dolist',
       (when tsexp
         (lispy-different)
         (cond
-          ((looking-back "(\\(?:lexical-\\)?let\\(?:\\*\\|-when-compile\\)?[ \t\n]*"
-                         (line-beginning-position 0))
-           (cons 'setq
-                 (cl-mapcan
-                  (lambda (x) (unless (listp x) (list x nil)))
-                  tsexp)))
+         ((looking-back "(\\(?:lexical-\\)?let\\(?:\\*\\|-when-compile\\)?[ \t\n]*"
+                        (line-beginning-position 0))
+          (cons 'setq
+                (cl-mapcan
+                 (lambda (x) (unless (listp x) (list x nil)))
+                 tsexp)))
 
-          ((lispy-after-string-p "(dolist ")
-           `(lispy--dolist-item-expr ',tsexp))
+         ((lispy-after-string-p "(dolist ")
+          `(lispy--dolist-item-expr ',tsexp))
 
-          ((and (consp tsexp)
-                (eq (car tsexp) 'lambda)
-                (eq (length (cadr tsexp)) 1)
-                (looking-back "(map\\sw* +"
-                              (line-beginning-position)))
-           `(lispy--mapcar-item-expr ,tsexp
-                                     ,(save-excursion
-                                        (lispy-different)
-                                        (read (current-buffer)))))
-          ((and (consp tsexp)
-                (eq (car tsexp) 'find-file-noselect))
-           `(switch-to-buffer ,tsexp))
+         ((and (consp tsexp)
+               (eq (car tsexp) 'lambda)
+               (eq (length (cadr tsexp)) 1)
+               (looking-back "(map\\sw* +"
+                             (line-beginning-position)))
+          `(lispy--mapcar-item-expr ,tsexp
+                                    ,(save-excursion
+                                       (lispy-different)
+                                       (read (current-buffer)))))
+         ((and (consp tsexp)
+               (eq (car tsexp) 'find-file-noselect))
+          `(switch-to-buffer ,tsexp))
 
-          ;; point moves
-          ((progn
-             (lispy--out-backward 1)
-             (looking-back
-              "(\\(?:lexical-\\|if-\\|when-\\)?let\\(?:\\*\\|-when-compile\\)?[ \t\n]*"
-              (line-beginning-position 0)))
-           (cons
-            (if (eq major-mode 'scheme-mode)
-                'define
-              'setq)
-            tsexp))
+         ;; point moves
+         ((progn
+            (lispy--out-backward 1)
+            (looking-back
+             "(\\(?:lexical-\\|if-\\|when-\\)?let\\(?:\\*\\|-when-compile\\)?[ \t\n]*"
+             (line-beginning-position 0)))
+          (cons
+           (if (eq major-mode 'scheme-mode)
+               'define
+             'setq)
+           tsexp))
 
-          ((looking-back
-            "(\\(?:cl-\\)?labels[ \t\n]*"
-            (line-beginning-position 0))
-           (cons 'defun tsexp))
+         ((looking-back
+           "(\\(?:cl-\\)?labels[ \t\n]*"
+           (line-beginning-position 0))
+          (cons 'defun tsexp))
 
-          ((looking-at
-            "(cond\\b")
-           (let ((re tsexp))
-             (if (cdr re)
-                 `(if ,(car re)
-                      (progn
-                        ,@(cdr re))
-                    lispy--eval-cond-msg)
-               `(or ,(car re)
-                    lispy--eval-cond-msg))))
-          ((looking-at "(pcase\\s-*")
-           (goto-char (match-end 0))
-           (if (eval (pcase--expand (read (lispy--string-dwim))
-                                    `((,(car tsexp) t))))
-               (let ((pexpr (funcall (lispy--pcase-pattern-matcher (car tsexp))
-                                     (eval (read (lispy--string-dwim))))))
+         ((looking-at
+           "(cond\\b")
+          (let ((re tsexp))
+            (if (cdr re)
+                `(if ,(car re)
+                     (progn
+                       ,@(cdr re))
+                   lispy--eval-cond-msg)
+              `(or ,(car re)
+                   lispy--eval-cond-msg))))
+         ((looking-at "(pcase\\s-*")
+          (goto-char (match-end 0))
+          (if (eval (pcase--expand (read (lispy--string-dwim))
+                                   `((,(car tsexp) t))))
+              (let ((pexpr (funcall (lispy--pcase-pattern-matcher (car tsexp))
+                                    (eval (read (lispy--string-dwim))))))
 
-                 `(progn
-                    ,pexpr
-                    ',pexpr))
-             lispy--eval-pcase-msg))
-          ((looking-at "(cl-destructuring-bind")
-           (let* ((x-expr (read (lispy--string-dwim)))
-                  (x-parts (eval (nth 2 x-expr))))
-             (cl-mapc
-              #'set (nth 1 x-expr) x-parts)
-             (cons 'list (nth 1 x-expr))))
-          ((looking-at "(with-current-buffer")
-           `(switch-to-buffer ,tsexp))
-          ((and (looking-at "(\\(?:cl-\\)?\\(?:defun\\|defmacro\\)")
-                (save-excursion
-                  (lispy-flow 1)
-                  (eq (point) origin)))
-           (let* ((fn-name (save-excursion
-                             (forward-char)
-                             (forward-sexp 2)
-                             (lispy--preceding-sexp)))
-                  (int-form
-                   (and (fboundp fn-name)
-                        (interactive-form fn-name)))
-                  (int-form (when (eq (car int-form) 'interactive)
-                              (cond ((listp (cadr int-form))
-                                     (cadr int-form))
-                                    ((equal (cadr int-form) "p")
-                                     ''(1))))))
-             (if int-form
-                 `(lispy-destructuring-setq ,tsexp
-                      ,int-form)
-               `(progn
-                  ,@(mapcar
-                     (lambda (x)
-                       (list 'setq x nil))
-                     (delq '&key (delq '&optional (delq '&rest tsexp))))))))
-          (t tsexp))))))
+                `(progn
+                   ,pexpr
+                   ',pexpr))
+            lispy--eval-pcase-msg))
+         ((looking-at "(cl-destructuring-bind")
+          (let* ((x-expr (read (lispy--string-dwim)))
+                 (x-parts (eval (nth 2 x-expr))))
+            (cl-mapc
+             #'set (nth 1 x-expr) x-parts)
+            (cons 'list (nth 1 x-expr))))
+         ((and (looking-at "(\\(?:cl-\\)?\\(?:defun\\|defmacro\\)")
+               (save-excursion
+                 (lispy-flow 1)
+                 (eq (point) origin)))
+          (let* ((fn-name (save-excursion
+                            (forward-char)
+                            (forward-sexp 2)
+                            (lispy--preceding-sexp)))
+                 (int-form
+                  (and (fboundp fn-name)
+                       (interactive-form fn-name)))
+                 (int-form (when (eq (car int-form) 'interactive)
+                             (cond ((listp (cadr int-form))
+                                    (cadr int-form))
+                                   ((equal (cadr int-form) "p")
+                                    ''(1))))))
+            (if int-form
+                `(lispy-destructuring-setq ,tsexp
+                     ,int-form)
+              `(progn
+                 ,@(mapcar
+                    (lambda (x)
+                      (list 'setq x nil))
+                    (delq '&key (delq '&optional (delq '&rest tsexp))))))))
+         (t tsexp))))))
 
 (defun lispy--find-unmatched-delimiters (beg end)
   "Return the positions of unmatched delimiters between BEG and END.

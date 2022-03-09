@@ -5,4 +5,4 @@
     (iedit "0.9.9")
     (swiper "0.13.4")
     (hydra "0.14.0")
-    (zoutline "0.1.0")))
+    (zoutline "0.2.0")))
