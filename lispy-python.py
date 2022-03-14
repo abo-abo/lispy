@@ -356,3 +356,10 @@ def step_in(fn, *args):
     f_globals = top_level().f_globals
     for (arg_name, arg_val) in zip(spec.args, args):
         f_globals[arg_name] = arg_val
+
+def step_into_module_maybe(module):
+    if isinstance(module, types.ModuleType):
+        tf = top_level()
+        for (k, v) in module.__dict__.items():
+            if not re.match("^__", k):
+                tf.f_globals[k] = v

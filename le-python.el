@@ -681,10 +681,13 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
                  (concat "dict(" (mapconcat #'identity extra-keywords ", ") ")"))
            fn-alist))
         (setq dbg-cmd
-              (mapconcat (lambda (x)
-                           (format "%s = %s" (car x) (cdr x)))
-                         fn-alist
-                         "; "))
+              (concat
+               (mapconcat (lambda (x)
+                            (format "%s = %s" (car x) (cdr x)))
+                          fn-alist
+                          "; ")
+               (when method-p
+                 (format "; lp.step_into_module_maybe(%s)" (cdar fn-alist)))))
         (condition-case nil
             (lispy--eval-python dbg-cmd t)
           (error
