@@ -556,8 +556,10 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
       (while (< (point) end)
         (forward-sexp)
         (while (and (< (point) end)
-                    (not (looking-at ",")))
-          (forward-sexp))
+                    (not (looking-at ","))
+                    (ignore-errors
+                      (forward-sexp)
+                      t)))
         (push (buffer-substring-no-properties
                beg (point))
               res)
