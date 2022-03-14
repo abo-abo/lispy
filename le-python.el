@@ -296,7 +296,7 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
     (let* ((vars (match-string 1 str))
            (val (match-string 2 str))
            (len (read (lispy--eval-python (format "len(list(%s))" val) t)))
-           (repr (ignore-errors (read (lispy--eval-python (format "lp.print_elisp(%s)" val) t))))
+           (repr (ignore-errors (read (lispy--eval-python (format "lp.print_elisp(list(%s))" val) t))))
            (idx
             (read
              (ivy-read
@@ -309,10 +309,10 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
                                               (mapconcat
                                                (lambda (y) (if (stringp y) y (prin1-to-string y)))
                                                x " "))
-                                             ((keywordp x)
-                                              (prin1-to-string x))
+                                             ((stringp x)
+                                              x)
                                              (t
-                                              x))))
+                                              (prin1-to-string x)))))
                              repr
                              (number-sequence 0 (1- len)))
                 (mapcar #'number-to-string (number-sequence 0 (1- len))))))))
