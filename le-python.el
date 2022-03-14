@@ -327,33 +327,35 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
                  "super()" (format "super(%s, self)" cls) str))))
   (let ((single-line-p (= (cl-count ?\n str) 0)))
     (cond
-      ((string-match "^\\[" str)
-       (format "__last__ = %s\n%s"
-               str (lispy--python-print "__last__")))
-      ((string-match "\\`\\(\\(?:\\sw\\|\\s_\\)+\\)\\'" str)
-       (lispy--python-print (match-string 1 str)))
-      ((and (or (string-match "\\`\\(\\(?:[., ]\\|\\sw\\|\\s_\\|[][]\\)+\\) += " str)
-                (string-match "\\`\\(([^)]+)\\) *=[^=]" str)
-                (string-match "\\`\\(\\(?:\\sw\\|\\s_\\)+ *\\[[^]]+\\]\\) *=[^=]" str))
-            (save-match-data
-              (or single-line-p
-                  (and (not (string-match-p "lp\\." str))
-                       (equal (lispy--eval-python
-                               (format "x=lp.is_assignment(\"\"\"%s\"\"\")\nprint (x)" str)
-                               t)
-                              "True")))))
-       (concat str "\n" (lispy--python-print (match-string 1 str))))
-      ((lispy--python-nth-element str single-line-p))
-      ((string-match "\\`def \\([a-zA-Z_0-9]+\\)\\s-*(\\s-*self" str)
-       (let ((qual-name (python-info-current-defun)))
-         (concat str
-                 "\n"
-                 (format "lp.rebind(%s, fname='%s', line=%d)"
-                         qual-name
-                         (buffer-file-name)
-                         (line-number-at-pos)))))
-      (t
-       str))))
+     ((string-match-p "\"\"\"" str)
+      str)
+     ((string-match "^\\[" str)
+      (format "__last__ = %s\n%s"
+              str (lispy--python-print "__last__")))
+     ((string-match "\\`\\(\\(?:\\sw\\|\\s_\\)+\\)\\'" str)
+      (lispy--python-print (match-string 1 str)))
+     ((and (or (string-match "\\`\\(\\(?:[., ]\\|\\sw\\|\\s_\\|[][]\\)+\\) += " str)
+               (string-match "\\`\\(([^)]+)\\) *=[^=]" str)
+               (string-match "\\`\\(\\(?:\\sw\\|\\s_\\)+ *\\[[^]]+\\]\\) *=[^=]" str))
+           (save-match-data
+             (or single-line-p
+                 (and (not (string-match-p "lp\\." str))
+                      (equal (lispy--eval-python
+                              (format "x=lp.is_assignment(\"\"\"%s\"\"\")\nprint (x)" str)
+                              t)
+                             "True")))))
+      (concat str "\n" (lispy--python-print (match-string 1 str))))
+     ((lispy--python-nth-element str single-line-p))
+     ((string-match "\\`def \\([a-zA-Z_0-9]+\\)\\s-*(\\s-*self" str)
+      (let ((qual-name (python-info-current-defun)))
+        (concat str
+                "\n"
+                (format "lp.rebind(%s, fname='%s', line=%d)"
+                        qual-name
+                        (buffer-file-name)
+                        (line-number-at-pos)))))
+     (t
+      str))))
 
 (declare-function lpy-switch-to-shell "ext:lpy")
 
@@ -431,11 +433,12 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
         "")
        ((string-match-p "^<\\(?:map\\|filter\\|generator\\|enumerate\\|zip\\) object" res)
         (let ((last (car (last (split-string str "\n")))))
-          (cond ((string-match "\\`lp.pprint(\\(.*\\))\\'" last)
-                 (setq str (match-string 1 last)))
-                ((string-match "\\`print(repr(\\(.*\\)))\\'" last)
-                 (setq str (match-string 1 last)))))
-        (lispy--eval-python (format "%s = list(%s)\nlp.pprint(%s)" str str str) t))
+          (if (cond ((string-match "\\`lp.pprint(\\(.*\\))\\'" last)
+                     (setq str (match-string 1 last)))
+                    ((string-match "\\`print(repr(\\(.*\\)))\\'" last)
+                     (setq str (match-string 1 last))))
+              (lispy--eval-python (format "%s = list(%s)\nlp.pprint(%s)" str str str) t)
+            (lispy--eval-python (format "dbg = list(%s)\nlp.pprint(dbg)" str str str) t))))
        ((string-match-p "SyntaxError:" res)
         (signal 'eval-error res))
        (t
