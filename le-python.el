@@ -235,6 +235,14 @@ it at one time."
 (defvar lispy--python-middleware-loaded-p nil
   "Nil if the Python middleware in \"lispy-python.py\" wasn't loaded yet.")
 
+(defvar lispy-python-middleware-file "lispy-python.py")
+
+(defvar lispy--python-middleware-file "lispy-python.py")
+
+(defvar lispy-python-init-file (expand-file-name "~/git/site-python/init.py"))
+
+(defvar lispy--python-init-file nil)
+
 (defun lispy--python-proc (&optional name)
   (let* ((proc-name (or name
                         (and (process-live-p lispy-python-proc)
@@ -268,10 +276,11 @@ it at one time."
               (let ((python-shell-completion-native-enable nil))
                 (python-shell-make-comint
                  python-binary-name proc-name nil nil))))
-        (setq lispy-python-middleware--file
+        (setq lispy--python-middleware-file
               (if (file-name-absolute-p lispy-python-middleware-file)
                   lispy-python-middleware-file
                 (expand-file-name "lispy-python.py" lispy-site-directory)))
+        (setq lispy--python-init-file lispy-python-init-file)
         (setq process (get-buffer-process buffer))
         (with-current-buffer buffer
           (python-shell-completion-native-turn-on)
@@ -769,32 +778,23 @@ Otherwise, fall back to Jedi (static)."
   (setq lispy--python-middleware-loaded-p nil)
   (lispy--python-middleware-load))
 
-(defvar lispy-python-init-file "~/git/site-python/init.py")
-
-(defvar lispy-python-middleware-file "lispy-python.py")
-
-(defvar lispy-python-middleware--file "lispy-python.py")
-
 (defun lispy--python-middleware-load ()
   "Load the custom Python code in \"lispy-python.py\"."
   (unless lispy--python-middleware-loaded-p
-    (let ((module-path (format "'lispy-python','%s'" lispy-python-middleware--file)))
+    (let ((default-directory (or (projectile-project-root)
+                                 default-directory)))
       (lispy--eval-python
        (format
         (concat
-         "import os; os.system('stty -echo')\n"
-         "try:\n"
-         "    from importlib.machinery import SourceFileLoader\n"
-         "    lp=SourceFileLoader(%s).load_module()\n"
-         "except:\n"
-         "    import imp;lp=imp.load_source(%s)\n"
+         "from importlib.machinery import SourceFileLoader\n"
+         "lp=SourceFileLoader('lispy-python', '%s').load_module()\n"
          "__name__='__repl__';"
-         "pm=lp.Autocall(lp.pm);")
-        module-path module-path))
-      (when (file-exists-p lispy-python-init-file)
-        (lispy--eval-python
-         (format "exec (open ('%s').read(), globals ())"
-                 (expand-file-name lispy-python-init-file))))
+         "pm=lp.Autocall(lp.pm);"
+         "init_file='%s'\n"
+         "if os.path.exists(init_file):\n"
+         "    exec(open(init_file).read(), globals())")
+        lispy--python-middleware-file
+        lispy--python-init-file))
       (setq lispy--python-middleware-loaded-p t))))
 
 (defun lispy--python-arglist (symbol filename line column)
