@@ -247,7 +247,8 @@ it at one time."
              (inferior-python-mode-hook nil)
              (python-shell-interpreter
               (cond
-               ((file-exists-p python-shell-interpreter)
+               ((and (file-exists-p python-shell-interpreter)
+                     (not (file-directory-p python-shell-interpreter)))
                 (expand-file-name python-shell-interpreter))
                ((save-excursion
                   (goto-char (point-min))
