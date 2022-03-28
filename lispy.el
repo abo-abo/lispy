@@ -4338,31 +4338,35 @@ Return the result of the last evaluation as a string."
       (cons beg end))))
 
 (defun lispy-eval-single-outline ()
-  (let* ((pt (point))
-         (bnd (lispy--eval-bounds-outline))
-         (res
-          (lispy--eval-dwim bnd t)))
-    (when lispy-eval-output
-      (unless (looking-at ".*::$")
-        (setq res (concat lispy-eval-output res))))
-    (cond ((equal res "")
-           (message "(ok)"))
-          ((= ?: (char-before (line-end-position)))
-           (goto-char (cdr bnd))
-           (save-restriction
-             (narrow-to-region
-              (point)
-              (if (re-search-forward outline-regexp nil t)
-                  (1- (match-beginning 0))
-                (point-max)))
-             (goto-char (point-min))
-             (unless (looking-at (concat "\n" lispy-outline-header))
-               (newline))
-             (lispy--insert-eval-result res))
-           (goto-char pt)
-           res)
-          (t
-           (message (replace-regexp-in-string "%" "%%" res))))))
+  (condition-case e
+      (let* ((pt (point))
+             (bnd (lispy--eval-bounds-outline))
+             (res
+              (lispy--eval-dwim bnd t)))
+        (when lispy-eval-output
+          (unless (looking-at ".*::$")
+            (setq res (concat lispy-eval-output res))))
+        (cond ((equal res "")
+               (message "(ok)"))
+              ((= ?: (char-before (line-end-position)))
+               (goto-char (cdr bnd))
+               (save-restriction
+                 (narrow-to-region
+                  (point)
+                  (if (re-search-forward outline-regexp nil t)
+                      (1- (match-beginning 0))
+                    (point-max)))
+                 (goto-char (point-min))
+                 (unless (looking-at (concat "\n" lispy-outline-header))
+                   (newline))
+                 (lispy--insert-eval-result res))
+               (goto-char pt)
+               res)
+              (t
+               (lispy-message (replace-regexp-in-string "%" "%%" res)))))
+
+    (eval-error
+     (lispy-message (cdr e)))))
 
 (defvar lispy-message-limit 4000
   "String length limit for `lispy-message' to pop up a window.
