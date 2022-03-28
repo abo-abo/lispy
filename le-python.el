@@ -296,6 +296,35 @@ it at one time."
      "print(repr((%s)))")
    str))
 
+(defun lispy--py-to-el (py-expr)
+  (condition-case nil
+      (read (lispy--eval-python py-expr t))
+    (error
+     (lispy-message "Eval-error: %s" py-expr))))
+
+(defun lispy--python-nth (py-lst)
+  (let ((len (lispy--py-to-el (format "len(list(%s))" py-lst)))
+        (repr (ignore-errors (lispy--py-to-el (format "lp.print_elisp(list(%s))" py-lst)))))
+    (read
+     (ivy-read
+      "idx: "
+      (if repr
+          (cl-mapcar (lambda (x i)
+                       (concat (number-to-string i)
+                               " "
+                               (cond ((listp x)
+                                      (mapconcat
+                                       (lambda (y) (if (stringp y) y (prin1-to-string y)))
+                                       x " "))
+                                     ((stringp x)
+                                      x)
+                                     (t
+                                      (prin1-to-string x)))))
+                     repr
+                     (number-sequence 0 (1- len)))
+        (mapcar #'number-to-string (number-sequence 0 (1- len))))))))
+
+
 (defun lispy--python-nth-element (str single-line-p)
   "Check if STR is of the form \"ITEM in ARRAY_LIKE\".
 If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
@@ -304,27 +333,7 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
              (not (save-excursion (beginning-of-line) (looking-at " *if"))))
     (let* ((vars (match-string 1 str))
            (val (match-string 2 str))
-           (len (read (lispy--eval-python (format "len(list(%s))" val) t)))
-           (repr (ignore-errors (read (lispy--eval-python (format "lp.print_elisp(list(%s))" val) t))))
-           (idx
-            (read
-             (ivy-read
-              "idx: "
-              (if repr
-                  (cl-mapcar (lambda (x i)
-                               (concat (number-to-string i)
-                                       " "
-                                       (cond ((listp x)
-                                              (mapconcat
-                                               (lambda (y) (if (stringp y) y (prin1-to-string y)))
-                                               x " "))
-                                             ((stringp x)
-                                              x)
-                                             (t
-                                              (prin1-to-string x)))))
-                             repr
-                             (number-sequence 0 (1- len)))
-                (mapcar #'number-to-string (number-sequence 0 (1- len))))))))
+           (idx (lispy--python-nth val)))
       (format "%s = list (%s)[%s]\nprint ((%s))"
               vars val idx vars))))
 
