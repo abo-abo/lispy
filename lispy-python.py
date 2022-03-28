@@ -253,18 +253,29 @@ def argspec(sym):
     if arg_info:
         di = arg_info._asdict()
         fn = sym.__init__ if type(sym) is type else sym
-        filename = fn.__code__.co_filename
-        di["filename"] = filename
-        if hasattr(sym, "__self__"):
-            # bound method
-            qname = sym.__self__.__class__.__name__ + "." + sym.__name__
-        else:
-            qname = sym.__qualname__
-        tu = (filename, qname)
-        if tu in Stack.line_numbers:
-            di["line"] = Stack.line_numbers[tu]
-        else:
-            di["line"] = fn.__code__.co_firstlineno
+        try:
+            filename = fn.__code__.co_filename
+            di["filename"] = filename
+            if hasattr(sym, "__self__"):
+                # bound method
+                qname = sym.__self__.__class__.__name__ + "." + sym.__name__
+            else:
+                qname = sym.__qualname__
+            tu = (filename, qname)
+            if tu in Stack.line_numbers:
+                di["line"] = Stack.line_numbers[tu]
+            else:
+                di["line"] = fn.__code__.co_firstlineno
+        except AttributeError:
+            m = sys.modules[sym.__module__]
+            filename = m.__file__
+            nodes = ast.parse(open(filename).read()).body
+            for node in nodes:
+                if (type(node) in [ast.ClassDef, ast.FunctionDef] and
+                    node.name == sym.__name__):
+                    di["filename"] = filename
+                    di["line"] = node.lineno
+
         print_elisp(di)
     else:
         print("nil")

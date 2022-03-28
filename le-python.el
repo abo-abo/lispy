@@ -739,20 +739,22 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
         (let ((res (ignore-errors
                      (or
                       (deferred:sync!
-                          (jedi:goto-definition))
+                        (jedi:goto-definition))
                       t))))
           (if (member res '(nil "Definition not found."))
-              (let* ((symbol (python-info-current-symbol))
-                     (symbol-re (concat "^\\(?:def\\|class\\).*" (car (last (split-string symbol "\\." t)))))
+              (let* ((symbol (or (python-info-current-symbol) symbol))
                      (r (lispy--eval-python
-                         (format "lp.argspec(%s)" symbol)))
+                         (format "lp.argspec(%s)" symbol) t))
                      (plist (and r (read r))))
                 (cond (plist
                        (lispy--goto-symbol-python
                         (plist-get plist :filename)
                         (plist-get plist :line)))
                       ((and (equal file "None")
-                            (re-search-backward symbol-re nil t)))
+                            (let ((symbol-re
+                                   (concat "^\\(?:def\\|class\\).*"
+                                           (car (last (split-string symbol "\\." t))))))
+                              (re-search-backward symbol-re nil t))))
                       (t
                        (error "Both jedi and inspect failed"))))
             (unless (looking-back "def " (line-beginning-position))
