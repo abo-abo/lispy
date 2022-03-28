@@ -300,7 +300,7 @@ it at one time."
   "Check if STR is of the form \"ITEM in ARRAY_LIKE\".
 If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
   (when (and single-line-p
-             (string-match "\\`\\([A-Z_a-z0-9]+\\|\\(?:([^\n]+)\\)\\) in \\(.*\\)\\'" str)
+             (string-match "\\`\\([A-Z_a-z0-9, ]+\\|\\(?:([^\n]+)\\)\\) in \\(.*\\)\\'" str)
              (not (save-excursion (beginning-of-line) (looking-at " *if"))))
     (let* ((vars (match-string 1 str))
            (val (match-string 2 str))
