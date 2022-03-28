@@ -291,9 +291,9 @@ it at one time."
 (defun lispy--python-print (str)
   (format
    (if (and (memq this-command '(pspecial-lispy-eval lispy-eval))
-            (null current-prefix-arg))
-       "lp.pprint(%s)"
-     "print(repr(%s))")
+            (memq current-prefix-arg '(nil 2)))
+       "lp.pprint((%s))"
+     "print(repr((%s)))")
    str))
 
 (defun lispy--python-nth-element (str single-line-p)
@@ -363,6 +363,8 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
                         qual-name
                         (buffer-file-name)
                         (line-number-at-pos)))))
+     ((eq current-prefix-arg 2)
+      (lispy--python-print str))
      (t
       str))))
 
