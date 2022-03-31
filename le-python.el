@@ -189,7 +189,7 @@ Stripping them will produce code that's valid for an eval."
                   (mash-make-shell x 'mash-new-lispy-python))))
               (t
                (lispy--python-proc (concat "lispy-python-" x)))))
-  (unless (lispy--eval-python "lp")
+  (unless (lispy--eval-python "lp" t)
     (lispy-python-middleware-reload)))
 
 (defvar lispy-python-process-regexes
