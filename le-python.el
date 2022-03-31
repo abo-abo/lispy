@@ -203,7 +203,10 @@ Stripping them will produce code that's valid for an eval."
            (mapcar
             (lambda (re)
               (when (string-match re pname)
-                (match-string 1 pname)))
+                (let ((m (match-string 1 pname)))
+                  (if (string= m "comint")
+                      (buffer-name (process-buffer x))
+                    m))))
             lispy-python-process-regexes)))))
 
 (defvar lispy-override-python-binary nil
