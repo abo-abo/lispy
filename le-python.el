@@ -294,20 +294,22 @@ it at one time."
 (defun lispy--python-print (str)
   (format
    (if (and (memq this-command '(pspecial-lispy-eval lispy-eval))
-            (memq current-prefix-arg '(nil 2)))
+            (memq current-prefix-arg '(nil)))
        "lp.pprint((%s))"
      "print(repr((%s)))")
    str))
 
-(defun lispy--py-to-el (py-expr)
-  (condition-case nil
-      (read (lispy--eval-python py-expr t))
-    (error
-     (lispy-message "Eval-error: %s" py-expr))))
+(defun lispy--py-to-el (py)
+  (read (lispy--eval-python (format "lp.print_elisp(%s)" py) t)))
 
 (defun lispy--python-nth (py-lst)
-  (let ((len (lispy--py-to-el (format "len(list(%s))" py-lst)))
-        (repr (ignore-errors (lispy--py-to-el (format "lp.print_elisp(list(%s))" py-lst)))))
+  (let (;; (repr (condition-case nil
+        ;;           (read (lispy--eval-python (format "print_elisp(%s)" py-expr) t))
+        ;;         (error
+        ;;          (lispy-message "Eval-error: %s" py-expr))))
+
+        (len (lispy--py-to-el (format "len(list(%s))" py-lst)))
+        (repr (ignore-errors (lispy--py-to-el (format "list(%s)" py-lst)))))
     (read
      (ivy-read
       "idx: "
@@ -567,7 +569,7 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
                           (lispy--python-proc)
                           nil str)))))))
 
-(defvar lispy--python-arg-key-re "\\`\\(\\(?:\\sw\\|\\s_\\)+\\)=\\([^=].*\\)\\'"
+(defvar lispy--python-arg-key-re "\\`\\(\\(?:\\sw\\|\\s_\\)+\\)=\\([^=]+\\)\\'"
   "Constant regexp for matching function keyword spec.")
 
 (defun lispy--python-args (beg end)
@@ -647,6 +649,8 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
                      (format "lp.argspec(%s)" fn))))
              (fn-args
               (plist-get fn-data :args))
+             (fn-varkw
+              (plist-get fn-data :varkw))
              (fn-varargs
               (plist-get fn-data :varargs))
              (fn-keywords
@@ -685,11 +689,14 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
               (let ((arg-name (match-string 1 arg))
                     (arg-val (match-string 2 arg))
                     arg-cell)
-                (if (setq arg-cell (assoc arg-name fn-alist))
-                    (setcdr arg-cell arg-val)
-                  (if fn-keywords
-                      (push (concat arg-name "=" arg-val) extra-keywords)
-                    (error "\"%s\" is not in %s" arg-name fn-alist))))
+                (cond ((setq arg-cell (assoc arg-name fn-alist))
+                       (setcdr arg-cell arg-val))
+                      (fn-keywords
+                       (push (concat arg-name "=" arg-val) extra-keywords))
+                      (fn-varkw
+                       (push (cons arg-name arg-val) fn-alist))
+                      (t
+                       (error "\"%s\" is not in %s" arg-name fn-alist))))
             (error "\"%s\" does not match the regex spec" arg)))
         (when (memq nil (mapcar #'cdr fn-alist))
           (error "Not all args were provided: %s" fn-alist))
