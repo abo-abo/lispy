@@ -3466,8 +3466,8 @@ When ARG is `fill', do nothing for short expressions."
          (lispy--insert res))))))
 
 (defvar-local lispy--multiline-take-3
-    '(defvar defun defmacro defcustom defgroup defvar-local declare-function
-      define-key nth throw define-error defadvice defhydra defsubst)
+  '(defvar defun defmacro defcustom defgroup defvar-local declare-function
+     define-key nth throw define-error defadvice defhydra defsubst)
   "List of constructs for which the first 3 elements are on the first line.")
 
 (setq-mode-local
@@ -4509,23 +4509,26 @@ If STR is too large, pop it to a buffer instead."
                       (eq major-mode 'python-mode))
                  (cond ((< (current-column) 100))
                        ((looking-back "[]}]" (line-beginning-position))
-                        (let ((cnt (if (string= "]" (match-string 0))
-                                       -1
-                                     -2))
-                              (beg (save-excursion
-                                     (forward-list -1)
-                                     (1+ (point)))))
-                          (backward-char 1)
-                          (ignore-errors
-                            (while (> (point) beg)
-                              (if (lispy-after-string-p ">")
-                                  (progn
-                                    (re-search-backward "<" nil t)
-                                    (newline-and-indent)
-                                    (backward-char 3))
-                                (forward-sexp cnt)
-                                (when (> (point) beg)
-                                  (newline-and-indent))))))
+                        (if (string= "]" (match-string 0))
+                            (let ((beg (save-excursion
+                                         (forward-list -1)
+                                         (1+ (point)))))
+                              (backward-char 1)
+                              (ignore-errors
+                                (while (> (point) beg)
+                                  (if (lispy-after-string-p ">")
+                                      (progn
+                                        (re-search-backward "<" nil t)
+                                        (newline-and-indent)
+                                        (backward-char 3))
+                                    (forward-sexp -1)
+                                    (when (> (point) beg)
+                                      (newline-and-indent))))))
+                          (while (> (point) beg)
+                            (re-search-backward ": " nil beg)
+                            (backward-sexp)
+                            (when (> (point) beg)
+                              (newline-and-indent))))
                         (goto-char (point-max)))
                        ((and (looking-back "[])]\\]" (line-beginning-position))
                              (eq (point-min)
