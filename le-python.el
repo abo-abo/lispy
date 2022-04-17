@@ -384,6 +384,10 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
                         qual-name
                         (buffer-file-name)
                         (line-number-at-pos)))))
+     ((string-match "\\`\\([^if].*\\) as \\(\\(?:\\sw\\|\\s_\\)+\\)\\'" str)
+      (let ((val (match-string 1 str))
+            (var (match-string 2 str)))
+        (format "%s = %s.__enter__()" var val)))
      ((eq current-prefix-arg 2)
       (lispy--python-print str))
      (t
