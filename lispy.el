@@ -4701,14 +4701,18 @@ When ARG is non-nil, force select the window."
                  (setq lispy-eval-other--cfg nil)
                  (selected-window))))
          res)
-    (cond ((memq major-mode '(lisp-mode scheme-mode))
-           (lispy-message (lispy--eval (prin1-to-string expr))))
-          ((memq major-mode lispy-clojure-modes)
-           (lispy-eval 1))
-          (t
-           (with-selected-window target-window
-             (setq res (lispy--eval-elisp-form expr lexical-binding))
-             (lispy--print-object res))))))
+    (condition-case e
+        (cond ((memq major-mode '(lisp-mode scheme-mode))
+               (lispy-message (lispy--eval (prin1-to-string expr))))
+              ((memq major-mode lispy-clojure-modes)
+               (lispy-eval 1))
+              (t
+               (with-selected-window target-window
+                 (setq res (lispy--eval-elisp-form expr lexical-binding))
+                 (kill-new (if (stringp res) res (prin1-to-string res)) t)
+                 (lispy--print-object res))))
+      (eval-error
+       (message "%S" e)))))
 
 (defun lispy-follow ()
   "Follow to `lispy--current-function'."
