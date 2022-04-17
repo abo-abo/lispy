@@ -168,7 +168,7 @@ Stripping them will produce code that's valid for an eval."
                 (end-of-line 2)))
             (point)))))
 
-(defvar-local lispy-python-proc nil)
+(defvar-local lispy-python-buf nil)
 
 (declare-function mash-make-shell "ext:mash")
 
@@ -180,15 +180,22 @@ Stripping them will produce code that's valid for an eval."
       (sit-for 0.01)
       (kill-buffer buffer)
       (setq x (car x))))
-  (setq lispy-python-proc
-        (cond ((consp x)
-               (cdr x))
-              ((require 'mash-python nil t)
-               (save-window-excursion
-                 (get-buffer-process
-                  (mash-make-shell x 'mash-new-lispy-python))))
-              (t
-               (lispy--python-proc (concat "lispy-python-" x)))))
+  (let ((buf (cond ((consp x)
+                    (process-buffer (cdr x)))
+                   ((require 'mash-python nil t)
+                    (save-window-excursion
+                      (mash-make-shell x 'mash-new-lispy-python)))
+                   (t
+                    (process-buffer
+                     (lispy--python-proc (concat "lispy-python-" x)))))))
+
+    (setq lispy-python-buf buf)
+    (with-current-buffer lispy-python-buf
+      (setq lispy-python-buf buf)
+      (let ((python-shell--interpreter python-shell-interpreter)
+            (python-shell--interpreter-args "-i"))
+        (unless (eq major-mode 'inferior-python-mode)
+          (inferior-python-mode)))))
   (unless (lispy--eval-python "lp" t)
     (lispy-python-middleware-reload)))
 
@@ -231,8 +238,8 @@ it at one time."
             (read-string "python binary: "))))
     (ivy-read (if arg "Restart process: " "Process: ") process-names
               :action #'lispy-set-python-process-action
-              :preselect (when (process-live-p lispy-python-proc)
-                           (lispy-short-process-name lispy-python-proc))
+              :preselect (when (process-live-p (get-buffer-process lispy-python-buf))
+                           (lispy-short-process-name (get-buffer-process lispy-python-buf)))
               :caller 'lispy-set-python-process)))
 
 (defvar lispy--python-middleware-loaded-p nil
@@ -248,8 +255,8 @@ it at one time."
 
 (defun lispy--python-proc (&optional name)
   (let* ((proc-name (or name
-                        (and (process-live-p lispy-python-proc)
-                             lispy-python-proc)
+                        (and (process-live-p (get-buffer-process lispy-python-buf))
+                             (process-name (get-buffer-process lispy-python-buf)))
                         "lispy-python-default"))
          (process (get-process proc-name)))
     (if (process-live-p process)
@@ -287,7 +294,7 @@ it at one time."
         (setq process (get-buffer-process buffer))
         (with-current-buffer buffer
           (python-shell-completion-native-turn-on)
-          (setq lispy-python-proc process)
+          (setq lispy-python-buf buffer)
           (lispy-python-middleware-reload)))
       process)))
 
@@ -734,7 +741,9 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
                  filename ,(plist-get fn-data :filename)
                  line ,line)
                fn))))
-        (lispy-goto-symbol fn)))))
+        (let ((buf lispy-python-buf))
+          (lispy-goto-symbol fn)
+          (setq lispy-python-buf buf))))))
 
 (declare-function deferred:sync! "ext:deferred")
 (declare-function jedi:goto-definition "ext:jedi-core")
