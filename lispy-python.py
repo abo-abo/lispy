@@ -356,7 +356,7 @@ def pm():
     tl.f_globals["dn"] = Autocall(stack.down)
     globals()["stack"] = stack
 
-pp1 = pp.PrettyPrinter(width=100)
+pp1 = pp.PrettyPrinter(width=200)
 
 def pprint(x):
     r1 = repr(x)
