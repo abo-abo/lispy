@@ -23,6 +23,7 @@ import ast
 import sys
 import inspect
 import re
+import os
 import platform
 import shlex
 import types
@@ -118,7 +119,10 @@ class Autocall:
         return ""
 
 #* Functions
-def chdir(d):
+def chfile(f):
+    tf = top_level()
+    tf.f_globals["__file__"] = f
+    d = os.path.dirname(f)
     try:
         os.chdir(d)
     except:
