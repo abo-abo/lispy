@@ -828,6 +828,7 @@ Otherwise, fall back to Jedi (static)."
       (lispy--eval-python
        (format
         (concat
+         "import os\n"
          "from importlib.machinery import SourceFileLoader\n"
          "lp=SourceFileLoader('lispy-python', '%s').load_module()\n"
          "__name__='__repl__';"
