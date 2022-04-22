@@ -442,3 +442,7 @@ def get_completions(text):
         return sorted(completions)
     else:
         return []
+
+def reload():
+    from importlib.machinery import SourceFileLoader
+    top_level().f_globals["lp"] = SourceFileLoader('lispy-python', __file__).load_module()
