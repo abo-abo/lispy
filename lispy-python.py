@@ -307,6 +307,8 @@ def top_level():
     f = sys._getframe()
     while f.f_back:
         f = f.f_back
+        if f.f_code.co_filename == "<console>":
+            return f
     return f
 
 def list_step(varname, lst):
