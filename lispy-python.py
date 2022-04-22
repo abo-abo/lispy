@@ -380,3 +380,24 @@ def step_into_module_maybe(module):
         for (k, v) in module.__dict__.items():
             if not re.match("^__", k):
                 tf.f_globals[k] = v
+
+def slurp(fname: str) -> str:
+    """Return `fname' contents as text."""
+    with open(fname, "r", encoding="utf-8") as fh:
+        return fh.read()
+
+def definitions(path):
+    script = jedi.Script(slurp(path), path=path)
+    res = []
+    for x in script.get_names():
+        x.full_name
+        if (x.get_definition_start_position()[0] == x.get_definition_end_position()[0] and
+            "import" in x.get_line_code()):
+            continue
+        elif x.type == "function":
+            res.append([x.description, x.line])
+        elif x.type == "module":
+            res.append(["import " + x.name, x.line])
+        else:
+            res.append([x.description, x.line])
+    return res
