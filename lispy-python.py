@@ -401,3 +401,44 @@ def definitions(path):
         else:
             res.append([x.description, x.line])
     return res
+
+def get_completions_readline(text):
+    completions = []
+    completer = None
+    try:
+        import readline
+        import rlcompleter
+        completer = readline.get_completer()
+        if getattr(completer, 'PYTHON_EL_WRAPPED', False):
+            completer.print_mode = False
+        i = 0
+        while True:
+            completion = completer(text, i)
+            if not completion:
+                break
+            i += 1
+            if not re.match("[0-9]__", completion):
+                completions.append(completion)
+    except:
+        pass
+    finally:
+        if getattr(completer, 'PYTHON_EL_WRAPPED', False):
+            completer.print_mode = True
+    return [re.sub("__t__.", "", c) for c in completions]
+
+def get_completions(text):
+    completions = get_completions_readline(text)
+    if completions:
+        return sorted(completions)
+    m = re.match("([^.]+)\.(.*)", text)
+    if m:
+        (obj, part) = m.groups()
+        regex = re.compile("^" + part)
+        o = top_level().f_globals[obj]
+        for x in o.__dict__.keys():
+            if re.match(regex, x):
+                if not x.startswith("_") or part.startswith("_"):
+                    completions.append(x)
+        return sorted(completions)
+    else:
+        return []

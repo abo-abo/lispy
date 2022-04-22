@@ -568,23 +568,17 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
         (t
          (let* ((bnd (lispy-python-symbol-bnd))
                 (str (buffer-substring-no-properties
-                      (car bnd) (cdr bnd))))
+                      (car bnd) (cdr bnd)))
+                (str-com str))
            (when (string-match "\\`\\(.*\\)\\.[^.]*\\'" str)
              (let ((expr (format "__t__ = %s" (substring str 0 (match-end 1)))))
-               (setq str (concat "__t__" (substring str (match-end 1))))
-               (cl-incf (car bnd) (match-end 1))
+               (setq str-com (concat "__t__" (substring str (match-end 1))))
+               (cl-incf (car bnd) (1+ (- (match-end 1) (match-beginning 0))))
                (lispy--eval-python expr t)))
            (list (car bnd)
                  (cdr bnd)
-                 (mapcar (lambda (s)
-                           (replace-regexp-in-string
-                            "__t__" ""
-                            (if (string-match "(\\'" s)
-                                (substring s 0 (match-beginning 0))
-                              s)))
-                         (python-shell-completion-get-completions
-                          (lispy--python-proc)
-                          nil str)))))))
+                 (read (lispy--eval-python
+                        (format "lp.print_elisp(lp.get_completions('%s'))" str-com))))))))
 
 (defvar lispy--python-arg-key-re "\\`\\(\\(?:\\sw\\|\\s_\\)+\\)=\\([^=]+\\)\\'"
   "Constant regexp for matching function keyword spec.")
