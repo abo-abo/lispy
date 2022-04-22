@@ -172,6 +172,9 @@ Stripping them will produce code that's valid for an eval."
 
 (declare-function mash-make-shell "ext:mash")
 
+(defvar-local python-shell--interpreter nil)
+(defvar-local python-shell--interpreter-args nil)
+
 (defun lispy-set-python-process-action (x)
   (when (and current-prefix-arg (consp x))
     (let* ((process (cdr x))
@@ -191,13 +194,14 @@ Stripping them will produce code that's valid for an eval."
 
     (setq lispy-python-buf buf)
     (with-current-buffer lispy-python-buf
-      (setq lispy-python-buf buf)
       (let ((python-shell--interpreter python-shell-interpreter)
             (python-shell--interpreter-args "-i"))
         (unless (eq major-mode 'inferior-python-mode)
-          (inferior-python-mode)))))
-  (unless (lispy--eval-python "lp" t)
-    (lispy-python-middleware-reload)))
+          (inferior-python-mode)))
+      (setq lispy-python-buf buf)))
+  (let ((lp (ignore-errors (lispy--eval-python "lp" t))))
+    (unless (string-match-p "module 'lispy-python'" lp)
+      (lispy-python-middleware-reload))))
 
 (defvar lispy-python-process-regexes
   '("^lispy-python-\\(.*\\)" "\\`\\(Python\\)\\'" "\\`\\(comint\\)\\'")
