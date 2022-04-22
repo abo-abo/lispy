@@ -536,7 +536,9 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
     (point)))
 
 (defun lispy-python-completion-at-point ()
-  (cond ((looking-back "^\\(import\\|from\\) .*" (line-beginning-position))
+  (cond ((save-excursion
+           (back-to-indentation)
+           (looking-at "\\(import\\|from\\) .*"))
          (let* ((line (buffer-substring-no-properties
                        (line-beginning-position)
                        (point)))
