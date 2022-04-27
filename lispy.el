@@ -2467,7 +2467,11 @@ If indenting does not adjust indentation or move the point, call
         (bnd (when (region-active-p)
                (cons (region-beginning)
                      (region-end)))))
-    (indent-for-tab-command)
+    ;; the current TAB may not always be `indent-for-tab-command'
+    (cond
+     ((memq major-mode '(minibuffer-mode minibuffer-inactive-mode))
+      (completion-at-point))
+     (t (indent-for-tab-command)))
     (when (and (= tick (buffer-chars-modified-tick))
                (= pt (point)))
       (if bnd
