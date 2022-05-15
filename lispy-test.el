@@ -150,7 +150,13 @@ Insert KEY if there's no command."
                    "|(thread-last (a 1) (b 2) (c 3))"))
   (should (string= (lispy-with "|(equal 1443070800.0\n       (ts-unix\n        (ts-parse-org-element\n         (org-element-context))))"
                                (lispy-toggle-thread-last))
-                   "|(thread-last (org-element-context)\n  (ts-parse-org-element)\n  (ts-unix)\n  (equal 1443070800.0))"))
+                   (let ((indent (make-string
+                                  (if (version< emacs-version "28.1") 2 13)
+                                  ?\s)))
+                     (concat "|(thread-last (org-element-context)\n"
+                             indent "(ts-parse-org-element)\n"
+                             indent "(ts-unix)\n"
+                             indent "(equal 1443070800.0))"))))
   (should (string= (lispy-with "|(thread-last (org-element-context)\n  (ts-parse-org-element)\n  (ts-unix)\n  (equal 1443070800.0))"
                                (lispy-toggle-thread-last))
                    "|(equal 1443070800.0\n       (ts-unix\n        (ts-parse-org-element\n         (org-element-context))))")))
