@@ -230,7 +230,9 @@ Stripping them will produce code that's valid for an eval."
       (lispy-python-middleware-reload))))
 
 (defvar lispy-python-process-regexes
-  '("^lispy-python-\\(.*\\)" "\\`\\(Python\\)\\'" "\\`\\(comint\\)\\'")
+  '("^lispy-python-\\(.*\\)" "\\`\\(Python\\)\\'"
+    "\\`\\(comint.*\\)\\'"
+    "\\`\\(gud-\\(?:pdb\\|python\\)\\)\\'")
   "List of regexes for process buffers that run Python.")
 
 (defun lispy-short-process-name (x)
