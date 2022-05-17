@@ -176,6 +176,34 @@ Stripping them will produce code that's valid for an eval."
 (defvar-local python-shell--interpreter nil)
 (defvar-local python-shell--interpreter-args nil)
 
+(define-minor-mode lispy-python-interaction-mode
+  "Minor mode for eval-ing Python code."
+  :group 'lispy
+  (when lispy-python-interaction-mode
+    (when python-shell--parent-buffer
+      (python-util-clone-local-variables python-shell--parent-buffer))
+    (setq-local indent-tabs-mode nil)
+    (setq-local python-shell--prompt-calculated-input-regexp nil)
+    (setq-local python-shell--block-prompt nil)
+    (setq-local python-shell--prompt-calculated-output-regexp nil)
+    (python-shell-prompt-set-calculated-regexps)
+    (setq comint-prompt-regexp python-shell--prompt-calculated-input-regexp)
+    (setq-local comint-prompt-read-only t)
+    (setq mode-line-process '(":%s"))
+    (setq-local comint-output-filter-functions
+                '(ansi-color-process-output
+                  python-shell-comint-watch-for-first-prompt-output-filter
+                  python-comint-postoutput-scroll-to-bottom
+                  comint-watch-for-password-prompt))
+    (setq-local compilation-error-regexp-alist python-shell-compilation-regexp-alist)
+    (add-hook 'completion-at-point-functions
+              #'python-shell-completion-at-point nil 'local)
+    (define-key inferior-python-mode-map "\t"
+      'python-shell-completion-complete-or-indent)
+    (make-local-variable 'python-shell-internal-last-output)
+    (compilation-shell-minor-mode 1)
+    (python-pdbtrack-setup-tracking)))
+
 (defun lispy-set-python-process-action (x)
   (when (and current-prefix-arg (consp x))
     (let* ((process (cdr x))
@@ -195,10 +223,7 @@ Stripping them will produce code that's valid for an eval."
 
     (setq lispy-python-buf buf)
     (with-current-buffer lispy-python-buf
-      (let ((python-shell--interpreter python-shell-interpreter)
-            (python-shell--interpreter-args "-i"))
-        (unless (eq major-mode 'inferior-python-mode)
-          (inferior-python-mode)))
+      (lispy-python-interaction-mode)
       (setq lispy-python-buf buf)))
   (let ((lp (ignore-errors (lispy--eval-python "lp" t))))
     (unless (string-match-p "module 'lispy-python'" lp)
