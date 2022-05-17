@@ -226,7 +226,7 @@ Stripping them will produce code that's valid for an eval."
       (lispy-python-interaction-mode)
       (setq lispy-python-buf buf)))
   (let ((lp (ignore-errors (lispy--eval-python "lp" t))))
-    (unless (string-match-p "module 'lispy-python'" lp)
+    (unless (and lp (string-match-p "module 'lispy-python'" lp))
       (lispy-python-middleware-reload))))
 
 (defvar lispy-python-process-regexes
