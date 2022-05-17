@@ -6768,7 +6768,8 @@ The result is a string."
                               (funcall (nth 2 handler))
                             (save-excursion
                               (unless (or (lispy-right-p) (region-active-p))
-                                (lispy-forward 1))
+                                (let ((lispy-ignore-whitespace t))
+                                  (lispy-forward 1)))
                               (lispy--string-dwim)))))
           (require (nth 0 handler))
           (funcall (nth 1 handler) e-str))
