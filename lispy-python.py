@@ -378,10 +378,20 @@ def step_in(fn, *args):
         f_globals[arg_name] = arg_val
 
 def step_into_module_maybe(module):
-    if isinstance(module, types.ModuleType):
+    if isinstance(module, types.FunctionType):
+        try:
+            module = sys.modules[module.__module__]
+        except:
+            pass
+    elif getattr(module, "__module__", None):
+        if module.__module__ == "__repl__":
+            return
+        module = sys.modules[module.__module__]
+    if inspect.ismodule(module):
         tf = top_level()
         for (k, v) in module.__dict__.items():
             if not re.match("^__", k):
+                print(k)
                 tf.f_globals[k] = v
 
 def slurp(fname: str) -> str:
