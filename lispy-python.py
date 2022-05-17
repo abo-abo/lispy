@@ -205,7 +205,10 @@ def arglist(sym):
 def print_elisp(obj, end="\n"):
     if hasattr(obj, "_asdict") and obj._asdict is not None:
         # namedtuple
-        print_elisp(obj._asdict(), end)
+        try:
+            print_elisp(obj._asdict(), end)
+        except:
+            print('"' + str(obj) + '"')
     elif hasattr(obj, "__array__"):
         # something that converts to a numpy array
         print_elisp(list(obj.__array__()))
