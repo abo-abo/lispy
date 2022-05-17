@@ -441,8 +441,8 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
                       (string-match "\n .*\\'" str)
                       (string-match "\"\"\"" str))
                   (replace-regexp-in-string
-                   "" ""
-                   (python-shell-send-string-no-output
+                             "" ""
+                             (python-shell-send-string-no-output
                     str (lispy--python-proc))))
                  ((string-match "\\`\\([\0-\377[:nonascii:]]*\\)\n\\([^\n]*\\)\\'" str)
                   (let* ((p1 (match-string 1 str))
@@ -487,6 +487,7 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
         (lpy-switch-to-shell)
         (goto-char (point-max))
         (insert "lp.pm()")
+        (sit-for 0.1)
         (comint-send-input)
         "breakpoint")
        ((string-match "^Traceback.*:" res)
@@ -751,12 +752,16 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
            fn-alist))
         (setq dbg-cmd
               (concat
-               (mapconcat (lambda (x)
-                            (format "%s = %s" (car x) (cdr x)))
-                          fn-alist
-                          "; ")
-               (when method-p
-                 (format "; lp.step_into_module_maybe(%s)" (cdar fn-alist)))))
+               (format "lp.step_into_module_maybe(%s); "
+                       (if method-p
+                           (cdar fn-alist)
+                         fn))
+               "("
+               (mapconcat #'car fn-alist ", ")
+               ")=("
+               (mapconcat #'cdr fn-alist ", ")
+
+               ")"))
         (condition-case nil
             (lispy--eval-python dbg-cmd t)
           (error
