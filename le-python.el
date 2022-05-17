@@ -243,7 +243,7 @@ Stripping them will produce code that's valid for an eval."
             (lambda (re)
               (when (string-match re pname)
                 (let ((m (match-string 1 pname)))
-                  (if (string= m "comint")
+                  (if (string-match-p "comint" m)
                       (buffer-name (process-buffer x))
                     m))))
             lispy-python-process-regexes)))))
