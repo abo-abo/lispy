@@ -109,7 +109,7 @@ Stripping them will produce code that's valid for an eval."
                       (replace-regexp-in-string
                        "[\\]*\n[\t ]*" " "
                        (replace-regexp-in-string
-                        "^ *#.*$" ""
+                        " *#.*$" ""
                         (buffer-substring-no-properties
                          (point) end))))))
         (buffer-substring-no-properties (car bnd) (point))))))
