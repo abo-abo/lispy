@@ -396,7 +396,7 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
               str (lispy--python-print "__last__")))
      ((string-match "\\`\\(\\(?:\\sw\\|\\s_\\)+\\)\\'" str)
       (lispy--python-print (match-string 1 str)))
-     ((and (or (string-match "\\`\\(\\(?:[., ]\\|\\sw\\|\\s_\\|[][]\\)+\\) += " str)
+     ((and (or (string-match "\\`\\(\\(?:[.,* ]\\|\\sw\\|\\s_\\|[][]\\)+\\) += " str)
                (string-match "\\`\\(([^)]+)\\) *=[^=]" str)
                (string-match "\\`\\(\\(?:\\sw\\|\\s_\\)+ *\\[[^]]+\\]\\) *=[^=]" str))
            (save-match-data
