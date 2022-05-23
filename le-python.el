@@ -869,7 +869,7 @@ Otherwise, fall back to Jedi (static)."
 
 (defun lispy--python-arglist (symbol filename line column)
   (lispy--python-middleware-load)
-  (let* ((boundp (lispy--eval-python symbol))
+  (let* ((boundp (ignore-errors (lispy--eval-python symbol) t))
          (code (if boundp
                    (format "lp.arglist(%s)" symbol)
                  (format "lp.arglist_jedi(%d, %d, '%s')" line column filename)))
