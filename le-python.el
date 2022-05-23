@@ -698,8 +698,8 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
              (fn-defaults
               (mapcar (lambda (x)
                         (cond ((stringp x)
-                               (prin1-to-string x))
-                              (x x)
+                               x)
+                              (x (prin1-to-string x))
                               (t
                                "None")))
                       (plist-get fn-data :defaults)))
