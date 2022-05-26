@@ -4372,9 +4372,12 @@ Return the result of the last evaluation as a string."
   "String length limit for `lispy-message' to pop up a window.
 For smaller strings `message' is used.")
 
+(defvar lispy-last-message nil)
+
 (defun lispy-message (str &optional popup)
   "Display STR in the echo area.
 If STR is too large, pop it to a buffer instead."
+  (setq lispy-last-message str)
   (if (or
        popup
        (> (length str) lispy-message-limit)
