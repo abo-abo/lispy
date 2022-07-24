@@ -391,6 +391,11 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
                  "super()" (format "super(%s, self)" cls) str))))
   (let ((single-line-p (= (cl-count ?\n str) 0)))
     (cond
+     ((string-match "\\`@pytest.mark.parametrize([^\"]+\"\\([^\"]+\\)\",\\(.*?\\)[, ]*)\\'" str)
+      (let* ((vars (match-string 1 str))
+             (vals (match-string 2 str))
+             (idx (lispy--python-nth vals)))
+        (format "%s = %s[%s]\nprint((%s))" vars vals idx vars)))
      ((string-match-p "\"\"\"" str)
       str)
      ((string-match "^\\[" str)
@@ -400,7 +405,8 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
       (lispy--python-print (match-string 1 str)))
      ((and (or (string-match "\\`\\(\\(?:[.,* ]\\|\\sw\\|\\s_\\|[][]\\)+\\) += " str)
                (string-match "\\`\\(([^)]+)\\) *=[^=]" str)
-               (string-match "\\`\\(\\(?:\\sw\\|\\s_\\)+ *\\[[^]]+\\]\\) *=[^=]" str))
+               (string-match "\\`\\(\\(?:\\sw\\|\\s_\\)+ *\\[[^]]+\\]\\) *=[^=]" str)
+               (string-match "\\`\\(\\(?:\\sw\\|\\s_\\)+\\)\\(:[^:=]+\\) *=" str))
            (save-match-data
              (or single-line-p
                  (and (not (string-match-p "lp\\." str))
