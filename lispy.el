@@ -8698,6 +8698,18 @@ Return an appropriate `setq' expression when in `let', `dolist',
          ((lispy-after-string-p "(dolist ")
           `(lispy--dolist-item-expr ',tsexp))
 
+         ((lispy-after-string-p "(cl-destructuring-bind ")
+          (let* ((x-expr (read (lispy--string-dwim)))
+                 (x-parts (eval (save-excursion
+                                  (lispy-down 1)
+                                  (read (lispy--string-dwim))))))
+            (cl-mapc
+             #'set x-expr x-parts)
+            (cons 'list
+                  (apply #'append
+                         (mapcar (lambda (sym)
+                                   (list (list 'quote sym) (eval sym))) x-expr)))))
+
          ((and (consp tsexp)
                (eq (car tsexp) 'lambda)
                (eq (length (cadr tsexp)) 1)
@@ -8749,12 +8761,7 @@ Return an appropriate `setq' expression when in `let', `dolist',
                    ,pexpr
                    ',pexpr))
             lispy--eval-pcase-msg))
-         ((looking-at "(cl-destructuring-bind")
-          (let* ((x-expr (read (lispy--string-dwim)))
-                 (x-parts (eval (nth 2 x-expr))))
-            (cl-mapc
-             #'set (nth 1 x-expr) x-parts)
-            (cons 'list (nth 1 x-expr))))
+
          ((and (looking-at "(\\(?:cl-\\)?\\(?:defun\\|defmacro\\)")
                (save-excursion
                  (lispy-flow 1)
