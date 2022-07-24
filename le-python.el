@@ -118,7 +118,9 @@ Stripping them will produce code that's valid for an eval."
   (let* ((bnd (or bnd (lispy-eval-python-bnd)))
          (str1 (lispy-trim-python
                 (lispy-extended-eval-str bnd)))
-         (str1.4 (replace-regexp-in-string ":=" "=" str1))
+         (str1.4 (if (string-match-p "\\`\\(\\w\\|\\s_\\)+ :=" str1)
+                     (replace-regexp-in-string ":=" "=" str1)
+                   str1))
          (str1.5 (replace-regexp-in-string "^ *#[^\n]+\n" "" str1.4))
          ;; (str2 (replace-regexp-in-string "\\\\\n +" "" str1.5))
          ;; (str3 (replace-regexp-in-string "\n *\\([])}]\\)" "\\1" str2))
