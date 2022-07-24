@@ -617,7 +617,7 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
                  (read (lispy--eval-python
                         (format "lp.print_elisp(lp.get_completions('%s'))" str-com))))))))
 
-(defvar lispy--python-arg-key-re "\\`\\(\\(?:\\sw\\|\\s_\\)+\\)=\\([^=]+\\)\\'"
+(defvar lispy--python-arg-key-re "\\`\\(\\(?:\\sw\\|\\s_\\)+\\)=\\([^\\0]+\\)\\'"
   "Constant regexp for matching function keyword spec.")
 
 (defun lispy--python-args (beg end)
