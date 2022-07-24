@@ -4198,6 +4198,8 @@ SYMBOL is a string."
      le-clojure lispy-eval-clojure)
     (python-mode
      le-python lispy--eval-python lispy-eval-python-str lispy-eval-python-bnd)
+    (js2-mode
+     le-js lispy--eval-js lispy--eval-js-str)
     (julia-mode
      le-julia lispy-eval-julia lispy-eval-julia-str)
     (racket-mode
