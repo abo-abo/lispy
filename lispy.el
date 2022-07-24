@@ -6769,6 +6769,7 @@ The result is a string."
                        lispy-eval-alist))))
     (if handler
         (progn
+          (require (nth 0 handler))
           (setq e-str
                 (or e-str (if (> (length handler) 2)
                               (funcall (nth 2 handler))
@@ -6777,7 +6778,6 @@ The result is a string."
                                 (let ((lispy-ignore-whitespace t))
                                   (lispy-forward 1)))
                               (lispy--string-dwim)))))
-          (require (nth 0 handler))
           (funcall (nth 1 handler) e-str))
       (error "%s isn't supported currently" major-mode))))
 
