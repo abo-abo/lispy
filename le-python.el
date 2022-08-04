@@ -297,17 +297,17 @@ it at one time."
         process
       (let* ((python-shell-font-lock-enable nil)
              (inferior-python-mode-hook nil)
-             (python-shell-interpreter
-              (cond
-               ((and (file-exists-p python-shell-interpreter)
-                     (not (file-directory-p python-shell-interpreter)))
-                (expand-file-name python-shell-interpreter))
-               ((save-excursion
-                  (goto-char (point-min))
-                  (looking-at "#!\\(?:/usr/bin/env \\)\\(.*\\)$"))
-                (match-string-no-properties 1))
-               (t
-                python-shell-interpreter)))
+             ;; (python-shell-interpreter
+             ;;  (cond
+             ;;   ((and (file-exists-p python-shell-interpreter)
+             ;;         (not (file-directory-p python-shell-interpreter)))
+             ;;    (expand-file-name python-shell-interpreter))
+             ;;   ((save-excursion
+             ;;      (goto-char (point-min))
+             ;;      (looking-at "#!\\(?:/usr/bin/env \\)\\(.*\\)$"))
+             ;;    (match-string-no-properties 1))
+             ;;   (t
+             ;;    python-shell-interpreter)))
              (python-binary-name
               (or lispy-override-python-binary
                   (concat
