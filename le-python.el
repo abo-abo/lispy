@@ -880,15 +880,17 @@ Otherwise, fall back to Jedi (static)."
                                  default-directory)))
       (lispy--eval-python
        (format
-        (concat
-         "import os\n"
-         "from importlib.machinery import SourceFileLoader\n"
-         "lp=SourceFileLoader('lispy-python', '%s').load_module()\n"
-         "__name__='__repl__';"
-         "pm=lp.Autocall(lp.pm);"
-         "init_file='%s'\n"
-         "if os.path.exists(init_file):\n"
-         "    exec(open(init_file).read(), globals())")
+        "
+import os
+import sys
+from importlib.machinery import SourceFileLoader
+lp=SourceFileLoader('lispy-python', '%s').load_module()
+__name__='__repl__'
+sys.modules['__repl__']=lp
+pm=lp.Autocall(lp.pm)
+init_file='%s'
+if os.path.exists(init_file):
+    exec(open(init_file).read(), globals())"
         lispy--python-middleware-file
         lispy--python-init-file))
       (setq lispy--python-middleware-loaded-p t))))
