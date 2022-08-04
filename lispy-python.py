@@ -375,9 +375,21 @@ def definitions(path):
             and "import" in x.get_line_code()):
             continue
         if x.type == "function":
-            res.append([x.description, x.line])
+            try:
+                desc = x.description + "(" + ", ".join(p.name for p in x.params) + ")"
+            except:
+                desc = x.description
+            res.append([desc, x.line])
         elif x.type == "module":
             res.append(["import " + x.name, x.line])
+        elif x.type == "class":
+            res.append([x.description, x.line])
+            try:
+                members = x.defined_names()
+            except:
+                members = []
+            for m in members:
+                res.append([x.name + "." + m.name, m.line])
         else:
             res.append([x.description, x.line])
     return res
