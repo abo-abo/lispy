@@ -549,3 +549,8 @@ def reload_module(fname):
             importlib.reload(module)
         except:
             pass
+
+def goto_definition(fname: str, line: int, column: int) -> None:
+    d = jedi.Script(path=fname).goto(line, column)
+    if d:
+        print_elisp((d[0].module_path, d[0].line, d[0].column))

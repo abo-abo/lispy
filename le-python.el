@@ -453,8 +453,8 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
                       (string-match "\n .*\\'" str)
                       (string-match "\"\"\"" str))
                   (replace-regexp-in-string
-                             "" ""
-                             (python-shell-send-string-no-output
+                   "" ""
+                   (python-shell-send-string-no-output
                     str (lispy--python-proc))))
                  ((string-match "\\`\\([\0-\377[:nonascii:]]*\\)\n\\([^\n]*\\)\\'" str)
                   (let* ((p1 (match-string 1 str))
@@ -806,6 +806,18 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
   (unless (bolp)
     (backward-char)))
 
+(defun lispy--python-goto-definition ()
+  (let ((definition (lispy--eval-python
+                     (format "lp.goto_definition('%s',%d,%d)"
+                             (buffer-file-name)
+                             (line-number-at-pos)
+                             (current-column)))))
+    (unless (string= definition "")
+      (cl-destructuring-bind (fname line column) (read definition)
+        (lispy--goto-symbol-python fname line)
+        (forward-char column))
+      t)))
+
 (defun lispy-goto-symbol-python (symbol)
   (save-restriction
     (widen)
@@ -813,29 +825,31 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
           (line (get-text-property 0 'line symbol)))
       (if file
           (lispy--goto-symbol-python file line)
-        (let ((res (ignore-errors
-                     (or
-                      (deferred:sync!
-                        (jedi:goto-definition))
-                      t))))
-          (if (member res '(nil "Definition not found."))
-              (let* ((symbol (or (python-info-current-symbol) symbol))
-                     (r (lispy--eval-python
-                         (format "lp.argspec(%s)" symbol) t))
-                     (plist (and r (read r))))
-                (cond (plist
-                       (lispy--goto-symbol-python
-                        (plist-get plist :filename)
-                        (plist-get plist :line)))
-                      ((and (equal file "None")
-                            (let ((symbol-re
-                                   (concat "^\\(?:def\\|class\\).*"
-                                           (car (last (split-string symbol "\\." t))))))
-                              (re-search-backward symbol-re nil t))))
-                      (t
-                       (error "Both jedi and inspect failed"))))
-            (unless (looking-back "def " (line-beginning-position))
-              (jedi:goto-definition))))))))
+        (or (lispy--python-goto-definition)
+            (let ((res (ignore-errors
+                         (or
+                          (deferred:sync!
+                            (jedi:goto-definition))
+                          t))))
+              (if (member res '(nil "Definition not found."))
+                  (let* ((symbol (or (python-info-current-symbol) symbol))
+                         (r (ignore-errors
+                              (lispy--eval-python
+                               (format "lp.argspec(%s)" symbol) t)))
+                         (plist (and r (read r))))
+                    (cond (plist
+                           (lispy--goto-symbol-python
+                            (plist-get plist :filename)
+                            (plist-get plist :line)))
+                          ((and (equal file "None")
+                                (let ((symbol-re
+                                       (concat "^\\(?:def\\|class\\).*"
+                                               (car (last (split-string symbol "\\." t))))))
+                                  (re-search-backward symbol-re nil t))))
+                          (t
+                           (error "Both jedi and inspect failed"))))
+                (unless (looking-back "def " (line-beginning-position))
+                  (jedi:goto-definition)))))))))
 
 (defun lispy--python-docstring (symbol)
   "Look up the docstring for SYMBOL.
