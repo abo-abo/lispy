@@ -255,7 +255,10 @@ def argspec(sym):
 def arglist_jedi(line, column, filename):
     script = jedi.Script(path=filename)
     defs = script.get_signatures(line, column)
-    return [x.name for x in defs[0].params]
+    if defs:
+        return [x.name for x in defs[0].params]
+    else:
+        return []
 
 def jedi_completions(line):
     script = jedi.Script(code=line)
