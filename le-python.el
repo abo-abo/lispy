@@ -326,6 +326,10 @@ it at one time."
                 (expand-file-name "lispy-python.py" lispy-site-directory)))
         (setq lispy--python-init-file lispy-python-init-file)
         (setq process (get-buffer-process buffer))
+        (sit-for 0.1)
+        (unless (process-live-p process)
+          (pop-to-buffer buffer)
+          (user-error "Could not start %s" python-binary-name))
         (with-current-buffer buffer
           (python-shell-completion-native-turn-on)
           (setq lispy-python-buf buffer)
