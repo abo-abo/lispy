@@ -592,5 +592,25 @@ def translate_returns(p: List[ast.stmt]):
         return [translate_returns(x) for x in p]
     if isinstance(p, ast.Return):
         return ast.parse("return locals() | {'__return__': " + ast.unparse(p.value) + "}").body[0]
+    elif isinstance(p, ast.If):
+        return ast.If(
+            test=p.test,
+            body=translate_returns(p.body),
+            orelse=translate_returns(p.orelse))
     else:
         return p
+
+def wrap_return(parsed: List[ast.stmt]):
+    return [
+        ast.FunctionDef(
+            name="result",
+            body=parsed,
+            decorator_list=[],
+            args=[],
+            lineno=0,
+            col_offset=0),
+        ast.Assign(
+            targets=[ast.Name("res")],
+            value=ast.Call(func=ast.Name("result"), args=[], keywords=[]),
+            lineno=0,
+            col_offset=0)]
