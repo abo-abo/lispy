@@ -26,7 +26,18 @@ import os
 import shlex
 import types
 import collections
+import subprocess
 import pprint as pp
+
+def sh(cmd):
+    r = subprocess.run(
+        shlex.split(cmd),
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        encoding="utf-8",
+        check=True)
+    return r.stdout.strip()
+
 try:
     import reprlib
     repr1 = reprlib.Repr()
@@ -37,7 +48,11 @@ except:
 try:
     import jedi
 except:
-    print("failed to load jedi")
+    pyenv_version = sh("pyenv global")
+    pyversion = ".".join(pyenv_version.split(".")[:-1])
+    site_packages = os.path.expanduser(f"~/.pyenv/versions/{pyenv_version}/lib/python{pyversion}/site-packages/")
+    sys.path.append(site_packages)
+    import jedi
 
 #* Classes
 class Stack:
