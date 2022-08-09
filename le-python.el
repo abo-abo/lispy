@@ -419,9 +419,10 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
            (save-match-data
              (or single-line-p
                  (and (not (string-match-p "lp\\." str))
-                      (equal (lispy--eval-python
-                              (format "x=lp.is_assignment(\"\"\"%s\"\"\")\nprint (x)" str)
-                              t)
+                      (equal (ignore-errors
+                               (lispy--eval-python
+                                (format "x=lp.is_assignment(\"\"\"%s\"\"\")\nprint (x)" str)
+                                t))
                              "True")))))
       (concat str "\n" (lispy--python-print (match-string 1 str))))
      ((lispy--python-nth-element str single-line-p))
