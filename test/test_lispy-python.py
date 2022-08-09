@@ -24,7 +24,9 @@ def test_translate_returns_1():
     assert ast.unparse(translated[2]) == "return locals() | {'__return__': x + y}"
     code = ast.unparse(lp.wrap_return(translated))
     exec(code, globals())
-    assert res["__return__"] == 3
+    assert x == 1
+    assert y == 2
+    assert __return__ == 3
 
 def test_translate_returns_2():
     code_2 = dedent("""
@@ -41,7 +43,9 @@ def test_translate_returns_2():
     assert ast.unparse(translated[0].body) == "return locals() | {'__return__': 0}"
     code = ast.unparse(lp.wrap_return(translated))
     exec(code, globals())
-    assert res["__return__"] == 3
+    assert x == 1
+    assert y == 2
+    assert __return__ == 3
     os.environ["FOO"] = "BAR"
     exec(code, globals())
-    assert res["__return__"] == 0
+    assert __return__ == 0

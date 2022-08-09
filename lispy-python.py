@@ -609,8 +609,10 @@ def wrap_return(parsed: List[ast.stmt]):
             args=[],
             lineno=0,
             col_offset=0),
-        ast.Assign(
-            targets=[ast.Name("res")],
-            value=ast.Call(func=ast.Name("result"), args=[], keywords=[]),
-            lineno=0,
-            col_offset=0)]
+        ast.Expr(
+            ast.Call(
+                func=ast.Attribute(
+                    value=ast.Call(func=ast.Name("globals"), args=[], keywords=[]),
+                    attr="update"),
+                args=[ast.Call(func=ast.Name("result"), args=[], keywords=[])],
+                keywords=[]))]
