@@ -28,6 +28,7 @@ import types
 import collections
 import subprocess
 import pprint as pp
+from typing import List, Dict, Any
 
 def sh(cmd):
     r = subprocess.run(
@@ -581,3 +582,15 @@ def goto_definition(fname: str, line: int, column: int) -> None:
     d = jedi.Script(path=fname).goto(line, column)
     if d:
         print_elisp((str(d[0].module_path), d[0].line, d[0].column))
+
+def ast_pp(code: str) -> str:
+    parsed = ast.parse(code, mode="exec")
+    return ast.dump(parsed.body[0], indent=4)
+
+def translate_returns(p: List[ast.stmt]):
+    if isinstance(p, list):
+        return [translate_returns(x) for x in p]
+    if isinstance(p, ast.Return):
+        return ast.parse("return locals() | {'__return__': " + ast.unparse(p.value) + "}").body[0]
+    else:
+        return p
