@@ -88,31 +88,36 @@ Stripping them will produce code that's valid for an eval."
     count))
 
 (defun lispy-extended-eval-str (bnd)
-  (let ((lp (lispy--count-regex "(" bnd))
-        (rp (lispy--count-regex ")" bnd)))
-    (save-excursion
-      (goto-char (cdr bnd))
-      (while (< rp lp)
-        (re-search-forward "[()]" nil t)
-        (cond ((string= (match-string 0) "(")
-               (cl-incf lp))
-              ((string= (match-string 0) ")")
-               (cl-incf rp))
-              (t
-               (error "Unexpected"))))
-      (if (lispy-after-string-p ")")
-          (let ((end (point)))
-            (save-excursion
-              (forward-sexp -1)
-              (concat (buffer-substring-no-properties
-                       (car bnd) (point))
-                      (replace-regexp-in-string
-                       "[\\]*\n[\t ]*" " "
-                       (replace-regexp-in-string
-                        " *#.*[^\"]$" ""
-                        (buffer-substring-no-properties
-                         (point) end))))))
-        (buffer-substring-no-properties (car bnd) (point))))))
+  "This function should strip python comments.
+So that we can make multi-line expression into a single-line one.
+It didn't work great."
+  (buffer-substring-no-properties (car bnd) (cdr bnd))
+  ;; (let ((lp (lispy--count-regex "(" bnd))
+  ;;       (rp (lispy--count-regex ")" bnd)))
+  ;;   (save-excursion
+  ;;     (goto-char (cdr bnd))
+  ;;     (while (< rp lp)
+  ;;       (re-search-forward "[()]" nil t)
+  ;;       (cond ((string= (match-string 0) "(")
+  ;;              (cl-incf lp))
+  ;;             ((string= (match-string 0) ")")
+  ;;              (cl-incf rp))
+  ;;             (t
+  ;;              (error "Unexpected"))))
+  ;;     (if (lispy-after-string-p ")")
+  ;;         (let ((end (point)))
+  ;;           (save-excursion
+  ;;             (forward-sexp -1)
+  ;;             (concat (buffer-substring-no-properties
+  ;;                      (car bnd) (point))
+  ;;                     (replace-regexp-in-string
+  ;;                      "[\\]*\n[\t ]*" " "
+  ;;                      (replace-regexp-in-string
+  ;;                       " *#.*[^\"]$" ""
+  ;;                       (buffer-substring-no-properties
+  ;;                        (point) end))))))
+  ;;       (buffer-substring-no-properties (car bnd) (point)))))
+  )
 
 (defun lispy-eval-python-str (&optional bnd)
   (let* ((bnd (or bnd (lispy-eval-python-bnd)))
