@@ -565,4 +565,4 @@ def reload_module(fname):
 def goto_definition(fname: str, line: int, column: int) -> None:
     d = jedi.Script(path=fname).goto(line, column)
     if d:
-        print_elisp((d[0].module_path, d[0].line, d[0].column))
+        print_elisp((str(d[0].module_path), d[0].line, d[0].column))
