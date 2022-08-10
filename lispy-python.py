@@ -622,7 +622,22 @@ def wrap_return(parsed: List[ast.stmt]):
                 args=[ast_call("result")]))]
 
 def translate_assign(p: Expr) -> Expr:
-    if isinstance(p, list) and isinstance(p[-1], ast.Assign):
-        return [*p, ast.Expr(
-            ast_call("print", p[-1].targets))]
+    if isinstance(p, list):
+        if isinstance(p[-1], ast.Assign):
+            return [*p, ast.Expr(
+                ast_call("print", p[-1].targets))]
+        elif isinstance(p[-1], ast.Expr):
+            return [*p[:-1], ast.Expr(
+                ast_call("print", [p[-1]]))]
+        else:
+            return p
     return p
+
+def translate(code: str) -> Expr:
+    parsed = ast.parse(code, mode="exec").body
+    parsed_1 = translate_assign(parsed)
+    return parsed_1
+
+
+def eval_code(code: str, env: Dict[str, Any] = {}) -> None:
+    exec(ast.unparse(translate(code)), globals())

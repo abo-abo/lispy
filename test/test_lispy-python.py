@@ -54,3 +54,18 @@ def test_translate_assign_1():
     code = "x = 3"
     parsed = ast.parse(code).body
     assert ast.unparse(lp.translate_assign(parsed)[-1]) == "print(x)"
+
+def test_translate_assign_2():
+    code = "x"
+    parsed = ast.parse(code).body
+    parsed[-1].value
+    assert ast.unparse(lp.translate_assign(parsed)) == "print(\nx)"
+
+def test_translate_def():
+    code = dedent("""
+    def add(x, y):
+        return x + y
+    """)
+    tr = lp.translate(code)
+    assert len(tr) == 1
+    assert isinstance(tr[0], ast.FunctionDef)
