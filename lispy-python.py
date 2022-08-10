@@ -28,7 +28,7 @@ import types
 import collections
 import subprocess
 import pprint as pp
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Union
 
 def sh(cmd):
     r = subprocess.run(
@@ -587,7 +587,9 @@ def ast_pp(code: str) -> str:
     parsed = ast.parse(code, mode="exec")
     return ast.dump(parsed.body[0], indent=4)
 
-def translate_returns(p: List[ast.stmt]):
+Expr = Union[List[ast.stmt], ast.stmt]
+
+def translate_returns(p: Expr) -> Expr:
     if isinstance(p, list):
         return [translate_returns(x) for x in p]
     if isinstance(p, ast.Return):
@@ -599,6 +601,9 @@ def translate_returns(p: List[ast.stmt]):
             orelse=translate_returns(p.orelse))
     else:
         return p
+
+def ast_call(func: str, args: List[Any] = [], keywords: List[Any] = []):
+    return ast.Call(func=ast.Name(func), args=args, keywords=keywords)
 
 def wrap_return(parsed: List[ast.stmt]):
     return [
@@ -612,7 +617,7 @@ def wrap_return(parsed: List[ast.stmt]):
         ast.Expr(
             ast.Call(
                 func=ast.Attribute(
-                    value=ast.Call(func=ast.Name("globals"), args=[], keywords=[]),
+                    value=ast_call("globals"),
                     attr="update"),
-                args=[ast.Call(func=ast.Name("result"), args=[], keywords=[])],
+                args=[ast_call("result")],
                 keywords=[]))]
