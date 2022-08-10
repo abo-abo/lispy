@@ -232,7 +232,7 @@ It didn't work great."
     (with-current-buffer lispy-python-buf
       (lispy-python-interaction-mode)
       (setq lispy-python-buf buf)))
-  (let ((lp (ignore-errors (lispy--eval-python "lp" t))))
+  (let ((lp (ignore-errors (lispy--eval-python-plain "lp"))))
     (unless (and lp (string-match-p "module 'lispy-python'" lp))
       (lispy-python-middleware-reload))))
 
@@ -350,11 +350,11 @@ it at one time."
    str))
 
 (defun lispy--py-to-el (py)
-  (read (lispy--eval-python (format "lp.print_elisp(%s)" py) t)))
+  (read (lispy--eval-python-plain (format "lp.print_elisp(%s)" py))))
 
 (defun lispy--python-nth (py-lst)
   (let (;; (repr (condition-case nil
-        ;;           (read (lispy--eval-python (format "print_elisp(%s)" py-expr) t))
+        ;;           (read (lispy--eval-python-plain (format "print_elisp(%s)" py-expr)))
         ;;         (error
         ;;          (lispy-message "Eval-error: %s" py-expr))))
 
@@ -448,7 +448,7 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
       (setq str (lispy--python-eval-string-dwim str))
       ;; bind __file__
       (when (string-match "__file__" str)
-        (lispy--eval-python (format "__file__ = '%s'\n" (buffer-file-name)) t))
+        (lispy--eval-python-plain (format "__file__ = '%s'\n" (buffer-file-name))))
       ;; eliminate return
       (when (and single-line-p (string-match "\\`return \\(.*\\)\\'" str))
         (setq str (match-string 1 str))))
@@ -522,8 +522,8 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
                      (setq str (match-string 1 last)))
                     ((string-match "\\`print(repr(\\(.*\\)))\\'" last)
                      (setq str (match-string 1 last))))
-              (lispy--eval-python (format "%s = list(%s)\nlp.pprint(%s)" str str str) t)
-            (lispy--eval-python (format "dbg = list(%s)\nlp.pprint(dbg)" str str str) t))))
+              (lispy--eval-python-plain (format "%s = list(%s)\nlp.pprint(%s)" str str str))
+            (lispy--eval-python-plain (format "dbg = list(%s)\nlp.pprint(dbg)" str str str)))))
        ((string-match-p "SyntaxError:" res)
         (signal 'eval-error res))
        (t
@@ -545,7 +545,11 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
             (mapconcat #'identity (nreverse r) ",")
             "}")))
 
-(defun lispy--eval-python (str &optional plain)
+(defun lispy--eval-python-plain (str)
+  (python-shell-send-string-no-output
+   str (lispy--python-proc)))
+
+(defun lispy--eval-python (str)
   (let ((fstr
          (if (string-match-p ".\n+." str)
              (let ((temp-file-name (python-shell--save-temp-file str)))
@@ -620,7 +624,7 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
                  (format "lp.jedi_completions('%s')" line))
                 (cands
                  (lispy--python-array-to-elisp
-                  (lispy--eval-python str)))
+                  (lispy--eval-python-plain str)))
                 (bnd (bounds-of-thing-at-point 'symbol))
                 (beg (if bnd (car bnd) (point)))
                 (end (if bnd (cdr bnd) (point))))
@@ -648,10 +652,10 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
              (let ((expr (format "__t__ = %s" (substring str 0 (match-end 1)))))
                (setq str-com (concat "__t__" (substring str (match-end 1))))
                (cl-incf (car bnd) (1+ (- (match-end 1) (match-beginning 0))))
-               (lispy--eval-python expr t)))
+               (lispy--eval-python-plain expr)))
            (list (car bnd)
                  (cdr bnd)
-                 (read (lispy--eval-python
+                 (read (lispy--eval-python-plain
                         (format "lp.print_elisp(lp.get_completions('%s'))" str-com))))))))
 
 (defvar lispy--python-arg-key-re "\\`\\(\\(?:\\sw\\|\\s_\\)+\\)=\\([^\\0]+\\)\\'"
@@ -808,7 +812,7 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
 
                ")"))
         (condition-case nil
-            (lispy--eval-python dbg-cmd t)
+            (lispy--eval-python-plain dbg-cmd)
           (error
            (lispy--eval-python
             (format "lp.step_in(%s,%s)" fn (buffer-substring-no-properties
@@ -892,7 +896,7 @@ First, try to see if SYMBOL.__doc__ returns a string in the
 current REPL session (dynamic).
 
 Otherwise, fall back to Jedi (static)."
-  (let ((dynamic-result (lispy--eval-python (concat symbol ".__doc__"))))
+  (let ((dynamic-result (lispy--eval-python-plain (concat symbol ".__doc__"))))
     (if (> (length dynamic-result) 0)
         (mapconcat #'string-trim-left
                    (split-string (substring dynamic-result 1 -1) "\\\\n")
@@ -912,7 +916,7 @@ Otherwise, fall back to Jedi (static)."
   (unless lispy--python-middleware-loaded-p
     (let ((default-directory (or (projectile-project-root)
                                  default-directory)))
-      (python-shell-send-string-no-output
+      (lispy--eval-python-plain
        (format
         "
 import os
@@ -931,7 +935,7 @@ if os.path.exists(init_file):
 
 (defun lispy--python-arglist (symbol filename line column)
   (lispy--python-middleware-load)
-  (let* ((boundp (ignore-errors (lispy--eval-python symbol) t))
+  (let* ((boundp (ignore-errors (lispy--eval-python-plain symbol) t))
          (code (if boundp
                    (format "lp.arglist(%s)" symbol)
                  (format "lp.arglist_jedi(%d, %d, '%s')" line column filename)))

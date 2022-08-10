@@ -5859,9 +5859,9 @@ An equivalent of `cl-destructuring-bind'."
   (interactive)
   (if (eq major-mode 'python-mode)
       (let* ((pwd
-              (lispy--eval-python "import os; print(os.getcwd())"))
+              (lispy--eval-python-plain "import os; print(os.getcwd())"))
              (cwd (read-directory-name "cd: " pwd)))
-        (lispy--eval-python (format "os.chdir('%s')" cwd))
+        (lispy--eval-python-plain (format "os.chdir('%s')" cwd))
         (message cwd))
     (user-error "Unimplemented for %S" major-mode)))
 
