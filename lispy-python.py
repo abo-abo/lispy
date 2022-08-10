@@ -150,17 +150,6 @@ def format_arg(arg_pair):
     else:
         return name
 
-def delete(element, lst):
-    return [x for x in lst if x != element]
-
-def mapcar(func, lst):
-    """Compatibility function for Python3.
-
-    In Python2 `map' returns a list, as expected.  But in Python3
-    `map' returns a map object that can be converted to a list.
-    """
-    return list(map(func, lst))
-
 def arglist(sym):
     arg_info = inspect.getfullargspec(sym)
     if "self" in arg_info.args:
@@ -168,8 +157,8 @@ def arglist(sym):
     if arg_info.defaults:
         defaults = (
             [None] * (len(arg_info.args) - len(arg_info.defaults)) +
-            mapcar(repr, arg_info.defaults))
-        args = mapcar(format_arg, zip(arg_info.args, defaults))
+            [repr(x) for x in arg_info.defaults])
+        args = [format_arg(x) for x in zip(arg_info.args, defaults)]
     else:
         args = arg_info.args
         if arg_info.varargs:
