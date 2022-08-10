@@ -49,3 +49,8 @@ def test_translate_returns_2():
     os.environ["FOO"] = "BAR"
     exec(code, globals())
     assert __return__ == 0
+
+def test_translate_assign_1():
+    code = "x = 3"
+    parsed = ast.parse(code).body
+    assert ast.unparse(lp.translate_assign(parsed)[-1]) == "print(x)"

@@ -620,3 +620,9 @@ def wrap_return(parsed: List[ast.stmt]):
             ast_call(
                 ast.Attribute(value=ast_call("globals"), attr="update"),
                 args=[ast_call("result")]))]
+
+def translate_assign(p: Expr) -> Expr:
+    if isinstance(p, list) and isinstance(p[-1], ast.Assign):
+        return [*p, ast.Expr(
+            ast_call("print", p[-1].targets))]
+    return p
