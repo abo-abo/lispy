@@ -602,8 +602,10 @@ def translate_returns(p: Expr) -> Expr:
     else:
         return p
 
-def ast_call(func: str, args: List[Any] = [], keywords: List[Any] = []):
-    return ast.Call(func=ast.Name(func), args=args, keywords=keywords)
+def ast_call(func: Any, args: List[Any] = [], keywords: List[Any] = []):
+    if isinstance(func, str):
+        func = ast.Name(func)
+    return ast.Call(func=func, args=args, keywords=keywords)
 
 def wrap_return(parsed: List[ast.stmt]):
     return [
@@ -615,9 +617,6 @@ def wrap_return(parsed: List[ast.stmt]):
             lineno=0,
             col_offset=0),
         ast.Expr(
-            ast.Call(
-                func=ast.Attribute(
-                    value=ast_call("globals"),
-                    attr="update"),
-                args=[ast_call("result")],
-                keywords=[]))]
+            ast_call(
+                ast.Attribute(value=ast_call("globals"), attr="update"),
+                args=[ast_call("result")]))]
