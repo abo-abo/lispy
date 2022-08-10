@@ -67,5 +67,6 @@ def test_translate_def():
         return x + y
     """)
     tr = lp.translate(code)
-    assert len(tr) == 1
+    assert len(tr) == 2
     assert isinstance(tr[0], ast.FunctionDef)
+    assert ast.unparse(tr[1]) == "print('(ok)')"

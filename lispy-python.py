@@ -630,7 +630,8 @@ def translate_assign(p: Expr) -> Expr:
             return [*p[:-1], ast.Expr(
                 ast_call("print", [p[-1]]))]
         else:
-            return p
+            return [*p, ast.Expr(
+                ast_call("print", [ast.Constant("(ok)")]))]
     return p
 
 def translate(code: str) -> Expr:
