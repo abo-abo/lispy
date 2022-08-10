@@ -912,7 +912,7 @@ Otherwise, fall back to Jedi (static)."
   (unless lispy--python-middleware-loaded-p
     (let ((default-directory (or (projectile-project-root)
                                  default-directory)))
-      (lispy--eval-python
+      (python-shell-send-string-no-output
        (format
         "
 import os
