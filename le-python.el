@@ -446,8 +446,10 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
   (let ((single-line-p (= (cl-count ?\n str) 0)))
     (unless plain
       (setq str (lispy--python-eval-string-dwim str))
+      ;; bind __file__
       (when (string-match "__file__" str)
         (lispy--eval-python (format "__file__ = '%s'\n" (buffer-file-name)) t))
+      ;; eliminate return
       (when (and single-line-p (string-match "\\`return \\(.*\\)\\'" str))
         (setq str (match-string 1 str))))
     (let ((res
@@ -527,13 +529,32 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
        (t
         (replace-regexp-in-string "\\\\n" "\n" res))))))
 
+(defun lispy--dict (&rest plist)
+  (let (k v r)
+    (while (setq k (pop plist))
+      (setq v (pop plist))
+      (push (format "\"%s\": %S"
+                    (cond ((keywordp k)
+                           (substring (symbol-name k) 1))
+                          ((stringp k)
+                           k)
+                          (t
+                           (error "Unexpected")))
+                    v) r))
+    (concat "{"
+            (mapconcat #'identity (nreverse r) ",")
+            "}")))
+
 (defun lispy--eval-python (str &optional plain)
   (let ((fstr
          (if (string-match-p ".\n+." str)
              (let ((temp-file-name (python-shell--save-temp-file str)))
-               (format "lp.eval_code(\"\", {\"fname\": \"%s\"})"
-                       temp-file-name))
-           (format "lp.eval_code(\"\"\"%s\"\"\")" str))))
+               (format "lp.eval_code('', %s)"
+                       (lispy--dict
+                        :code temp-file-name
+                        :fname (buffer-file-name))))
+           (format "lp.eval_code(\"\"\"%s\"\"\", %s)" str
+                   (lispy--dict :fname (buffer-file-name))))))
     (python-shell-send-string-no-output
      fstr (lispy--python-proc))))
 

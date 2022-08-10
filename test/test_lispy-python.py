@@ -1,6 +1,8 @@
+import io
 import os
 import ast
 from importlib.machinery import SourceFileLoader
+from contextlib import redirect_stdout
 from textwrap import dedent
 lp = SourceFileLoader("lispy-python", "lispy-python.py").load_module()
 
@@ -70,3 +72,8 @@ def test_translate_def():
     assert len(tr) == 2
     assert isinstance(tr[0], ast.FunctionDef)
     assert ast.unparse(tr[1]) == "print('(ok)')"
+
+def test_file_fname():
+    with io.StringIO() as buf, redirect_stdout(buf):
+        lp.eval_code("__file__", {"fname": "1"})
+        assert buf.getvalue().strip() == "1"

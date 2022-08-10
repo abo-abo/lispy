@@ -629,5 +629,5 @@ def translate(code: str) -> Expr:
     return parsed_1
 
 def eval_code(code: str, env: Dict[str, Any] = {}) -> None:
-    code = code or slurp(env["fname"])
-    exec(ast.unparse(translate(code)), globals())
+    code = code or slurp(env["code"])
+    exec(ast.unparse(translate(code)), globals() | {"__file__": env.get("fname")})
