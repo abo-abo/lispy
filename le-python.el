@@ -394,10 +394,6 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
 
 (defun lispy--python-eval-string-dwim (str)
   (setq str (string-trim str))
-  (when (string-match-p "\\`super()" str)
-    (let* ((cls (car (split-string (python-info-current-defun) "\\."))))
-      (setq str (replace-regexp-in-string
-                 "super()" (format "super(%s, self)" cls) str))))
   (let ((single-line-p (= (cl-count ?\n str) 0)))
     (cond
      ((string-match "\\`@pytest.mark.parametrize([^\"]+\"\\([^\"]+\\)\",\\(.*?\\)[, ]*)\\'" str)
