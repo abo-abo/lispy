@@ -527,7 +527,7 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
        (t
         (replace-regexp-in-string "\\\\n" "\n" res))))))
 
-(defun lispy--eval-python (str)
+(defun lispy--eval-python (str &optional plain)
   (let ((fstr
          (if (string-match-p ".\n+." str)
              (let ((temp-file-name (python-shell--save-temp-file str)))
