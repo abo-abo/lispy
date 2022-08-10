@@ -809,6 +809,7 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
     (backward-char)))
 
 (defun lispy--python-goto-definition ()
+  (save-buffer)
   (let ((definition (lispy--eval-python
                      (format "lp.goto_definition('%s',%d,%d)"
                              (buffer-file-name)
