@@ -527,6 +527,16 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
        (t
         (replace-regexp-in-string "\\\\n" "\n" res))))))
 
+(defun lispy--eval-python (str)
+  (let ((fstr
+         (if (string-match-p ".\n+." str)
+             (let ((temp-file-name (python-shell--save-temp-file str)))
+               (format "lp.eval_code(\"\", {\"fname\": \"%s\"})"
+                       temp-file-name))
+           (format "lp.eval_code(\"\"\"%s\"\"\")" str))))
+    (python-shell-send-string-no-output
+     fstr (lispy--python-proc))))
+
 (defun lispy--python-array-to-elisp (array-str)
   "Transform a Python string ARRAY-STR to an Elisp string array."
   (when (and (stringp array-str)
