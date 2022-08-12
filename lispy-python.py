@@ -28,7 +28,8 @@ import types
 import collections
 import subprocess
 import pprint as pp
-from typing import List, Dict, Any, Union
+from typing import List, Dict, Any, Union, Tuple
+from ast import AST, stmt
 
 def sh(cmd):
     r = subprocess.run(
@@ -57,7 +58,7 @@ except:
 
 #* Classes
 class Stack:
-    line_numbers = {}
+    line_numbers: Dict[Tuple[str, str], int] = {}
 
     def __init__(self, tb):
         self.stack = []
@@ -576,12 +577,12 @@ def ast_pp(code: str) -> str:
     parsed = ast.parse(code, mode="exec")
     return ast.dump(parsed.body[0], indent=4)
 
-Expr = Union[List[ast.stmt], ast.stmt]
+Expr = Union[List[ast.stmt], ast.stmt, Any]
 
 def translate_returns(p: Expr) -> Expr:
     if isinstance(p, list):
         return [translate_returns(x) for x in p]
-    if isinstance(p, ast.Return):
+    if isinstance(p, ast.Return) and p.value:
         return ast.parse("return locals() | {'__return__': " + ast.unparse(p.value) + "}").body[0]
     elif isinstance(p, ast.If):
         return ast.If(
@@ -591,7 +592,7 @@ def translate_returns(p: Expr) -> Expr:
     else:
         return p
 
-def ast_call(func: Any, args: List[Any] = [], keywords: List[Any] = []):
+def ast_call(func: Union[str, AST], args: List[Any] = [], keywords: List[Any] = []):
     if isinstance(func, str):
         func = ast.Name(func)
     return ast.Call(func=func, args=args, keywords=keywords)
@@ -623,11 +624,27 @@ def translate_assign(p: Expr) -> Expr:
                 ast_call("print", [ast.Constant("(ok)")]))]
     return p
 
-def translate(code: str) -> Expr:
+def tr_print_last_expr(p: List[stmt]) -> List[stmt]:
+    if isinstance(p, list):
+        if isinstance(p[-1], ast.Expr):
+            return [*p[:-1], ast.Expr(ast_call("print", [p[-1]]))]
+    return p
+
+def translate(code: str) -> List[stmt]:
     parsed = ast.parse(code, mode="exec").body
-    parsed_1 = translate_assign(parsed)
+    # parsed_1 = translate_assign(parsed)
+    parsed_1 = tr_print_last_expr(parsed)
     return parsed_1
 
 def eval_code(code: str, env: Dict[str, Any] = {}) -> None:
     code = code or slurp(env["code"])
-    exec(ast.unparse(translate(code)), globals() | {"__file__": env.get("fname")})
+    new_code = ast.unparse(ast.Module(translate(code)))
+    # print(f"{new_code=}")
+    locals_1 = locals()
+    locals_2 = locals_1.copy()
+    # pylint: disable=exec-used
+    exec(new_code, top_level().f_globals | {"__file__": env.get("fname")}, locals_2)
+    binds = [k for k in locals_2.keys() if k not in locals_1.keys()]
+    for bind in binds:
+        print(f"{bind} = {locals_2[bind]}")
+        top_level().f_globals[bind] = locals_2[bind]
