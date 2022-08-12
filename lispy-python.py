@@ -638,7 +638,7 @@ def translate(code: str) -> List[stmt]:
 
 def eval_code(code: str, env: Dict[str, Any] = {}) -> None:
     code = code or slurp(env["code"])
-    new_code = ast.unparse(ast.Module(translate(code)))
+    new_code = ast.unparse(translate(code))
     # print(f"{new_code=}")
     locals_1 = locals()
     locals_2 = locals_1.copy()
