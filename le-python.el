@@ -551,13 +551,13 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
 
 (defun lispy--eval-python (str)
   (let ((fstr
-         (if (string-match-p ".\n+." str)
+         (if (string-match-p ".\\n+." str)
              (let ((temp-file-name (python-shell--save-temp-file str)))
                (format "lp.eval_code('', %s)"
                        (lispy--dict
                         :code temp-file-name
                         :fname (buffer-file-name))))
-           (format "lp.eval_code(\"\"\"%s\"\"\", %s)" str
+           (format "lp.eval_code(\"\"\"%s \"\"\", %s)" str
                    (lispy--dict :fname (buffer-file-name))))))
     (python-shell-send-string-no-output
      fstr (lispy--python-proc))))
