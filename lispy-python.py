@@ -573,6 +573,12 @@ def goto_definition(fname: str, line: int, column: int) -> None:
     if d:
         print_elisp((str(d[0].module_path), d[0].line, d[0].column))
 
+def goto_link_definition(c: str) -> None:
+    module = c.split(".")[0]
+    d = jedi.Script(code=f"import {module}\n{c}").goto(2, len(c) - 2, follow_imports=True)
+    if d:
+        print_elisp((str(d[0].module_path), d[0].line, d[0].column))
+
 def ast_pp(code: str) -> str:
     parsed = ast.parse(code, mode="exec")
     return ast.dump(parsed.body[0], indent=4)
