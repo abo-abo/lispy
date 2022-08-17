@@ -12,8 +12,8 @@ def with_output_to_string(code):
         exec(code)
         return buf.getvalue().strip()
 
-def lp_eval(code):
-    return with_output_to_string(f"__res__=lp.eval_code('''{code}''')")
+def lp_eval(code, env={}):
+    return with_output_to_string(f"__res__=lp.eval_code('''{code}''', {env})")
 
 def test_exec():
     # Need to run this with globals().
@@ -72,7 +72,6 @@ def test_translate_assign_2():
     parsed[-1].value
     assert ast.unparse(lp.translate_assign(parsed)) == "print(\nx)"
 
-
 def test_translate_def():
     code = dedent("""
     def add(x, y):
@@ -84,9 +83,7 @@ def test_translate_def():
     assert "add = <function add at " in lp_eval(code)
 
 def test_file_fname():
-    with io.StringIO() as buf, redirect_stdout(buf):
-        lp.eval_code("__file__", {"fname": "1"})
-        assert buf.getvalue().strip() == "1"
+    assert lp_eval("__file__", {"fname": "shrubbery"}) == "shrubbery"
 
 def test_translate_return_1():
     code = dedent("""
