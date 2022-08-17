@@ -2096,6 +2096,7 @@ When the region is active, toggle a ~ at the start of the region."
 (declare-function slime-repl-return "ext:slime-repl")
 (declare-function sly-mrepl-return "ext:sly-mrepl")
 (declare-function racket-repl-submit "ext:racket-repl")
+(declare-function geiser-repl-maybe-send "ext:geiser-repl")
 (defun lispy-newline-and-indent-plain ()
   "When in minibuffer, exit it.  Otherwise forward to `newline-and-indent'."
   (interactive)
@@ -2117,6 +2118,8 @@ When the region is active, toggle a ~ at the start of the region."
        (ielm-return))
       (racket-repl-mode
        (racket-repl-submit))
+      (geiser-repl-mode
+       (geiser-repl-maybe-send))
       (t
        (if (and (not (lispy--in-string-or-comment-p))
                 (if (memq major-mode lispy-clojure-modes)
