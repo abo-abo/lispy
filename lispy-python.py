@@ -29,7 +29,7 @@ import shlex
 import subprocess
 import sys
 import types
-from ast import AST, stmt
+from ast import AST
 from contextlib import redirect_stdout
 from typing import List, Dict, Any, Union, Tuple
 
@@ -589,16 +589,27 @@ def ast_pp(code: str) -> str:
 
 Expr = Union[List[ast.stmt], ast.stmt, Any]
 
-def translate_returns(p: Expr) -> Expr:
+def has_return(p: Expr) -> bool:
     if isinstance(p, list):
-        return [translate_returns(x) for x in p]
+        return any(has_return(x) for x in p)
+    if isinstance(p, ast.Return):
+        return True
+    elif isinstance(p, ast.If):
+        return has_return(p.body) or has_return(p.orelse)
+    else:
+        return False
+
+
+def tr_returns(p: Expr) -> Expr:
+    if isinstance(p, list):
+        return [tr_returns(x) for x in p]
     if isinstance(p, ast.Return) and p.value:
         return ast.parse("return locals() | {'__return__': " + ast.unparse(p.value) + "}").body[0]
     elif isinstance(p, ast.If):
         return ast.If(
             test=p.test,
-            body=translate_returns(p.body),
-            orelse=translate_returns(p.orelse))
+            body=tr_returns(p.body),
+            orelse=tr_returns(p.orelse))
     else:
         return p
 
@@ -607,10 +618,10 @@ def ast_call(func: Union[str, AST], args: List[Any] = [], keywords: List[Any] = 
         func = ast.Name(func)
     return ast.Call(func=func, args=args, keywords=keywords)
 
-def wrap_return(parsed: List[ast.stmt]):
+def wrap_return(parsed: Expr) -> Expr:
     return [
         ast.FunctionDef(
-            name="result",
+            name="__res__",
             body=parsed,
             decorator_list=[],
             args=[],
@@ -619,7 +630,7 @@ def wrap_return(parsed: List[ast.stmt]):
         ast.Expr(
             ast_call(
                 ast.Attribute(value=ast_call("globals"), attr="update"),
-                args=[ast_call("result")]))]
+                args=[ast_call("__res__")]))]
 
 def translate_assign(p: Expr) -> Expr:
     if isinstance(p, list):
@@ -634,7 +645,7 @@ def translate_assign(p: Expr) -> Expr:
                 ast_call("print", [ast.Constant("(ok)")]))]
     return p
 
-def tr_print_last_expr(p: List[stmt]) -> List[stmt]:
+def tr_print_last_expr(p: Expr) -> Expr:
     if isinstance(p, list):
         if isinstance(p[-1], ast.Expr):
             return [*p[:-1], ast.Expr(ast_call("print", [p[-1]]))]
@@ -642,13 +653,16 @@ def tr_print_last_expr(p: List[stmt]) -> List[stmt]:
 
 def translate(code: str) -> Any:
     parsed = ast.parse(code, mode="exec").body
-    # parsed_1 = translate_assign(parsed)
-    parsed_1 = tr_print_last_expr(parsed)
-    return parsed_1
+    if has_return(parsed):
+        parsed_1 =  wrap_return(tr_returns(parsed))
+        return [*parsed_1, ast.Expr(ast_call("print", [ast.Name("__return__")]))]
+    else:
+        # parsed_1 = translate_assign(parsed)
+        return tr_print_last_expr(parsed)
 
-def eval_code(code: str, env: Dict[str, Any] = {}) -> None:
-    code = code or slurp(env["code"])
-    new_code = ast.unparse(translate(code))
+def eval_code(_code: str, env: Dict[str, Any] = {}) -> None:
+    _code = _code or slurp(env["code"])
+    new_code = ast.unparse(translate(_code))
     # print(f"{new_code=}")
     locals_1 = locals()
     locals_2 = locals_1.copy()
@@ -658,7 +672,8 @@ def eval_code(code: str, env: Dict[str, Any] = {}) -> None:
     for bind in binds:
         top_level().f_globals[bind] = locals_2[bind]
 
-    binds_to_print = binds if env["echo"] else binds[-1:]
+    binds_to_print = binds if env.get("echo") else binds[-1:]
     for bind in binds_to_print:
-        v = to_str(locals_2[bind])
-        print(f"{bind} = {v}")
+        if bind != "__res__":
+            v = to_str(locals_2[bind])
+            print(f"{bind} = {v}")

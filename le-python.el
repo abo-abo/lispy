@@ -460,6 +460,7 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
                    "" ""
                    (python-shell-send-string-no-output
                     str (lispy--python-proc))))
+                 ;; split last line
                  ((string-match "\\`\\([\0-\377[:nonascii:]]*\\)\n\\([^\n]*\\)\\'" str)
                   (let* ((p1 (match-string 1 str))
                          (p2 (match-string 2 str))
