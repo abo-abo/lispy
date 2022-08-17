@@ -632,6 +632,8 @@ def wrap_return(parsed: Expr) -> Expr:
                 ast.Attribute(value=ast_call("globals"), attr="update"),
                 args=[ast_call("__res__")]))]
 
+PRINT_OK = ast.Expr(ast_call("print", [ast.Constant("(ok)")]))
+
 def translate_assign(p: Expr) -> Expr:
     if isinstance(p, list):
         if isinstance(p[-1], ast.Assign):
@@ -641,20 +643,23 @@ def translate_assign(p: Expr) -> Expr:
             return [*p[:-1], ast.Expr(
                 ast_call("print", [p[-1]]))]
         else:
-            return [*p, ast.Expr(
-                ast_call("print", [ast.Constant("(ok)")]))]
+            return [*p, PRINT_OK]
     return p
 
 def tr_print_last_expr(p: Expr) -> Expr:
     if isinstance(p, list):
-        if isinstance(p[-1], ast.Expr):
-            return [*p[:-1], ast.Expr(ast_call("print", [p[-1]]))]
+        p_last = p[-1]
+        if isinstance(p_last, ast.Expr):
+            return [*p[:-1], ast.Expr(ast_call("print", [p_last]))]
+        elif isinstance(p_last, ast.Assert):
+            return [*p, PRINT_OK]
     return p
 
 def translate(code: str) -> Any:
     parsed = ast.parse(code, mode="exec").body
     if has_return(parsed):
         parsed_1 =  wrap_return(tr_returns(parsed))
+        assert isinstance(parsed_1, list)
         return [*parsed_1, ast.Expr(ast_call("print", [ast.Name("__return__")]))]
     else:
         # parsed_1 = translate_assign(parsed)

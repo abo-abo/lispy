@@ -103,3 +103,9 @@ def test_translate_return_2():
         return 5
     """)
     assert lp_eval(code) == "5"
+
+def test_translate_assert():
+    code = "assert 1 == 1"
+    tr = lp.tr_print_last_expr(ast.parse(code).body)
+    assert len(tr) == 2
+    assert ast.unparse(tr[1]) == "print('(ok)')"
