@@ -7,6 +7,14 @@ from textwrap import dedent
 
 lp = SourceFileLoader("lispy-python", os.path.dirname(__file__) + "/../lispy-python.py").load_module()
 
+def with_output_to_string(code):
+    with io.StringIO() as buf, redirect_stdout(buf):
+        exec(code)
+        return buf.getvalue().strip()
+
+def lp_eval(code):
+    return with_output_to_string(f"__res__=lp.eval_code('''{code}''')")
+
 def test_exec():
     # Need to run this with globals().
     # Otherwise, x will not be defined later
@@ -65,7 +73,7 @@ def test_translate_assign_2():
     assert ast.unparse(lp.translate_assign(parsed)) == "print(\nx)"
 
 
-def test_translate_def(capfd):
+def test_translate_def():
     code = dedent("""
     def add(x, y):
         return x + y
@@ -73,21 +81,12 @@ def test_translate_def(capfd):
     tr = lp.translate(code)
     assert len(tr) == 1
     assert isinstance(tr[0], ast.FunctionDef)
-    lp.eval_code(code)
-    assert "add = <function add at " in capfd.readouterr()[0]
+    assert "add = <function add at " in lp_eval(code)
 
 def test_file_fname():
     with io.StringIO() as buf, redirect_stdout(buf):
         lp.eval_code("__file__", {"fname": "1"})
         assert buf.getvalue().strip() == "1"
-
-def with_output_to_string(code):
-    with io.StringIO() as buf, redirect_stdout(buf):
-        exec(code)
-        return buf.getvalue().strip()
-
-def lp_eval(code):
-    return with_output_to_string(f"__res__=lp.eval_code('''{code}''')")
 
 def test_translate_return_1():
     code = dedent("""
