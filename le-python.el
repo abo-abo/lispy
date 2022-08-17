@@ -533,14 +533,21 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
   (let (k v r)
     (while (setq k (pop plist))
       (setq v (pop plist))
-      (push (format "\"%s\": %S"
-                    (cond ((keywordp k)
-                           (substring (symbol-name k) 1))
-                          ((stringp k)
-                           k)
-                          (t
-                           (error "Unexpected")))
-                    v) r))
+      (push (format
+             "\"%s\": %s"
+             (cond ((keywordp k)
+                    (substring (symbol-name k) 1))
+                   ((stringp k)
+                    k
+                    k)
+                   (t
+                    (error "Unexpected")))
+             (cond ((eq v 't)
+                    "True")
+                   ((eq v nil)
+                    "None")
+                   (t
+                    (prin1-to-string v)))) r))
     (concat "{"
             (mapconcat #'identity (nreverse r) ",")
             "}")))
@@ -550,15 +557,18 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
    str (lispy--python-proc)))
 
 (defun lispy--eval-python (str)
-  (let ((fstr
-         (if (string-match-p ".\\n+." str)
-             (let ((temp-file-name (python-shell--save-temp-file str)))
-               (format "lp.eval_code('', %s)"
-                       (lispy--dict
-                        :code temp-file-name
-                        :fname (buffer-file-name))))
-           (format "lp.eval_code(\"\"\"%s \"\"\", %s)" str
-                   (lispy--dict :fname (buffer-file-name))))))
+  (let* ((echo (if (eq current-prefix-arg 2) nil t))
+         (fstr
+          (if (string-match-p ".\\n+." str)
+              (let ((temp-file-name (python-shell--save-temp-file str)))
+                (format "lp.eval_code('', %s)"
+                        (lispy--dict
+                         :code temp-file-name
+                         :fname (buffer-file-name)
+                         :echo echo)))
+            (format "lp.eval_code(\"\"\"%s \"\"\", %s)" str
+                    (lispy--dict :fname (buffer-file-name)
+                                 :echo echo)))))
     (python-shell-send-string-no-output
      fstr (lispy--python-proc))))
 
@@ -845,7 +855,7 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
 
 (defun lispy--python-goto-definition ()
   (save-buffer)
-  (let ((definition (lispy--eval-python
+  (let ((definition (lispy--eval-python-plain
                      (format "lp.goto_definition('%s',%d,%d)"
                              (buffer-file-name)
                              (line-number-at-pos)

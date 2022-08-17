@@ -19,17 +19,19 @@
 
 #* Imports
 import ast
-import sys
-import inspect
-import re
-import os
-import shlex
-import types
 import collections
-import subprocess
+import inspect
+import io
+import os
 import pprint as pp
-from typing import List, Dict, Any, Union, Tuple
+import re
+import shlex
+import subprocess
+import sys
+import types
 from ast import AST, stmt
+from contextlib import redirect_stdout
+from typing import List, Dict, Any, Union, Tuple
 
 def sh(cmd):
     r = subprocess.run(
@@ -332,9 +334,6 @@ def pm():
     tl.f_globals["dn"] = Autocall(stack.down)
     globals()["stack"] = stack
 
-
-pp1 = pp.PrettyPrinter(width=200)
-
 def pprint(x):
     r1 = repr(x)
     if len(r1) > 1000 and repr1:
@@ -343,7 +342,12 @@ def pprint(x):
         if type(x) == collections.OrderedDict:
             print("{" + ",\n ".join([str(k) + ": " + str(v) for (k, v) in x.items()]) + "}")
         else:
-            pp1.pprint(x)
+            pp.PrettyPrinter(width=200).pprint(x)
+
+def to_str(x):
+    with io.StringIO() as buf, redirect_stdout(buf):
+        pprint(x)
+        return buf.getvalue().strip()
 
 def step_in(fn, *args):
     spec = inspect.getfullargspec(fn)
@@ -636,7 +640,7 @@ def tr_print_last_expr(p: List[stmt]) -> List[stmt]:
             return [*p[:-1], ast.Expr(ast_call("print", [p[-1]]))]
     return p
 
-def translate(code: str) -> List[stmt]:
+def translate(code: str) -> Any:
     parsed = ast.parse(code, mode="exec").body
     # parsed_1 = translate_assign(parsed)
     parsed_1 = tr_print_last_expr(parsed)
@@ -652,5 +656,9 @@ def eval_code(code: str, env: Dict[str, Any] = {}) -> None:
     exec(new_code, top_level().f_globals | {"__file__": env.get("fname")}, locals_2)
     binds = [k for k in locals_2.keys() if k not in locals_1.keys()]
     for bind in binds:
-        print(f"{bind} = {locals_2[bind]}")
         top_level().f_globals[bind] = locals_2[bind]
+
+    binds_to_print = binds if env["echo"] else binds[-1:]
+    for bind in binds_to_print:
+        v = to_str(locals_2[bind])
+        print(f"{bind} = {v}")
