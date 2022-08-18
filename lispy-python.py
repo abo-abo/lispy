@@ -656,9 +656,43 @@ def tr_print_last_expr(p: Expr) -> Expr:
             return [*p, PRINT_OK]
     return p
 
+def try_in_expr(p: Expr) -> Optional[Tuple[str, str]]:
+    if not isinstance(p, list):
+        return None
+    p0 = p[0]
+    if not isinstance(p0, ast.Expr):
+        return None
+    if not isinstance(p0.value, ast.Compare):
+        return None
+    if not isinstance(p0.value.ops[0], ast.In):
+        return None
+    if not isinstance(p0.value.left, ast.Name):
+        return None
+    if not isinstance(p0.value.comparators[0], ast.Name):
+        return None
+    return (p0.value.left.id, p0.value.comparators[0].id)
+
+def select_item(code: str, idx: int) -> Any:
+    parsed = ast.parse(code, mode="exec").body
+    in_expr = try_in_expr(parsed)
+    assert in_expr
+    (left, right) = in_expr
+    # pylint: disable=exec-used
+    exec(f"{left} = list({right})[{idx}]", top_level().f_globals, locals())
+    # pylint: disable=eval-used
+    return eval(left)
+
 def translate(code: str) -> Any:
     parsed = ast.parse(code, mode="exec").body
-    if has_return(parsed):
+    if in_expr := try_in_expr(parsed):
+        (left, right) = in_expr
+        with io.StringIO() as buf, redirect_stdout(buf):
+            # pylint: disable=eval-used
+            print_elisp(eval(right, top_level().f_globals))
+            out = buf.getvalue().strip()
+        nc = f"print('''{out}''')\n'select'"
+        return ast.parse(nc).body
+    elif has_return(parsed):
         r = tr_returns(parsed)
         assert isinstance(r, list)
         return wrap_return(r)

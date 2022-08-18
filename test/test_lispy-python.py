@@ -150,3 +150,11 @@ def test_eval_bind_vars():
     assert binds["v1"] == "1"
     assert binds["v2"] == "2"
     assert binds["v3"] == "3"
+
+def test_eval_in_1():
+    lp.eval_code("xs = [1, 2, 3]")
+    code = "x in xs"
+    r = lp.eval_code(code)
+    print(r)
+    assert r["res"] == "'select'"
+    assert r["out"] == "(1\n2\n3\n)"
