@@ -656,7 +656,7 @@ def tr_print_last_expr(p: Expr) -> Expr:
             return [*p, PRINT_OK]
     return p
 
-def try_in_expr(p: Expr) -> Optional[Tuple[str, str]]:
+def try_in_expr(p: Expr) -> Optional[Tuple[str, ast.expr]]:
     if not isinstance(p, list):
         return None
     p0 = p[0]
@@ -668,9 +668,7 @@ def try_in_expr(p: Expr) -> Optional[Tuple[str, str]]:
         return None
     if not isinstance(p0.value.left, ast.Name):
         return None
-    if not isinstance(p0.value.comparators[0], ast.Name):
-        return None
-    return (p0.value.left.id, p0.value.comparators[0].id)
+    return (p0.value.left.id, p0.value.comparators[0])
 
 def select_item(code: str, idx: int) -> Any:
     parsed = ast.parse(code, mode="exec").body
@@ -678,7 +676,9 @@ def select_item(code: str, idx: int) -> Any:
     assert in_expr
     (left, right) = in_expr
     # pylint: disable=exec-used
-    exec(f"{left} = list({right})[{idx}]", top_level().f_globals, locals())
+    r = ast.unparse(right)
+    exec(f"{left} = list({r})[{idx}]", top_level().f_globals, locals())
+    top_level().f_globals[left] = locals()[left]
     # pylint: disable=eval-used
     return eval(left)
 
@@ -688,7 +688,7 @@ def translate(code: str) -> Any:
         (left, right) = in_expr
         with io.StringIO() as buf, redirect_stdout(buf):
             # pylint: disable=eval-used
-            print_elisp(eval(right, top_level().f_globals))
+            print_elisp(eval(ast.unparse(right), top_level().f_globals))
             out = buf.getvalue().strip()
         nc = f"print('''{out}''')\n'select'"
         return ast.parse(nc).body

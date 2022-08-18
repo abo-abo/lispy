@@ -611,7 +611,7 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
         (let* ((cands (read out))
                (idx (lispy--python-nth-1 cands)))
           (lispy--eval-python-plain
-           (format "lp.select_item('%s', %d)" str idx))))
+           (format "lp.select_item(\"\"\"%s\"\"\", %d)" str idx))))
        ((and val (not (string= val "'unset'")))
         (if (string-prefix-p "\"" val)
             (read val)

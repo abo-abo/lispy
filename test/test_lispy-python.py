@@ -158,3 +158,10 @@ def test_eval_in_1():
     print(r)
     assert r["res"] == "'select'"
     assert r["out"] == "(1\n2\n3\n)"
+
+def test_eval_in_2():
+    code = "x in [1, 2, 3]"
+    r = lp.eval_code(code)
+    assert r["res"] == "'select'"
+    assert r["out"] == "(1\n2\n3\n)"
+    assert lp.select_item("x in [1, 2, 3]", 2) == 3
