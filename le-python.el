@@ -586,7 +586,9 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
               (concat (propertize out 'face 'font-lock-string-face) "\n")))
       (cond
        ((and val (not (string= val "'unset'")))
-        val)
+        (if (string-prefix-p "\"" val)
+            (read val)
+          val))
        (binds
         (mapconcat
          (lambda (x)
