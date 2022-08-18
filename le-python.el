@@ -770,7 +770,7 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
                         args))
              (args-normal (cl-set-difference args args-key))
              (fn-data
-              (read (lispy--eval-python
+              (read (lispy--eval-python-plain
                      (format "lp.argspec(%s)" fn))))
              (fn-args
               (plist-get fn-data :args))
