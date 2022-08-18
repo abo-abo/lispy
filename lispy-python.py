@@ -619,11 +619,11 @@ def ast_call(func: Union[str, AST], args: List[Any] = [], keywords: List[Any] = 
         func = ast.Name(func)
     return ast.Call(func=func, args=args, keywords=keywords)
 
-def wrap_return(parsed: Expr) -> Expr:
+def wrap_return(parsed: List[ast.stmt]) -> Expr:
     return [
         ast.FunctionDef(
             name="__res__",
-            body=parsed,
+            body=[*parsed, *ast.parse("return {'__return__': None}").body],
             decorator_list=[],
             args=[],
             lineno=0,
@@ -631,7 +631,9 @@ def wrap_return(parsed: Expr) -> Expr:
         ast.Expr(
             ast_call(
                 ast.Attribute(value=ast_call("locals"), attr="update"),
-                args=[ast_call("__res__")]))]
+                args=[ast_call("__res__")])),
+        ast.Expr(value=ast.Name("__return__"))
+    ]
 
 PRINT_OK = ast.Expr(ast_call("print", [ast.Constant("(ok)")]))
 
@@ -657,21 +659,21 @@ def tr_print_last_expr(p: Expr) -> Expr:
 def translate(code: str) -> Any:
     parsed = ast.parse(code, mode="exec").body
     if has_return(parsed):
-        parsed_1 =  wrap_return(tr_returns(parsed))
-        assert isinstance(parsed_1, list)
-        return [*parsed_1,  ast.Expr(value=ast.Name("__return__"))]
+        r = tr_returns(parsed)
+        assert isinstance(r, list)
+        return wrap_return(r)
     else:
         return parsed
 
 class EvalResult(TypedDict):
-    res: Any
-    binds: Dict[str, Any]
+    res: str
+    binds: Dict[str, str]
     out: str
     err: Optional[str]
 
 def eval_code(_code: str, env: Dict[str, Any] = {}) -> EvalResult:
     res = "unset"
-    binds3 = {}
+    binds = {}
     out = ""
     err: Optional[str] = None
     try:
@@ -695,18 +697,17 @@ def eval_code(_code: str, env: Dict[str, Any] = {}) -> EvalResult:
                 locals_2 = locals_1.copy()
                 exec(ast.unparse(last), top_level().f_globals | {"__file__": env.get("fname")}, locals_2)
             out = buf.getvalue().strip()
-        binds = [k for k in locals_2.keys() if k not in locals_1.keys()]
-        for bind in binds:
+        binds1 = [k for k in locals_2.keys() if k not in locals_1.keys()]
+        for bind in binds1:
             top_level().f_globals[bind] = locals_2[bind]
-        binds1 = binds
         binds2 = [bind for bind in binds1 if bind not in ["__res__", "__return__"]]
-        binds3 = {bind: to_str(locals_2[bind]) for bind in binds2}
+        binds = {bind: to_str(locals_2[bind]) for bind in binds2}
     # pylint: disable=broad-except
     except Exception as e:
         err = f"{e.__class__.__name__}: {e}"
     return {
         "res": repr(res),
-        "binds": binds3,
+        "binds": binds,
         "out": out,
         "err": err
     }

@@ -109,6 +109,19 @@ def test_translate_return_2():
     assert r["out"] == ""
     assert r["err"] is None
 
+def test_translate_return_3():
+    lp.eval_code("l = []")
+    code = dedent("""
+    if not isinstance(l, list):
+        return False
+    """)
+    print(ast.unparse(lp.translate(code)))
+    r = lp.eval_code(code)
+    print(f"{r=}")
+    assert r["res"] == "None"
+    lp.eval_code("l = 1")
+    assert lp.eval_code(code)["res"] == "False"
+
 
 def test_translate_assert():
     code = "assert 1 == 1"
