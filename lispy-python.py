@@ -600,7 +600,6 @@ def has_return(p: Expr) -> bool:
     else:
         return False
 
-
 def tr_returns(p: Expr) -> Expr:
     if isinstance(p, list):
         return [tr_returns(x) for x in p]
@@ -634,27 +633,6 @@ def wrap_return(parsed: List[ast.stmt]) -> Expr:
                 args=[ast_call("__res__")])),
         ast.Expr(value=ast.Name("__return__"))
     ]
-
-PRINT_OK = ast.Expr(ast_call("print", [ast.Constant("(ok)")]))
-
-def is_print(p: Expr) -> bool:
-    return (
-        isinstance(p, ast.Expr) and
-        isinstance(p.value, ast.Call) and
-        isinstance(p.value.func, ast.Name) and
-        p.value.func.id == "print")
-
-def tr_print_last_expr(p: Expr) -> Expr:
-    if isinstance(p, list):
-        p_last = p[-1]
-        if isinstance(p_last, ast.Expr):
-            if is_print(p_last):
-                return p
-            else:
-                return [*p[:-1], ast.Expr(ast_call("print", [p_last]))]
-        elif isinstance(p_last, ast.Assert):
-            return [*p, PRINT_OK]
-    return p
 
 def try_in_expr(p: Expr) -> Optional[Tuple[str, ast.expr]]:
     if not isinstance(p, list):

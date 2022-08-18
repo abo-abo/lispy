@@ -122,13 +122,6 @@ def test_translate_return_3():
     lp.eval_code("l = 1")
     assert lp.eval_code(code)["res"] == "False"
 
-
-def test_translate_assert():
-    code = "assert 1 == 1"
-    tr = lp.tr_print_last_expr(ast.parse(code).body)
-    assert len(tr) == 2
-    assert ast.unparse(tr[1]) == "print('(ok)')"
-
 def test_eval_print():
     r = lp.eval_code("print('hello')")
     assert r["res"] == "None"
