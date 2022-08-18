@@ -22,6 +22,7 @@ import ast
 import collections
 import inspect
 import io
+import json
 import os
 import pprint as pp
 import re
@@ -646,11 +647,21 @@ def translate_assign(p: Expr) -> Expr:
             return [*p, PRINT_OK]
     return p
 
+def is_print(p: Expr) -> bool:
+    return (
+        isinstance(p, ast.Expr) and
+        isinstance(p.value, ast.Call) and
+        isinstance(p.value.func, ast.Name) and
+        p.value.func.id == "print")
+
 def tr_print_last_expr(p: Expr) -> Expr:
     if isinstance(p, list):
         p_last = p[-1]
         if isinstance(p_last, ast.Expr):
-            return [*p[:-1], ast.Expr(ast_call("print", [p_last]))]
+            if is_print(p_last):
+                return p
+            else:
+                return [*p[:-1], ast.Expr(ast_call("print", [p_last]))]
         elif isinstance(p_last, ast.Assert):
             return [*p, PRINT_OK]
     return p
@@ -660,25 +671,35 @@ def translate(code: str) -> Any:
     if has_return(parsed):
         parsed_1 =  wrap_return(tr_returns(parsed))
         assert isinstance(parsed_1, list)
-        return [*parsed_1, ast.Expr(ast_call("print", [ast.Name("__return__")]))]
+        return [*parsed_1,  ast.Expr(ast.Assign(targets=[ast.Name("__return__")], value=ast.Name("__return__"), lineno=1))]
     else:
         # parsed_1 = translate_assign(parsed)
         return tr_print_last_expr(parsed)
 
-def eval_code(_code: str, env: Dict[str, Any] = {}) -> None:
+def eval_code(_code: str, env: Dict[str, Any] = {}) -> Tuple[Dict[str, Any], str]:
     _code = _code or slurp(env["code"])
     new_code = ast.unparse(translate(_code))
-    # print(f"{new_code=}")
     locals_1 = locals()
+    if "__return__" in locals_1:
+        del locals_1["__return__"]
     locals_2 = locals_1.copy()
-    # pylint: disable=exec-used
-    exec(new_code, top_level().f_globals | {"__file__": env.get("fname")}, locals_2)
+    with io.StringIO() as buf, redirect_stdout(buf):
+        # pylint: disable=exec-used
+        exec(new_code, top_level().f_globals | {"__file__": env.get("fname")}, locals_2)
+        out = buf.getvalue().strip()
     binds = [k for k in locals_2.keys() if k not in locals_1.keys()]
     for bind in binds:
         top_level().f_globals[bind] = locals_2[bind]
+    binds1 = binds if env.get("echo") else binds[-1:]
+    binds2 = [bind for bind in binds1 if bind != "__res__"]
+    binds3 = {bind: to_str(locals_2[bind]) for bind in binds2}
 
-    binds_to_print = binds if env.get("echo") else binds[-1:]
-    for bind in binds_to_print:
-        if bind != "__res__":
-            v = to_str(locals_2[bind])
-            print(f"{bind} = {v}")
+
+    return (binds3, out)
+    # for bind in binds2:
+    #     v = to_str(locals_2[bind])
+    #     print(f"{bind} = {v}")
+
+def eval_to_json(code: str, env: Dict[str, Any] = {}) -> str:
+    (binds, out) = eval_code(code, env)
+    return json.dumps({"binds": binds, "out": out})

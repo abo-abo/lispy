@@ -80,10 +80,13 @@ def test_translate_def():
     tr = lp.translate(code)
     assert len(tr) == 1
     assert isinstance(tr[0], ast.FunctionDef)
-    assert "add = <function add at " in lp_eval(code)
+    (binds, out) = lp.eval_code(code)
+    assert "<function add at " in binds["add"]
+    assert out == ""
 
 def test_file_fname():
-    assert lp_eval("__file__", {"fname": "shrubbery"}) == "shrubbery"
+    (binds, out) = lp.eval_code("__file__", {"fname": "shrubbery"})
+    assert out == "shrubbery"
 
 def test_translate_return_1():
     code = dedent("""
@@ -91,7 +94,7 @@ def test_translate_return_1():
     y = 2
     return x + y
     """)
-    assert lp_eval(code) == "3"
+    assert lp.eval_code(code) == ({'__return__': '3'}, '')
 
 def test_translate_return_2():
     code = dedent("""
@@ -102,10 +105,20 @@ def test_translate_return_2():
     else:
         return 5
     """)
-    assert lp_eval(code) == "5"
+    assert lp.eval_code(code) == ({'__return__': '5'}, '')
 
 def test_translate_assert():
     code = "assert 1 == 1"
     tr = lp.tr_print_last_expr(ast.parse(code).body)
     assert len(tr) == 2
     assert ast.unparse(tr[1]) == "print('(ok)')"
+
+def test_eval_print():
+    (binds, out) = lp.eval_code("print('hello')")
+    assert binds == {}
+    assert out == "hello"
+
+def test_eval_bind_var():
+    (binds, out) = lp.eval_code("x = 2 + 2")
+    assert binds["x"] == "4"
+    assert out == ""

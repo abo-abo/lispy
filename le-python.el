@@ -562,16 +562,26 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
          (fstr
           (if (string-match-p ".\\n+." str)
               (let ((temp-file-name (python-shell--save-temp-file str)))
-                (format "lp.eval_code('', %s)"
+                (format "lp.eval_to_json('', %s)"
                         (lispy--dict
                          :code temp-file-name
                          :fname (buffer-file-name)
                          :echo echo)))
-            (format "lp.eval_code(\"\"\"%s \"\"\", %s)" str
+            (format "lp.eval_to_json(\"\"\"%s \"\"\", %s)" str
                     (lispy--dict :fname (buffer-file-name)
-                                 :echo echo)))))
-    (python-shell-send-string-no-output
-     fstr (lispy--python-proc))))
+                                 :echo echo))))
+         (res (json-parse-string
+               (substring
+                (python-shell-send-string-no-output
+                 fstr
+                 (lispy--python-proc))
+                1 -1) :object-type 'plist))
+         (binds (plist-get res :binds))
+         (out (plist-get res :out)))
+    (unless (equal out "")
+      (setq lispy-eval-output
+            (concat (propertize out 'face 'font-lock-string-face) "\n")))
+    (prin1-to-string binds)))
 
 (defun lispy--python-array-to-elisp (array-str)
   "Transform a Python string ARRAY-STR to an Elisp string array."
