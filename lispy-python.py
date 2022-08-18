@@ -32,7 +32,7 @@ import sys
 import types
 from ast import AST
 from contextlib import redirect_stdout
-from typing import List, Dict, Any, Union, Tuple
+from typing import List, Dict, Any, Union, Tuple, Optional, TypedDict
 
 def sh(cmd):
     r = subprocess.run(
@@ -630,22 +630,10 @@ def wrap_return(parsed: Expr) -> Expr:
             col_offset=0),
         ast.Expr(
             ast_call(
-                ast.Attribute(value=ast_call("globals"), attr="update"),
+                ast.Attribute(value=ast_call("locals"), attr="update"),
                 args=[ast_call("__res__")]))]
 
 PRINT_OK = ast.Expr(ast_call("print", [ast.Constant("(ok)")]))
-
-def translate_assign(p: Expr) -> Expr:
-    if isinstance(p, list):
-        if isinstance(p[-1], ast.Assign):
-            return [*p, ast.Expr(
-                ast_call("print", p[-1].targets))]
-        elif isinstance(p[-1], ast.Expr):
-            return [*p[:-1], ast.Expr(
-                ast_call("print", [p[-1]]))]
-        else:
-            return [*p, PRINT_OK]
-    return p
 
 def is_print(p: Expr) -> bool:
     return (
@@ -671,35 +659,66 @@ def translate(code: str) -> Any:
     if has_return(parsed):
         parsed_1 =  wrap_return(tr_returns(parsed))
         assert isinstance(parsed_1, list)
-        return [*parsed_1,  ast.Expr(ast.Assign(targets=[ast.Name("__return__")], value=ast.Name("__return__"), lineno=1))]
+        return [*parsed_1,  ast.Expr(value=ast.Name("__return__"))]
     else:
-        # parsed_1 = translate_assign(parsed)
-        return tr_print_last_expr(parsed)
+        return parsed
 
-def eval_code(_code: str, env: Dict[str, Any] = {}) -> Tuple[Dict[str, Any], str]:
-    _code = _code or slurp(env["code"])
-    new_code = ast.unparse(translate(_code))
-    locals_1 = locals()
-    if "__return__" in locals_1:
-        del locals_1["__return__"]
-    locals_2 = locals_1.copy()
-    with io.StringIO() as buf, redirect_stdout(buf):
-        # pylint: disable=exec-used
-        exec(new_code, top_level().f_globals | {"__file__": env.get("fname")}, locals_2)
-        out = buf.getvalue().strip()
-    binds = [k for k in locals_2.keys() if k not in locals_1.keys()]
-    for bind in binds:
-        top_level().f_globals[bind] = locals_2[bind]
-    binds1 = binds if env.get("echo") else binds[-1:]
-    binds2 = [bind for bind in binds1 if bind != "__res__"]
-    binds3 = {bind: to_str(locals_2[bind]) for bind in binds2}
+class EvalResult(TypedDict):
+    res: Any
+    binds: Dict[str, Any]
+    out: str
+    err: Optional[str]
 
+def eval_code(_code: str, env: Dict[str, Any] = {}) -> EvalResult:
+    res = "unset"
+    binds3 = {}
+    out = ""
+    err: Optional[str] = None
+    try:
+        _code = _code or slurp(env["code"])
+        new_code = translate(_code)
+        (*butlast, last) = new_code
+        if "__return__" in locals():
+            del locals()["__return__"]
+        locals_1 = locals()
+        locals_2 = locals_1.copy()
+        with io.StringIO() as buf, redirect_stdout(buf):
+            # pylint: disable=exec-used
+            exec(ast.unparse(butlast), top_level().f_globals | {"__file__": env.get("fname")}, locals_2)
+            for bind in [k for k in locals_2.keys() if k not in locals_1.keys()]:
+                top_level().f_globals[bind] = locals_2[bind]
+            try:
+                # pylint: disable=eval-used
+                res = eval(ast.unparse(last), top_level().f_globals | {"__file__": env.get("fname")}, locals_2)
+            except:
+                locals_1 = locals()
+                locals_2 = locals_1.copy()
+                exec(ast.unparse(last), top_level().f_globals | {"__file__": env.get("fname")}, locals_2)
+            out = buf.getvalue().strip()
+        binds = [k for k in locals_2.keys() if k not in locals_1.keys()]
+        for bind in binds:
+            top_level().f_globals[bind] = locals_2[bind]
+        binds1 = binds
+        binds2 = [bind for bind in binds1 if bind not in ["__res__", "__return__"]]
+        binds3 = {bind: to_str(locals_2[bind]) for bind in binds2}
+    # pylint: disable=broad-except
+    except Exception as e:
+        err = f"{e.__class__.__name__}: {e}"
+    return {
+        "res": repr(res),
+        "binds": binds3,
+        "out": out,
+        "err": err
+    }
 
-    return (binds3, out)
-    # for bind in binds2:
-    #     v = to_str(locals_2[bind])
-    #     print(f"{bind} = {v}")
-
-def eval_to_json(code: str, env: Dict[str, Any] = {}) -> str:
-    (binds, out) = eval_code(code, env)
-    return json.dumps({"binds": binds, "out": out})
+def eval_to_json(code: str, env: Dict[str, Any] = {}) -> None:
+    try:
+        s = json.dumps(eval_code(code, env))
+        print(s)
+    # pylint: disable=broad-except
+    except Exception as e:
+        print({
+            "res": None,
+            "binds": {},
+            "out": "",
+            "err": str(e)})

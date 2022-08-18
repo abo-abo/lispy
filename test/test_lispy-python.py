@@ -61,17 +61,6 @@ def test_tr_returns_2():
     exec(code, globals())
     assert __return__ == 0
 
-def test_translate_assign_1():
-    code = "x = 3"
-    parsed = ast.parse(code).body
-    assert ast.unparse(lp.translate_assign(parsed)[-1]) == "print(x)"
-
-def test_translate_assign_2():
-    code = "x"
-    parsed = ast.parse(code).body
-    parsed[-1].value
-    assert ast.unparse(lp.translate_assign(parsed)) == "print(\nx)"
-
 def test_translate_def():
     code = dedent("""
     def add(x, y):
@@ -80,13 +69,18 @@ def test_translate_def():
     tr = lp.translate(code)
     assert len(tr) == 1
     assert isinstance(tr[0], ast.FunctionDef)
-    (binds, out) = lp.eval_code(code)
-    assert "<function add at " in binds["add"]
-    assert out == ""
+    r = lp.eval_code(code)
+    assert r["res"] == "'unset'"
+    assert "<function add at " in r["binds"]["add"]
+    assert r["out"] == ""
+    assert r["err"] is None
 
 def test_file_fname():
-    (binds, out) = lp.eval_code("__file__", {"fname": "shrubbery"})
-    assert out == "shrubbery"
+    r = lp.eval_code("__file__", {"fname": "shrubbery"})
+    assert r["res"] == "'shrubbery'"
+    assert r["binds"] == {}
+    assert r["out"] == ""
+    assert r["err"] is None
 
 def test_translate_return_1():
     code = dedent("""
@@ -94,7 +88,11 @@ def test_translate_return_1():
     y = 2
     return x + y
     """)
-    assert lp.eval_code(code) == ({'__return__': '3'}, '')
+    r = lp.eval_code(code)
+    assert r["res"] == "3"
+    assert r["binds"] == {"x": "1", "y": "2"}
+    assert r["out"] == ""
+    assert r["err"] is None
 
 def test_translate_return_2():
     code = dedent("""
@@ -105,7 +103,12 @@ def test_translate_return_2():
     else:
         return 5
     """)
-    assert lp.eval_code(code) == ({'__return__': '5'}, '')
+    r = lp.eval_code(code)
+    assert r["res"] == "5"
+    assert r["binds"] == {}
+    assert r["out"] == ""
+    assert r["err"] is None
+
 
 def test_translate_assert():
     code = "assert 1 == 1"
@@ -114,11 +117,23 @@ def test_translate_assert():
     assert ast.unparse(tr[1]) == "print('(ok)')"
 
 def test_eval_print():
-    (binds, out) = lp.eval_code("print('hello')")
-    assert binds == {}
-    assert out == "hello"
+    r = lp.eval_code("print('hello')")
+    assert r["res"] == "None"
+    assert r["binds"] == {}
+    assert r["out"] == "hello"
 
 def test_eval_bind_var():
-    (binds, out) = lp.eval_code("x = 2 + 2")
-    assert binds["x"] == "4"
-    assert out == ""
+    r = lp.eval_code("x = 2 + 2")
+    assert r["res"] == "'unset'"
+    assert r["binds"]["x"] == "4"
+    assert r["out"] == ""
+    assert lp.eval_code("x")["res"] == "4"
+
+def test_eval_bind_vars():
+    code = "(v1, v2, v3) = (1, 2, 3)"
+    r = lp.eval_code(code)
+    assert r["res"] == "'unset'"
+    binds = r["binds"]
+    assert binds["v1"] == "1"
+    assert binds["v2"] == "2"
+    assert binds["v3"] == "3"

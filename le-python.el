@@ -560,7 +560,7 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
 (defun lispy--eval-python (str)
   (let* ((echo (if (eq current-prefix-arg 2) nil t))
          (fstr
-          (if (string-match-p ".\\n+." str)
+          (if (or (string-match-p ".\\n+." str) (string-match-p "\"\"\"" str))
               (let ((temp-file-name (python-shell--save-temp-file str)))
                 (format "lp.eval_to_json('', %s)"
                         (lispy--dict
@@ -570,18 +570,31 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
             (format "lp.eval_to_json(\"\"\"%s \"\"\", %s)" str
                     (lispy--dict :fname (buffer-file-name)
                                  :echo echo))))
+         (rs (python-shell-send-string-no-output
+              fstr
+              (lispy--python-proc)))
          (res (json-parse-string
-               (substring
-                (python-shell-send-string-no-output
-                 fstr
-                 (lispy--python-proc))
-                1 -1) :object-type 'plist))
+               rs :object-type 'plist :null-object nil))
+         (val (plist-get res :res))
          (binds (plist-get res :binds))
-         (out (plist-get res :out)))
-    (unless (equal out "")
-      (setq lispy-eval-output
-            (concat (propertize out 'face 'font-lock-string-face) "\n")))
-    (prin1-to-string binds)))
+         (out (plist-get res :out))
+         (err (plist-get res :err)))
+    (if err
+        (signal 'eval-error err)
+      (unless (equal out "")
+        (setq lispy-eval-output
+              (concat (propertize out 'face 'font-lock-string-face) "\n")))
+      (cond
+       ((and val (not (string= val "'unset'")))
+        val)
+       (binds
+        (mapconcat
+         (lambda (x)
+           (concat (substring (symbol-name (car x)) 1) " = " (cadr x)))
+         (seq-partition binds 2)
+         "\n"))
+       (t
+        "(ok)")))))
 
 (defun lispy--python-array-to-elisp (array-str)
   "Transform a Python string ARRAY-STR to an Elisp string array."
