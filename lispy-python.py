@@ -683,6 +683,8 @@ def eval_code(_code: str, env: Dict[str, Any] = {}) -> EvalResult:
     binds = {}
     out = ""
     err: Optional[str] = None
+    if "fname" in env:
+        top_level().f_globals["__file__"] = env["fname"]
     try:
         _code = _code or slurp(env["code"])
         new_code = translate(_code)
@@ -693,16 +695,16 @@ def eval_code(_code: str, env: Dict[str, Any] = {}) -> EvalResult:
         locals_2 = locals_1.copy()
         with io.StringIO() as buf, redirect_stdout(buf):
             # pylint: disable=exec-used
-            exec(ast.unparse(butlast), top_level().f_globals | {"__file__": env.get("fname")}, locals_2)
+            exec(ast.unparse(butlast), top_level().f_globals, locals_2)
             for bind in [k for k in locals_2.keys() if k not in locals_1.keys()]:
                 top_level().f_globals[bind] = locals_2[bind]
             try:
                 # pylint: disable=eval-used
-                res = eval(ast.unparse(last), top_level().f_globals | {"__file__": env.get("fname")}, locals_2)
+                res = eval(ast.unparse(last), top_level().f_globals, locals_2)
             except:
                 locals_1 = locals()
                 locals_2 = locals_1.copy()
-                exec(ast.unparse(last), top_level().f_globals | {"__file__": env.get("fname")}, locals_2)
+                exec(ast.unparse(last), top_level().f_globals, locals_2)
             out = buf.getvalue().strip()
         binds1 = [k for k in locals_2.keys() if k not in locals_1.keys()]
         for bind in binds1:
