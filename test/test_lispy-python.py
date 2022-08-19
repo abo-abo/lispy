@@ -135,7 +135,7 @@ def test_eval_bind_var():
     assert r["out"] == ""
     assert lp.eval_code("x")["res"] == "4"
 
-def test_eval_bind_vars():
+def test_eval_bind_vars_1():
     code = "(v1, v2, v3) = (1, 2, 3)"
     r = lp.eval_code(code)
     assert r["res"] == "'unset'"
@@ -143,6 +143,18 @@ def test_eval_bind_vars():
     assert binds["v1"] == "1"
     assert binds["v2"] == "2"
     assert binds["v3"] == "3"
+
+def test_eval_bind_vars_2():
+    code = dedent("""
+    if True:
+        x = 42
+    else:
+        x = 10
+    """)
+    r = lp.eval_code(code)
+    assert r["res"] == "'unset'"
+    assert  r["binds"] == {'x': '42'}
+
 
 def test_eval_in_1():
     lp.eval_code("xs = [1, 2, 3]")
