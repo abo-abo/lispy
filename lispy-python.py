@@ -29,12 +29,12 @@ import re
 import shlex
 import subprocess
 import sys
-import types
 from ast import AST
 from contextlib import redirect_stdout
-from typing import List, Dict, Any, Union, Tuple, Optional, TypedDict
+from typing import List, Dict, Any, Union, Tuple, Optional, TypedDict, Callable
+from types import TracebackType, MethodType, FunctionType
 
-def sh(cmd):
+def sh(cmd: str) -> str:
     r = subprocess.run(
         shlex.split(cmd),
         stdout=subprocess.PIPE,
@@ -63,7 +63,7 @@ except:
 class Stack:
     line_numbers: Dict[Tuple[str, str], int] = {}
 
-    def __init__(self, tb):
+    def __init__(self, tb: Optional[TracebackType]):
         self.stack = []
         self.stack_idx = 0
         while tb:
@@ -79,13 +79,13 @@ class Stack:
         if self.stack_top >= 0:
             self.set_frame(self.stack_top)
 
-    def frame_string(self, i):
+    def frame_string(self, i: int) -> str:
         (fname, line, f) = self.stack[i]
         res = "  File \"%s\", line %d, Frame [%d/%d] (%s):" % (
             f.f_code.co_filename, line, i, self.stack_top, f.f_code.co_name)
         return res
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         frames = []
         for i in range(self.stack_top + 1):
             s = self.frame_string(i)
@@ -94,7 +94,7 @@ class Stack:
             frames.append(s)
         return "\n".join(frames)
 
-    def set_frame(self, i):
+    def set_frame(self, i: int) -> None:
         if i >= 0:
             f = self.stack[i][2]
             self.stack_idx = i
@@ -107,7 +107,7 @@ class Stack:
 
             print(self.frame_string(self.stack_idx))
 
-    def up(self, delta=1):
+    def up(self, delta: int = 1) -> None:
         if self.stack_idx <= 0:
             if self.stack:
                 print(self.frame_string(self.stack_idx))
@@ -115,7 +115,7 @@ class Stack:
             self.stack_idx = max(self.stack_idx - delta, 0)
             self.set_frame(self.stack_idx)
 
-    def down(self, delta=1):
+    def down(self, delta: int = 1) -> None:
         if self.stack_idx >= self.stack_top:
             if self.stack:
                 print(self.frame_string(self.stack_idx))
@@ -124,13 +124,13 @@ class Stack:
             self.set_frame(self.stack_idx)
 
 class Autocall:
-    def __init__(self, f):
+    def __init__(self, f: Callable):
         self.f = f
 
-    def __call__(self, n):
+    def __call__(self, n: Any) -> None:
         self.f(n)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         try:
             self.f()
         except:
@@ -138,7 +138,7 @@ class Autocall:
         return ""
 
 #* Functions
-def chfile(f):
+def chfile(f: str) -> None:
     tf = top_level()
     tf.f_globals["__file__"] = f
     d = os.path.dirname(f)
@@ -147,21 +147,19 @@ def chfile(f):
     except:
         pass
 
-def format_arg(arg_pair):
-    name, default_value = arg_pair
-    if default_value:
-        return name + " = " + default_value
-    else:
-        return name
-
-def arglist(sym):
+def arglist(sym: Callable) -> List[str]:
+    def format_arg(arg_pair: Tuple[str, Optional[str]]) -> str:
+        name, default_value = arg_pair
+        if default_value:
+            return name + " = " + default_value
+        else:
+            return name
     arg_info = inspect.getfullargspec(sym)
     if "self" in arg_info.args:
         arg_info.args.remove("self")
     if arg_info.defaults:
-        defaults = (
-            [None] * (len(arg_info.args) - len(arg_info.defaults)) +
-            [repr(x) for x in arg_info.defaults])
+        defaults: List[Optional[str]] = [None] * (len(arg_info.args) - len(arg_info.defaults))
+        defaults += [repr(x) for x in arg_info.defaults]
         args = [format_arg(x) for x in zip(arg_info.args, defaults)]
     else:
         args = arg_info.args
@@ -169,14 +167,11 @@ def arglist(sym):
             args += arg_info.varargs
     keywords = arg_info.kwonlydefaults
     if keywords:
-        if type(keywords) is dict:
-            for k, v in keywords.items():
-                args.append(f"{k} = {v}")
-        else:
-            args.append("**" + keywords)
+        for k, v in keywords.items():
+            args.append(f"{k} = {v}")
     return args
 
-def print_elisp(obj, end="\n"):
+def print_elisp(obj: Any, end: str = "\n") -> None:
     if hasattr(obj, "_asdict") and obj._asdict is not None:
         # namedtuple
         try:
@@ -302,7 +297,7 @@ def list_step(varname, lst):
     f_globals[varname] = val
     return val
 
-def argv(cmd):
+def argv(cmd: str) -> None:
     sys.argv = shlex.split(cmd)
 
 def find_global_vars(class_name):
@@ -320,11 +315,11 @@ def rebind(method, fname=None, line=None):
     (cls_name, fun_name) = qname.split(".")
     for (n, v) in find_global_vars(cls_name):
         print("rebind:", n)
-        top_level().f_globals[n].__dict__[fun_name] = types.MethodType(top_level().f_globals[fun_name], v)
+        top_level().f_globals[n].__dict__[fun_name] = MethodType(top_level().f_globals[fun_name], v)
     if fname and line:
         Stack.line_numbers[(fname, qname)] = line
 
-def pm():
+def pm() -> None:
     """Post mortem: recover the locals and globals from the last traceback."""
     if hasattr(sys, 'last_traceback'):
         stack = Stack(sys.last_traceback)
@@ -335,7 +330,7 @@ def pm():
     tl.f_globals["dn"] = Autocall(stack.down)
     globals()["stack"] = stack
 
-def pprint(x):
+def pprint(x: Any) -> None:
     r1 = repr(x)
     if len(r1) > 1000 and repr1:
         print(repr1.repr(x))
@@ -345,7 +340,7 @@ def pprint(x):
         else:
             pp.PrettyPrinter(width=200).pprint(x)
 
-def to_str(x):
+def to_str(x: Any) -> str:
     with io.StringIO() as buf, redirect_stdout(buf):
         pprint(x)
         return buf.getvalue().strip()
@@ -357,7 +352,7 @@ def step_in(fn, *args):
         f_globals[arg_name] = arg_val
 
 def step_into_module_maybe(module):
-    if isinstance(module, types.FunctionType):
+    if isinstance(module, FunctionType):
         try:
             module = sys.modules[module.__module__]
         except:
