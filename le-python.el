@@ -594,11 +594,12 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
          (rs (python-shell-send-string-no-output
               fstr
               (lispy--python-proc)))
+         (extra-out (and (string-match "^{" rs) (substring rs 0 (match-beginning 0))))
          (res (json-parse-string
-               rs :object-type 'plist :null-object nil))
+               (substring rs (match-beginning 0)) :object-type 'plist :null-object nil))
          (val (plist-get res :res))
          (binds (plist-get res :binds))
-         (out (plist-get res :out))
+         (out (concat extra-out (plist-get res :out)))
          (err (plist-get res :err)))
     (if err
         (signal 'eval-error err)
