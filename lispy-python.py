@@ -629,7 +629,7 @@ def wrap_return(parsed: List[ast.stmt]) -> Expr:
         ast.Expr(value=ast.Name("__return__"))
     ]
 
-def try_in_expr(p: Expr) -> Optional[Tuple[str, ast.expr]]:
+def try_in_expr(p: Expr) -> Optional[Tuple[ast.expr, ast.expr]]:
     if not isinstance(p, list):
         return None
     p0 = p[0]
@@ -639,21 +639,23 @@ def try_in_expr(p: Expr) -> Optional[Tuple[str, ast.expr]]:
         return None
     if not isinstance(p0.value.ops[0], ast.In):
         return None
-    if not isinstance(p0.value.left, ast.Name):
-        return None
-    return (p0.value.left.id, p0.value.comparators[0])
+    return (p0.value.left, p0.value.comparators[0])
 
 def select_item(code: str, idx: int) -> Any:
     parsed = ast.parse(code, mode="exec").body
     in_expr = try_in_expr(parsed)
     assert in_expr
     (left, right) = in_expr
-    # pylint: disable=exec-used
+    l = ast.unparse(left)
     r = ast.unparse(right)
-    exec(f"{left} = list({r})[{idx}]", top_level().f_globals, locals())
-    top_level().f_globals[left] = locals()[left]
+    locals_1 = locals()
+    locals_2 = locals_1.copy()
+    # pylint: disable=exec-used
+    exec(f"{l} = list({r})[{idx}]", top_level().f_globals, locals_2)
+    for bind in [k for k in locals_2.keys() if k not in locals_1.keys()]:
+        top_level().f_globals[bind] = locals_2[bind]
     # pylint: disable=eval-used
-    return eval(left)
+    return eval(l, locals_2)
 
 def translate(code: str) -> Any:
     parsed = ast.parse(code, mode="exec").body

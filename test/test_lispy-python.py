@@ -170,3 +170,15 @@ def test_eval_in_2():
     assert r["res"] == "'select'"
     assert r["out"] == "(1\n2\n3\n)"
     assert lp.select_item("x in [1, 2, 3]", 2) == 3
+
+def test_eval_in_3():
+    lp.eval_code("di = {'foo': 'bar', 'yes': 'no'}")
+    code = "(k, v) in di.items()"
+    r = lp.eval_code(code)
+    assert r["res"] == "'select'"
+    assert lp.select_item(code, 0) == ('foo', 'bar')
+    assert lp.eval_code("k")["res"] == "'foo'"
+    assert lp.eval_code("v")["res"] == "'bar'"
+    assert lp.select_item(code, 1) == ('yes', 'no')
+    assert lp.eval_code("k")["res"] == "'yes'"
+    assert lp.eval_code("v")["res"] == "'no'"
