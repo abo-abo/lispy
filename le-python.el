@@ -699,7 +699,7 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
                        (cons (point)
                              (lispy--python-beginning-of-object))))
                 (str (lispy--string-dwim bnd))
-                (keys (read (lispy--eval-python
+                (keys (read (lispy--eval-python-plain
                              (format "lp.print_elisp(%s.keys())" str)))))
            (list (point) (point)
                  (if (> (length quote_str) 0)
