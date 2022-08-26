@@ -722,7 +722,8 @@ def eval_code(_code: str, env: Dict[str, Any] = {}) -> EvalResult:
         binds = {bind: print_fn(locals_2[bind]) for bind in binds2}
     # pylint: disable=broad-except
     except Exception as e:
-        err = f"{e.__class__.__name__}: {e}"
+        err = f"{e.__class__.__name__}: {e}\n{e.__dict__}"
+        top_level().f_globals["e"] = e
     return {
         "res": to_str(_res) if env.get("echo") else repr(_res),
         "binds": binds,
