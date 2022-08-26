@@ -31,8 +31,8 @@ import subprocess
 import sys
 from ast import AST
 from contextlib import redirect_stdout
-from typing import List, Dict, Any, Union, Tuple, Optional, TypedDict, Callable
-from types import TracebackType, MethodType, FunctionType
+from typing import List, Dict, Any, Union, Tuple, Optional, TypedDict, Callable, cast
+from types import TracebackType, MethodType, FunctionType, ModuleType
 
 def sh(cmd: str) -> str:
     r = subprocess.run(
@@ -742,3 +742,18 @@ def eval_to_json(code: str, env: Dict[str, Any] = {}) -> None:
             "binds": {},
             "out": "",
             "err": str(e)})
+
+def find_module(fname: str) -> Optional[ModuleType]:
+    for (name, module) in sys.modules.items():
+        if getattr(module, "__file__", None) == fname:
+            return module
+    return None
+
+def generate_import(code_fname: str, buffer_fname: str) -> None:
+    code = slurp(code_fname)
+    parsed = ast.parse(code).body[0]
+    if isinstance(parsed, ast.FunctionDef):
+        name = parsed.name
+    module = find_module(buffer_fname)
+    assert module
+    print(f"from {module.__name__} import {name}")
