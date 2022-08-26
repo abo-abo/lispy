@@ -681,7 +681,7 @@ class EvalResult(TypedDict):
     err: Optional[str]
 
 def eval_code(_code: str, env: Dict[str, Any] = {}) -> EvalResult:
-    res = "unset"
+    _res = "unset"
     binds = {}
     out = ""
     err: Optional[str] = None
@@ -702,14 +702,14 @@ def eval_code(_code: str, env: Dict[str, Any] = {}) -> EvalResult:
                 top_level().f_globals[bind] = locals_2[bind]
             try:
                 # pylint: disable=eval-used
-                res = eval(ast.unparse(last), top_level().f_globals, locals_2)
+                _res = eval(ast.unparse(last), top_level().f_globals, locals_2)
             except:
                 locals_1 = locals()
                 locals_2 = locals_1.copy()
                 exec(ast.unparse(last), top_level().f_globals, locals_2)
             out = buf.getvalue().strip()
         binds1 = [k for k in locals_2.keys() if k not in locals_1.keys()]
-        for sym in ["res", "binds", "out", "err", "env", "new_code", "last", "butlast", "locals_1", "locals_2"]:
+        for sym in ["_res", "binds", "out", "err", "env", "new_code", "last", "butlast", "locals_1", "locals_2"]:
             try:
                 if id(locals_1[sym]) != id(locals_2[sym]):
                     binds1.append(sym)
@@ -718,12 +718,13 @@ def eval_code(_code: str, env: Dict[str, Any] = {}) -> EvalResult:
         for bind in binds1:
             top_level().f_globals[bind] = locals_2[bind]
         binds2 = [bind for bind in binds1 if bind not in ["__res__", "__return__"]]
-        binds = {bind: to_str(locals_2[bind]) for bind in binds2}
+        print_fn = cast(Callable[..., str], to_str if env.get("echo") else str)
+        binds = {bind: print_fn(locals_2[bind]) for bind in binds2}
     # pylint: disable=broad-except
     except Exception as e:
         err = f"{e.__class__.__name__}: {e}"
     return {
-        "res": repr(res),
+        "res": to_str(_res) if env.get("echo") else repr(_res),
         "binds": binds,
         "out": out,
         "err": err
