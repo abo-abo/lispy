@@ -47,7 +47,7 @@ try:
     import reprlib
     repr1 = reprlib.Repr()
     repr1.maxlist = 10
-    repr1.maxstring = 100
+    repr1.maxstring = 200
 except:
     pass
 try:
