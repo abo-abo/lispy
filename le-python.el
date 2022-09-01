@@ -931,30 +931,22 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
       (if file
           (lispy--goto-symbol-python file line)
         (or (lispy--python-goto-definition)
-            (let ((res (ignore-errors
-                         (or
-                          (deferred:sync!
-                            (jedi:goto-definition))
-                          t))))
-              (if (member res '(nil "Definition not found."))
-                  (let* ((symbol (or (python-info-current-symbol) symbol))
-                         (r (ignore-errors
-                              (lispy--eval-python
-                               (format "lp.argspec(%s)" symbol) t)))
-                         (plist (and r (read r))))
-                    (cond (plist
-                           (lispy--goto-symbol-python
-                            (plist-get plist :filename)
-                            (plist-get plist :line)))
-                          ((and (equal file "None")
-                                (let ((symbol-re
-                                       (concat "^\\(?:def\\|class\\).*"
-                                               (car (last (split-string symbol "\\." t))))))
-                                  (re-search-backward symbol-re nil t))))
-                          (t
-                           (error "Both jedi and inspect failed"))))
-                (unless (looking-back "def " (line-beginning-position))
-                  (jedi:goto-definition)))))))))
+            (let* ((symbol (or (python-info-current-symbol) symbol))
+                   (r (ignore-errors
+                        (lispy--eval-python-plain
+                         (format "lp.argspec(%s)" symbol))))
+                   (plist (and r (read r))))
+              (cond (plist
+                     (lispy--goto-symbol-python
+                      (plist-get plist :filename)
+                      (plist-get plist :line)))
+                    ((and (equal file "None")
+                          (let ((symbol-re
+                                 (concat "^\\(?:def\\|class\\).*"
+                                         (car (last (split-string symbol "\\." t))))))
+                            (re-search-backward symbol-re nil t))))
+                    (t
+                     (error "Both jedi and inspect failed")))))))))
 
 (defun lispy--python-docstring (symbol)
   "Look up the docstring for SYMBOL.
