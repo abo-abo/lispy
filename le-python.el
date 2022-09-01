@@ -610,13 +610,13 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
         (setq lispy-eval-output
               (concat (propertize out 'face 'font-lock-string-face) "\n")))
       (cond
-       ((string= val "select")
+       ((string= val "'select'")
         (setq lispy-eval-output nil)
         (let* ((cands (read out))
                (idx (lispy--python-nth-1 cands)))
           (lispy--eval-python-plain
            (format "lp.select_item(\"\"\"%s\"\"\", %d)" str idx))))
-       ((and val (not (string= val "unset")))
+       ((and val (not (string= val "'unset'")))
         (if (string-prefix-p "\"" val)
             (read val)
           val))

@@ -337,10 +337,8 @@ def pprint(x: Any) -> None:
     if len(r1) > 1000 and repr1:
         print(repr1.repr(x))
     else:
-        if isinstance(x, collections.OrderedDict):
+        if type(x) == collections.OrderedDict:
             print("{" + ",\n ".join([str(k) + ": " + str(v) for (k, v) in x.items()]) + "}")
-        elif isinstance(x, str):
-            print(x)
         else:
             pp.PrettyPrinter(width=200).pprint(x)
 
