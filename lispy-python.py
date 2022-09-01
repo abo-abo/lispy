@@ -219,6 +219,8 @@ def print_elisp(obj: Any, end: str = "\n") -> None:
                 # quote strings?
                 # print("\"'" + re.sub("\"", "\\\"", obj) + "'\"", end=" ")
                 print('"' + re.sub("\"", "\\\"", obj) + '"', end=" ")
+            elif hasattr(obj, "to_dict"):
+                print_elisp(obj.to_dict())
             else:
                 print('"' + repr(obj) + '"', end=" ")
         else:
