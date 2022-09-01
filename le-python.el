@@ -296,7 +296,7 @@ it at one time."
   (let* ((proc-name (or name
                         (and (process-live-p (get-buffer-process lispy-python-buf))
                              (process-name (get-buffer-process lispy-python-buf)))
-                        (if (string-match "\\`python_\\(.*\\)\\'" python-shell-interpreter-args)
+                        (if (string-match " python_\\(.*\\)\\'" python-shell-interpreter-args)
                             (concat "lispy-python-" (match-string 1 python-shell-interpreter-args))
                           "lispy-python-default")))
          (process (get-process proc-name)))
