@@ -53,11 +53,11 @@ Stripping them will produce code that's valid for an eval."
             ((and (looking-at lispy-outline)
                   (looking-at lispy-outline-header))
              (lispy--bounds-outline))
-            ((looking-at "@")
+            ((and (looking-at "@") (bolp))
              (setq bnd (cons (point)
                              (save-excursion
-                               (forward-sexp)
-                               (skip-chars-forward "[ \t\n]")
+                               (re-search-forward "^def" nil t)
+                               (goto-char (match-beginning 0))
                                (cdr (lispy-bounds-python-block))))))
             ((setq bnd (lispy-bounds-python-block)))
             ((bolp)
@@ -555,10 +555,6 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
             (mapconcat #'identity (nreverse r) ",")
             "}")))
 
-(defun lispy--eval-python-plain (str)
-  (python-shell-send-string-no-output
-   str (lispy--python-proc)))
-
 (defun lispy--python-nth-1 (cands)
   (let ((len (length cands)))
     (read
@@ -579,6 +575,10 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
                  (prin1-to-string x)))))
        cands
        (number-sequence 0 (1- len)))))))
+
+(defun lispy--eval-python-plain (str)
+  (python-shell-send-string-no-output
+   str (lispy--python-proc)))
 
 (defun lispy--eval-python (str)
   (setq lispy-eval-output nil)
