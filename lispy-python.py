@@ -634,6 +634,8 @@ def wrap_return(parsed: List[ast.stmt]) -> Expr:
 def try_in_expr(p: Expr) -> Optional[Tuple[ast.expr, ast.expr]]:
     if not isinstance(p, list):
         return None
+    if pytest_mark := try_pytest_mark(p):
+        return pytest_mark
     p0 = p[0]
     if not isinstance(p0, ast.Expr):
         return None
@@ -659,14 +661,47 @@ def select_item(code: str, idx: int) -> Any:
     # pylint: disable=eval-used
     return eval(l, locals_2)
 
+def ast_match(p: Expr, expr: Any) -> bool:
+    if isinstance(p, ast.Attribute):
+        if expr[0] != ".":
+            return False
+        return (
+            expr[2] == p.attr
+            and ast_match(p.value, expr[1]))
+    elif isinstance(p, ast.Name):
+        return p.id == expr
+    elif isinstance(p, str):
+        return p == expr
+    else:
+        raise RuntimeError(f"Can't compare: {p} == {expr}")
+
+def try_pytest_mark(p: Expr) -> Optional[Expr]:
+    if not isinstance(p, list):
+        return None
+    if not len(p) == 1:
+        return None
+    p0 = p[0]
+    if not isinstance(p0, ast.FunctionDef):
+        return None
+    if not len(p0.decorator_list) == 1:
+        return None
+    decorator = p0.decorator_list[0]
+    if ast_match(decorator.func, (".",  (".", "pytest", "mark"), "parametrize")):
+        assert len(decorator.args) == 2
+        return [ast.Name(decorator.args[0].value), decorator.args[1]]
+    return None
+
+def to_elisp(code: str) -> str:
+    with io.StringIO() as buf, redirect_stdout(buf):
+        # pylint: disable=eval-used
+        print_elisp(eval(code, top_level().f_globals))
+        return buf.getvalue().strip()
+
 def translate(code: str) -> Any:
     parsed = ast.parse(code, mode="exec").body
     if in_expr := try_in_expr(parsed):
         (left, right) = in_expr
-        with io.StringIO() as buf, redirect_stdout(buf):
-            # pylint: disable=eval-used
-            print_elisp(eval(ast.unparse(right), top_level().f_globals))
-            out = buf.getvalue().strip()
+        out = to_elisp(ast.unparse(right))
         nc = f"print('''{out}''')\n'select'"
         return ast.parse(nc).body
     elif has_return(parsed):

@@ -182,3 +182,15 @@ def test_eval_in_3():
     assert lp.select_item(code, 1) == ('yes', 'no')
     assert lp.eval_code("k")["res"] == "'yes'"
     assert lp.eval_code("v")["res"] == "'no'"
+
+def test_eval_in_pytest_1():
+    code = dedent("""
+    @pytest.mark.parametrize("x", [3, 4, 5])
+    def square(x):
+        return x*x
+    """)
+    r = lp.eval_code(code)
+    assert r["res"] == "'select'"
+    assert r["out"] == '(3\n4\n5\n)'
+    assert lp.select_item(code, 0) == 3
+    assert lp.select_item(code, 1) == 4
