@@ -209,7 +209,7 @@ def print_elisp(obj: Any, end: str = "\n") -> None:
     elif isinstance(obj, int):
         print(obj)
     else:
-        if obj:
+        if obj is not None:
             if type(obj) is list or type(obj) is tuple:
                 print("(", end="")
                 for x in obj:
