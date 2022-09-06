@@ -604,6 +604,8 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
          (binds (plist-get res :binds))
          (out (concat extra-out (plist-get res :out)))
          (err (plist-get res :err)))
+    (when (eq current-prefix-arg 3)
+      (kill-new fstr))
     (if err
         (signal 'eval-error err)
       (unless (equal out "")
