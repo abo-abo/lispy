@@ -30,4 +30,4 @@ clojure:
 clean:
 	rm -f *.elc
 
-.PHONY: all clean elisp check-declare
+.PHONY: all clean elisp check-declare test
