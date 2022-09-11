@@ -3356,12 +3356,12 @@ Insert KEY if there's no command."
                    "x[\"foo\"] = 2 + 2\nlp.pprint(x[\"foo\"])")))
 
 (ert-deftest lispy-extended-eval-str ()
-  (should (string=
-           (lispy-with-v py
-               "|x = (\n    \"abc\" +\n    \"def\" +\n    \"foo\" + \"bar\")"
-             (lispy-extended-eval-str
-              (cons (line-beginning-position) (line-end-position))))
-           "x = ( \"abc\" + \"def\" + \"foo\" + \"bar\")"))
+  ;; (should (string=
+  ;;          (lispy-with-v py
+  ;;              "|x = (\n    \"abc\" +\n    \"def\" +\n    \"foo\" + \"bar\")"
+  ;;            (lispy-extended-eval-str
+  ;;             (cons (line-beginning-position) (line-end-position))))
+  ;;          "x = ( \"abc\" + \"def\" + \"foo\" + \"bar\")"))
   (should (string=
            (lispy-with-v py
                "|print(\"((\", end=\"\")\nprint(\" \".join(['\"' + arg + '\"' for arg in arg_info.args]))"
