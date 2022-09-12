@@ -219,7 +219,7 @@ The hint will consist of the possible nouns that apply to the verb."
   :group 'lispy)
 
 (defcustom lispy-close-quotes-at-end-p nil
-  "If t, when pressing the `\"' at the end of a quoted string, it will move you past the end quote."
+  "If t, when pressing `\"' at the end of a quoted string, move past the end quote."
   :type 'boolean
   :group 'lispy)
 

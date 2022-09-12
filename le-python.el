@@ -975,7 +975,7 @@ Otherwise, fall back to Jedi (static)."
 (defun lispy--python-middleware-load ()
   "Load the custom Python code in \"lispy-python.py\"."
   (unless lispy--python-middleware-loaded-p
-    (let ((default-directory (or (projectile-project-root)
+    (let ((default-directory (or (locate-dominating-file default-directory ".git")
                                  default-directory)))
       (lispy--eval-python-plain
        (format

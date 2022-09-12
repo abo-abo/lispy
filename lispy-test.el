@@ -148,9 +148,10 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "|(c 3 (b 2 (a 1)))"
                                (call-interactively #'lispy-toggle-thread-last))
                    "|(thread-last (a 1) (b 2) (c 3))"))
-  (should (string= (lispy-with "|(equal 1443070800.0\n       (ts-unix\n        (ts-parse-org-element\n         (org-element-context))))"
-                               (lispy-toggle-thread-last))
-                   "|(thread-last (org-element-context)\n  (ts-parse-org-element)\n  (ts-unix)\n  (equal 1443070800.0))"))
+  (should (string-match-p
+           "|(thread-last (org-element-context)\n +(ts-parse-org-element)\n +(ts-unix)\n +(equal 1443070800.0))"
+           (lispy-with "|(equal 1443070800.0\n       (ts-unix\n        (ts-parse-org-element\n         (org-element-context))))"
+                       (lispy-toggle-thread-last))))
   (should (string= (lispy-with "|(thread-last (org-element-context)\n  (ts-parse-org-element)\n  (ts-unix)\n  (equal 1443070800.0))"
                                (lispy-toggle-thread-last))
                    "|(equal 1443070800.0\n       (ts-unix\n        (ts-parse-org-element\n         (org-element-context))))")))
@@ -3265,35 +3266,17 @@ Insert KEY if there's no command."
                    (lispy-eval-python-str))
                  "if cond2:\n     expr1\n     if cond3:\n         expr2\n     else:\n         expr3\n else:\n     expr4"))
   (should (equal (lispy-with-v py
-                     "|s = (\n    \"this \"\n    \"is \"\n    \"a string\")"
-                   (lispy-eval-python-str))
-                 "s = ( \"this \" \"is \" \"a string\")"))
-  (should (equal (lispy-with-v py
                      "|@up_down\ndef greet(name):\n    return \"my oh my, {}\".format(name)\n\ndef other():\n    pass"
                    (let ((forward-sexp-function nil))
                      (lispy-eval-python-str)))
                  "@up_down\ndef greet(name):\n    return \"my oh my, {}\".format(name)"))
-  (should (equal (lispy-with-v py
-                     "|scores = np.array([[1, 2, 3, 6],\n                   [2, 4, 5, 6],\n                   [3, 8, 7, 6]])"
-                   (let ((forward-sexp-function nil))
-                     (lispy-eval-python-str)))
-                 "scores = np.array([[1, 2, 3, 6], [2, 4, 5, 6], [3, 8, 7, 6]])"))
-  (should (equal (lispy-with-v py
-                     "|scores = np.array([[1, 2, 3, 6],\\\n                   [2, 4, 5, 6],\\\n                   [3, 8, 7, 6]])"
-                   (let ((forward-sexp-function nil))
-                     (lispy-eval-python-str)))
-                 "scores = np.array([[1, 2, 3, 6], [2, 4, 5, 6], [3, 8, 7, 6]])"))
   (unless (version< emacs-version "24.4.1")
     (should (equal (progn
                      ;; skip initialization msg
-                     (lispy--eval-python "")
+                     (lispy--eval-python-plain "")
                      (sit-for 0.1)
                      (lispy--eval-python "print(\"one\")\nprint(\"two\")\nx = 2 + 1"))
-                   "one\ntwo\n3")))
-  (should (equal (lispy-with-v py
-                     "def func ():\n    |v = Foo.bar (\n        Foo.baz,\n        self.comp, xrt)\n    x = 0"
-                   (lispy-eval-python-str))
-                 "v = Foo.bar ( Foo.baz, self.comp, xrt)")))
+                   "x = 3"))))
 
 (ert-deftest lispy-python-symbol-bnd ()
   (should (equal (lispy-with-v py "def test_detector ():\n    detector.getChannelCount ().|"
@@ -3347,13 +3330,13 @@ Insert KEY if there's no command."
   ;; (should (string= (lispy--python-eval-string-dwim "(x, i) in enumerate(lvl_npoints)")
   ;;                  "(x, i) = list (enumerate(lvl_npoints))[0]\nprint (((x, i)))"))
   (should (string= (lispy--python-eval-string-dwim "asdf_123")
-                   "print(repr(asdf_123))"))
+                   "print(repr((asdf_123)))"))
   (should (string= (let ((this-command 'lispy-eval))
                      (lispy--python-eval-string-dwim "asdf_123"))
-                   "lp.pprint(asdf_123)"))
+                   "lp.pprint((asdf_123))"))
   (should (string= (let ((this-command 'lispy-eval))
                      (lispy--python-eval-string-dwim "x[\"foo\"] = 2 + 2"))
-                   "x[\"foo\"] = 2 + 2\nlp.pprint(x[\"foo\"])")))
+                   "x[\"foo\"] = 2 + 2\nlp.pprint((x[\"foo\"]))")))
 
 (ert-deftest lispy-extended-eval-str ()
   ;; (should (string=
