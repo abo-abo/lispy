@@ -377,6 +377,9 @@ def slurp(fname: str) -> str:
         return fh.read()
 
 def definitions(path):
+    (_, ext) = os.path.splitext(path)
+    if ext == ".yml":
+        return yaml_definitions(path)
     script = jedi.Script(slurp(path), path=path)
     res = []
     for x in script.get_names():
@@ -402,6 +405,21 @@ def definitions(path):
         else:
             res.append([x.description, x.line])
     return res
+
+
+def yaml_definitions(path):
+    res = []
+    ls = slurp(path).strip().splitlines()
+    prev = ""
+    symbol = "(\\w|[-_])+"
+    for (i, line) in enumerate(ls, 1):
+        if m := re.match(f"^({symbol})", line):
+            res.append([m.group(1), i])
+            prev = m.group(1) + "."
+        elif m := re.match(f"^  ({symbol})", line):
+            res.append([prev + m.group(1), i])
+    return res
+
 
 def get_completions_readline(text):
     completions = []
