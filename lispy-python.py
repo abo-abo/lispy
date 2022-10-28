@@ -141,6 +141,7 @@ class Autocall:
 def chfile(f: str) -> None:
     tf = top_level()
     tf.f_globals["__file__"] = f
+    tf.f_globals["__name__"] = os.path.splitext(os.path.basename(f))[0]
     d = os.path.dirname(f)
     try:
         os.chdir(d)
