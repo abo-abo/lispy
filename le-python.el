@@ -239,6 +239,7 @@ It didn't work great."
 (defvar lispy-python-process-regexes
   '("^lispy-python-\\(.*\\)" "\\`\\(Python\\)\\'"
     "\\`\\(comint.*\\)\\'"
+    "\\`\\(shell.*\\)\\'"
     "\\`\\(gud-\\(?:pdb\\|python\\)\\)\\'")
   "List of regexes for process buffers that run Python.")
 
@@ -250,7 +251,7 @@ It didn't work great."
             (lambda (re)
               (when (string-match re pname)
                 (let ((m (match-string 1 pname)))
-                  (if (string-match-p "comint" m)
+                  (if (string-match-p "comint\\|shell" m)
                       (buffer-name (process-buffer x))
                     m))))
             lispy-python-process-regexes)))))
@@ -296,7 +297,7 @@ it at one time."
   (let* ((proc-name (or name
                         (and (process-live-p (get-buffer-process lispy-python-buf))
                              (process-name (get-buffer-process lispy-python-buf)))
-                        (if (string-match ":python \\(.*\\)\\'" python-shell-interpreter-args)
+                        (if (string-match "\\(?::python \\|python_\\)\\(.*\\)\\'" python-shell-interpreter-args)
                             (concat "lispy-python-" (match-string 1 python-shell-interpreter-args))
                           "lispy-python-default")))
          (process (get-process proc-name)))
