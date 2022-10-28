@@ -569,6 +569,17 @@ def __PYTHON_EL_native_completion_setup():
 
 __PYTHON_EL_native_completion_setup()
 
+def setup(init_file=None):
+    sys.modules['__repl__'] = sys.modules[__name__]
+    tl = top_level()
+    tl.f_globals["__name__"] = "__repl__"
+    tl.f_globals["pm"] = Autocall(pm)
+    if init_file and os.path.exists(init_file):
+        try:
+            exec(open(init_file).read(), globals())
+        except:
+            pass
+
 def reload():
     import importlib.util
     spec = importlib.util.spec_from_file_location('lispy-python', __file__)

@@ -978,21 +978,13 @@ Otherwise, fall back to Jedi (static)."
   (unless lispy--python-middleware-loaded-p
     (let ((default-directory (or (locate-dominating-file default-directory ".git")
                                  default-directory)))
+      ;; send single line so that python.el does no /tmp/*.py magic, which does not work in Docker
       (lispy--eval-python-plain
-       (format
-        "
-import os
-import sys
-from importlib.machinery import SourceFileLoader
-lp=SourceFileLoader('lispy-python', '%s').load_module()
-__name__='__repl__'
-sys.modules['__repl__']=lp
-pm=lp.Autocall(lp.pm)
-init_file='%s'
-if os.path.exists(init_file):
-    exec(open(init_file).read(), globals())"
-        lispy--python-middleware-file
-        lispy--python-init-file))
+       (concat
+        "from importlib.machinery import SourceFileLoader;"
+        (format "lp=SourceFileLoader('lispy-python', '%s').load_module();"
+                lispy--python-middleware-file)
+        (format "lp.setup('%s')" lispy--python-init-file)))
       (setq lispy--python-middleware-loaded-p t))))
 
 (defun lispy--python-arglist (symbol filename line column)
