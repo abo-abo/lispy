@@ -455,7 +455,9 @@ def get_completions(text):
         (obj, part) = m.groups()
         regex = re.compile("^" + part)
         o = top_level().f_globals[obj]
-        for x in set(list(o.__dict__.keys()) + list(type(o).__dict__.keys())):
+        items = list(o.__dict__.keys()) if hasattr(o, "__dict__") else []
+        items += list(type(o).__dict__.keys()) if hasattr(type(o), "__dict__") else []
+        for x in set(items):
             if re.match(regex, x):
                 if not x.startswith("_") or part.startswith("_"):
                     completions.append(x)
