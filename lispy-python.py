@@ -749,52 +749,55 @@ class EvalResult(TypedDict):
     out: str
     err: Optional[str]
 
-def eval_code(_code: str, env: Dict[str, Any] = {}) -> EvalResult:
+def eval_code(_code: str, _env: Dict[str, Any] = {}) -> EvalResult:
     _res = "unset"
     binds = {}
     out = ""
     err: Optional[str] = None
-    if "fname" in env:
-        top_level().f_globals["__file__"] = env["fname"]
+    _f = _env.get("frame", sys._getframe().f_back)
+    if "fname" in _env:
+        _f.f_globals["__file__"] = _env["fname"]
     try:
-        _code = _code or slurp(env["code"])
+        _code = _code or slurp(_env["code"])
         new_code = translate(_code)
         (*butlast, last) = new_code
-        if "__return__" in locals():
-            del locals()["__return__"]
-        locals_1 = locals()
+        _locals = {}
+        locals_1 = _locals
         locals_2 = locals_1.copy()
         with io.StringIO() as buf, redirect_stdout(buf):
             # pylint: disable=exec-used
-            exec(ast.unparse(butlast), top_level().f_globals, locals_2)
+            exec(ast.unparse(butlast), _f.f_globals, locals_2)
             for bind in [k for k in locals_2.keys() if k not in locals_1.keys()]:
-                top_level().f_globals[bind] = locals_2[bind]
+                _f.f_globals[bind] = locals_2[bind]
             try:
                 # pylint: disable=eval-used
-                _res = eval(ast.unparse(last), top_level().f_globals, locals_2)
+                _res = eval(ast.unparse(last), _f.f_globals, locals_2)
             except:
-                locals_1 = locals()
+                locals_1 = _locals
                 locals_2 = locals_1.copy()
-                exec(ast.unparse(last), top_level().f_globals, locals_2)
+                exec(ast.unparse(last), _f.f_globals, locals_2)
             out = buf.getvalue().strip()
         binds1 = [k for k in locals_2.keys() if k not in locals_1.keys()]
-        for sym in ["_res", "binds", "out", "err", "env", "new_code", "last", "butlast", "locals_1", "locals_2"]:
+        for sym in ["_res", "binds", "out", "err", "_env", "new_code", "last", "butlast", "locals_1", "locals_2"]:
             try:
                 if id(locals_1[sym]) != id(locals_2[sym]):
                     binds1.append(sym)
             except:
                 pass
         for bind in binds1:
-            top_level().f_globals[bind] = locals_2[bind]
+            _f.f_globals[bind] = locals_2[bind]
         binds2 = [bind for bind in binds1 if bind not in ["__res__", "__return__"]]
-        print_fn = cast(Callable[..., str], to_str if env.get("echo") else str)
+        print_fn = cast(Callable[..., str], to_str if _env.get("echo") else str)
         binds = {bind: print_fn(locals_2[bind]) for bind in binds2}
+    except RuntimeError as e:
+        if str(e) == "break":
+            pm()
     # pylint: disable=broad-except
     except Exception as e:
         err = f"{e.__class__.__name__}: {e}\n{e.__dict__}"
-        top_level().f_globals["e"] = e
+        _f.f_globals["e"] = e
     return {
-        "res": to_str(_res) if env.get("echo") else repr(_res),
+        "res": to_str(_res) if _env.get("echo") else repr(_res),
         "binds": binds,
         "out": out,
         "err": err
@@ -802,15 +805,16 @@ def eval_code(_code: str, env: Dict[str, Any] = {}) -> EvalResult:
 
 def eval_to_json(code: str, env: Dict[str, Any] = {}) -> None:
     try:
+        env["frame"] = sys._getframe().f_back
         s = json.dumps(eval_code(code, env))
         print(s)
     # pylint: disable=broad-except
     except Exception as e:
-        print({
+        print(json.dumps({
             "res": None,
             "binds": {},
             "out": "",
-            "err": str(e)})
+            "err": str(e)}))
 
 def find_module(fname: str) -> Optional[ModuleType]:
     for (name, module) in sys.modules.items():
