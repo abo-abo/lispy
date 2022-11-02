@@ -585,14 +585,15 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
   (setq lispy-eval-output nil)
   (let* ((echo (if (eq current-prefix-arg 2) nil t))
          (fstr
-          (if (or (string-match-p ".\\n+." str) (string-match-p "\"\"\"" str))
+          (if (or (string-match-p ".\n+." str) (string-match-p "\"\"\"" str))
               (let ((temp-file-name (python-shell--save-temp-file str)))
                 (format "lp.eval_to_json('', %s)"
                         (lispy--dict
                          :code temp-file-name
                          :fname (buffer-file-name)
                          :echo echo)))
-            (format "lp.eval_to_json(\"\"\"%s \"\"\", %s)" str
+            (format "lp.eval_to_json(\"\"\"%s \"\"\", %s)"
+                    (replace-regexp-in-string "\\\\n" "\\\\n" str nil t)
                     (lispy--dict :fname (buffer-file-name)
                                  :echo echo))))
          (rs (python-shell-send-string-no-output
