@@ -731,10 +731,11 @@ def to_elisp(code: str, _f: Optional[FrameType] = None) -> str:
         print_elisp(eval(code, _f.f_globals))
         return buf.getvalue().strip()
 
-def translate(code: str, _f: Optional[FrameType] = None) -> Any:
+def translate(code: str, _f: Optional[FrameType] = None, use_in_expr: bool = False) -> Any:
     _f = _f or sys._getframe().f_back
     parsed = ast.parse(code, mode="exec").body
-    if in_expr := try_in_expr(parsed):
+    in_expr = try_in_expr(parsed)
+    if use_in_expr and in_expr:
         (left, right) = in_expr
         out = to_elisp(ast.unparse(right), _f)
         nc = f"print('''{out}''')\n'select'"
@@ -762,7 +763,7 @@ def eval_code(_code: str, _env: Dict[str, Any] = {}) -> EvalResult:
         _f.f_globals["__file__"] = _env["fname"]
     try:
         _code = _code or slurp(_env["code"])
-        new_code = translate(_code, _f)
+        new_code = translate(_code, _f, _env.get("use-in-expr", False))
         (*butlast, last) = new_code
         _locals = {}
         locals_1 = _locals

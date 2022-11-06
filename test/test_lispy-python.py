@@ -158,7 +158,7 @@ def test_eval_bind_vars_2():
 
 
 def test_eval_in_1():
-    env = {"frame": sys._getframe()}
+    env = {"frame": sys._getframe(), "use-in-expr": True}
     r1 = lp.eval_code("xs = [1, 2, 3]", env)
     code = "x in xs"
     r = lp.eval_code(code, env)
@@ -166,7 +166,7 @@ def test_eval_in_1():
     assert r["out"] == "(1\n2\n3\n)"
 
 def test_eval_in_2():
-    env = {"frame": sys._getframe()}
+    env = {"frame": sys._getframe(), "use-in-expr": True}
     code = "x in [1, 2, 3]"
     r = lp.eval_code(code, env)
     assert r["res"] == "'select'"
@@ -174,9 +174,10 @@ def test_eval_in_2():
     assert lp.select_item("x in [1, 2, 3]", 2, env["frame"]) == 3
 
 def test_eval_in_3():
-    lp.eval_code("di = {'foo': 'bar', 'yes': 'no'}")
+    env = {"frame": sys._getframe(), "use-in-expr": True}
+    lp.eval_code("di = {'foo': 'bar', 'yes': 'no'}", env)
     code = "(k, v) in di.items()"
-    r = lp.eval_code(code)
+    r = lp.eval_code(code, env)
     assert r["res"] == "'select'"
     assert lp.select_item(code, 0) == ('foo', 'bar')
     assert lp.eval_code("k")["res"] == "'foo'"
@@ -185,13 +186,22 @@ def test_eval_in_3():
     assert lp.eval_code("k")["res"] == "'yes'"
     assert lp.eval_code("v")["res"] == "'no'"
 
+def test_eval_in_off():
+    env = {"frame": sys._getframe(), "use-in-expr": False}
+    lp.eval_code('xs = ["1", "2", "3"]', env)
+    lp.eval_code('x = "3"', env)
+    r = lp.eval_code("x in xs", env)
+    assert r["res"] == "True"
+    assert r["binds"] == {}
+
 def test_eval_in_pytest_1():
+    env = {"frame": sys._getframe(), "use-in-expr": True}
     code = dedent("""
     @pytest.mark.parametrize("x", [3, 4, 5])
     def square(x):
         return x*x
     """)
-    r = lp.eval_code(code)
+    r = lp.eval_code(code, env)
     assert r["res"] == "'select'"
     assert r["out"] == '(3\n4\n5\n)'
     assert lp.select_item(code, 0) == 3
