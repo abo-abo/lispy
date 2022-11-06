@@ -581,7 +581,7 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
   (python-shell-send-string-no-output
    str (lispy--python-proc)))
 
-(defun lispy--eval-python (str)
+(defun lispy--eval-python (str &optional use-in-expr)
   (setq lispy-eval-output nil)
   (let* ((echo (if (eq current-prefix-arg 2) nil t))
          (fstr
@@ -595,7 +595,8 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
             (format "lp.eval_to_json(\"\"\"%s \"\"\", %s)"
                     (replace-regexp-in-string "\\\\n" "\\\\n" str nil t)
                     (lispy--dict :fname (buffer-file-name)
-                                 :echo echo))))
+                                 :echo echo
+                                 :use-in-expr use-in-expr))))
          (rs (python-shell-send-string-no-output
               fstr
               (lispy--python-proc)))
