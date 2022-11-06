@@ -444,7 +444,7 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
 
 (declare-function lpy-switch-to-shell "ext:lpy")
 
-(defun lispy--eval-python (str &optional plain)
+(defun lispy--eval-python-old (str &optional plain)
   "Eval STR as Python code."
   (let ((single-line-p (= (cl-count ?\n str) 0)))
     (unless plain
