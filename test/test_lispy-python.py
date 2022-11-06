@@ -1,6 +1,7 @@
 import io
 import os
 import ast
+import sys
 from importlib.machinery import SourceFileLoader
 from contextlib import redirect_stdout
 from textwrap import dedent
@@ -157,19 +158,20 @@ def test_eval_bind_vars_2():
 
 
 def test_eval_in_1():
-    lp.eval_code("xs = [1, 2, 3]")
+    env = {"frame": sys._getframe()}
+    r1 = lp.eval_code("xs = [1, 2, 3]", env)
     code = "x in xs"
-    r = lp.eval_code(code)
-    print(r)
+    r = lp.eval_code(code, env)
     assert r["res"] == "'select'"
     assert r["out"] == "(1\n2\n3\n)"
 
 def test_eval_in_2():
+    env = {"frame": sys._getframe()}
     code = "x in [1, 2, 3]"
-    r = lp.eval_code(code)
+    r = lp.eval_code(code, env)
     assert r["res"] == "'select'"
     assert r["out"] == "(1\n2\n3\n)"
-    assert lp.select_item("x in [1, 2, 3]", 2) == 3
+    assert lp.select_item("x in [1, 2, 3]", 2, env["frame"]) == 3
 
 def test_eval_in_3():
     lp.eval_code("di = {'foo': 'bar', 'yes': 'no'}")

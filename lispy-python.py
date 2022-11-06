@@ -32,7 +32,7 @@ import sys
 from ast import AST
 from contextlib import redirect_stdout
 from typing import List, Dict, Any, Union, Tuple, Optional, TypedDict, Callable, cast
-from types import TracebackType, MethodType, FunctionType, ModuleType
+from types import TracebackType, MethodType, FunctionType, ModuleType, FrameType
 
 def sh(cmd: str) -> str:
     r = subprocess.run(
@@ -677,7 +677,8 @@ def try_in_expr(p: Expr) -> Optional[Tuple[ast.expr, ast.expr]]:
         return None
     return (p0.value.left, p0.value.comparators[0])
 
-def select_item(code: str, idx: int) -> Any:
+def select_item(code: str, idx: int, _f: Optional[FrameType] = None) -> Any:
+    _f = _f or sys._getframe().f_back
     parsed = ast.parse(code, mode="exec").body
     in_expr = try_in_expr(parsed)
     assert in_expr
@@ -687,9 +688,9 @@ def select_item(code: str, idx: int) -> Any:
     locals_1 = locals()
     locals_2 = locals_1.copy()
     # pylint: disable=exec-used
-    exec(f"{l} = list({r})[{idx}]", top_level().f_globals, locals_2)
+    exec(f"{l} = list({r})[{idx}]", _f.f_globals, locals_2)
     for bind in [k for k in locals_2.keys() if k not in locals_1.keys()]:
-        top_level().f_globals[bind] = locals_2[bind]
+        _f.f_globals[bind] = locals_2[bind]
     # pylint: disable=eval-used
     return eval(l, locals_2)
 
@@ -723,17 +724,19 @@ def try_pytest_mark(p: Expr) -> Optional[Expr]:
         return [ast.Name(decorator.args[0].value), decorator.args[1]]
     return None
 
-def to_elisp(code: str) -> str:
+def to_elisp(code: str, _f: Optional[FrameType] = None) -> str:
+    _f = _f or top_level()
     with io.StringIO() as buf, redirect_stdout(buf):
         # pylint: disable=eval-used
-        print_elisp(eval(code, top_level().f_globals))
+        print_elisp(eval(code, _f.f_globals))
         return buf.getvalue().strip()
 
-def translate(code: str) -> Any:
+def translate(code: str, _f: Optional[FrameType] = None) -> Any:
+    _f = _f or sys._getframe().f_back
     parsed = ast.parse(code, mode="exec").body
     if in_expr := try_in_expr(parsed):
         (left, right) = in_expr
-        out = to_elisp(ast.unparse(right))
+        out = to_elisp(ast.unparse(right), _f)
         nc = f"print('''{out}''')\n'select'"
         return ast.parse(nc).body
     elif has_return(parsed):
@@ -759,7 +762,7 @@ def eval_code(_code: str, _env: Dict[str, Any] = {}) -> EvalResult:
         _f.f_globals["__file__"] = _env["fname"]
     try:
         _code = _code or slurp(_env["code"])
-        new_code = translate(_code)
+        new_code = translate(_code, _f)
         (*butlast, last) = new_code
         _locals = {}
         locals_1 = _locals
