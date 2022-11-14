@@ -633,7 +633,7 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
     (when (eq current-prefix-arg 3)
       (kill-new fstr))
     (if err
-        (signal 'eval-error err)
+        (signal 'eval-error (concat out err))
       (unless (equal out "")
         (setq lispy-eval-output
               (concat (propertize out 'face 'font-lock-string-face) "\n")))
