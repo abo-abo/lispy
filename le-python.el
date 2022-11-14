@@ -736,7 +736,12 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
            (list (point) (point)
                  (if (> (length quote_str) 0)
                      keys
-                   (mapcar (lambda (s) (concat "\"" s "\"")) keys)))))
+                   (mapcar
+                    (lambda (s)
+                      (if (stringp s)
+                          (concat "\"" s "\"")
+                        (prin1-to-string s)))
+                    keys)))))
         ((lispy-complete-fname-at-point))
         (t
          (let* ((bnd (lispy-python-symbol-bnd))
