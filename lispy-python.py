@@ -785,7 +785,7 @@ def eval_code(_code: str, _env: Dict[str, Any] = {}) -> EvalResult:
             try:
                 # pylint: disable=eval-used
                 _res = eval(ast.unparse(last), _f.f_globals, locals_2)
-            except:
+            except SyntaxError:
                 locals_1 = _locals
                 locals_2 = locals_1.copy()
                 exec(ast.unparse(last), _f.f_globals, locals_2)
