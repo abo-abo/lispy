@@ -138,10 +138,18 @@ class Autocall:
         return ""
 
 #* Functions
+def get_import_name(fname: str) -> str:
+    for p in sys.path:
+        if p == "":
+            continue
+        if fname.startswith(p):
+            return fname[len(p) + 1:].partition(".")[0].replace("/", ".")
+    return os.path.splitext(os.path.basename(fname))[0]
+
 def chfile(f: str) -> None:
     tf = top_level()
     tf.f_globals["__file__"] = f
-    tf.f_globals["__name__"] = os.path.splitext(os.path.basename(f))[0]
+    tf.f_globals["__name__"] = get_import_name(f)
     d = os.path.dirname(f)
     try:
         os.chdir(d)
