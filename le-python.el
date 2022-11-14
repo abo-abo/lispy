@@ -293,18 +293,41 @@ it at one time."
 
 (defvar lispy--python-init-file nil)
 
+(defun lispy--python-poetry-name ()
+  (let ((pyproject (expand-file-name "pyproject.toml" (counsel-locate-git-root))))
+    (and (file-exists-p pyproject)
+         (with-current-buffer (find-file-noselect pyproject)
+           (goto-char (point-min))
+           (when (re-search-forward "\\[tool.poetry\\]\nname *= *\"\\([^\"]+\\)\"" nil t)
+             (match-string-no-properties 1))))))
+
+(defun lispy--python-proc-name ()
+  (or (and (process-live-p (get-buffer-process lispy-python-buf))
+           (process-name (get-buffer-process lispy-python-buf)))
+      (let ((name
+             (or (lispy--python-poetry-name)
+                 (if (string-match "\\(?::python \\|python_\\)\\(.*\\)\\'" python-shell-interpreter-args)
+                     (match-string 1 python-shell-interpreter-args)
+                   "default"))))
+        (concat "lispy-python-" name))))
+
 (defun lispy--python-proc (&optional name)
   (let* ((proc-name (or name
-                        (and (process-live-p (get-buffer-process lispy-python-buf))
-                             (process-name (get-buffer-process lispy-python-buf)))
-                        (if (string-match "\\(?::python \\|python_\\)\\(.*\\)\\'" python-shell-interpreter-args)
-                            (concat "lispy-python-" (match-string 1 python-shell-interpreter-args))
-                          "lispy-python-default")))
+                        (lispy--python-proc-name)))
          (process (get-process proc-name)))
     (if (process-live-p process)
         process
       (let* ((python-shell-font-lock-enable nil)
              (inferior-python-mode-hook nil)
+             (poetry-name (lispy--python-poetry-name))
+             (python-shell-interpreter
+              (if poetry-name
+                  "poetry"
+                python-shell-interpreter))
+             (python-shell-interpreter-args
+              (if poetry-name
+                  "run python"
+                python-shell-interpreter-args))
              ;; (python-shell-interpreter
              ;;  (cond
              ;;   ((and (file-exists-p python-shell-interpreter)
