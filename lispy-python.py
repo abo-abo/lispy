@@ -791,12 +791,6 @@ def eval_code(_code: str, _env: Dict[str, Any] = {}) -> EvalResult:
                 exec(ast.unparse(last), _f.f_globals, locals_2)
             out = buf.getvalue().strip()
         binds1 = [k for k in locals_2.keys() if k not in locals_1.keys()]
-        for sym in ["_res", "binds", "out", "err", "_env", "new_code", "last", "butlast", "locals_1", "locals_2"]:
-            try:
-                if id(locals_1[sym]) != id(locals_2[sym]):
-                    binds1.append(sym)
-            except:
-                pass
         for bind in binds1:
             _f.f_globals[bind] = locals_2[bind]
         binds2 = [bind for bind in binds1 if bind not in ["__res__", "__return__"]]
