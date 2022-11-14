@@ -777,10 +777,11 @@ def eval_code(_code: str, _env: Dict[str, Any] = {}) -> EvalResult:
         locals_1 = _locals
         locals_2 = locals_1.copy()
         with io.StringIO() as buf, redirect_stdout(buf):
-            # pylint: disable=exec-used
-            exec(ast.unparse(butlast), _f.f_globals, locals_2)
-            for bind in [k for k in locals_2.keys() if k not in locals_1.keys()]:
-                _f.f_globals[bind] = locals_2[bind]
+            if butlast:
+                # pylint: disable=exec-used
+                exec(ast.unparse(butlast), _f.f_globals, locals_2)
+                for bind in [k for k in locals_2.keys() if k not in locals_1.keys()]:
+                    _f.f_globals[bind] = locals_2[bind]
             try:
                 # pylint: disable=eval-used
                 _res = eval(ast.unparse(last), _f.f_globals, locals_2)
