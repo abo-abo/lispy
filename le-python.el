@@ -348,7 +348,10 @@ it at one time."
                    " "
                    python-shell-interpreter-args)))
              (buffer
-              (let ((python-shell-completion-native-enable nil))
+              (let ((python-shell-completion-native-enable nil)
+                    (default-directory (if poetry-name
+                                           (counsel-locate-git-root)
+                                         default-directory)))
                 (python-shell-make-comint
                  python-binary-name proc-name nil nil))))
         (setq lispy--python-middleware-file
