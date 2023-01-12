@@ -296,6 +296,7 @@ it at one time."
 (defun lispy--python-poetry-name ()
   (let ((pyproject (expand-file-name "pyproject.toml" (counsel-locate-git-root))))
     (and (file-exists-p pyproject)
+         (not (equal python-shell-interpreter "python"))
          (with-current-buffer (find-file-noselect pyproject)
            (goto-char (point-min))
            (when (re-search-forward "\\[tool.poetry\\]\nname *= *\"\\([^\"]+\\)\"" nil t)
