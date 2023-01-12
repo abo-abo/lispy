@@ -20,6 +20,7 @@
 #* Imports
 import ast
 import collections
+import importlib
 import inspect
 import io
 import json
@@ -149,12 +150,21 @@ def get_import_name(fname: str) -> str:
 def chfile(f: str) -> None:
     tf = top_level()
     tf.f_globals["__file__"] = f
-    tf.f_globals["__name__"] = get_import_name(f)
+    name = get_import_name(f)
+    tf.f_globals["__name__"] = name
     d = os.path.dirname(f)
     try:
         os.chdir(d)
+        if "sys" not in tf.f_globals:
+            tf.f_globals["sys"] = importlib.import_module("sys")
+        if name not in tf.f_globals["sys"].modules:
+            try:
+                mod = importlib.import_module(name)
+                tf.f_globals["sys"].modules[name] = mod
+            except:
+                pass
     except:
-        pass
+        raise
 
 def arglist(sym: Callable) -> List[str]:
     def format_arg(arg_pair: Tuple[str, Optional[str]]) -> str:
@@ -596,7 +606,6 @@ def reload():
     top_level().f_globals["lp"] = mod
 
 def reload_module(fname):
-    import importlib
     to_reload = []
     for (name, module) in sys.modules.copy().items():
         try:
