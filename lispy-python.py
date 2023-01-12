@@ -594,7 +594,7 @@ def setup(init_file=None):
     tl.f_globals["pm"] = Autocall(pm)
     if init_file and os.path.exists(init_file):
         try:
-            exec(open(init_file).read(), globals())
+            exec(open(init_file).read(), tl.f_globals)
         except:
             pass
 
