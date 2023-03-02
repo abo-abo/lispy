@@ -769,8 +769,14 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
                (lispy--eval-python-plain expr)))
            (list (car bnd)
                  (cdr bnd)
-                 (read (lispy--eval-python-plain
-                        (format "lp.print_elisp(lp.get_completions('%s'))" str-com))))))))
+                 (let ((out (lispy--eval-python-plain
+                             (format "lp.print_elisp(lp.get_completions('%s'))" str-com))))
+                   (with-temp-buffer
+                     (insert out)
+                     (goto-char (point-min))
+                     (when (re-search-forward "^(" nil t)
+                       (goto-char (match-beginning 0)))
+                     (read (current-buffer)))))))))
 
 (defvar lispy--python-arg-key-re "\\`\\(\\(?:\\sw\\|\\s_\\)+\\)=\\([^\\0]+\\)\\'"
   "Constant regexp for matching function keyword spec.")
