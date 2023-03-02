@@ -713,7 +713,7 @@ def select_item(code: str, idx: int, _f: Optional[FrameType] = None) -> Any:
     locals_1 = locals()
     locals_2 = locals_1.copy()
     # pylint: disable=exec-used
-    exec(f"{l} = list({r})[{idx}]", _f.f_globals, locals_2)
+    exec(f"{l} = list({r})[{idx}]", _f.f_locals | _f.f_globals, locals_2)
     for bind in [k for k in locals_2.keys() if k not in locals_1.keys()]:
         _f.f_globals[bind] = locals_2[bind]
     # pylint: disable=eval-used
@@ -753,7 +753,7 @@ def to_elisp(code: str, _f: Optional[FrameType] = None) -> str:
     _f = _f or top_level()
     with io.StringIO() as buf, redirect_stdout(buf):
         # pylint: disable=eval-used
-        print_elisp(eval(code, _f.f_globals))
+        print_elisp(eval(code, _f.f_locals | _f.f_globals))
         return buf.getvalue().strip()
 
 def translate(code: str, _f: Optional[FrameType] = None, use_in_expr: bool = False) -> Any:
@@ -793,19 +793,22 @@ def eval_code(_code: str, _env: Dict[str, Any] = {}) -> EvalResult:
         _locals = {}
         locals_1 = _locals
         locals_2 = locals_1.copy()
+        locals_globals = _f.f_locals | _f.f_globals
+        if "debug" in _env:
+            print(f"{ast.unparse(last)=}")
         with io.StringIO() as buf, redirect_stdout(buf):
             if butlast:
                 # pylint: disable=exec-used
-                exec(ast.unparse(butlast), _f.f_globals, locals_2)
+                exec(ast.unparse(butlast), locals_globals, locals_2)
                 for bind in [k for k in locals_2.keys() if k not in locals_1.keys()]:
                     _f.f_globals[bind] = locals_2[bind]
             try:
                 # pylint: disable=eval-used
-                _res = eval(ast.unparse(last), _f.f_globals, locals_2)
+                _res = eval(ast.unparse(last), locals_globals, locals_2)
             except SyntaxError:
                 locals_1 = _locals
                 locals_2 = locals_1.copy()
-                exec(ast.unparse(last), _f.f_globals, locals_2)
+                exec(ast.unparse(last), locals_globals, locals_2)
             out = buf.getvalue().strip()
         binds1 = [k for k in locals_2.keys() if k not in locals_1.keys()]
         for bind in binds1:
@@ -820,6 +823,9 @@ def eval_code(_code: str, _env: Dict[str, Any] = {}) -> EvalResult:
     except Exception as e:
         err = f"{e.__class__.__name__}: {e}\n{e.__dict__}"
         _f.f_globals["e"] = e
+        locs = e.__traceback__.tb_frame.f_locals.get("locals_2", {})
+        for bind in locs:
+            _f.f_globals[bind] = locs[bind]
     return {
         "res": to_str(_res) if _env.get("echo") else repr(_res),
         "binds": binds,
