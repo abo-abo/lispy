@@ -231,6 +231,10 @@ It didn't work great."
     (setq lispy-python-buf buf)
     (with-current-buffer lispy-python-buf
       (lispy-python-interaction-mode)
+      (setq lispy--python-middleware-file
+            (if (file-name-absolute-p lispy-python-middleware-file)
+                lispy-python-middleware-file
+              (expand-file-name "lispy-python.py" lispy-site-directory)))
       (setq lispy-python-buf buf)))
   (let ((lp (ignore-errors (lispy--eval-python-plain "lp"))))
     (unless (and lp (string-match-p "module 'lispy-python'" lp))
