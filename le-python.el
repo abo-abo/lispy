@@ -1023,18 +1023,34 @@ Otherwise, fall back to Jedi (static)."
   (setq lispy--python-middleware-loaded-p nil)
   (lispy--python-middleware-load))
 
+(defun lispy--python-slurp (f)
+  (with-temp-buffer
+    (insert-file-contents f)
+    (buffer-string)))
+
+(defun lispy--python-setup-cmd ()
+  (concat
+   "from importlib.machinery import SourceFileLoader;"
+   (format "lp=SourceFileLoader('lispy-python', '%s').load_module();"
+           lispy--python-middleware-file)
+   (format "lp.setup('%s')" lispy--python-init-file)))
+
 (defun lispy--python-middleware-load ()
   "Load the custom Python code in \"lispy-python.py\"."
   (unless lispy--python-middleware-loaded-p
-    (let ((default-directory (or (locate-dominating-file default-directory ".git")
-                                 default-directory)))
+    (let* ((default-directory (or (locate-dominating-file default-directory ".git")
+                                  default-directory))
+           out)
       ;; send single line so that python.el does no /tmp/*.py magic, which does not work in Docker
-      (lispy--eval-python-plain
-       (concat
-        "from importlib.machinery import SourceFileLoader;"
-        (format "lp=SourceFileLoader('lispy-python', '%s').load_module();"
-                lispy--python-middleware-file)
-        (format "lp.setup('%s')" lispy--python-init-file)))
+      (setq out (lispy--eval-python-plain (lispy--python-setup-cmd)))
+      (when (string-match "FileNotFoundError" out)
+        (let* ((text (lispy--python-slurp lispy--python-middleware-file))
+               (ben (replace-regexp-in-string "\n" "" (base64-encode-string text)))
+               (setup-cmd (let ((lispy--python-middleware-file "/tmp/lispy.py"))
+                            (lispy--python-setup-cmd))))
+          (lispy--eval-python-plain
+           (format "import base64; open('/tmp/lispy.py','w').write(base64.b64decode('%s').decode()); %s"
+                   ben setup-cmd))))
       (setq lispy--python-middleware-loaded-p t))))
 
 (defun lispy--python-arglist (symbol filename line column)
