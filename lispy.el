@@ -1690,25 +1690,29 @@ When ARG is more than 1, mark ARGth element."
           (t
            (lispy--mark (lispy--bounds-dwim))))))
 
+(defvar lispy-kill-at-point-hook nil)
+
 (defun lispy-kill-at-point ()
   "Kill the quoted string or the list that includes the point."
   (interactive)
-  (cond ((region-active-p)
-         (lispy--maybe-safe-kill-region (region-beginning)
-                                        (region-end)))
-        (t
-         (let ((bnd (or (lispy--bounds-comment)
-                        (lispy--bounds-string)
-                        (lispy--bounds-list)
-                        (and (derived-mode-p 'text-mode)
-                             (cons (save-excursion
-                                    (1+ (re-search-backward "[ \t\n]" nil t)))
-                                   (save-excursion
-                                    (1- (re-search-forward "[ \t\n]" nil t))))))))
-           (if buffer-read-only
-               (kill-new (buffer-substring
-                          (car bnd) (cdr bnd)))
-               (kill-region (car bnd) (cdr bnd)))))))
+  (cond
+   ((run-hook-with-args-until-success 'lispy-kill-at-point-hook))
+   ((region-active-p)
+    (lispy--maybe-safe-kill-region (region-beginning)
+                                   (region-end)))
+   (t
+    (let ((bnd (or (lispy--bounds-comment)
+                   (lispy--bounds-string)
+                   (lispy--bounds-list)
+                   (and (derived-mode-p 'text-mode)
+                        (cons (save-excursion
+                                (1+ (re-search-backward "[ \t\n]" nil t)))
+                              (save-excursion
+                                (1- (re-search-forward "[ \t\n]" nil t))))))))
+      (if buffer-read-only
+          (kill-new (buffer-substring
+                     (car bnd) (cdr bnd)))
+        (kill-region (car bnd) (cdr bnd)))))))
 
 (defun lispy-new-copy ()
   "Copy marked region or sexp to kill ring."
