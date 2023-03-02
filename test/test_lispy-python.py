@@ -1,5 +1,6 @@
 import io
 import os
+import re
 import ast
 import sys
 from importlib.machinery import SourceFileLoader
@@ -7,6 +8,12 @@ from contextlib import redirect_stdout
 from textwrap import dedent
 
 lp = SourceFileLoader("lispy-python", os.path.dirname(__file__) + "/../lispy-python.py").load_module()
+
+def print_elisp_to_str(obj):
+    with io.StringIO() as buf, redirect_stdout(buf):
+        lp.print_elisp(obj)
+        return buf.getvalue().strip()
+
 
 def with_output_to_string(code):
     with io.StringIO() as buf, redirect_stdout(buf):
@@ -206,3 +213,14 @@ def test_eval_in_pytest_1():
     assert r["out"] == '(3\n4\n5\n)'
     assert lp.select_item(code, 0) == 3
     assert lp.select_item(code, 1) == 4
+
+def test_eval_syntax_error():
+    r = lp.eval_code("[[]", {})
+    assert "SyntaxError" in r["err"]
+
+def test_print_elisp():
+    class Obj(object):
+        pass
+    arr = [Obj()]
+    r = print_elisp_to_str(arr)
+    assert re.match('\\("<.*Obj object at 0x[0-9a-f]+>" \\)', r)

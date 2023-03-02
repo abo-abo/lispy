@@ -195,6 +195,9 @@ def arglist(sym: Callable) -> List[str]:
 
 def print_elisp(obj: Any, end: str = "\n") -> None:
     if hasattr(obj, "_asdict") and obj._asdict is not None:
+        if hasattr(type(obj), "__repr__"):
+            print('"' + str(obj).replace('"', '') + '"')
+            return
         # namedtuple
         try:
             print_elisp(obj._asdict(), end)
@@ -230,14 +233,14 @@ def print_elisp(obj: Any, end: str = "\n") -> None:
         print_elisp(list(obj))
     elif isinstance(obj, int):
         print(obj)
+    elif isinstance(obj, list) or isinstance(obj, tuple):
+        print("(", end="")
+        for x in obj:
+            print_elisp(x)
+        print(")")
     else:
         if obj is not None:
-            if type(obj) is list or type(obj) is tuple:
-                print("(", end="")
-                for x in obj:
-                    print_elisp(x)
-                print(")")
-            elif type(obj) is str:
+            if type(obj) is str:
                 # quote strings?
                 # print("\"'" + re.sub("\"", "\\\"", obj) + "'\"", end=" ")
                 print('"' + re.sub("\"", "\\\"", obj) + '"', end=" ")
