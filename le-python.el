@@ -569,7 +569,7 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
     (while (setq k (pop plist))
       (setq v (pop plist))
       (push (format
-             "\"%s\": %s"
+             "'%s': %s"
              (cond ((keywordp k)
                     (substring (symbol-name k) 1))
                    ((stringp k)
@@ -581,6 +581,8 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
                     "True")
                    ((eq v nil)
                     "None")
+                   ((stringp v)
+                    (format "'%s'" v))
                    (t
                     (prin1-to-string v)))) r))
     (concat "{"
