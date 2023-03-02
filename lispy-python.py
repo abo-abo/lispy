@@ -54,11 +54,14 @@ except:
 try:
     import jedi
 except:
-    pyenv_version = sh("pyenv global")
-    pyversion = ".".join(pyenv_version.split(".")[:-1])
-    site_packages = os.path.expanduser(f"~/.pyenv/versions/{pyenv_version}/lib/python{pyversion}/site-packages/")
-    sys.path.append(site_packages)
-    import jedi
+    try:
+        pyenv_version = sh("pyenv global")
+        pyversion = ".".join(pyenv_version.split(".")[:-1])
+        site_packages = os.path.expanduser(f"~/.pyenv/versions/{pyenv_version}/lib/python{pyversion}/site-packages/")
+        sys.path.append(site_packages)
+        import jedi
+    except:
+        print("Failed to load jedi. Some features won't work")
 
 #* Classes
 class Stack:
