@@ -610,6 +610,8 @@ def reload():
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
     top_level().f_globals["lp"] = mod
+    sys._getframe().f_back.f_globals["lp"] = mod
+    return mod
 
 def reload_module(fname):
     to_reload = []
