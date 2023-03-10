@@ -611,6 +611,7 @@ def reload():
     spec.loader.exec_module(mod)
     top_level().f_globals["lp"] = mod
     sys._getframe().f_back.f_globals["lp"] = mod
+    sys._getframe().f_back.f_locals["lp"] = mod
     return mod
 
 def reload_module(fname):
@@ -816,9 +817,11 @@ def eval_code(_code: str, _env: Dict[str, Any] = {}) -> EvalResult:
         binds2 = [bind for bind in binds1 if bind not in ["__res__", "__return__"]]
         print_fn = cast(Callable[..., str], to_str if _env.get("echo") else str)
         binds = {bind: print_fn(locals_2[bind]) for bind in binds2}
-    except RuntimeError as e:
-        if str(e) == "break":
-            pm()
+    # except RuntimeError as e:
+    #     if str(e) == "break":
+    #         pm()
+    #     else:
+    #         raise
     # pylint: disable=broad-except
     except Exception as e:
         err = f"{e.__class__.__name__}: {e}\n{e.__dict__}"
