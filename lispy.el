@@ -5411,6 +5411,7 @@ Macro used may be customized in `lispy-thread-last-macro', which see."
       (iedit-start (iedit-regexp-quote (lispy--string-dwim)) beg end)
       (lispy-mark-symbol)
       (lispy-move-down 1)
+      (iedit-update-occurrences)
       (iedit-mode)
       (deactivate-mark)
       (lispy-left 1)
