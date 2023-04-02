@@ -87,7 +87,7 @@
 ;; | O   | `lispy-oneline'          | M          | `lispy-multiline' |
 ;; | S   | `lispy-stringify'        | C-u "      | `lispy-quotes'    |
 ;; | ;   | `lispy-comment'          | C-u ;      | `lispy-comment'   |
-;; | xi  | `lispy-to-ifs'           | xc         | `lispy-to-cond'   |
+;; | xc  | `lispy-cond<->if-dwim'   | xc         | reverses itself   |
 ;; | F   | `lispy-follow'           | D          | `pop-tag-mark'    |
 ;; |-----+--------------------------+------------+-------------------|
 ;;
@@ -5327,38 +5327,49 @@ With ARG, use the contents of `lispy-store-region-and-buffer' instead."
       (when begp
         (goto-char (car bnd))))))
 
-(defun lispy-to-ifs ()
-  "Transform current `cond' expression to equivalent `if' expressions."
-  (interactive)
-  (lispy-from-left
-   (let* ((bnd (lispy--bounds-dwim))
-          (expr (lispy--read (lispy--string-dwim bnd))))
-     (unless (eq (car expr) 'cond)
-       (error "%s isn't cond" (car expr)))
-     (delete-region (car bnd) (cdr bnd))
-     (lispy--fast-insert
-      (car
-       (lispy--whitespace-trim
-        (lispy--cases->ifs (cdr expr)))))))
-  (lispy-from-left
-   (indent-sexp)))
+(defun lispy--progn (exprs)
+  "Like `macroexp-progn', but for `lispy--fast-insert'."
+  (if (cdr exprs)
+      `(progn (ly-raw newline) ,@exprs)
+    (car exprs)))
 
-(defun lispy-to-cond ()
-  "Reverse of `lispy-to-ifs'."
+(defmacro lispy--ignore-error (condition &rest body)
+  "Execute BODY, ignoring CONDITION `signal's.
+`ignore-error' re-implemented here because the former is Emacs 27
+only."
+  (declare (indent 1) (debug t))
+  `(condition-case nil ,(macroexp-progn body) (,condition)))
+
+(defun lispy-cond<->if-dwim ()
+  "Convert between `cond' and `if'.
+`if'/`case'/`cl-case'/`when'/`unless' -> `cond' -> `if'."
   (interactive)
-  (lispy-from-left
-   (let* ((bnd (lispy--bounds-dwim))
-          (expr (lispy--read (lispy--string-dwim bnd)))
-          (res (cond ((eq (car expr) 'if)
-                      (cons 'cond (lispy--ifs->cases expr)))
-                     ((memq (car expr) '(case cl-case))
-                      (lispy--case->cond expr))
-                     (t
-                      (error "Can't convert %s to cond" (car expr))))))
-     (delete-region (car bnd) (cdr bnd))
-     (lispy--fast-insert res)))
-  (lispy-from-left
-   (indent-sexp)))
+  ;; `lispy-different', used in `lispy-from-left', `user-error's if the cursor
+  ;; is not on an an sexp. `lispy--cases->ifs' transforms (cond (t X)) into X,
+  ;; so causes an error if X is a symbol.
+  (lispy--ignore-error user-error
+    (lispy-from-left
+     (let* ((bnd (lispy--bounds-dwim))
+            (expr (lispy--read (lispy--string-dwim bnd)))
+            (res (cond ((eq (car expr) 'if)
+                        (cons 'cond (lispy--ifs->cases expr)))
+                       ((eq (car expr) 'cond)
+                        (when-let ((cases (lispy--cases->ifs (cdr expr))))
+                          (lispy--progn (lispy--whitespace-trim cases))))
+                       ((memq (car expr) '(case cl-case))
+                        (lispy--case->cond expr))
+                       ((eq (car expr) 'when)
+                        `(cond (,(cadr expr) ,@(cddr expr))))
+                       ((eq (car expr) 'unless)
+                        `(cond ((not ,(cadr expr)) ,@(cddr expr))))
+                       (t
+                        (error "Can't convert %s" (car expr))))))
+       (delete-region (car bnd) (cdr bnd))
+       (when res (lispy--fast-insert res))))
+    (lispy-from-left
+     (indent-sexp))))
+(defalias 'lispy-to-cond #'lispy-cond<->if-dwim)
+(defalias 'lispy-to-ifs #'lispy-cond<->if-dwim)
 
 (defun lispy-toggle-thread-last ()
   "Toggle current expression between last-threaded/unthreaded forms.
@@ -5882,7 +5893,7 @@ An equivalent of `cl-destructuring-bind'."
   "x"
   ;; ("a" nil)
   ("b" lispy-bind-variable "bind variable")
-  ("c" lispy-to-cond "to cond")
+  ("c" lispy-cond<->if-dwim "cond<->if")
   ("C" lispy-cleanup "cleanup")
   ("d" lispy-to-defun "to defun")
   ("D" lispy-extract-defun "extract defun")
@@ -5891,7 +5902,6 @@ An equivalent of `cl-destructuring-bind'."
   ("F" lispy-let-flatten "let-flatten")
   ;; ("g" nil)
   ("h" lispy-describe "describe")
-  ("i" lispy-to-ifs "to ifs")
   ("j" lispy-debug-step-in "debug step in")
   ("k" lispy-extract-block "extract block")
   ("l" lispy-to-lambda "to lambda")
@@ -7705,32 +7715,46 @@ Defaults to `error'."
      (lispy--insert f-expr)
      (buffer-string))))
 
+(defun lispy--first (seq)
+  "Get the first element of list or vector SEQ."
+  (declare (pure t) (side-effect-free t))
+  (elt seq 0))
+
+(defun lispy--rest (seq)
+  "Get the tail of list or vector SEQ.
+The result is always a list."
+  (declare (pure t) (side-effect-free t))
+  (cl-coerce (cl-subseq seq 1) 'list))
+
 (defun lispy--case->if (case &optional else)
   "Return an if statement based on  CASE statement and ELSE."
   (append
-   `(if ,(car case))
-   (cond ((null (cdr case)) `((ly-raw newline) nil ,@else))
-         ((= (length (cl-remove-if #'lispy--whitespacep (cdr case))) 1)
-          (append (cdr case) else))
+   `(if ,(lispy--first case))
+   (cond ((null (lispy--rest case)) `((ly-raw newline) nil ,@else))
+         ((= (length (cl-remove-if #'lispy--whitespacep (lispy--rest case))) 1)
+          (append (lispy--rest case) else))
          (t
           (let ((p (or (cl-position-if-not
                         #'lispy--whitespacep
-                        (cdr case))
+                        (lispy--rest case))
                        -1)))
-            `(,@(cl-subseq (cdr case) 0 p)
+            `(,@(cl-subseq (lispy--rest case) 0 p)
                 (progn
                   (ly-raw newline)
-                  ,@(cl-subseq (cdr case) p))
+                  ,@(cl-subseq (lispy--rest case) p))
                 ,@else))))))
 
 (defun lispy--cases->ifs (cases)
   "Return nested if statements that correspond to CASES."
-  (cond ((= 1 (length cases))
-         (if (eq (caar cases) t)
-             (let ((then (cdar cases)))
+  (cond ((null cases) nil)
+        ((= 1 (length cases))
+         (if (let ((sym (lispy--first (car cases))))
+               (or (memq sym '(t :else))
+                   (and (derived-mode-p 'scheme-mode) (eq sym 'else))))
+             (let ((then (lispy--rest (car cases))))
                (if (equal (car then) '(ly-raw newline))
                    (cdr then)
-                 then))
+                 (lispy--rest (car cases))))
            (list (lispy--case->if (car cases)))))
         ((lispy--whitespacep (car cases))
          (cons (car cases)
