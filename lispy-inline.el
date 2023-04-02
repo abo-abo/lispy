@@ -174,7 +174,7 @@ The caller of `lispy--show' might use a substitute e.g. `describe-function'."
              (setq lispy-hint-pos (point))
              (lispy--show (lispy--clojure-args (lispy--current-function))))
 
-            ((eq major-mode 'lisp-mode)
+            ((derived-mode-p 'lisp-mode 'slime-repl-mode 'sly-mrepl-mode)
              (require 'le-lisp)
              (setq lispy-hint-pos (point))
              (lispy--show (lispy--lisp-args (lispy--current-function))))
@@ -275,7 +275,7 @@ The caller of `lispy--show' might use a substitute e.g. `describe-function'."
                (t
                 (or (lispy--describe-clojure-java sym)
                     (format "Could't resolve '%s" sym))))))))
-    ((eq major-mode 'lisp-mode)
+    ((derived-mode-p 'lisp-mode 'slime-repl-mode 'sly-mrepl-mode)
      (require 'le-lisp)
      (lispy--lisp-describe sym))
     ((eq major-mode 'python-mode)
