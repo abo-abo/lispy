@@ -7293,7 +7293,7 @@ See https://clojure.org/guides/weird_characters#_character_literal.")
          (mode major-mode)
          cbnd
          (str (with-temp-buffer
-                (funcall mode)
+                (delay-mode-hooks (funcall mode))
                 (insert str)
                 ;; ——— ly-raw —————————————————
                 (lispy--replace-regexp-in-code "(ly-raw" "(ly-raw raw")
