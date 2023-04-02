@@ -8634,7 +8634,10 @@ PLIST currently accepts:
 
              ((lispy--in-string-or-comment-p)
               (setq this-command 'self-insert-command)
-              (call-interactively 'self-insert-command))
+              (call-interactively
+               (quote
+                ,(or inserter
+                     'self-insert-command))))
 
              ((or (lispy-left-p)
                   (lispy-right-p)
