@@ -532,7 +532,7 @@ backward through lists, which is useful to move into special.
   (let ((x (assq mode minor-mode-map-alist)))
     (when x
       (setq minor-mode-map-alist
-            (cons x (delq mode minor-mode-map-alist))))))
+            (cons x (delq x minor-mode-map-alist))))))
 
 ;;* Macros
 (defmacro lispy-dotimes (n &rest bodyform)
