@@ -4761,6 +4761,22 @@ When ARG is non-nil, force select the window."
          (lispy-complain
           (format "%s isn't supported currently" major-mode)))))
 
+(defconst lispy-function-reference-url "http://oremacs.com/lispy/")
+
+(defun lispy-browse-function-reference ()
+  "Use `browse-url' to browse to the lispy function reference
+webpage at `lispy-function-reference-url'."
+  (interactive)
+  (browse-url lispy-function-reference-url))
+
+(defconst lispy-readme "https://github.com/abo-abo/lispy/blob/master/README.md")
+
+(defun lispy-browse-readme ()
+  "Use `browse-url' to browse to the lispy README webpage at
+`lispy-readme'."
+  (interactive)
+  (browse-url lispy-readme))
+
 (defvar lispy--pams (make-hash-table))
 
 (defun lispy-pam-store (sym)
@@ -5910,6 +5926,8 @@ An equivalent of `cl-destructuring-bind'."
   ;; ("y" nil)
   ;; ("z" nil)
   ("B" lispy-store-region-and-buffer "store list bounds")
+  ("^F" lispy-browse-function-reference "browse to function reference")
+  ("^R" lispy-browse-readme "browse to lispy README")
   ("R" lispy-reverse "reverse")
   ("T" lispy-ert "ert")
   (">" lispy-toggle-thread-last "toggle last-threaded form")
