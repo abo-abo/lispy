@@ -1867,6 +1867,12 @@ Insert KEY if there's no command."
            (lispy--read "#m(foo bar)")
            '(ly-raw lisp-macro "#m(foo bar)")))
   (should (equal
+           (lispy--read "#xFF00")
+           '(ly-raw lisp-macro "#xFF00")))
+  (should (equal
+           (lispy--read "#b0101")
+           '(ly-raw lisp-macro "#b0101")))
+  (should (equal
            (lispy--read ",(or body)")
            '(ly-raw \, (or body))))
   (should (equal (lispy-with-v clj
@@ -1915,7 +1921,11 @@ Insert KEY if there's no command."
                     (ly-raw clojure-symbol ":bar")
                     ((ly-raw clojure-symbol ".") % (ly-raw clojure-symbol ".-value"))))))
   (should (equal (lispy--read ":.name")
-                 '(ly-raw clojure-keyword ":.name"))))
+                 '(ly-raw clojure-keyword ":.name")))
+  (should (equal (lispy--read "1.0e+INF")
+                 '(ly-raw float "1.0e+INF")))
+  (should (equal (lispy--read "1.0e+NaN")
+                 '(ly-raw float "1.0e+NaN"))))
 
 (ert-deftest lispy-tick ()
   (should (string= (lispy-with "|" "'") "'|"))
