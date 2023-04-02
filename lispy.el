@@ -197,6 +197,11 @@
   :group 'lispy)
 (make-variable-buffer-local 'lispy-no-space)
 
+(defcustom lispy-insert-autoload t
+  "When non-nil, repeated use of `lispy-comment' in emacs-lisp-mode inserts an autoload cookie."
+  :type 'boolean
+  :group 'lispy)
+
 (defcustom lispy-lax-eval t
   "When non-nil, fix \"unbound variable\" error by setting the it to nil.
 This is useful when hacking functions with &optional arguments.
@@ -3783,7 +3788,8 @@ When SILENT is non-nil, don't issue messages."
                (when (lispy--in-string-or-comment-p)
                  (lispy--out-backward 1)))
               ((lispy--in-string-or-comment-p)
-               (cond ((and (eq major-mode 'emacs-lisp-mode)
+               (cond ((and lispy-insert-autoload
+                           (eq major-mode 'emacs-lisp-mode)
                            (lispy-after-string-p ";;; "))
                       (delete-char -1)
                       (insert "###autoload")
