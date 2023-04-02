@@ -7901,6 +7901,8 @@ Unless inside string or comment, or `looking-back' at CONTEXT."
                 (bolp)
                 (and (window-minibuffer-p)
                      (eq (point) (minibuffer-prompt-end)))
+                (and (derived-mode-p 'comint-mode)
+                     (= (point) (comint-line-beginning-position)))
                 (lispy--in-string-or-comment-p)
                 (lispy-looking-back context))
       (insert " "))))
