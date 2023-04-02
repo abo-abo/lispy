@@ -2030,13 +2030,13 @@ For Clojure modes, toggle #_ sexp comment."
           (lispy-different)))
     (self-insert-command arg)))
 
-(defun lispy-backtick ()
-  "Insert `."
-  (interactive)
+(defun lispy-backtick (&optional arg)
+  "Insert ` ARG times."
+  (interactive "p")
   (if (region-active-p)
       (lispy--surround-region "`" "'")
     (lispy--space-unless "\\s-\\|\\s(\\|[:?`']\\|\\\\")
-    (insert "`")))
+    (self-insert-command arg)))
 
 (defun lispy-tilde (arg)
   "Insert ~ ARG times.
