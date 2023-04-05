@@ -194,8 +194,8 @@
 (defcustom lispy-no-space nil
   "When non-nil, don't insert a space before parens/brackets/braces/colons."
   :type 'boolean
-  :group 'lispy)
-(make-variable-buffer-local 'lispy-no-space)
+  :group 'lispy
+  :local t)
 
 (defcustom lispy-lax-eval t
   "When non-nil, fix \"unbound variable\" error by setting the it to nil.
@@ -250,29 +250,25 @@ The hint will consist of the possible nouns that apply to the verb."
           (const :tag "Find File in Project" ffip)
           (const :tag "Projectile" projectile)))
 
-(defcustom lispy-avy-style-char 'pre
-  "Method of displaying the overlays for a char during visual selection."
+(define-widget 'lispy-avy-style 'lazy
+  "Method of displaying the overlays during visual selection."
   :type '(choice
           (const :tag "Pre" pre)
           (const :tag "At" at)
           (const :tag "At full" at-full)
           (const :tag "Post" post)))
+
+(defcustom lispy-avy-style-char 'pre
+  "Method of displaying the overlays for a char during visual selection."
+  :type 'lispy-avy-style)
 
 (defcustom lispy-avy-style-paren 'at
   "Method of displaying the overlays for a paren during visual selection."
-  :type '(choice
-          (const :tag "Pre" pre)
-          (const :tag "At" at)
-          (const :tag "At full" at-full)
-          (const :tag "Post" post)))
+  :type 'lispy-avy-style)
 
 (defcustom lispy-avy-style-symbol 'pre
   "Method of displaying the overlays for a symbol during visual selection."
-  :type '(choice
-          (const :tag "Pre" pre)
-          (const :tag "At" at)
-          (const :tag "At full" at-full)
-          (const :tag "Post" post)))
+  :type 'lispy-avy-style)
 
 (defcustom lispy-avy-keys (number-sequence ?a ?z)
   "Keys for jumping."
@@ -352,7 +348,7 @@ This applies to `lispy-delete', `lispy-kill-at-point', `lispy-paste', and
 This only applies when `lispy-safe-delete', `lispy-safe-copy', and/or
 `lispy-safe-paste' are non-nil."
   :group 'lispy
-  :type 'number)
+  :type 'integer)
 
 (defcustom lispy-safe-actions-ignore-strings t
   "When non-nil, don't try to act safely in strings.
@@ -3551,7 +3547,7 @@ When SLURP-WHITESPACE is non-nil, add any whitespace following split into previo
     (nreverse res)))
 
 (defcustom lispy-multiline-threshold 32
-  "Don't multiline expresssions shorter than this when printed as a string."
+  "Don't multiline expressions shorter than this when printed as a string."
   :type 'integer)
 
 (defun lispy--translate-newlines (str)
@@ -3757,15 +3753,15 @@ When SILENT is non-nil, don't issue messages."
     (fill-paragraph)))
 
 (defcustom lispy-move-after-commenting t
-  "When non-nil, adjust point to next sexp after commenting out a
-  sexp. If at last sexp in list, move out and backwards to
-  enclosing sexp."
+  "When non-nil, adjust point to next sexp after commenting out a sexp.
+If at last sexp in list, move out and backwards to enclosing
+sexp."
   :type 'boolean
   :group 'lispy)
 
 (defcustom lispy-comment-use-single-semicolon nil
   "When non-nil, prefer single semicolons for comments at the
-  right of the source code (after lispy-right or at eol)."
+  right of the source code (after `lispy-right' or at eol)."
   :type 'boolean
   :group 'lispy)
 
