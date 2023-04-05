@@ -7551,14 +7551,6 @@ lispy tries to parse a given sexp.")
                  (lambda ()
                    (seq-difference
                     (match-string 0) lispy--symbol-safe-chars)))
-                ;; Clojure (. object method)
-                (goto-char (point-min))
-                (while (re-search-forward "(\\.[\t\n ]" nil t)
-                  (if (setq cbnd (lispy--bounds-string))
-                      (goto-char (cdr cbnd))
-                    (forward-char -1)
-                    (delete-char -1)
-                    (insert "(ly-raw clojure-dot)")))
                 ;; ———  ———————————————————————
                 (buffer-substring-no-properties
                  (point-min)
@@ -8197,9 +8189,6 @@ The outer delimiters are stripped."
            (delete-region beg (point))
            (insert (format "#'%S" (cl-caddr sxp)))
            (goto-char beg))
-          (clojure-dot
-           (delete-region beg (point))
-           (insert "."))
           (clojure-lambda
            (delete-region beg (point))
            (insert (format "#%S" (cl-caddr sxp)))
