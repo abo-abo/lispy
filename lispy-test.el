@@ -95,6 +95,109 @@
                (with-syntax-table table
                  (split-string str "\\b" t)))))
 
+(defun lispy-simulate-key (key)
+  "Simulate key press KEY.
+This is used rather than `execute-kbd-macro' because apparently
+that function somehow fails to run within `ert-deftest'."
+  (should (numberp key))
+  (let ((cmd (keymap-lookup nil (key-description (vector key)))))
+    (setq last-command-event key)
+    (call-interactively cmd)
+    (setq last-command cmd)))
+
+(defun lispy-simulate-keys (keys)
+  "Simulate a sequence of KEYS.
+See `lispy-simulate-key'."
+  (seq-do #'lispy-simulate-key keys))
+
+(cl-defun lispy-simulate-expect
+    (keys &key buffer point (mode #'lisp-mode))
+  "Simulate key sequence KEYS and check the result.
+If KEYS is a sequence of sequence, simulate each element of KEYS
+instead.
+
+MODE is the major mode in effect.
+
+BUFFER, if non-nil, is the buffer string to match after the keys
+are simulated.
+
+POINT, if non-nil, is the point to match after the keys are
+pressed."
+  (declare (indent 1))
+  (if (seqp (seq-first keys))
+      (seq-do (lambda (keys)
+                (lispy-simulate-expect keys
+                  :buffer buffer
+                  :point point
+                  :mode mode))
+              keys)
+    (with-temp-buffer
+      (funcall mode)
+      (lispy-mode)
+      (lispy-simulate-keys keys)
+      (when buffer
+        (should (thread-last (buffer-substring-no-properties
+                              (point-min) (point-max))
+                             (string= buffer))))
+      (let ((point (cl-case point
+                     (max (point-max))
+                     (min (point-min))
+                     (t point))))
+        (when point
+          (should (= (point) point)))))))
+
+(ert-deftest lispy-read-unsafe-chars ()
+  "See #648."
+  ;; Expect: (de|)
+  ;; Recipe: ( d e
+  (lispy-simulate-expect '(?\( ?d ?e)
+    :buffer "(de)"
+    :point 4)
+  ;; Expect: (.)|
+  ;; Recipes:
+  ;; 1: ( . ) i
+  ;; 2. ( . SPC C-b C-t ) i
+  ;; 3. ( . SPC ) i
+  ;; 4. ( . SPC C-b C-t SPC ) i
+  (lispy-simulate-expect
+      '((?\( ?. ?\) ?i)                 ; format "(.)"
+        (?\( ?. ?  ?\C-b ?\C-t ?\) ?i)  ; format "( .)"
+        (?\( ?. ?  ?\) ?i)              ; format "(. )"
+        (?\( ?. ?  ?\C-b ?\C-t ?  ?\) ?i)) ; format "( . )"
+    :buffer "(.)"
+    :point 'max)
+  ;; Expect: (f .)|
+  ;; Recipes:
+  ;; 1. ( f SPC . ) i
+  ;; 2. ( f SPC . SPC ) i
+  (lispy-simulate-expect
+      '((?\( ?f ?  ?. ?\) ?i)           ; format "(f .)"
+        (?\( ?f ?  ?. ?  ?\) ?i))       ; format "(f . )"
+    :buffer "(f .)"
+    :point 'max)
+  ;; Expect: (. f)|
+  ;; Recipe: ( . SPC f ) i
+  (lispy-simulate-expect '(?\( ?. ?  ?f ?\) ?i)
+    :buffer "(. f)"
+    :point 'max))
+
+(ert-deftest lispy-read-quote-newline ()
+  (lispy-simulate-expect "(progn0'O"
+    :buffer "(progn '0)"
+    :point 'max)
+  (lispy-simulate-expect "(prognignore#'O"
+    :buffer "(progn #'ignore)"
+    :point 'max)
+  (lispy-simulate-expect "(progn0`O"
+    :buffer "(progn `0)"
+    :point 'max)
+  (lispy-simulate-expect "`(progn0,O"
+    :buffer "`(progn ,0)"
+    :point 'max)
+  (lispy-simulate-expect "`(prognnil,@O"
+    :buffer "`(progn ,@nil)"
+    :point 'max))
+
 (ert-deftest lispy-decode-keysequence ()
   (should (equal (lispy-decode-keysequence "23ab50c")
                  '(23 "a" "b" 50 "c")))
@@ -2388,7 +2491,7 @@ Insert KEY if there's no command."
   (should (string= (lispy-with "|;;* Intro" "a")
                    ";;* Intro\n;;* |")))
 
-(ert-deftest lispy-outline-add ()
+(ert-deftest lispy-outline-add-2 ()     ; FIXME: duplicate name
   (should (string= (lispy-with "(quote ~foo|)" "~")
                    "(quote ~~foo|)"))
   (should (string= (lispy-with "(quote ~~foo|)" "~")
@@ -2594,7 +2697,7 @@ Insert KEY if there's no command."
                                  (execute-kbd-macro (kbd "aa")))
                      "(progn (setq type 'norwegian-blue)\n       (~setq| plumage-type 'lovely))"))))
 
-(ert-deftest lispy-ace-subword ()
+(ert-deftest lispy-ace-subword-2 ()     ; FIXME: duplicate name
   (should (string= (lispy-with "|(progn (setq type 'norwegian-blue)\n       (setq plumage-type 'lovely))"
                                (execute-kbd-macro (kbd "-g")))
                    "(progn (setq type 'norwegian-blue)\n       (setq |plumage~-type 'lovely))"))
