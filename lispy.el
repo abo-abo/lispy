@@ -7286,6 +7286,34 @@ See https://clojure.org/guides/weird_characters#_character_literal.")
                      (match-string subexp)))
             t t nil subexp)))))
 
+(defun lispy--delete-insignificant-sexps ()
+  "Delete insignificant sexps.
+That is, delete internal representations such as \\=(ly-raw
+newline), which serves no purpose in the input sexp."
+  (rx-let ((sp0 (* space))
+           (sp1 (+ space)))
+    (save-match-data
+      (while (looking-at (rx sp0 ?\( sp0
+                             "ly-raw" sp1
+                             "newline" sp0 ?\)))
+        (replace-match "")))))
+
+(defun lispy--read-reader-syntax (rs tag)
+  "Handle reading a reader syntax RS.
+The matched reader syntax has TAG as its internal tag."
+  (save-excursion
+    (goto-char (point-min))
+    (save-match-data
+      (while (re-search-forward
+              (rx (or bol (not ?\\)) (group-n 1 (regexp rs)))
+              nil t)
+        (unless (lispy--in-string-or-comment-p)
+          (lispy--delete-insignificant-sexps)
+          (forward-sexp)
+          (insert ")")
+          (replace-match (format "(ly-raw %s " tag)
+                         nil nil nil 1))))))
+
 ;; TODO: Make the read test pass on string with semi-colon
 (defun lispy--read (str)
   "Read STR including comments and newlines."
@@ -7416,25 +7444,9 @@ See https://clojure.org/guides/weird_characters#_character_literal.")
                     (replace-match (format "(ly-raw clojure-keyword %S)"
                                            (match-string-no-properties 1)))))
                 ;; ——— #' —————————————————————
-                (goto-char (point-min))
-                (while (re-search-forward "#'" nil t)
-                  (unless (lispy--in-string-or-comment-p)
-                    (forward-sexp)
-                    (insert ")")
-                    (replace-match "(ly-raw function ")))
+                (lispy--read-reader-syntax "#'" "function")
                 ;; ——— ,@ —————————————————————
-                (goto-char (point-min))
-                (while (re-search-forward "\\(?:[^\\]\\|^\\),@" nil t)
-                  (unless (lispy--in-string-or-comment-p)
-                    (backward-char 2)
-                    (let ((beg (point))
-                          (sxp (ignore-errors (read (current-buffer)))))
-                      (when (and (consp sxp)
-                                 (eq (car sxp) '\,@))
-                        (insert ")")
-                        (goto-char beg)
-                        (delete-char 2)
-                        (insert "(ly-raw comma-splice ")))))
+                (lispy--read-reader-syntax ",@" "comma-splice")
                 ;; ——— #_ —————————————————————
                 (goto-char (point-min))
                 (while (re-search-forward "#_[({[]" nil t)
@@ -7457,53 +7469,23 @@ See https://clojure.org/guides/weird_characters#_character_literal.")
                                             (match-string 1)))
                                    nil nil nil 1)))
                 ;; ——— ' ——————————————————————
-                (goto-char (point-min))
-                (while (re-search-forward "'" nil t)
-                  (unless (lispy--in-string-or-comment-p)
-                    (backward-char 1)
-                    (let ((beg (point))
-                          (sxp (ignore-errors (read (current-buffer)))))
-                      (when (and (consp sxp)
-                                 (eq (car sxp) 'quote))
-                        (insert ")")
-                        (goto-char beg)
-                        (delete-char 1)
-                        (insert "(ly-raw quote ")))))
+                (lispy--read-reader-syntax "'" "quote")
                 ;; ——— ` ——————————————————————
-                (goto-char (point-min))
-                (while (re-search-forward "\\(?:[^\\]\\|^\\)`" nil t)
-                  (unless (lispy--in-string-or-comment-p)
-                    (cond ((looking-at lispy-left)
-                           (delete-char -1)
-                           (insert "(ly-raw \\` ")
-                           (forward-list 1)
-                           (insert ")")
-                           (backward-list 1)
-                           (forward-char 7))
-                          ((looking-at "\\sw\\|\\s_\\|[,@]")
-                           (let ((beg (point)))
-                             (forward-sexp 1)
-                             (insert "\")")
-                             (goto-char (1- beg))
-                             (insert "(ly-raw quasiquote \""))))))
+                (lispy--read-reader-syntax "`" "quasiquote")
                 ;; ——— , ——————————————————————
                 (lispy--replace-regexp-in-code "\\\\," "(ly-raw comma-symbol)")
-                (goto-char (point-min))
-                (while (re-search-forward "[^\\]?,[^@\"]" nil t)
-                  (unless (lispy--in-string-or-comment-p)
-                    (backward-char 2)
-                    (if (memq major-mode lispy-clojure-modes)
-                        (progn
-                          (delete-char 1)
-                          (insert "(ly-raw clojure-comma)"))
-                      (let ((beg (point))
-                            (sxp (ignore-errors (read (current-buffer)))))
-                        (when (and (consp sxp)
-                                   (eq (car sxp) '\,))
-                          (insert ")")
-                          (goto-char beg)
-                          (delete-char 1)
-                          (insert "(ly-raw \\, "))))))
+                (if (memq major-mode lispy-clojure-modes)
+                    ;; I don't know clojure, so I'll leave that
+                    ;; execution path untouched
+                    (progn
+                      (goto-char (point-min))
+                      (while (re-search-forward "[^\\]?,[^@\"]" nil t)
+                        (unless (lispy--in-string-or-comment-p)
+                          (backward-char 2)
+                          (progn
+                            (delete-char 1)
+                            (insert "(ly-raw clojure-comma)")))))
+                  (lispy--read-reader-syntax "," "comma"))
                 ;; ——— angle syntax —————————
                 ;; used for markers/buffers/windows/overlays
                 (goto-char (point-min))
@@ -8128,7 +8110,7 @@ The outer delimiters are stripped."
            (delete-char
             (- (skip-chars-backward " ")))
            (insert "\n"))
-          ((string comment symbol float quasiquote)
+          ((string comment symbol)
            (delete-region beg (point))
            (insert (cl-caddr sxp)))
           (comma-symbol
@@ -8249,7 +8231,7 @@ The outer delimiters are stripped."
           (reference
            (delete-region beg (point))
            (insert (cl-caddr sxp)))
-          (\`
+          ((quasiquote \`)
            (if (> (length sxp) 3)
                (progn
                  (goto-char beg)
@@ -8260,7 +8242,7 @@ The outer delimiters are stripped."
              (insert "`")
              (prin1 (cl-caddr sxp) (current-buffer)))
            (goto-char beg))
-          (\,
+          ((comma \,)
            (delete-region beg (point))
            (insert ",")
            (prin1 (cl-caddr sxp) (current-buffer))

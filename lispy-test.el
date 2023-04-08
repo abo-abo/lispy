@@ -181,6 +181,23 @@ pressed."
     :buffer "(. f)"
     :point 'max))
 
+(ert-deftest lispy-read-quote-newline ()
+  (lispy-simulate-expect "(progn0'O"
+    :buffer "(progn '0)"
+    :point 'max)
+  (lispy-simulate-expect "(prognignore#'O"
+    :buffer "(progn #'ignore)"
+    :point 'max)
+  (lispy-simulate-expect "(progn0`O"
+    :buffer "(progn `0)"
+    :point 'max)
+  (lispy-simulate-expect "`(progn0,O"
+    :buffer "`(progn ,0)"
+    :point 'max)
+  (lispy-simulate-expect "`(prognnil,@O"
+    :buffer "`(progn ,@nil)"
+    :point 'max))
+
 (ert-deftest lispy-decode-keysequence ()
   (should (equal (lispy-decode-keysequence "23ab50c")
                  '(23 "a" "b" 50 "c")))
