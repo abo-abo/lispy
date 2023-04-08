@@ -7200,13 +7200,21 @@ For example, a `setq' statement is amended with variable name that it uses."
       (insert char)
       (lispy--indent-region (point) pt))))
 
-(defun lispy--replace-regexp-in-code (regexp to-string)
+(defun lispy--replace-regexp-in-code
+    (regexp to-string &optional pred)
   "Replace text matching REGEXP with TO-STRING in whole buffer.
-Ignore the matches in strings and comments."
-  (goto-char (point-min))
-  (while (re-search-forward regexp nil t)
-    (unless (lispy--in-string-or-comment-p)
-      (replace-match to-string))))
+Ignore the matches in strings and comments.
+
+PRED should be a 0-arg predicate with access to the regexp match
+data.  PRED defaults to `always', and should return non-nil when
+a specific match data should be replaced."
+  (save-excursion
+    (goto-char (point-min))
+    (save-match-data
+      (while (re-search-forward regexp nil t)
+        (unless (lispy--in-string-or-comment-p)
+          (when (funcall (or pred #'always))
+            (replace-match to-string)))))))
 
 ;;* Utilities: source transformation
 (defvar lispy--braces-table
@@ -7285,6 +7293,18 @@ See https://clojure.org/guides/weird_characters#_character_literal.")
                     (substring-no-properties
                      (match-string subexp)))
             t t nil subexp)))))
+
+(defconst lispy--symbol-safe-chars
+  (seq-concatenate 'list "+-*/:="
+                   (number-sequence ?a ?z)
+                   (number-sequence ?A ?Z))
+  "List of known \"safe\" characters.
+Safe characters are those which are suitable for a symbol and
+which have no special reader syntax.
+
+Missing a few safe characters would not be a serious problem.  It
+would only produce a slightly larger internal representation when
+lispy tries to parse a given sexp.")
 
 ;; TODO: Make the read test pass on string with semi-colon
 (defun lispy--read (str)
@@ -7524,23 +7544,13 @@ See https://clojure.org/guides/weird_characters#_character_literal.")
                   (unless (lispy--in-string-or-comment-p)
                     (replace-match (format "(ly-raw racket-option %s)"
                                            (match-string 1)))))
-                ;; Clojure # in a symbol
-                (goto-char (point-min))
-                (while (re-search-forward "\\_<\\(?:\\sw\\|\\s_\\)+\\_>" nil t)
-                  (unless (lispy--in-string-p)
-                    (when (cl-position ?# (match-string 0))
-                      (let* ((bnd (lispy--bounds-dwim))
-                             (str (lispy--string-dwim bnd)))
-                        (delete-region (car bnd) (cdr bnd))
-                        (insert (format "(ly-raw symbol %S)" str))))))
-                ;; Clojure (. object method)
-                (goto-char (point-min))
-                (while (re-search-forward "(\\.[\t\n ]" nil t)
-                  (if (setq cbnd (lispy--bounds-string))
-                      (goto-char (cdr cbnd))
-                    (forward-char -1)
-                    (delete-char -1)
-                    (insert "(ly-raw clojure-dot)")))
+                ;; Protect symbols containing unsafe characters
+                (lispy--replace-regexp-in-code
+                 "\\_<\\(?:\\sw\\|\\s_\\)+\\_>"
+                 "(ly-raw symbol \"\\&\")"
+                 (lambda ()
+                   (seq-difference
+                    (match-string 0) lispy--symbol-safe-chars)))
                 ;; ———  ———————————————————————
                 (buffer-substring-no-properties
                  (point-min)
@@ -8179,9 +8189,6 @@ The outer delimiters are stripped."
            (delete-region beg (point))
            (insert (format "#'%S" (cl-caddr sxp)))
            (goto-char beg))
-          (clojure-dot
-           (delete-region beg (point))
-           (insert "."))
           (clojure-lambda
            (delete-region beg (point))
            (insert (format "#%S" (cl-caddr sxp)))
