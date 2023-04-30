@@ -5036,7 +5036,8 @@ Sexp is obtained by exiting the list ARG times."
   "Indent code and hide/show outlines.
 When region is active, call `lispy-mark-car'."
   (interactive)
-  (let (outline-eval-tag)
+  (let ((read-symbol-shorthands nil)  ; bug#659
+        outline-eval-tag)
     (cond ((region-active-p)
            (lispy-mark-car))
           ((looking-at lispy-outline)
