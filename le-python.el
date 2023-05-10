@@ -56,9 +56,8 @@ Stripping them will produce code that's valid for an eval."
             ((and (looking-at "@") (bolp))
              (setq bnd (cons (point)
                              (save-excursion
-                               (re-search-forward "^def" nil t)
-                               (goto-char (match-beginning 0))
-                               (cdr (lispy-bounds-python-block))))))
+                               (end-of-defun)
+                               (point)))))
             ((setq bnd (lispy-bounds-python-block)))
             ((bolp)
              (lispy--bounds-c-toplevel))
@@ -298,13 +297,15 @@ it at one time."
 (defvar lispy--python-init-file nil)
 
 (defun lispy--python-poetry-name ()
-  (let ((pyproject (expand-file-name "pyproject.toml" (counsel-locate-git-root))))
-    (and (file-exists-p pyproject)
-         (not (equal python-shell-interpreter "python"))
-         (with-current-buffer (find-file-noselect pyproject)
-           (goto-char (point-min))
-           (when (re-search-forward "\\[tool.poetry\\]\nname *= *\"\\([^\"]+\\)\"" nil t)
-             (match-string-no-properties 1))))))
+  (let (gr)
+    (when (setq gr (ignore-errors (counsel-locate-git-root)))
+      (let ((pyproject (expand-file-name "pyproject.toml" gr)))
+        (and (file-exists-p pyproject)
+             (not (equal python-shell-interpreter "python"))
+             (with-current-buffer (find-file-noselect pyproject)
+               (goto-char (point-min))
+               (when (re-search-forward "\\[tool.poetry\\]\nname *= *\"\\([^\"]+\\)\"" nil t)
+                 (match-string-no-properties 1))))))))
 
 (defun lispy--python-proc-name ()
   (or (and (process-live-p (get-buffer-process lispy-python-buf))
@@ -637,7 +638,7 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
          (rs (python-shell-send-string-no-output
               fstr
               (lispy--python-proc)))
-         (extra-out (and (string-match "^{" rs) (substring rs 0 (match-beginning 0))))
+         (extra-out (and (string-match "^{\"res\": " rs) (substring rs 0 (match-beginning 0))))
          (res (json-parse-string
                (substring rs (match-beginning 0)) :object-type 'plist :null-object nil))
          (val (plist-get res :res))

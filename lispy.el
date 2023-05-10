@@ -4510,6 +4510,8 @@ If STR is too large, pop it to a buffer instead."
                      (line-beginning-position) (point))))
         (delete-region (line-beginning-position) (point))
         (narrow-to-region (point) (point))
+        (when lispy-eval-output
+          (insert lispy-eval-output))
         (insert str)
         (delete-trailing-whitespace)
         (while (lispy-after-string-p "\n")

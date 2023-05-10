@@ -17,7 +17,7 @@
 # For a full copy of the GNU General Public License
 # see <http://www.gnu.org/licenses/>.
 
-#* Imports
+# * Imports
 import ast
 import collections
 import importlib
@@ -35,17 +35,21 @@ from contextlib import redirect_stdout
 from typing import List, Dict, Any, Union, Tuple, Optional, TypedDict, Callable, cast
 from types import TracebackType, MethodType, FunctionType, ModuleType, FrameType
 
+
 def sh(cmd: str) -> str:
     r = subprocess.run(
         shlex.split(cmd),
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
         encoding="utf-8",
-        check=True)
+        check=True,
+    )
     return r.stdout.strip()
+
 
 try:
     import reprlib
+
     repr1 = reprlib.Repr()
     repr1.maxlist = 10
     repr1.maxstring = 200
@@ -57,13 +61,15 @@ except:
     try:
         pyenv_version = sh("pyenv global")
         pyversion = ".".join(pyenv_version.split(".")[:-1])
-        site_packages = os.path.expanduser(f"~/.pyenv/versions/{pyenv_version}/lib/python{pyversion}/site-packages/")
+        site_packages = os.path.expanduser(
+            f"~/.pyenv/versions/{pyenv_version}/lib/python{pyversion}/site-packages/"
+        )
         sys.path.append(site_packages)
         import jedi
     except:
         print("Failed to load jedi. Some features won't work")
 
-#* Classes
+# * Classes
 class Stack:
     line_numbers: Dict[Tuple[str, str], int] = {}
 
@@ -85,8 +91,13 @@ class Stack:
 
     def frame_string(self, i: int) -> str:
         (fname, line, f) = self.stack[i]
-        res = "  File \"%s\", line %d, Frame [%d/%d] (%s):" % (
-            f.f_code.co_filename, line, i, self.stack_top, f.f_code.co_name)
+        res = '  File "%s", line %d, Frame [%d/%d] (%s):' % (
+            f.f_code.co_filename,
+            line,
+            i,
+            self.stack_top,
+            f.f_code.co_name,
+        )
         return res
 
     def __repr__(self) -> str:
@@ -127,6 +138,7 @@ class Stack:
             self.stack_idx = min(self.stack_idx + delta, self.stack_top)
             self.set_frame(self.stack_idx)
 
+
 class Autocall:
     def __init__(self, f: Callable):
         self.f = f
@@ -141,14 +153,16 @@ class Autocall:
             pass
         return ""
 
-#* Functions
+
+# * Functions
 def get_import_name(fname: str) -> str:
     for p in sys.path:
         if p == "":
             continue
         if fname.startswith(p):
-            return fname[len(p) + 1:].partition(".")[0].replace("/", ".")
+            return fname[len(p) + 1 :].partition(".")[0].replace("/", ".")
     return os.path.splitext(os.path.basename(fname))[0]
+
 
 def chfile(f: str) -> None:
     tf = top_level()
@@ -169,6 +183,7 @@ def chfile(f: str) -> None:
     except:
         raise
 
+
 def arglist(sym: Callable) -> List[str]:
     def format_arg(arg_pair: Tuple[str, Optional[str]]) -> str:
         name, default_value = arg_pair
@@ -176,11 +191,14 @@ def arglist(sym: Callable) -> List[str]:
             return name + " = " + default_value
         else:
             return name
+
     arg_info = inspect.getfullargspec(sym)
     if "self" in arg_info.args:
         arg_info.args.remove("self")
     if arg_info.defaults:
-        defaults: List[Optional[str]] = [None] * (len(arg_info.args) - len(arg_info.defaults))
+        defaults: List[Optional[str]] = [None] * (
+            len(arg_info.args) - len(arg_info.defaults)
+        )
         defaults += [repr(x) for x in arg_info.defaults]
         args = [format_arg(x) for x in zip(arg_info.args, defaults)]
     else:
@@ -193,10 +211,21 @@ def arglist(sym: Callable) -> List[str]:
             args.append(f"{k} = {v}")
     return args
 
+
+def is_iterable(obj: Any) -> bool:
+    if isinstance(obj, str):
+        return False
+    try:
+        list(obj)
+        return True
+    except TypeError:
+        return False
+
+
 def print_elisp(obj: Any, end: str = "\n") -> None:
     if hasattr(obj, "_asdict") and obj._asdict is not None:
         if hasattr(type(obj), "__repr__"):
-            print('"' + str(obj).replace('"', '') + '"')
+            print('"' + str(obj).replace('"', "") + '"')
             return
         # namedtuple
         try:
@@ -231,27 +260,35 @@ def print_elisp(obj: Any, end: str = "\n") -> None:
         print(")")
     elif isinstance(obj, collections.abc.KeysView):
         print_elisp(list(obj))
-    elif isinstance(obj, int):
-        print(obj)
-    elif isinstance(obj, list) or isinstance(obj, tuple):
+    elif isinstance(obj, list):
+        print("(")
+        for x in obj:
+            print_elisp(x)
+        print(")")
+    elif isinstance(obj, str):
+        # quote strings?
+        # print("\"'" + re.sub("\"", "\\\"", obj) + "'\"", end=" ")
+        print('"' + re.sub('"', '\\"', obj) + '"', end=" ")
+    elif is_iterable(obj):
         print("(", end="")
         for x in obj:
             print_elisp(x)
         print(")")
+    elif isinstance(obj, int):
+        print(obj)
     else:
         if obj is not None:
-            if type(obj) is str:
-                # quote strings?
-                # print("\"'" + re.sub("\"", "\\\"", obj) + "'\"", end=" ")
-                print('"' + re.sub("\"", "\\\"", obj) + '"', end=" ")
-            elif hasattr(obj, "to_dict"):
+            if hasattr(obj, "to_dict"):
                 print_elisp(obj.to_dict())
             else:
-                print('"' + repr(obj) + '"', end=" ")
+                print('"' + repr(obj).replace('"', "'") + '"', end=" ")
         else:
-            print('nil', end=end)
+            print("nil", end=end)
+
 
 def argspec(sym):
+    while hasattr(sym, "__wrapped__"):
+        sym = getattr(sym, "__wrapped__")
     arg_info = inspect.getfullargspec(sym)
     if arg_info:
         di = arg_info._asdict()
@@ -274,14 +311,17 @@ def argspec(sym):
             filename = m.__file__
             nodes = ast.parse(open(filename).read()).body
             for node in nodes:
-                if (type(node) in [ast.ClassDef, ast.FunctionDef] and
-                    node.name == sym.__name__):
+                if (
+                    type(node) in [ast.ClassDef, ast.FunctionDef]
+                    and node.name == sym.__name__
+                ):
                     di["filename"] = filename
                     di["line"] = node.lineno
 
         print_elisp(di)
     else:
         print("nil")
+
 
 def arglist_jedi(line, column, filename):
     script = jedi.Script(path=filename)
@@ -291,17 +331,21 @@ def arglist_jedi(line, column, filename):
     else:
         return []
 
+
 def jedi_completions(line):
     script = jedi.Script(code=line)
     return [x.name for x in script.complete()]
+
 
 def jedi_file_completions(fname, line, column):
     script = jedi.Script(path=fname)
     return [x.name for x in script.complete(line, column)]
 
+
 def is_assignment(code):
     ops = ast.parse(code).body
     return len(ops) == 1 and type(ops[0]) is ast.Assign
+
 
 def top_level():
     """Return the topmost frame."""
@@ -311,6 +355,7 @@ def top_level():
         if f.f_code.co_filename == "<console>":
             return f
     return f
+
 
 def list_step(varname, lst):
     f_globals = top_level().f_globals
@@ -324,12 +369,19 @@ def list_step(varname, lst):
     f_globals[varname] = val
     return val
 
+
 def argv(cmd: str) -> None:
     sys.argv = shlex.split(cmd)
 
+
 def find_global_vars(class_name):
     """Find global variables of type CLASS_NAME."""
-    return [(k, v) for (k, v) in top_level().f_globals.items() if v.__class__.__name__ == class_name]
+    return [
+        (k, v)
+        for (k, v) in top_level().f_globals.items()
+        if v.__class__.__name__ == class_name
+    ]
+
 
 def rebind(method, fname=None, line=None):
     """Rebind METHOD named like Class.function in all top level instances of Class.
@@ -342,13 +394,16 @@ def rebind(method, fname=None, line=None):
     (cls_name, fun_name) = qname.split(".")
     for (n, v) in find_global_vars(cls_name):
         print("rebind:", n)
-        top_level().f_globals[n].__dict__[fun_name] = MethodType(top_level().f_globals[fun_name], v)
+        top_level().f_globals[n].__dict__[fun_name] = MethodType(
+            top_level().f_globals[fun_name], v
+        )
     if fname and line:
         Stack.line_numbers[(fname, qname)] = line
 
+
 def pm() -> None:
     """Post mortem: recover the locals and globals from the last traceback."""
-    if hasattr(sys, 'last_traceback'):
+    if hasattr(sys, "last_traceback"):
         stack = Stack(sys.last_traceback)
     else:
         stack = Stack(sys.exc_info()[2])
@@ -357,26 +412,34 @@ def pm() -> None:
     tl.f_globals["dn"] = Autocall(stack.down)
     globals()["stack"] = stack
 
+
 def pprint(x: Any) -> None:
     r1 = repr(x)
     if len(r1) > 1000 and repr1:
         print(repr1.repr(x))
     else:
         if type(x) == collections.OrderedDict:
-            print("{" + ",\n ".join([str(k) + ": " + str(v) for (k, v) in x.items()]) + "}")
+            print(
+                "{"
+                + ",\n ".join([str(k) + ": " + str(v) for (k, v) in x.items()])
+                + "}"
+            )
         else:
             pp.PrettyPrinter(width=200).pprint(x)
+
 
 def to_str(x: Any) -> str:
     with io.StringIO() as buf, redirect_stdout(buf):
         pprint(x)
         return buf.getvalue().strip()
 
+
 def step_in(fn, *args):
     spec = inspect.getfullargspec(fn)
     f_globals = top_level().f_globals
     for (arg_name, arg_val) in zip(spec.args, args):
         f_globals[arg_name] = arg_val
+
 
 def step_into_module_maybe(module):
     if isinstance(module, FunctionType):
@@ -395,10 +458,12 @@ def step_into_module_maybe(module):
                 print(k)
                 tf.f_globals[k] = v
 
+
 def slurp(fname: str) -> str:
     """Return `fname' contents as text."""
     with open(fname, "r", encoding="utf-8") as fh:
         return fh.read()
+
 
 def definitions(path):
     (_, ext) = os.path.splitext(path)
@@ -407,8 +472,10 @@ def definitions(path):
     script = jedi.Script(slurp(path), path=path)
     res = []
     for x in script.get_names():
-        if (x.get_definition_start_position()[0] == x.get_definition_end_position()[0]
-            and "import" in x.get_line_code()):
+        if (
+            x.get_definition_start_position()[0] == x.get_definition_end_position()[0]
+            and "import" in x.get_line_code()
+        ):
             continue
         if x.type == "function":
             try:
@@ -450,10 +517,12 @@ def get_completions_readline(text):
     completer = None
     try:
         import readline
+
         # pylint: disable=unused-import
         import rlcompleter
+
         completer = readline.get_completer()
-        if getattr(completer, 'PYTHON_EL_WRAPPED', False):
+        if getattr(completer, "PYTHON_EL_WRAPPED", False):
             completer.print_mode = False
         i = 0
         while True:
@@ -466,9 +535,10 @@ def get_completions_readline(text):
     except:
         pass
     finally:
-        if getattr(completer, 'PYTHON_EL_WRAPPED', False):
+        if getattr(completer, "PYTHON_EL_WRAPPED", False):
             completer.print_mode = True
     return [re.sub("__t__.", "", c) for c in completions]
+
 
 def get_completions(text):
     completions = get_completions_readline(text)
@@ -489,8 +559,10 @@ def get_completions(text):
     else:
         return []
 
+
 def __PYTHON_EL_native_completion_setup():
     import readline
+
     try:
         import __builtin__
     except ImportError:
@@ -498,11 +570,10 @@ def __PYTHON_EL_native_completion_setup():
         import builtins as __builtin__
 
     builtins = dir(__builtin__)
-    is_ipython = ('__IPYTHON__' in builtins or
-                  '__IPYTHON__active' in builtins)
+    is_ipython = "__IPYTHON__" in builtins or "__IPYTHON__active" in builtins
 
     class __PYTHON_EL_Completer:
-        '''Completer wrapper that prints candidates to stdout.
+        """Completer wrapper that prints candidates to stdout.
 
         It wraps an existing completer function and changes its behavior so
         that the user input is unchanged and real candidates are printed to
@@ -514,7 +585,7 @@ def __PYTHON_EL_native_completion_setup():
 
         The real candidates are printed to stdout so that they can be
         easily retrieved through comint output redirect trickery.
-        '''
+        """
 
         PYTHON_EL_WRAPPED = True
 
@@ -527,25 +598,24 @@ def __PYTHON_EL_native_completion_setup():
             if state == 0:
                 # Set the first dummy completion.
                 self.last_completion = None
-                completion = '0__dummy_completion__'
+                completion = "0__dummy_completion__"
             else:
                 completion = self.completer(text, state - 1)
 
             if not completion:
-                if self.last_completion != '1__dummy_completion__':
+                if self.last_completion != "1__dummy_completion__":
                     # When no more completions are available, returning a
                     # dummy with non-sharing prefix allow ensuring output
                     # while preventing changes to current input.
                     # Coincidentally it's also the end of output.
-                    completion = '1__dummy_completion__'
-            elif completion.endswith('('):
+                    completion = "1__dummy_completion__"
+            elif completion.endswith("("):
                 # Remove parens on callables as it breaks completion on
                 # arguments (e.g. str(Ari<tab>)).
                 completion = completion[:-1]
             self.last_completion = completion
 
-            if completion in (
-                    '0__dummy_completion__', '1__dummy_completion__'):
+            if completion in ("0__dummy_completion__", "1__dummy_completion__"):
                 return completion
             elif completion:
                 # For every non-dummy completion, return a repeated dummy
@@ -553,7 +623,7 @@ def __PYTHON_EL_native_completion_setup():
                 # by comint output filters.
                 if self.print_mode:
                     print(completion)
-                    return '0__dummy_completion__'
+                    return "0__dummy_completion__"
                 else:
                     return completion
             else:
@@ -565,9 +635,10 @@ def __PYTHON_EL_native_completion_setup():
         # Used as last resort to avoid breaking customizations.
         # pylint: disable=unused-import
         import rlcompleter
+
         completer = readline.get_completer()
 
-    if completer and not getattr(completer, 'PYTHON_EL_WRAPPED', False):
+    if completer and not getattr(completer, "PYTHON_EL_WRAPPED", False):
         # Wrap the existing completer function only once.
         new_completer = __PYTHON_EL_Completer(completer)
         if not is_ipython:
@@ -579,40 +650,50 @@ def __PYTHON_EL_native_completion_setup():
             # IPython<3 hacks readline such that `readline.set_completer`
             # won't work.  This workaround injects the new completer
             # function into the existing instance directly:
-            instance = getattr(completer, 'im_self', completer.__self__)
+            instance = getattr(completer, "im_self", completer.__self__)
             instance.rlcomplete = new_completer
 
-    if readline.__doc__ and 'libedit' in readline.__doc__:
-        raise Exception('''libedit based readline is known not to work,
-  see etc/PROBLEMS under \"In Inferior Python mode, input is echoed\".''')
+    if readline.__doc__ and "libedit" in readline.__doc__:
+        raise Exception(
+            """libedit based readline is known not to work,
+  see etc/PROBLEMS under \"In Inferior Python mode, input is echoed\"."""
+        )
 
-    readline.parse_and_bind('tab: complete')
+    readline.parse_and_bind("tab: complete")
     # Require just one tab to send output.
-    readline.parse_and_bind('set show-all-if-ambiguous on')
+    readline.parse_and_bind("set show-all-if-ambiguous on")
 
 
 __PYTHON_EL_native_completion_setup()
 
+
 def setup(init_file=None):
-    sys.modules['__repl__'] = sys.modules[__name__]
+    sys.modules["__repl__"] = sys.modules[__name__]
     tl = top_level()
     tl.f_globals["__name__"] = "__repl__"
     tl.f_globals["pm"] = Autocall(pm)
+    if os.path.exists("/.dockerenv"):
+        # We get our input echoed when in Docker for some reason.
+        # This command will disable the echo
+        os.system("stty -echo")
     if init_file and os.path.exists(init_file):
         try:
             exec(open(init_file).read(), tl.f_globals)
         except:
             pass
 
+
 def reload():
     import importlib.util
-    spec = importlib.util.spec_from_file_location('lispy-python', __file__)
+
+    spec = importlib.util.spec_from_file_location("lispy-python", __file__)
     mod = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(mod)
     top_level().f_globals["lp"] = mod
     sys._getframe().f_back.f_globals["lp"] = mod
     sys._getframe().f_back.f_locals["lp"] = mod
     return mod
+
 
 def reload_module(fname):
     to_reload = []
@@ -628,22 +709,29 @@ def reload_module(fname):
         except:
             pass
 
+
 def goto_definition(fname: str, line: int, column: int) -> None:
     d = jedi.Script(path=fname).goto(line, column)
     if d:
         print_elisp((str(d[0].module_path), d[0].line, d[0].column))
 
+
 def goto_link_definition(c: str) -> None:
     module = c.split(".")[0]
-    d = jedi.Script(code=f"import {module}\n{c}").goto(2, len(c) - 2, follow_imports=True)
+    d = jedi.Script(code=f"import {module}\n{c}").goto(
+        2, len(c) - 2, follow_imports=True
+    )
     if d:
         print_elisp((str(d[0].module_path), d[0].line, d[0].column))
+
 
 def ast_pp(code: str) -> str:
     parsed = ast.parse(code, mode="exec")
     return ast.dump(parsed.body[0], indent=4)
 
+
 Expr = Union[List[ast.stmt], ast.stmt, Any]
+
 
 def has_return(p: Expr) -> bool:
     if isinstance(p, list):
@@ -655,23 +743,25 @@ def has_return(p: Expr) -> bool:
     else:
         return False
 
+
 def tr_returns(p: Expr) -> Expr:
     if isinstance(p, list):
         return [tr_returns(x) for x in p]
     if isinstance(p, ast.Return) and p.value:
-        return ast.parse("return locals() | {'__return__': " + ast.unparse(p.value) + "}").body[0]
+        return ast.parse(
+            "return locals() | {'__return__': " + ast.unparse(p.value) + "}"
+        ).body[0]
     elif isinstance(p, ast.If):
-        return ast.If(
-            test=p.test,
-            body=tr_returns(p.body),
-            orelse=tr_returns(p.orelse))
+        return ast.If(test=p.test, body=tr_returns(p.body), orelse=tr_returns(p.orelse))
     else:
         return p
+
 
 def ast_call(func: Union[str, AST], args: List[Any] = [], keywords: List[Any] = []):
     if isinstance(func, str):
         func = ast.Name(func)
     return ast.Call(func=func, args=args, keywords=keywords)
+
 
 def wrap_return(parsed: List[ast.stmt]) -> Expr:
     return [
@@ -681,13 +771,17 @@ def wrap_return(parsed: List[ast.stmt]) -> Expr:
             decorator_list=[],
             args=[],
             lineno=0,
-            col_offset=0),
+            col_offset=0,
+        ),
         ast.Expr(
             ast_call(
                 ast.Attribute(value=ast_call("locals"), attr="update"),
-                args=[ast_call("__res__")])),
-        ast.Expr(value=ast.Name("__return__"))
+                args=[ast_call("__res__")],
+            )
+        ),
+        ast.Expr(value=ast.Name("__return__")),
     ]
+
 
 def try_in_expr(p: Expr) -> Optional[Tuple[ast.expr, ast.expr]]:
     if not isinstance(p, list):
@@ -702,6 +796,7 @@ def try_in_expr(p: Expr) -> Optional[Tuple[ast.expr, ast.expr]]:
     if not isinstance(p0.value.ops[0], ast.In):
         return None
     return (p0.value.left, p0.value.comparators[0])
+
 
 def select_item(code: str, idx: int, _f: Optional[FrameType] = None) -> Any:
     _f = _f or sys._getframe().f_back
@@ -720,19 +815,19 @@ def select_item(code: str, idx: int, _f: Optional[FrameType] = None) -> Any:
     # pylint: disable=eval-used
     return eval(l, locals_2)
 
+
 def ast_match(p: Expr, expr: Any) -> bool:
     if isinstance(p, ast.Attribute):
         if expr[0] != ".":
             return False
-        return (
-            expr[2] == p.attr
-            and ast_match(p.value, expr[1]))
+        return expr[2] == p.attr and ast_match(p.value, expr[1])
     elif isinstance(p, ast.Name):
         return p.id == expr
     elif isinstance(p, str):
         return p == expr
     else:
         raise RuntimeError(f"Can't compare: {p} == {expr}")
+
 
 def try_pytest_mark(p: Expr) -> Optional[Expr]:
     if not isinstance(p, list):
@@ -745,10 +840,11 @@ def try_pytest_mark(p: Expr) -> Optional[Expr]:
     if not len(p0.decorator_list) == 1:
         return None
     decorator = p0.decorator_list[0]
-    if ast_match(decorator.func, (".",  (".", "pytest", "mark"), "parametrize")):
+    if ast_match(decorator.func, (".", (".", "pytest", "mark"), "parametrize")):
         assert len(decorator.args) == 2
         return [ast.Name(decorator.args[0].value), decorator.args[1]]
     return None
+
 
 def to_elisp(code: str, _f: Optional[FrameType] = None) -> str:
     _f = _f or top_level()
@@ -757,7 +853,10 @@ def to_elisp(code: str, _f: Optional[FrameType] = None) -> str:
         print_elisp(eval(code, _f.f_locals | _f.f_globals))
         return buf.getvalue().strip()
 
-def translate(code: str, _f: Optional[FrameType] = None, use_in_expr: bool = False) -> Any:
+
+def translate(
+    code: str, _f: Optional[FrameType] = None, use_in_expr: bool = False
+) -> Any:
     _f = _f or sys._getframe().f_back
     parsed = ast.parse(code, mode="exec").body
     in_expr = try_in_expr(parsed)
@@ -773,11 +872,13 @@ def translate(code: str, _f: Optional[FrameType] = None, use_in_expr: bool = Fal
     else:
         return parsed
 
+
 class EvalResult(TypedDict):
     res: str
     binds: Dict[str, str]
     out: str
     err: Optional[str]
+
 
 def eval_code(_code: str, _env: Dict[str, Any] = {}) -> EvalResult:
     _res = "unset"
@@ -833,8 +934,9 @@ def eval_code(_code: str, _env: Dict[str, Any] = {}) -> EvalResult:
         "res": to_str(_res) if _env.get("echo") else repr(_res),
         "binds": binds,
         "out": out,
-        "err": err
+        "err": err,
     }
+
 
 def eval_to_json(code: str, env: Dict[str, Any] = {}) -> None:
     try:
@@ -843,17 +945,15 @@ def eval_to_json(code: str, env: Dict[str, Any] = {}) -> None:
         print(s)
     # pylint: disable=broad-except
     except Exception as e:
-        print(json.dumps({
-            "res": None,
-            "binds": {},
-            "out": "",
-            "err": str(e)}))
+        print(json.dumps({"res": None, "binds": {}, "out": "", "err": str(e)}))
+
 
 def find_module(fname: str) -> Optional[ModuleType]:
     for (name, module) in sys.modules.items():
         if getattr(module, "__file__", None) == fname:
             return module
     return None
+
 
 def generate_import(code_fname: str, buffer_fname: str) -> None:
     code = slurp(code_fname)
