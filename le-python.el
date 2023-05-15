@@ -286,6 +286,9 @@ it at one time."
                            (lispy-short-process-name (get-buffer-process lispy-python-buf)))
               :caller 'lispy-set-python-process)))
 
+(defvar lispy--python-proc-init-time 1
+  "Time delay in second before middleware loading, if it's too short, the middleware loading will fail.")
+
 (defvar lispy--python-middleware-loaded-p nil
   "Nil if the Python middleware in \"lispy-python.py\" wasn't loaded yet.")
 
@@ -298,7 +301,7 @@ it at one time."
 (defvar lispy--python-init-file nil)
 
 (defun lispy--python-poetry-name ()
-  (let ((pyproject (expand-file-name "pyproject.toml" (counsel-locate-git-root))))
+  (let ((pyproject (expand-file-name "pyproject.toml" (counsel--git-root))))
     (and (file-exists-p pyproject)
          (not (equal python-shell-interpreter "python"))
          (with-current-buffer (find-file-noselect pyproject)
@@ -355,7 +358,7 @@ it at one time."
              (buffer
               (let ((python-shell-completion-native-enable nil)
                     (default-directory (if poetry-name
-                                           (counsel-locate-git-root)
+                                           (counsel--git-root)
                                          default-directory)))
                 (python-shell-make-comint
                  python-binary-name proc-name nil nil))))
@@ -365,7 +368,7 @@ it at one time."
                 (expand-file-name "lispy-python.py" lispy-site-directory)))
         (setq lispy--python-init-file lispy-python-init-file)
         (setq process (get-buffer-process buffer))
-        (sit-for 0.1)
+        (sit-for lispy--python-proc-init-time)
         (unless (process-live-p process)
           (pop-to-buffer buffer)
           (user-error "Could not start %s" python-binary-name))
@@ -617,17 +620,18 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
 (defun lispy--eval-python (str &optional use-in-expr)
   (setq lispy-eval-output nil)
   (let* ((echo (if (eq current-prefix-arg 2) nil t))
+         temp-file-name
          (fstr
           (cond
            ((eq current-prefix-arg 3)
             (format "lp.eval_to_json(\"\"\"lp.select_item(\"%s\", 0)\"\"\")" str))
            ((or (string-match-p ".\n+." str) (string-match-p "\"\"\"" str))
-            (let ((temp-file-name (python-shell--save-temp-file str)))
-              (format "lp.eval_to_json('', %s)"
-                      (lispy--dict
-                       :code temp-file-name
-                       :fname (buffer-file-name)
-                       :echo echo))))
+            (setq temp-file-name (python-shell--save-temp-file str))
+            (format "lp.eval_to_json('', %s)"
+                    (lispy--dict
+                     :code temp-file-name
+                     :fname (buffer-file-name)
+                     :echo echo)))
            (t
             (format "lp.eval_to_json(\"\"\"%s \"\"\", %s)"
                     (replace-regexp-in-string "\\\\n" "\\\\n" str nil t)
@@ -646,6 +650,7 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
          (err (plist-get res :err)))
     (when (eq current-prefix-arg 3)
       (kill-new fstr))
+    (when temp-file-name (delete-file temp-file-name))
     (if err
         (signal 'eval-error (concat out err))
       (unless (equal out "")
