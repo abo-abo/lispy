@@ -620,17 +620,18 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
 (defun lispy--eval-python (str &optional use-in-expr)
   (setq lispy-eval-output nil)
   (let* ((echo (if (eq current-prefix-arg 2) nil t))
+         temp-file-name
          (fstr
           (cond
            ((eq current-prefix-arg 3)
             (format "lp.eval_to_json(\"\"\"lp.select_item(\"%s\", 0)\"\"\")" str))
            ((or (string-match-p ".\n+." str) (string-match-p "\"\"\"" str))
-            (let ((temp-file-name (python-shell--save-temp-file str)))
-              (format "lp.eval_to_json('', %s)"
-                      (lispy--dict
-                       :code temp-file-name
-                       :fname (buffer-file-name)
-                       :echo echo))))
+            (setq temp-file-name (python-shell--save-temp-file str))
+            (format "lp.eval_to_json('', %s)"
+                    (lispy--dict
+                     :code temp-file-name
+                     :fname (buffer-file-name)
+                     :echo echo)))
            (t
             (format "lp.eval_to_json(\"\"\"%s \"\"\", %s)"
                     (replace-regexp-in-string "\\\\n" "\\\\n" str nil t)
@@ -649,6 +650,7 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
          (err (plist-get res :err)))
     (when (eq current-prefix-arg 3)
       (kill-new fstr))
+    (when temp-file-name (delete-file temp-file-name))
     (if err
         (signal 'eval-error (concat out err))
       (unless (equal out "")
