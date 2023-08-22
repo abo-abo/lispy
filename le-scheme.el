@@ -45,7 +45,7 @@
           (run-geiser geiser-impl--implementation)
         (call-interactively 'run-geiser))
       (geiser-mode 1)))
-  (when (and (and (boundp 'geiser-racket--language)
+  (when (and (and (fboundp 'geiser-racket--language)
                   (not (member (geiser-racket--language) '(plait))))
              (string-match "(\\(?:define\\|set!\\|struct\\)[ (]+\\(\\(?:\\w\\|\\s_\\)+\\)" str))
     (let ((name (match-string 1 str)))
