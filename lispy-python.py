@@ -856,6 +856,12 @@ def to_elisp(code: str, _f: Optional[FrameType] = None) -> str:
         return buf.getvalue().strip()
 
 
+def to_jsonable(obj: Any) -> Any:
+    if isinstance(obj, collections.abc.ItemsView):
+        return [to_jsonable(x) for x in obj]
+    return obj
+
+
 def translate(
     code: str, _f: Optional[FrameType] = None, use_in_expr: bool = False
 ) -> Any:
@@ -865,7 +871,7 @@ def translate(
     if use_in_expr and in_expr:
         (left, right) = in_expr
         o = eval(ast.unparse(right), _f.f_locals | _f.f_globals)
-        out = json.dumps(json.dumps(o))
+        out = json.dumps(json.dumps(to_jsonable(o)))
         nc = f"print('''{out}''')\n'select'"
         return ast.parse(nc).body
     elif has_return(parsed):
