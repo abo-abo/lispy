@@ -864,7 +864,9 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
              (fn-varargs
               (plist-get fn-data :varargs))
              (fn-keywords
-              (plist-get fn-data :keywords))
+              (append
+               (plist-get fn-data :keywords)
+               (plist-get fn-data :kwonlyargs)))
              (fn-defaults
               (mapcar (lambda (x)
                         (cond ((stringp x)
@@ -920,20 +922,20 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
            (cons fn-keywords
                  (concat "dict(" (mapconcat #'identity extra-keywords ", ") ")"))
            fn-alist))
-        (setq dbg-cmd
-              (concat
-               (format "lp.step_into_module_maybe(%s); "
-                       (if method-p
-                           (cdar fn-alist)
-                         fn))
-               "("
-               (mapconcat #'car fn-alist ", ")
-               ")=("
-               (mapconcat #'cdr fn-alist ", ")
-
-               ")"))
         (condition-case nil
-            (lispy--eval-python-plain dbg-cmd)
+            (progn
+              (setq dbg-cmd
+                    (concat
+                     (format "lp.step_into_module_maybe(%s); "
+                             (if method-p
+                                 (cdar fn-alist)
+                               fn))
+                     "("
+                     (mapconcat #'car fn-alist ", ")
+                     ")=("
+                     (mapconcat #'cdr fn-alist ", ")
+                     ")"))
+              (lispy--eval-python-plain dbg-cmd))
           (error
            (lispy--eval-python
             (format "lp.step_in(%s,%s)" fn (buffer-substring-no-properties

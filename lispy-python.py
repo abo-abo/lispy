@@ -434,10 +434,12 @@ def to_str(x: Any) -> str:
         return buf.getvalue().strip()
 
 
-def step_in(fn, *args):
+def step_in(fn, *args, **kwargs):
     spec = inspect.getfullargspec(fn)
     f_globals = top_level().f_globals
     for (arg_name, arg_val) in zip(spec.args, args):
+        f_globals[arg_name] = arg_val
+    for (arg_name, arg_val) in kwargs.items():
         f_globals[arg_name] = arg_val
 
 
