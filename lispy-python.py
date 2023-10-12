@@ -864,7 +864,8 @@ def translate(
     in_expr = try_in_expr(parsed)
     if use_in_expr and in_expr:
         (left, right) = in_expr
-        out = to_elisp(ast.unparse(right), _f)
+        o = eval(ast.unparse(right), _f.f_locals | _f.f_globals)
+        out = json.dumps(json.dumps(o))
         nc = f"print('''{out}''')\n'select'"
         return ast.parse(nc).body
     elif has_return(parsed):

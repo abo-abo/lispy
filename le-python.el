@@ -655,7 +655,7 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
       (cond
        ((string= val "'select'")
         (setq lispy-eval-output nil)
-        (let* ((cands (read out))
+        (let* ((cands (json-parse-string (substring out 1 -1)))
                (idx (lispy--python-nth-1 cands)))
           (lispy--eval-python-plain
            (format "lp.select_item(\"\"\"%s\"\"\", %d)" str idx))))
