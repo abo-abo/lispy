@@ -33,7 +33,14 @@ import sys
 from ast import AST
 from contextlib import redirect_stdout
 from typing import List, Dict, Any, Union, Tuple, Optional, TypedDict, Callable, cast
-from types import TracebackType, MethodType, FunctionType, ModuleType, FrameType
+from types import (
+    TracebackType,
+    MethodType,
+    FunctionType,
+    ModuleType,
+    FrameType,
+    GenericAlias,
+)
 
 
 def sh(cmd: str) -> str:
@@ -260,6 +267,8 @@ def print_elisp(obj: Any, end: str = "\n") -> None:
         print(")")
     elif isinstance(obj, collections.abc.KeysView):
         print_elisp(list(obj))
+    elif isinstance(obj, GenericAlias):
+        print(obj)
     elif isinstance(obj, list):
         print("(")
         for x in obj:
