@@ -298,7 +298,8 @@ it at one time."
 (defvar lispy--python-init-file nil)
 
 (defun lispy--python-poetry-name ()
-  (let ((pyproject (expand-file-name "pyproject.toml" (counsel-locate-git-root))))
+  (let ((pyproject
+         (file-name-directory (locate-dominating-file (buffer-file-name) "pyproject.toml"))))
     (and (file-exists-p pyproject)
          (not (equal python-shell-interpreter "python"))
          (with-current-buffer (find-file-noselect pyproject)
