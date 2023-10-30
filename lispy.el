@@ -4253,8 +4253,11 @@ When at an outline, eval the outline."
                       (lispy-message res))
                      ((or (fboundp 'cider--display-interactive-eval-result)
                           (require 'cider nil t))
-                      (cider--display-interactive-eval-result
-                       res (cdr (lispy--bounds-dwim))))
+                      (if (version< cider-version "1.9.0")
+                        (cider--display-interactive-eval-result
+                          res (cdr (lispy--bounds-dwim)))
+                        (cider--display-interactive-eval-result
+                          res 'value (cdr (lispy--bounds-dwim)))))
                      ((or (fboundp 'eros--eval-overlay)
                           (require 'eros nil t))
                       (eros--eval-overlay
