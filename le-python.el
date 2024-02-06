@@ -176,6 +176,7 @@ It didn't work great."
             (point)))))
 
 (defvar-local lispy-python-buf nil)
+(defvar-local lispy-python-source-buf nil)
 
 (declare-function mash-make-shell "ext:mash")
 
@@ -225,8 +226,8 @@ It didn't work great."
                       (mash-make-shell x 'mash-new-lispy-python)))
                    (t
                     (process-buffer
-                     (lispy--python-proc (concat "lispy-python-" x)))))))
-
+                     (lispy--python-proc (concat "lispy-python-" x))))))
+        (source-buf (current-buffer)))
     (setq lispy-python-buf buf)
     (with-current-buffer lispy-python-buf
       (lispy-python-interaction-mode)
@@ -234,7 +235,8 @@ It didn't work great."
             (if (file-name-absolute-p lispy-python-middleware-file)
                 lispy-python-middleware-file
               (expand-file-name "lispy-python.py" lispy-site-directory)))
-      (setq lispy-python-buf buf)))
+      (setq lispy-python-buf buf)
+      (setq lispy-python-source-buf source-buf)))
   (let ((lp (ignore-errors (lispy--eval-python-plain "lp"))))
     (unless (and lp (string-match-p "module 'lispy-python'" lp))
       (lispy-python-middleware-reload))))
