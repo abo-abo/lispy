@@ -219,14 +219,13 @@ def arglist(sym: Callable) -> List[str]:
     return args
 
 
-def is_iterable(obj: Any) -> bool:
+def to_list(obj: Any) -> Any:
     if isinstance(obj, str):
-        return False
+        return None
     try:
-        list(obj)
-        return True
+        return list(obj)
     except TypeError:
-        return False
+        return None
 
 
 def print_elisp(obj: Any, end: str = "\n") -> None:
@@ -278,9 +277,9 @@ def print_elisp(obj: Any, end: str = "\n") -> None:
         # quote strings?
         # print("\"'" + re.sub("\"", "\\\"", obj) + "'\"", end=" ")
         print('"' + re.sub('"', '\\"', obj) + '"', end=" ")
-    elif is_iterable(obj):
+    elif lobj := to_list(obj):
         print("(", end="")
-        for x in obj:
+        for x in lobj:
             print_elisp(x)
         print(")")
     elif isinstance(obj, int):
@@ -868,7 +867,13 @@ def to_elisp(code: str, _f: Optional[FrameType] = None) -> str:
 def to_jsonable(obj: Any) -> Any:
     if isinstance(obj, collections.abc.ItemsView):
         return [to_jsonable(x) for x in obj]
-    return obj
+    elif lobj := to_list(obj):
+        return [to_jsonable(x) for x in lobj]
+    try:
+        _ = json.dumps(obj)
+        return obj
+    except TypeError:
+        return str(obj)
 
 
 def translate(
