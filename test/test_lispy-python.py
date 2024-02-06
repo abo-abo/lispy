@@ -196,11 +196,11 @@ def test_eval_bind_vars_2():
 
 def test_eval_in_1():
     env = {"frame": sys._getframe(), "use-in-expr": True}
-    r1 = lp.eval_code("xs = [1, 2, 3]", env)
+    _ = lp.eval_code("xs = [1, 2, 3]", env)
     code = "x in xs"
     r = lp.eval_code(code, env)
     assert r["res"] == "'select'"
-    assert r["out"] == "(1\n2\n3\n)"
+    assert r["out"] == '"[1, 2, 3]"'
 
 
 def test_eval_in_2():
@@ -208,7 +208,7 @@ def test_eval_in_2():
     code = "x in [1, 2, 3]"
     r = lp.eval_code(code, env)
     assert r["res"] == "'select'"
-    assert r["out"] == "(1\n2\n3\n)"
+    assert r["out"] == '"[1, 2, 3]"'
     assert lp.select_item("x in [1, 2, 3]", 2, env["frame"]) == 3
 
 
@@ -246,7 +246,7 @@ def test_eval_in_pytest_1():
     )
     r = lp.eval_code(code, env)
     assert r["res"] == "'select'"
-    assert r["out"] == "(3\n4\n5\n)"
+    assert r["out"] == '"[3, 4, 5]"'
     assert lp.select_item(code, 0) == 3
     assert lp.select_item(code, 1) == 4
 
@@ -262,4 +262,4 @@ def test_print_elisp():
 
     arr = [Obj()]
     r = print_elisp_to_str(arr)
-    assert re.match('\\("<.*Obj object at 0x[0-9a-f]+>" \\)', r)
+    assert re.match('\\(\n"<.*Obj object at 0x[0-9a-f]+>" \\)', r)
