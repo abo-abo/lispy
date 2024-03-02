@@ -2172,10 +2172,6 @@ Insert KEY if there's no command."
             (throw 'break nil))
         (lispy-tab)))))
 
-(ert-deftest lispy-ace-subword ()
-  (should (string= (lispy-with "|foo-bar-baz~" (lispy-ace-subword 1))
-                   "~foo|-bar-baz")))
-
 (ert-deftest lispy-flatten ()
   (should (string= (lispy-with
                     "(defun square (x &optional y &rest z)\n  (if y\n      (cons 200 z)\n    (* x x)))|\n(square 10 1 2 3)"
@@ -2386,9 +2382,9 @@ Insert KEY if there's no command."
 
 (ert-deftest lispy-outline-add ()
   (should (string= (lispy-with "|;;* Intro" "a")
-                   ";;* Intro\n;;* |")))
+                   ";;* Intro\n\n|;;* ")))
 
-(ert-deftest lispy-outline-add ()
+(ert-deftest lispy-tilde ()
   (should (string= (lispy-with "(quote ~foo|)" "~")
                    "(quote ~~foo|)"))
   (should (string= (lispy-with "(quote ~~foo|)" "~")
@@ -2595,6 +2591,8 @@ Insert KEY if there's no command."
                      "(progn (setq type 'norwegian-blue)\n       (~setq| plumage-type 'lovely))"))))
 
 (ert-deftest lispy-ace-subword ()
+  (should (string= (lispy-with "|foo-bar-baz~" (lispy-ace-subword 1))
+                   "~foo|-bar-baz"))
   (should (string= (lispy-with "|(progn (setq type 'norwegian-blue)\n       (setq plumage-type 'lovely))"
                                (execute-kbd-macro (kbd "-g")))
                    "(progn (setq type 'norwegian-blue)\n       (setq |plumage~-type 'lovely))"))
@@ -3245,13 +3243,14 @@ Insert KEY if there's no command."
                    9 29 (face lispy-face-req-nosel)
                    30 37 (face lispy-face-rst-nosel))))
   (should (equal (lispy--pretty-args 'defun)
-                 #("(defun name arglist docstring decl body...)"
+                 #("(defun name arglist [docstring] [decl] [interactive] body...)"
                    1 6 (face lispy-face-hint)
                    7 11 (face lispy-face-req-nosel)
                    12 19 (face lispy-face-req-nosel)
-                   20 29 (face lispy-face-opt-nosel)
-                   30 34 (face lispy-face-opt-nosel)
-                   35 42 (face lispy-face-rst-nosel))))
+                   20 31 (face lispy-face-req-nosel)
+                   32 38 (face lispy-face-req-nosel)
+                   39 52 (face lispy-face-req-nosel)
+                   53 60 (face lispy-face-rst-nosel))))
   (should (equal (lispy--pretty-args 'defvar)
                  #("(defvar symbol initvalue docstring)"
                    1 7 (face lispy-face-hint)
