@@ -32,7 +32,7 @@ import subprocess
 import sys
 from ast import AST
 from contextlib import redirect_stdout
-from typing import List, Dict, Any, Union, Tuple, Optional, TypedDict, Callable, cast
+from typing import List, Dict, Any, Union, Tuple, Optional, TypedDict, Callable, cast, _LiteralGenericAlias
 from types import (
     TracebackType,
     MethodType,
@@ -273,6 +273,8 @@ def print_elisp(obj: Any, end: str = "\n") -> None:
         for x in obj:
             print_elisp(x)
         print(")")
+    elif isinstance(obj, _LiteralGenericAlias):
+        print('"' + repr(obj) + '"', end=" ")
     elif isinstance(obj, str):
         # quote strings?
         # print("\"'" + re.sub("\"", "\\\"", obj) + "'\"", end=" ")
