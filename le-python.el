@@ -639,40 +639,42 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
                                  :use-in-expr use-in-expr)))))
          (rs (python-shell-send-string-no-output
               fstr
-              (lispy--python-proc)))
-         (extra-out (and (string-match "^{\"res\": " rs) (substring rs 0 (match-beginning 0))))
-         (res (json-parse-string
-               (substring rs (match-beginning 0)) :object-type 'plist :null-object nil))
-         (val (plist-get res :res))
-         (binds (plist-get res :binds))
-         (out (concat extra-out (plist-get res :out)))
-         (err (plist-get res :err)))
-    (when (eq current-prefix-arg 3)
-      (kill-new fstr))
-    (if err
-        (signal 'eval-error (concat out err))
-      (unless (equal out "")
-        (setq lispy-eval-output
-              (concat (propertize out 'face 'font-lock-string-face) "\n")))
-      (cond
-       ((string= val "'select'")
-        (setq lispy-eval-output nil)
-        (let* ((cands (json-parse-string (substring out 1 -1)))
-               (idx (lispy--python-nth-1 cands)))
-          (lispy--eval-python-plain
-           (format "lp.select_item(\"\"\"%s\"\"\", %d)" str idx))))
-       ((and val (not (string= val "'unset'")))
-        (if (string-prefix-p "\"" val)
-            (read val)
-          val))
-       (binds
-        (mapconcat
-         (lambda (x)
-           (concat (substring (symbol-name (car x)) 1) " = " (cadr x)))
-         (seq-partition binds 2)
-         "\n"))
-       (t
-        "(ok)")))))
+              (lispy--python-proc))))
+    (if (string= rs "")
+        ""
+      (let* ((extra-out (and (string-match "^{\"res\": " rs) (substring rs 0 (match-beginning 0))))
+             (res (json-parse-string
+                   (substring rs (match-beginning 0)) :object-type 'plist :null-object nil))
+             (val (plist-get res :res))
+             (binds (plist-get res :binds))
+             (out (concat extra-out (plist-get res :out)))
+             (err (plist-get res :err)))
+        (when (eq current-prefix-arg 3)
+          (kill-new fstr))
+        (if err
+            (signal 'eval-error (concat out err))
+          (unless (equal out "")
+            (setq lispy-eval-output
+                  (concat (propertize out 'face 'font-lock-string-face) "\n")))
+          (cond
+           ((string= val "'select'")
+            (setq lispy-eval-output nil)
+            (let* ((cands (json-parse-string (substring out 1 -1)))
+                   (idx (lispy--python-nth-1 cands)))
+              (lispy--eval-python-plain
+               (format "lp.select_item(\"\"\"%s\"\"\", %d)" str idx))))
+           ((and val (not (string= val "'unset'")))
+            (if (string-prefix-p "\"" val)
+                (read val)
+              val))
+           (binds
+            (mapconcat
+             (lambda (x)
+               (concat (substring (symbol-name (car x)) 1) " = " (cadr x)))
+             (seq-partition binds 2)
+             "\n"))
+           (t
+            "(ok)")))))))
 
 (defun lispy--python-array-to-elisp (array-str)
   "Transform a Python string ARRAY-STR to an Elisp string array."
