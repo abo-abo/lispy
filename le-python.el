@@ -767,7 +767,7 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
                 (str (buffer-substring-no-properties
                       (car bnd) (cdr bnd)))
                 (str-com str))
-           (when (string-match "\\`\\([^\\0]*\\)\\.[^.]*\\'" str)
+           (when (string-match "\\`\\([^\0]*\\)\\.[^.]*\\'" str)
              (let ((expr (format "__t__ = (%s)" (substring str 0 (match-end 1)))))
                (setq str-com (concat "__t__" (substring str (match-end 1))))
                (cl-incf (car bnd) (1+ (- (match-end 1) (match-beginning 0))))
