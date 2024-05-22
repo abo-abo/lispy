@@ -3352,6 +3352,14 @@ Insert KEY if there's no command."
               (cons (line-beginning-position) (line-end-position))))
            "print(\"((\", end=\"\")")))
 
+(ert-deftest lispy--python-fstr-oneline ()
+  (should (string=
+           (lispy--python-fstr-oneline "\"\\\\\"" "{}")
+           "lp.eval_to_json(\"\"\"\"\\\\\\\\\" \"\"\", {})"))
+  (should (string=
+           (lispy--python-fstr-oneline "len(\"\\n\")" "{}")
+           "lp.eval_to_json(\"\"\"len(\"\\\\n\") \"\"\", {})")))
+
 (ert-deftest lispy--clojure-dot-object ()
   (should (string= (lispy-with-v clj "(. (java.util.Date.) |)"
                      (lispy--clojure-dot-object))

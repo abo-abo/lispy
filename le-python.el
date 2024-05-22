@@ -617,26 +617,30 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
   (python-shell-send-string-no-output
    str (lispy--python-proc)))
 
+(defun lispy--python-fstr-oneline (str dict)
+  (format "lp.eval_to_json(\"\"\"%s \"\"\", %s)"
+          (replace-regexp-in-string "\\\\" "\\\\" str nil t)
+          dict))
+
 (defun lispy--eval-python (str &optional use-in-expr)
   (setq lispy-eval-output nil)
   (let* ((echo (if (eq current-prefix-arg 2) nil t))
          (fstr
           (cond
-           ((eq current-prefix-arg 3)
-            (format "lp.eval_to_json(\"\"\"lp.select_item(\"%s\", 0)\"\"\")" str))
-           ((or (string-match-p ".\n+." str) (string-match-p "\"\"\"" str))
-            (let ((temp-file-name (python-shell--save-temp-file str)))
-              (format "lp.eval_to_json('', %s)"
-                      (lispy--dict
-                       :code temp-file-name
-                       :fname (buffer-file-name)
-                       :echo echo))))
-           (t
-            (format "lp.eval_to_json(\"\"\"%s \"\"\", %s)"
-                    (replace-regexp-in-string "\\\\n" "\\\\n" str nil t)
-                    (lispy--dict :fname (buffer-file-name)
-                                 :echo echo
-                                 :use-in-expr use-in-expr)))))
+            ((eq current-prefix-arg 3)
+             (format "lp.eval_to_json(\"\"\"lp.select_item(\"%s\", 0)\"\"\")" str))
+            ((or (string-match-p ".\n+." str) (string-match-p "\"\"\"" str))
+             (let ((temp-file-name (python-shell--save-temp-file str)))
+               (format "lp.eval_to_json('', %s)"
+                       (lispy--dict
+                        :code temp-file-name
+                        :fname (buffer-file-name)
+                        :echo echo))))
+            (t
+             (lispy--python-fstr-oneline
+              str (lispy--dict :fname (buffer-file-name)
+                               :echo echo
+                               :use-in-expr use-in-expr)))))
          (rs (python-shell-send-string-no-output
               fstr
               (lispy--python-proc))))
