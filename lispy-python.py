@@ -852,6 +852,8 @@ def try_pytest_mark(p: Expr) -> Optional[Expr]:
     if not len(p0.decorator_list) == 1:
         return None
     decorator = p0.decorator_list[0]
+    if not hasattr(decorator, "func"):
+        return None
     if ast_match(decorator.func, (".", (".", "pytest", "mark"), "parametrize")):
         assert len(decorator.args) == 2
         return [ast.Name(decorator.args[0].value), decorator.args[1]]

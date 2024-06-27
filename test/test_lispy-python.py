@@ -106,6 +106,18 @@ def test_file_fname():
     assert r["err"] is None
 
 
+def test_translate_contextmanager():
+    code = dedent(
+        """
+    @contextmanager
+    def a():
+        yield b
+        """
+    )
+    tr = lp.translate(code)
+    assert tr
+
+
 def test_translate_return_1():
     code = dedent(
         """
