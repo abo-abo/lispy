@@ -4244,20 +4244,22 @@ When at an outline, eval the outline."
                   (looking-at lispy-outline-header))
              (lispy-eval-outline))
             (t
-             (let ((res (lispy--eval e-str)))
+             (let ((res (lispy--eval e-str))
+                   (has-cider (or (fboundp 'cider--display-interactive-eval-result)
+                                  (require 'cider nil t))))
                (when (memq major-mode lispy-clojure-modes)
                  (setq res (lispy--clojure-pretty-string res)))
                (when lispy-eval-output
                  (setq res (concat lispy-eval-output res)))
                (cond ((eq lispy-eval-display-style 'message)
                       (lispy-message res))
-                     ((or (fboundp 'cider--display-interactive-eval-result)
-                          (require 'cider nil t))
-                      (cider--display-interactive-eval-result
-                       res (cdr (lispy--bounds-dwim))))
-                     ((or (fboundp 'eros--eval-overlay)
-                          (require 'eros nil t))
+                     ((and (or (fboundp 'eros--eval-overlay)
+                               (require 'eros nil t))
+                           (if has-cider (not (memq major-mode lispy-clojure-modes)) t))
                       (eros--eval-overlay
+                       (read res) (cdr (lispy--bounds-dwim))))
+                     (has-cider
+                      (cider--display-interactive-eval-result
                        res (cdr (lispy--bounds-dwim))))
                      (t
                       (error "Please install CIDER >= 0.10 or eros to display overlay"))))))
