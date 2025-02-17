@@ -25,6 +25,7 @@ import inspect
 import io
 import json
 import os
+import base64
 import pprint as pp
 import re
 import shlex
@@ -916,7 +917,12 @@ def eval_code(_code: str, _env: Dict[str, Any] = {}) -> EvalResult:
     if "fname" in _env:
         _f.f_globals["__file__"] = _env["fname"]
     try:
-        _code = _code or slurp(_env["code"])
+        if _code:
+            pass
+        elif  "ben" in _env:
+            _code = base64.b64decode(_env["ben"]).decode()
+        else:
+            _code = slurp(_env["code"])
         new_code = translate(_code, _f, _env.get("use-in-expr", False))
         (*butlast, last) = new_code
         _locals = {}

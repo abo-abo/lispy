@@ -125,13 +125,9 @@ It didn't work great."
          (str1.4 (if (string-match-p "\\`\\(\\w\\|\\s_\\)+ :=" str1)
                      (replace-regexp-in-string ":=" "=" str1)
                    str1))
-         (str1.5 (replace-regexp-in-string "^ *#[^\n]+\n" "" str1.4))
-         ;; (str2 (replace-regexp-in-string "\\\\\n +" "" str1.5))
-         ;; (str3 (replace-regexp-in-string "\n *\\([])}]\\)" "\\1" str2))
-         ;; (str4 (replace-regexp-in-string "\\([({[,]\\)\n +" "\\1" str3))
-         ;; (str5 (replace-regexp-in-string "\"\n *\"" "\" \"" str4))
+         ;; (str1.5 (replace-regexp-in-string "^ *#[^\n]+\n" "" str1.4))
          )
-    str1.5))
+    str1.4))
 
 (defun lispy-bounds-python-block ()
   (if (save-excursion
@@ -206,7 +202,7 @@ It didn't work great."
     (add-hook 'completion-at-point-functions
               #'python-shell-completion-at-point nil 'local)
     (define-key inferior-python-mode-map "\t"
-      'python-shell-completion-complete-or-indent)
+                'python-shell-completion-complete-or-indent)
     (make-local-variable 'python-shell-internal-last-output)
     (compilation-shell-minor-mode 1)
     (python-pdbtrack-setup-tracking)))
@@ -495,18 +491,18 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
                       (string-match "\"\"\"" str))
                   (replace-regexp-in-string
                    "" ""
-                   (python-shell-send-string-no-output
+                   (lispy--python-shell-send-string-no-output
                     str (lispy--python-proc))))
                  ;; split last line
                  ((string-match "\\`\\([\0-\377[:nonascii:]]*\\)\n\\([^\n]*\\)\\'" str)
                   (let* ((p1 (match-string 1 str))
                          (p2 (match-string 2 str))
-                         (p1-output (python-shell-send-string-no-output
+                         (p1-output (lispy--python-shell-send-string-no-output
                                      p1 (lispy--python-proc)))
                          p2-output)
                     (cond
                      ((string-match-p "SyntaxError:\\|error:" p1-output)
-                      (python-shell-send-string-no-output
+                      (lispy--python-shell-send-string-no-output
                        str (lispy--python-proc)))
                      ((null p1-output)
                       (signal 'eval-error ""))
@@ -614,7 +610,7 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
        (number-sequence 0 (1- len)))))))
 
 (defun lispy--eval-python-plain (str)
-  (python-shell-send-string-no-output
+  (lispy--python-shell-send-string-no-output
    str (lispy--python-proc)))
 
 (defun lispy--python-fstr-oneline (str dict)
@@ -622,26 +618,58 @@ If so, return an equivalent of ITEM = ARRAY_LIKE[IDX]; ITEM."
           (replace-regexp-in-string "\\\\" "\\\\" str nil t)
           dict))
 
+
+(defun lispy--python-shell-send-string-no-output (string process)
+  "Send STRING to PROCESS and inhibit output.
+Return the output."
+  (with-current-buffer (process-buffer process)
+    (setq-local comint-preoutput-filter-functions '(python-shell-output-filter)))
+  (unwind-protect
+      (let ((python-shell-output-filter-in-progress t)
+            (inhibit-quit t))
+        (or
+         (with-local-quit
+           (python-shell-send-string string process)
+           (while python-shell-output-filter-in-progress
+             ;; `python-shell-output-filter' takes care of setting
+             ;; `python-shell-output-filter-in-progress' to NIL after it
+             ;; detects end of output.
+             (accept-process-output process))
+           (prog1
+               python-shell-output-filter-buffer
+             (setq python-shell-output-filter-buffer nil)))
+         (with-current-buffer (process-buffer process)
+           (comint-interrupt-subjob))))
+    (with-current-buffer (process-buffer process)
+      (setq-local comint-preoutput-filter-functions nil))))
+
 (defun lispy--eval-python (str &optional use-in-expr)
   (setq lispy-eval-output nil)
-  (let* ((echo (if (eq current-prefix-arg 2) nil t))
+  ;; so that `python-shell-output-filter' doesn't capture output from multiple buffers at once
+  (with-current-buffer (process-buffer (lispy--python-proc))
+    (setq-local comint-preoutput-filter-functions '(t)))
+  (let* ((echo (if (or (eq current-prefix-arg 2)
+                       (eq this-command 'lispy-eval-and-replace)) nil t))
          (fstr
           (cond
-            ((eq current-prefix-arg 3)
-             (format "lp.eval_to_json(\"\"\"lp.select_item(\"%s\", 0)\"\"\")" str))
-            ((or (string-match-p ".\n+." str) (string-match-p "\"\"\"" str))
-             (let ((temp-file-name (python-shell--save-temp-file str)))
-               (format "lp.eval_to_json('', %s)"
-                       (lispy--dict
-                        :code temp-file-name
-                        :fname (buffer-file-name)
-                        :echo echo))))
-            (t
-             (lispy--python-fstr-oneline
-              str (lispy--dict :fname (buffer-file-name)
-                               :echo echo
-                               :use-in-expr use-in-expr)))))
-         (rs (python-shell-send-string-no-output
+           ((eq current-prefix-arg 3)
+            (format "lp.eval_to_json(\"\"\"lp.select_item(\"%s\", 0)\"\"\")" str))
+           ((eq lispy--python-middleware-loaded-p 'docker)
+            (let ((ben (replace-regexp-in-string "\n" "" (base64-encode-string str))))
+              (format "lp.eval_to_json('', {'ben': '%s','echo': True})" ben)))
+           ((or (string-match-p ".\n+." str) (string-match-p "\"\"\"" str))
+            (let ((temp-file-name (python-shell--save-temp-file str)))
+              (format "lp.eval_to_json('', %s)"
+                      (lispy--dict
+                       :code temp-file-name
+                       :fname (buffer-file-name)
+                       :echo echo))))
+           (t
+            (lispy--python-fstr-oneline
+             str (lispy--dict :fname (buffer-file-name)
+                              :echo echo
+                              :use-in-expr use-in-expr)))))
+         (rs (lispy--python-shell-send-string-no-output
               fstr
               (lispy--python-proc))))
     (if (string= rs "")
@@ -1054,15 +1082,17 @@ Otherwise, fall back to Jedi (static)."
            out)
       ;; send single line so that python.el does no /tmp/*.py magic, which does not work in Docker
       (setq out (lispy--eval-python-plain (lispy--python-setup-cmd)))
-      (when (string-match "FileNotFoundError" out)
-        (let* ((text (lispy--python-slurp lispy--python-middleware-file))
-               (ben (replace-regexp-in-string "\n" "" (base64-encode-string text)))
-               (setup-cmd (let ((lispy--python-middleware-file "/tmp/lispy.py"))
-                            (lispy--python-setup-cmd))))
-          (lispy--eval-python-plain
-           (format "import base64; open('/tmp/lispy.py','w').write(base64.b64decode('%s').decode()); %s"
-                   ben setup-cmd))))
-      (setq lispy--python-middleware-loaded-p t))))
+
+      (if (string-match "FileNotFoundError" out)
+          (let* ((text (lispy--python-slurp lispy--python-middleware-file))
+                 (ben (replace-regexp-in-string "\n" "" (base64-encode-string text)))
+                 (setup-cmd (let ((lispy--python-middleware-file "/tmp/lispy.py"))
+                              (lispy--python-setup-cmd))))
+            (lispy--eval-python-plain
+             (format "import base64; open('/tmp/lispy.py','w').write(base64.b64decode('%s').decode()); %s"
+                     ben setup-cmd))
+            (setq lispy--python-middleware-loaded-p 'docker))
+        (setq lispy--python-middleware-loaded-p t)))))
 
 (defun lispy--python-arglist (symbol filename line column)
   (lispy--python-middleware-load)
