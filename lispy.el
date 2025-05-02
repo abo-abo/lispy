@@ -5528,14 +5528,15 @@ The bindings of `lispy-backward' or `lispy-mark-symbol' can also be used."
       (mc/mark-lines arg 'forwards))
     (mc/maybe-multiple-cursors-mode)))
 
+(defun lispy--other-mode-mc (orig-fn cmd)
+  (unless (and (eq cmd 'special-lispy-other-mode)
+               (or (lispy-left-p)
+                   (lispy-right-p)
+                   (region-active-p)))
+    (funcall orig-fn)))
+
 (eval-after-load 'multiple-cursors
-  '(defadvice mc/execute-command-for-all-fake-cursors
-    (around lispy-other-mode-mc (cmd) activate)
-    (unless (and (eq cmd 'special-lispy-other-mode)
-                 (or (lispy-left-p)
-                     (lispy-right-p)
-                     (region-active-p)))
-      ad-do-it)))
+  '(advice-add 'mc/execute-command-for-all-fake-cursors #'lispy--other-mode-mc))
 
 (defun lispy-cursor-ace ()
   "Add a cursor at a visually selected paren.
@@ -9005,10 +9006,12 @@ If `lispy-safe-paste' is non-nil, any unmatched delimiters will be added to it."
       '(lispy-parens lispy-brackets lispy-braces lispy-quotes
         lispy-kill lispy-delete))
 
-(defadvice ac-handle-post-command (around ac-post-command-advice activate)
-  "Don't `auto-complete' when region is active."
-  (unless (region-active-p)
-    ad-do-it))
+(advice-add 'ac-handle-post-command :around
+            (defun lispy-ac-post-command-advice (orig-fn)
+              "Don't `auto-complete' when region is active."
+              (unless (region-active-p)
+                (funcall orig-fn))))
+
 
 (defun lispy--delsel-advice (orig-fun)
   "Advice for `delete-selection-mode'.
