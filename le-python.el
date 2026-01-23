@@ -125,7 +125,7 @@ It didn't work great."
          (str1.4 (if (string-match-p "\\`\\(\\w\\|\\s_\\)+ :=" str1)
                      (replace-regexp-in-string ":=" "=" str1)
                    str1))
-         ;; (str1.5 (replace-regexp-in-string "^ *#[^\n]+\n" "" str1.4))
+         ;; (str1.5 (replace-regexp-in-string "\\breturn\\b " "__return__ = " str1.4))
          )
     str1.4))
 
