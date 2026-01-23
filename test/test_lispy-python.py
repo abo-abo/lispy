@@ -238,6 +238,21 @@ def test_eval_in_3():
     assert lp.eval_code("v")["res"] == "'no'"
 
 
+def test_eval_in_4():
+    """Test k, v in di.items() without parens (ruff-style formatting)."""
+    env = {"frame": sys._getframe(), "use-in-expr": True}
+    lp.eval_code("di = {'foo': 'bar', 'yes': 'no'}", env)
+    code = "k, v in di.items()"
+    r = lp.eval_code(code, env)
+    assert r["res"] == "'select'"
+    assert lp.select_item(code, 0) == ("foo", "bar")
+    assert lp.eval_code("k")["res"] == "'foo'"
+    assert lp.eval_code("v")["res"] == "'bar'"
+    assert lp.select_item(code, 1) == ("yes", "no")
+    assert lp.eval_code("k")["res"] == "'yes'"
+    assert lp.eval_code("v")["res"] == "'no'"
+
+
 def test_eval_in_off():
     env = {"frame": sys._getframe(), "use-in-expr": False}
     lp.eval_code('xs = ["1", "2", "3"]', env)

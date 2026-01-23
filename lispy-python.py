@@ -804,11 +804,19 @@ def try_in_expr(p: Expr) -> Optional[Tuple[ast.expr, ast.expr]]:
     p0 = p[0]
     if not isinstance(p0, ast.Expr):
         return None
-    if not isinstance(p0.value, ast.Compare):
-        return None
-    if not isinstance(p0.value.ops[0], ast.In):
-        return None
-    return (p0.value.left, p0.value.comparators[0])
+    if isinstance(p0.value, ast.Compare):
+        if not isinstance(p0.value.ops[0], ast.In):
+            return None
+        return (p0.value.left, p0.value.comparators[0])
+    # Handle "k, v in di.items()" which parses as Tuple([k, Compare(v, In, [...])])
+    if isinstance(p0.value, ast.Tuple):
+        elts = p0.value.elts
+        if len(elts) >= 2 and isinstance(elts[-1], ast.Compare):
+            cmp = elts[-1]
+            if isinstance(cmp.ops[0], ast.In):
+                left = ast.Tuple(elts=elts[:-1] + [cmp.left], ctx=ast.Load())
+                return (left, cmp.comparators[0])
+    return None
 
 
 def select_item(code: str, idx: int, _f: Optional[FrameType] = None) -> Any:
