@@ -2657,32 +2657,36 @@ When lispy-left, will slurp ARG sexps forwards.
         (t
          (eq item tree))))
 
+(defvar lispy--let-like-forms-regexp
+  (rx "(" (or "let" "labels" "flet" "when-let" "if-let"))
+  "Regexp for forms that could be spliced by `lispy-splice-let'.")
+
 (defun lispy-splice-let ()
   "Join the current `let' into the parent `let'."
   (when (save-excursion
-          (and (looking-at "(let")
-               (lispy--out-backward 1)
-               (looking-at "(let")))
+         (and (looking-at lispy--let-like-forms-regexp)
+              (lispy--out-backward 1)
+              (looking-at lispy--let-like-forms-regexp)))
     (if (memq major-mode lispy-clojure-modes)
         (lispy-splice-let-clojure)
       (let ((child-binds (save-excursion
-                           (lispy-flow 1)
-                           (read (lispy--string-dwim))))
+                          (lispy-flow 1)
+                          (read (lispy--string-dwim))))
             (parent-binds
-             (mapcar (lambda (x) (if (consp x) (car x) x))
-                     (save-excursion
+              (mapcar (lambda (x) (if (consp x) (car x) x))
+                      (save-excursion
                        (lispy-up 1)
                        (read (lispy--string-dwim)))))
             (end (save-excursion
-                   (lispy-flow 2)
-                   (point)))
+                  (lispy-flow 2)
+                  (point)))
             (beg (save-excursion
-                   (lispy-up 1)
-                   (lispy-different)
-                   (1- (point)))))
+                  (lispy-up 1)
+                  (lispy-different)
+                  (1- (point)))))
         (save-excursion
-          (forward-list)
-          (delete-char -1))
+         (forward-list)
+         (delete-char -1))
         (delete-region beg end)
         (when parent-binds
           (newline-and-indent))
